@@ -22,11 +22,16 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.site.Template
+import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.topic.ArchiveDao
 import ru.org.linux.util.ServletParameterBadValueException
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import java.util
+import java.util.concurrent.CompletionStage
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import scala.compat.java8.FutureConverters.FutureOps
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object GroupController {
@@ -36,7 +41,7 @@ object GroupController {
 @Controller
 class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService: SectionService,
                       prepareService: GroupInfoPrepareService, groupPermissionService: GroupPermissionService,
-                      groupListDao: GroupListDao) {
+                      groupListDao: GroupListDao, tagService: TagService) {
   @RequestMapping(Array("/group.jsp"))
   def topics(@RequestParam("group") groupId: Int,
              @RequestParam(value = "offset", required = false) offsetObject: Integer): ModelAndView = {
@@ -65,31 +70,34 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
   def forumArchive(@PathVariable("group") groupName: String,
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
-                   request: HttpServletRequest, response: HttpServletResponse): ModelAndView =
+                   request: HttpServletRequest, response: HttpServletResponse): CompletionStage[ModelAndView] =
     forum(groupName, offset, lastmod = false, request, response, year, month)
 
   @RequestMapping(Array("/forum/{group}"))
   def forum(@PathVariable("group") groupName: String, @RequestParam(defaultValue = "0", value = "offset") offset: Int,
             @RequestParam(defaultValue = "false") lastmod: Boolean, request: HttpServletRequest,
-            response: HttpServletResponse): ModelAndView =
+            response: HttpServletResponse): CompletionStage[ModelAndView] =
     forum(groupName, offset, lastmod, request, response, null, null)
 
   private def forum(groupName: String, offset: Int, lastmod: Boolean, request: HttpServletRequest,
-                    response: HttpServletResponse, year: Integer, month: Integer): ModelAndView = {
+                    response: HttpServletResponse, year: Integer, month: Integer): CompletionStage[ModelAndView] = {
+    val deadline = TagPageController.Timeout.fromNow
+
+    val section = sectionService.getSection(Section.SECTION_FORUM)
+    val group = groupDao.getGroup(section, groupName)
+
+    val activeTagsF = tagService.getActiveTopTags(section, Some(group), deadline)
+
     val params = new util.HashMap[String, AnyRef]
 
     val showDeleted = request.getParameter("deleted") != null
 
     params.put("showDeleted", Boolean.box(showDeleted))
 
-    val section = sectionService.getSection(Section.SECTION_FORUM)
-
     params.put("groupList", SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
 
-    val group = groupDao.getGroup(section, groupName)
-
     if (showDeleted && !("POST" == request.getMethod)) {
-      return new ModelAndView(new RedirectView(group.getUrl))
+      return Future.successful(new ModelAndView(new RedirectView(group.getUrl))).toJava
     }
 
     val tmpl = Template.getTemplate
@@ -108,7 +116,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       }
 
       if (year == null && offset > GroupController.MaxOffset) {
-        return new ModelAndView(new RedirectView(group.getUrl + "archive"))
+        return Future.successful(new ModelAndView(new RedirectView(group.getUrl + "archive"))).toJava
       }
     } else {
       firstPage = true
@@ -176,11 +184,17 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
 
     response.setDateHeader("Expires", System.currentTimeMillis + 90 * 1000)
 
-    if (!tmpl.getProf.isOldTracker) {
-      new ModelAndView("group-new", params)
-    } else {
-      new ModelAndView("group", params)
-    }
+    activeTagsF.map { activeTags =>
+      if (activeTags.nonEmpty) {
+        params.put("activeTags", activeTags.asJava)
+      }
+
+      if (!tmpl.getProf.isOldTracker) {
+        new ModelAndView("group-new", params)
+      } else {
+        new ModelAndView("group", params)
+      }
+    }.toJava
   }
 
   @ExceptionHandler(Array(classOf[GroupNotFoundException]))

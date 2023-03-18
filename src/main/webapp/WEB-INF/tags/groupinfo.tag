@@ -1,7 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -16,16 +16,26 @@
   --%>
 <%@ tag pageEncoding="utf-8" %>
 <%@ attribute name="group" required="true" type="ru.org.linux.group.PreparedGroupInfo" %>
-<c:if test="${not empty group.info}">
-  <p style="margin-top: 0"><em>${group.info}</em></p>
-</c:if>
+<%@ attribute name="activeTags" required="false" type="java.util.List<java.lang.String>" %>
+<div class="infoblock">
+  <c:if test="${not empty group.info}">
+    <p style="margin-top: 0"><em>${group.info}</em></p>
+  </c:if>
 
-<c:if test="${not empty group.longInfo}">
-  <div class="infoblock infoblock-small">
-  ${group.longInfo}
-  <sec:authorize access="hasRole('ROLE_MODERATOR')">
-    <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
+  <c:if test="${not empty group.longInfo}">
+    <div class="infoblock-small">
+    ${group.longInfo}
+
+    <sec:authorize access="hasRole('ROLE_MODERATOR')">
+      <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
+    </sec:authorize>
+    </div>
+  </c:if>
+
+  <sec:authorize access="hasRole('ROLE_ADMIN')">
+    <c:if test="${not empty activeTags}">
+      Активные теги: <l:tags list="${activeTags}"/>
+    </c:if>
   </sec:authorize>
-  </div>
-</c:if>
+</div>
 

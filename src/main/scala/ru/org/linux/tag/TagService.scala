@@ -15,24 +15,29 @@
 
 package ru.org.linux.tag
 
+import akka.actor.ActorSystem
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
+import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Service
 import ru.org.linux.group.Group
 import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.Section
 import ru.org.linux.topic.TagTopicListController
+import ru.org.linux.util.RichFuture.RichFuture
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Future, TimeoutException}
+import scala.concurrent.duration.Deadline
 import scala.jdk.CollectionConverters.*
 
 @Service
-class TagService(tagDao: TagDao, elastic: ElasticClient) {
+class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSystem) extends StrictLogging {
+  private implicit val akka: ActorSystem = actorSystem
 
   import ru.org.linux.tag.TagService.*
 
@@ -96,7 +101,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
     }).sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
   }
 
-  def getActiveTopTags(section: Section, group: Option[Group] = None): Future[Seq[TagRef]] = {
+  def getActiveTopTags(section: Section, group: Option[Group], deadline: Deadline): Future[Seq[TagRef]] = {
     val groupFilter = group.map(g => termQuery("group", g.getUrlName))
 
     val filters = Seq(
@@ -105,8 +110,8 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
       rangeQuery("postdate").gte("now/d-1y")
     ) ++ groupFilter
 
-    Future.successful(elastic) flatMap {
-      _ execute {
+    Future.successful(elastic).flatMap {
+      _.execute {
         search(MessageIndex).size(0).query(
           boolQuery().filter(filters)).aggs {
           sigTermsAggregation("active") size 20 field "tag" minDocCount 5 backgroundFilter
@@ -117,12 +122,19 @@ class TagService(tagDao: TagDao, elastic: ElasticClient) {
                 ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate)))
         }
       }
-    } map { r =>
+    }.map { r =>
       (for {
         bucket <- r.result.aggregations.significantTerms("active").buckets
       } yield {
         tagRef(bucket.key)
       }).sorted
+    }.withTimeout(deadline.timeLeft).recover {
+      case ex: TimeoutException =>
+        logger.warn(s"Active top tags search timed out (${ex.getMessage})")
+        Seq.empty
+      case ex =>
+        logger.warn("Unable to find active top tags", ex)
+        Seq.empty
     }
   }
 

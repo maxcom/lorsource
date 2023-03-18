@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,10 +25,12 @@ import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 import org.testcontainers.utility.DockerImageName
+import ru.org.linux.AkkaConfiguration
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 
-@ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration]))
+@ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
+  classOf[AkkaConfiguration]))
 class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 

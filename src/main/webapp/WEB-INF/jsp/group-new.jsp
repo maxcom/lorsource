@@ -1,7 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -113,7 +113,7 @@
 </nav>
 
 <c:if test="${year == null && offset==0}">
-  <lor:groupinfo group="${groupInfo}"/>
+  <lor:groupinfo group="${groupInfo}" activeTags="${activeTags}"/>
 </c:if>
 
 

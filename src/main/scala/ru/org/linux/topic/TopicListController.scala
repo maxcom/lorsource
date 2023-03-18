@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
@@ -28,9 +27,8 @@ import ru.org.linux.auth.AuthUtil
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
-import ru.org.linux.tag.{TagPageController, TagRef, TagService}
+import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.user.UserErrorException
-import ru.org.linux.util.RichFuture.*
 import ru.org.linux.util.{DateUtil, ServletParameterException, ServletParameterMissingException}
 
 import java.net.URLEncoder
@@ -38,8 +36,6 @@ import java.util.concurrent.CompletionStage
 import javax.servlet.http.HttpServletResponse
 import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.*
-import scala.concurrent.duration.Deadline
 import scala.jdk.CollectionConverters.*
 
 object TopicListController {
@@ -87,10 +83,7 @@ object TopicListController {
 @Controller
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
-                          groupDao: GroupDao, actorSystem: ActorSystem) extends StrictLogging {
-
-  private implicit val akka: ActorSystem = actorSystem
-
+                          groupDao: GroupDao) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest, response: HttpServletResponse,
                                     group: Option[Group]): ModelAndView = {
     checkRequestConditions(section, group, topicListForm)
@@ -128,19 +121,6 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView
   }
 
-  private def activeTopTags(section: Section, group: Option[Group], deadline: Deadline): Future[Seq[TagRef]] = {
-    val activeTagsF = tagService.getActiveTopTags(section, group)
-
-    activeTagsF.withTimeout(deadline.timeLeft).recover {
-      case ex: TimeoutException =>
-        logger.warn(s"Active top tags search timed out (${ex.getMessage})")
-        Seq.empty
-      case ex =>
-        logger.warn("Unable to find active top tags", ex)
-        Seq.empty
-    }
-  }
-
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
   def topics(@PathVariable("section") sectionName: String, topicListForm: TopicListRequest,
              response: HttpServletResponse): CompletionStage[ModelAndView] = {
@@ -148,7 +128,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val section = sectionService.getSectionByName(sectionName)
 
-    val activeTagsF = activeTopTags(section, None, deadline)
+    val activeTagsF = tagService.getActiveTopTags(section, None, deadline)
 
     val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, None)
 
@@ -179,7 +159,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val group = groupDao.getGroup(section, groupName)
 
-    val activeTagsF = activeTopTags(section, Some(group), deadline)
+    val activeTagsF = tagService.getActiveTopTags(section, Some(group), deadline)
 
     val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, Some(group))
 

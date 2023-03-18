@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,10 +21,12 @@ import org.specs2.specification.Scope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
+import ru.org.linux.AkkaConfiguration
 
 import scala.concurrent.duration.*
 
-@ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration]))
+@ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
+  classOf[AkkaConfiguration]))
 @DirtiesContext
 class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
