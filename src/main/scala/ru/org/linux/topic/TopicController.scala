@@ -299,7 +299,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
   private def getCommentList(topic: Topic, group: Group, showDeleted: Boolean): CommentList = {
     if (permissionService.getPostscore(group, topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS && !showDeleted) {
-      new CommentList(Seq.empty, Instant.EPOCH)
+      new CommentList(Vector.empty, Instant.EPOCH)
     } else {
       commentService.getCommentList(topic, showDeleted)
     }

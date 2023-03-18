@@ -21,7 +21,7 @@ import scala.collection.immutable.HashMap
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-class CommentList(val comments: Seq[Comment], val lastmod: Instant) {
+class CommentList(val comments: Vector[Comment], val lastmod: Instant) {
   val root: CommentNode = {
     val tempIndex = new mutable.HashMap[Int, CommentNodeBuilder]()
     val rootBuilder = new CommentNodeBuilder

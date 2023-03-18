@@ -58,12 +58,12 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
    */
   def getCommentList(topic: Topic, showDeleted: Boolean): CommentList = {
     if (showDeleted) {
-      new CommentList(commentDao.getCommentList(topic.id, true).asScala.toSeq, topic.lastModified.toInstant)
+      new CommentList(commentDao.getCommentList(topic.id, true).asScala.toVector, topic.lastModified.toInstant)
     } else {
       val commentList = cache.getIfPresent(topic.id)
 
       if (commentList == null || commentList.lastmod.isBefore(topic.lastModified.toInstant)) {
-        val newList = new CommentList(commentDao.getCommentList(topic.id, false).asScala.toSeq, topic.lastModified.toInstant)
+        val newList = new CommentList(commentDao.getCommentList(topic.id, false).asScala.toVector, topic.lastModified.toInstant)
         cache.put(topic.id, newList)
         newList
       } else {
