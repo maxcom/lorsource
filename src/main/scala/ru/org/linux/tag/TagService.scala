@@ -114,12 +114,12 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
       _.execute {
         search(MessageIndex).size(0).query(
           boolQuery().filter(filters)).aggs {
-          sigTermsAggregation("active") size 20 field "tag" minDocCount 5 backgroundFilter
+          sigTermsAggregation("active").size(15).field("tag").minDocCount(5).backgroundFilter(
             boolQuery().filter(
               termQuery("is_comment", "false"),
               termQuery("section", section.getUrlName),
               rangeQuery("postdate").gte(
-                ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate)))
+                ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate))))
         }
       }
     }.map { r =>
