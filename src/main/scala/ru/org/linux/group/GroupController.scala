@@ -26,6 +26,8 @@ import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.topic.ArchiveDao
 import ru.org.linux.util.ServletParameterBadValueException
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.util
 import java.util.concurrent.CompletionStage
@@ -86,7 +88,9 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     val section = sectionService.getSection(Section.SECTION_FORUM)
     val group = groupDao.getGroup(section, groupName)
 
-    val activeTagsF = tagService.getActiveTopTags(section, Some(group), deadline)
+    val activeTagsF = tagService.getActiveTopTags(section, Some(group), deadline).map { tags =>
+      tags.map(tag => tag.copy(url = tag.url.map(_ => group.getUrl + "?tag=" + URLEncoder.encode(tag.name, StandardCharsets.UTF_8))))
+    }
 
     val params = new util.HashMap[String, AnyRef]
 
