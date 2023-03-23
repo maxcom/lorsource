@@ -140,7 +140,7 @@ public class GroupListDao {
     String commentInterval;
 
     if (year.isPresent()) {
-      commentInterval=" AND t.postdate>='" + year + '-' + month + "-01'::timestamp AND " +
+      commentInterval=" AND t.postdate>='" + year.get() + '-' + month.get() + "-01'::timestamp AND " +
               "(t.postdate<'" + year.get() + '-' + month.get() + "-01'::timestamp+'1 month'::interval)";
     } else  {
       commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
