@@ -33,6 +33,7 @@ import javax.sql.DataSource;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class GroupListDao {
@@ -135,11 +136,12 @@ public class GroupListDao {
 
   public List<TopicsListItem> getGroupListTopics(int groupid, User currentUser, int topics, int offset,
                                                  int messagesInPage, boolean showIgnored, boolean showDeleted,
-                                                 Integer year, Integer month) {
+                                                 Optional<Integer> year, Optional<Integer> month) {
     String commentInterval;
 
-    if (year!=null) {
-      commentInterval=" AND t.postdate>='" + year + '-' + month + "-01'::timestamp AND (t.postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
+    if (year.isPresent()) {
+      commentInterval=" AND t.postdate>='" + year + '-' + month + "-01'::timestamp AND " +
+              "(t.postdate<'" + year.get() + '-' + month.get() + "-01'::timestamp+'1 month'::interval)";
     } else  {
       commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
     }
