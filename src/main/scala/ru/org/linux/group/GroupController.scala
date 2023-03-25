@@ -63,9 +63,9 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     val group = groupDao.getGroup(groupId)
 
     if (offsetObject != null) {
-      new ModelAndView(new RedirectView(group.getUrl + "?offset=" + offsetObject + "&lastmod=true"))
+      new ModelAndView(new RedirectView(s"${group.getUrl}?offset=$offsetObject&lastmod=true"))
     } else {
-      new ModelAndView(new RedirectView(group.getUrl + "?lastmod=true"))
+      new ModelAndView(new RedirectView(s"${group.getUrl}?lastmod=true"))
     }
   }
 
@@ -91,8 +91,20 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     val section = sectionService.getSection(Section.SECTION_FORUM)
     val group = groupDao.getGroup(section, groupName)
 
+    val firstPage = if (offset != 0) {
+      if (offset < 0) {
+        throw new ServletParameterBadValueException("offset", "offset не может быть отрицательным")
+      }
+
+      false
+    } else {
+      true
+    }
+
     if (showDeleted && !("POST" == request.getMethod)) {
       Future.successful(new ModelAndView(new RedirectView(group.getUrl))).toJava
+    } else if (!firstPage && yearMonth.isEmpty && offset > GroupController.MaxOffset) {
+      Future.successful(new ModelAndView(new RedirectView(s"${group.getUrl}archive"))).toJava
     } else {
       val tmpl = Template.getTemplate
 
@@ -114,22 +126,6 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
         throw new AccessViolationException("Вы не авторизованы")
       }
 
-      var firstPage = false
-
-      if (offset != 0) {
-        firstPage = false
-
-        if (offset < 0) {
-          throw new ServletParameterBadValueException("offset", "offset не может быть отрицательным")
-        }
-
-        if (yearMonth.isEmpty && offset > GroupController.MaxOffset) {
-          return Future.successful(new ModelAndView(new RedirectView(group.getUrl + "archive"))).toJava
-        }
-      } else {
-        firstPage = true
-      }
-
       params.put("firstPage", Boolean.box(firstPage))
       params.put("offset", Integer.valueOf(offset))
       params.put("prevPage", Integer.valueOf(offset - tmpl.getProf.getTopics))
@@ -148,9 +144,10 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       params.put("section", section)
       params.put("groupInfo", prepareService.prepareGroupInfo(group))
 
-      val tagId = tag.map(v => tagService.getTagId(v)).map(Integer.valueOf).asJava
+      val tagInfo = tag.flatMap(v => tagService.getTagInfo(v, skipZero = true))
+      val tagId = tagInfo.map(_.id).map(Integer.valueOf).asJava
 
-      tag.foreach(t => params.put("tag", t))
+      tagInfo.foreach(t => params.put("tag", TagService.tagRef(t, 0)))
 
       val mainTopics = if (!lastmod) {
         groupListDao.getGroupListTopics(group.getId, AuthUtil.getCurrentUser, tmpl.getProf.getTopics, offset,

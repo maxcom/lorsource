@@ -52,7 +52,7 @@
   </c:if>
 
   <c:if test="${tag != null}">
-    (тег ${tag})
+    (тег ${tag.name})
   </c:if>
 </title>
 <link rel="alternate" href="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" type="application/rss+xml">
@@ -65,7 +65,7 @@
   </c:if>
 
   <c:if test="${tag != null}">
-    ${section.name}&nbsp;<a href="${group.url}">«${group.title}»</a> (тег ${tag})
+    ${section.name}&nbsp;<a href="${group.url}">«${group.title}»</a> (тег <a href="${tag.url.get()}">${tag.name}</a>)
   </c:if>
 
   <c:if test="${year != null}">
@@ -204,7 +204,7 @@
             <spring:param name="offset" value="${prevPage}"/>
           </c:if>
           <c:if test="${tag!=null}">
-            <spring:param name="tag" value="${tag}"/>
+            <spring:param name="tag" value="${tag.name}"/>
           </c:if>
         </spring:url>
 
@@ -221,7 +221,7 @@
             <spring:param name="showignored" value="t"/>
           </c:if>
           <c:if test="${tag!=null}">
-            <spring:param name="tag" value="${tag}"/>
+            <spring:param name="tag" value="${tag.name}"/>
           </c:if>
 
           <spring:param name="offset" value="${nextPage}"/>
