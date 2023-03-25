@@ -84,16 +84,18 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
   }
 
   def getNewTags(tags: util.List[String]): util.List[String] =
-    tags.asScala.filterNot(tag => tagDao.getTagId(tag, skipZero = true).isDefined).asJava
+    tags.asScala.filterNot { tag =>
+      tagDao.getTagId(tag, skipZero = true).isDefined || tagDao.getTagSynonymId(tag).isDefined
+    }.asJava
 
-  def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic) flatMap {
+  def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic).flatMap {
     _ execute {
       search(MessageIndex) size 0 query
         boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs (
         sigTermsAggregation("related") field "tag" backgroundFilter
           termQuery("is_comment", "false") /* broken in 6.x tcp client: includeExclude(Seq.empty, Seq(tag))*/)
     }
-  } map { r =>
+  }.map { r =>
     (for {
       bucket <- r.result.aggregations.significantTerms("related").buckets
     } yield {
