@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service
 import ru.org.linux.group.Group
 import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.Section
+import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.topic.TagTopicListController
 import ru.org.linux.util.RichFuture.RichFuture
 
@@ -104,39 +105,43 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
   }
 
   def getActiveTopTags(section: Section, group: Option[Group], deadline: Deadline): Future[Seq[TagRef]] = {
-    val groupFilter = group.map(g => termQuery("group", g.getUrlName))
+    if (group.exists(g => NonTech.contains(g.getId))) {
+      Future.successful(Seq.empty)
+    } else {
+      val groupFilter = group.map(g => termQuery("group", g.getUrlName))
 
-    val filters = Seq(
-      termQuery("is_comment", "false"),
-      termQuery("section", section.getUrlName),
-      rangeQuery("postdate").gte("now/d-1y")
-    ) ++ groupFilter
+      val filters = Seq(
+        termQuery("is_comment", "false"),
+        termQuery("section", section.getUrlName),
+        rangeQuery("postdate").gte("now/d-1y")
+      ) ++ groupFilter
 
-    Future.successful(elastic).flatMap {
-      _.execute {
-        search(MessageIndex).size(0).query(
-          boolQuery().filter(filters)).aggs {
-          sigTermsAggregation("active").size(15).field("tag").minDocCount(5).backgroundFilter(
-            boolQuery().filter(
-              termQuery("is_comment", "false"),
-              termQuery("section", section.getUrlName),
-              rangeQuery("postdate").gte(
-                ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate))))
+      Future.successful(elastic).flatMap {
+        _.execute {
+          search(MessageIndex).size(0).query(
+            boolQuery().filter(filters)).aggs {
+            sigTermsAggregation("active").size(15).field("tag").minDocCount(5).backgroundFilter(
+              boolQuery().filter(
+                termQuery("is_comment", "false"),
+                termQuery("section", section.getUrlName),
+                rangeQuery("postdate").gte(
+                  ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate))))
+          }
         }
+      }.map { r =>
+        (for {
+          bucket <- r.result.aggregations.significantTerms("active").buckets
+        } yield {
+          tagRef(bucket.key)
+        }).sorted
+      }.withTimeout(deadline.timeLeft).recover {
+        case ex: TimeoutException =>
+          logger.warn(s"Active top tags search timed out (${ex.getMessage})")
+          Seq.empty
+        case ex =>
+          logger.warn("Unable to find active top tags", ex)
+          Seq.empty
       }
-    }.map { r =>
-      (for {
-        bucket <- r.result.aggregations.significantTerms("active").buckets
-      } yield {
-        tagRef(bucket.key)
-      }).sorted
-    }.withTimeout(deadline.timeLeft).recover {
-      case ex: TimeoutException =>
-        logger.warn(s"Active top tags search timed out (${ex.getMessage})")
-        Seq.empty
-      case ex =>
-        logger.warn("Unable to find active top tags", ex)
-        Seq.empty
     }
   }
 
