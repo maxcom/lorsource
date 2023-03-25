@@ -124,11 +124,15 @@ public class GroupListDao {
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
   public List<TopicsListItem> getGroupTrackerTopics(int groupid, User currentUser, int topics, int offset,
-                                                    int messagesInPage) {
+                                                    int messagesInPage, Optional<Integer> tagId) {
 
-    String dateFilter = ">CURRENT_TIMESTAMP-'3 month'::interval ";
+    String dateFilter = ">CURRENT_TIMESTAMP-'6 month'::interval ";
 
-    return load(" AND t.groupid = " + groupid + " ", "", currentUser,
+    String partFilter = " AND t.groupid = " + groupid + " ";
+
+    String tagFilter = tagId.map(t -> " AND t.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
+
+    return load(partFilter + tagFilter, "", currentUser,
             topics, offset, messagesInPage, "comment_postdate",
             "AND comments.postdate"+dateFilter+" AND t.lastmod"+dateFilter,
             "AND t.postdate"+dateFilter, false, false);

@@ -155,7 +155,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
           yearMonth.map(p => Integer.valueOf(p._2)).asJava, tagId)
       } else {
         groupListDao.getGroupTrackerTopics(group.getId, AuthUtil.getCurrentUser, tmpl.getProf.getTopics, offset,
-          tmpl.getProf.getMessages)
+          tmpl.getProf.getMessages, tagId)
       }
 
       yearMonth match {
@@ -170,7 +170,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
 
           params.put("year", Integer.valueOf(year))
           params.put("month", Integer.valueOf(month))
-          params.put("url", group.getUrl + year + '/' + month + '/')
+          params.put("url", s"${group.getUrl}$year/$month/")
 
           params.put("hasNext",
             Boolean.box(offset + tmpl.getProf.getTopics < archiveDao.getArchiveCount(group.getId, year, month)))
@@ -193,7 +193,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       response.setDateHeader("Expires", System.currentTimeMillis + 90 * 1000)
 
       activeTagsF.map { activeTags =>
-        if (activeTags.nonEmpty) {
+        if (activeTags.nonEmpty && !tmpl.getProf.isOldTracker) {
           params.put("activeTags", activeTags.asJava)
         }
 

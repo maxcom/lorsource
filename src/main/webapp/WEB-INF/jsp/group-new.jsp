@@ -74,26 +74,46 @@
 </h1>
 
 <nav>
+  <spring:url value="${group.url}" var="newUrl">
+    <c:if test="${tag!=null}">
+      <spring:param name="tag" value="${tag.name}"/>
+    </c:if>
+  </spring:url>
+
+  <spring:url value="${group.url}" var="activeUrl">
+    <spring:param name="lastmod" value="true"/>
+    <c:if test="${tag!=null}">
+      <spring:param name="tag" value="${tag.name}"/>
+    </c:if>
+  </spring:url>
+
+  <spring:url value="add.jsp" var="addUrl">
+    <spring:param name="group" value="${group.id}"/>
+    <c:if test="${tag!=null}">
+      <spring:param name="tags" value="${tag.name}"/>
+    </c:if>
+  </spring:url>
+
   <c:if test="${year!=null}">
-    <a class="btn btn-default" href="${group.url}">Новые</a>
-    <a class="btn btn-default" href="${group.url}?lastmod=true">Активные</a>
+    <a class="btn btn-default" href="${newUrl}">Новые</a>
+    <a class="btn btn-default" href="${activeUrl}">Активные</a>
     <a href="${group.url}archive/" class="btn btn-selected">Архив</a>
   </c:if>
   <c:if test="${year==null}">
     <c:if test="${!lastmod}">
-      <a class="btn btn-selected" href="${group.url}">Новые</a>
-      <a class="btn btn-default" href="${group.url}?lastmod=true">Активные</a>
+      <a class="btn btn-selected" href="${newUrl}">Новые</a>
+      <a class="btn btn-default" href="${activeUrl}">Активные</a>
     </c:if>
     <c:if test="${lastmod}">
-      <a class="btn btn-default" href="${group.url}">Новые</a>
-      <a class="btn btn-selected" href="${group.url}?lastmod=true">Активные</a>
+      <a class="btn btn-default" href="${newUrl}">Новые</a>
+      <a class="btn btn-selected" href="${activeUrl}">Активные</a>
     </c:if>
     <a href="${group.url}archive/" class="btn btn-default">Архив</a>
     <c:if test="${template.moderatorSession}">
       <a href="groupmod.jsp?group=${group.id}" class="btn btn-default">Править</a>
     </c:if>
     <c:if test="${addable}">
-      <a href="add.jsp?group=${group.id}" class="btn btn-primary">Добавить</a>
+      <a href="${addUrl}" class="btn btn-primary">Добавить</a>
     </c:if>
   </c:if>
 
