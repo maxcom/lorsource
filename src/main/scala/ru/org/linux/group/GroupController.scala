@@ -94,8 +94,14 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     if (showDeleted && !("POST" == request.getMethod)) {
       Future.successful(new ModelAndView(new RedirectView(group.getUrl))).toJava
     } else {
+      val tmpl = Template.getTemplate
+
       val activeTagsF = tagService.getActiveTopTags(section, Some(group), deadline).map { tags =>
-        tags.map(tag => tag.copy(url = tag.url.map(_ => group.getUrl + "?tag=" + URLEncoder.encode(tag.name, StandardCharsets.UTF_8))))
+        if (!tmpl.getProf.isOldTracker) {
+          tags.map(tag => tag.copy(url = tag.url.map(_ => group.getUrl + "?tag=" + URLEncoder.encode(tag.name, StandardCharsets.UTF_8))))
+        } else {
+          tags
+        }
       }
 
       val params = new util.HashMap[String, AnyRef]
@@ -103,8 +109,6 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       params.put("showDeleted", Boolean.box(showDeleted))
 
       params.put("groupList", SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
-
-      val tmpl = Template.getTemplate
 
       if (showDeleted && !tmpl.isSessionAuthorized) {
         throw new AccessViolationException("Вы не авторизованы")
