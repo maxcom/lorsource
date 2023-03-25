@@ -50,13 +50,24 @@
   <c:if test="${year != null}">
     — Архив ${year}, ${l:getMonthName(month)}
   </c:if>
+
+  <c:if test="${tag != null}">
+    (тег ${tag})
+  </c:if>
 </title>
 <link rel="alternate" href="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" type="application/rss+xml">
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>
-  ${section.name} «${group.title}»
+  <c:if test="${tag == null}">
+    ${section.name} «${group.title}»
+  </c:if>
+
+  <c:if test="${tag != null}">
+    ${section.name}&nbsp;<a href="${group.url}">«${group.title}»</a> (тег ${tag})
+  </c:if>
+
   <c:if test="${year != null}">
     — Архив ${year}, ${l:getMonthName(month)}
   </c:if>
@@ -192,6 +203,9 @@
           <c:if test="${prevPage > 0}">
             <spring:param name="offset" value="${prevPage}"/>
           </c:if>
+          <c:if test="${tag!=null}">
+            <spring:param name="tag" value="${tag}"/>
+          </c:if>
         </spring:url>
 
         <a rel="prev" href="${prevUrl}">← предыдущие</a>
@@ -205,6 +219,9 @@
           </c:if>
           <c:if test="${showIgnored}">
             <spring:param name="showignored" value="t"/>
+          </c:if>
+          <c:if test="${tag!=null}">
+            <spring:param name="tag" value="${tag}"/>
           </c:if>
 
           <spring:param name="offset" value="${nextPage}"/>

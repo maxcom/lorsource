@@ -146,6 +146,8 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
 
       val tagId = tag.map(v => tagService.getTagId(v)).map(Integer.valueOf).asJava
 
+      tag.foreach(t => params.put("tag", t))
+
       val mainTopics = if (!lastmod) {
         groupListDao.getGroupListTopics(group.getId, AuthUtil.getCurrentUser, tmpl.getProf.getTopics, offset,
           tmpl.getProf.getMessages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).asJava,
