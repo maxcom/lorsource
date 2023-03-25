@@ -105,7 +105,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
   }
 
   def getActiveTopTags(section: Section, group: Option[Group], deadline: Deadline): Future[Seq[TagRef]] = {
-    if (group.exists(g => NonTech.contains(g.getId))) {
+    if (group.exists(g => g.getId == 4068)) {
       Future.successful(Seq.empty)
     } else {
       val groupFilter = group.map(g => termQuery("group", g.getUrlName))
