@@ -143,7 +143,7 @@ public class GroupListDao {
       commentInterval=" AND t.postdate>='" + year.get() + '-' + month.get() + "-01'::timestamp AND " +
               "(t.postdate<'" + year.get() + '-' + month.get() + "-01'::timestamp+'1 month'::interval)";
     } else  {
-      commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
+      commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'6 month'::interval ";
     }
 
     String partFilter = " AND t.groupid = " + groupid + " AND NOT t.sticky ";
