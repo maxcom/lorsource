@@ -136,7 +136,7 @@ public class GroupListDao {
 
   public List<TopicsListItem> getGroupListTopics(int groupid, User currentUser, int topics, int offset,
                                                  int messagesInPage, boolean showIgnored, boolean showDeleted,
-                                                 Optional<Integer> year, Optional<Integer> month) {
+                                                 Optional<Integer> year, Optional<Integer> month, Optional<Integer> tagId) {
     String commentInterval;
 
     if (year.isPresent()) {
@@ -146,16 +146,21 @@ public class GroupListDao {
       commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'3 month'::interval ";
     }
 
-    return load(" AND t.groupid = " + groupid + " AND NOT t.sticky ", "", currentUser,
+    String partFilter = " AND t.groupid = " + groupid + " AND NOT t.sticky ";
+
+    String tagFilter = tagId.map(t -> " AND t.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
+
+    return load(partFilter + tagFilter, "", currentUser,
             topics, offset, messagesInPage,
             "topic_postdate", commentInterval, commentInterval, showIgnored, showDeleted);
   }
 
-  public List<TopicsListItem> getGroupStickyTopics(
-          Group group,
-          int messagesInPage
-  ) {
-    return load(" AND t.groupid = " + group.getId() + " AND t.sticky ", "", null,
+  public List<TopicsListItem> getGroupStickyTopics(Group group, int messagesInPage, Optional<Integer> tagId) {
+    String partFilter = " AND t.groupid = " + group.getId() + " AND t.sticky ";
+
+    String tagFilter = tagId.map(t -> " AND t.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
+
+    return load(partFilter + tagFilter, "", null,
             100, 0, messagesInPage,
             "topic_postdate", "", "", true, false);
   }

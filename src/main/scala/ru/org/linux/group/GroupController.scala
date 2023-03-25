@@ -144,10 +144,12 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       params.put("section", section)
       params.put("groupInfo", prepareService.prepareGroupInfo(group))
 
+      val tagId = tag.map(v => tagService.getTagId(v)).map(Integer.valueOf).asJava
+
       val mainTopics = if (!lastmod) {
         groupListDao.getGroupListTopics(group.getId, AuthUtil.getCurrentUser, tmpl.getProf.getTopics, offset,
           tmpl.getProf.getMessages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).asJava,
-          yearMonth.map(p => Integer.valueOf(p._2)).asJava)
+          yearMonth.map(p => Integer.valueOf(p._2)).asJava, tagId)
       } else {
         groupListDao.getGroupTrackerTopics(group.getId, AuthUtil.getCurrentUser, tmpl.getProf.getTopics, offset,
           tmpl.getProf.getMessages)
@@ -176,7 +178,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       }
 
       if (yearMonth.isEmpty && offset == 0 && !lastmod) {
-        val stickyTopics = groupListDao.getGroupStickyTopics(group, tmpl.getProf.getMessages)
+        val stickyTopics = groupListDao.getGroupStickyTopics(group, tmpl.getProf.getMessages, tagId)
 
         params.put("topicsList", (stickyTopics.asScala.view ++ mainTopics.asScala).toSeq.asJava)
       } else {
