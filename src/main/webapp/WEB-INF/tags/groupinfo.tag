@@ -33,10 +33,8 @@
     </div>
   </c:if>
 
-  <sec:authorize access="hasRole('ROLE_MODERATOR')">
-    <c:if test="${not empty activeTags}">
-      Активные теги: <l:tags list="${activeTags}"/>
-    </c:if>
-  </sec:authorize>
+  <c:if test="${not empty activeTags}">
+    Активные теги: <l:tags list="${activeTags}"/>
+  </c:if>
 </div>
 
