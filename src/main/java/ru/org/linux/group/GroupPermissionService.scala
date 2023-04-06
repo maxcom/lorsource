@@ -184,7 +184,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       false
     } else if (by == null || by.isAnonymous || by.isBlocked || by.isFrozen) {
       false
-    } else if (message.expired) {
+    } else if (message.expired && !message.draft) {
       false
     } else if (by.isAdministrator) {
       true

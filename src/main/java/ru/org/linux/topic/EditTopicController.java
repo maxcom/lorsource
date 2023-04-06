@@ -139,10 +139,7 @@ public class EditTopicController {
   }
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
-  public ModelAndView showEditForm(
-    @RequestParam("msgid") int msgid,
-    @ModelAttribute("form") EditTopicRequest form
-  ) {
+  public ModelAndView showEditForm(@RequestParam("msgid") int msgid, @ModelAttribute("form") EditTopicRequest form) {
     Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
@@ -151,20 +148,15 @@ public class EditTopicController {
 
     Topic message = messageDao.getById(msgid);
 
-      User user = AuthUtil.getCurrentUser();
+    User user = AuthUtil.getCurrentUser();
 
-      PreparedTopic preparedMessage = prepareService.prepareTopic(message, AuthUtil.getCurrentUser());
+    PreparedTopic preparedMessage = prepareService.prepareTopic(message, AuthUtil.getCurrentUser());
 
     if (!permissionService.isEditable(preparedMessage, user) && !permissionService.isTagsEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-      return prepareModel(
-            preparedMessage,
-            form,
-              AuthUtil.getCurrentUser(),
-            tmpl.getProf()
-    );
+    return prepareModel(preparedMessage, form, AuthUtil.getCurrentUser(), tmpl.getProf());
   }
 
   private ModelAndView prepareModel(
