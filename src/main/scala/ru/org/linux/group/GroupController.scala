@@ -193,7 +193,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       response.setDateHeader("Expires", System.currentTimeMillis + 90 * 1000)
 
       activeTagsF.map { activeTags =>
-        if (activeTags.nonEmpty && !tmpl.getProf.isOldTracker) {
+        if (activeTags.nonEmpty) {
           params.put("activeTags", activeTags.asJava)
         }
 

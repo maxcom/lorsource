@@ -46,13 +46,24 @@
   <c:if test="${year != null}">
     — Архив ${year}, ${l:getMonthName(month)}
   </c:if>
+
+  <c:if test="${tag != null}">
+    (тег ${tag.name})
+  </c:if>
 </title>
     <link rel="alternate" href="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" type="application/rss+xml">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form>
   <div class=nav>
     <div id="navPath">
-      ${section.name} «${group.title}»
+      <c:if test="${tag == null}">
+        ${section.name} «${group.title}»
+      </c:if>
+
+      <c:if test="${tag != null}">
+        ${section.name}&nbsp;<a href="${group.url}">«${group.title}»</a> (тег <a href="${tag.url.get()}">${tag.name}</a>)
+      </c:if>
+
       <c:if test="${year != null}">
         — Архив ${year}, ${l:getMonthName(month)}
       </c:if>
@@ -85,18 +96,46 @@
 </form>
 
 <nav>
+  <spring:url value="${group.url}" var="newUrl">
+    <c:if test="${tag!=null}">
+      <spring:param name="tag" value="${tag.name}"/>
+    </c:if>
+  </spring:url>
+
+  <spring:url value="${group.url}" var="activeUrl">
+    <spring:param name="lastmod" value="true"/>
+    <c:if test="${tag!=null}">
+      <spring:param name="tag" value="${tag.name}"/>
+    </c:if>
+  </spring:url>
+
+  <spring:url value="add.jsp" var="addUrl">
+    <spring:param name="group" value="${group.id}"/>
+    <c:if test="${tag!=null}">
+      <spring:param name="tags" value="${tag.name}"/>
+    </c:if>
+  </spring:url>
+
   <c:if test="${year!=null}">
-    <a class="btn btn-default" href="${group.url}">Новые темы</a>
+    <a class="btn btn-default" href="${newUrl}">Новые</a>
+    <a class="btn btn-default" href="${activeUrl}">Активные</a>
     <a href="${group.url}archive/" class="btn btn-selected">Архив</a>
   </c:if>
   <c:if test="${year==null}">
-    <a class="btn btn-selected" href="${group.url}">Новые темы</a>
+    <c:if test="${!lastmod}">
+      <a class="btn btn-selected" href="${newUrl}">Новые</a>
+      <a class="btn btn-default" href="${activeUrl}">Активные</a>
+    </c:if>
+    <c:if test="${lastmod}">
+      <a class="btn btn-default" href="${newUrl}">Новые</a>
+      <a class="btn btn-selected" href="${activeUrl}">Активные</a>
+    </c:if>
     <a href="${group.url}archive/" class="btn btn-default">Архив</a>
     <c:if test="${template.moderatorSession}">
-      <a href="groupmod.jsp?group=${group.id}" class="btn btn-default">Править группу</a>
+      <a href="groupmod.jsp?group=${group.id}" class="btn btn-default">Править</a>
     </c:if>
     <c:if test="${addable}">
-      <a href="add.jsp?group=${group.id}" class="btn btn-primary">Добавить</a>
+      <a href="${addUrl}" class="btn btn-primary">Добавить</a>
     </c:if>
   </c:if>
 </nav>
@@ -208,21 +247,24 @@
 <c:if test="${not showDeleted}">
 <div class="container" style="margin-bottom: 1em">
 <div style="float: left">
-<c:if test="${prevPage>=0}">
-  <spring:url value="${url}" var="prevUrl">
-    <c:if test="${lastmod}">
-      <spring:param name="lastmod" value="true"/>
-    </c:if>
-    <c:if test="${showIgnored}">
-      <spring:param name="showignored" value="t"/>
-    </c:if>
-    <c:if test="${prevPage > 0}">
-      <spring:param name="offset" value="${prevPage}"/>
-    </c:if>
-  </spring:url>
+  <c:if test="${prevPage>=0}">
+    <spring:url value="${url}" var="prevUrl">
+      <c:if test="${lastmod}">
+        <spring:param name="lastmod" value="true"/>
+      </c:if>
+      <c:if test="${showIgnored}">
+        <spring:param name="showignored" value="t"/>
+      </c:if>
+      <c:if test="${prevPage > 0}">
+        <spring:param name="offset" value="${prevPage}"/>
+      </c:if>
+      <c:if test="${tag!=null}">
+        <spring:param name="tag" value="${tag.name}"/>
+      </c:if>
+    </spring:url>
 
-  <a rel="prev" href="${prevUrl}">← назад</a>
-</c:if>
+    <a rel="prev" href="${prevUrl}">← предыдущие</a>
+  </c:if>
 </div>
 <div style="float: right">
   <c:if test="${hasNext}">
@@ -233,11 +275,14 @@
       <c:if test="${showIgnored}">
         <spring:param name="showignored" value="t"/>
       </c:if>
+      <c:if test="${tag!=null}">
+        <spring:param name="tag" value="${tag.name}"/>
+      </c:if>
 
       <spring:param name="offset" value="${nextPage}"/>
     </spring:url>
 
-    <a rel="next" href="${nextUrl}">вперед →</a>
+    <a rel="next" href="${nextUrl}">следующие →</a>
   </c:if>
   <c:if test="${not hasNext}">
     <a href="${group.url}archive/">архив</a>
