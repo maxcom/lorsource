@@ -109,11 +109,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       val tmpl = Template.getTemplate
 
       val activeTagsF = tagService.getActiveTopTags(section, Some(group), deadline).map { tags =>
-        if (!tmpl.getProf.isOldTracker) {
-          tags.map(tag => tag.copy(url = tag.url.map(_ => group.getUrl + "?tag=" + URLEncoder.encode(tag.name, StandardCharsets.UTF_8))))
-        } else {
-          tags
-        }
+        tags.map(tag => tag.copy(url = tag.url.map(_ => group.getUrl + "?tag=" + URLEncoder.encode(tag.name, StandardCharsets.UTF_8))))
       }
 
       val params = new util.HashMap[String, AnyRef]
