@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -92,9 +92,9 @@ var LorViewDiffHistory = function() {
 }
 document.lorViewDiffHistory = new LorViewDiffHistory();
 
-function diffHighlightOn(button) {
+function diffHighlightOn(selector) {
   document.prev_object = null;
-  $("div.messages div.msg div.msg_body").each(
+  $(selector).each(
     function(ind, obj){
       var htmlContent = $(obj).html();
       $(obj).attr("oldHtml", htmlContent);
@@ -113,9 +113,9 @@ function diffHighlightOn(button) {
   );
 }
 
-function diffHighlightOff(button) {
+function diffHighlightOff(selector) {
   document.prev_object = null;
-  $("div.messages div.msg div.msg_body").each(
+  $(selector).each(
     function(ind, obj){
       $(obj).html($(obj).attr("oldHtml"));
     }
@@ -129,17 +129,19 @@ function toggleDiffHighlight(obj) {
     $(button)
       .val("Подсветить различия")
       .attr("highlighted", "off");
-    diffHighlightOff(button);
+    diffHighlightOff("div.messages div.msg div.msg_body");
+    diffHighlightOff("div.messages div.msg div.msg_header");
   } else {
     $(button)
       .val("Убрать подсветку")
       .attr("highlighted", "on");
-    diffHighlightOn(button);
+    diffHighlightOn("div.messages div.msg div.msg_body");
+    diffHighlightOn("div.messages div.msg div.msg_header");
   }
 }
 
 $(document).ready(function() {
-  var button = $('<input type="button">')
+  $('<input type="button">')
     .val("Подсветить различия")
     .attr("highlighted", "off")
     .addClass("toggleDiffHighlight")
