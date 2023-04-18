@@ -123,7 +123,7 @@ public class ImageUtil {
   public static void resizeImage(String filename, String iconname, int size) throws IOException, BadImageException {
     try {
       BufferedImage source = ImageIO.read(new File(filename));
-      BufferedImage destination = Scalr.resize(source, Scalr.Mode.FIT_TO_WIDTH, size);
+      BufferedImage destination = Scalr.resize(source, Scalr.Method.QUALITY, Scalr.Mode.FIT_TO_WIDTH, size);
       // openjdk cannot write JPEG file if image have transparency
       ImageIO.write(removeTransparency(destination), "JPEG", new File(iconname));
     } catch (IIOException ex) {
