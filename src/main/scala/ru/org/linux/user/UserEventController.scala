@@ -75,6 +75,8 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         params.put("addition_query", "")
       }
 
+      params.put("link", "/notifications")
+
       val offset = if (offsetRaw < 0) {
         0
       } else {
@@ -119,6 +121,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
   @RequestMapping(value = Array("/show-replies.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def showReplies(request: HttpServletRequest, response: HttpServletResponse,
+                  @RequestParam(value = "filter", defaultValue = "all") filter: String,
                   @RequestParam(value = "nick", required = false) nick: String,
                   @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView =
     AuthUtil.AuthorizedOpt { currentUserOpt =>
@@ -149,9 +152,18 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
           throw new AccessViolationException("нельзя смотреть чужие уведомления")
         }
 
+        val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
+
         val params = mutable.Map[String, Any]()
+        params.put("filter", eventFilter.getName)
+        if (eventFilter != UserEventFilterEnum.ALL) {
+          params.put("addition_query", s"&filter=${eventFilter.getName}")
+        } else {
+          params.put("addition_query", "")
+        }
 
         params.put("nick", nick)
+        params.put("link", s"/show-replies.jsp?nick=$nick")
 
         val offset = if (offsetRaw < 0) {
           0
@@ -185,7 +197,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
           response.addHeader("Cache-Control", "no-cache")
         }
 
-        val list = userEventService.getUserEvents(user, showPrivate, topics, offset, UserEventFilterEnum.ALL)
+        val list = userEventService.getUserEvents(user, showPrivate, topics, offset, eventFilter)
         val prepared = prepareService.prepareSimple(list, feedRequested)
         params.put("isMyNotifications", false)
         params.put("topicsList", prepared.asJava)
