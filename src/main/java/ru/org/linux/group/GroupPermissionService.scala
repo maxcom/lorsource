@@ -184,10 +184,10 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       false
     } else if (by == null || by.isAnonymous || by.isBlocked || by.isFrozen) {
       false
-    } else if (message.expired && !message.draft) {
-      false
     } else if (by.isAdministrator) {
       true
+    } else if (message.expired && !message.draft) {
+      false
     } else if (!MarkupPermissions.allowedFormatsJava(by).contains(topic.markupType)) {
       false
     } else if (by.isModerator) {
