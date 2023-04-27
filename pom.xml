@@ -33,7 +33,7 @@
     <js-cookie.version>3.0.1</js-cookie.version>
     <circe.version>0.14.3</circe.version>
     <twemoji.version>14.0.2</twemoji.version>
-    <sttp.version>3.8.13</sttp.version>
+    <sttp.version>3.8.15</sttp.version>
     <flexmark.version>0.42.14</flexmark.version>
   </properties>
 
