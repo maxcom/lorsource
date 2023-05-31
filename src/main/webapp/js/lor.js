@@ -486,7 +486,7 @@ $(document).ready(function() {
           error: function(jqXHR, textStatus, errorThrown) {
             reactions.append(
               $("<div class=error>")
-                  .text("Не удалось выполнить запрос, попробуйте повторить еще раз. " + errorThrown)
+                  .text("Возможно, что превышен лимит реакций. Попробуйте снова через 10 минут. " + errorThrown)
             );
           }
         };
