@@ -72,7 +72,8 @@ object ReactionService {
     "\uD83E\uDD26" -> "facepalm",
     "\uD83D\uDD25" -> "огонь",
     "\uD83E\uDD14" -> "задумчивое лицо",
-    "\uD83E\uDD21" -> "лицо клоуна")
+    "\uD83E\uDD21" -> "лицо клоуна",
+    "\u2615\u2615" -> "два чая этому господину!")
 
   val AllowedReactions: Set[String] = DefinedReactions.keySet
 }
