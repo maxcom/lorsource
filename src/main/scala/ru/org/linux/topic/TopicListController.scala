@@ -175,7 +175,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }.toJava
   }
 
-  @RequestMapping(Array("/{section}/archive/{year}/{month}"))
+  @RequestMapping(Array("/{section}/archive/{year:\\d{4}}/{month}"))
   def galleryArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int,
                      response: HttpServletResponse): ModelAndView = {
     val sectionObject = sectionService.getSectionByName(section)

@@ -69,7 +69,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
   }
 
-  @RequestMapping(Array("/forum/{group}/{year:\\d+}/{month:\\d+}"))
+  @RequestMapping(Array("/forum/{group}/{year:\\d{4}}/{month:\\d+}"))
   def forumArchive(@PathVariable("group") groupName: String,
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
