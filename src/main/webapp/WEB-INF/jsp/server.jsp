@@ -76,10 +76,10 @@
       <li>OpenJDK 17 (Temurin);</li>
       <li>Scala 2.13;</li>
       <li>Apache Tomcat 8.5;</li>
-      <li>ActiveMQ 5.17;</li>
+      <li>ActiveMQ 5.18;</li>
       <li>Spring 5.3;</li>
-      <li>OpenSearch 2.6.x;</li>
-      <li>Nginx 1.22.</li>
+      <li>OpenSearch 2.8.x;</li>
+      <li>Nginx 1.24.</li>
     </ul>
 
 <h1>Исходные тексты</h1>
