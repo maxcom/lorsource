@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -54,6 +54,7 @@ public class UserEventFeedView extends AbstractRomeView {
 
     List<SyndEntry> entries = new ArrayList<>();
     feed.setEntries(entries);
+
     for (PreparedUserEvent preparedUserEvent : list) {
       UserEvent item = preparedUserEvent.getEvent();
       
@@ -61,34 +62,27 @@ public class UserEventFeedView extends AbstractRomeView {
       feedEntry.setPublishedDate(item.getEventDate());
       feedEntry.setTitle(StringEscapeUtils.unescapeHtml4(item.getSubj()));
 
-      String link;
-
       if (item.getCid()!=0) {
         feedEntry.setAuthor(preparedUserEvent.getAuthor().getNick());
-
-        link = String.format(
-          "%s/jump-message.jsp?msgid=%s&cid=%s",
-          siteConfig.getSecureUrlWithoutSlash(),
-          item.getTopicId(),
-          item.getCid()
-        );
-      } else {
-        link = String.format(
-          "%s/view-message.jsp?msgid=%s",
-           siteConfig.getSecureUrlWithoutSlash(),
-           item.getTopicId()
-        );
       }
+
+      String link = siteConfig.getSecureUrlWithoutSlash() + preparedUserEvent.getLink();
 
       feedEntry.setLink(link);
       feedEntry.setUri(link);
 
-      if (preparedUserEvent.getMessageText() != null){
+      if (item.getEventType() == UserEventFilterEnum.REACTION) {
+        SyndContent message = new SyndContentImpl();
+        message.setValue("@ " + preparedUserEvent.getAuthor().getNick() + " поставил " + item.getReaction());
+        message.setType("text/plain");
+        feedEntry.setDescription(message);
+      } else if (preparedUserEvent.getMessageText() != null){
         SyndContent message = new SyndContentImpl();
         message.setValue(StringUtil.removeInvalidXmlChars(preparedUserEvent.getMessageText()));
         message.setType("text/html");
         feedEntry.setDescription(message);
       }
+
       entries.add(feedEntry);
     }
   }
