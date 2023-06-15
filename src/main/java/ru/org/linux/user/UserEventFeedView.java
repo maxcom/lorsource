@@ -73,7 +73,7 @@ public class UserEventFeedView extends AbstractRomeView {
 
       if (item.getEventType() == UserEventFilterEnum.REACTION) {
         SyndContent message = new SyndContentImpl();
-        message.setValue("@ " + preparedUserEvent.getAuthor().getNick() + " поставил " + item.getReaction());
+        message.setValue("@" + preparedUserEvent.getAuthor().getNick() + " поставил " + item.getReaction());
         message.setType("text/plain");
         feedEntry.setDescription(message);
       } else if (preparedUserEvent.getMessageText() != null){
