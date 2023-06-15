@@ -71,14 +71,23 @@ public class UserEventFeedView extends AbstractRomeView {
       feedEntry.setLink(link);
       feedEntry.setUri(link);
 
+      String text;
+
+      if (preparedUserEvent.getMessageText() != null) {
+        text = StringUtil.removeInvalidXmlChars(preparedUserEvent.getMessageText());
+      } else {
+        text = "";
+      }
+
       if (item.getEventType() == UserEventFilterEnum.REACTION) {
         SyndContent message = new SyndContentImpl();
-        message.setValue("@" + preparedUserEvent.getAuthor().getNick() + " поставил " + item.getReaction());
-        message.setType("text/plain");
+        String reactionNote = "@" + preparedUserEvent.getAuthor().getNick() + " поставил " + item.getReaction();
+        message.setValue(reactionNote + "<br>" + text);
+        message.setType("text/html");
         feedEntry.setDescription(message);
-      } else if (preparedUserEvent.getMessageText() != null){
+      } else if (!text.isEmpty()){
         SyndContent message = new SyndContentImpl();
-        message.setValue(StringUtil.removeInvalidXmlChars(preparedUserEvent.getMessageText()));
+        message.setValue(text);
         message.setType("text/html");
         feedEntry.setDescription(message);
       }
