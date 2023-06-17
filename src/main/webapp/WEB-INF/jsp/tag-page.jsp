@@ -154,7 +154,13 @@
 
 <c:if test="${not empty briefNews}">
 <section>
-   <h2>Еще новости</h2>
+  <c:if test="${not empty fullNews}">
+    <h2>Еще новости</h2>
+  </c:if>
+
+  <c:if test="${empty fullNews}">
+    <h2>Новости</h2>
+  </c:if>
 
   <div class="container" id="tag-page-news">
     <c:forEach var="map" items="${briefNews}" varStatus="iter">
