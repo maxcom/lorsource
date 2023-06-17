@@ -26,7 +26,7 @@ import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
-import ru.org.linux.tag.TagPageController.{RecentPeriod, isRecent}
+import ru.org.linux.tag.TagPageController.isRecent
 import ru.org.linux.topic.*
 import ru.org.linux.topic.TopicListDao.CommitMode
 import ru.org.linux.user.{User, UserTagService}
