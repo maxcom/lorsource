@@ -26,7 +26,7 @@ import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
-import ru.org.linux.tag.TagPageController.RecentPeriod
+import ru.org.linux.tag.TagPageController.{RecentPeriod, isRecent}
 import ru.org.linux.topic.*
 import ru.org.linux.topic.TopicListDao.CommitMode
 import ru.org.linux.user.{User, UserTagService}
@@ -49,6 +49,8 @@ object TagPageController {
   private val RecentPeriod: time.Duration = java.time.Duration.ofDays(365)
 
   val Timeout: FiniteDuration = 500.millis
+
+  def isRecent(date: Instant): Boolean = date.isAfter(Instant.now().minus(RecentPeriod))
 }
 
 @Controller
@@ -97,10 +99,15 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).toJava
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
-        val sections = getNewsSection(tag, currentUser) ++ getGallerySection(tag, tagInfo.id, currentUser) ++
-          getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, currentUser) ++
-          getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, currentUser) ++
-          getTopicList(tag, tagInfo.id, Section.SECTION_ARTICLES, CommitMode.COMMITED_ONLY, currentUser)
+        val (news, newsDate) = getNewsSection(tag, currentUser)
+        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, currentUser)
+        val gallery = getGallerySection(tag, tagInfo.id, currentUser)
+        val (polls, _) = getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, currentUser)
+        val (articles, _) = getTopicList(tag, tagInfo.id, Section.SECTION_ARTICLES, CommitMode.COMMITED_ONLY, currentUser)
+
+        val newsFirst = newsDate.isDefined && (newsDate.exists(isRecent) || newsDate.zip(forumDate).exists(p => p._1.isAfter(p._2)))
+
+        val sections = news ++ gallery ++ forum ++ polls ++ articles
 
         val tmpl = Template.getTemplate
 
@@ -113,7 +120,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
           "showAdsense" -> Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense),
           "showDelete" -> Boolean.box(currentUserObj.exists(_.moderator)),
-          "synonyms" -> synonyms.asJava
+          "synonyms" -> synonyms.asJava,
+          "newsFirst" -> Boolean.box(newsFirst)
         ) ++ sections ++ favs
 
         val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {
@@ -148,7 +156,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null,
       TagPageController.TotalNewsCount, currentUser.orNull).asScala
 
-    val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.exists(_.commitDate.toInstant.isAfter(Instant.now().minus(RecentPeriod)))) {
+    val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.map(_.commitDate.toInstant).exists(isRecent)) {
       newsTopics.splitAt(1)
     } else {
       (Seq.empty, newsTopics.dropRight(1))
@@ -165,11 +173,13 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    Map(
+    val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
+
+    (Map(
       "fullNews" -> fullNews,
       "addNews" -> AddTopicController.getAddUrl(newsSection, tag),
       "briefNews" -> TopicListTools.split(briefNewsByDate.map(p => p._1 -> BriefTopicRef.fromTopicNoGroup(p._2)))
-    ) ++ more
+    ) ++ more, newestDate)
   }
 
   private def getGallerySection(tag: String, tagId: Int, currentUser: Option[User]) = {
@@ -202,8 +212,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
-    val forumTopics = topicListService.getTopics(topicListDto, currentUser.orNull)
-    val topicByDate = TopicListTools.datePartition(forumTopics.asScala)
+    val forumTopics = topicListService.getTopics(topicListDto, currentUser.orNull).asScala
+    val topicByDate = TopicListTools.datePartition(forumTopics)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {
       Some(forumSection.getUrlName+"More" -> TagTopicListController.tagListUrl(tag, forumSection))
@@ -211,10 +221,12 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    Map(
+    val newestDate = forumTopics.headOption.map(_.commitDate.toInstant)
+
+    (Map(
       forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag),
       forumSection.getUrlName -> TopicListTools.split(
         topicByDate.map(p => p._1 -> BriefTopicRef.fromTopic(p._2, groupDao.getGroup(p._2.groupId).getTitle)))
-    ) ++ more
+    ) ++ more, newestDate)
   }
 }

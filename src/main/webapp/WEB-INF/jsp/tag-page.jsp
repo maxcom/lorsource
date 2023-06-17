@@ -139,59 +139,108 @@
 </script>
 </c:if>
 
-<c:if test="${not empty fullNews}">
-<section>
-    <c:forEach var="msg" items="${fullNews}">
+<c:set var="newsSection">
+  <c:if test="${not empty fullNews}">
+    <section>
+      <c:forEach var="msg" items="${fullNews}">
         <lor:news
                 preparedMessage="${msg.preparedTopic}"
                 messageMenu="${msg.topicMenu}"
                 multiPortal="false"
                 minorAsMajor="true"
                 moderateMode="false"/>
-    </c:forEach>
-</section>
-</c:if>
-
-<c:if test="${not empty briefNews}">
-<section>
-  <c:if test="${not empty fullNews}">
-    <h2>Еще новости</h2>
+      </c:forEach>
+    </section>
   </c:if>
 
-  <c:if test="${empty fullNews}">
-    <h2>Новости</h2>
-  </c:if>
+  <c:if test="${not empty briefNews}">
+    <section>
+      <c:if test="${not empty fullNews}">
+        <h2>Еще новости</h2>
+      </c:if>
 
-  <div class="container" id="tag-page-news">
-    <c:forEach var="map" items="${briefNews}" varStatus="iter">
-      <section>
-        <c:forEach var="entry" items="${map}">
-          <h3>${entry._1()}</h3>
-          <ul>
-            <c:forEach var="msg" items="${entry._2()}">
-              <li>
-                <c:if test="${msg.group.defined}">
-                  <span class="group-label">${msg.group.get()}</span>
-                </c:if>
-                <a href="${msg.url}"><l:title>${msg.title}</l:title></a>
-                <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
-              </li>
+      <c:if test="${empty fullNews}">
+        <h2>Новости</h2>
+      </c:if>
+
+      <div class="container" id="tag-page-news">
+        <c:forEach var="map" items="${briefNews}" varStatus="iter">
+          <section>
+            <c:forEach var="entry" items="${map}">
+              <h3>${entry._1()}</h3>
+              <ul>
+                <c:forEach var="msg" items="${entry._2()}">
+                  <li>
+                    <c:if test="${msg.group.defined}">
+                      <span class="group-label">${msg.group.get()}</span>
+                    </c:if>
+                    <a href="${msg.url}"><l:title>${msg.title}</l:title></a>
+                    <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
+                  </li>
+                </c:forEach>
+              </ul>
             </c:forEach>
-          </ul>
+          </section>
         </c:forEach>
-      </section>
-    </c:forEach>
-  </div>
+      </div>
 
-  <div class="tag-page-buttons">
-    <div>
-        <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
-        <c:if test="${not empty moreNews}">
-          <a href="${moreNews}" class="btn btn-default">Все новости</a>
-        </c:if>
-    </div>
-  </div>
-</section>
+      <div class="tag-page-buttons">
+        <div>
+          <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
+          <c:if test="${not empty moreNews}">
+            <a href="${moreNews}" class="btn btn-default">Все новости</a>
+          </c:if>
+        </div>
+      </div>
+    </section>
+  </c:if>
+</c:set>
+
+<c:set var="forumSection">
+  <c:if test="${not empty forum}">
+    <section>
+      <h2>Форум</h2>
+
+      <div class="container" id="tag-page-forum">
+        <c:forEach var="map" items="${forum}">
+          <section>
+            <c:forEach var="entry" items="${map}">
+              <h3>${entry._1()}</h3>
+              <ul>
+                <c:forEach var="msg" items="${entry._2()}">
+                  <li>
+                    <c:if test="${msg.group.defined}">
+                      <span class="group-label">${msg.group.get()}</span>
+                    </c:if>
+                    <a href="${msg.url}">${msg.title}</a>
+                    <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
+                  </li>
+                </c:forEach>
+              </ul>
+            </c:forEach>
+          </section>
+        </c:forEach>
+      </div>
+
+      <div class="tag-page-buttons">
+        <div>
+          <c:if test="${not empty forumAdd}">
+            <a href="${forumAdd}" class="btn btn-primary">Добавить тему</a>
+          </c:if>
+          <c:if test="${not empty forumMore}">
+            <a href="${forumMore}" class="btn btn-default">Все темы</a>
+          </c:if>
+        </div>
+      </div>
+    </section>
+  </c:if>
+</c:set>
+
+<c:if test="${newsFirst}">
+  <c:out value="newsSection" escapeXml="false"/>
+</c:if>
+<c:if test="${not newsFirst}">
+  <c:out value="forumSection" escapeXml="false"/>
 </c:if>
 
 <c:if test="${not empty polls}">
@@ -305,42 +354,11 @@
   </section>
 </c:if>
 
-<c:if test="${not empty forum}">
-  <section>
-    <h2>Форум</h2>
-
-    <div class="container" id="tag-page-forum">
-      <c:forEach var="map" items="${forum}">
-        <section>
-          <c:forEach var="entry" items="${map}">
-            <h3>${entry._1()}</h3>
-            <ul>
-              <c:forEach var="msg" items="${entry._2()}">
-                <li>
-                  <c:if test="${msg.group.defined}">
-                    <span class="group-label">${msg.group.get()}</span>
-                  </c:if>
-                  <a href="${msg.url}">${msg.title}</a>
-                  <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
-                </li>
-              </c:forEach>
-            </ul>
-          </c:forEach>
-        </section>
-      </c:forEach>
-    </div>
-
-    <div class="tag-page-buttons">
-      <div>
-        <c:if test="${not empty forumAdd}">
-          <a href="${forumAdd}" class="btn btn-primary">Добавить тему</a>
-        </c:if>
-        <c:if test="${not empty forumMore}">
-          <a href="${forumMore}" class="btn btn-default">Все темы</a>
-        </c:if>
-      </div>
-    </div>
-  </section>
+<c:if test="${not newsFirst}">
+  <c:out value="newsSection" escapeXml="false"/>
+</c:if>
+<c:if test="${newsFirst}">
+  <c:out value="forumSection" escapeXml="false"/>
 </c:if>
 
 <script type="text/javascript">
