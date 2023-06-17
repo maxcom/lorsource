@@ -26,11 +26,14 @@ import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
+import ru.org.linux.tag.TagPageController.RecentPeriod
 import ru.org.linux.topic.*
 import ru.org.linux.topic.TopicListDao.CommitMode
 import ru.org.linux.user.{User, UserTagService}
 import ru.org.linux.util.RichFuture.*
 
+import java.time
+import java.time.Instant
 import java.util.concurrent.CompletionStage
 import scala.compat.java8.FutureConverters.*
 import scala.concurrent.*
@@ -39,9 +42,11 @@ import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 
 object TagPageController {
-  val TotalNewsCount = 21
-  val ForumTopicCount = 20
-  val GalleryCount = 6
+  private val TotalNewsCount = 21
+  private val ForumTopicCount = 20
+  private val GalleryCount = 6
+
+  private val RecentPeriod: time.Duration = java.time.Duration.ofDays(365)
 
   val Timeout: FiniteDuration = 500.millis
 }
@@ -140,8 +145,15 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
   private def getNewsSection(tag: String, currentUser: Option[User]) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
-    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null, TagPageController.TotalNewsCount, currentUser.orNull)
-    val (fullNewsTopics, briefNewsTopics) = newsTopics.asScala.splitAt(1)
+    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, null, null,
+      TagPageController.TotalNewsCount, currentUser.orNull).asScala
+
+    val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.exists(_.commitDate.toInstant.isAfter(Instant.now().minus(RecentPeriod)))) {
+      newsTopics.splitAt(1)
+    } else {
+      (Seq.empty, newsTopics.dropRight(1))
+    }
+
     val tmpl = Template.getTemplate
     val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, currentUser.orNull, tmpl.getProf, loadUserpics = false)
 

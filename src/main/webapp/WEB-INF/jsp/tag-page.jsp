@@ -139,6 +139,7 @@
 </script>
 </c:if>
 
+<c:if test="${not empty fullNews}">
 <section>
     <c:forEach var="msg" items="${fullNews}">
         <lor:news
@@ -149,6 +150,7 @@
                 moderateMode="false"/>
     </c:forEach>
 </section>
+</c:if>
 
 <c:if test="${not empty briefNews}">
 <section>
