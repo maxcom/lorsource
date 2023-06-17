@@ -237,10 +237,10 @@
 </c:set>
 
 <c:if test="${newsFirst}">
-  <c:out value="newsSection" escapeXml="false"/>
+  <c:out value="${newsSection}" escapeXml="false"/>
 </c:if>
 <c:if test="${not newsFirst}">
-  <c:out value="forumSection" escapeXml="false"/>
+  <c:out value="${forumSection}" escapeXml="false"/>
 </c:if>
 
 <c:if test="${not empty polls}">
@@ -355,10 +355,10 @@
 </c:if>
 
 <c:if test="${not newsFirst}">
-  <c:out value="newsSection" escapeXml="false"/>
+  <c:out value="${newsSection}" escapeXml="false"/>
 </c:if>
 <c:if test="${newsFirst}">
-  <c:out value="forumSection" escapeXml="false"/>
+  <c:out value="${forumSection}" escapeXml="false"/>
 </c:if>
 
 <script type="text/javascript">
