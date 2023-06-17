@@ -221,7 +221,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    val newestDate = forumTopics.headOption.map(_.commitDate.toInstant)
+    val newestDate = forumTopics.headOption.map(t => Instant.ofEpochMilli(t.getEffectiveDate.getMillis))
 
     (Map(
       forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag),
