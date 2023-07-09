@@ -98,7 +98,7 @@ public class AddTopicController {
   private final MarkdownFormatter renderService;
 
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 8196;
-  private static final int MAX_MESSAGE_LENGTH = 32768;
+  private static final int MAX_MESSAGE_LENGTH = 65536;
 
   public AddTopicController(SearchQueueSender searchQueueSender, CaptchaService captcha, SectionService sectionService,
                             TagService tagService, UserService userService, TopicPrepareService prepareService,
