@@ -218,7 +218,7 @@
             <spring:param name="lastmod" value="true"/>
           </c:if>
           <c:if test="${showIgnored}">
-            <spring:param name="showignored" value="t"/>
+            <spring:param name="showignored" value="true"/>
           </c:if>
           <c:if test="${prevPage > 0}">
             <spring:param name="offset" value="${prevPage}"/>
@@ -238,7 +238,7 @@
             <spring:param name="lastmod" value="true"/>
           </c:if>
           <c:if test="${showIgnored}">
-            <spring:param name="showignored" value="t"/>
+            <spring:param name="showignored" value="true"/>
           </c:if>
           <c:if test="${tag!=null}">
             <spring:param name="tag" value="${tag.name}"/>
@@ -264,8 +264,8 @@
   </c:if>
   <label>фильтр:
     <select name="showignored" onchange="submit();">
-      <option value="t" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
-      <option value="f" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
+      <option value="true" <c:if test="${showIgnored}">selected</c:if> >все темы</option>
+      <option value="false" <c:if test="${not showIgnored}">selected</c:if> >без игнорируемых</option>
     </select> [<a style="text-decoration: underline" href="<c:url value="/user-filter"/>">настроить</a>]
   </label>
 </form>
@@ -275,7 +275,7 @@
 <c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
   <form action="${url}" method=POST>
     <lor:csrf/>
-    <input type=hidden name=deleted value=1>
+    <input type=hidden name=showDeleted value=true>
     <input type=submit value="Показать удаленные сообщения">
   </form>
   <hr>
@@ -284,7 +284,7 @@
   <hr>
   <form action="${url}" method=POST>
     <lor:csrf/>
-    <input type=hidden name=deleted value=1>
+    <input type=hidden name=showDeleted value=true>
     <input type=hidden name=offset value="${nextPage}">
     <input type=submit value="Показать еще удаленные">
   </form>

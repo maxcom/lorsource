@@ -297,7 +297,7 @@
   <hr>
   <form action="${url}" method=POST>
     <lor:csrf/>
-    <input type=hidden name=deleted value=1>
+    <input type=hidden name=showDeleted value=true>
     <input type=submit value="Показать удаленные сообщения">
   </form>
   <hr>
@@ -306,7 +306,7 @@
     <hr>
     <form action="${url}" method=POST>
         <lor:csrf/>
-        <input type=hidden name=deleted value=1>
+      <input type=hidden name=showDeleted value=true>
         <input type=hidden name=offset value="${nextPage}">
         <input type=submit value="Показать еще удаленные">
     </form>
