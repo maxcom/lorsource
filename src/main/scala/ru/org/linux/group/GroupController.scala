@@ -78,6 +78,14 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     val section = sectionService.getSection(Section.SECTION_FORUM)
     val group = groupDao.getGroup(section, groupName)
 
+    if (year < 1990 || year > 3000) {
+      throw new ServletParameterBadValueException("year", "указан некорректный год")
+    }
+
+    if (month < 1 || month > 12) {
+      throw new ServletParameterBadValueException("month", "указан некорректный месяц")
+    }
+
     forum(section, group, offset, lastmod = false, Some((year, month)), tag = None, showDeleted = false,
       showIgnored = showIgnored)
   }
@@ -163,14 +171,6 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
 
     yearMonth match {
       case Some((year, month)) =>
-        if (year < 1990 || year > 3000) {
-          throw new ServletParameterBadValueException("year", "указан некорректный год")
-        }
-
-        if (month < 1 || month > 12) {
-          throw new ServletParameterBadValueException("month", "указан некорректный месяц")
-        }
-
         params.put("year", Integer.valueOf(year))
         params.put("month", Integer.valueOf(month))
         params.put("url", s"${group.getUrl}$year/$month/")
