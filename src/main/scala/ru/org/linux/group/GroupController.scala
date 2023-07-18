@@ -19,12 +19,13 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
+import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.topic.ArchiveDao
+import ru.org.linux.user.User
 import ru.org.linux.util.ServletParameterBadValueException
 
 import java.net.URLEncoder
@@ -33,10 +34,10 @@ import java.util
 import java.util.concurrent.CompletionStage
 import javax.servlet.http.HttpServletRequest
 import scala.compat.java8.FutureConverters.FutureOps
-import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.OptionConverters.RichOption
 
 object GroupController {
   private val MaxOffset = 300
@@ -74,7 +75,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
   def forumArchive(@PathVariable("group") groupName: String,
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
-                   @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean): CompletionStage[ModelAndView] = {
+                   @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean): CompletionStage[ModelAndView] = AuthorizedOpt { currentUserOpt =>
     val section = sectionService.getSection(Section.SECTION_FORUM)
     val group = groupDao.getGroup(section, groupName)
 
@@ -86,8 +87,8 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       throw new ServletParameterBadValueException("month", "указан некорректный месяц")
     }
 
-    forum(section, group, offset, lastmod = false, Some((year, month)), tag = None, showDeleted = false,
-      showIgnored = showIgnored)
+    forum(section, group, currentUserOpt.map(_.user), offset, lastmod = false, Some((year, month)), tag = None,
+      showDeleted = false, showIgnored = showIgnored)
   }
 
   private def isFirstPage(offset: Int): Boolean = {
@@ -120,12 +121,14 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     } else if (!isFirstPage(offset) && offset > GroupController.MaxOffset) {
       Future.successful(new ModelAndView(new RedirectView(s"${group.getUrl}archive"))).toJava
     } else {
-      forum(section, group, offset, lastmod, None, Option(tag), showDeleted = showDeleted, showIgnored = showIgnored)
+      forum(section, group, currentUserOpt.map(_.user), offset, lastmod, None, Option(tag), showDeleted = showDeleted,
+        showIgnored = showIgnored)
     }
   }
 
-  private def forum(section: Section, group: Group, offset: Int, lastmod: Boolean, yearMonth: Option[(Int, Int)],
-                    tag: Option[String], showDeleted: Boolean, showIgnored: Boolean): CompletionStage[ModelAndView] = {
+  private def forum(section: Section, group: Group, currentUser: Option[User], offset: Int, lastmod: Boolean,
+                    yearMonth: Option[(Int, Int)], tag: Option[String], showDeleted: Boolean,
+                    showIgnored: Boolean): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val firstPage = isFirstPage(offset)
@@ -156,16 +159,16 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     params.put("groupInfo", prepareService.prepareGroupInfo(group))
 
     val tagInfo = tag.flatMap(v => tagService.getTagInfo(v, skipZero = true))
-    val tagId = tagInfo.map(_.id).map(Integer.valueOf).asJava
+    val tagId = tagInfo.map(_.id).map(Integer.valueOf).toJava
 
     tagInfo.foreach(t => params.put("tag", TagService.tagRef(t, 0)))
 
     val mainTopics = if (!lastmod) {
-      groupListDao.getGroupListTopics(group.getId, AuthUtil.getCurrentUser, tmpl.getProf.getTopics, offset,
-        tmpl.getProf.getMessages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).asJava,
-        yearMonth.map(p => Integer.valueOf(p._2)).asJava, tagId)
+      groupListDao.getGroupListTopics(group.getId, currentUser.toJava, tmpl.getProf.getTopics, offset,
+        tmpl.getProf.getMessages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
+        yearMonth.map(p => Integer.valueOf(p._2)).toJava, tagId)
     } else {
-      groupListDao.getGroupTrackerTopics(group.getId, AuthUtil.getCurrentUser, tmpl.getProf.getTopics, offset,
+      groupListDao.getGroupTrackerTopics(group.getId, currentUser.toJava, tmpl.getProf.getTopics, offset,
         tmpl.getProf.getMessages, tagId)
     }
 
@@ -191,7 +194,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       params.put("topicsList", mainTopics)
     }
 
-    params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group, AuthUtil.getCurrentUser)))
+    params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group, currentUser.orNull)))
 
     activeTagsF.map { activeTags =>
       if (activeTags.nonEmpty) {

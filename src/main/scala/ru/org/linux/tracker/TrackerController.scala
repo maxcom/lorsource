@@ -19,21 +19,20 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AuthUtil
+import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.group.GroupListDao
 import ru.org.linux.site.Template
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import java.net.URLEncoder
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.{RichOption, RichOptional}
 
 @Controller
 class TrackerController(groupListDao: GroupListDao, userService: UserService) {
   @ModelAttribute("filters")
-  def getFilter: java.util.List[TrackerFilterEnum] = {
-    val tmpl = Template.getTemplate
-
-    if (tmpl.isModeratorSession) {
+  def getFilter: java.util.List[TrackerFilterEnum] = AuthorizedOpt { currentUserOpt =>
+    if (currentUserOpt.exists(_.moderator)) {
       TrackerFilterEnum.values.toSeq.asJava
     } else {
       TrackerFilterEnum.values.toSeq.filterNot(_.isModeratorOnly).asJava
@@ -42,15 +41,15 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
   @RequestMapping(Array("/tracker.jsp"))
   @throws[Exception]
-  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = {
+  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = AuthorizedOpt { currentUserOpt =>
     val tmpl = Template.getTemplate
     val defaultFilter = tmpl.getProf.getTrackerMode
     val redirectView = new RedirectView("/tracker/")
 
     redirectView.setExposeModelAttributes(false)
-    val filter = TrackerFilterEnum.getByValue(filterAction, tmpl.isModeratorSession)
+    val filter = TrackerFilterEnum.getByValue(filterAction, currentUserOpt.exists(_.moderator)).toScala
 
-    if (filter.isPresent && (filter.get ne defaultFilter)) {
+    if (!filter.contains(defaultFilter)) {
       redirectView.setUrl("/tracker/?filter=" + URLEncoder.encode(filterAction, "UTF-8"))
     }
 
@@ -66,12 +65,13 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
   @RequestMapping(Array("/tracker"))
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
-              @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int): ModelAndView = {
+              @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int
+             ): ModelAndView = AuthorizedOpt { currentUserOpt =>
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
     val tmpl = Template.getTemplate
     val defaultFilter = tmpl.getProf.getTrackerMode
-    val trackerFilter = TrackerFilterEnum.getByValue(filterAction, tmpl.isModeratorSession).orElse(defaultFilter)
+    val trackerFilter = TrackerFilterEnum.getByValue(filterAction, currentUserOpt.exists(_.moderator)).orElse(defaultFilter)
 
     val params = new java.util.HashMap[String, AnyRef]
 
@@ -91,14 +91,14 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
     params.put("topics", Integer.valueOf(topics))
 
-    val user = AuthUtil.getCurrentUser
+    val user = currentUserOpt.map(_.user)
     params.put("title", makeTitle(trackerFilter, defaultFilter))
 
-    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user, topics, offset, messages).asScala
+    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user.toJava, topics, offset, messages).asScala
 
     params.put("msgs", trackerTopics.asJava)
 
-    if (tmpl.isModeratorSession) {
+    if (currentUserOpt.exists(_.moderator)) {
       params.put("newUsers", userService.getNewUsers)
       params.put("frozenUsers", userService.getFrozenUsers)
       params.put("unFrozenUsers", userService.getUnFrozenUsers)

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, Re
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
-import ru.org.linux.auth.AuthUtil
+import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
@@ -57,13 +57,9 @@ object TagTopicListController {
 }
 
 @Controller
-class TagTopicListController (
-  userTagService: UserTagService,
-  sectionService: SectionService,
-  tagService: TagService,
-  topicListService: TopicListService,
-  prepareService: TopicPrepareService
-) {
+class TagTopicListController (userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
+    topicListService: TopicListService, prepareService: TopicPrepareService) {
+
   private def getTitle(tag: String, section: Option[Section]) = {
     section match {
       case None    => tag.capitalize
@@ -80,7 +76,7 @@ class TagTopicListController (
                @PathVariable tag: String,
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
                @RequestParam(value = "section", defaultValue = "0") sectionId: Int
-  ): ModelAndView = {
+  ): ModelAndView = AuthorizedOpt { currentUserOpt =>
     TagName.checkTag(tag)
 
     tagService.getTagInfo(tag, skipZero = true) match {
@@ -101,8 +97,6 @@ class TagTopicListController (
         modelAndView.addObject("navtitle", title)
         modelAndView.addObject("ptitle", title)
 
-        val tmpl = Template.getTemplate
-
         val offset = topicListService.fixOffset(rawOffset)
 
         modelAndView.addObject("offsetNavigation", true)
@@ -111,20 +105,23 @@ class TagTopicListController (
         modelAndView.addObject("offset", offset)
         modelAndView.addObject("sectionList", sectionService.getSectionList)
 
-        if (tmpl.isSessionAuthorized) {
-          modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag))
-          modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(AuthUtil.getCurrentUser, tag))
+        currentUserOpt.foreach { currentUser =>
+          modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(currentUser.user, tag))
+          modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(currentUser.user, tag))
 
-          if (!tmpl.isModeratorSession) {
-            modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag))
-            modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(AuthUtil.getCurrentUser, tag))
+          if (!currentUser.moderator) {
+            modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(currentUser.user, tag))
+            modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(currentUser.user, tag))
           }
         }
 
-        val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null, 20, AuthUtil.getCurrentUser)
+        val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null,
+          20, currentUserOpt.map(_.user).orNull)
 
-        val preparedTopics =
-          prepareService.prepareTopicsForUser(topics, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false)
+        val tmpl = Template.getTemplate
+
+        val preparedTopics = prepareService.prepareTopicsForUser(topics, currentUserOpt.map(_.user).orNull,
+          tmpl.getProf, loadUserpics = false)
 
         modelAndView.addObject("messages", preparedTopics)
 
@@ -151,8 +148,6 @@ class TagTopicListController (
   @RequestMapping(
     value = Array("/view-news.jsp"),
     method = Array(RequestMethod.GET, RequestMethod.HEAD),
-    params = Array("tag")
-  )
-  def tagFeedOld(@RequestParam tag: String): View =
-    new RedirectView(TagTopicListController.tagListUrl(tag))
+    params = Array("tag"))
+  def tagFeedOld(@RequestParam tag: String): View = new RedirectView(TagTopicListController.tagListUrl(tag))
 }

@@ -123,7 +123,7 @@ public class GroupListDao {
 
   private static final String noUncommited = " AND (t.moderate or NOT sections.moderate) ";
 
-  public List<TopicsListItem> getGroupTrackerTopics(int groupid, User currentUser, int topics, int offset,
+  public List<TopicsListItem> getGroupTrackerTopics(int groupid, Optional<User> currentUser, int topics, int offset,
                                                     int messagesInPage, Optional<Integer> tagId) {
 
     String dateFilter = ">CURRENT_TIMESTAMP-'6 month'::interval ";
@@ -138,7 +138,7 @@ public class GroupListDao {
             "AND t.postdate"+dateFilter, false, false);
   }
 
-  public List<TopicsListItem> getGroupListTopics(int groupid, User currentUser, int topics, int offset,
+  public List<TopicsListItem> getGroupListTopics(int groupid, Optional<User> currentUser, int topics, int offset,
                                                  int messagesInPage, boolean showIgnored, boolean showDeleted,
                                                  Optional<Integer> year, Optional<Integer> month, Optional<Integer> tagId) {
     String commentInterval;
@@ -164,12 +164,12 @@ public class GroupListDao {
 
     String tagFilter = tagId.map(t -> " AND t.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
 
-    return load(partFilter + tagFilter, "", null,
+    return load(partFilter + tagFilter, "", Optional.empty(),
             100, 0, messagesInPage,
             "topic_postdate", "", "", true, false);
   }
 
-  public List<TopicsListItem> getTrackerTopics(TrackerFilterEnum filter, User currentUser,
+  public List<TopicsListItem> getTrackerTopics(TrackerFilterEnum filter, Optional<User> currentUser,
                                                int topics, int offset, int messagesInPage) {
     String partFilter = switch (filter) {
       case NOTALKS -> queryPartNoTalks;
@@ -186,15 +186,17 @@ public class GroupListDao {
 
     String dateFilter = ">CURRENT_TIMESTAMP-'4 days'::interval ";
 
-    return load(partFilter, userFilter, currentUser, topics, offset,
-            messagesInPage, "comment_postdate", "AND comments.postdate"+dateFilter +" AND t.lastmod"+dateFilter,
+    return load(partFilter, userFilter, currentUser, topics, offset, messagesInPage, "comment_postdate",
+            "AND comments.postdate"+dateFilter +" AND t.lastmod"+dateFilter,
             "AND t.postdate"+dateFilter, false, false);
   }
 
-  private List<TopicsListItem> load(String partFilter, String authorFilter, User currentUser,
+  private List<TopicsListItem> load(String partFilter, String authorFilter, Optional<User> currentUserOpt,
                                     int topics, int offset, final int messagesInPage, String orderColumn,
                                     String commentInterval, String topicInterval, boolean showIgnored,
                                     boolean showDeleted) {
+
+    User currentUser = currentUserOpt.orElse(null);
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
     parameter.addValue("topics", topics);
