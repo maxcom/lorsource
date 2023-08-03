@@ -92,10 +92,8 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         section.foreach(s => modelAndView.addObject("section", s))
         TopicListController.setExpireHeaders(response, null, null)
 
-        val title = getTitle(tag, section)
-
-        modelAndView.addObject("navtitle", title)
-        modelAndView.addObject("ptitle", title)
+        modelAndView.addObject("navtitle", getTitle(tag, None))
+        modelAndView.addObject("ptitle", getTitle(tag, section))
 
         val offset = topicListService.fixOffset(rawOffset)
 
