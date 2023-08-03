@@ -326,7 +326,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def updateUser(user: User, name: String, url: String, @Nullable newEmail: String, town: String,
-                @Nullable password: String, info: String): Unit = transactional() { _ =>
+                @Nullable password: String, info: String, ip: String): Unit = transactional() { _ =>
     val changed = mutable.Map[String, String]()
 
     if (userDao.updateName(user, name)) {
@@ -345,18 +345,18 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       changed += "info" -> info
     }
 
-    updateEmailPasswd(user, newEmail, password)
+    updateEmailPasswd(user, newEmail, password, ip)
 
     if (changed.nonEmpty) {
       userLogDao.logSetUserInfo(user, changed.asJava)
     }
   }
 
-  def updateEmailPasswd(user: User, @Nullable newEmail: String,
-                        @Nullable password: String): Unit = transactional() { _ =>
+  def updateEmailPasswd(user: User, @Nullable newEmail: String, @Nullable password: String,
+                        ip: String): Unit = transactional() { _ =>
     if (password != null) {
       userDao.setPassword(user, password)
-      userLogDao.logSetPassword(user)
+      userLogDao.logSetPassword(user, ip)
     }
 
     if (newEmail != null) {

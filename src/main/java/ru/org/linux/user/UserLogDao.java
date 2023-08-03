@@ -223,13 +223,13 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void logSetPassword(@Nonnull User user) {
+  public void logSetPassword(User user, String ip) {
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
             user.getId(),
             user.getId(),
             UserLogAction.SET_PASSWORD.toString(),
-            ImmutableMap.of()
+            ImmutableMap.of(OPTION_IP, ip)
     );
   }
 

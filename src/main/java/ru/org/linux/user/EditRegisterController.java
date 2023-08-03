@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -188,9 +188,9 @@ public class EditRegisterController {
 
     if (!errors.hasErrors()) {
       if (userService.canEditProfileInfo(user)) {
-        userService.updateUser(user, name, url, newEmail, town, password, info);
+        userService.updateUser(user, name, url, newEmail, town, password, info, request.getRemoteAddr());
       } else {
-        userService.updateEmailPasswd(user, newEmail, password);
+        userService.updateEmailPasswd(user, newEmail, password, request.getRemoteAddr());
       }
 
       // Обновление token-а аудетификации после смены пароля
