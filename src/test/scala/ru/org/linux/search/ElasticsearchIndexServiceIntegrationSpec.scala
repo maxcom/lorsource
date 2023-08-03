@@ -65,7 +65,7 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
 class SearchIntegrationTestConfiguration {
   @Bean(destroyMethod="close")
   def elasticClient: ElasticClient = {
-    val container = new OpensearchContainer(DockerImageName.parse("opensearchproject/opensearch:2.8.0"))
+    val container = new OpensearchContainer(DockerImageName.parse("opensearchproject/opensearch:2.9.0"))
     container.start()
 
     val host = container.getHttpHostAddress
