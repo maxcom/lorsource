@@ -106,12 +106,12 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         modelAndView.addObject("sectionList", sectionService.getSectionList)
 
         currentUserOpt.foreach { currentUser =>
-          modelAndView.addObject("isShowFavoriteTagButton", !userTagService.hasFavoriteTag(currentUser.user, tag))
-          modelAndView.addObject("isShowUnFavoriteTagButton", userTagService.hasFavoriteTag(currentUser.user, tag))
+          modelAndView.addObject("showFavoriteTagButton", !userTagService.hasFavoriteTag(currentUser.user, tag))
+          modelAndView.addObject("showUnFavoriteTagButton", userTagService.hasFavoriteTag(currentUser.user, tag))
 
           if (!currentUser.moderator) {
-            modelAndView.addObject("isShowIgnoreTagButton", !userTagService.hasIgnoreTag(currentUser.user, tag))
-            modelAndView.addObject("isShowUnIgnoreTagButton", userTagService.hasIgnoreTag(currentUser.user, tag))
+            modelAndView.addObject("showIgnoreTagButton", !userTagService.hasIgnoreTag(currentUser.user, tag))
+            modelAndView.addObject("showUnIgnoreTagButton", userTagService.hasIgnoreTag(currentUser.user, tag))
           }
         }
 
@@ -128,6 +128,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         modelAndView.addObject("counter", tagInfo.topicCount)
         modelAndView.addObject("url", TagTopicListController.tagListUrl(tag))
         modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
+        modelAndView.addObject("ignoreCount", userTagService.countIgnore(tagInfo.id))
 
         if (offset < 200 && preparedTopics.size == 20) {
           modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + 20))

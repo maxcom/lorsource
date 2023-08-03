@@ -4,7 +4,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -29,64 +29,65 @@
 <title>${ptitle}</title>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-  <div class=nav>
-    <div id="navPath">
-      <i class="icon-tag"></i> ${navtitle}
-    </div>
-    <div class="nav-buttons">
-      <ul>
-        <c:if test="${isShowIgnoreTagButton}">
-          <li>
-          <c:url var="tagIgnUrl" value="/user-filter">
-            <c:param name="newIgnoreTagName" value="${tag}"/>
-          </c:url>
 
-          <a id="tagIgnAdd" href="${tagIgnUrl}">Игнорировать тег</a>
-            </li>
-        </c:if>
-        <c:if test="${isShowUnIgnoreTagButton}">
-          <li>
-          <c:url var="tagIgnUrl" value="/user-filter"/>
+<h1><i class="icon-tag"></i> ${navtitle}</h1>
 
-          <a id="tagIgnAdd" href="${tagIgnUrl}">Не игнорировать тег</a>
-          </li>
-        </c:if>
+<nav>
+  <c:if test="${counter>10}">
+    <c:forEach items="${sectionList}" var="cursection">
+      <c:if test="${section == cursection.id}">
+        <a href="${url}?section=${cursection.id}" class="btn btn-selected">${cursection.name}</a>
+      </c:if>
 
-        <c:if test="${counter>10}">
-          <li><a href="${url}" <c:if test="${section == 0}">class="current"</c:if>>Все</a></li>
-
-          <c:forEach items="${sectionList}" var="cursection">
-            <li>
-              <a href="${url}?section=${cursection.id}"
-                 <c:if test="${section == cursection.id}">class="current"</c:if>>${cursection.name}</a>
-            </li>
-          </c:forEach>
-        </c:if>
-      </ul>
-    </div>
-</div>
+      <c:if test="${section != cursection.id}">
+        <a href="${url}?section=${cursection.id}" class="btn btn-default">${cursection.name}</a>
+      </c:if>
+    </c:forEach>
+  </c:if>
+</nav>
 
 <div class="infoblock" style="font-size: medium">
   <div class="fav-buttons">
-  <c:if test="${isShowFavoriteTagButton}">
+    <c:if test="${showFavoriteTagButton}">
       <c:url var="tagFavUrl" value="/user-filter">
         <c:param name="newFavoriteTagName" value="${tag}"/>
       </c:url>
 
       <a id="tagFavAdd" href="${tagFavUrl}" title="В избранное"><i class="icon-eye"></i></a>
-  </c:if>
-  <c:if test="${not template.sessionAuthorized}">
+    </c:if>
+    <c:if test="${not template.sessionAuthorized}">
       <a id="tagFavNoth" href="#"><i class="icon-eye"  title="Добавить в избранное"></i></a>
-  </c:if>
-  <c:if test="${isShowUnFavoriteTagButton}">
+    </c:if>
+    <c:if test="${showUnFavoriteTagButton}">
       <c:url var="tagFavUrl" value="/user-filter"/>
 
       <a id="tagFavAdd" href="${tagFavUrl}" title="Удалить из избранного" class="selected"><i class="icon-eye"></i></a>
-  </c:if>
+    </c:if>
     <br><span id="favsCount" title="Кол-во пользователей, добавивших в избранное">${favsCount}</span>
+
+    <br>
+
+    <c:if test="${showIgnoreTagButton}">
+      <c:url var="tagIgnUrl" value="/user-filter">
+        <c:param name="newIgnoreTagName" value="${tag}"/>
+      </c:url>
+
+      <a id="tagIgnore" href="${tagIgnUrl}" title="Игнорировать"><i class="icon-eye-with-line"></i></a>
+    </c:if>
+    <c:if test="${!showIgnoreTagButton && !showUnIgnoreTagButton}">
+      <a id="tagIgnNoth" href="#"><i class="icon-eye-with-line" title="Игнорировать"></i></a>
+    </c:if>
+    <c:if test="${showUnIgnoreTagButton}">
+      <c:url var="tagIgnUrl" value="/user-filter"/>
+
+      <a id="tagIgnore" href="${tagFavUrl}" title="Перестать игнорировать" class="selected"><i class="icon-eye-with-line"></i></a>
+    </c:if>
+    <br><span id="ignoreCount" title="Кол-во пользователей, игнорирующих тег">${ignoreCount}</span>
   </div>
 
-  Всего сообщений: ${counter}
+  <p>
+    Всего сообщений: ${counter}
+  </p>
 </div>
 
 <c:forEach var="msg" items="${messages}">
