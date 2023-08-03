@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -202,12 +202,14 @@ public class UserModificationController {
    * @return сообщение о успешности сброса
    */
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=reset-password")
-  public ModelAndView resetPassword(
-      @RequestParam("id") User user
-  ) {
+  public ModelAndView resetPassword(@RequestParam("id") User user) {
     User moderator = getModerator();
 
-    if (user.isModerator() || user.isAnonymous()) {
+    if (user.isModerator() && !moderator.isAdministrator()) {
+      throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
+    }
+
+    if (user.isAnonymous()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
     }
 
@@ -218,6 +220,7 @@ public class UserModificationController {
     ModelAndView mv = new ModelAndView("action-done");
     mv.getModel().put("link", getNoCacheLinkToProfile(user));
     mv.getModel().put("message", "Пароль сброшен");
+
     return mv;
   }
   
