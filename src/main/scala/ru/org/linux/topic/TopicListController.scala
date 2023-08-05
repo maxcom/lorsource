@@ -75,6 +75,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val modelAndView = new ModelAndView("view-news")
 
+    modelAndView.addObject("topicListRequest", topicListForm)
+
     group foreach { group =>
       modelAndView.addObject("group", group)
     }
