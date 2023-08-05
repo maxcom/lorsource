@@ -14,7 +14,9 @@
  */
 package ru.org.linux.topic
 
-case class TopicListRequest(offset: Int, yearMonth: Option[(Int, Int)]) {
+import scala.beans.BeanProperty
+
+case class TopicListRequest(@BeanProperty offset: Int, yearMonth: Option[(Int, Int)]) {
   def getMonth = yearMonth.map(_._2)
   def getYear = yearMonth.map(_._1)
 }
