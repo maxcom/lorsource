@@ -26,6 +26,8 @@ import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 import ru.org.linux.user.UserTagService
 
+import scala.jdk.OptionConverters.RichOption
+
 @Controller
 object TagTopicListController {
   private val TagUriTemplate = new UriTemplate("/tag/{tag}")
@@ -108,7 +110,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
           }
         }
 
-        val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, null, null,
+        val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, None.toJava, None.toJava,
           20, currentUserOpt.map(_.user).orNull)
 
         val tmpl = Template.getTemplate
