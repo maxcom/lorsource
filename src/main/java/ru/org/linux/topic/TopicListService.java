@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TopicListService {
@@ -60,22 +61,12 @@ public class TopicListService {
           Section section,
           Group group,
           String tag,
-          Integer offset,
-          Integer year,
-          Integer month,
+          int offset,
+          Optional<Integer> year,
+          Optional<Integer> month,
           int count,
           @Nullable User currentUser
   ) throws TagNotFoundException {
-    logger.debug(
-            "TopicListService.getTopicsFeed()" +
-                    "; section=" + ((section != null) ? section.toString() : "(null)") +
-                    "; group=" + ((group != null) ? group.toString() : "(null)") +
-                    "; tag=" + tag +
-                    "; offset=" + offset +
-                    "; year=" + year +
-                    "; month=" + month
-    );
-
     TopicListDto topicListDto = new TopicListDto();
 
     if (section != null) {
@@ -95,11 +86,11 @@ public class TopicListService {
       topicListDto.setTag(tagService.getTagId(tag, false));
     }
 
-    if (month != null && year != null) {
+    if (month.isPresent() && year.isPresent()) {
       topicListDto.setDateLimitType(TopicListDto.DateLimitType.BETWEEN);
       Calendar calendar = Calendar.getInstance();
 
-      calendar.set(year, month - 1, 1, 0, 0, 0);
+      calendar.set(year.get(), month.get() - 1, 1, 0, 0, 0);
       topicListDto.setFromDate(calendar.getTime());
 
       calendar.add(Calendar.MONTH, 1);
@@ -283,7 +274,7 @@ public class TopicListService {
    * @param offset оригинальное смещение
    * @return скорректированное смещение
    */
-  public int fixOffset(Integer offset) {
+  public static int fixOffset(Integer offset) {
     if (offset != null) {
       if (offset < 0) {
         return 0;

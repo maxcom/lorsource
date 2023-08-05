@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,16 +17,15 @@ package ru.org.linux.topic
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation._
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.section.SectionService
 import ru.org.linux.site.Template
-import ru.org.linux.user._
+import ru.org.linux.user.*
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 @RequestMapping(Array("/people/{nick}"))
@@ -35,7 +34,6 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
                               topicPermissionService: TopicPermissionService) {
   @RequestMapping(value = Array("favs"), params = Array("!output"))
   def showUserFavs(
-    request: HttpServletRequest,
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
   ): ModelAndView = {
@@ -47,10 +45,10 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("ptitle", s"Избранные сообщения ${user.getNick}")
     modelAndView.addObject("navtitle", s"Избранные сообщения")
 
-    val offset = topicListService.fixOffset(rawOffset)
+    val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopicsFeed(user, offset, true, false)
-    prepareTopicsForPlainOrRss(request, modelAndView, rss = false, messages)
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -58,7 +56,6 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
   @RequestMapping(value = Array("drafts"))
   def showUserDrafts(
-    request: HttpServletRequest,
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
   ): ModelAndView = {
@@ -74,10 +71,10 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     modelAndView.addObject("ptitle", s"Черновики ${user.getNick}")
     modelAndView.addObject("navtitle", s"Черновики")
-    val offset = topicListService.fixOffset(rawOffset)
+    val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getDrafts(user, offset)
-    prepareTopicsForPlainOrRss(request, modelAndView, rss = false, messages)
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -85,15 +82,11 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
   @RequestMapping
   def showUserTopics(
-    request: HttpServletRequest,
     @PathVariable nick: String,
-    response: HttpServletResponse,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
     @RequestParam(value = "section", defaultValue = "0") sectionId: Int,
     @RequestParam(value = "output", required = false) output: String
   ): ModelAndView = {
-    TopicListController.setExpireHeaders(response, null, null)
-
     val (modelAndView, user) = mkModel(nick)
 
     val section = if (sectionId != 0) {
@@ -116,7 +109,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("rssLink",
       UriComponentsBuilder.fromUriString("/people/{nick}/?output=rss").buildAndExpand(nick).encode.toUriString)
 
-    val offset = topicListService.fixOffset(rawOffset)
+    val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopicsFeed(user, section.orNull, null, offset, false, false)
 
@@ -128,7 +121,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
 
-    prepareTopicsForPlainOrRss(request, modelAndView, rss, messages)
+    prepareTopicsForPlainOrRss(modelAndView, rss, messages)
 
     if (!rss) {
       modelAndView.setViewName("user-topics")
@@ -140,7 +133,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   }
 
   @RequestMapping(value = Array("deleted-topics"), method = Array(RequestMethod.GET))
-  def showDeletedTopics(request: HttpServletRequest, @PathVariable nick: String): ModelAndView = {
+  def showDeletedTopics(@PathVariable nick: String): ModelAndView = {
     val tmpl = Template.getTemplate
 
     val user = userService.getUserCached(nick)
@@ -161,7 +154,6 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
   @RequestMapping(value = Array("tracked"), params = Array("!output"))
   def showUserWatches(
-    request: HttpServletRequest,
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
   ): ModelAndView = {
@@ -179,18 +171,17 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("ptitle", s"Отслеживаемые сообщения ${user.getNick}")
     modelAndView.addObject("navtitle", s"Отслеживаемые сообщения")
 
-    val offset = topicListService.fixOffset(rawOffset)
+    val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
 
     val messages = topicListService.getUserTopicsFeed(user, offset, true, true)
-    prepareTopicsForPlainOrRss(request, modelAndView, rss = false, messages)
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
   }
 
   private def prepareTopicsForPlainOrRss(
-    request: HttpServletRequest,
     modelAndView: ModelAndView,
     rss: Boolean,
     messages: java.util.List[Topic]

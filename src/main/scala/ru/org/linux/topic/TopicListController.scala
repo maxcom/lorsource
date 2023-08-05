@@ -37,29 +37,14 @@ import javax.servlet.http.HttpServletResponse
 import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.RichOption
 
 object TopicListController {
-  def setExpireHeaders(response: HttpServletResponse, year: Integer, month: Integer): Unit = {
-    if (month == null) {
-      response.setDateHeader("Expires", System.currentTimeMillis + 60 * 1000)
-      response.setDateHeader("Last-Modified", System.currentTimeMillis)
-    } else {
-      val endOfMonth = new DateTime(year, month, 1, 0, 0).plusMonths(1)
-
-      if (endOfMonth.isBeforeNow) {
-        response.setDateHeader("Last-Modified", endOfMonth.getMillis)
-      } else {
-        response.setDateHeader("Expires", System.currentTimeMillis + 60 * 1000)
-        response.setDateHeader("Last-Modified", System.currentTimeMillis)
-      }
-    }
-  }
-
   private def calculatePTitle(section: Section, topicListForm: TopicListRequest): String = {
-    if (topicListForm.getMonth == null) {
+    if (topicListForm.yearMonth.isEmpty) {
       section.getName
     } else {
-      s"Архив: ${section.getName}, ${topicListForm.getYear}, ${DateUtil.getMonth(topicListForm.getMonth)}"
+      s"Архив: ${section.getName}, ${topicListForm.getYear.get}, ${DateUtil.getMonth(topicListForm.getMonth.get)}"
     }
   }
 
@@ -70,8 +55,8 @@ object TopicListController {
       navTitle.append(s" «${group.getTitle}»")
     }
 
-    if (topicListForm.getMonth != null) {
-      navTitle.append(" - Архив ").append(topicListForm.getYear).append(", ").append(DateUtil.getMonth(topicListForm.getMonth))
+    if (topicListForm.getMonth.isDefined) {
+      navTitle.append(" - Архив ").append(topicListForm.getYear.get).append(", ").append(DateUtil.getMonth(topicListForm.getMonth.get))
     }
 
     navTitle.toString
@@ -84,9 +69,9 @@ object TopicListController {
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
                           groupDao: GroupDao) extends StrictLogging {
-  private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest, response: HttpServletResponse,
+  private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
                                     group: Option[Group]): ModelAndView = {
-    checkRequestConditions(section, group, topicListForm)
+    checkRequestConditions(section, group)
 
     val modelAndView = new ModelAndView("view-news")
 
@@ -94,43 +79,41 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       modelAndView.addObject("group", group)
     }
 
-    modelAndView.addObject("url", "view-news.jsp")
     modelAndView.addObject("section", section)
     modelAndView.addObject("archiveLink", section.getArchiveLink)
 
     modelAndView.addObject("groupList",
       SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
 
-    TopicListController.setExpireHeaders(response, topicListForm.getYear, topicListForm.getMonth)
-
     modelAndView.addObject("navtitle", TopicListController.calculateNavTitle(section, group, topicListForm))
-
-    topicListForm.setOffset(topicListService.fixOffset(topicListForm.getOffset))
 
     val tmpl = Template.getTemplate
 
     val messages = topicListService.getTopicsFeed(
-      section, group.orNull, null, topicListForm.getOffset, topicListForm.getYear, topicListForm.getMonth, 20, AuthUtil.getCurrentUser)
+      section, group.orNull, null, topicListForm.offset, topicListForm.getYear.map(Integer.valueOf).toJava,
+      topicListForm.getMonth.map(Integer.valueOf).toJava, 20, AuthUtil.getCurrentUser)
 
     modelAndView.addObject(
       "messages",
       prepareService.prepareTopicsForUser(messages, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false))
 
-    modelAndView.addObject("offsetNavigation", topicListForm.getMonth == null)
+    modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
 
     modelAndView
   }
 
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
-  def topics(@PathVariable("section") sectionName: String, topicListForm: TopicListRequest,
-             response: HttpServletResponse): CompletionStage[ModelAndView] = {
+  def topics(@PathVariable("section") sectionName: String,
+             @RequestParam(value="offset", defaultValue = "0") offset: Int): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val section = sectionService.getSectionByName(sectionName)
 
     val activeTagsF = tagService.getActiveTopTags(section, None, deadline)
 
-    val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, None)
+    val topicListForm = TopicListRequest.ofOffset(offset)
+
+    val modelAndView = mainTopicsFeedHandler(section, topicListForm, None)
 
     modelAndView.addObject("ptitle", TopicListController.calculatePTitle(section, topicListForm))
     modelAndView.addObject("url", section.getNewsViewerLink)
@@ -146,13 +129,14 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   }
 
   @RequestMapping(Array("/forum/lenta"))
-  def forum(topicListForm: TopicListRequest, response: HttpServletResponse): CompletionStage[ModelAndView] = {
-    topics("forum", topicListForm, response)
+  def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int): CompletionStage[ModelAndView] = {
+    topics("forum", offset)
   }
 
   @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
-  def topicsByGroup(@PathVariable("section") sectionName: String, topicListForm: TopicListRequest,
-                    @PathVariable("group") groupName: String, response: HttpServletResponse): CompletionStage[ModelAndView] = {
+  def topicsByGroup(@PathVariable("section") sectionName: String,
+                    @RequestParam(value="offset", defaultValue = "0") offset: Int,
+                    @PathVariable("group") groupName: String): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val section = sectionService.getSectionByName(sectionName)
@@ -161,7 +145,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val activeTagsF = tagService.getActiveTopTags(section, Some(group), deadline)
 
-    val modelAndView = mainTopicsFeedHandler(section, topicListForm, response, Some(group))
+    val topicListForm = TopicListRequest.ofOffset(offset)
+
+    val modelAndView = mainTopicsFeedHandler(section, topicListForm, Some(group))
 
     modelAndView.addObject("ptitle", s"${section.getName} - ${group.getTitle}")
     modelAndView.addObject("url", group.getUrl)
@@ -176,17 +162,13 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   }
 
   @RequestMapping(Array("/{section}/archive/{year:\\d{4}}/{month}"))
-  def galleryArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int,
-                     response: HttpServletResponse): ModelAndView = {
+  def sectionArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int): ModelAndView = {
     val sectionObject = sectionService.getSectionByName(section)
 
     if (sectionObject.isPremoderated) {
-      val topicListForm = new TopicListRequest
+      val topicListForm = TopicListRequest.orYearMonth(year, month)
 
-      topicListForm.setYear(year)
-      topicListForm.setMonth(month)
-
-      val modelAndView = mainTopicsFeedHandler(sectionObject, topicListForm, response, None)
+      val modelAndView = mainTopicsFeedHandler(sectionObject, topicListForm, None)
 
       modelAndView.addObject("ptitle", TopicListController.calculatePTitle(sectionObject, topicListForm))
 
@@ -206,34 +188,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
   }
 
-  @RequestMapping(value = Array("/view-news.jsp"), params = Array("section", "!tag"))
-  def oldLink(topicListForm: TopicListRequest, @RequestParam("section") sectionId: Int,
-              @RequestParam(value = "group", defaultValue = "0") groupId: Int): View = {
-    val section = sectionService.getSection(sectionId)
-
-    val redirectLink = new StringBuilder(section.getNewsViewerLink)
-
-    if (topicListForm.getYear != null && topicListForm.getMonth != null) {
-      redirectLink.append(topicListForm.getYear).append('/').append(topicListForm.getMonth)
-    } else if (groupId > 0) {
-      val group = groupDao.getGroup(groupId)
-      redirectLink.append(group.getUrlName).append('/')
-    }
-
-    val queryStr = if (topicListForm.getOffset == null) {
-      ""
-    } else {
-      "?" + URLEncoder.encode("offset=" + topicListForm.getOffset, "UTF-8")
-    }
-
-    redirectLink.append(queryStr)
-
-    new RedirectView(redirectLink.toString)
-  }
-
   @RequestMapping(Array("/section-rss.jsp"))
-  def showRSS(topicListForm: TopicListRequest,
-              @RequestParam(value = "section", defaultValue = "1") sectionId: Int,
+  def showRSS(@RequestParam(value = "section", defaultValue = "1") sectionId: Int,
               @RequestParam(value = "group", defaultValue = "0") groupId: Int,
               @RequestParam(value = "filter", required = false) filter: String,
               webRequest: WebRequest): ModelAndView = {
@@ -252,7 +208,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       None
     }
 
-    checkRequestConditions(section, group, topicListForm)
+    checkRequestConditions(section, group)
     val modelAndView = new ModelAndView("section-rss")
 
     group.foreach { group =>
@@ -281,11 +237,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
   }
 
-  private def checkRequestConditions(section: Section, group: Option[Group], topicListForm: TopicListRequest): Unit = {
-    if (topicListForm.getMonth != null && topicListForm.getYear == null) {
-      throw new ServletParameterMissingException("year")
-    }
-
+  private def checkRequestConditions(section: Section, group: Option[Group]): Unit = {
     if (section == null) {
       throw new ServletParameterException("section or tag required")
     }

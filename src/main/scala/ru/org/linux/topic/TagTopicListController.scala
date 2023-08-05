@@ -26,8 +26,6 @@ import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 import ru.org.linux.user.UserTagService
 
-import javax.servlet.http.HttpServletResponse
-
 @Controller
 object TagTopicListController {
   private val TagUriTemplate = new UriTemplate("/tag/{tag}")
@@ -71,9 +69,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
     value = Array("/tag/{tag}"),
     method = Array(RequestMethod.GET, RequestMethod.HEAD),
     params = Array("section"))
-  def tagFeed(
-               response: HttpServletResponse,
-               @PathVariable tag: String,
+  def tagFeed(@PathVariable tag: String,
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
                @RequestParam(value = "section", defaultValue = "0") sectionId: Int
   ): ModelAndView = AuthorizedOpt { currentUserOpt =>
@@ -90,12 +86,11 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         val modelAndView = new ModelAndView("tag-topics")
 
         section.foreach(s => modelAndView.addObject("section", s))
-        TopicListController.setExpireHeaders(response, null, null)
 
         modelAndView.addObject("navtitle", getTitle(tag, None))
         modelAndView.addObject("ptitle", getTitle(tag, section))
 
-        val offset = topicListService.fixOffset(rawOffset)
+        val offset = TopicListService.fixOffset(rawOffset)
 
         modelAndView.addObject("offsetNavigation", true)
         modelAndView.addObject("tag", tag)
