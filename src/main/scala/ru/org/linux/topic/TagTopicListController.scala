@@ -21,7 +21,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 import ru.org.linux.user.UserTagService
@@ -81,7 +81,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
     tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
         val section = if (sectionId != 0) {
-          sectionService.idToSection.get(sectionId)
+          Some(sectionService.idToSection.getOrElse(sectionId, throw new SectionNotFoundException()))
         } else {
           None
         }
@@ -138,7 +138,11 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - 20))
         }
 
-        modelAndView
+        if (topics.isEmpty) {
+          new ModelAndView("errors/code404")
+        } else {
+          modelAndView
+        }
       case None =>
         tagService.getTagBySynonym(tag).map { mainName =>
           new ModelAndView(new RedirectView(TagTopicListController.buildTagUri(mainName.name, sectionId, 0), false, false))
