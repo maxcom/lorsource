@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,8 +16,6 @@ package ru.org.linux.section;
 
 import org.junit.Test;
 import ru.org.linux.section.stub.TestSectionDaoImpl;
-
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -48,7 +46,7 @@ public class SectionServiceTest {
 
   @Test
   public void getSectionListTest() {
-    List<Section> sectionList = sectionService.getSectionList();
+    var sectionList = sectionService.sections();
     assertEquals(4, sectionList.size());
   }
 

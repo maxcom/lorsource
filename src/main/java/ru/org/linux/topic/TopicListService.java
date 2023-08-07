@@ -225,7 +225,7 @@ public class TopicListService {
     return topicListDao.getTopics(topicListDto, null);
   }
 
-  public List<Topic> getUncommitedTopic(Section section, Date fromDate, boolean includeAnonymous) {
+  public List<Topic> getUncommitedTopic(@Nullable Section section, Date fromDate, boolean includeAnonymous) {
     TopicListDto topicListDto = new TopicListDto();
     topicListDto.setCommitMode(TopicListDao.CommitMode.UNCOMMITED_ONLY);
     if (section != null) {

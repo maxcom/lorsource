@@ -116,7 +116,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val rss = "rss" == output
     if (!rss) {
       section.foreach { section => modelAndView.addObject("section", section)}
-      modelAndView.addObject("sectionList", sectionService.getSectionList)
+      modelAndView.addObject("sectionList", sectionService.sections.asJava)
     }
 
     modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))

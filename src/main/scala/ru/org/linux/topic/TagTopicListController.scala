@@ -26,6 +26,7 @@ import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 import ru.org.linux.user.UserTagService
 
+import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.OptionConverters.RichOption
 
 @Controller
@@ -98,7 +99,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         modelAndView.addObject("tag", tag)
         modelAndView.addObject("section", sectionId)
         modelAndView.addObject("offset", offset)
-        modelAndView.addObject("sectionList", sectionService.getSectionList)
+        modelAndView.addObject("sectionList", sectionService.sections.asJava)
 
         currentUserOpt.foreach { currentUser =>
           modelAndView.addObject("showFavoriteTagButton", !userTagService.hasFavoriteTag(currentUser.user, tag))
