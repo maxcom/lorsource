@@ -59,7 +59,7 @@ object TagTopicListController {
 
 @Controller
 class TagTopicListController (userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
-    topicListService: TopicListService, prepareService: TopicPrepareService) {
+    topicListService: TopicListService, prepareService: TopicPrepareService, topicTagDao: TopicTagDao) {
 
   private def getTitle(tag: String, section: Option[Section]) = {
     section match {
@@ -99,7 +99,11 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         modelAndView.addObject("tag", tag)
         modelAndView.addObject("section", sectionId)
         modelAndView.addObject("offset", offset)
-        modelAndView.addObject("sectionList", sectionService.sections.asJava)
+
+        val sectionIds = topicTagDao.getTagSectoins(tagInfo.id).toSet
+        val sections = sectionService.sections.filter(s => sectionIds.contains(s.getId))
+
+        modelAndView.addObject("sectionList", sections.asJava)
 
         currentUserOpt.foreach { currentUser =>
           modelAndView.addObject("showFavoriteTagButton", !userTagService.hasFavoriteTag(currentUser.user, tag))

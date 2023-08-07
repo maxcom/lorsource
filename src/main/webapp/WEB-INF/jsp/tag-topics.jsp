@@ -33,7 +33,7 @@
 <h1><i class="icon-tag"></i> ${navtitle}</h1>
 
 <nav>
-  <c:if test="${counter>10}">
+  <c:if test="${fn:length(sectionList)>1}">
     <c:forEach items="${sectionList}" var="cursection">
       <c:if test="${section == cursection.id}">
         <a href="${url}?section=${cursection.id}" class="btn btn-selected">${cursection.name}</a>
