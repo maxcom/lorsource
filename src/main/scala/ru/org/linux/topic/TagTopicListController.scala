@@ -15,8 +15,9 @@
 
 package ru.org.linux.topic
 
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
+import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, RequestMethod, RequestParam, ResponseStatus}
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
@@ -155,4 +156,8 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
     method = Array(RequestMethod.GET, RequestMethod.HEAD),
     params = Array("tag"))
   def tagFeedOld(@RequestParam tag: String): View = new RedirectView(TagTopicListController.tagListUrl(tag))
+
+  @ExceptionHandler(Array(classOf[SectionNotFoundException]))
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  def handleNotFoundException = new ModelAndView("errors/code404")
 }
