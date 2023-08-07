@@ -85,6 +85,8 @@ var RealtimeContext = {
             }
 
             ws.onclose = function () {
+              RealtimeContext.started = false;
+
               setTimeout(function () {
                 RealtimeContext.start(wsUrl)
               }, 5000);
