@@ -101,7 +101,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     if (section.getId != Section.SECTION_FORUM) {
       modelAndView.addObject("groupList",
-        SectionController.groupsSorted(groupDao.getGroups(section).asScala))
+        SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
     }
 
     modelAndView.addObject("navtitle", TopicListController.calculateNavTitle(section, group, topicListForm))
