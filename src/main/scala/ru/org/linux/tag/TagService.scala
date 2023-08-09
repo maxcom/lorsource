@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service
 import ru.org.linux.group.Group
 import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.Section
-import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.topic.TagTopicListController
 import ru.org.linux.util.RichFuture.RichFuture
 
