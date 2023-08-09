@@ -74,7 +74,6 @@ public class TopicListService {
     topicListDto.setNotalks(noTalks);
     topicListDto.setTech(tech);
 
-
     if (section != null) {
       topicListDto.setSection(section.getId());
       if (section.isPremoderated()) {

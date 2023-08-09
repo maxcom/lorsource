@@ -207,7 +207,7 @@ public class TopicListDao {
     }
 
     if (request.isTech()) {
-      where.append(" AND not topics.groupid=8404 AND not topics.groupid=4068 AND groups.section=2");
+      where.append(" AND not topics.groupid in (8404, 4068, 9326, 19405)");
     }
 
     switch (request.getMiniNewsMode()) {
