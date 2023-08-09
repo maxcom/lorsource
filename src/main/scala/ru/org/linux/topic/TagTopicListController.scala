@@ -117,7 +117,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         }
 
         val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, None.toJava, None.toJava,
-          20, currentUserOpt.map(_.user).orNull)
+          20, currentUserOpt.map(_.user).orNull, false, false)
 
         val tmpl = Template.getTemplate
 

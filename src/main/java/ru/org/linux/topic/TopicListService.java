@@ -65,9 +65,15 @@ public class TopicListService {
           Optional<Integer> year,
           Optional<Integer> month,
           int count,
-          @Nullable User currentUser
+          @Nullable User currentUser,
+          boolean noTalks,
+          boolean tech
   ) throws TagNotFoundException {
     TopicListDto topicListDto = new TopicListDto();
+
+    topicListDto.setNotalks(noTalks);
+    topicListDto.setTech(tech);
+
 
     if (section != null) {
       topicListDto.setSection(section.getId());
@@ -192,15 +198,6 @@ public class TopicListService {
           boolean noTalks,
           boolean tech
   ) {
-    logger.debug(
-            "TopicListService.getRssTopicsFeed()" +
-                    "; section=" + ((section != null) ? section.toString() : "(null)") +
-                    "; group=" + ((group != null) ? group.toString() : "(null)") +
-                    "; fromDate=" + fromDate +
-                    "; noTalks=" + noTalks +
-                    "; tech=" + tech
-    );
-
     TopicListDto topicListDto = new TopicListDto();
 
     if (section != null) {

@@ -155,7 +155,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   private def getNewsSection(tag: String, currentUser: Option[User]) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, None.toJava, None.toJava,
-      TagPageController.TotalNewsCount, currentUser.orNull).asScala
+      TagPageController.TotalNewsCount, currentUser.orNull, false, false).asScala
 
     val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.map(_.commitDate.toInstant).exists(isRecent)) {
       newsTopics.splitAt(1)

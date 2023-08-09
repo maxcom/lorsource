@@ -61,10 +61,12 @@
 
 <h1>Лента форума</h1>
 
-<p>
-  Все разделы форума также доступны в виде единой
-  <a class="navLink" href="/forum/lenta/">ленты</a>.
-</p>
+<ul>
+  <li><a href="/forum/lenta">Полная лента форума</a>
+  <li><a href="/forum/lenta?filter=tech">Лента технического форума</a>
+  <li><a href="/forum/lenta?filter=notalks">Лента форума без Talks</a>
+</ul>
+
 <h1>RSS подписки</h1>
 
 <p>

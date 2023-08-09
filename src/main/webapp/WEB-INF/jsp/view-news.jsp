@@ -127,31 +127,28 @@
 </c:forEach>
 
 <c:if test="${offsetNavigation}">
-  <c:if test="${params !=null}">
-    <c:set var="aparams" value="${params}&"/>
-  </c:if>
-
   <table class="nav">
     <tr>
       <c:if test="${topicListRequest.offset > 20}">
         <td width="35%" align="left">
-          <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">← назад</a>
+          <c:url var="prevUrl" value="${url}">
+            <c:param name="offset" value="${topicListRequest.offset-20}"/>
+          </c:url>
+          <a href="${prevUrl}">← назад</a>
         </td>
       </c:if>
       <c:if test="${topicListRequest.offset == 20}">
         <td width="35%" align="left">
-          <c:if test="${params!=null}">
-            <a href="${url}?${params}">← назад</a>
-          </c:if>
-          <c:if test="${params==null}">
-            <a href="${url}">← назад</a>
-          </c:if>
+          <a href="${url}">← назад</a>
         </td>
       </c:if>
       <c:choose>
         <c:when test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
           <td align="right" width="35%">
-            <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">вперед →</a>
+            <c:url var="nextUrl" value="${url}">
+              <c:param name="offset" value="${topicListRequest.offset+20}"/>
+            </c:url>
+            <a href="${nextUrl}">вперед →</a>
           </td>
         </c:when>
         <c:otherwise>

@@ -14,15 +14,17 @@
  */
 package ru.org.linux.topic
 
+import javax.annotation.Nullable
 import scala.beans.BeanProperty
 
-case class TopicListRequest(@BeanProperty offset: Int, yearMonth: Option[(Int, Int)]) {
-  def getMonth = yearMonth.map(_._2)
-  def getYear = yearMonth.map(_._1)
+case class TopicListRequest(@BeanProperty offset: Int, yearMonth: Option[(Int, Int)], filter: Option[String]) {
+  def getMonth: Option[Int] = yearMonth.map(_._2)
+  def getYear: Option[Int] = yearMonth.map(_._1)
+
+  def withFilter(@Nullable value: String): TopicListRequest = copy(filter = Option(value))
 }
 
 object TopicListRequest {
-  def ofOffset(offset: Int) = TopicListRequest(TopicListService.fixOffset(offset), None)
-
-  def orYearMonth(year: Int, month: Int) = TopicListRequest(0, Some((year, month)))
+  def ofOffset(offset: Int): TopicListRequest = TopicListRequest(TopicListService.fixOffset(offset), None, None)
+  def orYearMonth(year: Int, month: Int): TopicListRequest = TopicListRequest(0, Some((year, month)), None)
 }
