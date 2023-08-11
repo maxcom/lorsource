@@ -236,7 +236,7 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
 
     query.append(" ORDER BY del_info.delDate DESC LIMIT 20")
 
-    jdbcTemplate.query(query.toString, (rs: ResultSet, _: Int) => DeletedTopic.apply(rs), queryParameters.toArray)
+    jdbcTemplate.query(query.toString, (rs: ResultSet, _: Int) => DeletedTopic.apply(rs), queryParameters.toSeq *)
   }
 
   def getDeletedUserTopics(user: User, topics: Int): java.util.List[DeletedTopic] = {
