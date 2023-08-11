@@ -18,6 +18,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.section.SectionController
 import ru.org.linux.topic.TopicListDto.CommitMode.{COMMITED_ONLY, POSTMODERATED_ONLY, UNCOMMITED_ONLY}
 import ru.org.linux.topic.TopicListDto.{DateLimitType, MiniNewsMode}
 import ru.org.linux.user.User
@@ -94,7 +95,7 @@ object TopicListDao {
     }
 
     if (request.isTech) {
-      where.append(" AND not topics.groupid in (8404, 4068, 9326, 19405)")
+      where.append(s" AND not topics.groupid in (${SectionController.NonTech.mkString(", ")})")
     }
 
     request.getMiniNewsMode match {
