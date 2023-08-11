@@ -40,7 +40,6 @@ import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOption
 
 object TagPageController {
   private val TotalNewsCount = 21
@@ -154,8 +153,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
   private def getNewsSection(tag: String, currentUser: Option[User]) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
-    val newsTopics = topicListService.getTopicsFeed(newsSection, null, tag, 0, None.toJava, None.toJava,
-      TagPageController.TotalNewsCount, currentUser.orNull, false, false).asScala
+    val newsTopics = topicListService.getTopicsFeed(Some(newsSection), None, Some(tag), 0, None,
+      TagPageController.TotalNewsCount, currentUser, noTalks = false, tech = false)
 
     val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.map(_.commitDate.toInstant).exists(isRecent)) {
       newsTopics.splitAt(1)
@@ -164,7 +163,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 
     val tmpl = Template.getTemplate
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics.asJava, currentUser.orNull, tmpl.getProf, loadUserpics = false)
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, currentUser.orNull, tmpl.getProf, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 
@@ -213,7 +212,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
-    val forumTopics = topicListService.getTopics(topicListDto, currentUser.orNull).asScala
+    val forumTopics = topicListService.getTopics(topicListDto, currentUser)
     val topicByDate = TopicListTools.datePartition(forumTopics)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {

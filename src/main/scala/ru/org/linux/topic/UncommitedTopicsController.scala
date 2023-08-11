@@ -61,7 +61,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     val includeAnonymous = currentUserOpt.exists(u => u.moderator || u.corrector)
 
-    val messages = topicListService.getUncommitedTopic(section.orNull, calendar.getTime, includeAnonymous)
+    val messages = topicListService.getUncommitedTopic(section, calendar.getTime, includeAnonymous)
 
     val tmpl = Template.getTemplate
 
@@ -71,7 +71,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     val deleted = topicListService.getDeletedTopics(sectionId, !tmpl.isModeratorSession, includeAnonymous)
 
-    modelAndView.addObject("deletedTopics", deleted)
+    modelAndView.addObject("deletedTopics", deleted.asJava)
     modelAndView.addObject("sections", sectionService.sections.asJava)
 
     modelAndView

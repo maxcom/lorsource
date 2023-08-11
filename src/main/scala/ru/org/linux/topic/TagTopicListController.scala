@@ -28,7 +28,6 @@ import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 import ru.org.linux.user.UserTagService
 
 import scala.jdk.CollectionConverters.SeqHasAsJava
-import scala.jdk.OptionConverters.RichOption
 
 @Controller
 object TagTopicListController {
@@ -116,8 +115,8 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
           }
         }
 
-        val topics = topicListService.getTopicsFeed(section.orNull, null, tag, offset, None.toJava, None.toJava,
-          20, currentUserOpt.map(_.user).orNull, false, false)
+        val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
+          20, currentUserOpt.map(_.user), noTalks = false, tech = false)
 
         val tmpl = Template.getTemplate
 

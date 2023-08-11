@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -44,7 +44,7 @@ class MainPageController(
     val profile = tmpl.getProf
 
     val allTopics = topicListService.getMainPageFeed(tmpl.getProf.isShowGalleryOnMain, 25,
-      profile.isMiniNewsBoxletOnMainPage).asScala
+      profile.isMiniNewsBoxletOnMainPage)
 
     val (messages, titles) = allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) =>
       if (big.count(!_.minor)<5) {
@@ -58,7 +58,7 @@ class MainPageController(
 
     mv.getModel.put("news",
       prepareService.prepareTopicsForUser(
-        messages.asJava,
+        messages,
         AuthUtil.getCurrentUser,
         profile,
         loadUserpics = false)

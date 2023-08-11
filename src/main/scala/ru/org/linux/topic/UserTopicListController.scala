@@ -47,7 +47,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
-    val messages = topicListService.getUserTopicsFeed(user, offset, true, false)
+    val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = false)
     prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
@@ -111,7 +111,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
-    val messages = topicListService.getUserTopicsFeed(user, section.orNull, null, offset, false, false)
+    val messages = topicListService.getUserTopicsFeed(user, section, None, offset, favorites = false, watches = false)
 
     val rss = "rss" == output
     if (!rss) {
@@ -145,7 +145,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val topics = topicListService.getDeletedUserTopics(user, tmpl.getProf.getTopics)
 
     val params = Map(
-      "topics" -> topics,
+      "topics" -> topics.asJava,
       "user" -> user
     )
 
@@ -174,20 +174,16 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
 
-    val messages = topicListService.getUserTopicsFeed(user, offset, true, true)
+    val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = true)
     prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
   }
 
-  private def prepareTopicsForPlainOrRss(
-    modelAndView: ModelAndView,
-    rss: Boolean,
-    messages: java.util.List[Topic]
-  ): Unit = {
+  private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic]): Unit = {
     if (rss) {
-      modelAndView.addObject("messages", prepareService.prepareTopics(messages.asScala.toSeq).asJava)
+      modelAndView.addObject("messages", prepareService.prepareTopics(messages).asJava)
       modelAndView.setViewName("section-rss")
     } else {
       val tmpl = Template.getTemplate

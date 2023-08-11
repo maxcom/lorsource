@@ -24,6 +24,7 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil
+import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
@@ -37,7 +38,6 @@ import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOption
 
 object TopicListController {
   private def calculatePTitle(section: Section, groupOpt: Option[Group], topicListForm: TopicListRequest): String = {
@@ -75,7 +75,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
                           prepareService: TopicPrepareService, tagService: TagService,
                           groupDao: GroupDao) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
-                                    group: Option[Group]): Future[ModelAndView] = {
+                                    group: Option[Group]): Future[ModelAndView] = AuthorizedOpt { currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
 
     checkRequestConditions(section, group)
@@ -108,10 +108,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val tmpl = Template.getTemplate
 
-    val messages = topicListService.getTopicsFeed(
-      section, group.orNull, null, topicListForm.offset, topicListForm.getYear.map(Integer.valueOf).toJava,
-      topicListForm.getMonth.map(Integer.valueOf).toJava, 20, AuthUtil.getCurrentUser,
-      topicListForm.filter.contains("notalks"), topicListForm.filter.contains("tech"))
+    val messages = topicListService.getTopicsFeed(Some(section), group, None, topicListForm.offset,
+      topicListForm.yearMonth, 20, currentUserOpt.map(_.user), topicListForm.filter.contains("notalks"),
+      topicListForm.filter.contains("tech"))
 
     modelAndView.addObject(
       "messages",
@@ -235,16 +234,16 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val tech = "tech" == filter
 
     val fromDate = DateTime.now.minusMonths(3)
-    val messages = topicListService.getRssTopicsFeed(section, group.orNull, fromDate.toDate, notalks, tech)
+    val messages = topicListService.getRssTopicsFeed(section, group, fromDate.toDate, notalks, tech)
 
     // не лучший вариант, так как включает комментарии
     // по хорошему тут надо учитывать только правки текста топика
-    val lastModified = messages.asScala.view.map(_.lastModified.getTime).maxOption
+    val lastModified = messages.view.map(_.lastModified.getTime).maxOption
 
     if (lastModified.exists(webRequest.checkNotModified)) {
       null
     } else {
-      modelAndView.addObject("messages", prepareService.prepareTopics(messages.asScala.toSeq).asJava)
+      modelAndView.addObject("messages", prepareService.prepareTopics(messages.toSeq).asJava)
 
       modelAndView
     }

@@ -25,7 +25,6 @@ import ru.org.linux.user.User
 
 import java.sql.ResultSet
 import scala.jdk.CollectionConverters.*
-import javax.annotation.Nullable
 import javax.sql.DataSource
 import scala.collection.mutable
 
@@ -162,10 +161,10 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
   private val jdbcTemplate: JdbcTemplate = new JdbcTemplate(ds)
   private val namedJdbcTemplate: NamedParameterJdbcTemplate = new NamedParameterJdbcTemplate(ds)
 
-  def getTopics(topicListDto: TopicListDto, @Nullable currentUser: User): java.util.List[Topic] = {
+  def getTopics(topicListDto: TopicListDto, currentUser: Option[User]): collection.Seq[Topic] = {
     val params = new mutable.HashMap[String, AnyRef]
 
-    if (currentUser != null) {
+    currentUser.map { currentUser =>
       params.put("userid", Integer.valueOf(currentUser.getId))
     }
 
@@ -194,7 +193,8 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
       .append(sort)
       .append(limit)
 
-    namedJdbcTemplate.query(query.toString, params.asJava, (resultSet: ResultSet, _: Int) => Topic.fromResultSet(resultSet))
+    namedJdbcTemplate.query(query.toString, params.asJava,
+      (resultSet: ResultSet, _: Int) => Topic.fromResultSet(resultSet)).asScala
   }
 
   /**
@@ -207,7 +207,7 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
    * @param includeAnonymous включать ли в выборку темы, созданные anonymous
    * @return список удаленных тем
    */
-  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): java.util.List[DeletedTopic] = {
+  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): collection.Seq[DeletedTopic] = {
     val query = new StringBuilder
 
     query
@@ -237,10 +237,10 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
 
     query.append(" ORDER BY del_info.delDate DESC LIMIT 20")
 
-    jdbcTemplate.query(query.toString, (rs: ResultSet, _: Int) => DeletedTopic.apply(rs), queryParameters.toSeq *)
+    jdbcTemplate.query(query.toString, (rs: ResultSet, _: Int) => DeletedTopic.apply(rs), queryParameters.toSeq *).asScala
   }
 
-  def getDeletedUserTopics(user: User, topics: Int): java.util.List[DeletedTopic] = {
+  def getDeletedUserTopics(user: User, topics: Int): collection.Seq[DeletedTopic] = {
     val query =
       s"""SELECT topics.title as subj, nick, groups.section, topics.id as msgid, reason, topics.postdate,
          |  del_info.delDate, bonus FROM topics,groups,users,del_info
@@ -248,6 +248,6 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
          | AND delDate is not null AND topics.userid = ${user.getId}
          | ORDER BY del_info.delDate DESC LIMIT $topics""".stripMargin
 
-    jdbcTemplate.query(query, (rs: ResultSet, _: Int) => DeletedTopic.apply(rs))
+    jdbcTemplate.query(query, (rs: ResultSet, _: Int) => DeletedTopic.apply(rs)).asScala
   }
 }

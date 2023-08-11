@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -152,11 +152,11 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: java.util.List[Topic], @Nullable user: User, profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
-    val textMap = loadTexts(messages.asScala)
-    val tags = topicTagService.getTagRefs(messages.asScala.toSeq)
+  def prepareTopicsForUser(messages: collection.Seq[Topic], @Nullable user: User, profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
+    val textMap = loadTexts(messages)
+    val tags = topicTagService.getTagRefs(messages.toSeq)
 
-    messages.asScala.map { message =>
+    messages.map { message =>
       val preparedMessage = prepareTopic(message, tags.get(message.id).asScala, minimizeCut = true, None,
         user, textMap(message.id), None)
 
@@ -175,14 +175,14 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param messages список топиков
    * @return список подготовленных топиков
    */
-  def prepareTopics(messages: Seq[Topic]): Seq[PreparedTopic] = {
+  def prepareTopics(messages: collection.Seq[Topic]): Seq[PreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.getTagRefs(messages)
 
-    messages.map { message =>
+    messages.view.map { message =>
       prepareTopic(message, tags.get(message.id).asScala, minimizeCut = true, None, null,
         textMap(message.id), None)
-    }
+    }.toSeq
   }
 
   def getTopicMenu(topic: PreparedTopic, @Nullable currentUser: User, profile: Profile,
