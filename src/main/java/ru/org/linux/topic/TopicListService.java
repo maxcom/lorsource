@@ -22,6 +22,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.tag.TagService;
+import ru.org.linux.topic.TopicListDto.CommitMode;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
@@ -30,6 +31,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static ru.org.linux.topic.TopicListDto.CommitMode.COMMITED_ONLY;
+import static ru.org.linux.topic.TopicListDto.CommitMode.POSTMODERATED_ONLY;
 
 @Service
 public class TopicListService {
@@ -77,9 +81,9 @@ public class TopicListService {
     if (section != null) {
       topicListDto.setSection(section.getId());
       if (section.isPremoderated()) {
-        topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
+        topicListDto.setCommitMode(COMMITED_ONLY);
       } else {
-        topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
+        topicListDto.setCommitMode(POSTMODERATED_ONLY);
       }
     }
 
@@ -147,7 +151,7 @@ public class TopicListService {
     TopicListDto topicListDto = new TopicListDto();
     topicListDto.setLimit(20);
     topicListDto.setOffset(offset);
-    topicListDto.setCommitMode(TopicListDao.CommitMode.ALL);
+    topicListDto.setCommitMode(CommitMode.ALL);
     topicListDto.setUserId(user.getId());
     topicListDto.setUserFavs(favorites);
     topicListDto.setUserWatches(watches);
@@ -172,7 +176,7 @@ public class TopicListService {
     TopicListDto topicListDto = new TopicListDto();
     topicListDto.setLimit(20);
     topicListDto.setOffset(offset);
-    topicListDto.setCommitMode(TopicListDao.CommitMode.ALL);
+    topicListDto.setCommitMode(CommitMode.ALL);
     topicListDto.setUserId(user.getId());
     topicListDto.setShowDraft(true);
 
@@ -214,16 +218,16 @@ public class TopicListService {
     topicListDto.setLimit(100);
 
     if (section.isPremoderated()) {
-      topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
+      topicListDto.setCommitMode(CommitMode.COMMITED_ONLY);
     } else {
-      topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
+      topicListDto.setCommitMode(CommitMode.POSTMODERATED_ONLY);
     }
     return topicListDao.getTopics(topicListDto, null);
   }
 
   public List<Topic> getUncommitedTopic(@Nullable Section section, Date fromDate, boolean includeAnonymous) {
     TopicListDto topicListDto = new TopicListDto();
-    topicListDto.setCommitMode(TopicListDao.CommitMode.UNCOMMITED_ONLY);
+    topicListDto.setCommitMode(CommitMode.UNCOMMITED_ONLY);
     if (section != null) {
       topicListDto.setSection(section.getId());
     }
@@ -252,7 +256,7 @@ public class TopicListService {
       topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR);
     }
 
-    topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
+    topicListDto.setCommitMode(CommitMode.COMMITED_ONLY);
 
     if (showGalleryOnMain) {
       topicListDto.setSection(Section.SECTION_NEWS, Section.SECTION_GALLERY);

@@ -28,7 +28,7 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.TagPageController.isRecent
 import ru.org.linux.topic.*
-import ru.org.linux.topic.TopicListDao.CommitMode
+import ru.org.linux.topic.TopicListDto.CommitMode
 import ru.org.linux.user.{User, UserTagService}
 import ru.org.linux.util.RichFuture.*
 

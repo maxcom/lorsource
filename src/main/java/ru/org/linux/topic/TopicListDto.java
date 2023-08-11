@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,23 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 
 public class TopicListDto {
+  public enum CommitMode {
+    COMMITED_ONLY(" AND sections.moderate AND commitdate is not null "),
+    UNCOMMITED_ONLY(" AND (NOT topics.moderate) AND sections.moderate "),
+    POSTMODERATED_ONLY(" AND NOT sections.moderate"),
+    COMMITED_AND_POSTMODERATED(" AND (topics.moderate OR NOT sections.moderate) "),
+    ALL(" ");
+
+    private final String queryPiece;
+
+    CommitMode(String queryPiece) {
+      this.queryPiece = queryPiece;
+    }
+
+    public String getQueryPiece() {
+      return queryPiece;
+    }
+  }
   public enum DateLimitType {
     NONE,
     BETWEEN,
@@ -32,7 +49,7 @@ public class TopicListDto {
     MINOR
   }
 
-  private TopicListDao.CommitMode commitMode = TopicListDao.CommitMode.COMMITED_AND_POSTMODERATED;
+  private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
   private ImmutableSet<Integer> sections = ImmutableSet.of();
   private int userId = 0;
@@ -61,11 +78,11 @@ public class TopicListDto {
     this.sections = ImmutableSet.copyOf(sections);
   }
 
-  public TopicListDao.CommitMode getCommitMode() {
+  public CommitMode getCommitMode() {
     return commitMode;
   }
 
-  public void setCommitMode(TopicListDao.CommitMode commitMode) {
+  public void setCommitMode(CommitMode commitMode) {
     this.commitMode = commitMode;
   }
 
