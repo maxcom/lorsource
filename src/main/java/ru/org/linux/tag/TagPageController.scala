@@ -23,7 +23,6 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.gallery.ImageService
-import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.TagPageController.isRecent
@@ -56,7 +55,7 @@ object TagPageController {
 @Controller
 @RequestMapping(value = Array("/tag/{tag}"), params = Array("!section"))
 class TagPageController(tagService: TagService, prepareService: TopicPrepareService, topicListService: TopicListService,
- sectionService: SectionService, groupDao: GroupDao, userTagService: UserTagService, imageService: ImageService,
+ sectionService: SectionService, userTagService: UserTagService, imageService: ImageService,
  actorSystem: ActorSystem) extends StrictLogging {
 
   private implicit val akka: ActorSystem = actorSystem
@@ -178,7 +177,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     (Map(
       "fullNews" -> fullNews,
       "addNews" -> AddTopicController.getAddUrl(newsSection, tag),
-      "briefNews" -> TopicListTools.split(briefNewsByDate.map(p => p._1 -> BriefTopicRef.fromTopicNoGroup(p._2)))
+      "briefNews" -> TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false)))
     ) ++ more, newestDate)
   }
 
@@ -226,7 +225,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     (Map(
       forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag),
       forumSection.getUrlName -> TopicListTools.split(
-        topicByDate.map(p => p._1 -> BriefTopicRef.fromTopic(p._2, groupDao.getGroup(p._2.groupId).getTitle)))
+        topicByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = true)))
     ) ++ more, newestDate)
   }
 }

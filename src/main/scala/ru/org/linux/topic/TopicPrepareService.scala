@@ -26,6 +26,7 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user.*
+import ru.org.linux.util.StringUtil
 
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -214,5 +215,22 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     new TopicMenu(topicEditable, tagsEditable, resolvable,
       topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUser, false), deletable,
       undeletable, groupPermissionService.canCommit(currentUser, topic.message), userpic.orNull, showComments)
+  }
+
+  def prepareBrief(topic: Topic, groupInTitle: Boolean): BriefTopicRef = {
+    val group = groupDao.getGroup(topic.groupId)
+
+    val postscore = topicPermissionService.getPostscore(group, topic)
+    val showComments = postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS
+
+    val commentCount = if (showComments) topic.commentCount else 0
+
+    val groupTitle = if (groupInTitle) {
+      Some(group.getTitle)
+    } else {
+      None
+    }
+
+    BriefTopicRef(topic.getLink, StringUtil.processTitle(topic.title), commentCount, groupTitle)
   }
 }

@@ -25,7 +25,6 @@ import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
 
 import javax.servlet.http.HttpServletResponse
-import scala.jdk.CollectionConverters.*
 
 @Controller
 class MainPageController(
@@ -68,7 +67,7 @@ class MainPageController(
 
     mv.getModel.put(
       "briefNews",
-      TopicListTools.split(briefNewsByDate.map(p => p._1 -> BriefTopicRef.fromTopicNoGroup(p._2))))
+      TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false))))
 
     if (tmpl.isSessionAuthorized) {
       mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(AuthUtil.getCurrentUser)))
