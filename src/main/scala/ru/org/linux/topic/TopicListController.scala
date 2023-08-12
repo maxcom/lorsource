@@ -248,6 +248,10 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       None
     }
 
+    forumFilter.foreach { f =>
+      ptitle += s" (${f.title})"
+    }
+
     checkRequestConditions(section, group)
     val modelAndView = new ModelAndView("section-rss")
 
