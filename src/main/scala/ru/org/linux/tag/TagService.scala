@@ -118,10 +118,10 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
         case "tech" =>
           boolQuery()
             .filter(termQuery("section", sectionForum.getUrlName))
-            .not(termsQuery("section", NonTechNames))
+            .not(termsQuery("group", NonTechNames))
         case "notalks" =>
           boolQuery()
-            .not(termQuery("section", "talks"))
+            .not(termQuery("group", "talks"))
       }
 
       val filters = Seq(
