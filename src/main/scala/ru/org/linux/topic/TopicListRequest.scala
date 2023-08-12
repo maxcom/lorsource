@@ -14,14 +14,16 @@
  */
 package ru.org.linux.topic
 
-import javax.annotation.Nullable
+import ru.org.linux.topic.TopicListController.ForumFilter
+
 import scala.beans.BeanProperty
 
-case class TopicListRequest(@BeanProperty offset: Int, yearMonth: Option[(Int, Int)], filter: Option[String]) {
+case class TopicListRequest(@BeanProperty offset: Int, yearMonth: Option[(Int, Int)], filter: Option[ForumFilter]) {
   def getMonth: Option[Int] = yearMonth.map(_._2)
   def getYear: Option[Int] = yearMonth.map(_._1)
 
-  def withFilter(@Nullable value: String): TopicListRequest = copy(filter = Option(value))
+  // for jsp
+  def getFilter = filter.map(_.id).getOrElse("")
 }
 
 object TopicListRequest {

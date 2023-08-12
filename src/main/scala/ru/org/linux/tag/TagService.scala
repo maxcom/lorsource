@@ -24,6 +24,7 @@ import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.topic.TagTopicListController
+import ru.org.linux.topic.TopicListController.ForumFilter
 import ru.org.linux.util.RichFuture.RichFuture
 
 import java.time.LocalDate
@@ -108,18 +109,18 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
     }).sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
   }
 
-  def getActiveTopTags(section: Section, group: Option[Group], filter: Option[String], deadline: Deadline): Future[Seq[TagRef]] = {
+  def getActiveTopTags(section: Section, group: Option[Group], filter: Option[ForumFilter], deadline: Deadline): Future[Seq[TagRef]] = {
     if (group.exists(g => g.getId == 4068)) {
       Future.successful(Seq.empty)
     } else {
       val groupFilter = group.map(g => termQuery("group", g.getUrlName))
 
       val additionalFilter = filter.collect {
-        case "tech" =>
+        case ForumFilter.Tech =>
           boolQuery()
             .filter(termQuery("section", sectionForum.getUrlName))
             .not(termsQuery("group", NonTechNames))
-        case "notalks" =>
+        case ForumFilter.NoTalks =>
           boolQuery()
             .not(termQuery("group", "talks"))
       }

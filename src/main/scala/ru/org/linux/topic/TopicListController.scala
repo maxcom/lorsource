@@ -29,11 +29,13 @@ import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
 import ru.org.linux.tag.{TagPageController, TagService}
-import ru.org.linux.topic.TopicListController.calculatePTitle
+import ru.org.linux.topic.TopicListController.ForumFilter.{NoTalks, Tech}
+import ru.org.linux.topic.TopicListController.{ForumFilter, ForumFilters, calculatePTitle}
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.{DateUtil, ServletParameterException}
 
 import java.util.concurrent.CompletionStage
+import javax.annotation.Nullable
 import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -46,7 +48,7 @@ object TopicListController {
         s"${section.getName} - ${group.getTitle}"
       case None =>
         if (topicListForm.yearMonth.isEmpty) {
-          section.getName
+          section.getName + topicListForm.filter.map(f => s" (${f.title})").getOrElse("")
         } else {
           s"Архив: ${section.getName}, ${topicListForm.getYear.get}, ${DateUtil.getMonth(topicListForm.getMonth.get)}"
         }
@@ -56,8 +58,12 @@ object TopicListController {
   private def calculateNavTitle(section: Section, group: Option[Group], topicListForm: TopicListRequest): String = {
     val navTitle = new StringBuilder(section.getName)
 
-    group foreach { group =>
+    group.foreach { group =>
       navTitle.append(s" «${group.getTitle}»")
+    }
+
+    topicListForm.filter.foreach { f =>
+      navTitle.append(s" (${f.title})")
     }
 
     if (topicListForm.getMonth.isDefined) {
@@ -67,7 +73,27 @@ object TopicListController {
     navTitle.toString
   }
 
-  private val ForumFilters: Set[String] = Set("all", "notalks", "tech")
+  sealed trait ForumFilter {
+    def id: String
+    def title: String
+
+    final def getId: String = id
+    final def getTitle: String = title
+  }
+
+  object ForumFilter {
+    case object NoTalks extends ForumFilter {
+      override val id = "notalks"
+      override val title = "без talks"
+    }
+
+    case object Tech extends ForumFilter {
+      override val id = "tech"
+      override val title = "тех. форум"
+    }
+  }
+
+  private val ForumFilters = Seq(NoTalks, Tech)
 }
 
 @Controller
@@ -102,6 +128,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     if (section.getId != Section.SECTION_FORUM) {
       modelAndView.addObject("groupList",
         SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
+    } else {
+      modelAndView.addObject("filters", ForumFilters.asJava)
+      modelAndView.addObject("filter", topicListForm.filter.getOrElse(""))
     }
 
     modelAndView.addObject("navtitle", TopicListController.calculateNavTitle(section, group, topicListForm))
@@ -109,8 +138,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val tmpl = Template.getTemplate
 
     val messages = topicListService.getTopicsFeed(Some(section), group, None, topicListForm.offset,
-      topicListForm.yearMonth, 20, currentUserOpt.map(_.user), topicListForm.filter.contains("notalks"),
-      topicListForm.filter.contains("tech"))
+      topicListForm.yearMonth, 20, currentUserOpt.map(_.user), topicListForm.filter.contains(NoTalks),
+      topicListForm.filter.contains(Tech))
 
     modelAndView.addObject(
       "messages",
@@ -140,16 +169,17 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }.toJava
   }
 
+  private def parseFilter(@Nullable value: String): Option[ForumFilter] = {
+    Option(value)
+      .map(v => ForumFilters.find(_.id == v).getOrElse(throw new UserErrorException("Некорректное значение filter")))
+  }
+
   @RequestMapping(Array("/forum/lenta"))
   def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int,
             @RequestParam(value = "filter", required = false) filter: String): CompletionStage[ModelAndView] = {
     val section = sectionService.getSection(Section.SECTION_FORUM)
 
-    if (filter != null && !TopicListController.ForumFilters.contains(filter)) {
-      throw new UserErrorException("Некорректное значение filter")
-    }
-
-    val topicListForm = TopicListRequest.ofOffset(offset).withFilter(filter)
+    val topicListForm = TopicListRequest.ofOffset(offset).copy(filter = parseFilter(filter))
 
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       if (filter==null) {
@@ -205,9 +235,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
               @RequestParam(value = "group", defaultValue = "0") groupId: Int,
               @RequestParam(value = "filter", required = false) filter: String,
               webRequest: WebRequest): ModelAndView = {
-    if (filter != null && !TopicListController.ForumFilters.contains(filter)) {
-      throw new UserErrorException("Некорректное значение filter")
-    }
+    val forumFilter = parseFilter(filter)
 
     val section = sectionService.getSection(sectionId)
     var ptitle = section.getName
@@ -230,8 +258,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("section", section)
     modelAndView.addObject("ptitle", ptitle)
 
-    val notalks = "notalks" == filter
-    val tech = "tech" == filter
+    val notalks = forumFilter.contains(NoTalks)
+    val tech = forumFilter.contains(Tech)
 
     val fromDate = DateTime.now.minusMonths(3)
     val messages = topicListService.getRssTopicsFeed(section, group, fromDate.toDate, notalks, tech)

@@ -1,9 +1,3 @@
-<%@ page contentType="text/html; charset=utf-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +12,12 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ page contentType="text/html; charset=utf-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="activeTags" type="java.util.List<java.lang.String>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -38,32 +38,34 @@
 <h1>${navtitle}</h1>
 
 <nav>
-  <c:if test="${section!=null and section.premoderated}">
+  <c:if test="${section.premoderated}">
     <c:if test="${offsetNavigation}">
       <a class="btn btn-selected" href="${section.sectionLink}">Новые темы</a>
     </c:if>
     <c:if test="${not offsetNavigation}">
       <a class="btn btn-default" href="${section.sectionLink}">Новые темы</a>
     </c:if>
+
+    <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>
   </c:if>
 
-  <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
-    <a class="btn btn-default" href="groupmod.jsp?group=${group.id}">Править группу</a>
-  </c:if>
-  <c:if test="${sectionList == null and section != null}">
-    <c:if test="${section.premoderated}">
-      <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>
+  <c:if test="${filters != null}">
+    <c:if test="${empty topicListRequest.filter}">
+      <a class="btn btn-selected" href="${section.newsViewerLink}">все</a>
     </c:if>
-    <c:if test="${section.id == Section.SECTION_FORUM}">
-      <c:choose>
-        <c:when test="${group == null}">
-          <a class="btn btn-default" href="/forum/">Таблица</a>
-        </c:when>
-        <c:otherwise>
-          <a class="btn btn-default" href="/forum/${group.urlName}">Таблица</a>
-        </c:otherwise>
-      </c:choose>
+
+    <c:if test="${not empty topicListRequest.filter}">
+      <a class="btn btn-default" href="${section.newsViewerLink}">все</a>
     </c:if>
+
+    <c:forEach var="f" items="${filters}">
+      <c:if test="${f.id == topicListRequest.filter}">
+        <a class="btn btn-selected" href="${section.newsViewerLink}?filter=${f.id}">${f.title}</a>
+      </c:if>
+      <c:if test="${f.id != topicListRequest.filter}">
+        <a class="btn btn-default" href="${section.newsViewerLink}?filter=${f.id}">${f.title}</a>
+      </c:if>
+    </c:forEach>
   </c:if>
 
   <c:if test="${archiveLink != null}">
@@ -75,19 +77,21 @@
     </c:if>
   </c:if>
 
-  <c:if test="${section != null}">
-    <c:choose>
-      <c:when test="${section.pollPostAllowed}">
-        <a class="btn btn-primary" href="add.jsp?group=19387">Добавить</a>
-      </c:when>
-      <c:when test="${group == null}">
-        <a class="btn btn-primary" href="add-section.jsp?section=${section.id}">Добавить</a>
-      </c:when>
-      <c:otherwise>
-        <a class="btn btn-primary" href="add.jsp?group=${group.id}">Добавить</a>
-      </c:otherwise>
-    </c:choose>
+  <c:if test="${template.moderatorSession and group!=null}">
+    <a class="btn btn-default" href="groupmod.jsp?group=${group.id}">Править группу</a>
   </c:if>
+
+  <c:choose>
+    <c:when test="${section.pollPostAllowed}">
+      <a class="btn btn-primary" href="add.jsp?group=19387">Добавить</a>
+    </c:when>
+    <c:when test="${group == null}">
+      <a class="btn btn-primary" href="add-section.jsp?section=${section.id}">Добавить</a>
+    </c:when>
+    <c:otherwise>
+      <a class="btn btn-primary" href="add.jsp?group=${group.id}">Добавить</a>
+    </c:otherwise>
+  </c:choose>
 
   <c:if test="${fn:length(groupList)>1 and offsetNavigation}">
   <div class="nav-buttons">
