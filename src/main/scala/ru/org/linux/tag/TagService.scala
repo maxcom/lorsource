@@ -20,9 +20,9 @@ import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Service
-import ru.org.linux.group.Group
+import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
-import ru.org.linux.section.Section
+import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.topic.TagTopicListController
 import ru.org.linux.util.RichFuture.RichFuture
 
@@ -36,10 +36,15 @@ import scala.concurrent.duration.Deadline
 import scala.jdk.CollectionConverters.*
 
 @Service
-class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSystem) extends StrictLogging {
+class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSystem,
+                 sectionService: SectionService, groupDao: GroupDao) extends StrictLogging {
   private implicit val akka: ActorSystem = actorSystem
 
   import ru.org.linux.tag.TagService.*
+
+  private val sectionForum: Section = sectionService.getSection(Section.SECTION_FORUM)
+  private val NonTechNames: Seq[String] =
+    groupDao.getGroups(sectionForum).asScala.filter(g => SectionController.NonTech.contains(g.getId)).map(_.getUrlName).toSeq
 
   /**
    * Получение идентификационного номера тега по названию.
@@ -103,17 +108,27 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
     }).sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
   }
 
-  def getActiveTopTags(section: Section, group: Option[Group], deadline: Deadline): Future[Seq[TagRef]] = {
+  def getActiveTopTags(section: Section, group: Option[Group], filter: Option[String], deadline: Deadline): Future[Seq[TagRef]] = {
     if (group.exists(g => g.getId == 4068)) {
       Future.successful(Seq.empty)
     } else {
       val groupFilter = group.map(g => termQuery("group", g.getUrlName))
 
+      val additionalFilter = filter.collect {
+        case "tech" =>
+          boolQuery()
+            .filter(termQuery("section", sectionForum.getUrlName))
+            .not(termsQuery("section", NonTechNames))
+        case "notalks" =>
+          boolQuery()
+            .not(termQuery("section", "talks"))
+      }
+
       val filters = Seq(
         termQuery("is_comment", "false"),
         termQuery("section", section.getUrlName),
         rangeQuery("postdate").gte("now/d-1y")
-      ) ++ groupFilter
+      ) ++ groupFilter ++ additionalFilter
 
       Future.successful(elastic).flatMap {
         _.execute {

@@ -81,7 +81,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     checkRequestConditions(section, group)
 
     val activeTagsF = if (topicListForm.yearMonth.isEmpty) {
-      tagService.getActiveTopTags(section, group, deadline)
+      tagService.getActiveTopTags(section, group, topicListForm.filter, deadline)
     } else {
       Future.successful(Seq.empty)
     }

@@ -133,7 +133,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
 
     val firstPage = isFirstPage(offset)
 
-    val activeTagsF = tagService.getActiveTopTags(section, Some(group), deadline).map { tags =>
+    val activeTagsF = tagService.getActiveTopTags(section, Some(group), None, deadline).map { tags =>
       tags.map(tag => tag.copy(url = tag.url.map(_ => group.getUrl + "?tag=" + URLEncoder.encode(tag.name, StandardCharsets.UTF_8))))
     }
 
