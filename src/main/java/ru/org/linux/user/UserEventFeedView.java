@@ -69,7 +69,7 @@ public class UserEventFeedView extends AbstractRomeView {
       String link = siteConfig.getSecureUrlWithoutSlash() + preparedUserEvent.getLink();
 
       feedEntry.setLink(link);
-      feedEntry.setUri(link);
+      feedEntry.setUri(Integer.toString(preparedUserEvent.event().id()));
 
       String text;
 
