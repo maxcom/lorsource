@@ -535,12 +535,12 @@ public class UserDao {
     return c>0;
   }
 
-  public boolean hasSimilarUsers(String nick) {
+  public boolean hasSimilarUsers(String nick) {  
     int c = jdbcTemplate.queryForObject("SELECT count(*) FROM users WHERE " +
             "score>=200 AND lastlogin>CURRENT_TIMESTAMP-'3 years'::INTERVAL " +
             "AND levenshtein_less_equal(lower(nick), ?, 1)<=1", Integer.class, nick.toLowerCase());
 
-    return c>0;
+    return nick.contains("cocucka") || c>0;
   }
 
   public String getNewEmail(@Nonnull User user) {
