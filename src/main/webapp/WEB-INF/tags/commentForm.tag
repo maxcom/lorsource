@@ -1,6 +1,5 @@
-<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -13,6 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -113,7 +113,7 @@
     <c:choose>
       <%-- Для режима редактирования --%>
       <c:when test="${original != null}">
-        <button type=reset name=cancel id="cancelButton" class="btn btn-default">Отменить изменения</button>
+        <a class="btn btn-default" href="${topic.link}?cid=${original}">Отменить</a>
       </c:when>
       <%-- Для всех остальных режимов --%>
       <c:otherwise>
