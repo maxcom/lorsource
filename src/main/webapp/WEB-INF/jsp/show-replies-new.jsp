@@ -151,14 +151,14 @@
       </c:when>
     </c:choose>
   </td>
-  <td title="${topic.authorsText}">
-    <lor:dateinterval date="${topic.date}" compact="true"/><br>
+  <td title="${topic.authorsText}" style="text-align: right">
     <c:if test="${topic.count > 1}">
-      <i class="icon-comment"></i> ${topic.count}
+      <i class="icon-comment"></i> ${topic.count}<br>
     </c:if>
     <c:if test="${topic.count == 1 and topic.event.eventType != 'REACTION'}">
-      <lor:user user="${topic.author}"/>
+      <lor:user user="${topic.author}"/><br>
     </c:if>
+    <lor:dateinterval date="${topic.date}" compact="true"/>
   </td>
 </tr>
 </c:forEach>
