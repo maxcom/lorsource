@@ -102,7 +102,7 @@
 <table width="100%" class="message-table">
 <c:forEach var="topic" items="${topicsList}">
 <tr>
-  <td align="center">
+  <td style="text-align: center; border-right: 1px; width: 1.5em">
     <c:choose>
       <c:when test="${topic.event.eventType == 'DELETED'}">
         <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
@@ -118,7 +118,7 @@
       </c:when>
     </c:choose>
   </td>
-  <td style="vertical-align: top">
+  <td style="vertical-align: top; border-left: 1px; border-right: 1px">
     <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
     <a href="${topic.link}" class="event-unread-${topic.event.unread}">
       <l:title>${topic.event.subj}</l:title>
@@ -151,7 +151,7 @@
       </c:when>
     </c:choose>
   </td>
-  <td title="${topic.authorsText}" style="text-align: right">
+  <td title="${topic.authorsText}" style="text-align: right; border-left: 1px">
     <c:if test="${topic.count > 1}">
       <i class="icon-comment"></i> ${topic.count}<br>
     </c:if>
