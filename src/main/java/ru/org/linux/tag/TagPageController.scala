@@ -158,7 +158,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.map(_.commitDate.toInstant).exists(isRecent)) {
       newsTopics.splitAt(1)
     } else {
-      (Seq.empty, newsTopics.dropRight(1))
+      (Seq.empty, newsTopics.take(TagPageController.TotalNewsCount-1))
     }
 
     val tmpl = Template.getTemplate
