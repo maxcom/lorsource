@@ -15,25 +15,25 @@
     <java.version>17</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>5.3.27</dependency.spring.version>
+    <dependency.spring.version>5.3.30</dependency.spring.version>
     <spring.security.version>5.5.8</spring.security.version>
     <jdbc.postgresql.version>42.6.0</jdbc.postgresql.version>
     <elastic4s.version>7.13.0</elastic4s.version>
-    <scala.version>2.13.11</scala.version>
+    <scala.version>2.13.12</scala.version>
     <scala.suffix>2.13</scala.suffix>
     <activemq.version>5.18.2</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
     <jetty.version>9.4.51.v20230217</jetty.version>
-    <akka.version>2.6.20</akka.version>
+    <akka.version>2.6.21</akka.version>
     <log4j.version>2.20.0</log4j.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
     <circe.version>0.14.3</circe.version>
     <twemoji.version>14.0.2</twemoji.version>
-    <sttp.version>3.8.16</sttp.version>
+    <sttp.version>3.9.0</sttp.version>
     <flexmark.version>0.42.14</flexmark.version>
   </properties>
 
@@ -113,7 +113,7 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.12.0</version>
+      <version>2.13.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -499,6 +499,7 @@
             <arg>-language:postfixOps</arg>
             <arg>-target:jvm-17</arg>
             <arg>-Xsource:3</arg>
+            <arg>-Xmigration</arg>
           </args>
           <recompileMode>incremental</recompileMode>
         </configuration>
