@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,8 +19,10 @@ import com.vladsch.flexmark.ast.FencedCodeBlock
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{CoreNodeRenderer, NodeRenderer, NodeRenderingHandler}
 import com.vladsch.flexmark.util.options.MutableDataHolder
+import ru.org.linux.util.bbcode.tags.CodeTag
 
-import scala.jdk.CollectionConverters._
+import java.util
+import scala.jdk.CollectionConverters.*
 
 class FencedCodeExtension extends HtmlRenderer.HtmlRendererExtension {
   override def rendererOptions(options: MutableDataHolder): Unit = {}
@@ -34,7 +36,7 @@ class FencedCodeExtension extends HtmlRenderer.HtmlRendererExtension {
 
 
 class FencedCodeRenderer extends NodeRenderer {
-  override def getNodeRenderingHandlers = Set(new NodeRenderingHandler[FencedCodeBlock](classOf[FencedCodeBlock], (node, context, html) => {
+  override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[?]] = Set(new NodeRenderingHandler[FencedCodeBlock](classOf[FencedCodeBlock], (node, context, html) => {
     html.line
     html.srcPosWithTrailingEOL(node.getChars).withAttr().attr("class", "code").tag("div")
 
@@ -43,11 +45,17 @@ class FencedCodeRenderer extends NodeRenderer {
     val info = node.getInfo
     if (info.isNotNull && !info.isBlank) {
       val language = node.getInfoDelimitedByAny(" ")
-      html.attr("class", context.getHtmlOptions.languageClassPrefix + language.unescape)
-    }
-    else {
+      val clss = CodeTag.langHash.asScala.get(language.unescape)
+
+      clss.foreach { v =>
+        html.attr("class", v)
+      }
+    } else {
       val noLanguageClass = context.getHtmlOptions.noLanguageClass.trim
-      if (!noLanguageClass.isEmpty) html.attr("class", noLanguageClass)
+
+      if (noLanguageClass.nonEmpty) {
+        html.attr("class", noLanguageClass)
+      }
     }
 
     html.srcPosWithEOL(node.getContentChars).withAttr(CoreNodeRenderer.CODE_CONTENT).tag("code")
@@ -57,5 +65,5 @@ class FencedCodeRenderer extends NodeRenderer {
     html.lineIf(context.getHtmlOptions.htmlBlockCloseTagEol)
 
     html.closeTag("div")
-  })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
+  })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[?]]]
 }
