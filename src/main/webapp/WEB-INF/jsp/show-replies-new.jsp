@@ -98,11 +98,10 @@
   </div>
 </c:if>
 
-<div class=forum>
-<table width="100%" class="message-table">
+<div class="notifications">
 <c:forEach var="topic" items="${topicsList}">
-<tr>
-  <td style="text-align: center; border-right: 1px; width: 1.5em">
+<a href="${topic.link}" class="event-unread-${topic.event.unread} notifications-item">
+  <div class="notifications-type">
     <c:choose>
       <c:when test="${topic.event.eventType == 'DELETED'}">
         <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
@@ -117,12 +116,10 @@
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
     </c:choose>
-  </td>
-  <td style="vertical-align: top; border-left: 1px; border-right: 1px">
+  </div>
+  <div class="notifications-title">
     <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
-    <a href="${topic.link}" class="event-unread-${topic.event.unread}">
-      <l:title>${topic.event.subj}</l:title>
-    </a>
+    <l:title>${topic.event.subj}</l:title>
     (${topic.section.name})
     <c:if test="${topic.event.unread}">&nbsp;&bull;</c:if>
 
@@ -150,8 +147,8 @@
         <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
       </c:when>
     </c:choose>
-  </td>
-  <td title="${topic.authorsText}" style="text-align: right; border-left: 1px">
+  </div>
+  <div title="${topic.authorsText}" class="notifications-who">
     <c:if test="${topic.count > 1}">
       <i class="icon-comment"></i> ${topic.count}<br>
     </c:if>
@@ -159,11 +156,10 @@
       <lor:user user="${topic.author}"/><br>
     </c:if>
     <lor:dateinterval date="${topic.date}" compact="true"/>
-  </td>
-</tr>
+  </div>
+</a>
 </c:forEach>
 
-</table>
 </div>
 
 <div class="container" style="margin-bottom: 1em">

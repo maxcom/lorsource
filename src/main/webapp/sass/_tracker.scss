@@ -456,3 +456,52 @@
   }
 }
 
+.notifications {
+  display: table;
+  width: 100%;
+  margin-bottom: 1em;
+  border-collapse: collapse;
+}
+
+.notifications-item {
+  display: table-row;
+
+  border: 1px solid;
+  border-color: $table_border_color;
+  background: $table_background_color;
+
+  div {
+    padding: 0.3em;
+    display: table-cell;
+  }
+
+  .notifications-type {
+    text-align: center;
+    width: 1.5em;
+    vertical-align: middle;
+  }
+
+  .notifications-who {
+    text-align: right;
+    vertical-align: middle;
+  }
+
+  &:hover {
+    background-color: $table_hover_background;
+  }
+
+  text-decoration: none;
+  color: $table_link_color;
+  &:visited {
+    color: $text_color;
+  }
+
+  &.event-unread-false {
+    color: $text_color;
+  }
+
+  &.event-unread-true:visited {
+    color: $table_link_color;
+  }
+}
+
