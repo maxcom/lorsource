@@ -302,8 +302,8 @@ function replace_state() {
         // Yes, we are viewing a comment
         
         // exit if no such target
-        if (document.querySelector('article.msg:target') === null) return;
-        
+        if (document.getElementById(document.location.hash.substring(1)) === null) return;
+
         var hash = document.location.hash.split('-');
         if (parseInt(hash[1]) > 0) {
             // OK, comment ID is valid
