@@ -25,7 +25,7 @@
 <html lang=ru>
 <head>
 <link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
-<link rel="preload" href="/js/lor.js?MAVEN_BUILD_TIMESTAMP">
+<link rel="preload" href="/js/lor.js?MAVEN_BUILD_TIMESTAMP" as="script">
 
 <link rel="yandex-tableau-widget" href="/manifest.json" />
 <meta name="referrer" content="always">
@@ -49,8 +49,8 @@
   $script('/webjars/jquery/2.2.4/jquery.min.js', 'jquery');
 
   $script.ready('jquery', function() {
-    $script('/js/plugins.js?MAVEN_BUILD_TIMESTAMP', 'plugins');
     $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
+    $script('/js/plugins.js?MAVEN_BUILD_TIMESTAMP', 'plugins');
   });
 
   $script('/js/highlight.pack.js?MAVEN_BUILD_TIMESTAMP', 'hljs');
