@@ -296,24 +296,30 @@ function tag_memories_form_setup(tag, csrf_token) {
 }
 
 function replace_state() {
-    if (typeof(history.replaceState) !== 'function') return;
-    
-    if (document.location.hash.indexOf('#comment-') == 0) {
-        // Yes, we are viewing a comment
-        
-        // exit if no such target
-        if (document.getElementById(document.location.hash.substring(1)) === null) return;
+  if (typeof (history.replaceState) !== 'function') return;
 
-        var hash = document.location.hash.split('-');
-        if (parseInt(hash[1]) > 0) {
-            // OK, comment ID is valid
-            var p = document.location.pathname.split('/');
-            // make sure that path doesn't contain /pagex or other parts
-            var pathname = [p[0], p[1], p[2], p[3]].join('/');
-            // now replace state
-            history.replaceState(null, document.title, pathname + '?cid=' + hash[1]);
-        }
+  if (document.location.hash.indexOf('#comment-') === 0) {
+    // Yes, we are viewing a comment
+
+    // exit if no such target
+    if (document.getElementById(document.location.hash.substring(1)) === null) return;
+
+    // target not yet loaded
+    if (document.querySelector('article.msg:target') === null) {
+      setTimeout(replace_state, 50);
+      return;
     }
+
+    var hash = document.location.hash.split('-');
+    if (parseInt(hash[1]) > 0) {
+      // OK, comment ID is valid
+      var p = document.location.pathname.split('/');
+      // make sure that path doesn't contain /pagex or other parts
+      var pathname = [p[0], p[1], p[2], p[3]].join('/');
+      // now replace state
+      history.replaceState(null, document.title, pathname + '?cid=' + hash[1]);
+    }
+  }
 }
 
 function initLoginForm() {
@@ -501,7 +507,7 @@ $(document).ready(function() {
   initSamepageCommentNavigation();
   initScollupButton();
   
-  replace_state()
+  replace_state();
   $(window).bind('hashchange', replace_state);
 
   initCodeSpoilers();
