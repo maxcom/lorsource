@@ -28,9 +28,9 @@
   <c:out value=" "/>${user.stars}
 
   <c:if test="${template.moderatorSession}">
-    (Score: ${user.score} MaxScore: ${user.maxScore})
+    (Score:&nbsp;${user.score} MaxScore:&nbsp;${user.maxScore})
   </c:if>
 </c:if>
 
-<span style="display: inline-block">(<lor:date date="${postdate}" itemprop="${timeprop}"/>)</span>
+<br class="visible-phone"> <span class="hideon-phone">(</span><lor:date date="${postdate}" itemprop="${timeprop}"/><span class="hideon-phone">)</span>
 
