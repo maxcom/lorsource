@@ -1,0 +1,56 @@
+<!--
+  ~ Copyright 1998-2023 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="2023092303" author="Maxim Valyanskiy">
+        <createTable tableName="reactions_log">
+            <column name="origin_user" type="int">
+                <constraints nullable="false" foreignKeyName="reactions_log_user_fkey" references="users(id)"/>
+            </column>
+            <column name="topic_id" type="int">
+                <constraints nullable="false" foreignKeyName="reactions_log_topic_fkey" references="topics(id)"/>
+            </column>
+            <column name="comment_id" type="int">
+                <constraints nullable="true" foreignKeyName="reactions_log_comment_fkey" references="comments(id)"/>
+            </column>
+            <column name="set_date" type="timestamp with timezone" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql splitStatements="false">
+            create unique index  reactions_log_upsert_idx
+                on reactions_log(topic_id, comment_id, origin_user) NULLS NOT DISTINCT;
+        </sql>
+
+        <createIndex tableName="reactions_log" indexName="reactions_log_origin_user_idx">
+            <column name="origin_user"/>
+        </createIndex>
+        <createIndex tableName="reactions_log" indexName="reactions_log_topic_idx">
+            <column name="topic_id"/>
+        </createIndex>
+        <createIndex tableName="reactions_log" indexName="reactions_log_comment_idx">
+            <column name="comment_id"/>
+        </createIndex>
+
+        <sql>
+            grant all on reactions_log to linuxweb;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -68,9 +68,7 @@ trait TransactionManagement {
 
 		val template = new org.springframework.transaction.support.TransactionTemplate(transactionManager,
 			transactionAttribute)
-		template.execute(new TransactionCallback[T] {
-			def doInTransaction(status: TransactionStatus) = function(status)
-		})
+		template.execute((status: TransactionStatus) => function(status))
 	}
 
 
