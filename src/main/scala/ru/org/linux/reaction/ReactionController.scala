@@ -56,6 +56,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         }
 
         val ignoreList = ignoreListDao.get(currentUser.user.getId)
+        val reactionLog = reactionsDao.getLogByComment(comment)
 
         val tmpl = Template.getTemplate
 
@@ -64,7 +65,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
           "preparedComment" ->
             commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic,
               ignoreList.map(Integer.valueOf).asJava),
-          "reactionList" -> reactionService.prepareReactionList(comment.reactions, ignoreList)
+          "reactionList" -> reactionService.prepareReactionList(comment.reactions, reactionLog, ignoreList)
         ).asJava)
     }
   }
@@ -130,11 +131,12 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         }
 
         val ignoreList = ignoreListDao.get(currentUser.user.getId)
+        val reactionLog = reactionsDao.getLogByTopic(topic)
 
         new ModelAndView("reaction-topic", Map(
           "topic" -> topic,
           "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user),
-          "reactionList" -> reactionService.prepareReactionList(topic.reactions, ignoreList)
+          "reactionList" -> reactionService.prepareReactionList(topic.reactions, reactionLog, ignoreList)
         ).asJava)
     }
   }

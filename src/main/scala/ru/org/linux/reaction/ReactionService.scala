@@ -15,6 +15,7 @@
 package ru.org.linux.reaction
 
 import akka.actor.ActorRef
+import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
@@ -22,10 +23,13 @@ import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
+import ru.org.linux.reaction.Reactions.ReactionsLogItem
 import ru.org.linux.realtime.RealtimeEventHub
+import ru.org.linux.site.DateFormats
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
 
+import java.util.Date
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.immutable.TreeMap
 import scala.jdk.CollectionConverters.*
@@ -47,7 +51,11 @@ case class PreparedReactions(reactions: Map[String, PreparedReaction],
   def isTotal: Boolean = reactions.forall(_._2.count > 0)
 }
 
-case class ReactionListItem(@BeanProperty user: User, @BeanProperty reaction: String)
+case class ReactionListItem(@BeanProperty user: User, @BeanProperty reaction: String, date: Option[Date]) {
+  // for jsp
+  def dateFormatted(tz: DateTimeZone): String = date.map(d => DateFormats.getDefault(tz).print(d.getTime)).getOrElse("")
+}
+
 case class PreparedReactionList(reactions: Seq[ReactionListItem]) {
   // used in jsp
   def getList: java.util.List[ReactionListItem] = reactions.asJava
@@ -96,10 +104,14 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       (comment.isEmpty || topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
   }
 
-  def prepareReactionList(reactions: Reactions, ignoreList: Set[Int]): PreparedReactionList = {
+  def prepareReactionList(reactions: Reactions, reactionsLog: Seq[ReactionsLogItem], ignoreList: Set[Int]): PreparedReactionList = {
+    val log = reactionsLog.view.map(r => r.originUserId -> r.setDate).toMap
+
+    val epoch = new Date(0)
+
     PreparedReactionList((reactions.reactions -- ignoreList).map { r =>
-      ReactionListItem(userService.getUserCached(r._1), r._2)
-    }.toSeq.sortBy(-_.user.getScore))
+      ReactionListItem(userService.getUserCached(r._1), r._2, log.get(r._1))
+    }.toSeq.sortBy(_.date.getOrElse(epoch)))
   }
 
   def prepare(reactions: Reactions, ignoreList: Set[Int], currentUser: Option[User],

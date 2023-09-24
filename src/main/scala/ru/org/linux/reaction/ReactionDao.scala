@@ -24,9 +24,11 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
+import ru.org.linux.reaction.Reactions.ReactionsLogItem
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
 
+import java.sql.Timestamp
 import javax.sql.DataSource
 
 // reaction -> Seq[UserId]
@@ -34,6 +36,8 @@ case class Reactions(reactions: Map[Int, String])
 
 object Reactions {
   val empty: Reactions = Reactions(Map.empty)
+
+  case class ReactionsLogItem(originUserId: Int, topicId: Int, commentId: Option[Int], setDate: Timestamp, reaction: String)
 }
 
 object ReactionDao extends StrictLogging {
@@ -93,9 +97,32 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
       ReactionDao.parse(r.get).reactions.values.count(_ == reaction)
     }
 
-  def recentReactionCount(origin: User): Int = {
+  def recentReactionCount(origin: User): Int =
     jdbcTemplate.queryForObject[Int](
       "SELECT count(*) FROM reactions_log " +
         "WHERE origin_user=? AND set_date > CURRENT_TIMESTAMP - '10 minutes'::interval", origin.getId).getOrElse(0)
-  }
+
+  def getLogByTopic(topic: Topic): Seq[ReactionsLogItem] =
+    jdbcTemplate.queryAndMap[ReactionsLogItem](
+      "SELECT origin_user, set_date, reaction " +
+        "FROM reactions_log WHERE topic_id = ? AND comment_id IS NULL", topic.id) { case (rs, _) =>
+          ReactionsLogItem(
+            originUserId = rs.getInt("origin_user"),
+            topicId = topic.id,
+            commentId = None,
+            setDate = rs.getTimestamp("set_date"),
+            reaction = rs.getString("reaction"))
+    }
+
+  def getLogByComment(comment: Comment): Seq[ReactionsLogItem] =
+    jdbcTemplate.queryAndMap[ReactionsLogItem](
+      "SELECT origin_user, set_date, reaction " +
+        "FROM reactions_log WHERE topic_id = ? AND comment_id = ?", comment.topicId, comment.id) { case (rs, _) =>
+      ReactionsLogItem(
+        originUserId = rs.getInt("origin_user"),
+        topicId = comment.topicId,
+        commentId = Some(comment.id),
+        setDate = rs.getTimestamp("set_date"),
+        reaction = rs.getString("reaction"))
+    }
 }

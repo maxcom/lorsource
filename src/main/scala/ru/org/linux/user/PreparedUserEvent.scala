@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -45,9 +45,9 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
     assume(similarEvent.originUserId == originUser.getId)
 
     if (event.unread) {
-      copy(reactions = reactions :+ ReactionListItem(originUser, similarEvent.reaction), lastId = similarEvent.id)
+      copy(reactions = reactions :+ ReactionListItem(originUser, similarEvent.reaction, None), lastId = similarEvent.id)
     } else {
-      copy(reactions = reactions :+ ReactionListItem(originUser, similarEvent.reaction), date = event.eventDate,
+      copy(reactions = reactions :+ ReactionListItem(originUser, similarEvent.reaction, None), date = event.eventDate,
         lastId = similarEvent.id)
     }
   }
