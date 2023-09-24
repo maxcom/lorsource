@@ -58,9 +58,10 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
         val add = Map(user.getId -> reaction).asJson.noSpaces
 
         jdbcTemplate.update("UPDATE comments SET reactions = reactions || ? WHERE id=?", add, comment.id)
-        jdbcTemplate.update("INSERT INTO reactions_log (origin_user, topic_id, comment_id) VALUES(?, ?, ?) " +
-          "ON CONFLICT (origin_user, topic_id, comment_id) DO UPDATE SET set_date=CURRENT_TIMESTAMP",
-          user.getId, comment.topicId, comment.id)
+        jdbcTemplate.update("INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction) VALUES(?, ?, ?, ?) " +
+          "ON CONFLICT (origin_user, topic_id, comment_id) " +
+          "DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction",
+          user.getId, comment.topicId, comment.id, reaction)
       } else {
         jdbcTemplate.update("UPDATE comments SET reactions = reactions - ? WHERE id=?", user.getId.toString, comment.id)
         jdbcTemplate.update("DELETE FROM reactions_log WHERE origin_user=? AND topic_id=? AND comment_id=?",
@@ -78,8 +79,9 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
         val add = Map(user.getId -> reaction).asJson.noSpaces
 
         jdbcTemplate.update("UPDATE topics SET reactions = reactions || ? WHERE id=?", add, topic.id)
-        jdbcTemplate.update("INSERT INTO reactions_log (origin_user, topic_id) VALUES(?, ?) " +
-          "ON CONFLICT (origin_user, topic_id, comment_id) DO UPDATE SET set_date=CURRENT_TIMESTAMP", user.getId, topic.id)
+        jdbcTemplate.update("INSERT INTO reactions_log (origin_user, topic_id, reaction) VALUES(?, ?, ?) " +
+          "ON CONFLICT (origin_user, topic_id, comment_id) " +
+          "DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction", user.getId, topic.id, reaction)
       } else {
         jdbcTemplate.update("UPDATE topics SET reactions = reactions - ? WHERE id=?", user.getId.toString, topic.id)
         jdbcTemplate.update("DELETE FROM reactions_log WHERE origin_user=? AND topic_id=? AND comment_id IS NULL",
@@ -90,4 +92,10 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
 
       ReactionDao.parse(r.get).reactions.values.count(_ == reaction)
     }
+
+  def recentReactionCount(origin: User): Int = {
+    jdbcTemplate.queryForObject[Int](
+      "SELECT count(*) FROM reactions_log " +
+        "WHERE origin_user=? AND set_date > CURRENT_TIMESTAMP - '10 minutes'::interval", origin.getId).getOrElse(0)
+  }
 }

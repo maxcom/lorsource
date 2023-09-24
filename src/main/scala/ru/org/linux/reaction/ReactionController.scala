@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import ru.org.linux.group.GroupDao
 import ru.org.linux.reaction.ReactionController.ReactionsLimit
 import ru.org.linux.site.Template
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
-import ru.org.linux.user.{IgnoreListDao, UserEventDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, UserService}
 
 import scala.jdk.CollectionConverters.*
 
@@ -41,7 +41,7 @@ object ReactionController {
 class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionService: TopicPermissionService,
                          groupDao: GroupDao, userService: UserService, commentPrepareService: CommentPrepareService,
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
-                         reactionService: ReactionService, userEventDao: UserEventDao) {
+                         reactionService: ReactionService, reactionsDao: ReactionDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
   def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
     val comment = commentDao.getById(commentId)
@@ -77,7 +77,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("Сообщение не доступно")
     }
 
-    if (userEventDao.recentReactionCount(currentUser.user) > ReactionsLimit) {
+    if (reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
       throw new ReactionRateLimitException
     }
 
@@ -146,7 +146,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("Сообщение не доступно")
     }
 
-    if (userEventDao.recentReactionCount(currentUser.user) > ReactionsLimit) {
+    if (reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
       throw new ReactionRateLimitException
     }
 

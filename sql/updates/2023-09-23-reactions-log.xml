@@ -53,4 +53,19 @@
             grant all on reactions_log to linuxweb;
         </sql>
     </changeSet>
+
+    <changeSet id="2023092304" author="Maxim Valyanskiy">
+        <sql>truncate reactions_log</sql>
+
+        <addColumn tableName="reactions_log">
+            <column name="reaction" type="text">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <createIndex tableName="reactions_log" indexName="reactions_log_user_date_idx">
+            <column name="origin_user"/>
+            <column name="set_date"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
