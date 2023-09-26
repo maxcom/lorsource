@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,6 +17,7 @@ package ru.org.linux.util;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
@@ -155,7 +156,7 @@ public class LorURL {
   }
 
   /**
-   * Ссылка является ссылкой на внтренности lorsource
+   * Ссылка является ссылкой на внутренности lorsource
    * @return true если lorsource ссылка
    */
   public boolean isTrueLorUrl() {
@@ -275,11 +276,11 @@ public class LorURL {
    * @throws MessageNotFoundException если нет сообещния
    * @throws URIException если url неправильный
    */
-  public String formatJump(TopicDao messageDao, URI canonical) throws MessageNotFoundException, URIException {
+  public String formatJump(TopicDao messageDao, GroupDao groupDao, URI canonical) throws MessageNotFoundException, URIException {
     if(_topic_id != -1) {
       Topic message = messageDao.getById(_topic_id);
 
-      Group group = messageDao.getGroup(message);
+      Group group = groupDao.getGroup(message.getGroupId());
 
       String scheme = canonical.getScheme();
 

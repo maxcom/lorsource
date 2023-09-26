@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,6 +22,7 @@ import org.junit.Test;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.markup.MarkupType;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.spring.SiteConfig;
@@ -116,18 +117,25 @@ public class HTMLFormatterTest {
     URI secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8");
 
     TopicDao topicDao = mock(TopicDao.class);
+    GroupDao groupDao = mock(GroupDao.class);
     Topic message1 = mock(Topic.class);
+    when(message1.getGroupId()).thenReturn(1);
     Group group1 = mock(Group.class);
     Topic message2 = mock(Topic.class);
     Group group2 = mock(Group.class);
+    when(message2.getGroupId()).thenReturn(2);
     Topic message3 = mock(Topic.class);
     Group group3 = mock(Group.class);
+    when(message3.getGroupId()).thenReturn(3);
     Topic message12 = mock(Topic.class);
     Group group12 = mock(Group.class);
+    when(message12.getGroupId()).thenReturn(12);
     Topic message15 = mock(Topic.class);
     Group group15 = mock(Group.class);
+    when(message15.getGroupId()).thenReturn(15);
     Topic messageHistory = mock(Topic.class);
     Group groupHistory = mock(Group.class);
+    when(messageHistory.getGroupId()).thenReturn(99);
     CommentDao commentDao = mock(CommentDao.class);
 
     Comment comment = mock(Comment.class);
@@ -144,12 +152,12 @@ public class HTMLFormatterTest {
     when(group12.getUrl()).thenReturn("/forum/security/");
     when(group15.getUrl()).thenReturn("/forum/linux-org-ru/");
     when(groupHistory.getUrl()).thenReturn("/news/kernel/");
-    when(topicDao.getGroup(message1)).thenReturn(group1);
-    when(topicDao.getGroup(message2)).thenReturn(group2);
-    when(topicDao.getGroup(message3)).thenReturn(group3);
-    when(topicDao.getGroup(message12)).thenReturn(group12);
-    when(topicDao.getGroup(message15)).thenReturn(group15);
-    when(topicDao.getGroup(messageHistory)).thenReturn(groupHistory);
+    when(groupDao.getGroup(message1.getGroupId())).thenReturn(group1);
+    when(groupDao.getGroup(message2.getGroupId())).thenReturn(group2);
+    when(groupDao.getGroup(message3.getGroupId())).thenReturn(group3);
+    when(groupDao.getGroup(message12.getGroupId())).thenReturn(group12);
+    when(groupDao.getGroup(message15.getGroupId())).thenReturn(group15);
+    when(groupDao.getGroup(messageHistory.getGroupId())).thenReturn(groupHistory);
     when(topicDao.getById(6753486)).thenReturn(message1);
     when(topicDao.getById(6893165)).thenReturn(message2);
     when(topicDao.getById(6890857)).thenReturn(message3);
@@ -168,6 +176,7 @@ public class HTMLFormatterTest {
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
     toHtmlFormatter.setTopicDao(topicDao);
+    toHtmlFormatter.setGroupDao(groupDao);
     toHtmlFormatter.setCommentDao(commentDao);
 
     toHtmlFormatter20 = new ToHtmlFormatter();
@@ -498,13 +507,14 @@ public class HTMLFormatterTest {
 
     assertEquals(
         "one crap two three",
-        lorCodeService.extractPlainTextFromLorcode("[list]\n" +
-                "[*]one\n" +
-                '\n' +
-                "crap\n" +
-                "[*]two\n" +
-                "[*]three\n" +
-                "[/list]")
+        lorCodeService.extractPlainTextFromLorcode("""
+                [list]
+                [*]one
+
+                crap
+                [*]two
+                [*]three
+                [/list]""")
     );
     assertEquals(
         "due ««one» teo «neo»» wuf?\nok",

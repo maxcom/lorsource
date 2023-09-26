@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,7 +32,6 @@ import ru.org.linux.gallery.Image;
 import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
-import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
@@ -62,9 +61,6 @@ import java.util.Optional;
 
 @Repository
 public class TopicDao {
-  @Autowired
-  private GroupDao groupDao;
-
   @Autowired
   private TopicTagService topicTagService; // TODO move to TopicService
 
@@ -155,15 +151,6 @@ public class TopicDao {
     } catch (EmptyResultDataAccessException exception) {
       return Optional.empty();
     }
-  }
-
-  /**
-   * Получить group message
-   * @param message message
-   * @return group
-   */
-  public Group getGroup(Topic message) {
-    return groupDao.getGroup(message.getGroupId());
   }
 
   /**
@@ -569,10 +556,6 @@ public class TopicDao {
             ip,
             startTime
     );
-  }
-
-  public List<Integer> getAllByUser(User user) {
-    return jdbcTemplate.queryForList("SELECT id FROM topics WHERE userid=? AND not deleted", Integer.class, user.getId());
   }
 
   public int getUncommitedCount() {

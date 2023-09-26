@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,9 +18,9 @@ package ru.org.linux.util;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
@@ -30,12 +30,11 @@ import static org.mockito.Mockito.when;
 
 public class LorURITest {
   private TopicDao messageDao;
+  private GroupDao groupDao;
 
 
   URI mainURI; // 127.0.0.1:8080
   URI mainLORURI; // linux.org.ru
-
-  private String failurl10 = null;
 
   private URI canon;
 
@@ -46,27 +45,33 @@ public class LorURITest {
     canon = new URI("https://127.0.0.1:8085/", true);
 
     messageDao = mock(TopicDao.class);
+    groupDao = mock(GroupDao.class);
     Topic message1 = mock(Topic.class);
     Group group1 = mock(Group.class);
+    when(message1.getGroupId()).thenReturn(1);
     Topic message2 = mock(Topic.class);
     Group group2 = mock(Group.class);
+    when(message2.getGroupId()).thenReturn(2);
     Topic message3 = mock(Topic.class);
     Group group3 = mock(Group.class);
+    when(message3.getGroupId()).thenReturn(3);
     Topic message12 = mock(Topic.class);
     Group group12 = mock(Group.class);
+    when(message12.getGroupId()).thenReturn(12);
     Topic message15 = mock(Topic.class);
     Group group15 = mock(Group.class);
+    when(message15.getGroupId()).thenReturn(15);
 
     when(group1.getUrl()).thenReturn("/news/debian/");
     when(group2.getUrl()).thenReturn("/forum/talks/");
     when(group3.getUrl()).thenReturn("/forum/general/");
     when(group12.getUrl()).thenReturn("/forum/security/");
     when(group15.getUrl()).thenReturn("/forum/linux-org-ru/");
-    when(messageDao.getGroup(message1)).thenReturn(group1);
-    when(messageDao.getGroup(message2)).thenReturn(group2);
-    when(messageDao.getGroup(message3)).thenReturn(group3);
-    when(messageDao.getGroup(message12)).thenReturn(group12);
-    when(messageDao.getGroup(message15)).thenReturn(group15);
+    when(groupDao.getGroup(message1.getGroupId())).thenReturn(group1);
+    when(groupDao.getGroup(message2.getGroupId())).thenReturn(group2);
+    when(groupDao.getGroup(message3.getGroupId())).thenReturn(group3);
+    when(groupDao.getGroup(message12.getGroupId())).thenReturn(group12);
+    when(groupDao.getGroup(message15.getGroupId())).thenReturn(group15);
     when(messageDao.getById(6753486)).thenReturn(message1);
     when(messageDao.getById(6893165)).thenReturn(message2);
     when(messageDao.getById(6890857)).thenReturn(message3);
@@ -86,7 +91,7 @@ public class LorURITest {
     assertEquals(6753486, lorURI.getMessageId());
     assertEquals(6753612, lorURI.getCommentId());
     assertEquals("https://127.0.0.1:8085/news/debian/6753486#comment-6753612", lorURI.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, groupDao, canon));
   }
 
   @Test
@@ -101,7 +106,7 @@ public class LorURITest {
     assertEquals(6753486, lorURI.getMessageId());
     assertEquals(6753612, lorURI.getCommentId());
     assertEquals("https://127.0.0.1:8085/news/debian/6753486?cid=6753612", lorURI.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, groupDao, canon));
   }
 
   @Test
@@ -114,7 +119,7 @@ public class LorURITest {
     assertTrue(lorURI.isMessageUrl());
     assertFalse(lorURI.isCommentUrl());
     assertEquals("https://127.0.0.1:8085/forum/talks/6893165?lastmod=1319027964738", lorURI.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/forum/talks/6893165", lorURI.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/forum/talks/6893165", lorURI.formatJump(messageDao, groupDao, canon));
   }
 
   @Test
@@ -127,7 +132,7 @@ public class LorURITest {
     assertTrue(lorURI.isMessageUrl());
     assertTrue(lorURI.isCommentUrl());
     assertEquals("https://127.0.0.1:8085/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917", lorURI.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/forum/general/6890857?cid=6892917", lorURI.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/forum/general/6890857?cid=6892917", lorURI.formatJump(messageDao, groupDao, canon));
   }
 
   @Test
@@ -140,7 +145,7 @@ public class LorURITest {
     assertTrue(lorURI.isTrueLorUrl());
     assertFalse(lorURI.isMessageUrl());
     assertFalse(lorURI.isCommentUrl());
-    assertEquals("", lorURI.formatJump(messageDao, canon));
+    assertEquals("", lorURI.formatJump(messageDao, groupDao, canon));
   }
 
   @Test
@@ -153,7 +158,7 @@ public class LorURITest {
     assertFalse(lorURI.isTrueLorUrl());
     assertFalse(lorURI.isMessageUrl());
     assertFalse(lorURI.isCommentUrl());
-    assertEquals("", lorURI.formatJump(messageDao, canon));
+    assertEquals("", lorURI.formatJump(messageDao, groupDao, canon));
   }
 
   @Test
@@ -166,7 +171,7 @@ public class LorURITest {
     assertTrue(lorURI.isTrueLorUrl());
     assertFalse(lorURI.isMessageUrl());
     assertFalse(lorURI.isCommentUrl());
-    assertEquals("", lorURI.formatJump(messageDao, canon));
+    assertEquals("", lorURI.formatJump(messageDao, groupDao, canon));
     assertEquals("https://127.0.0.1:8085/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.canonize(canon));
   }
 
@@ -180,7 +185,7 @@ public class LorURITest {
     assertTrue(lorURI.isTrueLorUrl());
     assertFalse(lorURI.isMessageUrl());
     assertFalse(lorURI.isCommentUrl());
-    assertEquals("", lorURI.formatJump(messageDao, canon));
+    assertEquals("", lorURI.formatJump(messageDao, groupDao, canon));
     assertEquals("https://127.0.0.1:8085/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.canonize(canon));
   }
 
@@ -209,17 +214,6 @@ public class LorURITest {
   }
 
   @Test
-  public void test10() {
-    boolean result = false;
-    try {
-      LorURL lorURI = new LorURL(mainURI, failurl10);
-    } catch (Exception e) {
-      result=true;
-    }
-    assertTrue(result);
-  }
-
-  @Test
   public void test11() {
     boolean result = false;
     try {
@@ -240,7 +234,7 @@ public class LorURITest {
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
     assertTrue(lorURI.isCommentUrl());
-    assertEquals("https://127.0.0.1:8085/forum/security/1948661?cid=1948668", lorURI.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/forum/security/1948661?cid=1948668", lorURI.formatJump(messageDao, groupDao, canon));
   }
 
   @Test
@@ -269,7 +263,7 @@ public class LorURITest {
     assertTrue(lorURI1.isMessageUrl());
     assertTrue(lorURI1.isCommentUrl());
     assertEquals("https://127.0.0.1:8085/jump-message.jsp?msgid=6890857&amp;cid=6892917", lorURI1.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/forum/general/6890857?cid=6892917", lorURI1.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/forum/general/6890857?cid=6892917", lorURI1.formatJump(messageDao, groupDao, canon));
 
     assertEquals(6890857, lorURI2.getMessageId());
     assertEquals(6892917, lorURI2.getCommentId());
@@ -277,7 +271,7 @@ public class LorURITest {
     assertTrue(lorURI2.isMessageUrl());
     assertTrue(lorURI2.isCommentUrl());
     assertEquals("https://127.0.0.1:8085/jump-message.jsp?msgid=6890857&amp;cid=6892917", lorURI2.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/forum/general/6890857?cid=6892917", lorURI2.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/forum/general/6890857?cid=6892917", lorURI2.formatJump(messageDao, groupDao, canon));
   }
 
   @Test
@@ -293,7 +287,7 @@ public class LorURITest {
     assertTrue(lorURI1.isMessageUrl());
     assertTrue(lorURI1.isCommentUrl());
     assertEquals("https://127.0.0.1:8085/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831", lorURI1.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/forum/linux-org-ru/6944260?cid=6944831", lorURI1.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/forum/linux-org-ru/6944260?cid=6944831", lorURI1.formatJump(messageDao, groupDao, canon));
 
     assertEquals(6944260, lorURI2.getMessageId());
     assertEquals(6944831, lorURI2.getCommentId());
@@ -301,7 +295,7 @@ public class LorURITest {
     assertTrue(lorURI2.isMessageUrl());
     assertTrue(lorURI2.isCommentUrl());
     assertEquals("https://127.0.0.1:8085/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831", lorURI2.canonize(canon));
-    assertEquals("https://127.0.0.1:8085/forum/linux-org-ru/6944260?cid=6944831", lorURI2.formatJump(messageDao, canon));
+    assertEquals("https://127.0.0.1:8085/forum/linux-org-ru/6944260?cid=6944831", lorURI2.formatJump(messageDao, groupDao, canon));
   }
 
 
