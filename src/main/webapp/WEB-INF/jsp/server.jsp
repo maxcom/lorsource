@@ -75,7 +75,7 @@
       <li>СУБД PostgreSQL 15;</li>
       <li>OpenJDK 17 (Temurin);</li>
       <li>Scala 2.13;</li>
-      <li>Apache Tomcat 8.5;</li>
+      <li>Apache Tomcat 9.0;</li>
       <li>ActiveMQ 5.18;</li>
       <li>Spring 5.3;</li>
       <li>OpenSearch 2.9.x;</li>
