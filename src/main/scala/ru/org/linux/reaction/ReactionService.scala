@@ -21,11 +21,12 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.comment.Comment
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
-import ru.org.linux.reaction.Reactions.ReactionsLogItem
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.site.DateFormats
+import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
 
@@ -70,6 +71,8 @@ object PreparedReactions {
     }.to(TreeMap)
 }
 
+case class PreparedReactionView(item: ReactionsLogItem, title: String, targetUser: User, textPreview: String)
+
 object ReactionService {
   // beer: "\uD83C\uDF7A" (fix sort order)
   val DefinedReactions: Map[String, String] = Map(
@@ -90,7 +93,8 @@ object ReactionService {
 @Service
 class ReactionService(userService: UserService, reactionDao: ReactionDao, topicDao: TopicDao,
                       userEventDao: UserEventDao, @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef,
-                      ignoreListDao: IgnoreListDao, profileDao: ProfileDao,
+                      ignoreListDao: IgnoreListDao, profileDao: ProfileDao, msgbaseDao: MsgbaseDao,
+                      textService: MessageTextService,
                       val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   def allowInteract(currentUser: Option[User], topic: Topic, comment: Option[Comment]): Boolean = {
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
@@ -99,7 +103,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       !currentUser.exists(_.isFrozen) &&
       !topic.deleted &&
       !topic.expired &&
-      comment.forall(! _.deleted) &&
+      comment.forall(!_.deleted) &&
       currentUser.forall(_.getId != authorId) &&
       (comment.isEmpty || topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
   }
@@ -145,8 +149,8 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(comment.userid)
 
-        if (!authorsIgnoreList.contains(user.getId) && comment.userid!=User.ANONYMOUS_ID &&
-            isNotificationsEnabledFor(comment.userid)) {
+        if (!authorsIgnoreList.contains(user.getId) && comment.userid != User.ANONYMOUS_ID &&
+          isNotificationsEnabledFor(comment.userid)) {
           userEventDao.insertReactionNotification(user, topic, Some(comment))
         }
       } else {
@@ -170,8 +174,8 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(topic.authorUserId)
 
-        if (!authorsIgnoreList.contains(user.getId) && topic.authorUserId!=User.ANONYMOUS_ID &&
-            isNotificationsEnabledFor(topic.authorUserId)) {
+        if (!authorsIgnoreList.contains(user.getId) && topic.authorUserId != User.ANONYMOUS_ID &&
+          isNotificationsEnabledFor(topic.authorUserId)) {
           userEventDao.insertReactionNotification(user, topic, None)
         }
       } else {
@@ -184,5 +188,25 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     realtimeHubWS ! RealtimeEventHub.RefreshEvents(Set(topic.authorUserId))
 
     r
+  }
+
+  def getReactionsView(originUser: User, offset: Int, size: Int): Seq[PreparedReactionView] = {
+    val items = reactionDao.getReactionsView(originUser, offset, size)
+    val textIds = items.view.map(_.item).map(i => i.commentId.getOrElse(i.topicId)).distinct.toSeq
+    val targetUserIds = items.view.map(_.targetUserId).distinct.toSeq
+
+    val texts: Map[Int, MessageText] = msgbaseDao.getMessageText(textIds)
+    val targetUsers: Map[Int, User] = userService.getUsersCached(targetUserIds).view.map(u => u.getId -> u).toMap
+
+    items.map { item =>
+      val plainText = textService.extractPlainText(texts(item.item.commentId.getOrElse(item.item.topicId)))
+      val textPreview = MessageTextService.trimPlainText(plainText, 250, encodeHtml = false)
+
+      PreparedReactionView(
+        item = item.item,
+        title = item.title,
+        targetUser = targetUsers(item.targetUserId),
+        textPreview = textPreview)
+    }
   }
 }

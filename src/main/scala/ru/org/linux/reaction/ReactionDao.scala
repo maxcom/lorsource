@@ -24,7 +24,6 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
-import ru.org.linux.reaction.Reactions.ReactionsLogItem
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
 
@@ -36,9 +35,12 @@ case class Reactions(reactions: Map[Int, String])
 
 object Reactions {
   val empty: Reactions = Reactions(Map.empty)
-
-  case class ReactionsLogItem(originUserId: Int, topicId: Int, commentId: Option[Int], setDate: Timestamp, reaction: String)
 }
+
+case class ReactionsLogItem(originUserId: Int, topicId: Int, commentId: Option[Int], setDate: Timestamp,
+                            reaction: String)
+
+case class ReactionsView(item: ReactionsLogItem, title: String, targetUserId: Int)
 
 object ReactionDao extends StrictLogging {
   def parse(json: String): Reactions = {
@@ -124,5 +126,22 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
         commentId = Some(comment.id),
         setDate = rs.getTimestamp("set_date"),
         reaction = rs.getString("reaction"))
+    }
+
+  def getReactionsView(originUser: User, offset: Int, size: Int): Seq[ReactionsView] =
+    jdbcTemplate.queryAndMap(
+      "SELECT topic_id, comment_id, set_date, reaction, topics.title, COALESCE(comments.userid, topics.userid) target_user " +
+        "FROM reactions_log JOIN topics ON topic_id = topics.id LEFT JOIN comments ON comment_id = comments.id " +
+        "WHERE origin_user=? AND NOT topics.deleted AND comments.deleted IS NOT TRUE " +
+        "ORDER BY set_date DESC OFFSET ? LIMIT ?", originUser.getId, offset, size) { case (rs, _) =>
+      ReactionsView(
+        item = ReactionsLogItem(
+          originUserId = originUser.getId,
+          topicId = rs.getInt("topic_id"),
+          commentId = Option(rs.getInt("comment_id")).filter(_ != 0),
+          setDate = rs.getTimestamp("set_date"),
+          reaction = rs.getString("reaction")),
+        title = rs.getString("title"), // escaped in database
+        targetUserId = rs.getInt("target_user"))
     }
 }

@@ -180,7 +180,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     if (list.isEmpty) {
       Seq.empty
     } else {
-      val texts = msgbaseDao.getMessageText(list.map(c => Integer.valueOf(c.id)).asJava)
+      val texts = msgbaseDao.getMessageText(list.map(_.id))
       val users = userService.getUsersCachedMap(list.map(_.userid))
       val group = groupDao.getGroup(topic.groupId)
 
@@ -191,7 +191,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       val samePageComments = list.map(_.id).toSet
 
       list.map { comment =>
-        val text = texts.get(comment.id)
+        val text = texts(comment.id)
         val author = users(comment.userid)
         val remark = remarks.get(author.getId)
 
@@ -204,7 +204,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   def prepareCommentsList(comments: java.util.List[CommentsListItem]): java.util.List[PreparedCommentsListItem] = {
     val users = userService.getUsersCachedMap(comments.asScala.map(_.authorId))
 
-    val texts = msgbaseDao.getMessageText(comments.asScala.map(c => Integer.valueOf(c.commentId)).asJava).asScala
+    val texts = msgbaseDao.getMessageText(comments.asScala.map(_.commentId))
 
     comments.asScala.map { comment =>
       val author = users(comment.authorId)

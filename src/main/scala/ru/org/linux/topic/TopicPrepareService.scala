@@ -167,7 +167,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   }
 
   private def loadTexts(messages: collection.Seq[Topic]) =
-    msgbaseDao.getMessageText(messages.map(_.id).map(Integer.valueOf).asJava).asScala
+    msgbaseDao.getMessageText(messages.map(_.id))
 
   /**
    * Подготовка ленты топиков, используется в TopicListController например
