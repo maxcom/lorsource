@@ -15,7 +15,7 @@
 package ru.org.linux.reaction
 
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestParam, ResponseBody}
+import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.reaction.UserReactionsController.{ItemsPerPage, MaxOffset}

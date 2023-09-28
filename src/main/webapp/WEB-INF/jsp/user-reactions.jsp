@@ -27,23 +27,29 @@
 <c:forEach var="item" items="${items}">
   <a class="reactions-view-item" href="${item.link}">
     <div class="reactions-view-reaction">
-      ${item.item.reaction}
+      <p>
+        ${item.item.reaction}
+      </p>
     </div>
 
     <div class="reactions-view-title">
-      ${item.title}
+      <p>
+        ${item.title}
+      </p>
     </div>
 
     <div class="reactions-view-date">
-      ${item.item.setDate}
-    </div>
-
-    <div class="reactions-view-target">
-      <lor:user link="false">${item.targetUser}</lor:user>
+      <p>
+        <lor:dateinterval date="${item.item.setDate}" compact="true"/>
+      </p>
     </div>
 
     <div class="reactions-view-preview">
-      <c:out value="${item.textPreview}" escapeXml="true"/>
+      <div class="text-preview-box">
+        <div class="text-preview">
+          <lor:user link="false" user="${item.targetUser}"/>: <c:out value="${item.textPreview}" escapeXml="true"/>
+        </div>
+      </div>
     </div>
   </a>
 </c:forEach>
