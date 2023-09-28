@@ -25,11 +25,14 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
 import ru.org.linux.realtime.RealtimeEventHub
+import ru.org.linux.section.Section
 import ru.org.linux.site.DateFormats
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.Date
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.immutable.TreeMap
@@ -71,7 +74,21 @@ object PreparedReactions {
     }.to(TreeMap)
 }
 
-case class PreparedReactionView(item: ReactionsLogItem, title: String, targetUser: User, textPreview: String)
+case class PreparedReactionView(@BeanProperty item: ReactionsLogItem, @BeanProperty title: String,
+                                @BeanProperty targetUser: User, @BeanProperty textPreview: String,
+                                sectionId: Int, groupUrlName: String) {
+  def getLink: String = {
+    val topicLink: String = Section.getSectionLink(sectionId) +
+      URLEncoder.encode(groupUrlName, StandardCharsets.UTF_8) + '/' + item.topicId
+
+    item.commentId match {
+      case Some(commentId) =>
+        topicLink + "?cid=" + commentId
+      case None =>
+        topicLink
+    }
+  }
+}
 
 object ReactionService {
   // beer: "\uD83C\uDF7A" (fix sort order)
@@ -206,7 +223,9 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
         item = item.item,
         title = item.title,
         targetUser = targetUsers(item.targetUserId),
-        textPreview = textPreview)
+        textPreview = textPreview,
+        sectionId = item.sectionId,
+        groupUrlName = item.groupUrlName)
     }
   }
 }

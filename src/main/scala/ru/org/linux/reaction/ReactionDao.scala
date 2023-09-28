@@ -29,6 +29,7 @@ import ru.org.linux.user.User
 
 import java.sql.Timestamp
 import javax.sql.DataSource
+import scala.beans.BeanProperty
 
 // reaction -> Seq[UserId]
 case class Reactions(reactions: Map[Int, String])
@@ -37,10 +38,10 @@ object Reactions {
   val empty: Reactions = Reactions(Map.empty)
 }
 
-case class ReactionsLogItem(originUserId: Int, topicId: Int, commentId: Option[Int], setDate: Timestamp,
-                            reaction: String)
+case class ReactionsLogItem(originUserId: Int, topicId: Int, commentId: Option[Int], @BeanProperty setDate: Timestamp,
+                            @BeanProperty reaction: String)
 
-case class ReactionsView(item: ReactionsLogItem, title: String, targetUserId: Int)
+case class ReactionsView(item: ReactionsLogItem, title: String, targetUserId: Int, sectionId: Int, groupUrlName: String)
 
 object ReactionDao extends StrictLogging {
   def parse(json: String): Reactions = {
@@ -130,8 +131,11 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
 
   def getReactionsView(originUser: User, offset: Int, size: Int): Seq[ReactionsView] =
     jdbcTemplate.queryAndMap(
-      "SELECT topic_id, comment_id, set_date, reaction, topics.title, COALESCE(comments.userid, topics.userid) target_user " +
-        "FROM reactions_log JOIN topics ON topic_id = topics.id LEFT JOIN comments ON comment_id = comments.id " +
+      "SELECT topic_id, comment_id, set_date, reaction, topics.title, " +
+        "COALESCE(comments.userid, topics.userid) target_user, groups.section, groups.urlname " +
+        "FROM reactions_log JOIN topics ON topic_id = topics.id " +
+          "JOIN groups ON topics.groupid = groups.id " +
+          "LEFT JOIN comments ON comment_id = comments.id " +
         "WHERE origin_user=? AND NOT topics.deleted AND comments.deleted IS NOT TRUE " +
         "ORDER BY set_date DESC OFFSET ? LIMIT ?", originUser.getId, offset, size) { case (rs, _) =>
       ReactionsView(
@@ -142,6 +146,8 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
           setDate = rs.getTimestamp("set_date"),
           reaction = rs.getString("reaction")),
         title = rs.getString("title"), // escaped in database
-        targetUserId = rs.getInt("target_user"))
+        targetUserId = rs.getInt("target_user"),
+        sectionId = rs.getInt("section"),
+        groupUrlName = rs.getString("urlname"))
     }
 }

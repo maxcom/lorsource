@@ -16,20 +16,23 @@ package ru.org.linux.reaction
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestParam, ResponseBody}
+import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
+import ru.org.linux.reaction.UserReactionsController.{ItemsPerPage, MaxOffset}
 import ru.org.linux.site.BadParameterException
 import ru.org.linux.user.UserService
+
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller
 @RequestMapping(Array("/people/{nick}/reactions"))
 class UserReactionsController(reactionService: ReactionService, userService: UserService) {
   @RequestMapping
-  @ResponseBody // TODO replace with view
   def reactions(@PathVariable nick: String,
-                @RequestParam(required = false, defaultValue = "0") offset: Int) = AuthUtil.ModeratorOnly { currentUser => // TODO AuthorizedOnly
+                @RequestParam(required = false, defaultValue = "0") offset: Int): ModelAndView = AuthUtil.ModeratorOnly { currentUser => // TODO AuthorizedOnly
     val user = userService.getUserCached(nick)
 
-    if (offset > 10000) {
+    if (offset > MaxOffset) {
       throw new BadParameterException("offset", "too big")
     }
 
@@ -37,6 +40,43 @@ class UserReactionsController(reactionService: ReactionService, userService: Use
       throw new AccessViolationException("можно смотреть только свои реакции")
     }
 
-    reactionService.getReactionsView(user, offset, 100)
+    val items = reactionService.getReactionsView(user, offset, ItemsPerPage + 1)
+
+    val modelAndView = new ModelAndView("user-reactions")
+
+    val title = if (user==currentUser.user) {
+      "Мои реакции"
+    } else {
+      s"Реакции ${user.getNick}"
+    }
+
+    modelAndView.addObject("items", items.take(ItemsPerPage).asJava)
+
+    val url = s"/people/${user.getNick}/reactions"
+    val nextUrl = if (items.sizeIs == ItemsPerPage + 1 && items.sizeIs < MaxOffset - ItemsPerPage) {
+      s"${url}?offset=${offset + ItemsPerPage}"
+    } else {
+      ""
+    }
+
+    val prevUrl = if (offset == ItemsPerPage) {
+      url
+    } else if (offset > ItemsPerPage) {
+      s"${url}?offset=${offset - ItemsPerPage}"
+    } else {
+      ""
+    }
+
+    modelAndView.addObject("nextUrl", nextUrl)
+    modelAndView.addObject("prevUrl", prevUrl)
+    modelAndView.addObject("user", user)
+    modelAndView.addObject("title", title)
+
+    modelAndView
   }
+}
+
+object UserReactionsController {
+  val ItemsPerPage = 50
+  val MaxOffset = 10000
 }
