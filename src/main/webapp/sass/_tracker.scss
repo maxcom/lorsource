@@ -591,4 +591,39 @@
 
     color: $text_color;
   }
+
+  @include respond-to(tablet-and-desktops) {
+    .reactions-view-title {
+      grid-column-start: 2;
+      grid-column-end: 12;
+      grid-row-start: 1;
+      grid-row-end: 2;
+    }
+
+    .reactions-view-date {
+      text-align: right;
+
+      grid-column-start: 12;
+      grid-column-end: 13;
+      grid-row-start: 1;
+    }
+
+    .reactions-view-reaction {
+      grid-column-start: 1;
+      grid-column-end: 2;
+      grid-row-start: 1;
+      grid-row-end: 3;
+
+      text-align: center;
+      align-self: center;
+    }
+
+    .reactions-view-preview {
+      grid-column-start: 2;
+      grid-column-end: 13;
+      grid-row-start: 2;
+
+      color: $text_color;
+    }
+  }
 }

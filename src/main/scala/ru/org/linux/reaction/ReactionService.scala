@@ -88,6 +88,8 @@ case class PreparedReactionView(@BeanProperty item: ReactionsLogItem, @BeanPrope
         topicLink
     }
   }
+
+  def isComment: Boolean = item.commentId.isDefined
 }
 
 object ReactionService {
