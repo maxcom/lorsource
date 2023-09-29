@@ -603,7 +603,7 @@
             <a href="/people/${user.nick}/drafts">Черновики</a>
         </li>
     </c:if>
-    <c:if test="${template.moderatorSession}"> <!-- TODO moderatorOrCurrentUser  -->
+    <c:if test="${moderatorOrCurrentUser}">
         <li>
             <a href="/people/${user.nick}/reactions">Реакции</a>
         </li>

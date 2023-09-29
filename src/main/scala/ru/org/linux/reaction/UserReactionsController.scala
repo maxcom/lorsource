@@ -29,7 +29,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 class UserReactionsController(reactionService: ReactionService, userService: UserService) {
   @RequestMapping
   def reactions(@PathVariable nick: String,
-                @RequestParam(required = false, defaultValue = "0") offset: Int): ModelAndView = AuthUtil.ModeratorOnly { currentUser => // TODO AuthorizedOnly
+                @RequestParam(required = false, defaultValue = "0") offset: Int): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
     val user = userService.getUserCached(nick)
 
     if (offset > MaxOffset) {

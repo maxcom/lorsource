@@ -183,6 +183,7 @@
               <li><a href="/people/${currentUser.nick}/favs">Избранные темы</a></li>
           </c:if>
           <li><a href="search.jsp?range=COMMENTS&user=${currentUser.nick}&sort=DATE">Мои комментарии</a></li>
+          <li><a href="/people/${currentUser.nick}/reactions">Мои реакции</a></li>
           <c:if test="${hasDrafts}">
               <li>
                   <a href="/people/${currentUser.nick}/drafts">Черновики</a>
