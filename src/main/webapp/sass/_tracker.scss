@@ -545,6 +545,7 @@ $grid_padding: 0.4em;
 
   text-decoration: none;
   color: $table_link_color;
+
   &:visited {
     color: $text_color;
   }
@@ -555,6 +556,37 @@ $grid_padding: 0.4em;
 
   &.event-unread-true:visited {
     color: $table_link_color !important;
+  }
+
+  @include respond-to(tablet-and-desktops) {
+    .notifications-title {
+      grid-column-start: 2;
+      grid-column-end: 12;
+      grid-row-start: 1;
+    }
+
+    .notifications-details {
+      grid-column-start: 2;
+      grid-column-end: 12;
+      grid-row-start: 2;
+    }
+
+    .notifications-who {
+      grid-column-start: 12;
+      grid-column-end: 13;
+      grid-row-start: 1;
+
+      text-align: right;
+    }
+
+    .notifications-when {
+      grid-column-start: 12;
+      grid-column-end: 13;
+      grid-row-start: 2;
+
+      text-align: right;
+      align-self: center;
+    }
   }
 }
 
