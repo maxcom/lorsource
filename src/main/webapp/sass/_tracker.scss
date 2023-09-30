@@ -466,7 +466,7 @@ $grid_padding: 0.4em;
 
 .notifications-item {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: 3em repeat(11, 1fr);
 
   border-top: 1px solid $table_border_color;
   border-right: 1px solid $table_border_color;
