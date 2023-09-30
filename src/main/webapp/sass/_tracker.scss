@@ -498,9 +498,10 @@ $grid_padding: 0.4em;
     grid-column-end: 10;
     grid-row-start: 2;
 
+    font-size: 0.8em;
+
     .tag {
       border-radius: 3px;
-      font-size: 0.8em;
       padding: 2px 4px;
       background-color: $tracker_tag_color;
       color: $text_color;
