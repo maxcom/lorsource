@@ -13,6 +13,8 @@
  *    limitations under the License.
  */
 
+$grid_padding: 0.4em;
+
 .tracker {
   a {
     text-decoration: none;
@@ -32,8 +34,8 @@
   border-right: 1px solid $table_border_color;
   border-left: 1px solid $table_border_color;
 
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
+  padding-top: $grid_padding;
+  padding-bottom: $grid_padding;
   background: $table_background_color;
 
   &:hover {
@@ -41,8 +43,8 @@
   }
 
   p {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: $grid_padding;
+    padding-right: $grid_padding;
     margin: 0;
   }
 
@@ -188,8 +190,8 @@
   border-right: 1px solid $table_border_color;
   border-left: 1px solid $table_border_color;
 
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
+  padding-top: $grid_padding;
+  padding-bottom: $grid_padding;
   background: $table_background_color;
 
   &:hover {
@@ -197,8 +199,8 @@
   }
 
   p {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: $grid_padding;
+    padding-right: $grid_padding;
     margin: 0;
   }
 
@@ -340,8 +342,8 @@
   border-right: 1px solid $table_border_color;
   border-left: 1px solid $table_border_color;
 
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
+  padding-top: $grid_padding;
+  padding-bottom: $grid_padding;
   background: $table_background_color;
 
   &:hover {
@@ -355,8 +357,8 @@
   }
 
   p {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: $grid_padding;
+    padding-right: $grid_padding;
     margin: 0;
   }
 
@@ -382,8 +384,8 @@
   }
 
   .comments-title {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: $grid_padding;
+    padding-right: $grid_padding;
     margin: 0;
 
     grid-column-start: 1;
@@ -392,8 +394,8 @@
   }
 
   .comments-text {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: $grid_padding;
+    padding-right: $grid_padding;
     margin: 0;
 
     grid-column-start: 1;
@@ -412,8 +414,8 @@
     }
 
     .comments-title {
-      padding-left: 0.5em;
-      padding-right: 0.5em;
+      padding-left: $grid_padding;
+      padding-right: $grid_padding;
       margin: 0;
 
       grid-column-start: 3;
@@ -470,8 +472,8 @@
   border-right: 1px solid $table_border_color;
   border-left: 1px solid $table_border_color;
 
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
+  padding-top: $grid_padding;
+  padding-bottom: $grid_padding;
   background: $table_background_color;
 
   &:last-of-type {
@@ -480,8 +482,8 @@
   }
 
   p {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: $grid_padding;
+    padding-right: $grid_padding;
     margin: 0;
   }
 
@@ -569,8 +571,8 @@
   border-right: 1px solid $table_border_color;
   border-left: 1px solid $table_border_color;
 
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
+  padding-top: $grid_padding;
+  padding-bottom: $grid_padding;
   background: $table_background_color;
 
   &:hover {
@@ -589,8 +591,8 @@
   }
 
   p {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: $grid_padding;
+    padding-right: $grid_padding;
     margin: 0;
   }
 
@@ -621,8 +623,8 @@
   }
 
   .reactions-view-preview {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: $grid_padding;
+    padding-right: $grid_padding;
     margin: 0;
 
     grid-column-start: 1;
