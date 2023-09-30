@@ -561,18 +561,18 @@ $grid_padding: 0.4em;
   @include respond-to(tablet-and-desktops) {
     .notifications-title {
       grid-column-start: 2;
-      grid-column-end: 12;
+      grid-column-end: 11;
       grid-row-start: 1;
     }
 
     .notifications-details {
       grid-column-start: 2;
-      grid-column-end: 12;
+      grid-column-end: 11;
       grid-row-start: 2;
     }
 
     .notifications-who {
-      grid-column-start: 12;
+      grid-column-start: 11;
       grid-column-end: 13;
       grid-row-start: 1;
 
@@ -580,7 +580,7 @@ $grid_padding: 0.4em;
     }
 
     .notifications-when {
-      grid-column-start: 12;
+      grid-column-start: 11;
       grid-column-end: 13;
       grid-row-start: 2;
 
