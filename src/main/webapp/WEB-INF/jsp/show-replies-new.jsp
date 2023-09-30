@@ -102,6 +102,7 @@
 <c:forEach var="topic" items="${topicsList}">
 <a href="${topic.link}" class="event-unread-${topic.event.unread} notifications-item">
   <div class="notifications-type">
+    <p>
     <c:choose>
       <c:when test="${topic.event.eventType == 'DELETED'}">
         <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
@@ -116,16 +117,20 @@
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
     </c:choose>
+    </p>
   </div>
   <div class="notifications-title">
+    <p>
     <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
     <l:title>${topic.event.subj}</l:title>
     (${topic.section.name})
     <c:if test="${topic.event.unread}">&nbsp;&bull;</c:if>
-
+    </p>
+  </div>
+  <div class="notifications-details">
+    <p>
     <c:choose>
       <c:when test="${topic.event.eventType == 'REACTION'}">
-        <br>
         <span class="reactions">
           <c:forEach var="reaction" items="${topic.reactionsList}">
             <span class="reaction">
@@ -136,26 +141,31 @@
       </c:when>
 
       <c:when test="${topic.event.eventType == 'TAG'}">
-        <br>
         <c:forEach var="tag" items="${topic.tags}">
           <span class="tag">${tag}</span>
         </c:forEach>
       </c:when>
 
       <c:when test="${topic.event.eventType == 'DELETED'}">
-        <br>
         <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
       </c:when>
     </c:choose>
+    </p>
   </div>
   <div title="${topic.authorsText}" class="notifications-who">
-    <c:if test="${topic.count > 1}">
-      <i class="icon-comment"></i> ${topic.count}<br>
-    </c:if>
-    <c:if test="${topic.count == 1 and topic.event.eventType != 'REACTION'}">
-      <lor:user user="${topic.author}"/><br>
-    </c:if>
-    <lor:dateinterval date="${topic.date}" compact="true"/>
+    <p>
+      <c:if test="${topic.count > 1}">
+        <i class="icon-comment"></i> ${topic.count}<br>
+      </c:if>
+      <c:if test="${topic.count == 1 and topic.event.eventType != 'REACTION'}">
+        <lor:user user="${topic.author}"/><br>
+      </c:if>
+    </p>
+  </div>
+  <div title="${topic.authorsText}" class="notifications-when">
+    <p>
+      <lor:dateinterval date="${topic.date}" compact="true"/>
+    </p>
   </div>
 </a>
 </c:forEach>

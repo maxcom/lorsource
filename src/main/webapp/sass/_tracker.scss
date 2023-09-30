@@ -457,25 +457,45 @@
 }
 
 .notifications {
-  display: table;
   width: 100%;
   margin-bottom: 1em;
   border-collapse: collapse;
 }
 
 .notifications-item {
-  display: table-row;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
 
-  border: 1px solid;
-  border-color: $table_border_color;
+  border-top: 1px solid $table_border_color;
+  border-right: 1px solid $table_border_color;
+  border-left: 1px solid $table_border_color;
+
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
   background: $table_background_color;
 
-  div {
-    padding: 0.3em;
-    display: table-cell;
+  &:last-of-type {
+    border-bottom: 1px solid;
+    border-color: $table_border_color;
+  }
+
+  p {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    margin: 0;
   }
 
   .notifications-title {
+    grid-column-start: 2;
+    grid-column-end: 10;
+    grid-row-start: 1;
+  }
+
+  .notifications-details {
+    grid-column-start: 2;
+    grid-column-end: 10;
+    grid-row-start: 2;
+
     .tag {
       border-radius: 3px;
       font-size: 0.8em;
@@ -483,17 +503,37 @@
       background-color: $tracker_tag_color;
       color: $text_color;
     }
+
+    .reactions {
+      color: $text_color;
+    }
   }
 
   .notifications-type {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 1;
+    grid-row-end: 3;
+
     text-align: center;
-    width: 1.5em;
-    vertical-align: middle;
+    align-self: center;
   }
 
   .notifications-who {
+    grid-column-start: 10;
+    grid-column-end: 13;
+    grid-row-start: 1;
+
     text-align: right;
-    vertical-align: middle;
+  }
+
+  .notifications-when {
+    grid-column-start: 10;
+    grid-column-end: 13;
+    grid-row-start: 2;
+
+    text-align: right;
+    align-self: center;
   }
 
   &:hover {
@@ -511,7 +551,7 @@
   }
 
   &.event-unread-true:visited {
-    color: $table_link_color;
+    color: $table_link_color !important;
   }
 }
 
