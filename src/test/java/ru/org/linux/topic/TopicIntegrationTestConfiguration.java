@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,6 @@ import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.search.SearchQueueListener;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.MemoriesDao;
@@ -74,13 +73,13 @@ public class TopicIntegrationTestConfiguration {
   @Bean
   public TopicController topicController(SectionService sectionService, TopicDao messageDao, CommentPrepareService prepareService,
                                          TopicPrepareService topicPrepareService, CommentReadService commentService,
-                                         IgnoreListDao ignoreListDao, SiteConfig siteConfig, IPBlockDao ipBlockDao,
+                                         IgnoreListDao ignoreListDao, IPBlockDao ipBlockDao,
                                          EditHistoryService editHistoryService, MemoriesDao memoriesDao,
                                          TopicPermissionService permissionService, MoreLikeThisService moreLikeThisService,
                                          TopicTagService topicTagService, MsgbaseDao msgbaseDao, MessageTextService textService,
                                          GroupDao groupDao) {
     return new TopicController(sectionService, messageDao, prepareService, topicPrepareService, commentService,
-            ignoreListDao, siteConfig, ipBlockDao, editHistoryService, memoriesDao,  permissionService,
+            ignoreListDao, ipBlockDao, editHistoryService, memoriesDao,  permissionService,
             moreLikeThisService, topicTagService, msgbaseDao, textService, groupDao);
   }
 

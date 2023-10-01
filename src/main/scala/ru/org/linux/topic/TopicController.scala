@@ -32,7 +32,6 @@ import ru.org.linux.paginator.PagesInfo
 import ru.org.linux.search.{MoreLikeThisService, MoreLikeThisTopic}
 import ru.org.linux.section.{Section, SectionScrollModeEnum, SectionService}
 import ru.org.linux.site.{MessageNotFoundException, Template}
-import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{IgnoreListDao, MemoriesDao, Profile, User}
 
@@ -44,7 +43,6 @@ import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
 
 object TopicController {
-  private val RSS_DEFAULT = 20
   private val MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS)
   private val logger = LoggerFactory.getLogger(classOf[TopicController])
 
@@ -93,11 +91,10 @@ object TopicController {
 @Controller
 class TopicController(sectionService: SectionService, topicDao: TopicDao, prepareService: CommentPrepareService,
                       topicPrepareService: TopicPrepareService, commentService: CommentReadService,
-                      ignoreListDao: IgnoreListDao, siteConfig: SiteConfig, ipBlockDao: IPBlockDao,
-                      editHistoryService: EditHistoryService, memoriesDao: MemoriesDao,
-                      permissionService: TopicPermissionService, moreLikeThisService: MoreLikeThisService,
-                      topicTagService: TopicTagService, msgbaseDao: MsgbaseDao, textService: MessageTextService,
-                      groupDao: GroupDao) {
+                      ignoreListDao: IgnoreListDao, ipBlockDao: IPBlockDao, editHistoryService: EditHistoryService,
+                      memoriesDao: MemoriesDao, permissionService: TopicPermissionService,
+                      moreLikeThisService: MoreLikeThisService, topicTagService: TopicTagService,
+                      msgbaseDao: MsgbaseDao, textService: MessageTextService, groupDao: GroupDao) {
   @RequestMapping(Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"))
   def getMessageNewMain(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
                         @RequestParam(value = "filter", required = false) filter: String,
@@ -110,13 +107,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     } else {
       val section = sectionService.getSectionByName(sectionName)
 
-      val rss = request.getParameter("output") != null && "rss" == request.getParameter("output")
-
-      if (rss) {
-        getMessageRss(section, response, groupName, msgid)
-      } else {
-        getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, 0)
-      }
+      getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, 0)
     }
   }
 
@@ -303,44 +294,6 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       new CommentList(Vector.empty, Instant.EPOCH)
     } else {
       commentService.getCommentList(topic, showDeleted)
-    }
-  }
-
-  private def getMessageRss(section: Section, response: HttpServletResponse, groupName: String, msgid: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
-    val topic = topicDao.getById(msgid)
-
-    val params = new mutable.HashMap[String, AnyRef]
-
-    val tags = topicTagService.getTagRefs(topic)
-    val messageText = msgbaseDao.getMessageText(topic.id)
-    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, currentUserOpt.map(_.user), messageText)
-    val group = preparedMessage.group
-
-    if (!(group.getUrlName == groupName) || group.getSectionId != section.getId) {
-      new ModelAndView(new RedirectView(s"${topic.getLink}?output=rss"))
-    } else {
-      if (topic.expired) {
-        throw new MessageNotFoundException(topic.id, "no more comments")
-      }
-
-      permissionService.checkView(group, topic, currentUserOpt.map(_.user).orNull, preparedMessage.author, false)
-      params.put("message", topic)
-      params.put("preparedMessage", preparedMessage)
-
-      if (topic.expired) {
-        response.setDateHeader("Expires", System.currentTimeMillis + 30 * 24 * 60 * 60 * 1000L)
-      }
-
-      val comments = getCommentList(topic, group, showDeleted = false).comments
-
-      val commentsFiltered = comments.view.reverse.take(TopicController.RSS_DEFAULT).toSeq
-
-      val commentsPrepared = prepareService.prepareCommentListRSS(commentsFiltered)
-
-      params.put("commentsPrepared", commentsPrepared.asJava)
-      params.put("mainURL", siteConfig.getSecureUrl)
-
-      new ModelAndView("view-message-rss", params.asJava)
     }
   }
 

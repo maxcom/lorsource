@@ -68,10 +68,6 @@
   <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.link)}" title="<l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>">
 </c:if>
 
-<c:if test="${not message.expired}">
-  <link rel="alternate" title="Comments RSS" href="${message.link}?output=rss" type="application/rss+xml">
-</c:if>
-
 <script type="text/javascript">
   $script.ready('lorjs', function() { initNextPrevKeys(); });
   <c:if test="${not message.expired and template.sessionAuthorized}">
