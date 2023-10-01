@@ -134,7 +134,7 @@
         <i class="icon-comment"></i> ${topic.count}<br>
       </p>
     </div>
-    <div title="${topic.authorsText}" class="notifications-when">
+    <div class="notifications-when">
       <p>
         <lor:dateinterval date="${topic.date}" compact="true"/>
       </p>
@@ -155,7 +155,7 @@
         </p>
       </div>
 
-      <div title="${topic.authorsText}" class="notifications-when">
+      <div class="notifications-when">
         <p>
           <lor:dateinterval date="${topic.date}" compact="true"/>
         </p>
@@ -179,7 +179,7 @@
         </p>
       </div>
 
-      <div title="${topic.authorsText}" class="notifications-who-when">
+      <div class="notifications-who-when">
         <p>
           <lor:user user="${topic.author}"/>,
           <lor:dateinterval date="${topic.date}" compact="true"/>
