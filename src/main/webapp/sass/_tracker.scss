@@ -495,7 +495,7 @@ $grid_padding: 0.4em;
 
   .notifications-details {
     grid-column-start: 2;
-    grid-column-end: 10;
+    grid-column-end: 7;
     grid-row-start: 2;
 
     font-size: 0.8em;
@@ -522,12 +522,23 @@ $grid_padding: 0.4em;
     align-self: center;
   }
 
-  .notifications-who {
+  .notifications-number {
     grid-column-start: 9;
     grid-column-end: 13;
     grid-row-start: 1;
 
     text-align: right;
+  }
+
+  .notifications-who-when {
+    grid-column-start: 7;
+    grid-column-end: 13;
+    grid-row-start: 2;
+
+    text-align: right;
+    align-self: end;
+
+    color: $text_color;
   }
 
   .notifications-when {
@@ -537,6 +548,8 @@ $grid_padding: 0.4em;
 
     text-align: right;
     align-self: end;
+
+    color: $text_color;
   }
 
   &:hover {
@@ -567,11 +580,11 @@ $grid_padding: 0.4em;
 
     .notifications-details {
       grid-column-start: 2;
-      grid-column-end: 11;
+      grid-column-end: 9;
       grid-row-start: 2;
     }
 
-    .notifications-who {
+    .notifications-number {
       grid-column-start: 11;
       grid-column-end: 13;
       grid-row-start: 1;
@@ -581,6 +594,12 @@ $grid_padding: 0.4em;
 
     .notifications-when {
       grid-column-start: 11;
+      grid-column-end: 13;
+      grid-row-start: 2;
+    }
+
+    .notifications-who-when {
+      grid-column-start: 10;
       grid-column-end: 13;
       grid-row-start: 2;
     }
