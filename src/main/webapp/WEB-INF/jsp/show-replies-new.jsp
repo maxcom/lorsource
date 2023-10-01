@@ -168,14 +168,22 @@
       </p>
     </div>
 
-    <div title="${topic.authorsText}" class="notifications-who-when">
-      <p>
-        <c:if test="${topic.event.eventType != 'REACTION'}">
+    <c:if test="${topic.event.eventType == 'REACTION'}">
+      <div title="${topic.authorsText}" class="notifications-when">
+        <p>
+          <lor:dateinterval date="${topic.date}" compact="true"/>
+        </p>
+      </div>
+    </c:if>
+
+    <c:if test="${topic.event.eventType != 'REACTION'}">
+      <div title="${topic.authorsText}" class="notifications-who-when">
+        <p>
           <lor:user user="${topic.author}"/>,
-        </c:if>
-        <lor:dateinterval date="${topic.date}" compact="true"/>
-      </p>
-    </div>
+          <lor:dateinterval date="${topic.date}" compact="true"/>
+        </p>
+      </div>
+    </c:if>
   </c:if>
 </a>
 </c:forEach>
