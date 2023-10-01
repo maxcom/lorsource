@@ -536,7 +536,7 @@ $grid_padding: 0.4em;
     grid-row-start: 2;
 
     text-align: right;
-    align-self: center;
+    align-self: end;
   }
 
   &:hover {
@@ -583,9 +583,6 @@ $grid_padding: 0.4em;
       grid-column-start: 11;
       grid-column-end: 13;
       grid-row-start: 2;
-
-      text-align: right;
-      align-self: center;
     }
   }
 }
