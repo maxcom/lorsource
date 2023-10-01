@@ -506,6 +506,14 @@ $grid_padding: 0.4em;
       background-color: $tracker_tag_color;
       color: $text_color;
     }
+  }
+
+  .notifications-reactions {
+    grid-column-start: 2;
+    grid-column-end: 10;
+    grid-row-start: 2;
+
+    font-size: 0.8em;
 
     .reactions {
       color: $text_color;
@@ -581,7 +589,11 @@ $grid_padding: 0.4em;
     .notifications-details {
       grid-column-start: 2;
       grid-column-end: 9;
-      grid-row-start: 2;
+    }
+
+    .notifications-reactions {
+      grid-column-start: 2;
+      grid-column-end: 11;
     }
 
     .notifications-number {

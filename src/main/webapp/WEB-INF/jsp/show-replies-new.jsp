@@ -142,10 +142,9 @@
   </c:if>
 
   <c:if test="${topic.count == 1}">
-    <div class="notifications-details">
-      <p>
-        <c:choose>
-          <c:when test="${topic.event.eventType == 'REACTION'}">
+    <c:if test="${topic.event.eventType == 'REACTION'}">
+      <div class="notifications-reactions">
+        <p>
         <span class="reactions">
           <c:forEach var="reaction" items="${topic.reactionsList}">
             <span class="reaction">
@@ -153,22 +152,9 @@
             </span>
           </c:forEach>
         </span>
-          </c:when>
+        </p>
+      </div>
 
-          <c:when test="${topic.event.eventType == 'TAG'}">
-            <c:forEach var="tag" items="${topic.tags}">
-              <span class="tag">${tag}</span>
-            </c:forEach>
-          </c:when>
-
-          <c:when test="${topic.event.eventType == 'DELETED'}">
-            <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
-          </c:when>
-        </c:choose>
-      </p>
-    </div>
-
-    <c:if test="${topic.event.eventType == 'REACTION'}">
       <div title="${topic.authorsText}" class="notifications-when">
         <p>
           <lor:dateinterval date="${topic.date}" compact="true"/>
@@ -177,6 +163,22 @@
     </c:if>
 
     <c:if test="${topic.event.eventType != 'REACTION'}">
+      <div class="notifications-details">
+        <p>
+          <c:choose>
+            <c:when test="${topic.event.eventType == 'TAG'}">
+              <c:forEach var="tag" items="${topic.tags}">
+                <span class="tag">${tag}</span>
+              </c:forEach>
+            </c:when>
+
+            <c:when test="${topic.event.eventType == 'DELETED'}">
+              <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
+            </c:when>
+          </c:choose>
+        </p>
+      </div>
+
       <div title="${topic.authorsText}" class="notifications-who-when">
         <p>
           <lor:user user="${topic.author}"/>,
