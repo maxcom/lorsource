@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,8 +32,8 @@ import scala.util.control.NonFatal
 
 object Perf4jHandlerInterceptor {
   private val Attribute = "perf4jStopWatch"
-  private val LoggingThreshold = 1 second
-  private val ElasticProbability = 0.2
+  private val LoggingThreshold = 500.millis
+  private val ElasticProbability = 0.1
 
 
   private class Metrics(val name: String, val path: String, val start: DateTime, controller: Stopwatch, view: Stopwatch) {
