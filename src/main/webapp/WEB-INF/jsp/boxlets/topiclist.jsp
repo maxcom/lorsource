@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -18,7 +18,13 @@
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<h2>${name}</h2>
+
+<c:if test="${link!=null}">
+  <h2><a href="${link}">${name}</a></h2>
+</c:if>
+<c:if test="${link==null}">
+  <h2>${name}</h2>
+</c:if>
 
 <div class="boxlet_content">
   ${title}:
