@@ -14,6 +14,7 @@
  */
 package ru.org.linux.topic
 
+import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -94,7 +95,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                       ignoreListDao: IgnoreListDao, ipBlockDao: IPBlockDao, editHistoryService: EditHistoryService,
                       memoriesDao: MemoriesDao, permissionService: TopicPermissionService,
                       moreLikeThisService: MoreLikeThisService, topicTagService: TopicTagService,
-                      msgbaseDao: MsgbaseDao, textService: MessageTextService, groupDao: GroupDao) {
+                      msgbaseDao: MsgbaseDao, textService: MessageTextService, groupDao: GroupDao) extends StrictLogging {
   @RequestMapping(Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"))
   def getMessageNewMain(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
                         @RequestParam(value = "filter", required = false) filter: String,
@@ -187,6 +188,10 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       } else {
         return new ModelAndView(new RedirectView(topic.getLinkPage(pages - 1)))
       }
+    }
+
+    if (showDeleted || topic.isDeleted) {
+      logger.info(s"View deleted ${topic.getLink} by ${currentUserOpt.map(_.user.getNick)} (deleted = ${topic.isDeleted})")
     }
 
     params.put("showDeleted", Boolean.box(showDeleted))
