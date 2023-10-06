@@ -70,6 +70,10 @@
       <div class="sign">
         <lor:sign user="${comment.author}" postdate="${comment.postdate}"/>
 
+        <c:if test="${comment.author.id == topic.authorUserId}">
+          <span class="user-tag">автор топика</span>
+        </c:if>
+
         <c:if test="${comment.remark!=null}">
           <span><c:out value="${comment.remark}" escapeXml="true"/></span>
         </c:if>

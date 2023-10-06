@@ -224,12 +224,13 @@ blockquote {
 }
 
 .group-label {
-  border-radius: 3px;
-  font-size: 0.8em;
-  padding: 2px 4px;
   background-color: #8f5902;
   color: #eeeeec;
-  white-space: nowrap;
+}
+
+.user-tag {
+  background-color: #8f5902;
+  color: #eeeeec;
 }
 
 #related-topics-list {

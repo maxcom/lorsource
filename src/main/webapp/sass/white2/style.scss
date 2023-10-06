@@ -256,9 +256,11 @@ textarea {
 }
 
 .group-label {
-  padding: 2px;
   background-color: $group_label_color;
-  font-size: 0.8em;
+}
+
+.user-tag {
+    background-color: $group_label_color;
 }
 
 #related-topics-list {

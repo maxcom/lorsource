@@ -470,12 +470,13 @@ fieldset legend {
 }
 
 .group-label {
-  border-radius: 3px;
-  font-size: 0.8em;
-  padding: 2px 4px;
   background-color: $tagpage_group_label_background;
   color: $tagpage_group_label_color;
-  white-space: nowrap;
+}
+
+.user-tag {
+  background-color: $tagpage_group_label_background;
+  color: $tagpage_group_label_color;
 }
 
 .messages .msg:target {

@@ -500,12 +500,17 @@ fieldset legend {
 }
 
 .group-label {
-  border-radius: 3px;
-  font-size: 0.8em;
-  padding: 2px 4px;
   background-color: $tagpage_group_label_background;
   color: $tagpage_group_label_color;
-  white-space: nowrap;
+
+  a:visited & {
+    color: $text_color;
+  }
+}
+
+.user-tag {
+  background-color: $button_primary_background;
+  color: $table_link_color;
 
   a:visited & {
     color: $text_color;

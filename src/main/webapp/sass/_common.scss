@@ -839,6 +839,13 @@ figure.medium-image {
   float: none;
 }
 
+.group-label, .user-tag {
+  border-radius: 3px;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";
