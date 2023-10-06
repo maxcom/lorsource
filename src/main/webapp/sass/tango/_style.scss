@@ -509,8 +509,8 @@ fieldset legend {
 }
 
 .user-tag {
-  background-color: $button_primary_background;
-  color: $table_link_color;
+  background-color: $button_background;
+  color: $text_color;
 
   a:visited & {
     color: $text_color;
