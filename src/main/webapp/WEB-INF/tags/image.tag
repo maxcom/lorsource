@@ -3,7 +3,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
-  ~ Copyright 1998-2018 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -28,7 +28,9 @@
   <figure class="medium-image"
     style="position: relative; padding-bottom: ${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%; margin: 0"
   <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
-    <a href="${image.fullName}" itemprop="contentURL">
+    <c:if test="${image.fullInfo.width > 2000 || image.fullInfo.height > 2000}">
+      <a href="${image.fullName}" itemprop="contentURL">
+    </c:if>
       <img
               itemprop="thumbnail"
               class="medium-image"
@@ -38,7 +40,9 @@
               sizes="100vw" style="position: absolute"
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
-    </a>
+    <c:if test="${image.fullInfo.width > 2000 || image.fullInfo.height > 2000}">
+      </a>
+    </c:if>
   </figure>
     <c:if test="${enableEdit && not preparedMessage.section.imagepost}">
       <div>
