@@ -28,7 +28,7 @@
   <figure class="medium-image"
     style="position: relative; padding-bottom: ${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%; margin: 0"
   <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
-    <c:if test="${image.fullInfo.width > 2000 || image.fullInfo.height > 2000}">
+    <c:if test="${image.fullInfo.width >= 1920 || image.fullInfo.height >= 1080}">
       <a href="${image.fullName}" itemprop="contentURL">
     </c:if>
       <img
@@ -40,7 +40,7 @@
               sizes="100vw" style="position: absolute"
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
-    <c:if test="${image.fullInfo.width > 2000 || image.fullInfo.height > 2000}">
+    <c:if test="${image.fullInfo.width >= 1920 || image.fullInfo.height >= 1080}">
       </a>
     </c:if>
   </figure>
