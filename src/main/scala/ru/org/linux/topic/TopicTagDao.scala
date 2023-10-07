@@ -153,10 +153,10 @@ class TopicTagDao(ds: DataSource, val transactionManager: PlatformTransactionMan
     jdbcTemplate.queryAndProcess("SELECT msgid FROM tags WHERE tags.tagid=?", tagId) { rs => f(rs.getInt(1)) }
   }
 
-  def getTagSectoins(tagId: Int): Seq[Int] = {
+  def getTagSections(tagId: Int): Seq[Int] = {
     jdbcTemplate.queryForSeq[Int](
     """select distinct section from
         | groups join topics on topics.groupid=groups.id join tags on tags.msgid = topics.id
-        | where tagid=? and not deleted""".stripMargin, tagId)
+        | where tagid=? and not deleted and not draft ORDER BY section""".stripMargin, tagId)
   }
 }

@@ -81,7 +81,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
     tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
         val section = if (sectionId != 0) {
-          Some(sectionService.idToSection.getOrElse(sectionId, throw new SectionNotFoundException()))
+          Some(sectionService.getSection(sectionId))
         } else {
           None
         }
@@ -100,8 +100,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         modelAndView.addObject("section", sectionId)
         modelAndView.addObject("offset", offset)
 
-        val sectionIds = topicTagDao.getTagSectoins(tagInfo.id).toSet
-        val sections = sectionService.sections.filter(s => sectionIds.contains(s.getId))
+        val sections = topicTagDao.getTagSections(tagInfo.id).map(sectionService.idToSection)
 
         modelAndView.addObject("sectionList", sections.asJava)
 

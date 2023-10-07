@@ -17,7 +17,7 @@ package ru.org.linux.topic
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.group.Group
-import ru.org.linux.section.Section
+import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.TagNotFoundException
 import ru.org.linux.tag.TagService
 import ru.org.linux.topic.TopicListDto.CommitMode
@@ -51,7 +51,7 @@ object TopicListService {
 }
 
 @Service
-class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
+class TopicListService(tagService: TagService, topicListDao: TopicListDao, sectionService: SectionService) {
   /**
    * Получение списка топиков.
    *
@@ -59,8 +59,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
    * @param group   группа
    * @param tag     тег
    * @param offset  смещение в результатах выборки
-   * @param year    год
-   * @param month   месяц
+   * @param yearMonth год, месяц
    * @return список топиков
    * @throws UserErrorException
    * @throws TagNotFoundException
@@ -227,7 +226,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
     topicListDao.getTopics(topicListDto, None)
   }
 
-  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): collection.Seq[DeletedTopic] =
+  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): Seq[DeletedTopic] =
     topicListDao.getDeletedTopics(sectionId, skipBadReason, includeAnonymous)
 
   def getMainPageFeed(showGalleryOnMain: Boolean, count: Int, hideMinor: Boolean): collection.Seq[Topic] = {
@@ -257,6 +256,9 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
   def getTopics(topicListDto: TopicListDto, currentUser: Option[User]): collection.Seq[Topic] =
     topicListDao.getTopics(topicListDto, currentUser)
 
-  def getDeletedUserTopics(user: User, topics: Int): collection.Seq[DeletedTopic] =
+  def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] =
     topicListDao.getDeletedUserTopics(user, topics)
+
+  def getUserSections(user: User): Seq[Section] =
+    topicListDao.getUserSections(user).map(sectionService.idToSection)
 }

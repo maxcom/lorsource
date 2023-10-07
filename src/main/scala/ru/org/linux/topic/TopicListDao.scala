@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.section.SectionController
 import ru.org.linux.topic.TopicListDto.CommitMode.{COMMITED_ONLY, POSTMODERATED_ONLY, UNCOMMITED_ONLY}
@@ -207,7 +207,7 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
    * @param includeAnonymous включать ли в выборку темы, созданные anonymous
    * @return список удаленных тем
    */
-  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): collection.Seq[DeletedTopic] = {
+  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): Seq[DeletedTopic] = {
     val query = new StringBuilder
 
     query
@@ -237,10 +237,12 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
 
     query.append(" ORDER BY del_info.delDate DESC LIMIT 20")
 
-    jdbcTemplate.query(query.toString, (rs: ResultSet, _: Int) => DeletedTopic.apply(rs), queryParameters.toSeq *).asScala
+    jdbcTemplate.queryAndMap(query.toString, queryParameters.toSeq *) { (rs: ResultSet, _: Int) =>
+      DeletedTopic.apply(rs)
+    }
   }
 
-  def getDeletedUserTopics(user: User, topics: Int): collection.Seq[DeletedTopic] = {
+  def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] = {
     val query =
       s"""SELECT topics.title as subj, nick, groups.section, topics.id as msgid, reason, topics.postdate,
          |  del_info.delDate, bonus FROM topics,groups,users,del_info
@@ -248,6 +250,13 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
          | AND delDate is not null AND topics.userid = ${user.getId}
          | ORDER BY del_info.delDate DESC LIMIT $topics""".stripMargin
 
-    jdbcTemplate.query(query, (rs: ResultSet, _: Int) => DeletedTopic.apply(rs)).asScala
+    jdbcTemplate.queryAndMap(query) { (rs: ResultSet, _: Int) => DeletedTopic.apply(rs) }
+  }
+
+  def getUserSections(user: User): Seq[Int] = {
+    jdbcTemplate.queryForSeq[Int](
+      """select distinct section from
+        | groups join topics on topics.groupid=groups.id
+        | where topics.userid=? and not deleted and not draft ORDER BY section""".stripMargin, user.getId)
   }
 }

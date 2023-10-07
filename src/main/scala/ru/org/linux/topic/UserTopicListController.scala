@@ -90,7 +90,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val (modelAndView, user) = mkModel(nick)
 
     val section = if (sectionId != 0) {
-      sectionService.idToSection.get(sectionId)
+      Some(sectionService.getSection(sectionId))
     } else {
       None
     }
@@ -113,23 +113,30 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopicsFeed(user, section, None, offset, favorites = false, watches = false)
 
-    val rss = "rss" == output
-    if (!rss) {
-      section.foreach { section => modelAndView.addObject("section", section)}
-      modelAndView.addObject("sectionList", sectionService.sections.asJava)
+    if (messages.nonEmpty) {
+      val rss = "rss" == output
+      if (!rss) {
+        section.foreach { section => modelAndView.addObject("section", section) }
+
+        val sections = topicListService.getUserSections(user)
+
+        modelAndView.addObject("sectionList", sections.asJava)
+      }
+
+      modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
+
+      prepareTopicsForPlainOrRss(modelAndView, rss, messages)
+
+      if (!rss) {
+        modelAndView.setViewName("user-topics")
+      }
+
+      modelAndView.addObject("showSearch", true)
+
+      modelAndView
+    } else {
+      new ModelAndView("errors/code404")
     }
-
-    modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
-
-    prepareTopicsForPlainOrRss(modelAndView, rss, messages)
-
-    if (!rss) {
-      modelAndView.setViewName("user-topics")
-    }
-
-    modelAndView.addObject("showSearch", true)
-
-    modelAndView
   }
 
   @RequestMapping(value = Array("deleted-topics"), method = Array(RequestMethod.GET))
