@@ -87,9 +87,9 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
     val future = elastic execute {
       search(ElasticsearchIndexService.MessageIndex).fetchSource(true).sourceInclude(Fields).query(esQuery).sortBy(query.getSort.order).aggs(
-        filterAggregation("sections") query matchAllQuery() subAggregations (
-            termsAggregation("sections") field "section" size 50 subAggregations (
-              termsAggregation("groups") field "group" size 50
+        filterAgg("sections", matchAllQuery()) subAggregations (
+          termsAgg("sections", "section") size 50 subAggregations (
+            termsAgg("groups", "group") size 50
             )
           ),
           sigTermsAggregation("tags") field "tag" minDocCount 30
@@ -116,11 +116,11 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
 object SearchViewer {
   val SearchRows = 25
-  val MessageFragment = 500
-  val TopicBoost = 3
-  val RecentBoost = 2
-  val SearchTimeout: FiniteDuration = 1.minute
-  val SearchHardTimeout: FiniteDuration = SearchTimeout + 10.seconds
+  val MessageFragment = 1000
+  private val TopicBoost = 3
+  private val RecentBoost = 2
+  private val SearchTimeout: FiniteDuration = 1.minute
+  private val SearchHardTimeout: FiniteDuration = SearchTimeout + 10.seconds
 
   private val Fields = Seq("title", "topic_title", "author", "postdate", "topic_id",
     "section", "message", "group", "is_comment", "tag")
