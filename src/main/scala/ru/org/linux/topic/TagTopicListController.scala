@@ -90,7 +90,7 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
 
         section.foreach(s => modelAndView.addObject("section", s))
 
-        modelAndView.addObject("navtitle", getTitle(tag, None))
+        modelAndView.addObject("tagTitle", tag.capitalize)
         modelAndView.addObject("ptitle", getTitle(tag, section))
 
         val offset = TopicListService.fixOffset(rawOffset)

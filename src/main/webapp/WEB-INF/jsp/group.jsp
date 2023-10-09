@@ -61,7 +61,8 @@
       </c:if>
 
       <c:if test="${tag != null}">
-        ${section.name}&nbsp;<a href="${group.url}">«${group.title}»</a> (тег <a href="${tag.url.get()}">${tag.name}</a>)
+        ${section.name}&nbsp;<a href="${group.url}">«${group.title}»</a>
+          (тег <a href="${tag.url.get()}">${tagTitle}</a>)
       </c:if>
 
       <c:if test="${year != null}">

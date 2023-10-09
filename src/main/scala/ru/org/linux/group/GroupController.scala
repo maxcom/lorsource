@@ -161,7 +161,10 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     val tagInfo = tag.flatMap(v => tagService.getTagInfo(v, skipZero = true))
     val tagId = tagInfo.map(_.id).map(Integer.valueOf).toJava
 
-    tagInfo.foreach(t => params.put("tag", TagService.tagRef(t, 0)))
+    tagInfo.foreach { t =>
+      params.put("tag", TagService.tagRef(t, 0))
+      params.put("tagTitle", t.name.capitalize)
+    }
 
     val mainTopics = if (!lastmod) {
       groupListDao.getGroupListTopics(group.getId, currentUser.toJava, tmpl.getProf.getTopics, offset,

@@ -30,7 +30,7 @@
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1><i class="icon-tag"></i> ${navtitle}</h1>
+<h1><i class="icon-tag"></i> <a href="${url}">${tagTitle}</a></h1>
 
 <nav>
   <c:if test="${fn:length(sectionList)>1}">
