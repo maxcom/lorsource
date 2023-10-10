@@ -85,9 +85,11 @@
     <br><span id="ignoreCount" title="Кол-во пользователей, игнорирующих тег">${ignoreCount}</span>
   </div>
 
-  <p>
-    Всего сообщений: ${counter}
-  </p>
+  <c:if test="${counter > 0}">
+    <p>
+      Всего сообщений: ${counter}
+    </p>
+  </c:if>
 </div>
 
 <c:forEach var="msg" items="${messages}">

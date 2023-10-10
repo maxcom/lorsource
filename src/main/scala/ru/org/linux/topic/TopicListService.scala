@@ -102,7 +102,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       topicListDto.setLimit(count)
       topicListDto.setOffset(if (offset > 0) offset else null)
 
-      if (tag == null && group == null && !section.exists(_.isPremoderated)) {
+      if (tag.isEmpty && group.isEmpty && !section.exists(_.isPremoderated)) {
         topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
         val calendar = Calendar.getInstance

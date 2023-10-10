@@ -24,9 +24,13 @@ import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
-import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
+import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
 import ru.org.linux.user.UserTagService
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.compat.java8.FutureConverters.*
 
+import java.util.concurrent.CompletionStage
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller
@@ -75,16 +79,21 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
   def tagFeed(@PathVariable tag: String,
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
                @RequestParam(value = "section", defaultValue = "0") sectionId: Int
-  ): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  ): CompletionStage[ModelAndView] = AuthorizedOpt { currentUserOpt =>
     TagName.checkTag(tag)
 
-    tagService.getTagInfo(tag, skipZero = true) match {
+    val deadline = TagPageController.Timeout.fromNow
+
+    val section = if (sectionId != 0) {
+      Some(sectionService.getSection(sectionId))
+    } else {
+      None
+    }
+
+    val countF = tagService.countTagTopics(tag = tag, section = section, deadline = deadline)
+
+    (tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
-        val section = if (sectionId != 0) {
-          Some(sectionService.getSection(sectionId))
-        } else {
-          None
-        }
 
         val modelAndView = new ModelAndView("tag-topics")
 
@@ -124,7 +133,6 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
 
         modelAndView.addObject("messages", preparedTopics)
 
-        modelAndView.addObject("counter", tagInfo.topicCount)
         modelAndView.addObject("url", TagTopicListController.tagListUrl(tag))
         modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
         modelAndView.addObject("ignoreCount", userTagService.countIgnore(tagInfo.id))
@@ -138,15 +146,18 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         }
 
         if (topics.isEmpty) {
-          new ModelAndView("errors/code404")
+          Future.successful(new ModelAndView("errors/code404"))
         } else {
-          modelAndView
+          countF.map { count =>
+            modelAndView.addObject("counter", count.getOrElse(0))
+            modelAndView
+          }
         }
       case None =>
         tagService.getTagBySynonym(tag).map { mainName =>
-          new ModelAndView(new RedirectView(TagTopicListController.buildTagUri(mainName.name, sectionId, 0), false, false))
+          Future.successful(new ModelAndView(new RedirectView(TagTopicListController.buildTagUri(mainName.name, sectionId, 0), false, false)))
         }.getOrElse(throw new TagNotFoundException())
-    }
+    }).toJava
   }
 
   @RequestMapping(

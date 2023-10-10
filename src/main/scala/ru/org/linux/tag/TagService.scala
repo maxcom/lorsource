@@ -75,18 +75,28 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
   def getTagBySynonym(tagName: String): Option[TagRef] =
     tagDao.getTagSynonymId(tagName).map(tagDao.getTagInfo).map(i => tagRef(i, threshold = 0))
 
-  def countTagTopics(tag: String): Future[Long] = {
-    Future.successful(elastic) flatMap {
+  def countTagTopics(tag: String, section: Option[Section], deadline: Deadline): Future[Option[Long]] = {
+    val sectionFilter = section.map(s => termQuery("section", s.getUrlName))
+
+    Future.successful(elastic).flatMap {
       _ execute {
         count(MessageIndex).query(
           boolQuery().filter(
-            termQuery("is_comment", "false"),
+            Seq(termQuery("is_comment", "false"),
             termQuery("tag", tag),
-            termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")))
+            termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")) ++ sectionFilter))
       }
-    } map {
-      _.result.count
-    }
+    }.map { r =>
+      Some(r.result.count)
+    }.withTimeout(deadline.timeLeft)
+      .recover {
+        case ex: TimeoutException =>
+          logger.warn(s"Tag topics count timed out (${ex.getMessage})")
+          None
+        case ex =>
+          logger.warn("Unable to count tag topics", ex)
+          None
+      }
   }
 
   def getNewTags(tags: util.List[String]): util.List[String] =
@@ -94,7 +104,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
       tagDao.getTagId(tag, skipZero = true).isDefined || tagDao.getTagSynonymId(tag).isDefined
     }.asJava
 
-  def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic).flatMap {
+  def getRelatedTags(tag: String, deadline: Deadline): Future[Seq[TagRef]] = Future.successful(elastic).flatMap {
     _ execute {
       search(MessageIndex) size 0 query
         boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs (
@@ -107,9 +117,10 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
     } yield {
       tagRef(bucket.key)
     }).sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
-  }
+  }.withTimeout(deadline.timeLeft)
 
-  def getActiveTopTags(section: Section, group: Option[Group], filter: Option[ForumFilter], deadline: Deadline): Future[Seq[TagRef]] = {
+  def getActiveTopTags(section: Section, group: Option[Group], filter: Option[ForumFilter],
+                       deadline: Deadline): Future[Seq[TagRef]] = {
     if (group.exists(g => g.getId == 4068)) {
       Future.successful(Seq.empty)
     } else {

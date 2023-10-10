@@ -14,7 +14,6 @@
  */
 package ru.org.linux.tag
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.WordUtils
 import org.springframework.stereotype.Controller
@@ -29,7 +28,6 @@ import ru.org.linux.tag.TagPageController.isRecent
 import ru.org.linux.topic.*
 import ru.org.linux.topic.TopicListDto.CommitMode
 import ru.org.linux.user.{User, UserTagService}
-import ru.org.linux.util.RichFuture.*
 
 import java.time
 import java.time.Instant
@@ -55,10 +53,7 @@ object TagPageController {
 @Controller
 @RequestMapping(value = Array("/tag/{tag}"), params = Array("!section"))
 class TagPageController(tagService: TagService, prepareService: TopicPrepareService, topicListService: TopicListService,
- sectionService: SectionService, userTagService: UserTagService, imageService: ImageService,
- actorSystem: ActorSystem) extends StrictLogging {
-
-  private implicit val akka: ActorSystem = actorSystem
+ sectionService: SectionService, userTagService: UserTagService, imageService: ImageService) extends StrictLogging {
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = AuthUtil.AuthorizedOpt { currentUserObj =>
@@ -70,17 +65,16 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       throw new TagNotFoundException
     }
 
-    val countF = tagService.countTagTopics(tag)
+    val countF = tagService.countTagTopics(tag = tag, section = None, deadline = deadline)
 
-    val relatedF = {
-      tagService.getRelatedTags(tag) map { relatedTags =>
+    val relatedF =
+      tagService.getRelatedTags(tag, deadline) map { relatedTags =>
         if (relatedTags.nonEmpty) {
           Some("relatedTags" -> relatedTags.asJava)
         } else {
           None
         }
       }
-    }
 
     val favs = currentUser match {
       case Some(currentUser) =>
@@ -123,7 +117,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           "newsFirst" -> Boolean.box(newsFirst)
         ) ++ sections ++ favs
 
-        val safeRelatedF = relatedF withTimeout deadline.timeLeft recover {
+        val safeRelatedF = relatedF.recover {
           case ex: TimeoutException =>
             logger.warn(s"Tag related search timed out (${ex.getMessage})")
             None
@@ -132,14 +126,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
             None
         }
 
-        val safeCountF = countF withTimeout deadline.timeLeft recover {
-          case ex: TimeoutException =>
-            logger.warn(s"Tag topics count timed out (${ex.getMessage})")
-            tagInfo.topicCount.toLong
-          case ex =>
-            logger.warn("Unable to count tag topics", ex)
-            tagInfo.topicCount.toLong
-        }
+        val safeCountF = countF.map(_.getOrElse(tagInfo.topicCount.toLong))
 
         (for {
           counter <- safeCountF
