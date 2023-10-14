@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
-import ru.org.linux.section.SectionService
+import ru.org.linux.section.{SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.user.*
 
@@ -215,7 +215,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     (modelAndView, user)
   }
 
-  @ExceptionHandler(Array(classOf[UserNotFoundException]))
+  @ExceptionHandler(Array(classOf[UserNotFoundException], classOf[SectionNotFoundException]))
   @ResponseStatus(HttpStatus.NOT_FOUND)
   def handleNotFoundException = new ModelAndView("errors/code404")
 }
