@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -121,7 +121,6 @@ $grid_padding: 0.4em;
       grid-row-start: 1;
       grid-row-end: 4;
 
-      text-align: right;
       align-self: center;
     }
 
@@ -153,9 +152,6 @@ $grid_padding: 0.4em;
       grid-column-end: 12;
       grid-row-start: 1;
       grid-row-end: 3;
-
-      text-align: right;
-      align-self: center;
     }
 
     .tracker-title {
@@ -476,6 +472,8 @@ $grid_padding: 0.4em;
   padding-bottom: $grid_padding;
   background: $table_background_color;
 
+  min-height: 3em;
+
   &:last-of-type {
     border-bottom: 1px solid;
     border-color: $table_border_color;
@@ -536,6 +534,7 @@ $grid_padding: 0.4em;
     grid-row-start: 1;
 
     text-align: right;
+    align-self: center;
   }
 
   .notifications-who-when {
@@ -581,9 +580,7 @@ $grid_padding: 0.4em;
 
   @include respond-to(tablet-and-desktops) {
     .notifications-title {
-      grid-column-start: 2;
       grid-column-end: 11;
-      grid-row-start: 1;
     }
 
     .notifications-details {
@@ -614,6 +611,27 @@ $grid_padding: 0.4em;
       grid-column-start: 10;
       grid-column-end: 13;
       grid-row-start: 2;
+    }
+  }
+
+
+  @include respond-to(desktops) {
+    .notifications-when, .notifications-who-when {
+      grid-column-start: 9;
+      grid-column-end: 12;
+      grid-row-start: 1;
+      grid-row-end: 3;
+
+      align-self: center;
+    }
+
+    .notifications-title, .notifications-details, .notifications-reactions {
+      grid-column-end: 9;
+    }
+
+    .notifications-number {
+      grid-column-start: 12;
+      grid-row-end: 3;
     }
   }
 }
