@@ -69,8 +69,13 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
     tagDao.getTagId(tagName).orElse(tagDao.getTagSynonymId(tagName)).getOrElse(tagDao.createTag(tagName))
   }
 
-  def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] =
-    tagDao.getTagId(tag, skipZero).map(tagDao.getTagInfo)
+  def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] = {
+    if (TagName.isGoodTag(tag)) {
+      tagDao.getTagId(tag, skipZero).map(tagDao.getTagInfo)
+    } else {
+      None
+    }
+  }
 
   def getTagBySynonym(tagName: String): Option[TagRef] =
     tagDao.getTagSynonymId(tagName).map(tagDao.getTagInfo).map(i => tagRef(i, threshold = 0))
