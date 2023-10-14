@@ -96,11 +96,11 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                       memoriesDao: MemoriesDao, permissionService: TopicPermissionService,
                       moreLikeThisService: MoreLikeThisService, topicTagService: TopicTagService,
                       msgbaseDao: MsgbaseDao, textService: MessageTextService, groupDao: GroupDao) extends StrictLogging {
-  @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"),
-    method = Array(RequestMethod.GET))
+  @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"))
   def getMessageNewMain(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
                         @RequestParam(value = "filter", required = false) filter: String,
                         @RequestParam(value = "cid", required = false) cid: Integer,
+                        @RequestParam(value = "deleted", required = false) deleted: String,
                         @RequestParam(value = "skipdeleted", required = false, defaultValue = "false") skipDeleted: Boolean,
                         @PathVariable("section") sectionName: String, @PathVariable("group") groupName: String,
                         @PathVariable("id") msgid: Int): ModelAndView = {
@@ -109,7 +109,13 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     } else {
       val section = sectionService.getSectionByName(sectionName)
 
-      getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, 0)
+      val showDeleted = deleted!=null
+
+      if (showDeleted) {
+        getMessage(section, webRequest, request, response, -1, null, groupName, msgid, 0, showDeleted = true)
+      } else {
+        getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, 0, showDeleted = false)
+      }
     }
   }
 
@@ -120,7 +126,13 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                         @PathVariable("section") sectionName: String, @PathVariable("group") groupName: String,
                         @PathVariable("id") msgid: Int, @PathVariable("page") page: Int): ModelAndView = {
     val section = sectionService.getSectionByName(sectionName)
-    getMessage(section, webRequest, request, response, page, filter, groupName, msgid, 0)
+
+    if (page == -1) {
+      val topic = topicDao.getById(msgid)
+      new ModelAndView(new RedirectView(topic.getLink))
+    } else {
+      getMessage(section, webRequest, request, response, page, filter, groupName, msgid, 0, showDeleted = false)
+    }
   }
 
   @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}/thread/{threadRoot}"),
@@ -131,23 +143,32 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                        @PathVariable("id") msgid: Int, @PathVariable("threadRoot") threadRoot: Int): ModelAndView = {
     val section = sectionService.getSectionByName(sectionName)
 
-    getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, threadRoot)
+    getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, threadRoot, showDeleted = false)
   }
 
   private def getMessage(section: Section, webRequest: WebRequest, request: HttpServletRequest,
-                         response: HttpServletResponse, pageParam: Int, filter: String, groupName: String, msgid: Int,
-                         threadRoot: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
-    var page = pageParam
-
+                         response: HttpServletResponse, page: Int, filter: String, groupName: String, msgid: Int,
+                         threadRoot: Int, showDeleted: Boolean): ModelAndView = AuthorizedOpt { currentUserOpt =>
     val deadline = TopicController.MoreLikeThisTimeout.fromNow
 
     val topic = topicDao.getById(msgid)
+
+    if (!currentUserOpt.exists(_.moderator) && showDeleted && !("POST" == request.getMethod)) {
+      return new ModelAndView(new RedirectView(topic.getLink))
+    }
+
     val tags = topicTagService.getTagRefs(topic)
     val moreLikeThis = moreLikeThisService.searchSimilar(topic, tags)
     val messageText = msgbaseDao.getMessageText(topic.id)
     val plainText = textService.extractPlainText(messageText)
 
     val preparedMessage = topicPrepareService.prepareTopic(topic, tags, currentUserOpt.map(_.user), messageText)
+
+    val group = preparedMessage.group
+
+    if (!(group.getUrlName == groupName) || group.getSectionId != section.getId) {
+      return new ModelAndView(new RedirectView(topic.getLink))
+    }
 
     val params = new mutable.HashMap[String, AnyRef]()
 
@@ -159,27 +180,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       }
     }
 
-    val group = preparedMessage.group
-
-    if (!(group.getUrlName == groupName) || group.getSectionId != section.getId) {
-      return new ModelAndView(new RedirectView(topic.getLink))
-    }
-
-    val showDeleted = request.getParameter("deleted") != null
-
-    if (showDeleted) {
-      page = -1
-    }
-
     permissionService.checkView(group, topic, currentUserOpt.map(_.user).orNull, preparedMessage.author, showDeleted)
-
-    if (!currentUserOpt.exists(_.moderator) && showDeleted && !("POST" == request.getMethod)) {
-      return new ModelAndView(new RedirectView(topic.getLink))
-    }
-
-    if (page == -1 && !showDeleted) {
-      return new ModelAndView(new RedirectView(topic.getLink))
-    }
 
     val tmpl = Template.getTemplate
 
