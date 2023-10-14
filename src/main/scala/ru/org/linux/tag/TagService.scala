@@ -158,7 +158,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
         (for {
           bucket <- r.result.aggregations.significantTerms("active").buckets
         } yield {
-          tagRef(bucket.key)
+          tagRef(bucket.key, section)
         }).sorted
       }.withTimeout(deadline.timeLeft).recover {
         case ex: TimeoutException =>
@@ -213,6 +213,17 @@ object TagService {
   def tagRef(name: String): TagRef = TagRef(name,
     if (TagName.isGoodTag(name)) {
       Some(TagTopicListController.tagListUrl(name))
+    } else {
+      None
+    })
+
+  def tagRef(name: String, section: Section): TagRef = TagRef(name,
+    if (TagName.isGoodTag(name)) {
+      if (section.isPremoderated) { // форум пока не готов
+        Some(TagTopicListController.tagListUrl(name, section))
+      } else {
+        Some(TagTopicListController.tagListUrl(name))
+      }
     } else {
       None
     })
