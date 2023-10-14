@@ -36,6 +36,7 @@ import scala.Tuple3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -433,26 +434,29 @@ public class UserDao {
             (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
   }
 
+  @Nullable
   public User getByEmail(String email, boolean searchBlocked) {
     try {
+      var parsedAddress = new InternetAddress(email, true);
+
       int id;
 
       if (searchBlocked) {
         id = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) ORDER BY blocked ASC, id DESC LIMIT 1",
                 Integer.class,
-                email.toLowerCase()
+                parsedAddress.getAddress().toLowerCase()
         );
       } else {
         id = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) AND NOT blocked ORDER BY id DESC LIMIT 1",
                 Integer.class,
-                email.toLowerCase()
+                parsedAddress.getAddress().toLowerCase()
         );
       }
 
       return getUser(id);
-    } catch (EmptyResultDataAccessException ex) {
+    } catch (EmptyResultDataAccessException | AddressException ex) {
       return null;
     }
   }
