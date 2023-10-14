@@ -96,7 +96,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                       memoriesDao: MemoriesDao, permissionService: TopicPermissionService,
                       moreLikeThisService: MoreLikeThisService, topicTagService: TopicTagService,
                       msgbaseDao: MsgbaseDao, textService: MessageTextService, groupDao: GroupDao) extends StrictLogging {
-  @RequestMapping(Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"),
+  @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"),
     method = Array(RequestMethod.GET))
   def getMessageNewMain(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
                         @RequestParam(value = "filter", required = false) filter: String,
@@ -113,7 +113,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     }
   }
 
-  @RequestMapping(Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}/page{page}"),
+  @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}/page{page}"),
     method = Array(RequestMethod.GET))
   def getMessageNewPage(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
                         @RequestParam(value = "filter", required = false) filter: String,
@@ -123,7 +123,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     getMessage(section, webRequest, request, response, page, filter, groupName, msgid, 0)
   }
 
-  @RequestMapping(Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}/thread/{threadRoot}"),
+  @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}/thread/{threadRoot}"),
     method = Array(RequestMethod.GET))
   def getMessageThread(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
                        @RequestParam(value = "filter", required = false) filter: String,
