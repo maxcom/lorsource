@@ -22,16 +22,18 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.group.GroupListDao
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
 import ru.org.linux.user.UserTagService
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.compat.java8.FutureConverters.*
-
 import java.util.concurrent.CompletionStage
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.OptionConverters.RichOption
 
 @Controller
 object TagTopicListController {
@@ -62,8 +64,9 @@ object TagTopicListController {
 }
 
 @Controller
-class TagTopicListController (userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
-    topicListService: TopicListService, prepareService: TopicPrepareService, topicTagDao: TopicTagDao) {
+class TagTopicListController(userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
+                             topicListService: TopicListService, prepareService: TopicPrepareService,
+                             topicTagDao: TopicTagDao, groupListDao: GroupListDao) {
 
   private def getTitle(tag: String, section: Section) = s"${tag.capitalize} (${section.getName})"
 
@@ -85,7 +88,11 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
 
     (tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
-        val modelAndView = new ModelAndView("tag-topics")
+        val forumMode = section.getId == Section.SECTION_FORUM  && currentUserOpt.exists(_.user.isAdministrator)
+
+        // todo old/new
+        // todo tag-topics-forum
+        val modelAndView = new ModelAndView(if (forumMode) "tracker-new" else "tag-topics")
 
         modelAndView.addObject("section", section)
 
@@ -113,13 +120,17 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
           }
         }
 
-        val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
-          20, currentUserOpt.map(_.user), noTalks = false, tech = false)
+        val prof = Template.getTemplate.getProf
 
-        val tmpl = Template.getTemplate
+        val (preparedTopics, pageSize) = if (forumMode) {
+          (groupListDao.getSectionListTopics(section, currentUserOpt.map(_.user).toJava,
+            prof.getTopics, offset, prof.getMessages, Some(Integer.valueOf(tagInfo.id)).toJava), prof.getTopics)
+        } else {
+          val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
+            20, currentUserOpt.map(_.user), noTalks = false, tech = false)
 
-        val preparedTopics = prepareService.prepareTopicsForUser(topics, currentUserOpt.map(_.user).orNull,
-          tmpl.getProf, loadUserpics = false)
+          (prepareService.prepareTopicsForUser(topics, currentUserOpt.map(_.user).orNull, prof, loadUserpics = false), 20)
+        }
 
         modelAndView.addObject("messages", preparedTopics)
 
@@ -127,15 +138,15 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
         modelAndView.addObject("ignoreCount", userTagService.countIgnore(tagInfo.id))
 
-        if (offset < 200 && preparedTopics.size == 20) {
-          modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + 20))
+        if (offset < 300 && preparedTopics.size == pageSize) {
+          modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + pageSize))
         }
 
-        if (offset >= 20) {
-          modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - 20))
+        if (offset >= pageSize) {
+          modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        if (topics.isEmpty) {
+        if (preparedTopics.isEmpty) {
           Future.successful(new ModelAndView("errors/code404"))
         } else {
           countF.map { count =>

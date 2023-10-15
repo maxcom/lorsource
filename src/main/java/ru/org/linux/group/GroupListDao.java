@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.section.Section;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicTagService;
@@ -157,6 +158,19 @@ public class GroupListDao {
     return load(partFilter + tagFilter, "", currentUser,
             topics, offset, messagesInPage,
             "topic_postdate", commentInterval, commentInterval, showIgnored, showDeleted);
+  }
+
+  public List<TopicsListItem> getSectionListTopics(Section section, Optional<User> currentUser, int topics, int offset,
+                                                   int messagesInPage, Optional<Integer> tagId) {
+    String commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'6 month'::interval ";
+
+    String partFilter = " AND section = " + section.getId();
+
+    String tagFilter = tagId.map(t -> " AND t.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
+
+    return load(partFilter + tagFilter, "", currentUser,
+            topics, offset, messagesInPage,
+            "topic_postdate", commentInterval, commentInterval, false, false);
   }
 
   public List<TopicsListItem> getGroupStickyTopics(Group group, int messagesInPage, Optional<Integer> tagId) {

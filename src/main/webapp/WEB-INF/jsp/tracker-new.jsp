@@ -1,7 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -16,7 +16,7 @@
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
 <%--@elvariable id="frozenUsers" type="java.util.List<scala.Tuple2<ru.org.linux.user.User, java.lang.Boolean>>"--%>
-<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
@@ -50,7 +50,7 @@
 </nav>
 
 <div class=tracker>
-    <c:forEach var="msg" items="${msgs}">
+    <c:forEach var="msg" items="${messages}">
       <a href="${msg.lastPageUrl}" class="tracker-item">
         <div class="tracker-src">
           <p>
@@ -106,13 +106,13 @@
 <div class="nav">
   <div style="display: table; width: 100%">
     <div style="display: table-cell; text-align: left">
-      <c:if test="${offset>0}">
-        <a href="/tracker/?offset=${offset-topics}${addition_query}">← предыдущие</a>
+      <c:if test="${not empty prevLink}">
+        <a href="${prevLink}">← предыдущие</a>
       </c:if>
     </div>
     <div style="display: table-cell; text-align: right">
-      <c:if test="${offset+topics<300 and fn:length(msgs)==topics}">
-        <a href="/tracker/?offset=${offset+topics}${addition_query}">следующие →</a>
+      <c:if test="${not empty nextLink}">
+        <a href="${nextLink}">следующие →</a>
       </c:if>
     </div>
   </div>
