@@ -77,13 +77,15 @@ class Perf4jHandlerInterceptor(@Qualifier("loggingActor") loggingActor: ActorRef
       return true
     }
 
-    val name = handler match {
-      case method: HandlerMethod => method.getBeanType.getSimpleName
-      case _ => handler.getClass.getSimpleName
-    }
+    if (request.getAttribute(Attribute).asInstanceOf[Metrics] == null) {
+      val name = handler match {
+        case method: HandlerMethod => method.getBeanType.getSimpleName
+        case _ => handler.getClass.getSimpleName
+      }
 
-    val watch = Metrics.start(name, request.getRequestURI)
-    request.setAttribute(Attribute, watch)
+      val watch = Metrics.start(name, request.getRequestURI)
+      request.setAttribute(Attribute, watch)
+    }
 
     true
   }
