@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import com.google.common.cache.CacheBuilder;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
+import ru.org.linux.user.User;
 
 import java.util.concurrent.TimeUnit;
 
@@ -32,24 +33,19 @@ public class FloodProtector {
                   .build();
 
   public enum Action {
-    ADD_COMMENT(30000, 3000) , ADD_TOPIC(600000, 30000);
+    ADD_COMMENT(300000, 30000, 3000),
+    ADD_TOPIC(600000, 600000, 30000);
 
+    private final int thresholdLowScore;
     private final int threshold;
     private final int thresholdTrusted;
 
-    Action(int threshold, int thresholdTrusted) {
+    Action(int thresholdLowScore, int threshold, int thresholdTrusted) {
+      this.thresholdLowScore = thresholdLowScore;
       this.threshold = threshold;
       this.thresholdTrusted = thresholdTrusted;
     }
-
-    public int getThreshold() {
-      return threshold;
-    }
-
-    public int getThresholdTrusted() {
-      return thresholdTrusted;
-    }
-  }
+ }
 
   private boolean check(Action action, String ip, int threshold) {
     String key = action.toString() + ':' + ip;
@@ -67,8 +63,16 @@ public class FloodProtector {
     return true;
   }
 
-  public void checkDuplication(Action action, String ip, boolean trusted, Errors errors) {
-    int threshold = trusted?action.getThresholdTrusted():action.getThreshold();
+  public void checkDuplication(Action action, String ip, User user, Errors errors) {
+    int threshold;
+
+    if (!user.isAnonymous() && user.getScore() < 35) {
+      threshold = action.thresholdLowScore;
+    } else if (user.getScore() >= 100) {
+      threshold = action.thresholdTrusted;
+    } else {
+      threshold = action.threshold;
+    }
 
     if (!check(action, ip, threshold)) {
       errors.reject(
