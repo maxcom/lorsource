@@ -95,11 +95,11 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     params.put("messages", trackerTopics)
 
     if (offset < 300 && trackerTopics.size == topics) {
-      params.put("nextLink", s"/tracker/?offset=${offset-topics}$additionQuery")
+      params.put("nextLink", s"/tracker/?offset=${offset+topics}$additionQuery")
     }
 
     if (offset >= topics) {
-      params.put("prevLink", s"/tracker/?offset=${offset+topics}$additionQuery")
+      params.put("prevLink", s"/tracker/?offset=${offset-topics}$additionQuery")
     }
 
     if (currentUserOpt.exists(_.moderator)) {
