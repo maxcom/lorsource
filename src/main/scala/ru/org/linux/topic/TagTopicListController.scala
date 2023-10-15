@@ -65,12 +65,7 @@ object TagTopicListController {
 class TagTopicListController (userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
     topicListService: TopicListService, prepareService: TopicPrepareService, topicTagDao: TopicTagDao) {
 
-  private def getTitle(tag: String, section: Option[Section]) = {
-    section match {
-      case None    => tag.capitalize
-      case Some(s) => s"${tag.capitalize} (${s.getName})"
-    }
-  }
+  private def getTitle(tag: String, section: Section) = s"${tag.capitalize} (${section.getName})"
 
   @RequestMapping(
     value = Array("/tag/{tag}"),
@@ -84,20 +79,15 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
 
     val deadline = TagPageController.Timeout.fromNow
 
-    val section = if (sectionId != 0) {
-      Some(sectionService.getSection(sectionId))
-    } else {
-      None
-    }
+    val section = sectionService.getSection(sectionId)
 
-    val countF = tagService.countTagTopics(tag = tag, section = section, deadline = deadline)
+    val countF = tagService.countTagTopics(tag = tag, section = Some(section), deadline = deadline)
 
     (tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
-
         val modelAndView = new ModelAndView("tag-topics")
 
-        section.foreach(s => modelAndView.addObject("section", s))
+        modelAndView.addObject("section", section)
 
         modelAndView.addObject("tagTitle", tag.capitalize)
         modelAndView.addObject("ptitle", getTitle(tag, section))

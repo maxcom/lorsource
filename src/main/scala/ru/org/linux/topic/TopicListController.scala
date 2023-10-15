@@ -137,7 +137,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val tmpl = Template.getTemplate
 
-    val messages = topicListService.getTopicsFeed(Some(section), group, None, topicListForm.offset,
+    val messages = topicListService.getTopicsFeed(section, group, None, topicListForm.offset,
       topicListForm.yearMonth, 20, currentUserOpt.map(_.user), topicListForm.filter.contains(NoTalks),
       topicListForm.filter.contains(Tech))
 
