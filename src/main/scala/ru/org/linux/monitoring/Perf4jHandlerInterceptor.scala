@@ -38,8 +38,10 @@ object Perf4jHandlerInterceptor {
 
   private class Metrics(val name: String, val path: String, val start: DateTime, controller: Stopwatch, view: Stopwatch) {
     def controllerDone():Unit = {
-      controller.stop()
-      view.start()
+      if (controller.isRunning) {
+        controller.stop()
+        view.start()
+      }
     }
 
     def complete():Unit = {
