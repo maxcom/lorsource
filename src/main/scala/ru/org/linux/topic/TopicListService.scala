@@ -234,7 +234,6 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setLimit(count)
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
-    // лучше бы этот лимит был по commit_date на главной
     topicListDto.setFromDate(DateTime.now.minusMonths(3).toDate)
 
     if (hideMinor) {

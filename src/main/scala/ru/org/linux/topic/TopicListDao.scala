@@ -60,13 +60,15 @@ object TopicListDao {
       where.append(s" AND topics.userid != ${User.ANONYMOUS_ID}")
     }
 
+    val dateField = if (request.getCommitMode == COMMITED_ONLY) "commitdate" else "postdate"
+
     request.getDateLimitType match {
       case DateLimitType.BETWEEN =>
-        where.append(" AND postdate>=:fromDate AND postdate<:toDate")
+        where.append(s" AND $dateField>=:fromDate AND $dateField<:toDate")
         paramsBuilder.put("fromDate", request.getFromDate)
         paramsBuilder.put("toDate", request.getToDate)
       case DateLimitType.FROM_DATE =>
-        where.append(" AND postdate>=:fromDate")
+        where.append(s" AND $dateField>=:fromDate")
         paramsBuilder.put("fromDate", request.getFromDate)
       case DateLimitType.NONE =>
     }
