@@ -198,7 +198,7 @@ public class GroupListDao {
       default -> "";
     };
 
-    String dateFilter = ">CURRENT_TIMESTAMP-'4 days'::interval ";
+    String dateFilter = ">CURRENT_TIMESTAMP-'7 days'::interval ";
 
     return load(partFilter, userFilter, currentUser, topics, offset, messagesInPage, "comment_postdate",
             "AND comments.postdate"+dateFilter +" AND t.lastmod"+dateFilter,

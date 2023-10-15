@@ -61,6 +61,16 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     else
       "Последние сообщения"
 
+  private def buildTrackerUrl(offset: Int, filter: Option[TrackerFilterEnum]): String = {
+    val additionalQuery = filter.map("filter=" + _)
+
+    if (offset > 0) {
+      s"/tracker/?offset=$offset${additionalQuery.map("&amp;" + _).getOrElse("")}"
+    } else {
+      s"/tracker/${additionalQuery.map("?" + _).getOrElse("")}"
+    }
+  }
+
   @RequestMapping(Array("/tracker"))
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
@@ -76,12 +86,6 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
     params.put("filter", trackerFilter.getValue)
 
-    val additionQuery =  if (trackerFilter != defaultFilter) {
-      "&amp;filter=" + trackerFilter.getValue
-    } else {
-      ""
-    }
-
     params.put("defaultFilter", defaultFilter)
 
     val messages = tmpl.getProf.getMessages
@@ -95,11 +99,11 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     params.put("messages", trackerTopics)
 
     if (offset < 300 && trackerTopics.size == topics) {
-      params.put("nextLink", s"/tracker/?offset=${offset+topics}$additionQuery")
+      params.put("nextLink", buildTrackerUrl(offset + topics, Some(trackerFilter).filter(_ != defaultFilter)))
     }
 
     if (offset >= topics) {
-      params.put("prevLink", s"/tracker/?offset=${offset-topics}$additionQuery")
+      params.put("prevLink", buildTrackerUrl(offset - topics, Some(trackerFilter).filter(_ != defaultFilter)))
     }
 
     if (currentUserOpt.exists(_.moderator)) {

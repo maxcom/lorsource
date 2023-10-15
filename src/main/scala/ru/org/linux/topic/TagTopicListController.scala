@@ -142,7 +142,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + pageSize))
         }
 
-        if (offset >= pageSize) {
+        if (offset > pageSize) {
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
