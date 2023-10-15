@@ -62,7 +62,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
       "Последние сообщения"
 
   private def buildTrackerUrl(offset: Int, filter: Option[TrackerFilterEnum]): String = {
-    val additionalQuery = filter.map("filter=" + _)
+    val additionalQuery = filter.map("filter=" + _.getValue)
 
     if (offset > 0) {
       s"/tracker/?offset=$offset${additionalQuery.map("&amp;" + _).getOrElse("")}"
