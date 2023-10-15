@@ -30,6 +30,8 @@ import ru.org.linux.topic.TopicListDto.CommitMode.POSTMODERATED_ONLY
 
 @Service
 object TopicListService {
+  val MaxOffset = 300
+
   /**
    * Корректировка смещения в результатах выборки.
    *
@@ -40,8 +42,8 @@ object TopicListService {
     if (offset != null) {
       if (offset < 0) {
         0
-      } else if (offset > 200) {
-        200
+      } else if (offset > MaxOffset) {
+        MaxOffset
       } else {
         offset
       }

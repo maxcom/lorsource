@@ -162,15 +162,13 @@ public class GroupListDao {
 
   public List<TopicsListItem> getSectionListTopics(Section section, Optional<User> currentUser, int topics, int offset,
                                                    int messagesInPage, Optional<Integer> tagId) {
-    String commentInterval = " AND t.postdate>CURRENT_TIMESTAMP-'6 month'::interval ";
-
     String partFilter = " AND section = " + section.getId();
 
     String tagFilter = tagId.map(t -> " AND t.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
 
     return load(partFilter + tagFilter, "", currentUser,
             topics, offset, messagesInPage,
-            "topic_postdate", commentInterval, commentInterval, false, false);
+            "topic_postdate", "", "", false, false);
   }
 
   public List<TopicsListItem> getGroupStickyTopics(Group group, int messagesInPage, Optional<Integer> tagId) {

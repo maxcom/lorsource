@@ -138,7 +138,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
         modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
         modelAndView.addObject("ignoreCount", userTagService.countIgnore(tagInfo.id))
 
-        if (offset < 300 && preparedTopics.size == pageSize) {
+        if (offset < TopicListService.MaxOffset && preparedTopics.size == pageSize) {
           modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + pageSize))
         }
 
