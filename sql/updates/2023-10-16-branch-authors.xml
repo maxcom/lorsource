@@ -1,0 +1,20 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="2023101601" author="Maxim Valyanskiy">
+    <sql splitStatements="false">
+      CREATE OR REPLACE FUNCTION get_branch_authors(comment int) RETURNS SETOF int
+        LANGUAGE sql PARALLEL SAFE AS $$
+      WITH RECURSIVE r AS
+        (SELECT id, replyto, userid FROM comments WHERE id = comment
+          UNION
+            SELECT comments.id, comments.replyto, comments.userid
+            FROM comments JOIN r ON comments.id = r.replyto
+        ) SELECT distinct userid from r
+      $$
+    </sql>
+  </changeSet>
+</databaseChangeLog>
