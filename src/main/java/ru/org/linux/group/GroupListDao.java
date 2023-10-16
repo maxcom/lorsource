@@ -166,7 +166,7 @@ public class GroupListDao {
                                                    int messagesInPage, Optional<Integer> tagId) {
     String partFilter = " AND section = " + section.getId();
 
-    String tagFilter = tagId.map(t -> " AND t.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
+    String tagFilter = tagId.map(t -> " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
 
     return load(partFilter + tagFilter, "", currentUser,
             topics, offset, messagesInPage,

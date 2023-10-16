@@ -17,4 +17,10 @@
       $$
     </sql>
   </changeSet>
+
+  <changeSet id="2023101602" author="Maxim Valyanskiy">
+    <createIndex tableName="comments" indexName="comment_postdate">
+      <column name="postdate"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>
