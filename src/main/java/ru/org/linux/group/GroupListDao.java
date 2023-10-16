@@ -144,22 +144,22 @@ public class GroupListDao {
   public List<TopicsListItem> getGroupListTopics(int groupid, Optional<User> currentUser, int topics, int offset,
                                                  int messagesInPage, boolean showIgnored, boolean showDeleted,
                                                  Optional<Integer> year, Optional<Integer> month, Optional<Integer> tagId) {
-    String commentInterval;
+    String dateInterval;
 
     if (year.isPresent()) {
-      commentInterval="t.postdate>='" + year.get() + '-' + month.get() + "-01'::timestamp AND " +
-              "(t.postdate<'" + year.get() + '-' + month.get() + "-01'::timestamp+'1 month'::interval)";
+      dateInterval="postdate>='" + year.get() + '-' + month.get() + "-01'::timestamp AND " +
+              "(postdate<'" + year.get() + '-' + month.get() + "-01'::timestamp+'1 month'::interval)";
     } else  {
-      commentInterval = "t.postdate>CURRENT_TIMESTAMP-'6 month'::interval ";
+      dateInterval = "postdate>CURRENT_TIMESTAMP-'6 month'::interval ";
     }
 
-    String partFilter = " AND topics.groupid = " + groupid + " AND NOT topics.sticky ";
+    String partFilter = " AND topics.groupid = " + groupid + " AND NOT topics.sticky AND " + dateInterval;
 
     String tagFilter = tagId.map(t -> " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
 
     return load(partFilter + tagFilter, "", currentUser,
             topics, offset, messagesInPage,
-            "topic_postdate", " AND " + commentInterval, commentInterval, showIgnored, showDeleted);
+            "topic_postdate", "", "", showIgnored, showDeleted);
   }
 
   public List<TopicsListItem> getSectionListTopics(Section section, Optional<User> currentUser, int topics, int offset,
