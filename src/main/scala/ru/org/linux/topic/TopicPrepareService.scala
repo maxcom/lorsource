@@ -158,7 +158,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.map { message =>
-      val preparedMessage = prepareTopic(message, tags(message.id), minimizeCut = true, None,
+      val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
         user, textMap(message.id), None)
 
       val topicMenu = getTopicMenu(preparedMessage, user, profile, loadUserpics)
