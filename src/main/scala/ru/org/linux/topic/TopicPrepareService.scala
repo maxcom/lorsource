@@ -155,10 +155,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    */
   def prepareTopicsForUser(messages: collection.Seq[Topic], @Nullable user: User, profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
-    val tags = topicTagService.getTagRefs(messages.toSeq)
+    val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.map { message =>
-      val preparedMessage = prepareTopic(message, tags.get(message.id).asScala, minimizeCut = true, None,
+      val preparedMessage = prepareTopic(message, tags(message.id), minimizeCut = true, None,
         user, textMap(message.id), None)
 
       val topicMenu = getTopicMenu(preparedMessage, user, profile, loadUserpics)
@@ -178,10 +178,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    */
   def prepareTopics(messages: collection.Seq[Topic]): Seq[PreparedTopic] = {
     val textMap = loadTexts(messages)
-    val tags = topicTagService.getTagRefs(messages)
+    val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.view.map { message =>
-      prepareTopic(message, tags.get(message.id).asScala, minimizeCut = true, None, null,
+      prepareTopic(message, tags(message.id), minimizeCut = true, None, null,
         textMap(message.id), None)
     }.toSeq
   }
