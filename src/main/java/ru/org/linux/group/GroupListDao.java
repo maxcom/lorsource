@@ -135,9 +135,9 @@ public class GroupListDao {
 
     String tagFilter = tagId.map(t -> " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
 
-    return load(partFilter + tagFilter, "", currentUser,
+    return load(partFilter + tagFilter + " AND lastmod"+dateFilter, "", currentUser,
             topics, offset, messagesInPage, "comment_postdate",
-            "AND comments.postdate"+dateFilter+" AND t.lastmod"+dateFilter,
+            "AND comments.postdate"+dateFilter,
             "t.postdate"+dateFilter, false, false);
   }
 
@@ -200,8 +200,8 @@ public class GroupListDao {
 
     String dateFilter = ">CURRENT_TIMESTAMP-'7 days'::interval ";
 
-    return load(partFilter, userFilter, currentUser, topics, offset, messagesInPage, "comment_postdate",
-            "AND comments.postdate"+dateFilter +" AND t.lastmod"+dateFilter,
+    return load(partFilter +" AND lastmod"+dateFilter, userFilter, currentUser, topics, offset, messagesInPage, "comment_postdate",
+            "AND comments.postdate"+dateFilter,
             "t.postdate"+dateFilter, false, false);
   }
 
