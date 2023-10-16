@@ -59,8 +59,9 @@ public class GroupListDao {
         "%s" + /* user!=null ? queryPartIgnored*/
         "%s" + // queryAuthorFilter
         "%s" + // queryPartTagIgnored
-        "%s" + /* noUncommited */
-        "%s" + /* partFilter */
+        "%s" + // noUncommited
+        "%s" + // partFilter
+        "%s" + // innerSortLimit
       ") SELECT * FROM (SELECT DISTINCT ON(id) * FROM (SELECT " +
         "t.userid as author, " +
         "t.id, lastmod, " +
@@ -110,7 +111,7 @@ public class GroupListDao {
        "FROM topics AS t " +
        "%s " + // WHERE topicInterval
      ") as tracker ORDER BY id, comment_postdate desc) tracker " +
-     "ORDER BY %s DESC LIMIT :topics OFFSET :offset"; // orderColumn
+     "%s"; // outerSortLimit
 
   private static final String queryPartCommentIgnored =
           " AND not exists (select ignored from ignore_list where userid=:userid intersect select get_branch_authors(comments.id)) ";
@@ -163,10 +164,10 @@ public class GroupListDao {
   }
 
   public List<TopicsListItem> getSectionListTopics(Section section, Optional<User> currentUser, int topics, int offset,
-                                                   int messagesInPage, Optional<Integer> tagId) {
+                                                   int messagesInPage, Integer tagId) {
     String partFilter = " AND section = " + section.getId();
 
-    String tagFilter = tagId.map(t -> " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
+    String tagFilter = " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+tagId+") ";
 
     return load(partFilter + tagFilter, "", currentUser,
             topics, offset, messagesInPage,
@@ -209,12 +210,22 @@ public class GroupListDao {
                                     int topics, int offset, final int messagesInPage, String orderColumn,
                                     String commentInterval, String topicInterval, boolean showIgnored,
                                     boolean showDeleted) {
+    String innerSortLimit;
+    String outerSortLimit;
+
+    // если сортируем по топику, то можно заранее отобрать нужные топики,
+    // до получения даты последнего комментария
+    if (orderColumn.equals("topic_postdate")) {
+      innerSortLimit = "ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset;
+      outerSortLimit = "ORDER BY topic_postdate DESC";
+    } else {
+      innerSortLimit = "";
+      outerSortLimit = "ORDER BY " + orderColumn + " DESC LIMIT " + topics + " OFFSET " + offset;
+    }
 
     User currentUser = currentUserOpt.orElse(null);
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
-    parameter.addValue("topics", topics);
-    parameter.addValue("offset", offset);
 
     String partIgnored;
     String commentIgnored;
@@ -240,13 +251,13 @@ public class GroupListDao {
 
     query = String.format(
             // topics CTE
-            queryTrackerMain, partDeleted, partIgnored, authorFilter, tagIgnored, partUncommited, partFilter,
+            queryTrackerMain, partDeleted, partIgnored, authorFilter, tagIgnored, partUncommited, partFilter, innerSortLimit,
             // comments part
             commentIgnored, authorFilter, commentInterval,
             // topics part
             topicInterval.isEmpty()?"":("WHERE " + topicInterval),
             // order
-            orderColumn);
+            outerSortLimit);
 
     SqlRowSet resultSet = jdbcTemplate.queryForRowSet(query, parameter);
 
