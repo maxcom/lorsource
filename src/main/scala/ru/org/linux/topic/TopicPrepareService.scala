@@ -181,7 +181,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.view.map { message =>
-      prepareTopic(message, tags(message.id), minimizeCut = true, None, null,
+      prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, null,
         textMap(message.id), None)
     }.toSeq
   }
