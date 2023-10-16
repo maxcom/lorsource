@@ -198,7 +198,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setFromDate(fromDate)
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
-    topicListDto.setLimit(100)
+    topicListDto.setLimit(30)
 
     if (section.isPremoderated) {
       topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
