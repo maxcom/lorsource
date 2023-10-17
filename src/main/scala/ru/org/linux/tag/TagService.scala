@@ -144,7 +144,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
       val filters = Seq(
         termQuery("is_comment", "false"),
         termQuery("section", section.getUrlName),
-        rangeQuery("postdate").gte("now/d-1y")
+        rangeQuery("postdate").gte(ElasticDate(LocalDate.now().atStartOfDay().minus(1, ChronoUnit.YEARS).toLocalDate))
       ) ++ groupFilter ++ additionalFilter
 
       Future.successful(elastic).flatMap {
