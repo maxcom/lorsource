@@ -149,7 +149,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 
     val tmpl = Template.getTemplate
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, currentUser.orNull, tmpl.getProf, loadUserpics = false)
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, currentUser, tmpl.getProf, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 

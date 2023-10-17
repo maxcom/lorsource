@@ -65,7 +65,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     val tmpl = Template.getTemplate
 
-    val topics = prepareService.prepareTopicsForUser(messages, currentUserOpt.map(_.user).orNull, tmpl.getProf, loadUserpics = false)
+    val topics = prepareService.prepareTopicsForUser(messages, currentUserOpt.map(_.user), tmpl.getProf, loadUserpics = false)
 
     modelAndView.addObject("messages", topics)
 

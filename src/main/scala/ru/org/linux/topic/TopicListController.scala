@@ -143,7 +143,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false))
+      prepareService.prepareTopicsForUser(messages, currentUserOpt.map(_.user), tmpl.getProf, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
 

@@ -153,15 +153,15 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: collection.Seq[Topic], @Nullable user: User, profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
+  def prepareTopicsForUser(messages: collection.Seq[Topic], user: Option[User], profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.map { message =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        user, textMap(message.id), None)
+        user.orNull, textMap(message.id), None)
 
-      val topicMenu = getTopicMenu(preparedMessage, user, profile, loadUserpics)
+      val topicMenu = getTopicMenu(preparedMessage, user.orNull, profile, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
     }.asJava
   }

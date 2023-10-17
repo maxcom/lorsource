@@ -129,7 +129,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
             20, currentUserOpt.map(_.user), noTalks = false, tech = false)
 
-          (prepareService.prepareTopicsForUser(topics, currentUserOpt.map(_.user).orNull, prof, loadUserpics = false), 20)
+          (prepareService.prepareTopicsForUser(topics, currentUserOpt.map(_.user), prof, loadUserpics = false), 20)
         }
 
         modelAndView.addObject("messages", preparedTopics)

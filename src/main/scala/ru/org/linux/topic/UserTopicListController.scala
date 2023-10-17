@@ -20,7 +20,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
+import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.user.*
@@ -36,7 +37,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   def showUserFavs(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
-  ): ModelAndView = {
+  ): ModelAndView = AuthorizedOpt { currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
     modelAndView.addObject("url",
@@ -48,7 +49,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = false)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, currentUser.map(_.user))
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -58,11 +59,10 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   def showUserDrafts(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
-  ): ModelAndView = {
-    val tmpl = Template.getTemplate
+  ): ModelAndView = AuthorizedOnly { currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
-    if (!tmpl.isModeratorSession && !(user == AuthUtil.getCurrentUser)) {
+    if (!currentUser.moderator && !(user == currentUser.user)) {
       throw new AccessViolationException("Вы не можете смотреть черновики другого пользователя")
     }
 
@@ -74,7 +74,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getDrafts(user, offset)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, Some(currentUser.user))
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -86,7 +86,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
     @RequestParam(value = "section", defaultValue = "0") sectionId: Int,
     @RequestParam(value = "output", required = false) output: String
-  ): ModelAndView = {
+  ): ModelAndView = AuthorizedOpt { currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
     val section = if (sectionId != 0) {
@@ -125,7 +125,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
       modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
 
-      prepareTopicsForPlainOrRss(modelAndView, rss, messages)
+      prepareTopicsForPlainOrRss(modelAndView, rss, messages, currentUser.map(_.user))
 
       if (!rss) {
         modelAndView.setViewName("user-topics")
@@ -140,12 +140,12 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   }
 
   @RequestMapping(value = Array("deleted-topics"), method = Array(RequestMethod.GET))
-  def showDeletedTopics(@PathVariable nick: String): ModelAndView = {
+  def showDeletedTopics(@PathVariable nick: String): ModelAndView = AuthorizedOnly { currentUser =>
     val tmpl = Template.getTemplate
 
     val user = userService.getUserCached(nick)
 
-    if (!tmpl.isModeratorSession && !(user == AuthUtil.getCurrentUser)) {
+    if (!currentUser.moderator && !(user == currentUser.user)) {
       throw new AccessViolationException("Вы не можете смотреть удаленные темы другого пользователя")
     }
 
@@ -163,12 +163,10 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   def showUserWatches(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
-  ): ModelAndView = {
-    val tmpl = Template.getTemplate
-
+  ): ModelAndView = AuthorizedOnly { currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
-    if (!tmpl.isModeratorSession && !(user == AuthUtil.getCurrentUser)) {
+    if (!currentUser.moderator && !(user == currentUser.user)) {
       throw new AccessViolationException("Вы не можете смотреть отслеживаемые темы другого пользователя")
     }
 
@@ -182,20 +180,21 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("offset", offset)
 
     val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = true)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, Some(currentUser.user))
     modelAndView.setViewName("user-topics")
 
     modelAndView
   }
 
-  private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic]): Unit = {
+  private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic],
+                                         currentUser: Option[User]): Unit = {
     if (rss) {
       modelAndView.addObject("messages", prepareService.prepareTopics(messages).asJava)
       modelAndView.setViewName("section-rss")
     } else {
       val tmpl = Template.getTemplate
       modelAndView.addObject("messages",
-        prepareService.prepareTopicsForUser(messages, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false))
+        prepareService.prepareTopicsForUser(messages, currentUser, tmpl.getProf, loadUserpics = false))
     }
   }
 
