@@ -4,7 +4,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -58,17 +58,9 @@ ${section.name}
     <a class="btn btn-selected" href="${group.url}archive/">Архив</a>
   </c:if>
 
-  <c:choose>
-    <c:when test="${section.pollPostAllowed}">
-      <a class="btn btn-primary" href="add.jsp?group=19387">Добавить</a>
-    </c:when>
-    <c:when test="${group == null}">
-      <a class="btn btn-primary" href="add-section.jsp?section=${section.id}">Добавить</a>
-    </c:when>
-    <c:otherwise>
-      <a class="btn btn-primary" href="add.jsp?group=${group.id}">Добавить</a>
-    </c:otherwise>
-  </c:choose>
+  <c:if test="${not empty addUrl}">
+    <a class="btn btn-primary" href="${addUrl}">Добавить</a>
+  </c:if>
 </nav>
 
 <div class="infoblock">

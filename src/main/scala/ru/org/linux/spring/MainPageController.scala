@@ -19,7 +19,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.section.Section
+import ru.org.linux.group.GroupPermissionService
+import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
@@ -27,18 +28,15 @@ import ru.org.linux.user.MemoriesDao
 import javax.servlet.http.HttpServletResponse
 
 @Controller
-class MainPageController(
-  prepareService: TopicPrepareService,
-  topicListService: TopicListService,
-  topicDao: TopicDao,
-  memoriesDao: MemoriesDao
-) {
+class MainPageController(prepareService: TopicPrepareService, topicListService: TopicListService, topicDao: TopicDao,
+                         memoriesDao: MemoriesDao, groupPermissionService: GroupPermissionService,
+                         sectionService: SectionService) {
   @RequestMapping(Array("/", "/index.jsp"))
   def mainPage(response: HttpServletResponse): ModelAndView = AuthorizedOpt { currentUser =>
     val tmpl = Template.getTemplate
 
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
-    response.setDateHeader("Last-Modified", System.currentTimeMillis - 2 * 1000)
+    response.setDateHeader("Last-Modified", System.currentTimeMillis)
 
     val profile = tmpl.getProf
 
@@ -89,6 +87,14 @@ class MainPageController(
     }
 
     mv.getModel.put("showAdsense", Boolean.box(!tmpl.isSessionAuthorized || !tmpl.getProf.isHideAdsense))
+
+    val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
+
+    if (groupPermissionService.isTopicPostingAllowed(sectionNews, currentUser.map(_.user))) {
+      mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
+    } else {
+      mv.getModel.put("addNews", "")
+    }
 
     mv
   }

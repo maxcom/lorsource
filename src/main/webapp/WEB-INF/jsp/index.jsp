@@ -149,7 +149,9 @@
 </c:if>
 
 <nav>
-  <a href="add-section.jsp?section=1" class="btn btn-primary">Добавить новость</a>
+  <c:if test="${not empty addNews}">
+    <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
+  </c:if>
   <a href="/news/" class="btn btn-default">Все новости</a>
   <a class="btn btn-default" href="/view-all.jsp?section=1">Неподтвержденные новости</a>
 </nav>

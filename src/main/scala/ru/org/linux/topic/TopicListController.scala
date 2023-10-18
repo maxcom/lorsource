@@ -25,7 +25,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
+import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
 import ru.org.linux.tag.{TagPageController, TagService}
@@ -99,7 +99,7 @@ object TopicListController {
 @Controller
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
-                          groupDao: GroupDao) extends StrictLogging {
+                          groupDao: GroupDao, groupPermissionService: GroupPermissionService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
                                     group: Option[Group]): Future[ModelAndView] = AuthorizedOpt { currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
@@ -146,6 +146,19 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       prepareService.prepareTopicsForUser(messages, currentUserOpt.map(_.user), tmpl.getProf, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
+
+    val addUrl = group match {
+      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt.map(_.user).orNull) =>
+        s"add.jsp?group=${group.getId}"
+      case None if section.getId == Section.SECTION_POLLS && groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user)) =>
+        "add.jsp?group=19387"
+      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user)) =>
+        AddTopicController.getAddUrl(section)
+      case _ =>
+        ""
+    }
+
+    modelAndView.addObject("addUrl", addUrl)
 
     activeTagsF.map { activeTags =>
       if (activeTags.nonEmpty) {

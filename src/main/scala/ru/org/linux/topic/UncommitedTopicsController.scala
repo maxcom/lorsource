@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 
@@ -28,7 +29,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 @Controller
 @RequestMapping(value = Array("/view-all.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
 class UncommitedTopicsController(sectionService: SectionService, topicListService: TopicListService,
-                                 prepareService: TopicPrepareService) {
+                                 prepareService: TopicPrepareService, groupPermissionService: GroupPermissionService) {
   @RequestMapping
   def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
     val modelAndView = new ModelAndView("view-all")
@@ -41,7 +42,10 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     section.foreach { section =>
       modelAndView.addObject("section", section)
-      modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
+
+      if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user))) {
+        modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
+      }
     }
 
     val title = section.map { section =>

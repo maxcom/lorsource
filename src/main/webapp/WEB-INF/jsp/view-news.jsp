@@ -81,17 +81,9 @@
     <a class="btn btn-default" href="groupmod.jsp?group=${group.id}">Править группу</a>
   </c:if>
 
-  <c:choose>
-    <c:when test="${section.pollPostAllowed}">
-      <a class="btn btn-primary" href="add.jsp?group=19387">Добавить</a>
-    </c:when>
-    <c:when test="${group == null}">
-      <a class="btn btn-primary" href="add-section.jsp?section=${section.id}">Добавить</a>
-    </c:when>
-    <c:otherwise>
-      <a class="btn btn-primary" href="add.jsp?group=${group.id}">Добавить</a>
-    </c:otherwise>
-  </c:choose>
+  <c:if test="${not empty addUrl}">
+    <a class="btn btn-primary" href="${addUrl}">Добавить</a>
+  </c:if>
 
   <c:if test="${fn:length(groupList)>1 and offsetNavigation}">
   <div class="nav-buttons">
