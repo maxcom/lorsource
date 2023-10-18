@@ -70,7 +70,7 @@
       <div class="sign">
         <lor:sign user="${comment.author}" postdate="${comment.postdate}"/>
 
-        <c:if test="${comment.author.id == topic.authorUserId}">
+        <c:if test="${comment.author.id == topic.authorUserId and not comment.author.anonymous}">
           <span class="user-tag">автор топика</span>
         </c:if>
 
