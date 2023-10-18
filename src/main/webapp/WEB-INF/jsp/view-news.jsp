@@ -138,12 +138,12 @@
           <c:url var="prevUrl" value="${url}">
             <c:param name="offset" value="${topicListRequest.offset-20}"/>
           </c:url>
-          <a href="${prevUrl}">← назад</a>
+          <a href="${prevUrl}">← предыдущие</a>
         </td>
       </c:if>
       <c:if test="${topicListRequest.offset == 20}">
         <td width="35%" align="left">
-          <a href="${url}">← назад</a>
+          <a href="${url}">← предыдущие</a>
         </td>
       </c:if>
       <c:choose>
@@ -152,7 +152,7 @@
             <c:url var="nextUrl" value="${url}">
               <c:param name="offset" value="${topicListRequest.offset+20}"/>
             </c:url>
-            <a href="${nextUrl}">вперед →</a>
+            <a href="${nextUrl}">следующие →</a>
           </td>
         </c:when>
         <c:otherwise>

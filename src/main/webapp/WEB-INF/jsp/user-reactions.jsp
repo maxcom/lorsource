@@ -60,12 +60,12 @@
   <tr>
     <c:if test="${not empty prevUrl}">
       <td width="35%" align="left">
-        <a href="${prevUrl}">← назад</a>
+        <a href="${prevUrl}">← предыдущие</a>
       </td>
     </c:if>
     <c:if test="${not empty nextUrl}">
       <td align="right" width="35%">
-        <a href="${nextUrl}">вперед →</a>
+        <a href="${nextUrl}">следующие →</a>
       </td>
     </c:if>
   </tr>

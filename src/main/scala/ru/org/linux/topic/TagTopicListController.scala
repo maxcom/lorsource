@@ -91,8 +91,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
         val forumMode = section.getId == Section.SECTION_FORUM  && currentUserOpt.exists(_.user.isAdministrator)
 
         // todo old/new
-        // todo tag-topics-forum
-        val modelAndView = new ModelAndView(if (forumMode) "tracker-new" else "tag-topics")
+        val modelAndView = new ModelAndView(if (forumMode) "tag-topics-forum-new" else "tag-topics")
 
         modelAndView.addObject("section", section)
 

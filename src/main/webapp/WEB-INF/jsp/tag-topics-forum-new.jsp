@@ -1,8 +1,5 @@
-<%@ page contentType="text/html; charset=utf-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ page info="last active topics" %>
+<%@ page contentType="text/html; charset=utf-8" %>
 <%--
   ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,17 +14,21 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="counter" type="java.lang.Integer"--%>
-<%--@elvariable id="favsCount" type="java.lang.Integer"--%>
-<%--@elvariable id="sectionList" type="java.util.List<ru.org.linux.section.Section>"--%>
-<%--@elvariable id="tag" type="java.lang.String"--%>
-<%--@elvariable id="offset" type="java.lang.Integer"--%>
-<%--@elvariable id="section" type="java.lang.Integer"--%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
-
+<%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
+<%--@elvariable id="frozenUsers" type="java.util.List<scala.Tuple2<ru.org.linux.user.User, java.lang.Boolean>>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
+<%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<title>${ptitle}</title>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="ftm" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 
+<title>${ptitle}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1><i class="icon-tag"></i> <a href="${url}">${tagTitle}</a></h1>
@@ -92,32 +93,21 @@
   </c:if>
 </div>
 
-<c:forEach var="msg" items="${messages}">
-  <lor:news
-          preparedMessage="${msg.preparedTopic}"
-          messageMenu="${msg.topicMenu}"
-          multiPortal="${section==0}"
-          minorAsMajor="true"
-          moderateMode="false"/>
-</c:forEach>
+<lor:tracker-topics-new messages="${messages}"/>
 
-<table class="nav">
-  <tr>
-    <c:if test="${not empty prevLink}">
-      <td align="left" width="35%">
-        <a href="${prevLink}">← предыдущие</a>
-      </td>
-    </c:if>
-    <c:if test="${not empty nextLink}">
-      <td width="35%" align="right">
+<div class="nav">
+  <div style="display: table; width: 100%">
+    <div style="display: table-cell; text-align: left">
+      <c:if test="${not empty prevLink}">
+        <a  href="${prevLink}">← предыдущие</a>
+      </c:if>
+    </div>
+    <div style="display: table-cell; text-align: right">
+      <c:if test="${not empty nextLink}">
         <a href="${nextLink}">следующие →</a>
-      </td>
-    </c:if>
-  </tr>
-</table>
-<script type="text/javascript">
-  $script.ready('lorjs', function() {
-    tag_memories_form_setup("${tag}", "${fn:escapeXml(csrfToken)}");
-  });
-</script>
+      </c:if>
+    </div>
+  </div>
+</div>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
