@@ -46,9 +46,7 @@ class ArchiveController(sectionService: SectionService, groupDao: GroupDao, arch
 
     val addUrl = group match {
       case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt.map(_.user).orNull) =>
-        s"add.jsp?group=${group.getId}"
-      case None if section.getId == Section.SECTION_POLLS && groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user)) =>
-        "add.jsp?group=19387"
+        AddTopicController.getAddUrl(group)
       case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user)) =>
         AddTopicController.getAddUrl(section)
       case _ =>

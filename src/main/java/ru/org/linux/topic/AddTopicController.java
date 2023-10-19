@@ -406,10 +406,15 @@ public class AddTopicController {
     }
 
     Section section = sectionService.getSection(sectionId);
+    List<Group> groups = groupDao.getGroups(section);
 
-    params.put("groups", groupDao.getGroups(section));
+    if (groups.size() == 1) {
+      return new ModelAndView(new RedirectView(getAddUrl(groups.get(0), tag)));
+    } else {
+      params.put("groups", groups);
 
-    return new ModelAndView("add-section", params);
+      return new ModelAndView("add-section", params);
+    }
   }
 
   @InitBinder
@@ -458,6 +463,22 @@ public class AddTopicController {
   public static String getAddUrl(Section section) {
     UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/add-section.jsp");
     builder.queryParam("section", section.getId());
+
+    return builder.build().toUriString();
+  }
+
+  public static String getAddUrl(Group group) {
+    return getAddUrl(group, null);
+  }
+
+  public static String getAddUrl(Group group, @Nullable String tag) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/add.jsp");
+
+    builder.queryParam("group", group.getId());
+
+    if (tag!=null) {
+      builder.queryParam("tags", tag);
+    }
 
     return builder.build().toUriString();
   }

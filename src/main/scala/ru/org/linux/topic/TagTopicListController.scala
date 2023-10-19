@@ -22,7 +22,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.group.GroupListDao
+import ru.org.linux.group.{GroupListDao, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
@@ -66,7 +66,8 @@ object TagTopicListController {
 @Controller
 class TagTopicListController(userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
                              topicListService: TopicListService, prepareService: TopicPrepareService,
-                             topicTagDao: TopicTagDao, groupListDao: GroupListDao) {
+                             topicTagDao: TopicTagDao, groupListDao: GroupListDao,
+                             groupPermissionService: GroupPermissionService) {
 
   private def getTitle(tag: String, section: Section) = s"${tag.capitalize} (${section.getName})"
 
@@ -144,6 +145,14 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
         if (offset > pageSize) {
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
+
+        val addUrl = if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user))) {
+          AddTopicController.getAddUrl(section, tag)
+        } else {
+          ""
+        }
+
+        modelAndView.addObject("addUrl", addUrl)
 
         if (preparedTopics.isEmpty) {
           Future.successful(new ModelAndView("errors/code404"))

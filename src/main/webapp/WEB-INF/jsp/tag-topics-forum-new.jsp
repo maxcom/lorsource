@@ -45,6 +45,10 @@
       </c:if>
     </c:forEach>
   </c:if>
+
+  <c:if test="${not empty addUrl}">
+    <a class="btn btn-primary" href="${addUrl}">Добавить</a>
+  </c:if>
 </nav>
 
 <div class="infoblock" style="font-size: medium">
