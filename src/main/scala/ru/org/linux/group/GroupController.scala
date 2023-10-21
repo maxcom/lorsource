@@ -24,7 +24,7 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
-import ru.org.linux.topic.ArchiveDao
+import ru.org.linux.topic.{ArchiveDao, TagTopicListController}
 import ru.org.linux.user.User
 import ru.org.linux.util.ServletParameterBadValueException
 
@@ -141,7 +141,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     val firstPage = isFirstPage(offset)
 
     val activeTagsF = tagService.getActiveTopTags(section, Some(group), None, deadline).map { tags =>
-      tags.map(tag => tag.copy(url = tag.url.map(_ => group.getUrl + "?tag=" + URLEncoder.encode(tag.name, StandardCharsets.UTF_8))))
+      tags.map(tag => tag.copy(url = Some(TagTopicListController.tagListUrl(tag.name, section))))
     }
 
     val params = new util.HashMap[String, AnyRef]

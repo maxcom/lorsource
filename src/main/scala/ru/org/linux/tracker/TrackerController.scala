@@ -122,10 +122,6 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
       params.put("recentUserpics", Seq.empty.asJava)
     }
 
-    if (!tmpl.getProf.isOldTracker) {
-      new ModelAndView("tracker-new", params)
-    } else {
-      new ModelAndView("tracker", params)
-    }
+    new ModelAndView("tracker-new", params)
   }
 }

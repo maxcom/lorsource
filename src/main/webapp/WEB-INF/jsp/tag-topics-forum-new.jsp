@@ -97,7 +97,13 @@
   </c:if>
 </div>
 
-<lor:tracker-topics-new messages="${messages}"/>
+<c:if test="${template.prof.oldTracker}">
+  <lor:tracker-topics messages="${messages}"/>
+</c:if>
+
+<c:if test="${not template.prof.oldTracker}">
+  <lor:tracker-topics-new messages="${messages}"/>
+</c:if>
 
 <div class="nav">
   <div style="display: table; width: 100%">
