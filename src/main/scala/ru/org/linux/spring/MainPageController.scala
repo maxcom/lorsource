@@ -92,8 +92,6 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
     if (groupPermissionService.isTopicPostingAllowed(sectionNews, currentUser.map(_.user))) {
       mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
-    } else {
-      mv.getModel.put("addNews", "")
     }
 
     mv

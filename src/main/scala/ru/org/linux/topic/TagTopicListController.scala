@@ -146,13 +146,9 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        val addUrl = if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user))) {
-          AddTopicController.getAddUrl(section, tag)
-        } else {
-          ""
+        if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user))) {
+          modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))
         }
-
-        modelAndView.addObject("addUrl", addUrl)
 
         if (preparedTopics.isEmpty) {
           Future.successful(new ModelAndView("errors/code404"))

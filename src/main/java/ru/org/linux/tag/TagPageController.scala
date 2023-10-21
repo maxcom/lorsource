@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.gallery.ImageService
+import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.TagPageController.isRecent
@@ -53,7 +54,8 @@ object TagPageController {
 @Controller
 @RequestMapping(value = Array("/tag/{tag}"), params = Array("!section"))
 class TagPageController(tagService: TagService, prepareService: TopicPrepareService, topicListService: TopicListService,
- sectionService: SectionService, userTagService: UserTagService, imageService: ImageService) extends StrictLogging {
+                        sectionService: SectionService, userTagService: UserTagService,
+                        imageService: ImageService, groupPermissionService: GroupPermissionService) extends StrictLogging {
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = AuthUtil.AuthorizedOpt { currentUserObj =>
@@ -161,18 +163,23 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
 
+    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection, currentUser)) {
+      Some("addNews" -> AddTopicController.getAddUrl(newsSection, tag))
+    } else {
+      None
+    }
+
     (Map(
       "fullNews" -> fullNews,
-      "addNews" -> AddTopicController.getAddUrl(newsSection, tag),
       "briefNews" -> TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false)))
-    ) ++ more, newestDate)
+    ) ++ more ++ addNews, newestDate)
   }
 
   private def getGallerySection(tag: String, tagId: Int, currentUser: Option[User]) = {
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId))
     val section = sectionService.getSection(Section.SECTION_GALLERY)
 
-    val add = if (currentUser.isDefined) {
+    val add = if (groupPermissionService.isTopicPostingAllowed(section, currentUser)) {
       Some("addGallery" -> AddTopicController.getAddUrl(section, tag))
     } else {
       None
@@ -207,12 +214,17 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
+    val add = if (groupPermissionService.isTopicPostingAllowed(forumSection, currentUser)) {
+      Some(forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag))
+    } else {
+      None
+    }
+
     val newestDate = forumTopics.headOption.map(t => Instant.ofEpochMilli(t.getEffectiveDate.getMillis))
 
     (Map(
-      forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag),
       forumSection.getUrlName -> TopicListTools.split(
         topicByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = true)))
-    ) ++ more, newestDate)
+    ) ++ more ++ add, newestDate)
   }
 }
