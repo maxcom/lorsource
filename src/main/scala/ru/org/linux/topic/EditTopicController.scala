@@ -54,7 +54,7 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsScala}
+import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsJava, SetHasAsScala}
 
 @Controller
 class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSender, topicService: TopicService,
@@ -131,7 +131,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
       form.setEditorBonus(editors.view.map(u => Integer.valueOf(u.getId) -> Integer.valueOf(0)).toMap.asJava)
 
-      params.put("editors", editors)
+      params.put("editors", editors.asJava)
     }
 
     params.put("commit", Boolean.box(false))
