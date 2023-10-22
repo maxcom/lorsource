@@ -76,7 +76,6 @@ public class UserDao {
     }
 
     if (!StringUtil.checkLoginName(nick)) {
-      logger.warn("Invalid user name '{}'", nick);
       throw new UserNotFoundException("<invalid name>");
     }
 
