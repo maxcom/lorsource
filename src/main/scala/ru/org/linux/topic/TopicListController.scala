@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AuthUtil
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}

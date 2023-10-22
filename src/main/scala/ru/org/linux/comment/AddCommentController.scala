@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -52,10 +52,10 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
   @ModelAttribute("modes")
-  def getModes: util.Map[String, String] = {
+  def getModes: util.Map[String, String] = AuthUtil.AuthorizedOpt { currentUser =>
     val tmpl = Template.getTemplate
 
-    MessageTextService.postingModeSelector(AuthUtil.getCurrentUser, tmpl.getFormatMode)
+    MessageTextService.postingModeSelector(currentUser, tmpl.getFormatMode).asJava
   }
 
   /**

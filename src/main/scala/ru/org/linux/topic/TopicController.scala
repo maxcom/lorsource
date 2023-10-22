@@ -37,6 +37,7 @@ import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{IgnoreListDao, MemoriesDao, Profile, User}
 
 import java.time.Instant
+import java.util
 import java.util.concurrent.{Callable, TimeUnit}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
@@ -279,7 +280,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
     params.put("ipBlockInfo", ipBlockInfo)
-    params.put("modes", MessageTextService.postingModeSelector(currentUserOpt.map(_.user).orNull, tmpl.getFormatMode))
+    params.put("modes", MessageTextService.postingModeSelector(currentUserOpt, tmpl.getFormatMode).asJava)
 
     val add = new CommentRequest
     add.setMode(tmpl.getFormatMode)
@@ -290,7 +291,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     }
 
     params.put("moreLikeThisGetter", new Callable[java.util.List[java.util.List[MoreLikeThisTopic]]] {
-      override def call() = moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
+      override def call(): util.List[util.List[MoreLikeThisTopic]] =
+        moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
     })
 
     params.put("showDeletedButton", Boolean.box(permissionService.allowViewDeletedComments(topic, currentUserOpt.map(_.user).orNull) && !showDeleted))
