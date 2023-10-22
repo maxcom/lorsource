@@ -141,17 +141,17 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     if (helpResource != null) {
       val helpRawText = IOUtils.toString(helpResource, StandardCharsets.UTF_8)
       val addInfo = renderService.renderToHtml(helpRawText, nofollow = false)
-      params.addOne("addportal", addInfo)
+      params.addOne("addportal" -> addInfo)
     }
 
-    params.addOne("sectionId", Integer.valueOf(section.getId))
-    params.addOne("section", section)
+    params.addOne("sectionId" -> Integer.valueOf(section.getId))
+    params.addOne("section" -> section)
 
     group.foreach { group =>
-      params.addOne("group", group)
-      params.addOne("postscoreInfo", groupPermissionService.getPostScoreInfo(group))
-      params.addOne("showAllowAnonymous", Boolean.box(groupPermissionService.enableAllowAnonymousCheckbox(group, currentUser.orNull)))
-      params.addOne("imagepost", Boolean.box(groupPermissionService.isImagePostingAllowed(section, currentUser.orNull)))
+      params.addOne("group" -> group)
+      params.addOne("postscoreInfo" -> groupPermissionService.getPostScoreInfo(group))
+      params.addOne("showAllowAnonymous" -> Boolean.box(groupPermissionService.enableAllowAnonymousCheckbox(group, currentUser.orNull)))
+      params.addOne("imagepost" -> Boolean.box(groupPermissionService.isImagePostingAllowed(section, currentUser.orNull)))
     }
 
     params.result()
@@ -243,14 +243,15 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val tagNames = TagName.parseAndSanitizeTags(form.getTags)
 
     if (!groupPermissionService.canCreateTag(section, user)) {
-      val newTags = tagService.getNewTags(tagNames).asScala
+      val newTags = tagService.getNewTags(tagNames)
 
       if (newTags.nonEmpty) {
         errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(newTags.asJava) + ")")
       }
     }
 
-    val preparedTopic = prepareService.prepareTopicPreview(previewMsg, TagService.namesToRefs(tagNames), poll.orNull, message, imageObject.orNull)
+    val preparedTopic =
+      prepareService.prepareTopicPreview(previewMsg, TagService.namesToRefs(tagNames.asJava).asScala.toSeq, poll, message, imageObject)
 
     params.put("message", preparedTopic)
 
@@ -283,14 +284,14 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, scrn.orNull, previewMsg)
 
-    if (!previewMsg.isDraft) {
+    if (!previewMsg.draft) {
       searchQueueSender.updateMessageOnly(msgid)
       RealtimeEventHub.notifyEvents(realtimeHubWS, notifyUsers)
     }
 
     val topicUrl = previewMsg.withId(msgid).getLink
 
-    if (!section.isPremoderated || previewMsg.isDraft) {
+    if (!section.isPremoderated || previewMsg.draft) {
       new ModelAndView(new RedirectView(topicUrl, false, false))
     } else {
       params.put("url", topicUrl)

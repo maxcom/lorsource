@@ -47,10 +47,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   def prepareTopic(message: Topic, tags: java.util.List[TagRef], user: Option[User], text: MessageText): PreparedTopic =
     prepareTopic(message, tags.asScala, minimizeCut = false, None, user.orNull, text, None)
 
-  def prepareTopicPreview(message: Topic, tags: java.util.List[TagRef], @Nullable newPoll: Poll, text: MessageText,
-                          @Nullable image: Image): PreparedTopic =
-    prepareTopic(message, tags.asScala, minimizeCut = false, Option(newPoll).map(pollPrepareService.preparePollPreview),
-      null, text, Option(image))
+  def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
+                          image: Option[Image]): PreparedTopic =
+    prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
+      null, text, image)
 
   def prepareEditInfo(editInfo: EditInfoSummary): PreparedEditInfoSummary = {
     val lastEditor = userService.getUserCached(editInfo.editor).getNick
