@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -166,8 +166,8 @@ public class CommentCreateService {
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user);
 
-    if (!commentRequest.isPreviewMode() && !errors.hasErrors()) {
-      floodProtector.checkDuplication(FloodProtector.Action.ADD_COMMENT, request.getRemoteAddr(), editMode || user.getScore() >= 100, errors);
+    if (!commentRequest.isPreviewMode() && !errors.hasErrors() && !editMode) {
+      floodProtector.checkDuplication(FloodProtector.Action.ADD_COMMENT, request.getRemoteAddr(), user, errors);
     }
   }
 

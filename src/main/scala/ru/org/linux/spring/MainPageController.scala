@@ -18,8 +18,9 @@ package ru.org.linux.spring
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AuthUtil
-import ru.org.linux.section.Section
+import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.group.GroupPermissionService
+import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
@@ -27,18 +28,15 @@ import ru.org.linux.user.MemoriesDao
 import javax.servlet.http.HttpServletResponse
 
 @Controller
-class MainPageController(
-  prepareService: TopicPrepareService,
-  topicListService: TopicListService,
-  topicDao: TopicDao,
-  memoriesDao: MemoriesDao
-) {
+class MainPageController(prepareService: TopicPrepareService, topicListService: TopicListService, topicDao: TopicDao,
+                         memoriesDao: MemoriesDao, groupPermissionService: GroupPermissionService,
+                         sectionService: SectionService) {
   @RequestMapping(Array("/", "/index.jsp"))
-  def mainPage(response: HttpServletResponse): ModelAndView = {
+  def mainPage(response: HttpServletResponse): ModelAndView = AuthorizedOpt { currentUser =>
     val tmpl = Template.getTemplate
 
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
-    response.setDateHeader("Last-Modified", System.currentTimeMillis - 2 * 1000)
+    response.setDateHeader("Last-Modified", System.currentTimeMillis)
 
     val profile = tmpl.getProf
 
@@ -58,7 +56,7 @@ class MainPageController(
     mv.getModel.put("news",
       prepareService.prepareTopicsForUser(
         messages,
-        AuthUtil.getCurrentUser,
+        currentUser.map(_.user),
         profile,
         loadUserpics = false)
     )
@@ -69,9 +67,9 @@ class MainPageController(
       "briefNews",
       TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false))))
 
-    if (tmpl.isSessionAuthorized) {
-      mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(AuthUtil.getCurrentUser)))
-      mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(AuthUtil.getCurrentUser)))
+    currentUser.map(_.user).foreach { user =>
+      mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(user)))
+      mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(user)))
     }
 
     if (tmpl.isModeratorSession || tmpl.isCorrectorSession) {
@@ -89,6 +87,12 @@ class MainPageController(
     }
 
     mv.getModel.put("showAdsense", Boolean.box(!tmpl.isSessionAuthorized || !tmpl.getProf.isHideAdsense))
+
+    val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
+
+    if (groupPermissionService.isTopicPostingAllowed(sectionNews, currentUser.map(_.user))) {
+      mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
+    }
 
     mv
   }

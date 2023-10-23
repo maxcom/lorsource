@@ -81,17 +81,9 @@
     <a class="btn btn-default" href="groupmod.jsp?group=${group.id}">Править группу</a>
   </c:if>
 
-  <c:choose>
-    <c:when test="${section.pollPostAllowed}">
-      <a class="btn btn-primary" href="add.jsp?group=19387">Добавить</a>
-    </c:when>
-    <c:when test="${group == null}">
-      <a class="btn btn-primary" href="add-section.jsp?section=${section.id}">Добавить</a>
-    </c:when>
-    <c:otherwise>
-      <a class="btn btn-primary" href="add.jsp?group=${group.id}">Добавить</a>
-    </c:otherwise>
-  </c:choose>
+  <c:if test="${not empty addUrl}">
+    <a class="btn btn-primary" href="${addUrl}">Добавить</a>
+  </c:if>
 
   <c:if test="${fn:length(groupList)>1 and offsetNavigation}">
   <div class="nav-buttons">
@@ -138,12 +130,12 @@
           <c:url var="prevUrl" value="${url}">
             <c:param name="offset" value="${topicListRequest.offset-20}"/>
           </c:url>
-          <a href="${prevUrl}">← назад</a>
+          <a href="${prevUrl}">← предыдущие</a>
         </td>
       </c:if>
       <c:if test="${topicListRequest.offset == 20}">
         <td width="35%" align="left">
-          <a href="${url}">← назад</a>
+          <a href="${url}">← предыдущие</a>
         </td>
       </c:if>
       <c:choose>
@@ -152,7 +144,7 @@
             <c:url var="nextUrl" value="${url}">
               <c:param name="offset" value="${topicListRequest.offset+20}"/>
             </c:url>
-            <a href="${nextUrl}">вперед →</a>
+            <a href="${nextUrl}">следующие →</a>
           </td>
         </c:when>
         <c:otherwise>

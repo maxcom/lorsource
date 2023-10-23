@@ -15,7 +15,7 @@
 
 package ru.org.linux.topic
 
-import com.google.common.collect.{ImmutableList, ImmutableListMultimap}
+import com.google.common.collect.ImmutableList
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
@@ -73,24 +73,12 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    */
   def getTags(topic: Topic): java.util.List[String] = topicTagDao.getTags(topic.id).map(_.name).asJava
 
-  private def getTags(msgId:Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name)
+  private def getTags(msgId: Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name)
 
   def getTagRefs(topic: Topic): java.util.List[TagRef] = topicTagDao.getTags(topic.id).map(t => tagRef(t)).asJava
 
-  def getTagRefs(topics: collection.Seq[Topic]): ImmutableListMultimap[Integer, TagRef] = {
-    val builder = ImmutableListMultimap.builder[Integer,TagRef]()
-
-    val tags = topicTagDao.getTags(topics.map(_.id))
-
-    for ((msgid, tag) <- tags) {
-      builder.put(msgid, tagRef(tag))
-    }
-
-    builder.build()
-  }
-
-  def tagRefs(topics: scala.collection.Seq[Int]): Map[Int, scala.collection.Seq[TagInfo]] =
-    topicTagDao.getTags(topics).groupBy(_._1).view.mapValues(_.map(_._2)).toMap
+  def tagRefs(topics: collection.Seq[Int]): Map[Int, scala.collection.Seq[TagRef]] =
+    topicTagDao.getTags(topics).groupMap(_._1)(p => tagRef(p._2))
 
   /**
    * Получить все теги сообщения по идентификационному номеру сообщения.

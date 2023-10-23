@@ -47,10 +47,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   def prepareTopic(message: Topic, tags: java.util.List[TagRef], user: Option[User], text: MessageText): PreparedTopic =
     prepareTopic(message, tags.asScala, minimizeCut = false, None, user.orNull, text, None)
 
-  def prepareTopicPreview(message: Topic, tags: java.util.List[TagRef], @Nullable newPoll: Poll, text: MessageText,
-                          @Nullable image: Image): PreparedTopic =
-    prepareTopic(message, tags.asScala, minimizeCut = false, Option(newPoll).map(pollPrepareService.preparePollPreview),
-      null, text, Option(image))
+  def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
+                          image: Option[Image]): PreparedTopic =
+    prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
+      null, text, image)
 
   def prepareEditInfo(editInfo: EditInfoSummary): PreparedEditInfoSummary = {
     val lastEditor = userService.getUserCached(editInfo.editor).getNick
@@ -153,15 +153,15 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: collection.Seq[Topic], @Nullable user: User, profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
+  def prepareTopicsForUser(messages: collection.Seq[Topic], user: Option[User], profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
-    val tags = topicTagService.getTagRefs(messages.toSeq)
+    val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.map { message =>
-      val preparedMessage = prepareTopic(message, tags.get(message.id).asScala, minimizeCut = true, None,
-        user, textMap(message.id), None)
+      val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
+        user.orNull, textMap(message.id), None)
 
-      val topicMenu = getTopicMenu(preparedMessage, user, profile, loadUserpics)
+      val topicMenu = getTopicMenu(preparedMessage, user.orNull, profile, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
     }.asJava
   }
@@ -178,10 +178,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    */
   def prepareTopics(messages: collection.Seq[Topic]): Seq[PreparedTopic] = {
     val textMap = loadTexts(messages)
-    val tags = topicTagService.getTagRefs(messages)
+    val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.view.map { message =>
-      prepareTopic(message, tags.get(message.id).asScala, minimizeCut = true, None, null,
+      prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, null,
         textMap(message.id), None)
     }.toSeq
   }

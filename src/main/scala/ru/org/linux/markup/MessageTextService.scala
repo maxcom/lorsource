@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,8 @@ package ru.org.linux.markup
 import com.google.common.base.Strings
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
-import ru.org.linux.markup.MarkupType._
+import ru.org.linux.auth.CurrentUser
+import ru.org.linux.markup.MarkupType.*
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
@@ -26,12 +27,12 @@ import ru.org.linux.util.bbcode.LorCodeService
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter
 import ru.org.linux.util.markdown.MarkdownFormatter
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.collection.immutable.ListMap
 
 @Service
 class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
-  import MessageTextService._
+  import MessageTextService.*
 
   /**
     * Получить html представление текста комментария
@@ -207,14 +208,14 @@ object MessageTextService {
   def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")
   def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
 
-  def postingModeSelector(user: User, defaultMarkup: String): java.util.Map[String, String] = {
-    val modes = MarkupPermissions.allowedFormats(user).filter(f => !f.deprecated || f.formId == defaultMarkup)
+  def postingModeSelector(user: Option[CurrentUser], defaultMarkup: String): Map[String, String] = {
+    val modes = MarkupPermissions.allowedFormats(user.map(_.user).orNull).filter(f => !f.deprecated || f.formId == defaultMarkup)
 
-    (if (modes.size > 1) {
-      ListMap(modes.toSeq.sortBy(_.order).map(m => m.formId -> m.title): _*)
+    if (modes.size > 1) {
+      ListMap(modes.toSeq.sortBy(_.order).map(m => m.formId -> m.title) *)
     } else {
       Map.empty[String, String]
-    }).asJava
+    }
   }
 }
 

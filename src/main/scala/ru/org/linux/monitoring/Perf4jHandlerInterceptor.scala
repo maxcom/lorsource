@@ -32,14 +32,16 @@ import scala.util.control.NonFatal
 
 object Perf4jHandlerInterceptor {
   private val Attribute = "perf4jStopWatch"
-  private val LoggingThreshold = 500.millis
+  private val LoggingThreshold = 250.millis
   private val ElasticProbability = 0.1
-
+  private val BootDuration = 2.minutes // do not log slow when starting up
 
   private class Metrics(val name: String, val path: String, val start: DateTime, controller: Stopwatch, view: Stopwatch) {
     def controllerDone():Unit = {
-      controller.stop()
-      view.start()
+      if (controller.isRunning) {
+        controller.stop()
+        view.start()
+      }
     }
 
     def complete():Unit = {
@@ -66,18 +68,26 @@ object Perf4jHandlerInterceptor {
 class Perf4jHandlerInterceptor(@Qualifier("loggingActor") loggingActor: ActorRef)
   extends HandlerInterceptor with StrictLogging {
 
+  private lazy val LogAfter = BootDuration.fromNow
+
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef): Boolean = {
+    if (LogAfter.hasTimeLeft()) {
+      return true
+    }
+
     if (handler.isInstanceOf[ResourceHttpRequestHandler] || handler.isInstanceOf[DefaultServletHttpRequestHandler]) {
       return true
     }
 
-    val name = handler match {
-      case method: HandlerMethod => method.getBeanType.getSimpleName
-      case _ => handler.getClass.getSimpleName
-    }
+    if (request.getAttribute(Attribute).asInstanceOf[Metrics] == null) {
+      val name = handler match {
+        case method: HandlerMethod => method.getBeanType.getSimpleName
+        case _ => handler.getClass.getSimpleName
+      }
 
-    val watch = Metrics.start(name, request.getRequestURI)
-    request.setAttribute(Attribute, watch)
+      val watch = Metrics.start(name, request.getRequestURI)
+      request.setAttribute(Attribute, watch)
+    }
 
     true
   }

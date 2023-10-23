@@ -86,14 +86,18 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
         Section.getCommentPostscore(group.getSectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
   }
 
-  def isTopicPostingAllowed(group: Group, @Nullable currentUser: User): Boolean = {
-    val restriction = effectivePostscore(group)
+  def isTopicPostingAllowed(section: Section, currentUser: Option[User]): Boolean =
+    isTopicPostingAllowed(section.getTopicsRestriction, currentUser.orNull)
 
-    if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
+  def isTopicPostingAllowed(group: Group, @Nullable currentUser: User): Boolean =
+    isTopicPostingAllowed(effectivePostscore(group), currentUser)
+
+  private def isTopicPostingAllowed(restriction: Int, @Nullable currentUser: User): Boolean = {
+    if (currentUser!=null && (currentUser.isBlocked || currentUser.isFrozen)) {
+      false
+    } else if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
       true
     } else if (currentUser == null || currentUser.isAnonymous) {
-      false
-    } else if (currentUser.isBlocked) {
       false
     } else if (restriction == TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
       currentUser.isModerator

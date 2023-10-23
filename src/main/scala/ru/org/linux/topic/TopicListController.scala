@@ -23,9 +23,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AuthUtil
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
+import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
 import ru.org.linux.tag.{TagPageController, TagService}
@@ -99,7 +98,7 @@ object TopicListController {
 @Controller
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
-                          groupDao: GroupDao) extends StrictLogging {
+                          groupDao: GroupDao, groupPermissionService: GroupPermissionService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
                                     group: Option[Group]): Future[ModelAndView] = AuthorizedOpt { currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
@@ -137,15 +136,26 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val tmpl = Template.getTemplate
 
-    val messages = topicListService.getTopicsFeed(Some(section), group, None, topicListForm.offset,
+    val messages = topicListService.getTopicsFeed(section, group, None, topicListForm.offset,
       topicListForm.yearMonth, 20, currentUserOpt.map(_.user), topicListForm.filter.contains(NoTalks),
       topicListForm.filter.contains(Tech))
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false))
+      prepareService.prepareTopicsForUser(messages, currentUserOpt.map(_.user), tmpl.getProf, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
+
+    val addUrl = group match {
+      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt.map(_.user).orNull) =>
+        AddTopicController.getAddUrl(group)
+      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user)) =>
+        AddTopicController.getAddUrl(section)
+      case _ =>
+        ""
+    }
+
+    modelAndView.addObject("addUrl", addUrl)
 
     activeTagsF.map { activeTags =>
       if (activeTags.nonEmpty) {

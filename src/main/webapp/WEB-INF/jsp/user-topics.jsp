@@ -98,16 +98,16 @@
     <c:if test="${offset == 20}">
       <td width="35%" align="left">
         <c:if test="${params!=null}">
-          <a href="${url}?${params}">← назад</a>
+          <a href="${url}?${params}">← предыдущие</a>
         </c:if>
         <c:if test="${params==null}">
-          <a href="${url}">← назад</a>
+          <a href="${url}">← предыдущие</a>
         </c:if>
       </td>
     </c:if>
     <c:if test="${offset < 200 && fn:length(messages) == 20}">
       <td align="right" width="35%">
-        <a href="${url}?${aparams}offset=${offset+20}">вперед →</a>
+        <a href="${url}?${aparams}offset=${offset+20}">следующие →</a>
       </td>
     </c:if>
   </tr>

@@ -22,16 +22,18 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.group.{GroupListDao, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
 import ru.org.linux.user.UserTagService
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.compat.java8.FutureConverters.*
-
 import java.util.concurrent.CompletionStage
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.OptionConverters.RichOption
 
 @Controller
 object TagTopicListController {
@@ -62,15 +64,12 @@ object TagTopicListController {
 }
 
 @Controller
-class TagTopicListController (userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
-    topicListService: TopicListService, prepareService: TopicPrepareService, topicTagDao: TopicTagDao) {
+class TagTopicListController(userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
+                             topicListService: TopicListService, prepareService: TopicPrepareService,
+                             topicTagDao: TopicTagDao, groupListDao: GroupListDao,
+                             groupPermissionService: GroupPermissionService) {
 
-  private def getTitle(tag: String, section: Option[Section]) = {
-    section match {
-      case None    => tag.capitalize
-      case Some(s) => s"${tag.capitalize} (${s.getName})"
-    }
-  }
+  private def getTitle(tag: String, section: Section) = s"${tag.capitalize} (${section.getName})"
 
   @RequestMapping(
     value = Array("/tag/{tag}"),
@@ -84,20 +83,17 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
 
     val deadline = TagPageController.Timeout.fromNow
 
-    val section = if (sectionId != 0) {
-      Some(sectionService.getSection(sectionId))
-    } else {
-      None
-    }
+    val section = sectionService.getSection(sectionId)
 
-    val countF = tagService.countTagTopics(tag = tag, section = section, deadline = deadline)
+    val countF = tagService.countTagTopics(tag = tag, section = Some(section), deadline = deadline)
 
     (tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
+        val forumMode = section.getId == Section.SECTION_FORUM
 
-        val modelAndView = new ModelAndView("tag-topics")
+        val modelAndView = new ModelAndView(if (forumMode) "tag-topics-forum-new" else "tag-topics")
 
-        section.foreach(s => modelAndView.addObject("section", s))
+        modelAndView.addObject("section", section)
 
         modelAndView.addObject("tagTitle", tag.capitalize)
         modelAndView.addObject("ptitle", getTitle(tag, section))
@@ -123,13 +119,17 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
           }
         }
 
-        val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
-          20, currentUserOpt.map(_.user), noTalks = false, tech = false)
+        val prof = Template.getTemplate.getProf
 
-        val tmpl = Template.getTemplate
+        val (preparedTopics, pageSize) = if (forumMode) {
+          (groupListDao.getSectionListTopics(section, currentUserOpt.map(_.user).toJava,
+            prof.getTopics, offset, prof.getMessages, tagInfo.id), prof.getTopics)
+        } else {
+          val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
+            20, currentUserOpt.map(_.user), noTalks = false, tech = false)
 
-        val preparedTopics = prepareService.prepareTopicsForUser(topics, currentUserOpt.map(_.user).orNull,
-          tmpl.getProf, loadUserpics = false)
+          (prepareService.prepareTopicsForUser(topics, currentUserOpt.map(_.user), prof, loadUserpics = false), 20)
+        }
 
         modelAndView.addObject("messages", preparedTopics)
 
@@ -137,15 +137,19 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
         modelAndView.addObject("ignoreCount", userTagService.countIgnore(tagInfo.id))
 
-        if (offset < 200 && preparedTopics.size == 20) {
-          modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + 20))
+        if (offset < TopicListService.MaxOffset && preparedTopics.size == pageSize) {
+          modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + pageSize))
         }
 
-        if (offset >= 20) {
-          modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - 20))
+        if (offset > pageSize) {
+          modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        if (topics.isEmpty) {
+        if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user))) {
+          modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))
+        }
+
+        if (preparedTopics.isEmpty) {
           Future.successful(new ModelAndView("errors/code404"))
         } else {
           countF.map { count =>

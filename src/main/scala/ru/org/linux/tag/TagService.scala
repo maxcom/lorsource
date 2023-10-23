@@ -69,8 +69,13 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
     tagDao.getTagId(tagName).orElse(tagDao.getTagSynonymId(tagName)).getOrElse(tagDao.createTag(tagName))
   }
 
-  def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] =
-    tagDao.getTagId(tag, skipZero).map(tagDao.getTagInfo)
+  def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] = {
+    if (TagName.isGoodTag(tag)) {
+      tagDao.getTagId(tag, skipZero).map(tagDao.getTagInfo)
+    } else {
+      None
+    }
+  }
 
   def getTagBySynonym(tagName: String): Option[TagRef] =
     tagDao.getTagSynonymId(tagName).map(tagDao.getTagInfo).map(i => tagRef(i, threshold = 0))
@@ -99,10 +104,10 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
       }
   }
 
-  def getNewTags(tags: util.List[String]): util.List[String] =
-    tags.asScala.filterNot { tag =>
+  def getNewTags(tags: Seq[String]): Seq[String] =
+    tags.filterNot { tag =>
       tagDao.getTagId(tag, skipZero = true).isDefined || tagDao.getTagSynonymId(tag).isDefined
-    }.asJava
+    }
 
   def getRelatedTags(tag: String, deadline: Deadline): Future[Seq[TagRef]] = Future.successful(elastic).flatMap {
     _ execute {
@@ -139,7 +144,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
       val filters = Seq(
         termQuery("is_comment", "false"),
         termQuery("section", section.getUrlName),
-        rangeQuery("postdate").gte("now/d-1y")
+        rangeQuery("postdate").gte(ElasticDate(LocalDate.now().atStartOfDay().minus(1, ChronoUnit.YEARS).toLocalDate))
       ) ++ groupFilter ++ additionalFilter
 
       Future.successful(elastic).flatMap {
@@ -158,7 +163,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
         (for {
           bucket <- r.result.aggregations.significantTerms("active").buckets
         } yield {
-          tagRef(bucket.key)
+          tagRef(bucket.key, section)
         }).sorted
       }.withTimeout(deadline.timeLeft).recover {
         case ex: TimeoutException =>
@@ -213,6 +218,13 @@ object TagService {
   def tagRef(name: String): TagRef = TagRef(name,
     if (TagName.isGoodTag(name)) {
       Some(TagTopicListController.tagListUrl(name))
+    } else {
+      None
+    })
+
+  def tagRef(name: String, section: Section): TagRef = TagRef(name,
+    if (TagName.isGoodTag(name)) {
+      Some(TagTopicListController.tagListUrl(name, section))
     } else {
       None
     })

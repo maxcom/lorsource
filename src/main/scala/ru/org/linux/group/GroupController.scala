@@ -23,8 +23,8 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.site.Template
-import ru.org.linux.tag.{TagPageController, TagService}
-import ru.org.linux.topic.ArchiveDao
+import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
+import ru.org.linux.topic.{ArchiveDao, TagTopicListController}
 import ru.org.linux.user.User
 import ru.org.linux.util.ServletParameterBadValueException
 
@@ -87,7 +87,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       throw new ServletParameterBadValueException("month", "указан некорректный месяц")
     }
 
-    forum(section, group, currentUserOpt.map(_.user), offset, lastmod = false, Some((year, month)), tag = None,
+    forum(section, group, currentUserOpt.map(_.user), offset, lastmod = false, Some((year, month)), tagInfo = None,
       showDeleted = false, showIgnored = showIgnored)
   }
 
@@ -121,20 +121,27 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     } else if (!isFirstPage(offset) && offset > GroupController.MaxOffset) {
       Future.successful(new ModelAndView(new RedirectView(s"${group.getUrl}archive"))).toJava
     } else {
-      forum(section, group, currentUserOpt.map(_.user), offset, lastmod, None, Option(tag), showDeleted = showDeleted,
-        showIgnored = showIgnored)
+      val tagOpt = Option(tag)
+      val tagInfo: Option[TagInfo] = tagOpt.flatMap(v => tagService.getTagInfo(v, skipZero = true))
+
+      if (tagOpt.isDefined && tagInfo.isEmpty) {
+        Future.successful(new ModelAndView("errors/code404")).toJava
+      } else {
+        forum(section, group, currentUserOpt.map(_.user), offset, lastmod, None, tagInfo, showDeleted = showDeleted,
+          showIgnored = showIgnored)
+      }
     }
   }
 
   private def forum(section: Section, group: Group, currentUser: Option[User], offset: Int, lastmod: Boolean,
-                    yearMonth: Option[(Int, Int)], tag: Option[String], showDeleted: Boolean,
+                    yearMonth: Option[(Int, Int)], tagInfo: Option[TagInfo], showDeleted: Boolean,
                     showIgnored: Boolean): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val firstPage = isFirstPage(offset)
 
     val activeTagsF = tagService.getActiveTopTags(section, Some(group), None, deadline).map { tags =>
-      tags.map(tag => tag.copy(url = tag.url.map(_ => group.getUrl + "?tag=" + URLEncoder.encode(tag.name, StandardCharsets.UTF_8))))
+      tags.map(tag => tag.copy(url = Some(TagTopicListController.tagListUrl(tag.name, section))))
     }
 
     val params = new util.HashMap[String, AnyRef]
@@ -158,7 +165,6 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     params.put("section", section)
     params.put("groupInfo", prepareService.prepareGroupInfo(group))
 
-    val tagInfo = tag.flatMap(v => tagService.getTagInfo(v, skipZero = true))
     val tagId = tagInfo.map(_.id).map(Integer.valueOf).toJava
 
     tagInfo.foreach { t =>

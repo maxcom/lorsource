@@ -30,6 +30,8 @@ import ru.org.linux.topic.TopicListDto.CommitMode.POSTMODERATED_ONLY
 
 @Service
 object TopicListService {
+  val MaxOffset = 300
+
   /**
    * Корректировка смещения в результатах выборки.
    *
@@ -40,8 +42,8 @@ object TopicListService {
     if (offset != null) {
       if (offset < 0) {
         0
-      } else if (offset > 200) {
-        200
+      } else if (offset > MaxOffset) {
+        MaxOffset
       } else {
         offset
       }
@@ -61,25 +63,22 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
    * @param offset  смещение в результатах выборки
    * @param yearMonth год, месяц
    * @return список топиков
-   * @throws UserErrorException
    * @throws TagNotFoundException
    */
   @throws[TagNotFoundException]
-  def getTopicsFeed(section: Option[Section], group: Option[Group], tag: Option[String], offset: Int, yearMonth: Option[(Int, Int)],
+  def getTopicsFeed(section: Section, group: Option[Group], tag: Option[String], offset: Int, yearMonth: Option[(Int, Int)],
                     count: Int, currentUser: Option[User], noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
 
-    section.foreach { section =>
-      topicListDto.setSection(section.getId)
+    topicListDto.setSection(section.getId)
 
-      if (section.isPremoderated) {
-        topicListDto.setCommitMode(COMMITED_ONLY)
-      } else {
-        topicListDto.setCommitMode(POSTMODERATED_ONLY)
-      }
+    if (section.isPremoderated) {
+      topicListDto.setCommitMode(COMMITED_ONLY)
+    } else {
+      topicListDto.setCommitMode(POSTMODERATED_ONLY)
     }
 
     group.foreach { group =>
@@ -102,7 +101,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       topicListDto.setLimit(count)
       topicListDto.setOffset(if (offset > 0) offset else null)
 
-      if (tag.isEmpty && group.isEmpty && !section.exists(_.isPremoderated)) {
+      if (tag.isEmpty && group.isEmpty && !section.isPremoderated) {
         topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
         val calendar = Calendar.getInstance
@@ -199,7 +198,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setFromDate(fromDate)
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
-    topicListDto.setLimit(100)
+    topicListDto.setLimit(30)
 
     if (section.isPremoderated) {
       topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
@@ -235,7 +234,6 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setLimit(count)
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
-    // лучше бы этот лимит был по commit_date на главной
     topicListDto.setFromDate(DateTime.now.minusMonths(3).toDate)
 
     if (hideMinor) {

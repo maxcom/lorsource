@@ -14,7 +14,6 @@
  */
 package ru.org.linux.tracker
 
-import com.google.common.collect.ImmutableList
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
@@ -62,6 +61,16 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     else
       "Последние сообщения"
 
+  private def buildTrackerUrl(offset: Int, filter: Option[TrackerFilterEnum]): String = {
+    val additionalQuery = filter.map("filter=" + _.getValue)
+
+    if (offset > 0) {
+      s"/tracker/?offset=$offset${additionalQuery.map("&amp;" + _).getOrElse("")}"
+    } else {
+      s"/tracker/${additionalQuery.map("?" + _).getOrElse("")}"
+    }
+  }
+
   @RequestMapping(Array("/tracker"))
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
@@ -75,28 +84,27 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
     val params = new java.util.HashMap[String, AnyRef]
 
-    params.put("offset", Integer.valueOf(offset))
     params.put("filter", trackerFilter.getValue)
-
-    if (trackerFilter != defaultFilter) {
-      params.put("addition_query", "&amp;filter=" + trackerFilter.getValue)
-    } else {
-      params.put("addition_query", "")
-    }
 
     params.put("defaultFilter", defaultFilter)
 
     val messages = tmpl.getProf.getMessages
     val topics = tmpl.getProf.getTopics
 
-    params.put("topics", Integer.valueOf(topics))
-
     val user = currentUserOpt.map(_.user)
     params.put("title", makeTitle(trackerFilter, defaultFilter))
 
-    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user.toJava, topics, offset, messages).asScala
+    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user.toJava, topics, offset, messages)
 
-    params.put("msgs", trackerTopics.asJava)
+    params.put("messages", trackerTopics)
+
+    if (offset < 300 && trackerTopics.size == topics) {
+      params.put("nextLink", buildTrackerUrl(offset + topics, Some(trackerFilter).filter(_ != defaultFilter)))
+    }
+
+    if (offset >= topics) {
+      params.put("prevLink", buildTrackerUrl(offset - topics, Some(trackerFilter).filter(_ != defaultFilter)))
+    }
 
     if (currentUserOpt.exists(_.moderator)) {
       params.put("newUsers", userService.getNewUsers)
@@ -106,18 +114,14 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
       params.put("unBlockedUsers", userService.getRecentlyUnBlocked)
       params.put("recentUserpics", userService.getRecentUserpics)
     } else {
-      params.put("newUsers", ImmutableList.of())
-      params.put("frozenUsers", ImmutableList.of())
-      params.put("unFrozenUsers", ImmutableList.of())
-      params.put("blockedUsers", ImmutableList.of())
-      params.put("unBlockedUsers", ImmutableList.of())
-      params.put("recentUserpics", ImmutableList.of())
+      params.put("newUsers", Seq.empty.asJava)
+      params.put("frozenUsers", Seq.empty.asJava)
+      params.put("unFrozenUsers", Seq.empty.asJava)
+      params.put("blockedUsers", Seq.empty.asJava)
+      params.put("unBlockedUsers", Seq.empty.asJava)
+      params.put("recentUserpics", Seq.empty.asJava)
     }
 
-    if (!tmpl.getProf.isOldTracker) {
-      new ModelAndView("tracker-new", params)
-    } else {
-      new ModelAndView("tracker", params)
-    }
+    new ModelAndView("tracker-new", params)
   }
 }
