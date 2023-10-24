@@ -56,10 +56,10 @@ import ru.org.linux.util.markdown.MarkdownFormatter
 
 import javax.annotation.Nullable
 import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpSession
 import javax.validation.Valid
 import java.beans.PropertyEditorSupport
 import java.nio.charset.StandardCharsets
+import javax.servlet.ServletContext
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava}
 
@@ -104,12 +104,12 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
                          addTopicRequestValidator: AddTopicRequestValidator, imageService: ImageService,
                          topicService: TopicService, @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef,
                          renderService: MarkdownFormatter, groupDao: GroupDao, dupeProtector: FloodProtector,
-                         ipBlockDao: IPBlockDao) {
+                         ipBlockDao: IPBlockDao, servletContext: ServletContext) {
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
-  def add(@Valid @ModelAttribute("form") form: AddTopicRequest, request: HttpServletRequest): ModelAndView = AuthorizedOpt { currentUser =>
+  def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = AuthorizedOpt { currentUser =>
     val tmpl = Template.getTemplate
 
     if (form.getMode == null) {
@@ -128,16 +128,16 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     } else {
       val section = sectionService.getSection(form.getGroup.getSectionId)
 
-      val params = prepareModel(Some(form.getGroup), currentUser.map(_.user), section, request)
+      val params = prepareModel(Some(form.getGroup), currentUser.map(_.user), section)
 
       new ModelAndView("add", params.asJava)
     }
   }
 
-  private def prepareModel(group: Option[Group], currentUser: Option[User], section: Section, request: HttpServletRequest): Map[String, AnyRef] = {
+  private def prepareModel(group: Option[Group], currentUser: Option[User], section: Section): Map[String, AnyRef] = {
     val params = Map.newBuilder[String, AnyRef]
 
-    val helpResource = request.getServletContext.getResource("/help/new-topic-" + Section.getUrlName(section.getId) + ".md")
+    val helpResource = servletContext.getResource("/help/new-topic-" + Section.getUrlName(section.getId) + ".md")
     if (helpResource != null) {
       val helpRawText = IOUtils.toString(helpResource, StandardCharsets.UTF_8)
       val addInfo = renderService.renderToHtml(helpRawText, nofollow = false)
@@ -175,7 +175,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val group = form.getGroup
     val section = sectionService.getSection(group.getSectionId)
 
-    val params = prepareModel(Some(group), sessionUserOpt.map(_.user), section, request).to(mutable.HashMap)
+    val params = prepareModel(Some(group), sessionUserOpt.map(_.user), section).to(mutable.HashMap)
 
     val user = postingUser(sessionUserOpt, form)
 
@@ -222,7 +222,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     if (groupPermissionService.isImagePostingAllowed(section, user)) {
       if (groupPermissionService.isTopicPostingAllowed(group, user)) {
         val image = imageService.processUploadImage(request)
-        imagePreview = Option(imageService.processUpload(user, session, image, errors))
+        imagePreview = imageService.processUpload(user, session, image, errors)
       }
 
       if (section.isImagepost && imagePreview.isEmpty) {
@@ -271,17 +271,17 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     if (!form.isPreviewMode && !errors.hasErrors) {
-      createNewTopic(request, form, session, group, params, section, user, message, imagePreview, previewMsg)
+      session.removeAttribute("image")
+
+      createNewTopic(request, form, group, params, section, user, message, imagePreview, previewMsg)
     } else {
       new ModelAndView("add", params.asJava)
     }
   }
 
-  private def createNewTopic(request: HttpServletRequest, form: AddTopicRequest, session: HttpSession, group: Group,
+  private def createNewTopic(request: HttpServletRequest, form: AddTopicRequest, group: Group,
                              params: mutable.Map[String, AnyRef], section: Section, user: User, message: MessageText,
                              scrn: Option[UploadedImagePreview], previewMsg: Topic) = {
-    session.removeAttribute("image")
-
     val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, scrn.orNull, previewMsg)
 
     if (!previewMsg.draft) {
@@ -301,8 +301,8 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   }
 
   @RequestMapping(Array("/add-section.jsp"))
-  def showForm(@RequestParam("section") sectionId: Int, @RequestParam(value = "tag", required = false) tag: String,
-               request: HttpServletRequest): ModelAndView = AuthorizedOpt { currentUser =>
+  def showForm(@RequestParam("section") sectionId: Int,
+               @RequestParam(value = "tag", required = false) tag: String): ModelAndView = AuthorizedOpt { currentUser =>
     val section = sectionService.getSection(sectionId)
 
     if (tag != null) {
@@ -314,7 +314,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     if (groups.size == 1) {
       new ModelAndView(new RedirectView(AddTopicController.getAddUrl(groups.get(0), tag)))
     } else {
-      val params = prepareModel(None, currentUser.map(_.user), section, request).to(mutable.HashMap)
+      val params = prepareModel(None, currentUser.map(_.user), section).to(mutable.HashMap)
 
       params.put("groups", groups)
 

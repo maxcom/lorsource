@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
-import org.springframework.web.multipart.{MultipartHttpServletRequest, MultipartRequest}
+import org.springframework.web.multipart.MultipartRequest
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
@@ -32,7 +32,7 @@ import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 import java.io.{File, FileNotFoundException, IOException}
 import java.util.Optional
 import javax.servlet.http.{HttpServletRequest, HttpSession}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOption
 import scala.util.control.NonFatal
 
@@ -105,7 +105,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
-  def createImagePreview(user: User, file: File, errors: Errors): UploadedImagePreview = {
+  private def createImagePreview(user: User, file: File, errors: Errors): Option[UploadedImagePreview] = {
     if (!file.isFile) {
       errors.reject(null, "Сбой загрузки изображения: не файл")
     }
@@ -137,57 +137,55 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
 
     if (!errors.hasErrors) {
-      UploadedImagePreview.create(
+      Some(UploadedImagePreview.create(
         prefix = s"preview-${user.getId}-",
         extension = imageParam.getExtension,
         previewPath = previewPath,
-        uploadedData = file)
+        uploadedData = file))
     } else {
-      null
+      None
     }
   }
 
-  def processUploadImage(request: HttpServletRequest): File = {
-    if (request.isInstanceOf[MultipartHttpServletRequest]) {
-      val multipartFile = request.asInstanceOf[MultipartRequest].getFile("image")
-      if (multipartFile != null && !multipartFile.isEmpty) {
-        val uploadedFile = File.createTempFile("lor-image-", "")
-        logger.debug("Transfering upload to: " + uploadedFile)
-        multipartFile.transferTo(uploadedFile)
+  def processUploadImage(request: HttpServletRequest): Option[File] = {
+    request match {
+      case multipartRequest: MultipartRequest =>
+        val multipartFile = multipartRequest.getFile("image")
 
-        uploadedFile
-      } else {
-        null
-      }
-    } else {
-      null
-    }
-  }
+        if (multipartFile != null && !multipartFile.isEmpty) {
+          val uploadedFile = File.createTempFile("lor-image-", "")
+          logger.debug("Transfering upload to: " + uploadedFile)
+          multipartFile.transferTo(uploadedFile)
 
-  def processUpload(currentUser: User, session: HttpSession, image: File, errors: Errors): UploadedImagePreview = {
-    if (session == null) return null
-    if (image != null) {
-      try {
-        val screenShot = createImagePreview(currentUser, image, errors)
-        if (screenShot != null) {
-          logger.info("SCREEN: " + image.getAbsolutePath + "\nINFO: SCREEN: " + image)
-          session.setAttribute("image", screenShot)
+          Some(uploadedFile)
+        } else {
+          None
         }
-        screenShot
-      } catch {
-        case e: BadImageException =>
-          errors.reject(null, "Некорректное изображение: " + e.getMessage)
-          null
-      }
-    } else if (session.getAttribute("image") != null && !("" == session.getAttribute("image"))) {
-      val screenShot = session.getAttribute("image").asInstanceOf[UploadedImagePreview]
-      if (!screenShot.mainFile.exists) {
-        null
-      } else {
-        screenShot
-      }
-    } else {
-      null
+      case _ =>
+        None
+    }
+  }
+
+  def processUpload(currentUser: User, session: HttpSession, image: Option[File], errors: Errors): Option[UploadedImagePreview] = {
+    image match {
+      case Some(image) =>
+        try {
+          createImagePreview(currentUser, image, errors).map { screenShot =>
+            logger.info("SCREEN: " + image.getAbsolutePath + "\nINFO: SCREEN: " + image)
+
+            session.setAttribute("image", screenShot)
+
+            screenShot
+          }
+        } catch {
+          case e: BadImageException =>
+            errors.reject(null, "Некорректное изображение: " + e.getMessage)
+            None
+        }
+      case None =>
+        Option(session.getAttribute("image"))
+          .map(_.asInstanceOf[UploadedImagePreview])
+          .filter(_.mainFile.exists)
     }
   }
 

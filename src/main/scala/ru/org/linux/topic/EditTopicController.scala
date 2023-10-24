@@ -72,13 +72,13 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       throw new AccessViolationException("Not authorized")
     }
 
-    if (topic.isCommited) {
+    if (topic.commited) {
       throw new UserErrorException("Сообщение уже подтверждено")
     }
 
     val preparedMessage = prepareService.prepareTopic(topic, currentUser.user)
 
-    if (!preparedMessage.getSection.isPremoderated) {
+    if (!preparedMessage.section.isPremoderated) {
       throw new UserErrorException("Раздел не премодерируемый")
     }
 
@@ -108,22 +108,22 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   private def prepareModel(preparedTopic: PreparedTopic, form: EditTopicRequest, currentUser: User, profile: Profile) = {
     val params = mutable.HashMap[String, AnyRef]()
 
-    val message = preparedTopic.getMessage
+    val message = preparedTopic.message
 
     params.put("message", message)
     params.put("preparedMessage", preparedTopic)
 
-    val group = preparedTopic.getGroup
+    val group = preparedTopic.group
 
     params.put("group", group)
-    params.put("groups", groupDao.getGroups(preparedTopic.getSection))
+    params.put("groups", groupDao.getGroups(preparedTopic.section))
     params.put("newMsg", message)
 
     val topicMenu = prepareService.getTopicMenu(preparedTopic, currentUser, profile, loadUserpics = true)
 
     params.put("topicMenu", topicMenu)
 
-    val editInfoList = editHistoryService.getEditInfo(message.getId, EditHistoryObjectTypeEnum.TOPIC)
+    val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)
 
     if (!editInfoList.isEmpty) {
       params.put("editInfo", editInfoList.get(0))
@@ -137,13 +137,13 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params.put("commit", Boolean.box(false))
 
     if (group.isLinksAllowed) {
-      form.setLinktext(message.getLinktext)
-      form.setUrl(message.getUrl)
+      form.setLinktext(message.linktext)
+      form.setUrl(message.url)
     }
 
-    form.setTitle(StringEscapeUtils.unescapeHtml4(message.getTitle))
+    form.setTitle(StringEscapeUtils.unescapeHtml4(message.title))
 
-    val messageText = msgbaseDao.getMessageText(message.getId)
+    val messageText = msgbaseDao.getMessageText(message.id)
 
     if (form.getFromHistory != null) {
       form.setMsg(editHistoryService.getEditHistoryRecord(message, form.getFromHistory).getOldmessage)
@@ -151,28 +151,29 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       form.setMsg(messageText.text)
     }
 
-    if (message.getSectionId == Section.SECTION_NEWS || message.getSectionId == Section.SECTION_ARTICLES) {
-      form.setMinor(message.isMinor)
+    if (message.sectionId == Section.SECTION_NEWS || message.sectionId == Section.SECTION_ARTICLES) {
+      form.setMinor(message.minor)
     }
 
-    if (!preparedTopic.getTags.isEmpty) {
-      form.setTags(TagRef.names(preparedTopic.getTags))
+    if (!preparedTopic.tags.isEmpty) {
+      form.setTags(TagRef.names(preparedTopic.tags))
     }
 
-    if (preparedTopic.getSection.isPollPostAllowed) {
-      val poll = pollDao.getPollByTopicId(message.getId)
+    if (preparedTopic.section.isPollPostAllowed) {
+      val poll = pollDao.getPollByTopicId(message.id)
 
       form.setPoll(PollVariant.toMap(poll.getVariants))
-      form.setMultiselect(poll.isMultiSelect)
+      form.setMultiselect(poll.multiSelect)
     }
 
-    params.put("imagepost", Boolean.box(permissionService.isImagePostingAllowed(preparedTopic.getSection, currentUser)))
+    params.put("imagepost", Boolean.box(permissionService.isImagePostingAllowed(preparedTopic.section, currentUser)))
     params.put("mode", messageText.markup.title)
 
     new ModelAndView("edit", params.asJava)
   }
 
-  @ModelAttribute("ipBlockInfo") private def loadIPBlock(request: HttpServletRequest) = ipBlockDao.getBlockInfo(request.getRemoteAddr)
+  @ModelAttribute("ipBlockInfo")
+  def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
   @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.POST))
   @throws[Exception]
@@ -187,7 +188,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val topic = messageDao.getById(msgid)
     val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
-    val group = preparedTopic.getGroup
+    val group = preparedTopic.group
     val section = preparedTopic.section
     val user = currentUser.user
 
@@ -204,7 +205,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params.put("preparedMessage", preparedTopic)
     params.put("group", group)
     params.put("topicMenu", prepareService.getTopicMenu(preparedTopic, user, tmpl.getProf, loadUserpics = true))
-    params.put("groups", groupDao.getGroups(preparedTopic.getSection))
+    params.put("groups", groupDao.getGroups(preparedTopic.section))
 
     if (editable) {
       val title = request.getParameter("title")
@@ -219,7 +220,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     val publish = request.getParameter("publish") != null
-    val editInfoList = editHistoryService.getEditInfo(topic.getId, EditHistoryObjectTypeEnum.TOPIC).asScala
+    val editInfoList = editHistoryService.getEditInfo(topic.id, EditHistoryObjectTypeEnum.TOPIC).asScala
 
     if (editInfoList.nonEmpty) {
       val editHistoryRecord = editInfoList.head
@@ -237,22 +238,22 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
         throw new AccessViolationException("Not authorized")
       }
 
-      if (topic.isCommited) {
+      if (topic.commited) {
         throw new BadInputException("сообщение уже подтверждено")
       }
     }
 
-    params.put("commit", Boolean.box(!topic.isCommited && preparedTopic.getSection.isPremoderated && permissionService.canCommit(user, topic)))
+    params.put("commit", Boolean.box(!topic.commited && preparedTopic.section.isPremoderated && permissionService.canCommit(user, topic)))
 
     val newMsg = Topic.fromEditRequest(group, topic, form, publish)
 
     var modified = false
 
-    if (!(topic.getTitle == newMsg.getTitle)) {
+    if (!(topic.title == newMsg.title)) {
       modified = true
     }
 
-    val oldText = msgbaseDao.getMessageText(topic.getId)
+    val oldText = msgbaseDao.getMessageText(topic.id)
 
     if (form.getMsg != null) {
       if (!(oldText.text == form.getMsg)) {
@@ -260,29 +261,29 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
     }
 
-    if (topic.getLinktext == null) {
-      if (newMsg.getLinktext != null) {
+    if (topic.linktext == null) {
+      if (newMsg.linktext != null) {
         modified = true
       } else {
-        if (!(topic.getLinktext == newMsg.getLinktext)) modified = true
+        if (!(topic.linktext == newMsg.linktext)) modified = true
       }
     }
 
     if (group.isLinksAllowed) {
-      if (topic.getUrl == null) {
-        if (newMsg.getUrl != null) {
+      if (topic.url == null) {
+        if (newMsg.url != null) {
           modified = true
-        } else if (!(topic.getUrl == newMsg.getUrl)) {
+        } else if (!(topic.url == newMsg.url)) {
           modified = true
         }
       }
     }
 
     var imagePreview: Option[UploadedImagePreview] = None
-    if (permissionService.isImagePostingAllowed(preparedTopic.getSection, user)) {
+    if (permissionService.isImagePostingAllowed(preparedTopic.section, user)) {
       if (permissionService.isTopicPostingAllowed(group, user)) {
         val image = imageService.processUploadImage(request)
-        imagePreview = Option(imageService.processUpload(user, request.getSession, image, errors))
+        imagePreview = imageService.processUpload(user, request.getSession, image, errors)
 
         if (imagePreview.isDefined) {
           modified = true
@@ -315,15 +316,15 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     if (changeGroupId != null) {
-      if (topic.getGroupId != changeGroupId) {
+      if (topic.groupId != changeGroupId) {
         val changeGroup = groupDao.getGroup(changeGroupId)
-        if (changeGroup.getSectionId != topic.getSectionId) {
+        if (changeGroup.getSectionId != topic.sectionId) {
           throw new AccessViolationException("Can't move topics between sections")
         }
       }
     }
 
-    val newPoll: Option[Poll] = if (preparedTopic.getSection.isPollPostAllowed && form.getPoll != null) {
+    val newPoll: Option[Poll] = if (preparedTopic.section.isPollPostAllowed && form.getPoll != null) {
       Some(buildNewPoll(topic, form))
     } else {
       None
@@ -353,12 +354,12 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
         form.getEditorBonus, imagePreview.orNull)
 
       if (changed || commit || publish) {
-        if (!newMsg.isDraft) {
-          searchQueueSender.updateMessage(newMsg.getId, true)
+        if (!newMsg.draft) {
+          searchQueueSender.updateMessage(newMsg.id, true)
           RealtimeEventHub.notifyEvents(realtimeHubWS, users)
         }
 
-        if (!publish || !preparedTopic.getSection.isPremoderated) {
+        if (!publish || !preparedTopic.section.isPremoderated) {
           return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build))
         } else {
           params.put("url", TopicLinkBuilder.baseLink(topic).forceLastmod.build)
@@ -385,13 +386,13 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   }
 
   private def buildNewPoll(message: Topic, form: EditTopicRequest) = {
-    val poll = pollDao.getPollByTopicId(message.getId)
+    val poll = pollDao.getPollByTopicId(message.id)
 
     val changed = poll.variants.flatMap { v =>
-      val label = form.getPoll.get(v.getId)
+      val label = form.getPoll.get(v.id)
 
       if (!Strings.isNullOrEmpty(label)) {
-        Some(PollVariant(v.getId, label))
+        Some(PollVariant(v.id, label))
       } else {
         None
       }
