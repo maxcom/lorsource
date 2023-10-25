@@ -104,10 +104,10 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
       }
   }
 
-  def getNewTags(tags: util.List[String]): util.List[String] =
-    tags.asScala.filterNot { tag =>
+  def getNewTags(tags: Seq[String]): Seq[String] =
+    tags.filterNot { tag =>
       tagDao.getTagId(tag, skipZero = true).isDefined || tagDao.getTagSynonymId(tag).isDefined
-    }.asJava
+    }
 
   def getRelatedTags(tag: String, deadline: Deadline): Future[Seq[TagRef]] = Future.successful(elastic).flatMap {
     _ execute {
@@ -224,11 +224,7 @@ object TagService {
 
   def tagRef(name: String, section: Section): TagRef = TagRef(name,
     if (TagName.isGoodTag(name)) {
-      if (section.isPremoderated) { // форум пока не готов
-        Some(TagTopicListController.tagListUrl(name, section))
-      } else {
-        Some(TagTopicListController.tagListUrl(name))
-      }
+      Some(TagTopicListController.tagListUrl(name, section))
     } else {
       None
     })

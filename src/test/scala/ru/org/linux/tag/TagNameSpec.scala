@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,19 +18,17 @@ package ru.org.linux.tag
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import ru.org.linux.tag.TagName._
-
-import scala.jdk.CollectionConverters._
+import ru.org.linux.tag.TagName.*
 
 @RunWith(classOf[JUnitRunner])
 class TagNameSpec extends Specification {
   "parseAndSanitizeTags" should {
     "parse one simple tag" in {
-      parseAndSanitizeTags("linux").asScala must containTheSameElementsAs(Seq("linux"))
+      parseAndSanitizeTags("linux") must containTheSameElementsAs(Seq("linux"))
     }
 
     "parse list of simple tags" in {
-      parseAndSanitizeTags("fedora, ubuntu, opensuse").asScala must
+      parseAndSanitizeTags("fedora, ubuntu, opensuse") must
         containTheSameElementsAs(Seq("fedora", "ubuntu", "opensuse"))
     }
   }

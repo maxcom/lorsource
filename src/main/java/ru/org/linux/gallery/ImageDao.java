@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2017 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -61,7 +61,7 @@ public class ImageDao {
             "FROM (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate " +
             "FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate AND section="+Section.SECTION_GALLERY+ " " +
             "AND NOT topics.deleted AND commitdate IS NOT NULL ORDER BY commitdate DESC LIMIT ?) " +
-            "as t JOIN images ON t.msgid = images.topic WHERE NOT images.deleted ";
+            "as t JOIN images ON t.msgid = images.topic WHERE NOT images.deleted ORDER BY commitdate DESC";
 
     return jdbcTemplate.query(sql, new GalleryItemRowMapper(gallery), countItems);
   }

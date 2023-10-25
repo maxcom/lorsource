@@ -497,7 +497,7 @@
 -->
             <arg>-Xlint</arg>
             <arg>-language:postfixOps</arg>
-            <arg>-target:jvm-17</arg>
+            <arg>-release:17</arg>
             <arg>-Xsource:3</arg>
             <arg>-Wconf:cat=scala3-migration:w</arg>
           </args>

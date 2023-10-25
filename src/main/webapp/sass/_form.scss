@@ -51,35 +51,35 @@ select {
     text-align: right;
 }
 
-.form-horizontal .controls {
+.form-horizontal {
+  .controls {
     margin-left: 18rem;
+  }
+
+  .btn {
+    margin-top: 1em;
+  }
+
+  .control-group {
+    @include clearfix;
+  }
+
+  input {
+    width: 20rem;
+    max-width: 100%;
+  }
+
+  select {
+    width: 20rem;
+    max-width: 100%;
+  }
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .control-group {
   margin-bottom: 0.7rem;
-}
-
-.form-horizontal .control-group {
-  @include clearfix;
-}
-
-.form-horizontal .controls {
-    margin-left: 18rem;
-}
-
-.form-horizontal input {
-    width: 20rem;
-    max-width: 100%;
-}
-
-.form-horizontal select {
-    width: 20rem;
-    max-width: 100%;
-}
-
-.form-horizontal {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
 }
 
 .help-inline {

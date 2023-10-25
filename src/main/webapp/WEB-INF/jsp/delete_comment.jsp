@@ -2,7 +2,7 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -93,14 +93,14 @@
 
   <c:if test="${template.moderatorSession}">
   <div class="control-group">
-    <label class="control-label">Удалять ответы</label>
+    <label class="control-label" for="delete_replys">Удалять ответы</label>
     <div class="controls">
-      <input type="checkbox" name="delete_replys" checked>
+      <input id="delete_replys" type="checkbox" name="delete_replys" checked>
     </div>
   </div>
   </c:if>
 
- <input type=hidden name=msgid value="${msgid}">
+  <input type=hidden name=msgid value="${msgid}">
   <div class="control-group">
     <div class="controls">
       <button type=submit class="btn btn-danger">Удалить</button>
