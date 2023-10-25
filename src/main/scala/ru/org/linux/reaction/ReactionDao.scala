@@ -18,6 +18,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
 import io.circe.parser.*
 import io.circe.syntax.*
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
@@ -129,15 +130,26 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
         reaction = rs.getString("reaction"))
     }
 
-  def getReactionsView(originUser: User, offset: Int, size: Int): Seq[ReactionsView] =
+  def getReactionsView(originUser: User, offset: Int, size: Int,isReactionsOn: Boolean): Seq[ReactionsView] =
     jdbcTemplate.queryAndMap(
+      if (isReactionsOn)
+          " with constants (selectedId) as (values ( ? ))" +
+          " select r.topic_id,r.comment_id,r.set_date, r.reaction,r.origin_user as \"target_user\", g.\"section\", " +
+          " g.urlname, case  when c.title is null or coalesce(trim(c.title), '') = ''  then t.title else c.title end as \"title\" from reactions_log r" +
+          " join topics t on r.topic_id = t.id  and not t.deleted" +
+          " join groups g on t.groupid = g.id left join comments c" +
+          " on r.comment_id = c.id and c.deleted is not true" +
+          " where (r.comment_id is null and t.userid  =  (select selectedId from constants) ) or (r.comment_id is not null and c.userid=  (select selectedId from constants))" +
+          " order by r.set_date desc offset ? LIMIT ?"
+      else
       "SELECT topic_id, comment_id, set_date, reaction, topics.title, " +
         "COALESCE(comments.userid, topics.userid) target_user, groups.section, groups.urlname " +
         "FROM reactions_log JOIN topics ON topic_id = topics.id " +
           "JOIN groups ON topics.groupid = groups.id " +
           "LEFT JOIN comments ON comment_id = comments.id " +
         "WHERE origin_user=? AND NOT topics.deleted AND comments.deleted IS NOT TRUE " +
-        "ORDER BY set_date DESC OFFSET ? LIMIT ?", originUser.getId, offset, size) { case (rs, _) =>
+        "ORDER BY set_date DESC OFFSET ? LIMIT ?",
+      originUser.getId, offset, size)  { case (rs, _) =>
       ReactionsView(
         item = ReactionsLogItem(
           originUserId = originUser.getId,

@@ -209,8 +209,8 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     r
   }
 
-  def getReactionsView(originUser: User, offset: Int, size: Int): Seq[PreparedReactionView] = {
-    val items = reactionDao.getReactionsView(originUser, offset, size)
+  def getReactionsView(originUser: User, offset: Int, size: Int,modeTo: Boolean): Seq[PreparedReactionView] = {
+    val items = reactionDao.getReactionsView(originUser, offset, size,modeTo)
     val textIds = items.view.map(_.item).map(i => i.commentId.getOrElse(i.topicId)).distinct.toSeq
     val targetUserIds = items.view.map(_.targetUserId).distinct.toSeq
 

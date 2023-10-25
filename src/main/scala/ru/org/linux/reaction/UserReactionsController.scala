@@ -21,56 +21,78 @@ import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.reaction.UserReactionsController.{ItemsPerPage, MaxOffset}
 import ru.org.linux.site.BadParameterException
 import ru.org.linux.user.UserService
-
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller
-@RequestMapping(Array("/people/{nick}/reactions"))
+@RequestMapping(Array("/people/{nick}/reactions","/people/{nick}/reactions/{mode}"))
 class UserReactionsController(reactionService: ReactionService, userService: UserService) {
   @RequestMapping
   def reactions(@PathVariable nick: String,
+                @PathVariable(required = false) mode: String,
                 @RequestParam(required = false, defaultValue = "0") offset: Int): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
+
     val user = userService.getUserCached(nick)
 
-    if (offset > MaxOffset) {
+    if (offset > MaxOffset)
       throw new BadParameterException("offset", "too big")
-    }
 
-    if (!currentUser.moderator && currentUser.user != user) {
+    if (!currentUser.moderator && currentUser.user != user)
       throw new AccessViolationException("можно смотреть только свои реакции")
-    }
-
-    val items = reactionService.getReactionsView(user, offset, ItemsPerPage + 1)
 
     val modelAndView = new ModelAndView("user-reactions")
+    // меняется по логике ниже
+    var url = s"/people/${user.getNick}/reactions"
 
-    val title = if (user==currentUser.user) {
+    val title = if (user == currentUser.user)
       "Мои реакции"
-    } else {
+    else
       s"Реакции ${user.getNick}"
+
+    val titleTo = if (user == currentUser.user)
+      "Реакции на меня"
+    else
+      s"Реакции на ${user.getNick}"
+
+    val items =if (mode != null) {
+      if ("to".equalsIgnoreCase(mode)) {
+        // признак включения режима "реакции на меня"
+        modelAndView.addObject("modeTo", 1)
+        modelAndView.addObject("reactionsTitle", title)
+        modelAndView.addObject("title", titleTo)
+        modelAndView.addObject("reactionsUrl", url)
+        modelAndView.addObject("reactionsUrl", s"/people/${user.getNick}/reactions")
+        // переделка url для пагинации
+        url = s"/people/${user.getNick}/reactions/to"
+        reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = true)
+      } else
+        throw new BadParameterException("mode", "incorrect")
+
+    } else {
+      // вариант по-умолчанию (мои реакции)
+      modelAndView.addObject("title", title)
+      modelAndView.addObject("reactionsTitle", titleTo)
+      modelAndView.addObject("reactionsUrl", s"/people/${user.getNick}/reactions/to")
+
+      reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = false)
     }
 
     modelAndView.addObject("items", items.take(ItemsPerPage).asJava)
 
-    val url = s"/people/${user.getNick}/reactions"
-    val nextUrl = if (items.sizeIs == ItemsPerPage + 1 && items.sizeIs < MaxOffset - ItemsPerPage) {
+    val nextUrl = if (items.sizeIs == ItemsPerPage + 1 && items.sizeIs < MaxOffset - ItemsPerPage)
       s"${url}?offset=${offset + ItemsPerPage}"
-    } else {
+    else
       ""
-    }
 
-    val prevUrl = if (offset == ItemsPerPage) {
+    val prevUrl = if (offset == ItemsPerPage)
       url
-    } else if (offset > ItemsPerPage) {
+    else if (offset > ItemsPerPage)
       s"${url}?offset=${offset - ItemsPerPage}"
-    } else {
+    else
       ""
-    }
 
     modelAndView.addObject("nextUrl", nextUrl)
     modelAndView.addObject("prevUrl", prevUrl)
     modelAndView.addObject("user", user)
-    modelAndView.addObject("title", title)
 
     modelAndView
   }
