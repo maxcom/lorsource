@@ -170,12 +170,12 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     image match {
       case Some(image) =>
         try {
-          createImagePreview(currentUser, image, errors).map { screenShot =>
+          createImagePreview(currentUser, image, errors).map { previewImage =>
             logger.info("SCREEN: " + image.getAbsolutePath + "\nINFO: SCREEN: " + image)
 
-            session.setAttribute("image", screenShot)
+            session.setAttribute("image", previewImage.mainFile.getName)
 
-            screenShot
+            previewImage
           }
         } catch {
           case e: BadImageException =>
@@ -184,17 +184,15 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
         }
       case None =>
         Option(session.getAttribute("image"))
-          .map(_.asInstanceOf[UploadedImagePreview])
+          .map(_.asInstanceOf[String])
+          .map(f => UploadedImagePreview.reuse(previewPath, f))
           .filter(_.mainFile.exists)
     }
   }
 
+  def saveScreenshot(imagePreview: UploadedImagePreview, msgid: Int): Unit = transactional() { _ =>
+    val id = imageDao.saveImage(msgid, imagePreview.extension)
 
-  def saveScreenshot(imagePreview: UploadedImagePreview, msgid: Int): Unit = {
-    transactional() { _ =>
-      val id = imageDao.saveImage(msgid, imagePreview.extension)
-
-      imagePreview.moveTo(galleryPath, id.toString)
-    }
+    imagePreview.moveTo(galleryPath, id.toString)
   }
 }
