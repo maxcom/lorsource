@@ -99,10 +99,12 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val processedMessage = textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(topic, author), url)
 
     val preparedImage = if (section.isImagepost || section.isImageAllowed) {
-      val loadedImage = if (topic.id != 0) {
-        imageService.imageForTopic(topic).toScala
-      } else {
-        image
+      val loadedImage = image.orElse {
+        if (topic.id != 0) {
+          imageService.imageForTopic(topic).toScala
+        } else {
+          None
+        }
       }
 
       loadedImage.flatMap(imageService.prepareImage)

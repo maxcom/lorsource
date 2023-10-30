@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -37,6 +37,8 @@ public class AddTopicRequest {
   private String preview;
   private String draft;
   private boolean allowAnonymous = true;
+
+  private String uploadedImage;
 
   public String getTitle() {
     return title;
@@ -168,5 +170,13 @@ public class AddTopicRequest {
 
   public void setAllowAnonymous(boolean allowAnonymous) {
     this.allowAnonymous = allowAnonymous;
+  }
+
+  public String getUploadedImage() {
+    return uploadedImage;
+  }
+
+  public void setUploadedImage(String uploadedImage) {
+    this.uploadedImage = uploadedImage;
   }
 }

@@ -64,6 +64,8 @@ class UploadedImagePreview(val mainFile: File) {
 }
 
 object UploadedImagePreview {
+  private val CorrectFilename="""[\w-]+\.[a-z]+""".r
+
   def create(prefix: String, extension: String, previewPath: File, uploadedData: File): UploadedImagePreview = {
     val mainFile = File.createTempFile(prefix, "." + extension, previewPath)
 
@@ -73,6 +75,8 @@ object UploadedImagePreview {
   }
 
   def reuse(previewPath: File, filename: String): UploadedImagePreview = {
+    assert(CorrectFilename.matches(filename))
+
     val mainFile = new File(previewPath, filename)
 
     new UploadedImagePreview(mainFile)
