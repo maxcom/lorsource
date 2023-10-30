@@ -18,6 +18,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
 import io.circe.parser.*
 import io.circe.syntax.*
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
@@ -129,15 +130,32 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
         reaction = rs.getString("reaction"))
     }
 
-  def getReactionsView(originUser: User, offset: Int, size: Int): Seq[ReactionsView] =
+  def getReactionsView(originUser: User, offset: Int, size: Int,isReactionsOn: Boolean): Seq[ReactionsView] =
     jdbcTemplate.queryAndMap(
+      if (isReactionsOn)
+         "WITH constants (selectedId) as ( values (?) ) " +
+           " select r.topic_id,r.comment_id,r.set_date, r.reaction,r.origin_user as \"target_user\", g.\"section\", g.urlname, t.title " +
+           " from reactions_log r " +
+           " join topics t ON r.topic_id = t.id  AND NOT t.deleted  " +
+           " join groups g ON t.groupid = g.id " +
+           " WHERE r.comment_id is null and t.userid=(select selectedId from constants) " +
+           " UNION ALL " +
+           " select r.topic_id,r.comment_id,r.set_date, r.reaction, r.origin_user, g.\"section\", g.urlname, t.title " +
+           " from reactions_log r " +
+           " join topics t ON r.topic_id = t.id  AND NOT t.deleted " +
+           " JOIN comments c ON c.id = r.comment_id " +
+           " join groups g ON t.groupid = g.id " +
+           " WHERE c.userid=(select selectedId from constants) " +
+           " order by set_date desc OFFSET ? LIMIT ?"
+      else
       "SELECT topic_id, comment_id, set_date, reaction, topics.title, " +
         "COALESCE(comments.userid, topics.userid) target_user, groups.section, groups.urlname " +
         "FROM reactions_log JOIN topics ON topic_id = topics.id " +
           "JOIN groups ON topics.groupid = groups.id " +
           "LEFT JOIN comments ON comment_id = comments.id " +
         "WHERE origin_user=? AND NOT topics.deleted AND comments.deleted IS NOT TRUE " +
-        "ORDER BY set_date DESC OFFSET ? LIMIT ?", originUser.getId, offset, size) { case (rs, _) =>
+        "ORDER BY set_date DESC OFFSET ? LIMIT ?",
+      originUser.getId, offset, size)  { case (rs, _) =>
       ReactionsView(
         item = ReactionsLogItem(
           originUserId = originUser.getId,
