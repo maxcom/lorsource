@@ -95,7 +95,8 @@
   <div class="control-group">
     <label class="control-label" for="delete_replys">Удалять ответы</label>
     <div class="controls">
-      <input id="delete_replys" type="checkbox" name="delete_replys" checked>
+      <input id="delete_replys" type="checkbox" name="delete_replys">
+      <span class="help-block">Внимание! Значение по-умолчанию изменено!</span>
     </div>
   </div>
   </c:if>
