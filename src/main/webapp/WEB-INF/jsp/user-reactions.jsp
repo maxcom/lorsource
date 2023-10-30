@@ -25,8 +25,9 @@
 
 <div class="reactions-view">
   <p>
+    <a class="btn btn-default" href="${url}">${meTitle}</a>
     <a class="btn btn-default" href="${reactionsUrl}">${reactionsTitle}</a>
-  </p>
+   </p>
 <c:forEach var="item" items="${items}">
   <a class="reactions-view-item" href="${item.link}">
     <div class="reactions-view-reaction">

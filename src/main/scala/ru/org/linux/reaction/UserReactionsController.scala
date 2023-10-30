@@ -43,24 +43,27 @@ class UserReactionsController(reactionService: ReactionService, userService: Use
     // меняется по логике ниже
     var url = s"/people/${user.getNick}/reactions"
 
+    modelAndView.addObject("title", "Реакции")
+
     val title = if (user == currentUser.user)
-      "Мои реакции"
+      "мои реакции"
     else
-      s"Реакции ${user.getNick}"
+      s"реакции ${user.getNick}"
 
     val titleTo = if (user == currentUser.user)
-      "Реакции на меня"
+      "на мои сообщения"
     else
-      s"Реакции на ${user.getNick}"
+      s"реакции на ${user.getNick}"
+
+    modelAndView.addObject("reactionsTitle", titleTo)
+    modelAndView.addObject("meTitle", title)
+    modelAndView.addObject("url", url)
+    modelAndView.addObject("reactionsUrl", s"/people/${user.getNick}/reactions/to")
 
     val items =if (mode != null) {
       if ("to".equalsIgnoreCase(mode)) {
         // признак включения режима "реакции на меня"
         modelAndView.addObject("modeTo", 1)
-        modelAndView.addObject("reactionsTitle", title)
-        modelAndView.addObject("title", titleTo)
-        modelAndView.addObject("reactionsUrl", url)
-        modelAndView.addObject("reactionsUrl", s"/people/${user.getNick}/reactions")
         // переделка url для пагинации
         url = s"/people/${user.getNick}/reactions/to"
         reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = true)
@@ -69,10 +72,6 @@ class UserReactionsController(reactionService: ReactionService, userService: Use
 
     } else {
       // вариант по-умолчанию (мои реакции)
-      modelAndView.addObject("title", title)
-      modelAndView.addObject("reactionsTitle", titleTo)
-      modelAndView.addObject("reactionsUrl", s"/people/${user.getNick}/reactions/to")
-
       reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = false)
     }
 

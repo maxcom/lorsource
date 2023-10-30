@@ -133,14 +133,20 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
   def getReactionsView(originUser: User, offset: Int, size: Int,isReactionsOn: Boolean): Seq[ReactionsView] =
     jdbcTemplate.queryAndMap(
       if (isReactionsOn)
-          " with constants (selectedId) as (values ( ? ))" +
-          " select r.topic_id,r.comment_id,r.set_date, r.reaction,r.origin_user as \"target_user\", g.\"section\", " +
-          " g.urlname, case  when c.title is null or coalesce(trim(c.title), '') = ''  then t.title else c.title end as \"title\" from reactions_log r" +
-          " join topics t on r.topic_id = t.id  and not t.deleted" +
-          " join groups g on t.groupid = g.id left join comments c" +
-          " on r.comment_id = c.id and c.deleted is not true" +
-          " where (r.comment_id is null and t.userid  =  (select selectedId from constants) ) or (r.comment_id is not null and c.userid=  (select selectedId from constants))" +
-          " order by r.set_date desc offset ? LIMIT ?"
+         "WITH constants (selectedId) as ( values (?) ) " +
+           " select r.topic_id,r.comment_id,r.set_date, r.reaction,r.origin_user as \"target_user\", g.\"section\", g.urlname, t.title " +
+           " from reactions_log r " +
+           " join topics t ON r.topic_id = t.id  AND NOT t.deleted  " +
+           " join groups g ON t.groupid = g.id " +
+           " WHERE r.comment_id is null and t.userid=(select selectedId from constants) " +
+           " UNION ALL " +
+           " select r.topic_id,r.comment_id,r.set_date, r.reaction, r.origin_user, g.\"section\", g.urlname, t.title " +
+           " from reactions_log r " +
+           " join topics t ON r.topic_id = t.id  AND NOT t.deleted " +
+           " JOIN comments c ON c.id = r.comment_id " +
+           " join groups g ON t.groupid = g.id " +
+           " WHERE c.userid=(select selectedId from constants) " +
+           " order by set_date desc OFFSET ? LIMIT ?"
       else
       "SELECT topic_id, comment_id, set_date, reaction, topics.title, " +
         "COALESCE(comments.userid, topics.userid) target_user, groups.section, groups.urlname " +
