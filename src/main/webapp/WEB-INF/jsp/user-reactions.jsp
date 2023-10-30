@@ -25,8 +25,14 @@
 
 <div class="reactions-view">
   <p>
-    <a class="btn btn-default" href="${url}">${meTitle}</a>
-    <a class="btn btn-default" href="${reactionsUrl}">${reactionsTitle}</a>
+    <c:if test="${modeTo == 1}">
+      <a class="btn btn-default" href="${url}">${meTitle}</a>
+      <a class="btn btn-selected" href="${reactionsUrl}">${reactionsTitle}</a>
+    </c:if>
+    <c:if test="${modeTo != 1}">
+      <a class="btn btn-selected" href="${url}">${meTitle}</a>
+      <a class="btn btn-default" href="${reactionsUrl}">${reactionsTitle}</a>
+    </c:if>
    </p>
 <c:forEach var="item" items="${items}">
   <a class="reactions-view-item" href="${item.link}">
