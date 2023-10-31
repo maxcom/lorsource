@@ -21,7 +21,7 @@
     <elastic4s.version>7.13.0</elastic4s.version>
     <scala.version>2.13.12</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>5.18.2</activemq.version>
+    <activemq.version>5.18.3</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
