@@ -18,7 +18,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
 import io.circe.parser.*
 import io.circe.syntax.*
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
