@@ -222,7 +222,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     if (groupPermissionService.isImagePostingAllowed(section, user)) {
       if (groupPermissionService.isTopicPostingAllowed(group, user)) {
         val image = imageService.processUploadImage(request)
-        imagePreview = imageService.processUpload(user, session, image, errors)
+        imagePreview = imageService.processUpload(user, Option(form.getUploadedImage), image, errors)
+
+        imagePreview.foreach { img =>
+          form.setUploadedImage(img.mainFile.getName)
+        }
       }
 
       if (section.isImagepost && imagePreview.isEmpty) {

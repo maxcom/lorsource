@@ -33,6 +33,8 @@ public class EditTopicRequest {
 
   private Integer fromHistory;
 
+  private String uploadedImage;
+
   public String getUrl() {
     return url;
   }
@@ -127,5 +129,13 @@ public class EditTopicRequest {
 
   public void setFromHistory(Integer fromHistory) {
     this.fromHistory = fromHistory;
+  }
+
+  public String getUploadedImage() {
+    return uploadedImage;
+  }
+
+  public void setUploadedImage(String uploadedImage) {
+    this.uploadedImage = uploadedImage;
   }
 }

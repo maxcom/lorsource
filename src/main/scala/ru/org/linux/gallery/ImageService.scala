@@ -31,7 +31,7 @@ import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 
 import java.io.{File, FileNotFoundException, IOException}
 import java.util.Optional
-import javax.servlet.http.{HttpServletRequest, HttpSession}
+import javax.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOption
 import scala.util.control.NonFatal
@@ -138,7 +138,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
     if (!errors.hasErrors) {
       Some(UploadedImagePreview.create(
-        prefix = s"preview-${user.getId}-",
+        prefix = uploadedImagePrefix(user),
         extension = imageParam.getExtension,
         previewPath = previewPath,
         uploadedData = file))
@@ -146,6 +146,8 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
       None
     }
   }
+
+  private def uploadedImagePrefix(user: User) = s"preview-${user.getId}-"
 
   def processUploadImage(request: HttpServletRequest): Option[File] = {
     request match {
@@ -166,16 +168,14 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  def processUpload(currentUser: User, session: HttpSession, image: Option[File], errors: Errors): Option[UploadedImagePreview] = {
+  def processUpload(currentUser: User, uploadedImage: Option[String], image: Option[File], errors: Errors): Option[UploadedImagePreview] = {
     image match {
       case Some(image) =>
         try {
-          createImagePreview(currentUser, image, errors).map { screenShot =>
+          createImagePreview(currentUser, image, errors).map { previewImage =>
             logger.info("SCREEN: " + image.getAbsolutePath + "\nINFO: SCREEN: " + image)
 
-            session.setAttribute("image", screenShot)
-
-            screenShot
+            previewImage
           }
         } catch {
           case e: BadImageException =>
@@ -183,18 +183,16 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
             None
         }
       case None =>
-        Option(session.getAttribute("image"))
-          .map(_.asInstanceOf[UploadedImagePreview])
+        uploadedImage
+          .filter(_.startsWith(uploadedImagePrefix(currentUser)))
+          .map(f => UploadedImagePreview.reuse(previewPath, f))
           .filter(_.mainFile.exists)
     }
   }
 
+  def saveScreenshot(imagePreview: UploadedImagePreview, msgid: Int): Unit = transactional() { _ =>
+    val id = imageDao.saveImage(msgid, imagePreview.extension)
 
-  def saveScreenshot(imagePreview: UploadedImagePreview, msgid: Int): Unit = {
-    transactional() { _ =>
-      val id = imageDao.saveImage(msgid, imagePreview.extension)
-
-      imagePreview.moveTo(galleryPath, id.toString)
-    }
+    imagePreview.moveTo(galleryPath, id.toString)
   }
 }

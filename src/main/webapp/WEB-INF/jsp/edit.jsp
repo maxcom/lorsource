@@ -4,7 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -66,7 +66,7 @@
 </c:if>
 
 <c:if test="${newPreparedMessage!=null}">
-  <h2>Ваше сообщение</h2>
+<h2>Ваше сообщение</h2>
 <div class=messages>
   <lor:topic messageMenu="${topicMenu}" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false"/>
 </div>
@@ -90,6 +90,8 @@
   </div>
 
   <c:if test="${imagepost}">
+    <form:hidden path="uploadedImage"/>
+
     <div class="control-group">
       <c:if test="${preparedMessage.image!=null}">
         <label for="image">Заменить изображение:</label>
