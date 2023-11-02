@@ -40,7 +40,7 @@ class SearchViewerIntegrationSpec extends SpecificationWithJUnit {
 
     indexService.createIndexIfNeeded()
 
-    override def after = elastic execute { deleteIndex("*") } await
+    override def after: Unit = elastic execute { deleteIndex("*") } await
   }
 
   "SearchViewer" should {

@@ -17,7 +17,7 @@ package ru.org.linux.topic
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, RequestMethod, RequestParam, ResponseStatus}
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
@@ -28,11 +28,11 @@ import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
 import ru.org.linux.user.UserTagService
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.compat.java8.FutureConverters.*
 import java.util.concurrent.CompletionStage
+import scala.compat.java8.FutureConverters.*
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.OptionConverters.RichOption
 
 @Controller

@@ -17,7 +17,6 @@
 package org.springframework.scala.transaction.support
 
 import org.springframework.transaction.annotation.{Isolation, Propagation}
-import org.springframework.transaction.support.TransactionCallback
 import org.springframework.transaction.{TransactionStatus, TransactionDefinition, PlatformTransactionManager}
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute
 

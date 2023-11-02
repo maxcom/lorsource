@@ -49,7 +49,7 @@ class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
       refreshIndex("*")
     } await
 
-    override def after = elastic execute { deleteIndex("*") } await
+    override def after: Unit = elastic execute { deleteIndex("*") } await
   }
 
   "SearchResultsService" should {
