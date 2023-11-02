@@ -60,19 +60,21 @@ class UserReactionsController(reactionService: ReactionService, userService: Use
     modelAndView.addObject("url", url)
     modelAndView.addObject("reactionsUrl", s"/people/${user.getNick}/reactions/to")
 
+    val showDeleted = currentUser.moderator
+
     val items =if (mode != null) {
       if ("to".equalsIgnoreCase(mode)) {
         // признак включения режима "реакции на меня"
         modelAndView.addObject("modeTo", 1)
         // переделка url для пагинации
         url = s"/people/${user.getNick}/reactions/to"
-        reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = true)
+        reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = true,showDeleted)
       } else
         throw new BadParameterException("mode", "incorrect")
 
     } else {
       // вариант по-умолчанию (мои реакции)
-      reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = false)
+      reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = false,showDeleted)
     }
 
     modelAndView.addObject("items", items.take(ItemsPerPage).asJava)
