@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -68,14 +68,14 @@ class UserStatisticsService(
     ).sortBy(_.section.getId)
 
     UserStats(
-      ignoreCount,
-      commentCount.getOrElse(0L),
-      commentCount.isEmpty || topicStat.isEmpty,
-      firstComment,
-      lastComment,
-      topicStat.flatMap(_.firstTopic).map(_.toDate).orNull,
-      topicStat.flatMap(_.lastTopic).map(_.toDate).orNull,
-      topicsBySection.asJava
+      ignoreCount = ignoreCount,
+      commentCount = commentCount.getOrElse(0L),
+      incomplete = commentCount.isEmpty || topicStat.isEmpty,
+      firstComment = firstComment,
+      lastComment = lastComment,
+      firstTopic = topicStat.flatMap(_.firstTopic).map(_.toDate).orNull,
+      lastTopic = topicStat.flatMap(_.lastTopic).map(_.toDate).orNull,
+      topicsBySection = topicsBySection.asJava
     )
   }
 

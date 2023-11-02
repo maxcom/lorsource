@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,7 +27,7 @@ import com.vladsch.flexmark.util.sequence.BasedSequence
 import ru.org.linux.user.UserService
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class LorUserExtension(userService: UserService, toHtmlFormatter: ToHtmlFormatter) extends Parser.ParserExtension with HtmlRenderer.HtmlRendererExtension {
   override def parserOptions(options: MutableDataHolder): Unit = {}
@@ -49,13 +49,13 @@ object LorUserParserExtension {
   val LorUser: Pattern = Pattern.compile("^(@)([a-z][a-z_\\d-]{0,80})", Pattern.CASE_INSENSITIVE)
 
   class Factory extends InlineParserExtensionFactory {
-    override def getAfterDependents = null
+    override def getAfterDependents: util.Set[? <: Class[?]] = null
 
-    override def getCharacters = "@"
+    override def getCharacters: String = "@"
 
-    override def getBeforeDependents = null
+    override def getBeforeDependents: util.Set[? <: Class[?]] = null
 
-    override def create(inlineParser: InlineParser) = new LorUserParserExtension(inlineParser)
+    override def create(inlineParser: InlineParser): LorUserParserExtension = new LorUserParserExtension(inlineParser)
 
     override def affectsGlobalScope = false
   }
@@ -108,7 +108,7 @@ class LorUserParserExtension(val inlineParser: InlineParser) extends InlineParse
 }
 
 class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter) extends NodeRenderer {
-  override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[_ <: Node]] = {
+  override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[? <: Node]] = {
     Set(new NodeRenderingHandler[LorUser](classOf[LorUser], (node, ctx, html) => {
       val nick = node.getChars.subSequence(1).toString
 
@@ -153,6 +153,6 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
           html.text(node.getChars.toString)
           html.closeTag("s")
       }
-    })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
+    })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[?]]]
   }
 }

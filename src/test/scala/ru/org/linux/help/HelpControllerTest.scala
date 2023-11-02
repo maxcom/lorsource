@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,19 +17,19 @@ package ru.org.linux.help
 
 import org.junit.runner.RunWith
 import org.junit.{Before, Test}
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders._
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers._
-import org.springframework.test.web.servlet.setup.MockMvcBuilders._
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.setup.MockMvcBuilders.*
 import org.springframework.web.context.WebApplicationContext
-import org.springframework.web.servlet.config.annotation.{EnableWebMvc, PathMatchConfigurer, WebMvcConfigurer}
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import ru.org.linux.util.markdown.MarkdownFormatter
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
@@ -49,11 +49,7 @@ class HelpControllerTest extends MVCTest {
 
 @Configuration
 @EnableWebMvc
-class HelpControllerTestConfig extends WebMvcConfigurer {
-  override def configurePathMatch(configurer: PathMatchConfigurer): Unit = {
-    configurer.setUseSuffixPatternMatch(false)
-  }
-
+class HelpControllerTestConfig {
   @Bean
   def controller = {
     val markdown: MarkdownFormatter = mock(classOf[MarkdownFormatter])
