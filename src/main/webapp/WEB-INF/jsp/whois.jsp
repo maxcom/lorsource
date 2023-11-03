@@ -79,7 +79,10 @@
                         subDomainTitleFormat: {
                             empty: "{date}",
                             filled: "{date}<br>сообщений: {count}"
-                        }
+                        },
+                        onClick: function (date, nb) {
+                                                    window.open('/search.jsp?dt='+date.getTime()+'&user=${user.nick}', '_blank');
+                                                }
                     });
                 }
             });

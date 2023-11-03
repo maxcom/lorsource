@@ -52,11 +52,22 @@
 <form:select path="range" items="${ranges}"/>
 </div>
 
-<div class="control-group">
-<label>За:
-  <form:select path="interval" items="${intervals}"/>
-</label>
-</div>
+<c:choose>
+ <c:when test="${query.dateSelected}">
+    <div class="control-group">
+    <label>на дату</label>
+    <form:input id="selectedDt" path="dt" type="hidden" />
+    <input id="selectDt" class="input" type="text" readonly="true"/>
+    </div>
+ </c:when>
+ <c:otherwise>
+    <div class="control-group">
+    <label>За:
+    <form:select path="interval" items="${intervals}"/>
+    </label>
+    </div>
+ </c:otherwise>
+</c:choose>
 
 <div class="control-group">
   <label>Пользователь: <form:input path="user" type="text" size="20"/></label>
@@ -156,5 +167,16 @@
   </p>
 </c:if>
 </form:form>
+
+<script type="text/javascript">
+    $script.ready(["jquery"], function() {
+        var selectedDate = document.getElementById('selectedDt');
+        if (selectedDate) {
+            d  = moment(selectedDate.value,'x').format('DD.MM.YYYY');
+            console.log("selected: ",selectedDate,"d:",d);
+            document.getElementById('selectDt').value=d;
+        }
+    });
+</script>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

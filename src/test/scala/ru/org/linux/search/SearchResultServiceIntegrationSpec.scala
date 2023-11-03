@@ -54,7 +54,7 @@ class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
 
   "SearchResultsService" should {
     "prepare some results" in new IndexFixture {
-      val response = new SearchViewer(new SearchRequest(), elastic).performSearch
+      val response = new SearchViewer(new SearchRequest(), elastic).performSearch(null)
 
       val prepared = response.hits.hits.map(service.prepare)
 

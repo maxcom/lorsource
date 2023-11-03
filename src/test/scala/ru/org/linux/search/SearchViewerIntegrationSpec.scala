@@ -45,7 +45,7 @@ class SearchViewerIntegrationSpec extends SpecificationWithJUnit {
 
   "SearchViewer" should {
     "make valid default search" in new IndexFixture {
-      val response = new SearchViewer(new SearchRequest(), elastic).performSearch
+      val response = new SearchViewer(new SearchRequest(), elastic).performSearch(null)
 
       response.totalHits must be equalTo 0
     }

@@ -24,6 +24,7 @@ import com.sksamuel.elastic4s.requests.searches.SearchResponse;
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.FilterAggregationResult;
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.TermBucket;
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.Terms;
+import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,6 +53,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class SearchController {
@@ -107,7 +109,8 @@ public class SearchController {
   public String search(
           Model model,
           @ModelAttribute("query") SearchRequest query,
-          BindingResult bindingResult
+          BindingResult bindingResult,
+          HttpServletRequest request
   ) {
     Map<String, Object> params = model.asMap();
 
@@ -116,7 +119,8 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query, client);
 
-      SearchResponse response = sv.performSearch();
+      final DateTimeZone tz = (DateTimeZone)request.getAttribute("timezone");
+      SearchResponse response = sv.performSearch(tz);
 
       long current = System.currentTimeMillis();
 
