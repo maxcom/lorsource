@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 package ru.org.linux.search;
 
+import org.joda.time.DateTimeZone;
 import ru.org.linux.search.SearchEnums.SearchInterval;
 import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.user.User;
@@ -163,9 +164,12 @@ public class SearchRequest {
     return dt >0;
   }
 
-  public long atEndOfDaySelected() {
+  public long atEndOfDaySelected(DateTimeZone tz) {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date(dt));
+    if (tz!=null) {
+      calendar.setTimeZone(tz.toTimeZone());
+    }
     calendar.set(Calendar.HOUR_OF_DAY, 23);
     calendar.set(Calendar.MINUTE, 59);
     calendar.set(Calendar.SECOND, 59);
@@ -173,9 +177,12 @@ public class SearchRequest {
     return calendar.getTime().getTime();
   }
 
-  public long atStartOfDaySelected() {
+  public long atStartOfDaySelected(DateTimeZone tz) {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date(dt));
+    if (tz!=null) {
+      calendar.setTimeZone(tz.toTimeZone());
+    }
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);

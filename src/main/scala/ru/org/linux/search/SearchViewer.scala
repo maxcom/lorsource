@@ -20,6 +20,7 @@ import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
 import com.sksamuel.elastic4s.requests.searches.queries.Query
 import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.WeightScore
+import org.joda.time.DateTimeZone
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
@@ -54,13 +55,11 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     }
   }
 
-  def performSearch: SearchResponse = {
+  def performSearch(tz:DateTimeZone): SearchResponse = {
     val typeFilter = Option(query.getRange.getValue) map { value =>
       termQuery(query.getRange.getColumn, value)
     }
-    val selectedDateFilter = Option(query) map { query =>
-      rangeQuery(query.getInterval.getColumn) gte query.atStartOfDaySelected() lte query.atEndOfDaySelected()
-    }
+    val selectedDateFilter = rangeQuery(query.getInterval.getColumn) gte query.atStartOfDaySelected(tz) lte query.atEndOfDaySelected(tz)
 
     val dateFilter = Option(query.getInterval.getRange) map { range =>
       rangeQuery(query.getInterval.getColumn) gt range
@@ -74,7 +73,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
       }
     }
 
-    val queryFilters = (typeFilter ++ (if (query.isDateSelected) selectedDateFilter else dateFilter) ++ userFilter).toSeq
+    val queryFilters = (typeFilter ++ (if (query.isDateSelected) Option(selectedDateFilter) else dateFilter) ++ userFilter).toSeq
 
     val esQuery = wrapQuery(boost(processQueryString(query.getQ)), queryFilters)
 
