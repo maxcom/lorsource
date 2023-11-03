@@ -80,9 +80,11 @@
                             empty: "{date}",
                             filled: "{date}<br>сообщений: {count}"
                         },
-                        onClick: function (date, nb) {
-                                                    window.open('/search.jsp?dt='+date.getTime()+'&user=${user.nick}', '_blank');
-                                                }
+                        onClick: function (date, count) {
+                            if (count > 0) {
+                                window.open('/search.jsp?dt='+date.getTime()+'&user=${user.nick}', '_blank');
+                            }
+                        }
                     });
                 }
             });
