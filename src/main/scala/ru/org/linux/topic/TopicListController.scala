@@ -44,7 +44,7 @@ object TopicListController {
   private def calculatePTitle(section: Section, groupOpt: Option[Group], topicListForm: TopicListRequest): String = {
     groupOpt match {
       case Some(group) =>
-        s"${section.getName} - ${group.getTitle}"
+        s"${section.getName} - ${group.title}"
       case None =>
         if (topicListForm.yearMonth.isEmpty) {
           section.getName + topicListForm.filter.map(f => s" (${f.title})").getOrElse("")
@@ -58,7 +58,7 @@ object TopicListController {
     val navTitle = new StringBuilder(section.getName)
 
     group.foreach { group =>
-      navTitle.append(s" «${group.getTitle}»")
+      navTitle.append(s" «${group.title}»")
     }
 
     topicListForm.filter.foreach { f =>
@@ -252,7 +252,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val group = if (groupId != 0) {
       val g = groupDao.getGroup(groupId)
-      ptitle += " - " + g.getTitle
+      ptitle += " - " + g.title
       Some(g)
     } else {
       None
@@ -297,8 +297,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
 
     group foreach { group =>
-      if (group.getSectionId != section.getId) {
-        throw new ScriptErrorException(s"группа #${group.getId} не принадлежит разделу #${section.getId}")
+      if (group.sectionId != section.getId) {
+        throw new ScriptErrorException(s"группа #${group.id} не принадлежит разделу #${section.getId}")
       }
     }
   }

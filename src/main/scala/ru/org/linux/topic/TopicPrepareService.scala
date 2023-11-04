@@ -195,7 +195,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     val (resolvable, deletable, undeletable) = if (currentUser != null) {
       val resolvable = (currentUser.isModerator || (topic.author.getId == currentUser.getId)) &&
-        topic.group.isResolvable
+        topic.group.resolvable
 
       val deletable = groupPermissionService.isDeletable(topic.message, currentUser)
       val undeletable = groupPermissionService.isUndeletable(topic.message, currentUser)

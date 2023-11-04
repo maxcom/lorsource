@@ -45,7 +45,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
 
   private val sectionForum: Section = sectionService.getSection(Section.SECTION_FORUM)
   private val NonTechNames: Seq[String] =
-    groupDao.getGroups(sectionForum).asScala.filter(g => SectionController.NonTech.contains(g.getId)).map(_.getUrlName).toSeq
+    groupDao.getGroups(sectionForum).asScala.filter(g => SectionController.NonTech.contains(g.getId)).map(_.urlName).toSeq
 
   /**
    * Получение идентификационного номера тега по названию.
@@ -129,7 +129,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
     if (group.exists(g => g.getId == 4068)) {
       Future.successful(Seq.empty)
     } else {
-      val groupFilter = group.map(g => termQuery("group", g.getUrlName))
+      val groupFilter = group.map(g => termQuery("group", g.urlName))
 
       val additionalFilter = filter.collect {
         case ForumFilter.Tech =>

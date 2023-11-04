@@ -82,7 +82,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     }
 
     group.foreach { group =>
-      topicListDto.setGroup(group.getId)
+      topicListDto.setGroup(group.id)
     }
 
     tag.foreach { tag =>
@@ -150,7 +150,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     }
 
     group.foreach { group =>
-      topicListDto.setGroup(group.getId)
+      topicListDto.setGroup(group.id)
     }
 
     topicListDao.getTopics(topicListDto, None)
@@ -191,7 +191,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setSection(section.getId)
 
     group.foreach { group =>
-      topicListDto.setGroup(group.getId)
+      topicListDto.setGroup(group.id)
     }
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)

@@ -155,7 +155,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       form.setEditorBonus(editors.view.map(u => Integer.valueOf(u.getId) -> Integer.valueOf(0)).toMap.asJava)
     }
 
-    if (preparedTopic.group.isLinksAllowed) {
+    if (preparedTopic.group.linksAllowed) {
       form.setLinktext(message.linktext)
       form.setUrl(message.url)
     }
@@ -276,7 +276,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
     }
 
-    if (group.isLinksAllowed) {
+    if (group.linksAllowed) {
       if (topic.url == null) {
         if (newMsg.url != null) {
           modified = true
@@ -328,7 +328,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     if (changeGroupId != null) {
       if (topic.groupId != changeGroupId) {
         val changeGroup = groupDao.getGroup(changeGroupId)
-        if (changeGroup.getSectionId != topic.sectionId) {
+        if (changeGroup.sectionId != topic.sectionId) {
           throw new AccessViolationException("Can't move topics between sections")
         }
       }

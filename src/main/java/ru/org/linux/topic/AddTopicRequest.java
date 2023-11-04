@@ -74,7 +74,7 @@ public class AddTopicRequest {
 
   public String getLinktext() {
     if (linktext==null && group!=null) {
-      return group.getDefaultLinkText();
+      return group.defaultLinkText();
     } else {
       return linktext;
     }

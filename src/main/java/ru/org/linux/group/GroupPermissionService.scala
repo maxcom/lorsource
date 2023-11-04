@@ -75,15 +75,15 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   private def effectivePostscore(group: Group) = {
-    val section = sectionService.getSection(group.getSectionId)
+    val section = sectionService.getSection(group.sectionId)
 
-    Math.max(group.getTopicRestriction, section.getTopicsRestriction)
+    Math.max(group.topicRestriction, section.getTopicsRestriction)
   }
 
   def enableAllowAnonymousCheckbox(group: Group, @Nullable currentUser: User): Boolean = {
-    currentUser!=null && !group.isPremoderated &&
-      Math.max(group.getCommentsRestriction,
-        Section.getCommentPostscore(group.getSectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
+    currentUser!=null && !group.premoderated &&
+      Math.max(group.commentsRestriction,
+        Section.getCommentPostscore(group.sectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
   }
 
   def isTopicPostingAllowed(section: Section, currentUser: Option[User]): Boolean =

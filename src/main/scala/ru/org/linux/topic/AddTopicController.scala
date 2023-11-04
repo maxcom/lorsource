@@ -91,7 +91,7 @@ object AddTopicController {
 
   def getAddUrl(group: Group, @Nullable tag: String): String = {
     val builder = UriComponentsBuilder.fromPath("/add.jsp")
-    builder.queryParam("group", group.getId)
+    builder.queryParam("group", group.id)
     if (tag != null) builder.queryParam("tags", tag)
     builder.build.toUriString
   }
@@ -126,7 +126,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
       errorView
     } else {
-      val section = sectionService.getSection(form.getGroup.getSectionId)
+      val section = sectionService.getSection(form.getGroup.sectionId)
 
       val params = prepareModel(Some(form.getGroup), currentUser.map(_.user), section)
 
@@ -173,7 +173,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest, errors: BindingResult,
             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOpt { sessionUserOpt =>
     val group = form.getGroup
-    val section = sectionService.getSection(group.getSectionId)
+    val section = sectionService.getSection(group.sectionId)
 
     val params = prepareModel(Some(group), sessionUserOpt.map(_.user), section).to(mutable.HashMap)
 
@@ -341,7 +341,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
         if (getValue == null) {
           null
         } else {
-          Integer.toString(getValue.asInstanceOf[Group].getId)
+          Integer.toString(getValue.asInstanceOf[Group].id)
         }
       }
     })

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -76,9 +76,7 @@ public class GroupModificationController {
     Group group = groupDao.getGroup(id);
 
     if (preview != null) {
-      group.setTitle(title);
-      group.setInfo(info);
-      group.setLongInfo(longInfo);
+      group = group.updated(title, info, longInfo);
 
       Map<String, Object> params = new HashMap<>();
       params.put("group", group);
@@ -90,7 +88,7 @@ public class GroupModificationController {
 
     groupDao.setParams(group, title, info, longInfo, resolvable!=null, urlName);
 
-      logger.info("Настройки группы {} изменены {}", group.getUrlName(), AuthUtil.getCurrentUser().getNick());
+    logger.info("Настройки группы {} изменены {}", group.getUrlName(), AuthUtil.getCurrentUser().getNick());
 
     return new ModelAndView("action-done", "message", "Параметры изменены");
   }

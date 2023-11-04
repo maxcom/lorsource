@@ -242,7 +242,7 @@ public class TopicPermissionService {
   }
 
   public int getPostscore(Group group, Topic topic) {
-    return IntStream.of(topic.getPostscore(), group.getCommentsRestriction(),
+    return IntStream.of(topic.getPostscore(), group.commentsRestriction(),
             Section.getCommentPostscore(topic.getSectionId()),
             getCommentCountRestriction(topic), getAllowAnonymousPostscore(topic)).max().getAsInt();
   }

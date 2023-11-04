@@ -171,11 +171,11 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
 
     val mainTopics = if (!lastmod) {
-      groupListDao.getGroupListTopics(group.getId, currentUser.toJava, tmpl.getProf.getTopics, offset,
+      groupListDao.getGroupListTopics(group.id, currentUser.toJava, tmpl.getProf.getTopics, offset,
         tmpl.getProf.getMessages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
         yearMonth.map(p => Integer.valueOf(p._2)).toJava, tagId)
     } else {
-      groupListDao.getGroupTrackerTopics(group.getId, currentUser.toJava, tmpl.getProf.getTopics, offset,
+      groupListDao.getGroupTrackerTopics(group.id, currentUser.toJava, tmpl.getProf.getTopics, offset,
         tmpl.getProf.getMessages, tagId)
     }
 
@@ -186,7 +186,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
         params.put("url", s"${group.getUrl}$year/$month/")
 
         params.put("hasNext",
-          Boolean.box(offset + tmpl.getProf.getTopics < archiveDao.getArchiveCount(group.getId, year, month)))
+          Boolean.box(offset + tmpl.getProf.getTopics < archiveDao.getArchiveCount(group.id, year, month)))
       case None =>
         params.put("url", group.getUrl)
         params.put("hasNext",

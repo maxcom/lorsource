@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -121,7 +121,7 @@ object Topic {
       linktext =  if (form.getLinktext != null) StringUtil.escapeHtml(form.getLinktext) else null,
       url = if (!Strings.isNullOrEmpty(form.getUrl)) URLUtil.fixURL(form.getUrl) else null,
       title = if (form.getTitle!=null) StringUtil.escapeHtml(form.getTitle) else "",
-      sectionId = group.getSectionId,
+      sectionId = group.sectionId,
       // Defaults
       id = 0,
       postscore = 0,
@@ -131,7 +131,7 @@ object Topic {
       commitby = 0,
       postdate = Timestamp.from(Instant.now()),
       commitDate = null,
-      groupUrl = group.getUrlName,
+      groupUrl = group.urlName,
       lastModified = Timestamp.from(Instant.now()),
       commentCount = 0,
       commited = false,
@@ -145,7 +145,7 @@ object Topic {
   }
 
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
-    val sectionId = group.getSectionId
+    val sectionId = group.sectionId
 
     val minor: Boolean = if (form.getMinor != null && (sectionId == SECTION_NEWS || sectionId == SECTION_ARTICLES)) {
       form.getMinor
@@ -157,8 +157,8 @@ object Topic {
       userAgentId = original.userAgentId,
       postIP = original.postIP,
       groupId = original.groupId,
-      linktext = if (form.getLinktext != null && group.isLinksAllowed) form.getLinktext else original.linktext,
-      url = if (form.getUrl != null && group.isLinksAllowed) URLUtil.fixURL(form.getUrl) else original.url,
+      linktext = if (form.getLinktext != null && group.linksAllowed) form.getLinktext else original.linktext,
+      url = if (form.getUrl != null && group.linksAllowed) URLUtil.fixURL(form.getUrl) else original.url,
       title = if (form.getTitle != null) StringUtil.escapeHtml(form.getTitle) else original.title,
       resolved = original.resolved,
       sectionId = sectionId,
