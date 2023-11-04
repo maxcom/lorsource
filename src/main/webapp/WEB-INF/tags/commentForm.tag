@@ -54,10 +54,6 @@
   <c:if test="${original != null}">
     <input type="hidden" name="original" value="${original}">
   </c:if>
-  <c:if test="${not empty modes}">
-    <label>Разметка:*<br>
-      <form:select path="mode" items="${modes}"/></label><br>
-  </c:if>
 
   <div class="warning-block" id="author-readonly-note">
   </div>
@@ -67,7 +63,8 @@
     <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
     <div class="help-block">Пустая строка (два раза Enter) начинает новый абзац.
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования.<br>
-      <b>Внимание:</b> прочитайте описание разметки <a target="_blank" href="/help/markdown.md">Markdown</a> или <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
+      <c:if test="${template.formatMode == 'lorcode'}">
+        <b>Внимание:</b> прочитайте описание разметки <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
 
 [b]жирный текст[/b]
 
@@ -83,7 +80,7 @@
 
 [pre]preformatted text[/pre]
 
-[user]maxcom[/user] - ссылка на профиль пользователя. 
+[user]maxcom[/user] - ссылка на профиль пользователя.
 При использовании этого тега упомянутому пользователю приходит уведомление
 
 [code]код[/code]
@@ -96,10 +93,14 @@
 >>цитата
 
 Ссылка:
-[url]http://www.linux.org.ru/[/url] 
-можно с параметром, например: 
-[url=http://www.example.com/]Сюда![/url]">LORCODE</a>.</div>
-
+[url]http://www.linux.org.ru/[/url]
+можно с параметром, например:
+[url=http://www.example.com/]Сюда![/url]">LORCODE</a>.
+      </c:if>
+      <c:if test="${template.formatMode == 'markdown'}">
+        <b>Внимание:</b> прочитайте описание разметки <a target="_blank" href="/help/markdown.md">Markdown</a>.
+      </c:if>
+    </div>
   </div>
 
   <div class="help-block">
