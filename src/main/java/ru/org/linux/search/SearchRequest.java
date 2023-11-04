@@ -166,6 +166,7 @@ public class SearchRequest {
 
   public long atEndOfDaySelected(DateTimeZone tz) {
     final Calendar calendar = tz!=null? Calendar.getInstance(tz.toTimeZone()) : Calendar.getInstance();
+    calendar.setTime(new Date(dt));
     calendar.set(Calendar.HOUR_OF_DAY, 23);
     calendar.set(Calendar.MINUTE, 59);
     calendar.set(Calendar.SECOND, 59);
