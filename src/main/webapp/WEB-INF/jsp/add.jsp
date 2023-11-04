@@ -20,7 +20,6 @@
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>
 <%--@elvariable id="form" type="ru.org.linux.topic.AddTopicRequest"--%>
 <%--@elvariable id="postscoreInfo" type="java.lang.String"--%>

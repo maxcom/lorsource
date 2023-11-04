@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -49,9 +49,6 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
-
-  @ModelAttribute("modes")
-  def getModes: util.Map[String, String] = Map.empty[String, String].asJava
 
   /**
     * Показ формы изменения комментария.

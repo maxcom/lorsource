@@ -36,7 +36,6 @@ import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.util.{ServletParameterException, StringUtil}
 
-import java.util
 import java.util.Optional
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
@@ -50,13 +49,6 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
-
-  @ModelAttribute("modes")
-  def getModes: util.Map[String, String] = AuthUtil.AuthorizedOpt { currentUser =>
-    val tmpl = Template.getTemplate
-
-    MessageTextService.postingModeSelector(currentUser, tmpl.getFormatMode).asJava
-  }
 
   /**
     * Показ формы добавления ответа на комментарий.

@@ -3,7 +3,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -47,6 +47,6 @@
         mode="${add.mode}"
         ipBlockInfo="${ipBlockInfo}"
         form_action_url="${form_action_url}"
-        postscoreInfo="${preparedMessage.postscoreInfo}" modes="${modes}" />
+        postscoreInfo="${preparedMessage.postscoreInfo}"/>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

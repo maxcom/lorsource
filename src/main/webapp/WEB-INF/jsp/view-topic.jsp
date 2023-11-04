@@ -411,7 +411,7 @@
             mode="${template.formatMode}"
             ipBlockInfo="${ipBlockInfo}"
             form_action_url="${form_action_url}"
-            postscoreInfo="${preparedMessage.postscoreInfo}" modes="${modes}" />
+            postscoreInfo="${preparedMessage.postscoreInfo}"/>
   </div>
 </c:if>
 
