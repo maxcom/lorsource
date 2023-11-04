@@ -165,11 +165,8 @@ public class SearchRequest {
   }
 
   public long atEndOfDaySelected(DateTimeZone tz) {
-    Calendar calendar = Calendar.getInstance();
+    final Calendar calendar = tz!=null? Calendar.getInstance(tz.toTimeZone()) : Calendar.getInstance();
     calendar.setTime(new Date(dt));
-    if (tz!=null) {
-      calendar.setTimeZone(tz.toTimeZone());
-    }
     calendar.set(Calendar.HOUR_OF_DAY, 23);
     calendar.set(Calendar.MINUTE, 59);
     calendar.set(Calendar.SECOND, 59);
@@ -178,11 +175,8 @@ public class SearchRequest {
   }
 
   public long atStartOfDaySelected(DateTimeZone tz) {
-    Calendar calendar = Calendar.getInstance();
+    final Calendar calendar = tz!=null? Calendar.getInstance(tz.toTimeZone()) : Calendar.getInstance();
     calendar.setTime(new Date(dt));
-    if (tz!=null) {
-      calendar.setTimeZone(tz.toTimeZone());
-    }
     calendar.set(Calendar.HOUR_OF_DAY, 0);
     calendar.set(Calendar.MINUTE, 0);
     calendar.set(Calendar.SECOND, 0);
