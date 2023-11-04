@@ -77,23 +77,15 @@ public class TopicsListItem {
 
   public String getLastPageUrl() {
     if (pages > 1) {
-      return getGroupUrl() + msgid + "/page" + (pages - 1) + "?lastmod=" + lastmod.getTime();
+      return getGroupUrl() + msgid + "/page" + (pages - 1) + "?lastmod=" + cid;
     } else {
-      return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
-    }
-  }
-
-  public String getCommentUrl() {
-    if (cid!=0) {
-      return getGroupUrl() + msgid + "?cid=" + cid;
-    } else {
-      return getLastPageUrl();
+      return getGroupUrl() + msgid + "?lastmod=" + cid;
     }
   }
 
   public String getFirstPageUrl() {
     if (pages<=1) {
-      return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
+      return getGroupUrl() + msgid + "?lastmod=" + cid;
     } else {
       return getCanonicalUrl();
     }
