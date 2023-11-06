@@ -34,6 +34,7 @@
     <Logger name="play" level="info"/>
     <Logger name="com.sksamuel.elastic4s" level="info"/>
     <Logger name="ru.org.linux.auth.GenerationBasedTokenRememberMeServices" level="info"/>
+    <Logger name="org.springframework.web.socket.server.support.DefaultHandshakeHandler" level="off"/>
 
     <Root level="debug">
       <AppenderRef ref="A1" level="INFO"/>
