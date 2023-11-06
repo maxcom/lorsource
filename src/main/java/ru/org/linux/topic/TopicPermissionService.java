@@ -445,7 +445,7 @@ public class TopicPermissionService {
   }
 
   public boolean isUserCastAllowed(User author) {
-    return !author.isAnonymousScore();
+    return author.getScore() >= 0;
   }
 
   public boolean isUndeletable(Topic topic, Comment comment, @Nullable User user, Optional<DeleteInfo> deleteInfo) {
