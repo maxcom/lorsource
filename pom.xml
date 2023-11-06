@@ -924,7 +924,7 @@
 
               <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
 
-              <useTestClasspath>true</useTestClasspath>
+              <useTestScope>true</useTestScope>
               <systemProperties>
                 <systemProperty>
                   <name>java.net.preferIPv4Stack</name>
