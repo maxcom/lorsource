@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -44,7 +44,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
                       topicDao: TopicDao) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def getInfoNew(@PathVariable nick: String): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def getInfoNew(@PathVariable nick: String): CompletionStage[ModelAndView] = AuthorizedOpt { currentUserOpt =>
     val user = userService.getUser(nick)
 
     if (user.isBlocked && currentUserOpt.isEmpty) {
@@ -54,6 +54,8 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     if (!user.isActivated && !currentUserOpt.exists(_.moderator)) {
       throw new UserNotFoundException(user.getName)
     }
+
+    val userStatsF = userStatisticsService.getStats(user)
 
     val mv = new ModelAndView("whois")
 
@@ -84,9 +86,6 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     }
 
     if (!user.isAnonymous) {
-      val userStat = userStatisticsService.getStats(user)
-
-      mv.getModel.put("userStat", userStat)
       mv.getModel.put("watchPresent", memoriesDao.isWatchPresetForUser(user))
       mv.getModel.put("favPresent", memoriesDao.isFavPresetForUser(user))
     }
@@ -132,7 +131,11 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user))
     }
 
-    mv
+    userStatsF.map { userStat =>
+      mv.getModel.put("userStat", userStat)
+
+      mv
+    }.toJava
   }
 
   @RequestMapping(Array("/whois.jsp"))

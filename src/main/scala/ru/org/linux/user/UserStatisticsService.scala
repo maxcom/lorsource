@@ -15,10 +15,11 @@
 
 package ru.org.linux.user
 
-import java.sql.Timestamp
-import java.util.{Date, TimeZone}
+import akka.actor.ActorSystem
+import cats.implicits.*
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl.*
+import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.{DateHistogram, Terms}
 import com.sksamuel.elastic4s.requests.searches.{DateHistogramInterval, SearchResponse}
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.{DateTime, DateTimeZone}
@@ -26,57 +27,53 @@ import org.springframework.stereotype.Service
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService.*
+import ru.org.linux.util.RichFuture.RichFuture
 
+import java.sql.Timestamp
+import java.util.{Date, TimeZone}
 import scala.beans.BeanProperty
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.*
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @Service
-class UserStatisticsService(
-  userDao: UserDao,
-  ignoreListDao: IgnoreListDao,
-  sectionService: SectionService,
-  elastic: ElasticClient
-) extends StrictLogging {
-  def getStats(user: User): UserStats = {
-    val commentCountFuture = countComments(user)
-    val topicsFuture = topicStats(user)
+class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sectionService: SectionService,
+                            elastic: ElasticClient, actorSystem: ActorSystem) extends StrictLogging {
+  private implicit val akka: ActorSystem = actorSystem
+
+  def getStats(user: User): Future[UserStats] = {
+    val deadline = ElasticTimeout.fromNow
+
+    val commentCountFuture = countComments(user).map(Some.apply).withTimeout(deadline.timeLeft).recover { ex =>
+      logger.warn("Unable to count comments", ex)
+      None
+    }
+
+    val topicsFuture = topicStats(user).map(Some.apply).withTimeout(deadline.timeLeft).recover { ex =>
+      logger.warn("Unable to count topics", ex)
+      None
+    }
 
     val ignoreCount = ignoreListDao.getIgnoreCount(user)
     val (firstComment, lastComment) = userDao.getFirstAndLastCommentDate(user)
 
-    try {
-      Await.ready(Future.sequence(Seq(commentCountFuture, topicsFuture)), ElasticTimeout)
-    } catch {
-      case _:TimeoutException =>
-        logger.warn("Stat lookup timed out")
+    (commentCountFuture, topicsFuture).mapN { (commentCount, topicStat) =>
+      val topicsBySection = topicStat.map(_.sectionCount).getOrElse(Seq()).map(
+        e => PreparedUsersSectionStatEntry(sectionService.getSectionByName(e._1), e._2)
+      ).sortBy(_.section.getId)
+
+      UserStats(
+        ignoreCount = ignoreCount,
+        commentCount = commentCount.getOrElse(0L),
+        incomplete = commentCount.isEmpty || topicStat.isEmpty,
+        firstComment = firstComment,
+        lastComment = lastComment,
+        firstTopic = topicStat.flatMap(_.firstTopic).map(_.toDate).orNull,
+        lastTopic = topicStat.flatMap(_.lastTopic).map(_.toDate).orNull,
+        topicsBySection = topicsBySection.asJava)
     }
-
-    val commentCount = extractValue(commentCountFuture.value) {
-        logger.warn("Unable to count comments", _)
-    }
-
-    val topicStat = extractValue(topicsFuture.value) {
-        logger.warn("Unable to count topics", _)
-    }
-
-    val topicsBySection = topicStat.map(_.sectionCount).getOrElse(Seq()).map(
-      e => PreparedUsersSectionStatEntry(sectionService.getSectionByName(e._1), e._2)
-    ).sortBy(_.section.getId)
-
-    UserStats(
-      ignoreCount = ignoreCount,
-      commentCount = commentCount.getOrElse(0L),
-      incomplete = commentCount.isEmpty || topicStat.isEmpty,
-      firstComment = firstComment,
-      lastComment = lastComment,
-      firstTopic = topicStat.flatMap(_.firstTopic).map(_.toDate).orNull,
-      lastTopic = topicStat.flatMap(_.lastTopic).map(_.toDate).orNull,
-      topicsBySection = topicsBySection.asJava
-    )
   }
 
   def getYearStats(user: User, timezone: DateTimeZone): Future[Map[Long, Long]] = {
@@ -90,7 +87,7 @@ class UserStatisticsService(
             .calendarInterval(DateHistogramInterval.days(1))
             .minDocCount(1)
       } map {
-        _.result.aggregations.dateHistogram("days").buckets.map { bucket =>
+        _.result.aggregations.result[DateHistogram]("days").buckets.map { bucket =>
           bucket.timestamp/1000 -> bucket.docCount
         }.toMap
       }
@@ -127,11 +124,11 @@ class UserStatisticsService(
 
       statSearch query root aggs(
         statsAggregation("topic_stats") field "postdate",
-        termsAggregation("sections") field "section")
+        termsAgg("sections", "section"))
     } map (_.result) flatMap timeoutHandler map { response =>
       // workaround https://github.com/sksamuel/elastic4s/issues/1614
       val topicStatsResult = Try(response.aggregations.statsBucket("topic_stats")).toOption
-      val sectionsResult = response.aggregations.terms("sections")
+      val sectionsResult = response.aggregations.result[Terms]("sections")
 
       val (firstTopic, lastTopic) = if (topicStatsResult.exists(_.count > 0)) {
         (Some(new DateTime(topicStatsResult.get.min.toLong)), Some(new DateTime(topicStatsResult.get.max.toLong)))
@@ -149,19 +146,9 @@ class UserStatisticsService(
 }
 
 object UserStatisticsService {
-  val ElasticTimeout: FiniteDuration = 5.seconds
+  private val ElasticTimeout: FiniteDuration = 5.seconds
 
-  private def extractValue[T](value:Option[Try[T]])(f: Throwable => Unit): Option[T] = {
-    value flatMap {
-      case Failure(ex) =>
-        f(ex)
-        None
-      case Success(count) =>
-        Some(count)
-    }
-  }
-
-  case class TopicStats(firstTopic: Option[DateTime], lastTopic: Option[DateTime], sectionCount: Seq[(String, Long)])
+  private case class TopicStats(firstTopic: Option[DateTime], lastTopic: Option[DateTime], sectionCount: Seq[(String, Long)])
 }
 
 case class UserStats (

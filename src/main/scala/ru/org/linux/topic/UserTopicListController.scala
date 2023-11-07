@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, CurrentUser}
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
@@ -88,6 +88,10 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     @RequestParam(value = "output", required = false) output: String
   ): ModelAndView = AuthorizedOpt { currentUser =>
     val (modelAndView, user) = mkModel(nick)
+
+    if (user.getId == User.ANONYMOUS_ID && !currentUser.exists(_.moderator)) {
+      throw new UserErrorException("Лента для пользователя anonymous не доступна")
+    }
 
     val section = if (sectionId != 0) {
       Some(sectionService.getSection(sectionId))
@@ -202,10 +206,6 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val modelAndView = new ModelAndView()
 
     val user = userService.getUserCached(nick)
-
-    if (user.getId == User.ANONYMOUS_ID) {
-      throw new UserErrorException("Лента для пользователя anonymous не доступна")
-    }
 
     modelAndView.addObject("user", user)
     modelAndView.addObject("whoisLink",

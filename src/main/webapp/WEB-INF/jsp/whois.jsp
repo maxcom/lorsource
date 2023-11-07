@@ -546,8 +546,9 @@
 </c:if>
 <p>
 
-    <c:if test="${user.id!=2}">
-    <c:if test="${not empty userStat.topicsBySection}">
+<c:if test="${user.id!=2 || template.moderatorSession}">
+
+<c:if test="${not empty userStat.topicsBySection}">
 
 <div class="forum">
     <table class="message-table" style="width: auto">
