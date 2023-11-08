@@ -228,7 +228,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val commentCount = if (showComments) topic.commentCount else 0
 
     val groupTitle = if (groupInTitle) {
-      Some(group.getTitle)
+      Some(group.title)
     } else {
       None
     }

@@ -117,7 +117,7 @@ object Topic {
     Topic(
       userAgentId = 0,
       postIP = postIP,
-      groupId = form.getGroup.getId,
+      groupId = form.getGroup.id,
       linktext =  if (form.getLinktext != null) StringUtil.escapeHtml(form.getLinktext) else null,
       url = if (!Strings.isNullOrEmpty(form.getUrl)) URLUtil.fixURL(form.getUrl) else null,
       title = if (form.getTitle!=null) StringUtil.escapeHtml(form.getTitle) else "",

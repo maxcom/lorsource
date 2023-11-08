@@ -34,7 +34,6 @@ import ru.org.linux.util.ServletParameterException
 import java.util
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
-import scala.jdk.CollectionConverters.*
 
 @Controller
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,

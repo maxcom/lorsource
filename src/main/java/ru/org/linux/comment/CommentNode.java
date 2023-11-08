@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,9 +16,6 @@
 package ru.org.linux.comment;
 
 import com.google.common.collect.ImmutableList;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserNotFoundException;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -35,22 +32,6 @@ public class CommentNode implements Serializable {
 
   public ImmutableList<CommentNode> childs() {
     return childs;
-  }
-
-  public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws UserNotFoundException {
-    if (comment!=null) {
-      User commentAuthor = userDao.getUserCached(comment.getUserid());
-
-      if (commentAuthor.isAnonymousScore()) {
-        hideNode(hideSet);
-      }
-    }
-
-    if (comment==null || !hideSet.contains(comment.getId())) {
-      for (CommentNode child : childs) {
-        child.hideAnonymous(userDao, hideSet);
-      }
-    }
   }
 
   public void hideIgnored(Set<Integer> hideSet, Set<Integer> ignoreList) {
