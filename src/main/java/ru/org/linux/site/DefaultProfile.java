@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -71,7 +71,6 @@ public final class DefaultProfile {
     builder.put(TOPICS_PROPERTY, 30);
     builder.put(MESSAGES_PROPERTY, 50);
     builder.put(PHOTOS_PROPERTY, Boolean.TRUE);
-    builder.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
     builder.put(AVATAR_PROPERTY, "empty");
     builder.put(HIDE_ADSENSE_PROPERTY, true);
     builder.put(MAIN_GALLERY_PROPERTY, false);

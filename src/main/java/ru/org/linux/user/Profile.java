@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,7 +36,6 @@ public class Profile {
   public static final String PHOTOS_PROPERTY = "photos";
   public static final String MAIN_GALLERY_PROPERTY = "mainGallery";
   public static final String AVATAR_PROPERTY = "avatar";
-  public static final String SHOW_ANONYMOUS_PROPERTY = "showanonymous";
   public static final String BOXES_MAIN2_PROPERTY = "main2";
   public static final String TRACKER_MODE = "trackerMode";
   public static final String OLD_TRACKER = "oldTracker";
@@ -51,7 +50,6 @@ public class Profile {
   private boolean hideAdsense;
   private boolean showGalleryOnMain;
   private String avatarMode;
-  private boolean showAnonymous;
   private boolean oldTracker;
   private TrackerFilterEnum trackerMode;
   private boolean reactionNotification;
@@ -67,7 +65,6 @@ public class Profile {
     hideAdsense = p.getBoolean(HIDE_ADSENSE_PROPERTY);
     showGalleryOnMain = p.getBoolean(MAIN_GALLERY_PROPERTY);
     avatarMode = p.getString(AVATAR_PROPERTY);
-    showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
 
     trackerMode = TrackerFilterEnum.getByValue(p.getString(TRACKER_MODE), false)
             .filter(TrackerFilterEnum::isCanBeDefault)
@@ -90,7 +87,6 @@ public class Profile {
     p.setBoolean(HIDE_ADSENSE_PROPERTY, hideAdsense);
     p.setBoolean(MAIN_GALLERY_PROPERTY, showGalleryOnMain);
     p.setString(AVATAR_PROPERTY, avatarMode);
-    p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
     p.setString(TRACKER_MODE, trackerMode.getValue());
     p.setBoolean(OLD_TRACKER, oldTracker);
     p.setBoolean(REACTION_NOTIFICATION_PROPERTY, reactionNotification);
@@ -160,14 +156,6 @@ public class Profile {
 
   public void setAvatarMode(String avatarMode) {
     this.avatarMode = avatarMode;
-  }
-
-  public boolean isShowAnonymous() {
-    return showAnonymous;
-  }
-
-  public void setShowAnonymous(boolean showAnonymous) {
-    this.showAnonymous = showAnonymous;
   }
 
   public boolean isMiniNewsBoxletOnMainPage() {

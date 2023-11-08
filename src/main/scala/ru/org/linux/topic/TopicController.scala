@@ -34,7 +34,7 @@ import ru.org.linux.search.{MoreLikeThisService, MoreLikeThisTopic}
 import ru.org.linux.section.{Section, SectionScrollModeEnum, SectionService}
 import ru.org.linux.site.{MessageNotFoundException, Template}
 import ru.org.linux.spring.dao.MsgbaseDao
-import ru.org.linux.user.{IgnoreListDao, MemoriesDao, Profile, User}
+import ru.org.linux.user.{IgnoreListDao, MemoriesDao, User}
 
 import java.time.Instant
 import java.util
@@ -50,12 +50,8 @@ object TopicController {
 
   private val JUMP_MIN_DURATION: org.joda.time.Duration = org.joda.time.Duration.standardDays(30)
 
-  private def getDefaultFilter(prof: Profile, emptyIgnoreList: Boolean): Int = {
+  private def getDefaultFilter(emptyIgnoreList: Boolean): Int = {
     var filterMode = CommentFilter.FILTER_IGNORED
-
-    if (!prof.isShowAnonymous) {
-      filterMode += CommentFilter.FILTER_ANONYMOUS
-    }
 
     if (emptyIgnoreList) {
       filterMode &= ~CommentFilter.FILTER_IGNORED
@@ -236,7 +232,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val (filterMode, filterModeShow) = if (filter=="show") {
       (CommentFilter.FILTER_NONE, true)
     } else{
-      (TopicController.getDefaultFilter(tmpl.getProf, ignoreList.isEmpty), false)
+      (TopicController.getDefaultFilter(ignoreList.isEmpty), false)
     }
 
     params.put("filterModeShow", Boolean.box(filterModeShow))
@@ -442,7 +438,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     if (currentUserOpt.isDefined && !deleted) {
       val ignoreList = ignoreListDao.get(currentUserOpt.get.user.getId)
-      val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(tmpl.getProf, ignoreList.isEmpty), ignoreList)
+      val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(ignoreList.isEmpty), ignoreList)
 
       if (hideSet.contains(node.getComment.id)) {
         redirectUrl = redirectUrl.filterShow()
