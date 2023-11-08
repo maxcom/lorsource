@@ -544,7 +544,7 @@
 </c:if>
 <p>
 
-<c:if test="${user.id!=2 || template.moderatorSession}">
+<c:if test="${not user.anonymous || template.moderatorSession}">
 
 <c:if test="${not empty userStat.topicsBySection}">
 
