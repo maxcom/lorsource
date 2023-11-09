@@ -37,7 +37,9 @@ public class PollDao {
   private static final String queryPoolIdByTopicId = "SELECT polls.id FROM polls,topics WHERE topics.id=? AND polls.topic=topics.id";
   private static final String queryCurrentPollId = "SELECT polls.id FROM polls,topics WHERE topics.id=polls.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)";
   private static final String queryPool = "SELECT topic, multiselect FROM polls WHERE id=?";
-  private static final String queryPollVariantsOrderById = "SELECT id, label, votes FROM polls_variants WHERE vote=? ORDER BY id";
+  private static final String queryPollVariantsOrderById =
+          "SELECT v.id, v.label, v.votes, (SELECT count(u.vote) FROM vote_users u " +
+                  " WHERE u.vote=v.vote and u.variant_id = v.id and u.userid>0 and u.userid=?) as \"userVoted\" FROM polls_variants v WHERE v.vote=? ORDER BY v.id";
   private static final String queryPollVariantsOrderByVotes = "SELECT id, label, votes FROM polls_variants WHERE vote=? ORDER BY votes DESC, id";
   private static final String queryPollUserVote = "select count(vote) from vote_users where userid=? and variant_id=?";
 
@@ -70,9 +72,10 @@ public class PollDao {
    * @param pollId идентификатор голосования
    * @return список вариантов голосования
    */
-  private List<PollVariant> getVoteDTO(int pollId) {
+  private List<PollVariant> getVoteDTO(int pollId,int userId) {
     return jdbcTemplate.query(queryPollVariantsOrderById, (rs, rowNum) ->
-            new PollVariant(rs.getInt("id"), rs.getString("label")), pollId);
+            new PollVariant(rs.getInt("id"),
+                    rs.getString("label"),rs.getInt("userVoted")), userId,pollId);
   }
 
   /**
@@ -134,8 +137,8 @@ public class PollDao {
    * @return текушие голование
    * @throws PollNotFoundException если голосование не существует
    */
-  public Poll getMostRecentPoll() throws PollNotFoundException{
-    return getPoll(getMostRecentPollId());
+  public Poll getMostRecentPoll(int userId) throws PollNotFoundException{
+    return getPoll(getMostRecentPollId(),userId);
   }
 
   /**
@@ -145,7 +148,7 @@ public class PollDao {
    * @return объект голосование
    * @throws PollNotFoundException если голосование не существует
    */
-  public Poll getPoll(final int pollId) throws PollNotFoundException {
+  public Poll getPoll(final int pollId,int userId) throws PollNotFoundException {
     SqlRowSet rs = jdbcTemplate.queryForRowSet(queryPool, pollId);
 
     if (!rs.next()) {
@@ -156,7 +159,7 @@ public class PollDao {
             pollId,
             rs.getInt("topic"),
             rs.getBoolean("multiselect"),
-            getVoteDTO(pollId)
+            getVoteDTO(pollId,userId)
     );
   }
 
@@ -167,9 +170,9 @@ public class PollDao {
    * @return объект голосования
    * @throws PollNotFoundException если голосование не существует
    */
-  public Poll getPollByTopicId(int topicId) throws PollNotFoundException {
+  public Poll getPollByTopicId(int topicId,int userId) throws PollNotFoundException {
     try {
-      return getPoll(jdbcTemplate.queryForObject(queryPoolIdByTopicId, Integer.class, topicId));
+      return getPoll(jdbcTemplate.queryForObject(queryPoolIdByTopicId, Integer.class, topicId),userId);
     } catch (EmptyResultDataAccessException exception) {
       throw new PollNotFoundException();
     }
@@ -228,13 +231,13 @@ public class PollDao {
    * @param msgid       - идентификатор темы.
    */
   // call in @Transactional
-  public void createPoll(List<String> pollList, boolean multiSelect, int msgid) {
+  public void createPoll(List<String> pollList, boolean multiSelect, int msgid,int userId) {
     final int voteid = getNextPollId();
 
     jdbcTemplate.update(insertPoll, voteid, multiSelect, msgid);
 
     try {
-      final Poll poll = getPoll(voteid);
+      final Poll poll = getPoll(voteid,userId);
 
       for (String variant : pollList) {
         if (variant.trim().isEmpty()) {

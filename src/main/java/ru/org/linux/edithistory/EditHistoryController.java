@@ -26,6 +26,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.topic.*;
+import ru.org.linux.user.User;
 
 import java.util.List;
 
@@ -68,12 +69,12 @@ public class EditHistoryController {
   public ModelAndView showEditInfo(@PathVariable("id") int msgid) {
     Topic message = messageDao.getById(msgid);
     Group group = groupDao.getGroup(message.getGroupId());
+    User currentUser = AuthUtil.getCurrentUser();
+      PreparedTopic preparedMessage = topicPrepareService.prepareTopic(message, currentUser);
 
-      PreparedTopic preparedMessage = topicPrepareService.prepareTopic(message, AuthUtil.getCurrentUser());
+      topicPermissionService.checkView(group, message, currentUser, preparedMessage.getAuthor(), false);
 
-      topicPermissionService.checkView(group, message, AuthUtil.getCurrentUser(), preparedMessage.getAuthor(), false);
-
-    List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message);
+    List<PreparedEditHistory> editHistories = editHistoryService.prepareEditInfo(message,currentUser);
 
     ModelAndView modelAndView = new ModelAndView("history");
 

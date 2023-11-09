@@ -26,8 +26,7 @@
     <p>
       ${message.title}
     </p>
-
-    <lor:poll-form poll="${poll}" enabled="true"/>
+    <lor:poll-form poll="${poll}" enabled="${currentUser != null and poll.userVotePossible}"/>
 
     <c:url value="/view-vote.jsp" var="vote_url">
       <c:param name="vote" value="${poll.id}"/>

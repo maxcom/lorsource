@@ -82,7 +82,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       throw new UserErrorException("Раздел не премодерируемый")
     }
 
-    initForm(preparedTopic, form)
+    initForm(preparedTopic, form,currentUser.user)
     val mv = new ModelAndView("edit", prepareModel(preparedTopic, currentUser.user, tmpl.getProf).asJava)
 
     mv.getModel.put("commit", true)
@@ -103,7 +103,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val tmpl = Template.getTemplate
 
-    initForm(preparedTopic, form)
+    initForm(preparedTopic, form,currentUser.user)
     new ModelAndView("edit", prepareModel(preparedTopic, user, tmpl.getProf).asJava)
   }
 
@@ -144,7 +144,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params
   }
 
-  private def initForm(preparedTopic: PreparedTopic, form: EditTopicRequest): Unit = {
+  private def initForm(preparedTopic: PreparedTopic, form: EditTopicRequest,user: User): Unit = {
     val message = preparedTopic.message
 
     val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)
@@ -179,7 +179,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     if (preparedTopic.section.isPollPostAllowed) {
-      val poll = pollDao.getPollByTopicId(message.id)
+      val poll = pollDao.getPollByTopicId(message.id,user.getId)
 
       form.setPoll(PollVariant.toMap(poll.getVariants))
       form.setMultiselect(poll.multiSelect)
@@ -394,13 +394,13 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   }
 
   private def buildNewPoll(message: Topic, form: EditTopicRequest) = {
-    val poll = pollDao.getPollByTopicId(message.id)
+    val poll = pollDao.getPollByTopicId(message.id,0)
 
     val changed = poll.variants.flatMap { v =>
       val label = form.getPoll.get(v.id)
 
       if (!Strings.isNullOrEmpty(label)) {
-        Some(PollVariant(v.id, label))
+        Some(PollVariant(v.id, label,0))
       } else {
         None
       }
@@ -408,7 +408,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val added = form.getNewPoll.flatMap { label =>
       if (!Strings.isNullOrEmpty(label)) {
-        Some(PollVariant(0, label))
+        Some(PollVariant(0, label,0))
       } else {
         None
       }

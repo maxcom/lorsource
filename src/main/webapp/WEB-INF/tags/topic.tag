@@ -115,18 +115,17 @@
 
     <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
       ${preparedMessage.processedMessage}
-
       <c:if test="${preparedMessage.section.pollPostAllowed}">
         <c:choose>
           <c:when test="${not message.commited}">
             <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
           </c:when>
           <c:otherwise>
-            <lor:poll poll="${preparedMessage.poll}"/>
+                    <lor:poll poll="${preparedMessage.poll}"/>
+                    <c:if test="${not preparedMessage.message.expired and currentUser !=null}">
+                       <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${preparedMessage.poll.userVotePossible}"/>
+                    </c:if>
 
-            <c:if test="${not preparedMessage.message.expired}">
-              <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
-            </c:if>
           </c:otherwise>
         </c:choose>
       </c:if>

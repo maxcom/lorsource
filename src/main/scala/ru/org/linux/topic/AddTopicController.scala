@@ -68,8 +68,8 @@ object AddTopicController {
   private val MAX_MESSAGE_LENGTH_ANONYMOUS = 8196
   private val MAX_MESSAGE_LENGTH = 65536
 
-  private def preparePollPreview(form: AddTopicRequest): Poll = {
-    val variants = form.getPoll.filterNot(Strings.isNullOrEmpty).map(item => PollVariant(0, item))
+  private def preparePollPreview(form: AddTopicRequest,currentUserId: Int): Poll = {
+    val variants = form.getPoll.filterNot(Strings.isNullOrEmpty).map(item => PollVariant(0, item,currentUserId))
 
     Poll(0, 0, form.isMultiSelect, variants.toVector)
   }
@@ -235,7 +235,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     val poll: Option[Poll] = if (section.isPollPostAllowed) {
-      Some(AddTopicController.preparePollPreview(form))
+      Some(AddTopicController.preparePollPreview(form,user.getId))
     } else {
       None
     }

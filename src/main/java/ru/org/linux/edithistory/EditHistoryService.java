@@ -83,7 +83,7 @@ public class EditHistoryService {
    * Получить историю изменений топика
    */
   public List<PreparedEditHistory> prepareEditInfo(
-    Topic topic
+    Topic topic,User currentUser
   ) throws UserNotFoundException {
     List<EditHistoryRecord> editInfoDTOs = editHistoryDao.getEditInfo(topic.getId(), EditHistoryObjectTypeEnum.TOPIC);
     List<PreparedEditHistory> editHistories = new ArrayList<>(editInfoDTOs.size());
@@ -102,7 +102,7 @@ public class EditHistoryService {
     Integer lastId = null;
 
     try {
-      maybePoll = pollDao.getPollByTopicId(topic.getId());
+      maybePoll = pollDao.getPollByTopicId(topic.getId(),currentUser!=null ? currentUser.getId() : 0);
     } catch (PollNotFoundException ex) {
       maybePoll = null;
     }

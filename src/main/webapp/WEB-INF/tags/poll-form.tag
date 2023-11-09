@@ -34,17 +34,24 @@
       </c:set>
       <div class="${lineClass}">
           <label>
-              <c:choose>
-                  <c:when test="${poll.multiSelect}">
-                      <input type="checkbox"
-                             <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
-                  </c:when>
-                  <c:otherwise>
-                      <input type="radio"
-                             <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
-                  </c:otherwise>
-              </c:choose>
-                  ${fn:escapeXml(variant.label)}
+            <c:choose>
+                 <c:when test="${variant.userVoted == 0}">
+                    <c:choose>
+                        <c:when test="${poll.multiSelect}">
+                            <input type="checkbox"
+                                <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                        </c:when>
+                        <c:otherwise>
+                            <input type="radio"
+                                <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                        </c:otherwise>
+                    </c:choose>
+                 </c:when>
+                 <c:otherwise>
+                    <span class="penguin_progress" style="width:1em;"><span></span></span>
+                 </c:otherwise>
+            </c:choose>
+            ${fn:escapeXml(variant.label)}
           </label>
       </div>
   </c:forEach>

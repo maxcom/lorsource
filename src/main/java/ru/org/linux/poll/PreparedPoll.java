@@ -96,6 +96,10 @@ public class PreparedPoll {
     return totalVotes;
   }
 
+  public boolean isUserVotePossible() {
+    return poll.isUserVotePossible();
+  }
+
   /**
    * Функция отображения результатов опроса
    * используем в RSS

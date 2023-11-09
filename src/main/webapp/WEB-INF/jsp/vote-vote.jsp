@@ -28,7 +28,7 @@
 <h2><a href="view-message.jsp?msgid=${poll.topic}">Опрос</a></h2>
 <h3><l:title>${message.title}</l:title></h3>
 
-<lor:poll-form poll="${poll}" enabled="true"/>
+<lor:poll-form poll="${poll}" enabled="${currentUser != null}"/>
 
 <br>
 <a href="view-vote.jsp?vote=${poll.id}">результаты</a>

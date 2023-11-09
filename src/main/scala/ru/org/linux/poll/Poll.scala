@@ -38,6 +38,13 @@ object Poll {
 case class Poll(@BeanProperty id: Int, @BeanProperty topic: Int, @BooleanBeanProperty multiSelect: Boolean,
                 variants: Seq[PollVariant]) {
   def getVariants: java.util.List[PollVariant] = variants.asJava
+
+  def isUserVotePossible: Boolean = {
+    for (p <- variants) {
+      if (p.getUserVoted>0) return false
+    }
+    true
+  }
 }
 
 object PollVariant {
@@ -48,4 +55,4 @@ object PollVariant {
   implicit val decoder: Decoder[PollVariant] = deriveDecoder[PollVariant]
 }
 
-case class PollVariant(@BeanProperty id: Int, @BeanProperty label: String)
+case class PollVariant(@BeanProperty id: Int, @BeanProperty label: String,@BeanProperty userVoted: Int)

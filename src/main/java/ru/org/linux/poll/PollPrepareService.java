@@ -41,7 +41,7 @@ public class PollPrepareService {
    * @throws PollNotFoundException может не существовать опроса для этого топика
    */
   public PreparedPoll preparePoll(Topic topic, User user) throws PollNotFoundException {
-    Poll poll = pollDao.getPollByTopicId(topic.getId());
+    Poll poll = pollDao.getPollByTopicId(topic.getId(),user!=null ? user.getId() :0);
 
     return new PreparedPoll(
             poll,

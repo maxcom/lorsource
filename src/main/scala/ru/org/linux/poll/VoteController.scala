@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, getCurrentUser}
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
 
@@ -31,7 +31,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
   @RequestMapping(value = Array("/vote.jsp"), method = Array(RequestMethod.POST))
   def vote(@RequestParam(value = "vote", required = false) votes: Array[Int],
            @RequestParam("voteid") voteid: Int): ModelAndView = AuthorizedOnly { currentUser =>
-    val poll = pollDao.getPoll(voteid)
+    val poll = pollDao.getPoll(voteid,currentUser.user.getId)
 
     val msg = topicDao.getById(poll.topic)
 
@@ -63,9 +63,9 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
 
   @RequestMapping(value = Array("/vote-vote.jsp"), method = Array(RequestMethod.GET))
   @throws[Exception]
-  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { _ =>
+  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val msg = topicDao.getById(msgid)
-    val poll = pollDao.getPollByTopicId(msgid)
+    val poll = pollDao.getPollByTopicId(msgid,currentUser.user.getId)
 
     if (msg.expired) {
       throw new BadVoteException("Опрос завершен")
@@ -80,7 +80,8 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
   @RequestMapping(path = Array("/view-vote.jsp"))
   @throws[Exception]
   def viewVote(@RequestParam("vote") voteid: Int): ModelAndView = {
-    val poll = pollDao.getPoll(voteid)
+    val user = getCurrentUser
+    val poll = pollDao.getPoll(voteid, if (user != null) { user.getId } else 0)
     new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.topic))
   }
 }
