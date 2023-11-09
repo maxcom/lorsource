@@ -323,15 +323,6 @@ public class User implements Serializable {
     }
   }
 
-  // возможность блокировки и разблокировки
-  public boolean isBlockable() {
-    if (id==ANONYMOUS_ID) {
-      return false;
-    }
-
-    return !canmod;
-  }
-
   public boolean isActivated() {
     return activated;
   }

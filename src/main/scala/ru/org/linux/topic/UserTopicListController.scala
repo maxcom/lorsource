@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.{AccessViolationException, CurrentUser}
+import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template

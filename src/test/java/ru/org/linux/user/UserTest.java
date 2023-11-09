@@ -67,7 +67,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus()); 
-    Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -119,7 +118,6 @@ public class UserTest {
     Assert.assertTrue(user.isAnonymous());
     Assert.assertEquals(0, user.getScore());
     Assert.assertEquals("анонимный", user.getStatus());
-    Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -172,7 +170,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus()); 
-    Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -228,7 +225,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus()); 
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -284,7 +280,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus()); 
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -340,7 +335,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("анонимный", user.getStatus());
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -393,7 +387,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());  // TODO для заблокированного ананомного пользователя False :-\
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("анонимный", user.getStatus());
-    Assert.assertTrue(user.isBlockable()); // можно разблокировать
     Assert.assertTrue(user.isActivated());
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -449,7 +442,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus()); 
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -506,7 +498,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus()); 
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());

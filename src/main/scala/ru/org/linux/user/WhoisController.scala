@@ -70,6 +70,9 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       mv.getModel.put("banInfo", userDao.getBanInfoClass(user))
     }
 
+    mv.getModel.put("blockable", currentUserOpt.exists(by => userService.isBlockable(user = user, by = by.user)))
+    mv.getModel.put("freezable", currentUserOpt.exists(by => userService.isFreezable(user = user, by = by.user)))
+
     // add the isFrozen to simplify controller,
     // and put information about moderator who
     // freezes the user, if frozen

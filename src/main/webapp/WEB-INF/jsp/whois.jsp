@@ -247,7 +247,7 @@
       </form>
     </c:if>
 
-    <c:if test="${template.moderatorSession}">
+    <c:if test="${template.moderatorSession and not user.anonymous}">
         <a href="/people/${user.nick}/profile?reset-password" class="btn btn-small btn-danger">Сбросить пароль</a>
     </c:if>
 
@@ -269,7 +269,7 @@
     </c:if>
 
     <b>Score:</b> ${user.score}
-    <c:if test="${template.moderatorSession and user.score<50}">
+    <c:if test="${template.moderatorSession and user.score<50 and not user.anonymous}">
       <form action="/usermod.jsp" method="POST" style="display: inline">
         <lor:csrf/>
         <input type="hidden" name="id" value="${user.id}">
@@ -331,7 +331,7 @@
 </c:if>
 
 <!-- ability to freeze a user temporary -->
-<c:if test="${(template.moderatorSession and user.blockable) or currentUser.administrator}">
+<c:if test="${freezable}">
     <br />
     <div style="border: 1px dotted; padding: 1em;">
         <span>Заморозить, разморозить, изменить время заморозки.</span>
@@ -452,7 +452,7 @@
     </div>
 </c:if>
 
-<c:if test="${(template.moderatorSession and user.blockable) or currentUser.administrator}">
+<c:if test="${blockable}">
     <br>
 
     <div style="border: 1px dotted; padding: 1em;">
@@ -482,12 +482,14 @@
 
 <p>
 
+<c:if test="${not user.anonymous and not empty userInfoText}">
 <form name='f_remove_userinfo' method='post' action='usermod.jsp'>
     <lor:csrf/>
     <input type='hidden' name='id' value='${user.id}'>
     <input type='hidden' name='action' value='remove_userinfo'>
     <button type='submit' class="btn btn-danger">Удалить текст</button>
 </form>
+</c:if>
 
 <p>
 

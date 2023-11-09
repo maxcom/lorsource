@@ -119,7 +119,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       }
 
       messageDao.moveTopic(msg, newGrp, moveInfo.asJava)
-      logger.info(s"topic ${msg.id} moved by ${currentUser.user.getNick} from news/forum ${msg.groupUrl} to forum ${newGrp.getTitle}")
+      logger.info(s"topic ${msg.id} moved by ${currentUser.user.getNick} from news/forum ${msg.groupUrl} to forum ${newGrp.title}")
     }
 
     searchQueueSender.updateMessage(msg.id, true)

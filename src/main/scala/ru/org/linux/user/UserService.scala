@@ -58,7 +58,6 @@ object UserService {
 
   val MaxUnactivatedPerIp = 2
 
-  // используется в jsp, не удалять!
   val CorrectorScore = 200
 
   val MaxUserpicScoreLoss = 20
@@ -363,4 +362,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       userDao.setNewEmail(user, newEmail)
     }
   }
+
+  def isBlockable(user: User, by: User) =
+    !user.isAnonymous && by.isModerator && (!user.isModerator || by.isAdministrator)
+
+  def isFreezable(user: User, by: User) = by.isModerator && !user.isModerator
 }
