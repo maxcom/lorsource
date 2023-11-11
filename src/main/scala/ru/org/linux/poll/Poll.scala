@@ -39,12 +39,7 @@ case class Poll(@BeanProperty id: Int, @BeanProperty topic: Int, @BooleanBeanPro
                 variants: Seq[PollVariant]) {
   def getVariants: java.util.List[PollVariant] = variants.asJava
 
-  def isUserVotePossible: Boolean = {
-    for (p <- variants) {
-      if (p.getUserVoted>0) return false
-    }
-    true
-  }
+  def isUserVotePossible: Boolean = !variants.exists(p => p.userVoted > 0)
 }
 
 object PollVariant {
