@@ -35,6 +35,7 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserService;
 import scala.Option;
 import scala.Some;
 
@@ -64,13 +65,15 @@ public class TopicPermissionService {
   private final GroupDao groupDao;
 
   private final DeleteInfoDao deleteInfoDao;
+  private final UserService userService;
 
   public TopicPermissionService(CommentReadService commentService, SiteConfig siteConfig, GroupDao groupDao,
-                                DeleteInfoDao deleteInfoDao) {
+                                DeleteInfoDao deleteInfoDao, UserService userService) {
     this.commentService = commentService;
     this.siteConfig = siteConfig;
     this.groupDao = groupDao;
     this.deleteInfoDao = deleteInfoDao;
+    this.userService = userService;
   }
 
   public static String getPostScoreInfo(int postscore) {
@@ -192,7 +195,7 @@ public class TopicPermissionService {
     }
   }
 
-  public void checkCommentsAllowed(Topic topic, User user, Errors errors) {
+  public void checkCommentsAllowed(Topic topic, Optional<User> user, Errors errors) {
     if (topic.isDeleted()) {
       errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению");
       return;
@@ -253,12 +256,14 @@ public class TopicPermissionService {
     return getPostscore(group, topic);
   }
 
-  public boolean isCommentsAllowed(Group group, Topic topic, User user, boolean ignoreFrozen) {
-    if (user != null && (user.isBlocked() || (!ignoreFrozen && user.isFrozen()))) {
+  public boolean isCommentsAllowed(Group group, Topic topic, Optional<User> user, boolean ignoreFrozen) {
+    if (topic.isDeleted() || topic.isExpired() || topic.isDraft()) {
       return false;
     }
 
-    if (topic.isDeleted() || topic.isExpired() || topic.isDraft()) {
+    var effectiveUser = user.orElseGet(userService::getAnonymous);
+
+    if (effectiveUser.isBlocked() || (!ignoreFrozen && effectiveUser.isFrozen())) {
       return false;
     }
 
@@ -272,32 +277,32 @@ public class TopicPermissionService {
       return true;
     }
 
-    if (user == null || user.isAnonymous()) {
+    if (user.isEmpty() || user.get().isAnonymous()) {
       return false;
-    }
-
-    if (user.isModerator()) {
-      return true;
-    }
-
-    if (score == POSTSCORE_REGISTERED_ONLY) {
-      return true;
-    }
-
-    if (score == POSTSCORE_MODERATORS_ONLY) {
-      return false;
-    }
-
-    boolean isAuthor = user.getId() == topic.getAuthorUserId();
-
-    if (score == POSTSCORE_MOD_AUTHOR) {
-      return isAuthor;
-    }
-
-    if (isAuthor) {
-      return true;
     } else {
-      return user.getScore() >= score;
+      if (user.get().isModerator()) {
+        return true;
+      }
+
+      if (score == POSTSCORE_REGISTERED_ONLY) {
+        return true;
+      }
+
+      if (score == POSTSCORE_MODERATORS_ONLY) {
+        return false;
+      }
+
+      boolean isAuthor = user.get().getId() == topic.getAuthorUserId();
+
+      if (score == POSTSCORE_MOD_AUTHOR) {
+        return isAuthor;
+      }
+
+      if (isAuthor) {
+        return true;
+      } else {
+        return user.get().getScore() >= score;
+      }
     }
   }
 
@@ -338,7 +343,7 @@ public class TopicPermissionService {
                                       boolean haveAnswers, @Nonnull Topic topic, MarkupType markup) {
     Errors errors = new MapBindingResult(ImmutableMap.of(), "obj");
 
-    checkCommentsAllowed(topic, currentUser, errors);
+    checkCommentsAllowed(topic, Optional.ofNullable(currentUser), errors);
     checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors, markup);
 
     return !errors.hasErrors();

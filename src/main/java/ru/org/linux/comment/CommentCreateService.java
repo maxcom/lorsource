@@ -241,21 +241,19 @@ public class CommentCreateService {
    * @param errors         обработчик ошибок ввода для формы
    * @return объект пользователя
    */
-  public User getCommentUser(CommentRequest commentRequest, Errors errors) {
-      User currentUser = AuthUtil.getCurrentUser();
-
+  public User getCommentUser(@Nullable User currentUser, CommentRequest commentRequest, Errors errors) {
     if (currentUser!=null) {
       return currentUser;
-    }
-
-    if (commentRequest.getNick() != null) {
-      if (commentRequest.getPassword() == null) {
-        errors.reject(null, "Требуется авторизация");
-      }
-
-      return commentRequest.getNick();
     } else {
-      return userService.getAnonymous();
+      if (commentRequest.getNick() != null) {
+        if (commentRequest.getPassword() == null) {
+          errors.reject(null, "Требуется авторизация");
+        }
+
+        return commentRequest.getNick();
+      } else {
+        return userService.getAnonymous();
+      }
     }
   }
 

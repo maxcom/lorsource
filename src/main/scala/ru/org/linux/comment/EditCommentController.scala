@@ -20,7 +20,7 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.auth.{AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.{MarkupType, MessageTextService}
@@ -34,6 +34,7 @@ import ru.org.linux.util.ServletParameterException
 import java.util
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
+import scala.compat.java8.OptionConverters.RichOptionForJava8
 
 @Controller
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
@@ -98,8 +99,8 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   @CSRFNoAuto
   def editCommentPostHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest, errors: Errors,
                              request: HttpServletRequest,
-                             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = {
-    val user = commentService.getCommentUser(commentRequest, errors)
+                             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { currentUser =>
+    val user = currentUser.user
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, true)
 
     val comment = commentService.getComment(commentRequest, user, request)
@@ -120,7 +121,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     if (commentRequest.getTopic != null) {
       val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore))
-      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, user, errors)
+      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, Some(user).asJava, errors)
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg))
     }
 

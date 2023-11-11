@@ -30,7 +30,7 @@ import ru.org.linux.util.StringUtil
 
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOptional
+import scala.jdk.OptionConverters.{RichOption, RichOptional}
 
 @Service
 class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, deleteInfoDao: DeleteInfoDao,
@@ -215,7 +215,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val showComments = postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 
     new TopicMenu(topicEditable, tagsEditable, resolvable,
-      topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUser, false), deletable,
+      topicPermissionService.isCommentsAllowed(topic.group, topic.message, Option(currentUser).toJava, false), deletable,
       undeletable, groupPermissionService.canCommit(currentUser, topic.message), userpic.orNull, showComments)
   }
 

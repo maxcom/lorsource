@@ -106,7 +106,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.orNull, topic, hasAnswers)
     val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.orNull, hasAnswers, topic, messageText.markup)
 
-    val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author, true)
+    val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, Some(author).toJava, true)
 
     PreparedComment(comment = comment, author = author, processedMessage = processedMessage, reply = replyInfo,
       deletable = deletable, editable = editable, remark = remark, userpic = userpic, deleteInfo = apiDeleteInfo,
@@ -165,13 +165,6 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       userpic = None, deleteInfo = None, editSummary = None, postIP = None, userAgent = None, undeletable = false,
       answerCount = 0, answerLink = None, answerSamepage = false, authorReadonly = false,
       processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.emptyDisabled)
-  }
-
-  def prepareCommentListRSS(list: Seq[Comment]): Seq[PreparedRSSComment] = {
-    list.map { comment =>
-      val messageText = msgbaseDao.getMessageText(comment.id)
-      prepareRSSComment(messageText, comment)
-    }
   }
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],

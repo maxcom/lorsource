@@ -209,7 +209,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("group", group)
     params.put("showAdsense", Boolean.box(currentUserOpt.isEmpty || !tmpl.getProf.isHideAdsense))
 
-    if (currentUserOpt.isEmpty) { // because users have IgnoreList and memories
+    if (currentUserOpt.isEmpty && topic.expired) {
       val etag = TopicController.getEtag(topic)
 
       response.setHeader("Etag", etag)

@@ -26,6 +26,7 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.auth.{AccessViolationException, AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.{MarkupPermissions, MarkupType, MessageTextService}
@@ -39,6 +40,7 @@ import ru.org.linux.util.{ServletParameterException, StringUtil}
 import java.util.Optional
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
+import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.jdk.CollectionConverters.*
 
 @Controller
@@ -54,7 +56,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     * Показ формы добавления ответа на комментарий.
     */
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.GET))
-  def showFormReply(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors): ModelAndView = {
+  def showFormReply(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors): ModelAndView = AuthorizedOpt { currentUser =>
     if (add.getTopic == null)
       throw new ServletParameterException("тема не задана")
 
@@ -64,11 +66,11 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       add.setMode(tmpl.getFormatMode)
     }
 
-    topicPermissionService.checkCommentsAllowed(add.getTopic, AuthUtil.getCurrentUser, errors)
+    topicPermissionService.checkCommentsAllowed(add.getTopic, currentUser.map(_.user).asJava, errors)
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
-    new ModelAndView("add_comment", (commentService.prepareReplyto(add, AuthUtil.getCurrentUser, tmpl.getProf, add.getTopic).asScala + (
+    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser.map(_.user).orNull, tmpl.getProf, add.getTopic).asScala.toMap + (
       "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
     )).asJava)
   }
@@ -77,11 +79,11 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     * Показ топика с формой добавления комментария верхнего уровня.
     */
   @RequestMapping(Array("/comment-message.jsp"))
-  def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = {
+  def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = AuthorizedOpt { currentUser =>
     val tmpl = Template.getTemplate
-    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, AuthUtil.getCurrentUser)
+    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, currentUser.map(_.user).orNull)
 
-    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, AuthUtil.getCurrentUser, false))
+    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, currentUser.map(_.user).asJava, false))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
 
     if (add.getMode == null) {
@@ -102,14 +104,14 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
-                 @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = {
-    val user = commentService.getCommentUser(add, errors)
+                 @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOpt { sessionUserOpt =>
+    val user = commentService.getCommentUser(sessionUserOpt.map(_.user).orNull, add, errors)
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
 
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, user, errors)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user).asJava, errors)
     }
 
     val tmpl = Template.getTemplate
@@ -154,8 +156,8 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     method = Array(RequestMethod.POST))
   @ResponseBody
   def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
-                     @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): Json = {
-    val user = commentService.getCommentUser(add, errors)
+                     @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): Json = AuthorizedOpt { sessionUserOpt =>
+    val user = commentService.getCommentUser(sessionUserOpt.map(_.user).orNull, add, errors)
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
 
@@ -163,7 +165,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, user, errors)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user).asJava, errors)
     }
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {
