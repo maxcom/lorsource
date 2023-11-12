@@ -338,22 +338,22 @@ public class GroupPermissionServiceTest {
     assertEquals(0, (new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()));
     assertEquals(0, (new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()));
     
-    // нельзя удалять старые подтвержденные топики в премодерируемом разделе
+    // нельзя удалять старые подтверждённые топики в премодерируемом разделе
     assertFalse(permissionService.isDeletable(messageModerateOld, user));
-    // можно удалять старые подтвержденные топики в непремодерируемом разделе
+    // можно удалять старые подтверждённые топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateOld, user));
-    // можно удалять старые не подтвержденные топики в премодерируемом разделе
+    // можно удалять старые не подтверждённые топики в премодерируемом разделе
     assertTrue(permissionService.isDeletable(messageNotModerateOld, user));
-    // можно удалять старые не подтвержденные топики в непремодерируемом разделе
+    // можно удалять старые не подтверждённые топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateOld, user));
 
-    // можно удалять новые подтвержденные топики в премодерируемом разделе
+    // можно удалять новые подтверждённые топики в премодерируемом разделе
     assertTrue(permissionService.isDeletable(messageModerateNew, user));
-    // можно удалять новые подтвержденные топики в непремодерируемом разделе
+    // можно удалять новые подтверждённые топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateNew, user));
-    // можно удалять новые не подтвержденные топики в премодерируемом разделе
+    // можно удалять новые не подтверждённые топики в премодерируемом разделе
     assertTrue(permissionService.isDeletable(messageNotModerateNew, user));
-    // можно удалять новые не подтвержденные топики в непремодерируемом разделе
+    // можно удалять новые не подтверждённые топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateNew, user));
   }
 }
