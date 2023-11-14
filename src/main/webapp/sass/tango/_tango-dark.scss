@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,49 +13,83 @@
  *    limitations under the License.
  */
 
-$main_background: #2e3436;
-$text_color: #babdb6;
-$link_color: #729fcf;
-$site_title_color: #eeeeec;
-$header_color: #d3d7cf;
-$blockquote_color: #909090;
+:root {
+  --main-background: #2e3436;
+  --text-color: #babdb6;
+  --link-color: #729fcf;
+  --site-title-color: #eeeeec;
+  --header-color: #d3d7cf;
+  --blockquote-color: #909090;
 
-$table_border_color: #555753;
+  --table-border-color: #555753;
+  --table-link-color: #eeeeec;
+  --table-hover-background: #5c3566;
+
+  --tag-color: #fcaf3e;
+  --main-menu-color: #e9b96e;
+  --signature-user-color: #8ae234;
+  --signature-remark-color: #AAAAAA;
+  --article-background: #272C2D;
+
+  --button-border-color: #D4D4D4;
+  --button-selected-text-color: black;
+
+  --button-primary-background: #204a87;
+  --button-danger-background: #a40000;
+
+  --icon-button-active-color: #c17d11;
+
+  --tagpage-group-label-background: #8f5902;
+
+  --icon-reply-color: #729fcf;
+  --icon-pin-color: #e9b96e;
+
+  --preview-border-color: #c4a000;
+}
+
+$main_background: var(--main-background);
+$text_color: var(--text-color);
+$link_color: var(--link-color);
+$site_title_color: var(--site-title-color);
+$header_color: var(--header-color);
+$blockquote_color: var(--blockquote-color);
+
+$table_border_color: var(--table-border-color);
 $table_header_background: $table_border_color;
 $table_header_color: $text_color;
-$table_link_color: #eeeeec;
-$table_hover_background: #5c3566;
+$table_link_color: var(--table-link-color);
+$table_hover_background: var(--table-hover-background);
 $table_background_color: $main_background;
 
-$tag_color: #fcaf3e;
-$main_menu_color: #e9b96e;
+$tag_color: var(--tag-color);
+$main_menu_color: var(--main-menu-color);
 $hd_user_color: $link_color;
-$signature_user_color: #8ae234;
-$signature_remark_color: #AAAAAA;
-$article_background: #272C2D;
+$signature_user_color: var(--signature-user-color);
+$signature_remark_color: var(--signature-remark-color);
+$article_background: var(--article-background);
 
 $button_selected_background: $text_color;
 $button_background: $table_border_color;
-$button_border_color: #D4D4D4;
-$button_selected_text_color: black;
+$button_border_color: var(--button-border-color);
+$button_selected_text_color: var(--button-selected-text-color);
 $button_text_color: $table_link_color;
 
-$button_primary_background: #204a87;
+$button_primary_background: var(--button-primary-background);
 $button_primary_text: $button_text_color;
-$button_danger_background: #a40000;
+$button_danger_background: var(--button-danger-background);
 $button_danger_text: $button_text_color;
 
-$icon_button_active_color: #c17d11;
+$icon_button_active_color: var(--icon-button-active-color);
 
-$tagpage_group_label_background: #8f5902;
+$tagpage_group_label_background: var(--tagpage-group-label-background);
 $tagpage_group_label_color: $table_link_color;
 
 $icon_tag_color: $tag_color;
-$icon_reply_color: #729fcf;
-$icon_pin_color: #e9b96e;
+$icon_reply_color: var(--icon-reply-color);
+$icon_pin_color: var(--icon-pin-color);
 $icon_user_color: $signature_user_color;
 
-$preview_border_color: #c4a000;
+$preview_border_color: var(--preview-border-color);
 
 $heatmap_max: #8ae234;
 $heatmap_scale: 1.5;
