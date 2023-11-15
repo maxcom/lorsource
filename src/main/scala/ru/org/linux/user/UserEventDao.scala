@@ -166,11 +166,14 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param userId           идентификационный номер пользователя
    * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
    */
-  def cleanupOldEvents(userId: Int, maxEventsPerUser: Int): Unit =
+  def cleanupOldEvents(userId: Int, maxEventsPerUser: Int): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "DELETE FROM user_events WHERE user_events.id IN " +
         "(SELECT id FROM user_events WHERE userid=? ORDER BY event_date DESC OFFSET ?)",
       userId, maxEventsPerUser)
+
+    recalcEventCount(Seq(userId))
+  }
 
   /**
    * Получить список уведомлений для пользователя.
