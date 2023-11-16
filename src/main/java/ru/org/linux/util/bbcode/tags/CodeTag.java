@@ -64,7 +64,7 @@ public class CodeTag extends Tag {
           ImmutableMap.<String, String>builder().
                   put("bash", "language-bash")
                   .put("c", "language-cpp")
-                  .put("c#", "language-cs")
+                  .put("c#", "language-csharp")
                   .put("c++", "language-cpp")
                   .put("cc", "language-cpp")
                   .put("clojure", "language-clojure")
@@ -105,7 +105,7 @@ public class CodeTag extends Tag {
                   .put("shell", "language-bash")
                   .put("smalltalk", "language-smalltalk")
                   .put("sql", "language-sql")
-                  .put("tex", "language-tex")
+                  .put("tex", "language-latex")
                   .put("vala", "language-vala")
                   .put("xml", "language-xml")
                   .build();

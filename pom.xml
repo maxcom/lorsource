@@ -601,6 +601,7 @@
           <encoding>utf-8</encoding>
           <excludes>
             <exclude>**/jquery-ui-*/**/*.js</exclude>
+            <exclude>**/highlight.min.js</exclude>
           </excludes>
           <aggregations>
             <aggregation>
@@ -659,6 +660,7 @@
               <output>${project.build.directory}/${project.build.finalName}/zomg_ponies/combined.css</output>
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/style.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -709,6 +711,8 @@
                 <mkdir dir="${project.build.directory}/uploads/photos"/>
                 <copy file="${basedir}/src/main/webapp/img/good-penguin.png"
                       todir="${project.build.directory}/${project.build.finalName}/qrerror/"/>
+                <copy file="${basedir}/src/main/webapp/js/highlight.min.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
               </tasks>
             </configuration>
             <goals>

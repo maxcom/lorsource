@@ -1,85 +1,94 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 
-/*
-  IR_Black style (c) Vasily Mikhailitchenko <vaskas@programica.ru>
+Intellij Idea-like styling (c) Vasily Polovnyov <vast@whiteants.net>
+
 */
 
-pre code {
-    color: #000;
+.hljs {
+  color: #000;
+  background: #fff;
 }
 
-pre .shebang, pre .comment, pre .template_comment, pre .javadoc, pre .pragma {
-    color: #888786;
+.hljs-subst,
+.hljs-title {
+  font-weight: normal;
+  color: #000;
 }
 
-pre .keyword, pre .tag, pre .ruby .function .keyword {
-    color: #000;
-    font-weight: bold;
+.hljs-comment,
+.hljs-quote {
+  color: #808080;
+  font-style: italic;
 }
 
-pre .function .keyword, pre .sub .keyword, pre .method, pre .list .title {
-    color: #000;
-    font-weight: bold;
+.hljs-meta {
+  color: #808000;
 }
 
-pre .string, pre .attribute .value, pre .cdata, pre .filter .argument, pre .attr_selector, pre .apache .cbracket, pre .date {
-    color: #006E24;
+.hljs-tag {
+  background: #efefef;
 }
 
-pre .subst {
-    color: #25105c;
+.hljs-section,
+.hljs-name,
+.hljs-literal,
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-type,
+.hljs-selector-id,
+.hljs-selector-class {
+  font-weight: bold;
+  color: #000080;
 }
 
-pre .regexp {
-    color: #163f9d;
+.hljs-attribute,
+.hljs-number,
+.hljs-regexp,
+.hljs-link {
+  font-weight: bold;
+  color: #0000ff;
 }
 
-pre .function .title, pre .sub .identifier, pre .pi, pre .decorator, pre .ini .title {
-    color: #000049;
+.hljs-number,
+.hljs-regexp,
+.hljs-link {
+  font-weight: normal;
 }
 
-pre .class .title, pre .smalltalk .class, pre .javadoctag, pre .phpdoc {
-    color: #000049;
+.hljs-string {
+  color: #008000;
+  font-weight: bold;
 }
 
-pre .symbol, pre .number, pre .variable, pre .vbscript, pre .literal {
-    color: #529260;
+.hljs-symbol,
+.hljs-bullet,
+.hljs-formula {
+  color: #000;
+  background: #d0eded;
+  font-style: italic;
 }
 
-pre .css .keyword {
-    color: #693401;
+.hljs-doctag {
+  text-decoration: underline;
 }
 
-pre .css .rule .keyword, pre .css .id {
-    color: #000049;
+.hljs-variable,
+.hljs-template-variable {
+  color: #660e7a;
 }
 
-pre .css .class {
-    color: #000;
+.hljs-addition {
+  background: #baeeba;
 }
 
-pre .hexcolor {
-    color: #7a337a;
+.hljs-deletion {
+  background: #ffc8bd;
 }
 
-pre .number {
-    color: #B08000;
+.hljs-emphasis {
+  font-style: italic;
 }
 
-pre .ruby .constant {
-    color: #BB1188;
-    font-weight: bold;
+.hljs-strong {
+  font-weight: bold;
 }

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 highlight_js_path="$1"
 
 if [ -z "$highlight_js_path" ] ; then
@@ -7,9 +9,18 @@ if [ -z "$highlight_js_path" ] ; then
   exit
 fi
 
-python3 "$highlight_js_path/tools/build.py" \
-    bash clojure coffeescript cmake cpp cs css d delphi diff erlang \
+cwd=`pwd`
+
+cd "$highlight_js_path" && node "tools/build.js" \
+    bash clojure coffeescript cmake cpp csharp css d delphi diff erlang \
     fortran fsharp go haskell ini java javascript lisp lua objectivec \
-    perl php python ruby rust sql scala smalltalk tex vala xml \
-  && cp "$highlight_js_path/build/highlight.pack.js" \
-        ./src/main/webapp/js/highlight.pack.js
+    perl php python ruby rust sql scala smalltalk latex vala xml \
+
+cp "$highlight_js_path/build/highlight.min.js" $cwd/src/main/webapp/js/highlight.min.js
+
+#python3 "$highlight_js_path/tools/build.py" \
+#    bash clojure coffeescript cmake cpp cs css d delphi diff erlang \
+#    fortran fsharp go haskell ini java javascript lisp lua objectivec \
+#    perl php python ruby rust sql scala smalltalk tex vala xml \
+#  && cp "$highlight_js_path/build/highlight.pack.js" \
+#        ./src/main/webapp/js/highlight.pack.js

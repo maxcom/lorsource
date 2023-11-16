@@ -53,7 +53,7 @@
     $script('/js/plugins.js?MAVEN_BUILD_TIMESTAMP', 'plugins');
   });
 
-  $script('/js/highlight.pack.js?MAVEN_BUILD_TIMESTAMP', 'hljs');
+  $script('/js/highlight.min.js?MAVEN_BUILD_TIMESTAMP', 'hljs');
   $script.ready(['jquery', 'hljs'], function() {
     $(function() {
       hljs.initHighlighting();

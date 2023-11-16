@@ -187,6 +187,42 @@ git pull && sbt compile
 ```
 `````
 
+Поддерживаются следующие языки:
+
+* Bash, Shell
+* C
+* C# ('c#', 'cs')
+* C++ ('c++', 'cpp', 'cxx', 'cc')
+* Clojure
+* CMake
+* CoffeeScript
+* CSS
+* D
+* Diff ('patch', 'diff')
+* Erlang
+* F# ('f#', 'fs')
+* Fortran
+* Go
+* Haskell
+* HTML, XML
+* Ini
+* Java
+* JavaScript ('js', 'javascript')
+* Lisp, Scheme
+* Lua
+* Objective C ('objc', 'objectivec')
+* Pascal, Delphi
+* Perl
+* PHP
+* Python
+* Ruby
+* Rust
+* Scala
+* Smalltalk
+* SQL
+* TeX
+* Vala
+
 ## Спойлер (cut) в ленте
 
 Длинные тексты в новостях и галерее можно скрыть при помощи следующей разметки:
