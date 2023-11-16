@@ -304,7 +304,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
   }
 
-  @RequestMapping(Array("/add-section.jsp"))
+  @RequestMapping(path = Array("/add-section.jsp"))
   def showForm(@RequestParam("section") sectionId: Int,
                @RequestParam(value = "tag", required = false) tag: String): ModelAndView = AuthorizedOpt { currentUser =>
     val section = sectionService.getSection(sectionId)

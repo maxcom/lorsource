@@ -30,7 +30,7 @@ import javax.servlet.ServletRequest
 import scala.jdk.CollectionConverters.*
 
 @Controller
-@RequestMapping (Array ("/people/{nick}/settings") )
+@RequestMapping (path = Array ("/people/{nick}/settings") )
 class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userService: UserService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { currentUser =>

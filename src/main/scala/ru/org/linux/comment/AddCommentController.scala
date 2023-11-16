@@ -78,7 +78,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   /**
     * Показ топика с формой добавления комментария верхнего уровня.
     */
-  @RequestMapping(Array("/comment-message.jsp"))
+  @RequestMapping(path = Array("/comment-message.jsp"))
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = AuthorizedOpt { currentUser =>
     val tmpl = Template.getTemplate
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, currentUser.map(_.user).orNull)

@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse
 class MainPageController(prepareService: TopicPrepareService, topicListService: TopicListService, topicDao: TopicDao,
                          memoriesDao: MemoriesDao, groupPermissionService: GroupPermissionService,
                          sectionService: SectionService) {
-  @RequestMapping(Array("/", "/index.jsp"))
+  @RequestMapping(path = Array("/", "/index.jsp"))
   def mainPage(response: HttpServletResponse): ModelAndView = AuthorizedOpt { currentUser =>
     val tmpl = Template.getTemplate
 

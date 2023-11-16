@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 class TopTenBoxlet(topTenDao: BoxletTopicDao) extends AbstractBoxlet {
-  @RequestMapping(Array("/top10.boxlet"))
+  @RequestMapping(path = Array("/top10.boxlet"))
   override protected def getData(request: HttpServletRequest): ModelAndView = {
     val profile = Template.getTemplate.getProf
     val list = topTenDao.top10(profile.getMessages)

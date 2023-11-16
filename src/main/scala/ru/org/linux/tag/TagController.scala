@@ -37,7 +37,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    *
    * @return объект web-модели
    */
-  @RequestMapping(Array("/tags"))
+  @RequestMapping(path = Array("/tags"))
   @throws[TagNotFoundException]
   def showDefaultTagListHandlertags: ModelAndView = showTagListHandler("")
 
@@ -47,7 +47,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    * @param firstLetter фильтр: первая буква для тегов, которые должны быть показаны
    * @return объект web-модели
    */
-  @RequestMapping(Array("/tags/{firstLetter}"))
+  @RequestMapping(path = Array("/tags/{firstLetter}"))
   @throws[TagNotFoundException]
   def showTagListHandler(@PathVariable firstLetter: String): ModelAndView = AuthorizedOpt { currentUser =>
     val modelAndView = new ModelAndView("tags")
@@ -80,7 +80,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
     modelAndView
   }
 
-  @RequestMapping(Array("/tags.jsp"))
+  @RequestMapping(path = Array("/tags.jsp"))
   def oldTagsRedirectHandler = "redirect:/tags"
 
   /**

@@ -238,7 +238,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @ResponseBody
-  @RequestMapping(Array("check-login"))
+  @RequestMapping(path = Array("check-login"))
   def ajaxLoginCheck(@RequestParam nick: String): Json = {
     (if (nick.isEmpty) {
       "Не задан nick."

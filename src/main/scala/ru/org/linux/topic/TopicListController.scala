@@ -166,7 +166,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
   }
 
-  @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
+  @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
   def topics(@PathVariable("section") sectionName: String,
              @RequestParam(value="offset", defaultValue = "0") offset: Int): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
@@ -184,7 +184,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       .map(v => ForumFilters.find(_.id == v).getOrElse(throw new UserErrorException("Некорректное значение filter")))
   }
 
-  @RequestMapping(Array("/forum/lenta"))
+  @RequestMapping(path = Array("/forum/lenta"))
   def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int,
             @RequestParam(value = "filter", required = false) filter: String): CompletionStage[ModelAndView] = {
     val section = sectionService.getSection(Section.SECTION_FORUM)
@@ -202,7 +202,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }.toJava
   }
 
-  @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
+  @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
   def topicsByGroup(@PathVariable("section") sectionName: String,
                     @RequestParam(value="offset", defaultValue = "0") offset: Int,
                     @PathVariable("group") groupName: String): CompletionStage[ModelAndView] = {
@@ -217,7 +217,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }.toJava
   }
 
-  @RequestMapping(Array("/{section}/archive/{year:\\d{4}}/{month}"))
+  @RequestMapping(path = Array("/{section}/archive/{year:\\d{4}}/{month}"))
   def sectionArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int): CompletionStage[ModelAndView] = {
     val sectionObject = sectionService.getSectionByName(section)
 
@@ -240,7 +240,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
   }
 
-  @RequestMapping(Array("/section-rss.jsp"))
+  @RequestMapping(path = Array("/section-rss.jsp"))
   def showRSS(@RequestParam(value = "section", defaultValue = "1") sectionId: Int,
               @RequestParam(value = "group", defaultValue = "0") groupId: Int,
               @RequestParam(value = "filter", required = false) filter: String,

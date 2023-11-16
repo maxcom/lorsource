@@ -37,7 +37,7 @@ object ReactionController {
 }
 
 @Controller
-@RequestMapping(Array("/reactions"))
+@RequestMapping(path = Array("/reactions"))
 class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionService: TopicPermissionService,
                          groupDao: GroupDao, userService: UserService, commentPrepareService: CommentPrepareService,
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,

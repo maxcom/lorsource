@@ -29,7 +29,7 @@ import ru.org.linux.user.*
 import scala.jdk.CollectionConverters.*
 
 @Controller
-@RequestMapping(Array("/people/{nick}"))
+@RequestMapping(path = Array("/people/{nick}"))
 class UserTopicListController(topicListService: TopicListService, userDao: UserDao, userService: UserService,
                               sectionService: SectionService, prepareService: TopicPrepareService,
                               topicPermissionService: TopicPermissionService) {

@@ -38,7 +38,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     }
   }
 
-  @RequestMapping(Array("/tracker.jsp"))
+  @RequestMapping(path = Array("/tracker.jsp"))
   @throws[Exception]
   def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = AuthorizedOpt { currentUserOpt =>
     val tmpl = Template.getTemplate
@@ -71,7 +71,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     }
   }
 
-  @RequestMapping(Array("/tracker"))
+  @RequestMapping(path = Array("/tracker"))
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
               @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int

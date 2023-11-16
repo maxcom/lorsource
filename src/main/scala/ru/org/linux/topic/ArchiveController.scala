@@ -58,19 +58,19 @@ class ArchiveController(sectionService: SectionService, groupDao: GroupDao, arch
     mv
   }
 
-  @RequestMapping(Array("/gallery/archive"))
+  @RequestMapping(path = Array("/gallery/archive"))
   def galleryArchive: ModelAndView = archiveList(Section.SECTION_GALLERY)
 
-  @RequestMapping(Array("/news/archive"))
+  @RequestMapping(path = Array("/news/archive"))
   def newsArchive: ModelAndView = archiveList(Section.SECTION_NEWS)
 
-  @RequestMapping(Array("/polls/archive"))
+  @RequestMapping(path = Array("/polls/archive"))
   def pollsArchive: ModelAndView = archiveList(Section.SECTION_POLLS)
 
-  @RequestMapping(Array("/articles/archive"))
+  @RequestMapping(path = Array("/articles/archive"))
   def articlesArchive: ModelAndView = archiveList(Section.SECTION_ARTICLES)
 
-  @RequestMapping(Array("/forum/{group}/archive"))
+  @RequestMapping(path = Array("/forum/{group}/archive"))
   def forumArchive(@PathVariable group: String): ModelAndView = archiveList(Section.SECTION_FORUM, Some(group))
 
   @ExceptionHandler(Array(classOf[GroupNotFoundException]))

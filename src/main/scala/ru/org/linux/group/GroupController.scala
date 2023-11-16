@@ -45,7 +45,7 @@ object GroupController {
 class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService: SectionService,
                       prepareService: GroupInfoPrepareService, groupPermissionService: GroupPermissionService,
                       groupListDao: GroupListDao, tagService: TagService) {
-  @RequestMapping(Array("/group.jsp"))
+  @RequestMapping(path = Array("/group.jsp"))
   def topics(@RequestParam("group") groupId: Int,
              @RequestParam(value = "offset", required = false) offsetObject: Integer): View = {
     val group = groupDao.getGroup(groupId)
@@ -57,7 +57,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
   }
 
-  @RequestMapping(Array("/group-lastmod.jsp"))
+  @RequestMapping(path = Array("/group-lastmod.jsp"))
   def topicsLastmod(@RequestParam("group") groupId: Int,
                     @RequestParam(value = "offset", required = false) offsetObject: Integer): View = {
     val group = groupDao.getGroup(groupId)
@@ -69,7 +69,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
   }
 
-  @RequestMapping(Array("/forum/{group}/{year:\\d{4}}/{month:\\d+}"))
+  @RequestMapping(path = Array("/forum/{group}/{year:\\d{4}}/{month:\\d+}"))
   def forumArchive(@PathVariable("group") groupName: String,
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
@@ -101,7 +101,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
   }
 
-  @RequestMapping(Array("/forum/{group}"))
+  @RequestMapping(path = Array("/forum/{group}"))
   def forum(@PathVariable("group") groupName: String, @RequestParam(defaultValue = "0", value = "offset") offset: Int,
             @RequestParam(defaultValue = "false") lastmod: Boolean, @RequestParam(required = false) tag: String,
             @RequestParam(defaultValue = "false") showDeleted: Boolean,

@@ -24,7 +24,7 @@ import ru.org.linux.user.UserService
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller
-@RequestMapping(Array("/people/{nick}/reactions","/people/{nick}/reactions/{mode}"))
+@RequestMapping(path = Array("/people/{nick}/reactions","/people/{nick}/reactions/{mode}"))
 class UserReactionsController(reactionService: ReactionService, userService: UserService) {
   @RequestMapping
   def reactions(@PathVariable nick: String,

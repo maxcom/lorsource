@@ -141,7 +141,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     }.toJava
   }
 
-  @RequestMapping(Array("/whois.jsp"))
+  @RequestMapping(path = Array("/whois.jsp"))
   def getInfo(@RequestParam("nick") nick: String) =
     new RedirectView("/people/" + URLEncoder.encode(nick, StandardCharsets.UTF_8) + "/profile")
 

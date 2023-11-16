@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,7 +32,7 @@ import scala.jdk.CollectionConverters._
 class HelpController(renderService: MarkdownFormatter) extends StrictLogging {
   import HelpController._
 
-  @RequestMapping(Array("/help/{page}"))
+  @RequestMapping(path = Array("/help/{page}"))
   def helpPage(request: ServletRequest, @PathVariable page: String): ModelAndView = {
     val title = HelpPages.getOrElse(page, {
       logger.info(s"Help page not found $page")

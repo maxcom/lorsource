@@ -27,7 +27,7 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 class SectionController(sectionService: SectionService, groupDao: GroupDao) {
-  @RequestMapping(Array("/forum"))
+  @RequestMapping(path = Array("/forum"))
   def forum(): ModelAndView = {
     val section = sectionService.getSection(SECTION_FORUM)
 
@@ -54,5 +54,5 @@ object SectionController {
   val NonTech: Set[Int] = Set(8404, 4068, 9326, 19405)
 
   def groupsSorted(groups: collection.Seq[Group]): collection.Seq[Group] =
-    groups.sortBy(g => (SectionController.NonTech.contains(g.getId), g.id))
+    groups.sortBy(g => (SectionController.NonTech.contains(g.id), g.id))
 }

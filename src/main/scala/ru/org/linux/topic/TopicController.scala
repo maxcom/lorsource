@@ -354,7 +354,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
    * @param output  ?
    * @return вовзращает редирект на новый код
    */
-  @RequestMapping(Array("/view-message.jsp"))
+  @RequestMapping(path = Array("/view-message.jsp"))
   def getMessageOld(@RequestParam("msgid") msgid: Int, @RequestParam(value = "page", required = false) page: Integer,
                     @RequestParam(value = "lastmod", required = false) lastmod: java.lang.Long,
                     @RequestParam(value = "filter", required = false) filter: String,
