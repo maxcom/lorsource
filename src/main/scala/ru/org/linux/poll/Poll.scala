@@ -37,7 +37,10 @@ object Poll {
 
 case class Poll(@BeanProperty id: Int, @BeanProperty topic: Int, @BooleanBeanProperty multiSelect: Boolean,
                 variants: Seq[PollVariant]) {
+  private val foundVoted = variants.isInstanceOf[Seq[PollVariantVoted]]
+    && !variants.asInstanceOf[Seq[PollVariantVoted]].exists(p => p.userVoted)
   def getVariants: java.util.List[PollVariant] = variants.asJava
+  def isUserVotePossible: Boolean = foundVoted
 }
 
 object PollVariant {
@@ -49,3 +52,7 @@ object PollVariant {
 }
 
 case class PollVariant(@BeanProperty id: Int, @BeanProperty label: String)
+
+class PollVariantVoted(@BeanProperty override val id: Int,
+                       @BeanProperty override val label: String,
+                       @BeanProperty val userVoted: Boolean) extends PollVariant(id,label)
