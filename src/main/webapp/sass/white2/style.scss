@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 @import "../common";
 
+$main_background: white;
 $a_color: #00A;
 $a_visit_color: #A0A;
 $back_color: #B0B0B0;
@@ -22,8 +23,8 @@ $header_color: #aea6f2;
 $boxlet_back_color: #defefc;
 $nav_back: #f0f0f0;
 $main_color: white;
-$code_color: #DADADA;
-$group_label_color: $code_color;
+$code_background: #DADADA;
+$group_label_color: $code_background;
 $site_title_color: #786AF2;
 $message_tr_color: #d8d8d8;
 $table_border_color: $header_color;
@@ -154,8 +155,8 @@ DIV.notes {
     background: $boxlet_back_color;
 }
 
-.code code {
-    background-color: $code_color;
+.code {
+    background-color: $code_background;
     font-family: monospace !important;
 }
 
@@ -274,3 +275,4 @@ $heatmap_scale: -1.5;
 @import "../cal-heapmap";
 @import "../tracker";
 
+@import "../spoilers";
