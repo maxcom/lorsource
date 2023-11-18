@@ -37,9 +37,19 @@ public class PollDao {
   private static final String queryPoolIdByTopicId = "SELECT polls.id FROM polls,topics WHERE topics.id=? AND polls.topic=topics.id";
   private static final String queryCurrentPollId = "SELECT polls.id FROM polls,topics WHERE topics.id=polls.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)";
   private static final String queryPool = "SELECT topic, multiselect FROM polls WHERE id=?";
-  private static final String queryPollVariantsOrderById = "SELECT id, label, votes FROM polls_variants WHERE vote=? ORDER BY id";
-  private static final String queryPollVariantsOrderByVotes = "SELECT id, label, votes FROM polls_variants WHERE vote=? ORDER BY votes DESC, id";
-  private static final String queryPollUserVote = "select count(vote) from vote_users where userid=? and variant_id=?";
+  /**
+   * запрос для получения вариантов ответа
+   *  черная магия "and u.userid>0 and u.userid=?" нужна для пропуска поиска результатов пользователя если userid задан как 0
+   */
+  private static final String queryPollVariantsOrderById =
+          "SELECT v.id, v.label, v.votes, (exists (select 1 FROM vote_users u  WHERE u.vote=v.vote and u.variant_id = v.id " +
+                  " and u.userid>0 and u.userid=? limit 1)) as \"userVoted\" FROM polls_variants v WHERE v.vote=? ORDER BY v.id";
+  /**
+   * запрос для получения статистики ответов, сортировка по количеству проголосовавших
+   */
+  private static final String queryPollVariantsOrderByVotes = "SELECT v.id, v.label, v.votes, " +
+          " (exists (select 1 FROM vote_users u  WHERE u.vote=v.vote and u.variant_id = v.id " +
+          " and u.userid>0 and u.userid=? limit 1)) as \"userVoted\" FROM polls_variants v WHERE v.vote=? ORDER BY v.votes DESC, v.id";
 
   private static final String queryCountVotesUser = "SELECT count(vote) FROM vote_users WHERE vote=? AND userid=?";
   private static final String queryCountVotesPool = "SELECT count(DISTINCT userid) FROM vote_users WHERE vote=?";
@@ -68,11 +78,13 @@ public class PollDao {
    * Список отсортирован по id варианта
    *
    * @param pollId идентификатор голосования
+   * @param userId идентификатор пользователя, может быть задан в 0 для пропуска использования
    * @return список вариантов голосования
    */
-  private List<PollVariant> getVoteDTO(int pollId) {
+  private List<PollVariantVoted> getVoteDTO(int pollId,int userId) {
     return jdbcTemplate.query(queryPollVariantsOrderById, (rs, rowNum) ->
-            new PollVariant(rs.getInt("id"), rs.getString("label")), pollId);
+            new PollVariantVoted(rs.getInt("id"),
+                    rs.getString("label"),rs.getBoolean("userVoted")), userId,pollId);
   }
 
   /**
@@ -134,18 +146,19 @@ public class PollDao {
    * @return текушие голование
    * @throws PollNotFoundException если голосование не существует
    */
-  public Poll getMostRecentPoll() throws PollNotFoundException{
-    return getPoll(getMostRecentPollId());
+  public Poll getMostRecentPoll(final int userId) throws PollNotFoundException{
+    return getPoll(getMostRecentPollId(),userId);
   }
 
   /**
    * Получить голосование по идентификатору.
    *
    * @param pollId идентификатор голосования
+   * @param userId идентификатор пользователя, может быть 0 для исключения поиска результатов голосования
    * @return объект голосование
    * @throws PollNotFoundException если голосование не существует
    */
-  public Poll getPoll(final int pollId) throws PollNotFoundException {
+  public Poll getPoll(final int pollId,final int userId) throws PollNotFoundException {
     SqlRowSet rs = jdbcTemplate.queryForRowSet(queryPool, pollId);
 
     if (!rs.next()) {
@@ -156,7 +169,7 @@ public class PollDao {
             pollId,
             rs.getInt("topic"),
             rs.getBoolean("multiselect"),
-            getVoteDTO(pollId)
+            getVoteDTO(pollId,userId)
     );
   }
 
@@ -164,12 +177,13 @@ public class PollDao {
    * Получить голосование по идентификатору темы.
    *
    * @param topicId идентификатор  темы голосования
+   * @param userId идентификатор пользователя, может быть 0 для пропуска
    * @return объект голосования
    * @throws PollNotFoundException если голосование не существует
    */
-  public Poll getPollByTopicId(int topicId) throws PollNotFoundException {
+  public Poll getPollByTopicId(int topicId,int userId) throws PollNotFoundException {
     try {
-      return getPoll(jdbcTemplate.queryForObject(queryPoolIdByTopicId, Integer.class, topicId));
+      return getPoll(jdbcTemplate.queryForObject(queryPoolIdByTopicId, Integer.class, topicId),userId);
     } catch (EmptyResultDataAccessException exception) {
       throw new PollNotFoundException();
     }
@@ -195,27 +209,23 @@ public class PollDao {
    */
   public ImmutableList<PollVariantResult> getPollVariants(Poll poll, int order, final User user) {
     final List<PollVariantResult> variants = new ArrayList<>();
-    
-    String query;
 
+    String query;
     if (order == Poll.OrderId()) {
-      query = queryPollVariantsOrderById;
+          query = queryPollVariantsOrderById;
     } else if (order == Poll.OrderVotes()) {
-      query = queryPollVariantsOrderByVotes;
+          query = queryPollVariantsOrderByVotes;
     } else {
       throw new RuntimeException("Oops!? order=" + order);
     }
 
-    jdbcTemplate.query(query, resultSet -> {
+    jdbcTemplate.query( query, resultSet -> {
       int id = resultSet.getInt("id");
       String label = resultSet.getString("label");
       int votes = resultSet.getInt("votes");
-      boolean voted = false;
-      if(user != null && jdbcTemplate.queryForObject(queryPollUserVote, Integer.class, user.getId(), resultSet.getInt("id")) !=0) {
-        voted = true;
-      }
+      boolean voted = resultSet.getBoolean("userVoted");
       variants.add(new PollVariantResult(id, label, votes, voted));
-    }, poll.getId());
+    }, user!=null ? user.getId() : 0,poll.getId());
 
     return ImmutableList.copyOf(variants);
   }
@@ -234,13 +244,11 @@ public class PollDao {
     jdbcTemplate.update(insertPoll, voteid, multiSelect, msgid);
 
     try {
-      final Poll poll = getPoll(voteid);
-
+      final Poll poll = getPoll(voteid,0);
       for (String variant : pollList) {
         if (variant.trim().isEmpty()) {
           continue;
         }
-
         addNewVariant(poll, variant);
       }
     } catch (PollNotFoundException e) {

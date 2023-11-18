@@ -19,9 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.boxlets.AbstractBoxlet;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,14 +44,19 @@ public class PollBoxlet extends AbstractBoxlet {
 
   @Override
   @RequestMapping("/poll.boxlet")
-  protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    final Poll poll = pollDao.getMostRecentPoll();
+  protected ModelAndView getData(HttpServletRequest request) {
+      /**
+       * Поскольку "boxlet" отвечает за отображение виджетов на главной, в этом месте
+       * получаем текущего авторизированного пользователя и если он есть - прокидываем его userId в выборку
+       * для получения его результатов голосования
+       */
+      final User currentUser = AuthUtil.getCurrentUser();
+      final Poll poll = pollDao.getMostRecentPoll(currentUser != null ? currentUser.getId() : 0);
 
-    Topic msg = messageDao.getById(poll.getTopic());
+      Topic msg = messageDao.getById(poll.getTopic());
+      int count = pollDao.getVotersCount(poll.getId());
+      int countUsers = pollDao.getCountUsers(poll);
 
-    int count = pollDao.getVotersCount(poll.getId());
-
-    int countUsers = pollDao.getCountUsers(poll);
 
     ModelAndView result = new ModelAndView("boxlets/poll");
     result.addObject("poll", poll);
@@ -57,5 +64,6 @@ public class PollBoxlet extends AbstractBoxlet {
     result.addObject("message", msg);
     result.addObject("countUsers", countUsers);
     return result;
+
   }
 }

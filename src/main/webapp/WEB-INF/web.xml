@@ -249,10 +249,6 @@
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>springapp</servlet-name>
-    <url-pattern>/vote-vote.jsp</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>springapp</servlet-name>
     <url-pattern>/resolve.jsp</url-pattern>
   </servlet-mapping>
 

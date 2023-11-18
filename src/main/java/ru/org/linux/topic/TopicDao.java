@@ -324,7 +324,7 @@ public class TopicDao {
 
     try {
       if (newPollVariants!=null) {
-        Poll oldPoll = pollDao.getPollByTopicId(oldMsg.getId());
+        Poll oldPoll = pollDao.getPollByTopicId(oldMsg.getId(),0);
 
         if (pollDao.updatePoll(oldPoll, newPollVariants, multiselect)) {
           editHistoryRecord.setOldPoll(oldPoll);

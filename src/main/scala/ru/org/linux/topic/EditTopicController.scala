@@ -179,7 +179,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     if (preparedTopic.section.isPollPostAllowed) {
-      val poll = pollDao.getPollByTopicId(message.id)
+      val poll = pollDao.getPollByTopicId(message.id,0)
 
       form.setPoll(PollVariant.toMap(poll.getVariants))
       form.setMultiselect(poll.multiSelect)
@@ -394,7 +394,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   }
 
   private def buildNewPoll(message: Topic, form: EditTopicRequest) = {
-    val poll = pollDao.getPollByTopicId(message.id)
+    val poll = pollDao.getPollByTopicId(message.id,0)
 
     val changed = poll.variants.flatMap { v =>
       val label = form.getPoll.get(v.id)

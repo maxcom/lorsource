@@ -96,6 +96,9 @@ public class PreparedPoll {
     return totalVotes;
   }
 
+  public boolean isUserVoted() {
+    return poll.isUserVoted();
+  }
   /**
    * Функция отображения результатов опроса
    * используем в RSS

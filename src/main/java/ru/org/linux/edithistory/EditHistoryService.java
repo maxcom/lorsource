@@ -102,7 +102,7 @@ public class EditHistoryService {
     Integer lastId = null;
 
     try {
-      maybePoll = pollDao.getPollByTopicId(topic.getId());
+      maybePoll = pollDao.getPollByTopicId(topic.getId(),0);
     } catch (PollNotFoundException ex) {
       maybePoll = null;
     }

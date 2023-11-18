@@ -153,16 +153,23 @@
   if (votepoll) {
       %>
         <c:choose>
+            <%-- если опрос не подтвержден и не устарел - показываем форму --%>
             <c:when test="${not message.commited || not preparedMessage.message.expired}">
-                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${!preparedMessage.message.expired && message.commited}"/>
+             <%-- если  пользователь анонимус  или еще не голосовал - показываем форму в read-only  --%>
+             <%--  доп. проверка !preparedMessage.message.expired and message.commited нужна из-за верхнего 'или' --%>
+             <lor:poll-form poll="${preparedMessage.poll.poll}"
+                                enabled="${!preparedMessage.message.expired and message.commited and currentUser !=null and !preparedMessage.poll.userVoted}"/>
             </c:when>
             <c:otherwise>
+                <%-- показываем статистику --%>
                 <lor:poll poll="${preparedMessage.poll}"/>
             </c:otherwise>
         </c:choose>
-
-        <c:if test="${message.commited}">
-          <p>&gt;&gt;&gt; <a href="${message.link}">Результаты</a>
+        <%-- если пользователь не голосовал - не показываем ссылку на результаты, если аноним - показываем ссылку
+            если опрос завершен - не показываем ссылку тк результаты будут уже показаны выше
+         --%>
+        <c:if test="${message.commited and not preparedMessage.message.expired and ((currentUser !=null and preparedMessage.poll.userVoted) or currentUser == null)}">
+          <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
         </c:if>
   <%
   }

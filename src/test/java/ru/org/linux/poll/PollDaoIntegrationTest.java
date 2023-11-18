@@ -43,7 +43,7 @@ public class PollDaoIntegrationTest {
   public void voteGetCurrentPollTest()
       throws Exception {
     int currentPollId = pollDao.getMostRecentPollId();
-    Poll poll = pollDao.getMostRecentPoll();
+    Poll poll = pollDao.getMostRecentPoll(0);
     assertEquals(currentPollId, poll.getId());
   }
 
@@ -57,7 +57,7 @@ public class PollDaoIntegrationTest {
     pollList.add("Case 3");
 
     pollDao.createPoll(pollList, true, TEST_TOPIC_ID);
-    Poll poll = pollDao.getPollByTopicId(TEST_TOPIC_ID);
+    Poll poll = pollDao.getPollByTopicId(TEST_TOPIC_ID,0);
 
       /* Проверяем правильность сохранения вариантов голосования */
     ImmutableList<PollVariantResult> pollVariants = pollDao.getPollVariants(poll);

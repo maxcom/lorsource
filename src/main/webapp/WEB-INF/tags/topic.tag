@@ -115,20 +115,32 @@
 
     <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
       ${preparedMessage.processedMessage}
-
       <c:if test="${preparedMessage.section.pollPostAllowed}">
         <c:choose>
           <c:when test="${not message.commited}">
             <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
           </c:when>
           <c:otherwise>
-            <lor:poll poll="${preparedMessage.poll}"/>
+            <c:choose>
+                    <c:when test="${param.results == 'true'}">
+                            <lor:poll poll="${preparedMessage.poll}"/>
+                    </c:when>
+                    <c:otherwise>
+                            <c:if test="${not preparedMessage.message.expired and currentUser !=null}">
+                                    <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${!preparedMessage.poll.userVoted}"/>
+                            </c:if>
+                    </c:otherwise>
+            </c:choose>
 
-            <c:if test="${not preparedMessage.message.expired}">
-              <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
-            </c:if>
           </c:otherwise>
         </c:choose>
+          <%--
+            если задан параметр results=true - не показываем ссылку на результаты тк это одна и та же страница
+           --%>
+        <c:if test="${message.commited and not preparedMessage.message.expired  and 'true' != param.results and ((currentUser !=null and preparedMessage.poll.userVoted) or currentUser == null)}">
+                  <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
+                </c:if>
+
       </c:if>
 
       <c:if test="${preparedMessage.group.linksAllowed and not empty message.url}">

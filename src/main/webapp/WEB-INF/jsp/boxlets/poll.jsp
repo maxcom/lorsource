@@ -27,10 +27,10 @@
       ${message.title}
     </p>
 
-    <lor:poll-form poll="${poll}" enabled="true"/>
+    <lor:poll-form poll="${poll}" enabled="${currentUser != null and !poll.userVoted}"/>
 
-    <c:url value="/view-vote.jsp" var="vote_url">
-      <c:param name="vote" value="${poll.id}"/>
+    <c:url value="/polls/polls/${poll.topic}" var="vote_url">
+      <c:param name="results" value="true"/>
     </c:url>
     <c:if test="${poll.multiSelect}">
         <a href="${vote_url}">результаты</a> (${count}/${countUsers} голосов)

@@ -25,6 +25,8 @@
     <input type="hidden" name="voteid" value="${poll.id}">
 </c:if>
 
+
+
   <c:forEach var="variant" items="${poll.variants}">
       <c:set var="lineClass">
           <c:choose>
@@ -34,16 +36,43 @@
       </c:set>
       <div class="${lineClass}">
           <label>
-              <c:choose>
-                  <c:when test="${poll.multiSelect}">
-                      <input type="checkbox"
-                             <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
-                  </c:when>
-                  <c:otherwise>
-                      <input type="radio"
-                             <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
-                  </c:otherwise>
-              </c:choose>
+
+           <c:choose>
+                <c:when test="${poll.userVoted}">
+                 <c:choose>
+                                    <c:when test="${!variant.userVoted}">
+                                              <c:choose>
+                                                  <c:when test="${poll.multiSelect}">
+                                                      <input type="checkbox"
+                                                          <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                                                  </c:when>
+                                                  <c:otherwise>
+                                                      <input type="radio"
+                                                          <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                                                  </c:otherwise>
+                                              </c:choose>
+                                           </c:when>
+                                           <c:otherwise>
+                                              <span class="penguin_progress" style="width:1em;"><span></span></span>
+                                           </c:otherwise>
+                           </c:choose>
+
+                </c:when>
+                <c:otherwise>
+                            <c:choose>
+                                  <c:when test="${poll.multiSelect}">
+                                      <input type="checkbox"
+                                             <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                                  </c:when>
+                                  <c:otherwise>
+                                      <input type="radio"
+                                             <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                                  </c:otherwise>
+                            </c:choose>
+                </c:otherwise>
+           </c:choose>
+
+
                   ${fn:escapeXml(variant.label)}
           </label>
       </div>
