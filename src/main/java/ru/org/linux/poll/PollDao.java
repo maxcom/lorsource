@@ -46,6 +46,7 @@ public class PollDao {
                   " and u.userid>0 and u.userid=? limit 1)) as \"userVoted\" FROM polls_variants v WHERE v.vote=? ORDER BY v.id";
   /**
    * запрос для получения статистики ответов, сортировка по количеству проголосовавших
+   * userId тут тоже нужен поскольку на странице используется подсветка выбранных юзером вариантов
    */
   private static final String queryPollVariantsOrderByVotes = "SELECT v.id, v.label, v.votes, " +
           " (exists (select 1 FROM vote_users u  WHERE u.vote=v.vote and u.variant_id = v.id " +

@@ -131,7 +131,6 @@
                             </c:if>
                     </c:otherwise>
             </c:choose>
-
           </c:otherwise>
         </c:choose>
           <%--
