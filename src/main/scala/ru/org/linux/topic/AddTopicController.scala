@@ -172,8 +172,6 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   @CSRFNoAuto
   def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest, errors: BindingResult,
             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOpt { sessionUserOpt =>
-    try {
-
 
     val group = form.getGroup
     val section = sectionService.getSection(group.sectionId)
@@ -283,12 +281,6 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       createNewTopic(request, form, group, params, section, user, message, imagePreview, previewMsg)
     } else {
       new ModelAndView("add", params.asJava)
-    }
-    } catch {
-      case t: Throwable => {
-        t.printStackTrace()
-        throw  t
-      }
     }
 
   }
