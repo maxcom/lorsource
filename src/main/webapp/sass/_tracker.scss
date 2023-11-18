@@ -347,7 +347,7 @@ $grid_padding: 0.4em;
 
     .text-preview-box {
       .text-preview:after {
-        background-image: linear-gradient(to right, rgba($table_hover_background, 0) 30%, rgba($table_hover_background, 1) 100%);
+        background-image: linear-gradient(to right, transparent 30%, $table_hover_background 100%);
       }
     }
   }
@@ -448,7 +448,7 @@ $grid_padding: 0.4em;
       right: 0;
       width: 30%;
       height: 100%;
-      background-image: linear-gradient(to right, rgba($table_background_color,0) 30%,rgba($table_background_color,1) 100%);
+      background-image: linear-gradient(to right, transparent 30%, $table_background_color 100%);
       pointer-events: none;
     }
   }
@@ -659,7 +659,7 @@ $grid_padding: 0.4em;
 
     .text-preview-box {
       .text-preview:after {
-        background-image: linear-gradient(to right, rgba($table_hover_background, 0) 30%, rgba($table_hover_background, 1) 100%);
+        background-image: linear-gradient(to right, transparent 30%, $table_hover_background 100%);
       }
     }
   }

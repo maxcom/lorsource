@@ -405,8 +405,7 @@ $(document).ready(function() {
 
   function spoilerShow() {
     var $this = $(this);
-    $this.parent().removeClass('spoiled');
-    $this.parent().addClass('unspoiled');
+    $(this).closest('.spoiled').removeClass('spoiled').addClass("unspoiled");
     $this.remove();
     return false;
   }
@@ -415,7 +414,7 @@ $(document).ready(function() {
     $('div.code').each(function() {
       if (this.scrollHeight > this.clientHeight) {
         $(this)
-          .append($('<a href="#" class="spoiler-open">Развернуть</a>').on('click', spoilerShow))
+          .append($('<div class="spoiler-open"><span class="btn btn-small btn-default spoiler-button">Развернуть</span></div> ').on('click', spoilerShow))
           .addClass('spoiled');
       }
     });
