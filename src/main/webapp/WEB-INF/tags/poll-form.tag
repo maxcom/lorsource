@@ -52,7 +52,7 @@
               </c:choose>
             </c:when>
             <c:otherwise>
-              <span class="penguin_progress" style="width:1em;margin-left: 3px"><span></span></span>
+              <span class="penguin_progress" style="width:1em;margin-left: 3px; margin-right: 3px"><span></span></span>
             </c:otherwise>
           </c:choose>
 
