@@ -27,7 +27,7 @@
       ${message.title}
     </p>
 
-    <lor:poll-form poll="${poll}" enabled="${currentUser != null and !poll.userVoted}"/>
+    <lor:poll-form poll="${poll}" enabled="${currentUser != null and not userVoted}" votedVariants="${votedVariants}"/>
 
     <c:url value="/polls/polls/${poll.topic}" var="vote_url">
       <c:param name="results" value="true"/>

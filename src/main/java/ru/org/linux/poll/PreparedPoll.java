@@ -30,6 +30,8 @@ public class PreparedPoll {
   private final int totalVotes;
   private final ImmutableList<PreparedPollVariantResult> variants;
 
+  private final boolean userVoted;
+
   /**
    * Конструктор
    * @param poll опрос
@@ -39,6 +41,9 @@ public class PreparedPoll {
   public PreparedPoll(Poll poll, int totalOfVotesPerson, List<PollVariantResult> variants1) {
     this.poll = poll;
     this.totalOfVotesPerson = totalOfVotesPerson;
+
+    userVoted = variants1.stream().anyMatch(PollVariantResult::isUserVoted);
+
     ImmutableList.Builder<PreparedPollVariantResult> variantsBuilder = new ImmutableList.Builder<>();
     int total=0;
     int max=0;
@@ -70,7 +75,7 @@ public class PreparedPoll {
           variant.getId(),
           variant.getLabel(),
           variant.getVotes(),
-          variant.getUserVoted(),
+          variant.isUserVoted(),
           percentage,
           variantWidth,
           variantPercent,
@@ -97,7 +102,7 @@ public class PreparedPoll {
   }
 
   public boolean isUserVoted() {
-    return poll.isUserVoted();
+    return userVoted;
   }
   /**
    * Функция отображения результатов опроса

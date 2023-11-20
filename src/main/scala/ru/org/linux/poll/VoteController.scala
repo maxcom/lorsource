@@ -24,14 +24,12 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
 
-import scala.jdk.CollectionConverters.*
-
 @Controller
 class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging {
   @RequestMapping(value = Array("/vote.jsp"), method = Array(RequestMethod.POST))
   def vote(@RequestParam(value = "vote", required = false) votes: Array[Int],
            @RequestParam("voteid") voteid: Int): ModelAndView = AuthorizedOnly { currentUser =>
-    val poll = pollDao.getPoll(voteid,0)
+    val poll = pollDao.getPoll(voteid)
 
     val msg = topicDao.getById(poll.topic)
 

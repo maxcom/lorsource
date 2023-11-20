@@ -122,24 +122,18 @@
           </c:when>
           <c:otherwise>
             <c:choose>
-                    <c:when test="${param.results == 'true'}">
-                            <lor:poll poll="${preparedMessage.poll}"/>
-                    </c:when>
-                    <c:otherwise>
-                            <c:if test="${not preparedMessage.message.expired and currentUser !=null}">
-                                    <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${!preparedMessage.poll.userVoted}"/>
-                            </c:if>
-                    </c:otherwise>
+              <c:when test="${param.results == 'true' or preparedMessage.poll.userVoted or preparedMessage.message.expired}">
+                <lor:poll poll="${preparedMessage.poll}"/>
+              </c:when>
+              <c:otherwise>
+                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${currentUser!=null}"/>
+                <c:if test="${not param.results == 'true'}">
+                  <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
+                </c:if>
+              </c:otherwise>
             </c:choose>
           </c:otherwise>
         </c:choose>
-          <%--
-            если задан параметр results=true - не показываем ссылку на результаты тк это одна и та же страница
-           --%>
-        <c:if test="${message.commited and not preparedMessage.message.expired  and 'true' != param.results and ((currentUser !=null and preparedMessage.poll.userVoted) or currentUser == null)}">
-                  <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
-                </c:if>
-
       </c:if>
 
       <c:if test="${preparedMessage.group.linksAllowed and not empty message.url}">

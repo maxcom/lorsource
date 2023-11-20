@@ -28,7 +28,7 @@ object Poll {
   val OrderId = 1
   val OrderVotes = 2
 
-  def apply(id: Int, topic: Int, multiSelect: Boolean, variants: java.util.List[ _ <: PollVariant]): Poll =
+  def apply(id: Int, topic: Int, multiSelect: Boolean, variants: java.util.List[PollVariant]): Poll =
     Poll(id, topic, multiSelect, variants.asScala.toSeq)
 
 
@@ -38,13 +38,7 @@ object Poll {
 
 case class Poll(@BeanProperty id: Int, @BeanProperty topic: Int, @BooleanBeanProperty multiSelect: Boolean,
                 variants: Seq[PollVariant]) {
-  // заранее определяем признак что пользователь голосовал,
-  // 'variants' содержит варианты с признаком голосования для выбранного одного пользователя
-  // проверка через первый элемент нужна поскольку isInstanceOf для всего списка не отрабатывает правильно
-  private val containsVoted = variants.nonEmpty && variants.head.isInstanceOf[PollVariantVoted]
-              && variants.asInstanceOf[Seq[PollVariantVoted]].exists(p => p.userVoted)
   def getVariants: java.util.List[PollVariant] = variants.asJava
-  def isUserVoted: Boolean = containsVoted
 }
 
 object PollVariant {
@@ -56,14 +50,5 @@ object PollVariant {
 }
 
 case class PollVariant(@BeanProperty id: Int, @BeanProperty label: String)
-
-/**
- * Отдельный DTO отвечающий за вариант голосования с признаком выбора варианта,
- * реализован поскольку PollVariant сериализуется в JSON и сохраняется в базе.
- * @param id
- * @param label
- * @param userVoted
- */
-class PollVariantVoted(@BeanProperty override val id: Int,
-                       @BeanProperty override val label: String,
-                       @BeanProperty val userVoted: Boolean) extends PollVariant(id,label)
+case class PollVariantResult(@BeanProperty id: Int, @BeanProperty label: String, @BeanProperty votes: Int,
+                            @BooleanBeanProperty userVoted: Boolean)

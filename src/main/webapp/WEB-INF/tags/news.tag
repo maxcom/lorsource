@@ -72,8 +72,6 @@
 <c:if test="${not message.minor || minorAsMajor}">
 <article class=news id="topic-${message.id}">
 <%
-  boolean votepoll = preparedMessage.getSection().isPollPostAllowed();
-
   String image = preparedMessage.getGroup().getImage();
   Group group = preparedMessage.getGroup();
 %>
@@ -149,32 +147,27 @@
 <c:if test="${preparedMessage.image != null}">
   <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
 </c:if>
-<%
-  if (votepoll) {
-      %>
+
+  <c:if test="${preparedMessage.section.pollPostAllowed}">
+    <c:choose>
+      <c:when test="${not message.commited}">
+        <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
+      </c:when>
+      <c:otherwise>
         <c:choose>
-            <%-- если опрос не подтвержден и не устарел - показываем форму --%>
-            <c:when test="${not message.commited || not preparedMessage.message.expired}">
-             <%-- если  пользователь анонимус  или еще не голосовал - показываем форму в read-only  --%>
-             <%--  доп. проверка !preparedMessage.message.expired and message.commited нужна из-за верхнего 'или' --%>
-             <lor:poll-form poll="${preparedMessage.poll.poll}"
-                                enabled="${!preparedMessage.message.expired and message.commited and currentUser !=null and !preparedMessage.poll.userVoted}"/>
-            </c:when>
-            <c:otherwise>
-                <%-- показываем статистику --%>
-                <lor:poll poll="${preparedMessage.poll}"/>
-            </c:otherwise>
+          <c:when test="${preparedMessage.poll.userVoted or preparedMessage.message.expired}">
+            <lor:poll poll="${preparedMessage.poll}"/>
+          </c:when>
+          <c:otherwise>
+            <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${currentUser!=null}"/>
+             <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
+          </c:otherwise>
         </c:choose>
-        <%-- если пользователь не голосовал - не показываем ссылку на результаты, если аноним - показываем ссылку
-            если опрос завершен - не показываем ссылку тк результаты будут уже показаны выше
-         --%>
-        <c:if test="${message.commited and not preparedMessage.message.expired and ((currentUser !=null and preparedMessage.poll.userVoted) or currentUser == null)}">
-          <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
-        </c:if>
-  <%
-  }
-%>
-  </div>
+      </c:otherwise>
+    </c:choose>
+  </c:if>
+
+</div>
 <c:if test="${not empty preparedMessage.tags}">
   <l:tags list="${preparedMessage.tags}"/>
 </c:if>

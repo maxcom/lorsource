@@ -15,6 +15,7 @@
 
 package ru.org.linux.poll;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,6 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.boxlets.AbstractBoxlet;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
-import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -45,24 +45,25 @@ public class PollBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/poll.boxlet")
   protected ModelAndView getData(HttpServletRequest request) {
-      /**
-       * Поскольку "boxlet" отвечает за отображение виджетов на главной, в этом месте
-       * получаем текущего авторизированного пользователя и если он есть - прокидываем его userId в выборку
-       * для получения его результатов голосования
-       */
-      final User currentUser = AuthUtil.getCurrentUser();
-      final Poll poll = pollDao.getMostRecentPoll(currentUser != null ? currentUser.getId() : 0);
+    final Poll poll = pollDao.getMostRecentPoll();
+    ImmutableList<PollVariantResult> results = pollDao.getPollResults(poll, Poll.OrderId(), AuthUtil.getCurrentUser());
 
-      Topic msg = messageDao.getById(poll.getTopic());
-      int count = pollDao.getVotersCount(poll.getId());
-      int countUsers = pollDao.getCountUsers(poll);
+    boolean userVoted = results.stream().anyMatch(PollVariantResult::isUserVoted);
+
+    Topic msg = messageDao.getById(poll.getTopic());
+    int count = pollDao.getVotersCount(poll.getId());
+    int countUsers = pollDao.getCountUsers(poll);
 
 
     ModelAndView result = new ModelAndView("boxlets/poll");
+
     result.addObject("poll", poll);
     result.addObject("count", count);
     result.addObject("message", msg);
     result.addObject("countUsers", countUsers);
+    result.addObject("userVoted", userVoted);
+    result.addObject("votedVariants", results);
+
     return result;
 
   }
