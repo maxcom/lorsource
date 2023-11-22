@@ -572,7 +572,14 @@
 <ul>
     <c:if test="${not empty userStat.topicsBySection || moderatorOrCurrentUser}">
         <li>
-            <a href="/people/${user.nick}/">Темы</a>
+            <c:choose>
+                <c:when test="${not empty userStat.topicsBySection}">
+                    <a href="/people/${user.nick}/">Темы</a>
+                </c:when>
+                <c:otherwise>
+                    Темы
+                </c:otherwise>
+            </c:choose>
             <c:if test="${moderatorOrCurrentUser}">
                 (<a href="/people/${user.nick}/deleted-topics">удаленные</a>)
             </c:if>
@@ -581,9 +588,16 @@
 
     <c:if test="${userStat.commentCount>0 || template.moderatorSession}">
         <li>
-          <a href="search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE">Комментарии</a>
+          <c:choose>
+              <c:when test="${userStat.commentCount>0}">
+                  <a href="search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE">Комментарии</a>
+              </c:when>
+              <c:otherwise>
+                  Комментарии
+              </c:otherwise>
+          </c:choose>
 
-          <c:if test="${template.moderatorSession}">
+            <c:if test="${template.moderatorSession}">
             (<a href="/people/${user.nick}/deleted-comments">удаленные</a>)
           </c:if>
         </li>
