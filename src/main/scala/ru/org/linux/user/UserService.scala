@@ -35,8 +35,8 @@ import java.util
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.collection.mutable
-import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.RichOption
 import scala.util.{Failure, Success, Try}
 
 @Service
@@ -174,33 +174,33 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     (getUserCached(id), regdate, lastlogin)
   }.asJava
 
-  private def makeFrozenList(users: util.List[(Integer, DateTime)], activityDays: Int): util.List[(User, Boolean)] = {
+  private def makeFrozenList(users: util.List[(Integer, DateTime)], activityDays: Int): collection.Seq[(User, Boolean)] = {
     val recentSeenDate = DateTime.now().minusDays(activityDays)
 
     users.asScala.map { case (userId, lastlogin) =>
       val user = getUserCached(userId)
       (user, lastlogin.isAfter(recentSeenDate))
-    }.asJava
+    }
   }
 
-  def getFrozenUsers: util.List[(User, Boolean)] = makeFrozenList(userDao.getFrozenUserIds, activityDays = 1)
+  def getFrozenUsers: collection.Seq[(User, Boolean)] = makeFrozenList(userDao.getFrozenUserIds, activityDays = 1)
 
-  def getUnFrozenUsers: util.List[(User, Boolean)] = makeFrozenList(userDao.getUnFrozenUserIds, activityDays = 1)
+  def getUnFrozenUsers: collection.Seq[(User, Boolean)] = makeFrozenList(userDao.getUnFrozenUserIds, activityDays = 1)
 
-  def getRecentlyBlocked: util.List[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER))
+  def getRecentlyBlocked: collection.Seq[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER)).asScala
 
-  def getRecentlyUnBlocked: util.List[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER))
+  def getRecentlyUnBlocked: collection.Seq[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER)).asScala
 
-  def getModerators: util.List[(User, Boolean)] = makeFrozenList(userDao.getModerators, activityDays = 30)
+  def getModerators: collection.Seq[(User, Boolean)] = makeFrozenList(userDao.getModerators, activityDays = 30)
 
-  def getCorrectors: util.List[(User, Boolean)] = makeFrozenList(userDao.getCorrectors, activityDays = 30)
+  def getCorrectors: collection.Seq[(User, Boolean)] = makeFrozenList(userDao.getCorrectors, activityDays = 30)
 
-  def getRecentUserpics: util.List[(User, Userpic)] = {
+  def getRecentUserpics: Seq[(User, Userpic)] = {
     val userIds: Seq[Int] = userLogDao.getRecentlyHasEvent(UserLogAction.SET_USERPIC).asScala.map(_.toInt).toSeq.distinct
 
     getUsersCached(userIds).map { user =>
       user -> getUserpic(user, "empty", misteryMan = false)
-    }.filterNot(_._2 == DisabledUserpic).asJava
+    }.filterNot(_._2 == DisabledUserpic)
   }
 
   private def findUserIdCached(nick: String): Int = {
@@ -260,7 +260,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
       val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
 
-      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).asJava, userAgentId, language.asJava)
+      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).toJava, userAgentId, language.toJava)
 
       newUserId
     }
@@ -363,8 +363,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
   }
 
-  def isBlockable(user: User, by: User) =
+  def isBlockable(user: User, by: User): Boolean =
     !user.isAnonymous && by.isModerator && (!user.isModerator || by.isAdministrator)
 
-  def isFreezable(user: User, by: User) = by.isModerator && !user.isModerator
+  def isFreezable(user: User, by: User): Boolean = by.isModerator && !user.isModerator
 }

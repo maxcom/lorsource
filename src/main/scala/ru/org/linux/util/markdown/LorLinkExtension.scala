@@ -26,8 +26,8 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.util.LorURL
 
-import scala.compat.java8.OptionConverters.*
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.RichOptional
 
 class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends HtmlRenderer.HtmlRendererExtension {
   override def rendererOptions(options: MutableDataHolder): Unit = {}
@@ -69,7 +69,7 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
     }
 
     if (url.isMessageUrl) {
-      topicDao.findById(url.getMessageId).asScala match {
+      topicDao.findById(url.getMessageId).toScala match {
         case Some(message) =>
           val deleted = if (url.isCommentUrl && !message.deleted) {
             try {

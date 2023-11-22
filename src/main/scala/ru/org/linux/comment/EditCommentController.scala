@@ -34,7 +34,7 @@ import ru.org.linux.util.ServletParameterException
 import java.util
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
-import scala.compat.java8.OptionConverters.RichOptionForJava8
+import scala.jdk.OptionConverters.RichOption
 
 @Controller
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
@@ -121,7 +121,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     if (commentRequest.getTopic != null) {
       val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore))
-      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, Some(user).asJava, errors)
+      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, Some(user).toJava, errors)
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg))
     }
 

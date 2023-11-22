@@ -108,11 +108,11 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
 
     if (currentUserOpt.exists(_.moderator)) {
       params.put("newUsers", userService.getNewUsers)
-      params.put("frozenUsers", userService.getFrozenUsers)
-      params.put("unFrozenUsers", userService.getUnFrozenUsers)
-      params.put("blockedUsers", userService.getRecentlyBlocked)
-      params.put("unBlockedUsers", userService.getRecentlyUnBlocked)
-      params.put("recentUserpics", userService.getRecentUserpics)
+      params.put("frozenUsers", userService.getFrozenUsers.asJava)
+      params.put("unFrozenUsers", userService.getUnFrozenUsers.asJava)
+      params.put("blockedUsers", userService.getRecentlyBlocked.asJava)
+      params.put("unBlockedUsers", userService.getRecentlyUnBlocked.asJava)
+      params.put("recentUserpics", userService.getRecentUserpics.asJava)
     } else {
       params.put("newUsers", Seq.empty.asJava)
       params.put("frozenUsers", Seq.empty.asJava)

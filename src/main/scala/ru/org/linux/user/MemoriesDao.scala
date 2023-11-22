@@ -15,7 +15,6 @@
 package ru.org.linux.user
 
 import javax.sql.DataSource
-
 import com.google.common.collect.ImmutableMap
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
@@ -23,7 +22,8 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.{Propagation, Transactional}
 import ru.org.linux.topic.Topic
-import scala.compat.java8.OptionConverters.*
+
+import scala.jdk.OptionConverters.RichOption
 
 @Repository
 class MemoriesDao(ds: DataSource) {
@@ -107,7 +107,7 @@ class MemoriesDao(ds: DataSource) {
       (rs, _) => new MemoriesListItem(rs)
     }
 
-    res.headOption.asJava
+    res.headOption.toJava
   }
 
   def delete(id: Int): Unit = jdbcTemplate.update("DELETE FROM memories WHERE id=?", id)

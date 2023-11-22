@@ -40,8 +40,8 @@ import ru.org.linux.util.{ServletParameterException, StringUtil}
 import java.util.Optional
 import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
-import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.RichOption
 
 @Controller
 class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: CommentPrepareService,
@@ -66,7 +66,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       add.setMode(tmpl.getFormatMode)
     }
 
-    topicPermissionService.checkCommentsAllowed(add.getTopic, currentUser.map(_.user).asJava, errors)
+    topicPermissionService.checkCommentsAllowed(add.getTopic, currentUser.map(_.user).toJava, errors)
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 

@@ -29,8 +29,8 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{UserDao, UserErrorException}
 
-import scala.compat.java8.OptionConverters.*
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.RichOption
 
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
@@ -118,7 +118,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
         None
       }
 
-      messageDao.moveTopic(msg, newGrp, moveInfo.asJava)
+      messageDao.moveTopic(msg, newGrp, moveInfo.toJava)
       logger.info(s"topic ${msg.id} moved by ${currentUser.user.getNick} from news/forum ${msg.groupUrl} to forum ${newGrp.title}")
     }
 
