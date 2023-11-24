@@ -46,7 +46,7 @@
       <a class="btn btn-default" href="${section.sectionLink}">Новые темы</a>
     </c:if>
 
-    <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>
+    <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтверждённые</a>
   </c:if>
 
   <c:if test="${filters != null}">

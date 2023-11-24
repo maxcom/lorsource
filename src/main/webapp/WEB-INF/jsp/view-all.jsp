@@ -79,7 +79,7 @@
 </c:forEach>
 <%
 %>
-<h2>Последние удаленные неподтвержденные</h2>
+<h2>Последние удаленные неподтверждённые</h2>
 
 <lor:deleted-topics topics="${deletedTopics}" showDates="${template.moderatorSession}"/>
 
