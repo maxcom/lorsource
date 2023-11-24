@@ -22,7 +22,7 @@
         <li>
             <c:choose>
                 <c:when test="${variant.userVoted}">
-                    <span class="penguin_label"><b>${fn:escapeXml(variant.label)}</b></span><span class="penguin_percent"><b>${variant.votes} (${variant.percentage}%)</b></span>
+                    <span class="penguin_label user-tag" style="margin-right:0.5em;"><b>${fn:escapeXml(variant.label)}</b></span><span class="penguin_percent"><b>${variant.votes} (${variant.percentage}%)</b></span>
                 </c:when>
                 <c:otherwise>
                     <span class="penguin_label">${fn:escapeXml(variant.label)}</span><span class="penguin_percent">${variant.votes} (${variant.percentage}%)</span>
