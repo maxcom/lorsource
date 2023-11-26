@@ -537,6 +537,8 @@ function fixTimezone(serverTz) {
 
             if (format === 'default') {
               $(this).text(moment(date).format("DD.MM.yy HH:mm:ss Z"));
+            } else if (format === 'date') {
+                $(this).text(moment(date).format("DD.MM.yy"));
             } else if (format === 'compact-interval') {
               if (diff < 1000 * 60 * 60) {
                 $(this).text(Math.max(1, min) + "\xA0мин");
@@ -547,7 +549,7 @@ function fixTimezone(serverTz) {
               } else {
                 $(this).text(moment(date).format("DD.MM.yy"));
               }
-            } else if (format === 'compact-interval') {
+            } else if (format === 'interval') {
               if (diff < 2 * 1000 * 60) {
                 $(this).text("минуту назад");
               } else if (diff < 1000 * 60 * 60) {

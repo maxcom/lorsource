@@ -211,6 +211,10 @@
 
 <c:if test="${message.minor && !minorAsMajor}">
 <article class="infoblock mini-news" id="topic-${message.id}">
+  <c:if test="${message.commited}">
+    <lor:dateonly date="${message.commitDate}"/>:
+  </c:if>
+
   <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
 
 <c:if test="${multiPortal}">
@@ -218,10 +222,6 @@
       <span> (не подтверждено)</span>
     </c:if>
 </c:if>
-
-  <c:if test="${message.commited}">
-    <lor:date date="${message.commitDate}"/>
-  </c:if>
 
   <c:if test="${messageMenu.showComments && message.commentCount>0}">
     (<lor:comment-count count="${message.commentCount}"/>)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -37,7 +37,7 @@ object DateFormats {
 
   private def short(tz: DateTimeZone): DateTimeFormatter = Short.withZone(tz)
   private def time(tz: DateTimeZone): DateTimeFormatter = Time.withZone(tz)
-  private def date(tz: DateTimeZone): DateTimeFormatter = Date.withZone(tz)
+  def date(tz: DateTimeZone): DateTimeFormatter = Date.withZone(tz)
 
   def formatInterval(date: Date, timezone: DateTimeZone): String = {
     val diff = System.currentTimeMillis - date.getTime
