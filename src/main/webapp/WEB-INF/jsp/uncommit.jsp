@@ -19,11 +19,11 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Возврат в неподтвержденные</title>
+<title>Возврат в неподтверждённые</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Возврат в неподтвержденные</h1>
-Вы можете отменить подтверждение и вернуть топик в список неподтвержденных.
+<h1>Возврат в неподтверждённые</h1>
+Вы можете отменить подтверждение и вернуть топик в список неподтверждённых.
 <div class=messages>
   <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
 </div>

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -211,6 +211,10 @@
 
 <c:if test="${message.minor && !minorAsMajor}">
 <article class="infoblock mini-news" id="topic-${message.id}">
+  <c:if test="${message.commited}">
+    <lor:dateonly date="${message.commitDate}"/>:
+  </c:if>
+
   <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
 
 <c:if test="${multiPortal}">

@@ -50,12 +50,12 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     val title = section.map { section =>
       section.getId match {
-        case Section.SECTION_NEWS => "Неподтвержденные новости"
-        case Section.SECTION_POLLS => "Неподтвержденные опросы"
-        case Section.SECTION_GALLERY => "Неподтвержденные изображения"
-        case _ => "Неподтвержденные: " + section.getName
+        case Section.SECTION_NEWS => "Неподтверждённые новости"
+        case Section.SECTION_POLLS => "Неподтверждённые опросы"
+        case Section.SECTION_GALLERY => "Неподтверждённые изображения"
+        case _ => "Неподтверждённые: " + section.getName
       }
-    }.getOrElse("Просмотр неподтвержденных сообщений")
+    }.getOrElse("Просмотр неподтверждённых сообщений")
 
     modelAndView.addObject("title", title)
 

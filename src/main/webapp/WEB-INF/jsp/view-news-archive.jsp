@@ -48,7 +48,7 @@ ${section.name}
   </c:if>
 
   <c:if test="${section.premoderated}">
-    <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>
+    <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтверждённые</a>
   </c:if>
 
   <c:if test="${group == null}">

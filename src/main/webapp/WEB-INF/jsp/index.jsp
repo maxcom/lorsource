@@ -103,7 +103,7 @@
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
   <c:if test="${uncommited > 0}">
-    [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
+    [<a href="view-all.jsp">Неподтверждённых</a>: ${uncommited},
     <c:if test="${uncommitedNews > 0}">
       в том числе <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews}]
     </c:if>
@@ -153,7 +153,7 @@
     <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
   </c:if>
   <a href="/news/" class="btn btn-default">Все новости</a>
-  <a class="btn btn-default" href="/view-all.jsp?section=1">Неподтвержденные новости</a>
+  <a class="btn btn-default" href="/view-all.jsp?section=1">Неподтверждённые новости</a>
 </nav>
 
   <p>
