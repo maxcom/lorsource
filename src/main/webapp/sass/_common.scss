@@ -845,7 +845,15 @@ figure.medium-image {
   white-space: nowrap;
 }
 
-.user-tag {
+
+.poll-selected {
+  border-radius: 3px;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  margin-right:0.5em !important;
+}
+
+.user-tag, .poll-selected {
   vertical-align: text-top;
 }
 
