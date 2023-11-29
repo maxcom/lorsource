@@ -511,10 +511,9 @@ fieldset legend {
   }
 }
 
-.user-tag {
+.user-tag, .poll-selected {
   background-color: $button_background;
   color: $text_color;
-
   a:visited & {
     color: $text_color;
   }
