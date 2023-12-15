@@ -16,8 +16,9 @@
 package ru.org.linux.realtime
 
 import akka.Done
+import akka.actor.typed.Scheduler
+import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, PoisonPill, Props, SupervisorStrategy, Terminated, Timers}
-import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Qualifier
@@ -50,10 +51,10 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
 
   timers.startTimerWithFixedDelay(Tick, Tick, 5.minutes)
 
-  override def supervisorStrategy = SupervisorStrategy.stoppingStrategy
+  override def supervisorStrategy: SupervisorStrategy = SupervisorStrategy.stoppingStrategy
 
   override def receive: Receive = {
-    case SessionStarted(session, user) if !sessions.contains(session.getId) =>
+    case SessionStarted(session, user, replyTo) if !sessions.contains(session.getId) =>
       val actor = context.actorOf(RealtimeSessionActor.props(session))
       context.watch(actor)
 
@@ -69,13 +70,13 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
         maxDataSize = dataSize
       }
 
-      sender() ! Done
-    case SubscribeTopic(session, topic) if sessions.contains(session.getId) =>
+      replyTo ! Done
+    case SubscribeTopic(session, topic, replyTo) if sessions.contains(session.getId) =>
       val actor = sessions(session.getId)
 
       topicSubscriptions += (topic -> actor)
 
-      sender() ! Done
+      replyTo ! Done
     case Terminated(actorRef) =>
       log.debug(s"RealtimeSessionActor $actorRef terminated")
 
@@ -116,13 +117,15 @@ class RealtimeEventHub extends Actor with ActorLogging with Timers {
 }
 
 object RealtimeEventHub {
-  case class NewComment(msgid: Int, cid: Int)
-  case class RefreshEvents(users: Set[Int])
-  case object Tick
+  sealed trait Protocol
 
-  case class SessionStarted(session: WebSocketSession, user: Option[Int])
-  case class SubscribeTopic(session: WebSocketSession, topic: Int)
-  case class SessionTerminated(session: String)
+  case class NewComment(msgid: Int, cid: Int) extends Protocol
+  case class RefreshEvents(users: Set[Int]) extends Protocol
+  private[realtime] case object Tick extends Protocol
+
+  private[realtime] case class SessionStarted(session: WebSocketSession, user: Option[Int], replyTo: akka.actor.typed.ActorRef[Done.type]) extends Protocol
+  private[realtime] case class SubscribeTopic(session: WebSocketSession, topic: Int, replyTo: akka.actor.typed.ActorRef[Done.type]) extends Protocol
+  private[realtime] case class SessionTerminated(session: String) extends Protocol
 
   def props: Props = Props(new RealtimeEventHub())
 
@@ -134,7 +137,7 @@ object RealtimeEventHub {
     session.sendMessage(new TextMessage(s"events-refresh"))
   }
 
-  def notifyEvents(realtimeEventHub: ActorRef, users: java.lang.Iterable[Integer]): Unit = {
+  def notifyEvents(realtimeEventHub: akka.actor.typed.ActorRef[RefreshEvents], users: java.lang.Iterable[Integer]): Unit = {
     realtimeEventHub ! RefreshEvents(users.asScala.map(_.toInt).toSet)
   }
 }
@@ -176,11 +179,16 @@ object RealtimeSessionActor {
 }
 
 @Service
-class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
-                               topicDao: TopicDao, commentService: CommentReadService) extends TextWebSocketHandler
+class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: akka.actor.typed.ActorRef[Protocol],
+                               topicDao: TopicDao, commentService: CommentReadService,
+                               actorSystem: ActorSystem) extends TextWebSocketHandler
   with StrictLogging {
 
   private implicit val Timeout: Timeout = 30.seconds
+
+  import akka.actor.typed.scaladsl.adapter.*
+
+  private implicit val scheduler: Scheduler = actorSystem.toTyped.scheduler
 
   override def afterConnectionEstablished(session: WebSocketSession): Unit = {
     try {
@@ -191,7 +199,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
 
       logger.debug(s"Connected! currentUser=${currentUser.map(_.getNick)}")
 
-      val result = hub ? SessionStarted(session, currentUser.map(_.getId))
+      val result = hub.ask(SessionStarted(session, currentUser.map(_.getId), _))
 
       Await.result(result, 10.seconds)
     } catch {
@@ -231,7 +239,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
         notifyComment(session, cid)
       }
 
-      val result = hub ? SubscribeTopic(session, topic.id)
+      val result = hub.ask(SubscribeTopic(session, topic.id, _))
 
       Await.result(result, 10.seconds)
     } catch {
@@ -251,7 +259,11 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef,
 @Configuration
 class RealtimeConfigurationBeans(actorSystem: ActorSystem) {
   @Bean(Array("realtimeHubWS"))
-  def hub: ActorRef = actorSystem.actorOf(RealtimeEventHub.props)
+  def hub: akka.actor.typed.ActorRef[Protocol] = {
+    import akka.actor.typed.scaladsl.adapter.*
+
+    actorSystem.actorOf(RealtimeEventHub.props)
+  }
 }
 
 @Configuration

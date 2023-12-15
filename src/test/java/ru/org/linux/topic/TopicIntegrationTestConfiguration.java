@@ -15,7 +15,7 @@
 
 package ru.org.linux.topic;
 
-import akka.actor.ActorRef;
+import akka.actor.typed.ActorRef;
 import com.sksamuel.elastic4s.ElasticClient;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -28,6 +28,7 @@ import ru.org.linux.email.EmailService;
 import ru.org.linux.exception.ExceptionResolver;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.markup.MessageTextService;
+import ru.org.linux.realtime.RealtimeEventHub;
 import ru.org.linux.realtime.RealtimeWebsocketHandler;
 import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.search.SearchQueueListener;
@@ -111,7 +112,7 @@ public class TopicIntegrationTestConfiguration {
   }
 
   @Bean("realtimeHubWS")
-  public ActorRef realtimeHub() {
+  public ActorRef<RealtimeEventHub.Protocol> realtimeHub() {
     return mock(ActorRef.class);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,10 +14,11 @@
  */
 package ru.org.linux.user
 
-import akka.actor.ActorRef
+import akka.actor.typed.ActorRef
 import com.google.common.collect.ImmutableList
 import io.circe.Json
 import io.circe.syntax.*
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import ru.org.linux.auth.AuthUtil
@@ -27,7 +28,8 @@ import ru.org.linux.realtime.RealtimeEventHub
 import javax.servlet.http.HttpServletResponse
 
 @Controller
-class UserEventApiController(userEventService: UserEventService, realtimeHubWS: ActorRef) {
+class UserEventApiController(userEventService: UserEventService,
+                             @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]) {
   @ResponseBody
   @RequestMapping(value = Array("/notifications-count"), method = Array(RequestMethod.GET))
   def getEventsCount(response: HttpServletResponse): Json = AuthorizedOnly { _ =>

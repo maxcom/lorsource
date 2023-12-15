@@ -14,7 +14,7 @@
  */
 package ru.org.linux.topic
 
-import akka.actor.ActorRef
+import akka.actor.typed.ActorRef
 import com.google.common.base.Strings
 import org.apache.commons.text.StringEscapeUtils
 import org.springframework.beans.factory.annotation.Qualifier
@@ -62,7 +62,8 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
                           permissionService: GroupPermissionService, captcha: CaptchaService, msgbaseDao: MsgbaseDao,
                           editHistoryService: EditHistoryService, imageService: ImageService,
                           editTopicRequestValidator: EditTopicRequestValidator, ipBlockDao: IPBlockDao,
-                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef, tagService: TagService) {
+                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
+                          tagService: TagService) {
   @RequestMapping(value = Array("/commit.jsp"), method = Array(RequestMethod.GET))
   def showCommitForm(@RequestParam("msgid") msgid: Int, @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { currentUser =>
     val tmpl = Template.getTemplate

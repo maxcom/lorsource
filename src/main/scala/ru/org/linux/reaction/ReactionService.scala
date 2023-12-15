@@ -14,7 +14,7 @@
  */
 package ru.org.linux.reaction
 
-import akka.actor.ActorRef
+import akka.actor.typed.ActorRef
 import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scala.transaction.support.TransactionManagement
@@ -111,7 +111,8 @@ object ReactionService {
 
 @Service
 class ReactionService(userService: UserService, reactionDao: ReactionDao, topicDao: TopicDao,
-                      userEventDao: UserEventDao, @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef,
+                      userEventDao: UserEventDao,
+                      @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                       ignoreListDao: IgnoreListDao, profileDao: ProfileDao, msgbaseDao: MsgbaseDao,
                       textService: MessageTextService,
                       val transactionManager: PlatformTransactionManager) extends TransactionManagement {

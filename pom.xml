@@ -40,7 +40,7 @@
   <dependencies>
     <dependency>
       <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-actor_${scala.suffix}</artifactId>
+      <artifactId>akka-actor-typed_${scala.suffix}</artifactId>
       <version>${akka.version}</version>
     </dependency>
 

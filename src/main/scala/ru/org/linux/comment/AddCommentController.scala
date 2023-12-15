@@ -15,7 +15,7 @@
 
 package ru.org.linux.comment
 
-import akka.actor.ActorRef
+import akka.actor.typed.ActorRef
 import io.circe.generic.semiauto.*
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}
@@ -47,7 +47,8 @@ import scala.jdk.OptionConverters.RichOption
 class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: CommentPrepareService,
                            commentService: CommentCreateService, topicPermissionService: TopicPermissionService,
                            topicPrepareService: TopicPrepareService, searchQueueSender: SearchQueueSender,
-                           @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef, textService: MessageTextService) {
+                           @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
+                           textService: MessageTextService) {
 
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
@@ -83,7 +84,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val tmpl = Template.getTemplate
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, currentUser.map(_.user).orNull)
 
-    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, currentUser.map(_.user).asJava, false))
+    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, currentUser.map(_.user).toJava, false))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
 
     if (add.getMode == null) {
@@ -111,7 +112,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user).asJava, errors)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user).toJava, errors)
     }
 
     val tmpl = Template.getTemplate
@@ -165,7 +166,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user).asJava, errors)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user).toJava, errors)
     }
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {

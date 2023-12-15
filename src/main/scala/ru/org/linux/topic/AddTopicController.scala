@@ -14,7 +14,7 @@
  */
 package ru.org.linux.topic
 
-import akka.actor.ActorRef
+import akka.actor.typed.ActorRef
 import com.google.common.base.Strings
 import org.apache.commons.io.IOUtils
 import org.springframework.beans.factory.annotation.Qualifier
@@ -102,7 +102,8 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
                          tagService: TagService, userService: UserService, prepareService: TopicPrepareService,
                          groupPermissionService: GroupPermissionService,
                          addTopicRequestValidator: AddTopicRequestValidator, imageService: ImageService,
-                         topicService: TopicService, @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef,
+                         topicService: TopicService,
+                         @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                          renderService: MarkdownFormatter, groupDao: GroupDao, dupeProtector: FloodProtector,
                          ipBlockDao: IPBlockDao, servletContext: ServletContext) {
   @ModelAttribute("ipBlockInfo")
