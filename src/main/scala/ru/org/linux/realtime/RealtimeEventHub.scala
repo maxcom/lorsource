@@ -16,10 +16,10 @@
 package ru.org.linux.realtime
 
 import akka.Done
-import akka.actor.typed.{ActorRef, Behavior, PostStop, Scheduler}
+import akka.actor.ActorSystem
 import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props, SupervisorStrategy, Terminated, Timers}
+import akka.actor.typed.*
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Qualifier
@@ -42,85 +42,8 @@ import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
-
 // TODO ignore list support
 // TODO fix face conditions on simultaneous posting comment, subscription and missing processing
-class RealtimeEventHub extends Actor with ActorLogging with Timers {
-  private val topicSubscriptions: mutable.MultiDict[Int, ActorRef[SessionProtocol]] = mutable.MultiDict[Int, ActorRef[SessionProtocol]]()
-  private val userSubscriptions: mutable.MultiDict[Int, ActorRef[SessionProtocol]] = mutable.MultiDict[Int, ActorRef[SessionProtocol]]()
-  private val sessions = new mutable.HashMap[String, ActorRef[SessionProtocol]]
-  private var maxDataSize: Int = 0
-
-  timers.startTimerWithFixedDelay(Tick, Tick, 5.minutes)
-
-  import akka.actor.typed.scaladsl.adapter.*
-
-  override def supervisorStrategy: SupervisorStrategy = SupervisorStrategy.stoppingStrategy
-
-  override def receive: Receive = {
-    case SessionStarted(session, user, replyTo) if !sessions.contains(session.getId) =>
-      val actor: ActorRef[SessionProtocol] = context.spawnAnonymous(RealtimeSessionActor.behavior(session))
-      context.watch(actor)
-
-      sessions += (session.getId -> actor)
-
-      user.foreach { user =>
-        userSubscriptions += (user -> actor)
-      }
-
-      val dataSize = context.children.size
-
-      if (dataSize > maxDataSize) {
-        maxDataSize = dataSize
-      }
-
-      replyTo ! Done
-    case SubscribeTopic(session, topic, replyTo) if sessions.contains(session.getId) =>
-      val actor = sessions(session.getId)
-
-      topicSubscriptions += (topic -> actor)
-
-      replyTo ! Done
-    case Terminated(untypedRef) =>
-      val actorRef: ActorRef[SessionProtocol] = untypedRef
-      log.debug(s"RealtimeSessionActor $actorRef terminated")
-
-      topicSubscriptions.sets.find(_._2.contains(actorRef)).foreach { case (msgid, _) =>
-        topicSubscriptions -= (msgid -> actorRef)
-      }
-
-      userSubscriptions.sets.find(_._2.contains(actorRef)).foreach { case (user, _) =>
-        userSubscriptions -= (user -> actorRef)
-      }
-
-      sessions.find(_._2 == actorRef).foreach { f =>
-        log.debug(s"Removed $actorRef")
-        sessions.remove(f._1)
-      }
-    case SessionTerminated(id) =>
-      sessions.get(id) foreach { actor =>
-        log.debug("Session was terminated, stopping actor")
-
-        actor ! TerminateSession
-      }
-    case msg@NewComment(msgid, _) =>
-      log.debug(s"New comment in topic $msgid")
-
-      topicSubscriptions.sets.getOrElse(msgid, Set.empty).foreach {
-        _ ! msg
-      }
-    case msg@RefreshEvents(users) =>
-      users.foreach { user =>
-        userSubscriptions.sets.getOrElse(user, Set.empty).foreach {
-          _ ! msg
-        }
-      }
-    case Tick =>
-      log.info(s"Realtime hub: maximum number connections was $maxDataSize")
-      maxDataSize = 0
-  }
-}
-
 object RealtimeEventHub {
   sealed trait SessionProtocol
 
@@ -136,8 +59,6 @@ object RealtimeEventHub {
 
   private[realtime] case object TerminateSession extends SessionProtocol
 
-  def props: Props = Props(new RealtimeEventHub())
-
   private[realtime] def notifyComment(session: WebSocketSession, comment: Int): Unit = {
     session.sendMessage(new TextMessage(s"comment $comment"))
   }
@@ -148,6 +69,95 @@ object RealtimeEventHub {
 
   def notifyEvents(realtimeEventHub: ActorRef[RefreshEvents], users: java.lang.Iterable[Integer]): Unit = {
     realtimeEventHub ! RefreshEvents(users.asScala.map(_.toInt).toSet)
+  }
+
+  def behavior: Behavior[Protocol] = Behaviors.setup { context =>
+    val topicSubscriptions: mutable.MultiDict[Int, ActorRef[SessionProtocol]] = mutable.MultiDict[Int, ActorRef[SessionProtocol]]()
+    val userSubscriptions: mutable.MultiDict[Int, ActorRef[SessionProtocol]] = mutable.MultiDict[Int, ActorRef[SessionProtocol]]()
+    val sessions = new mutable.HashMap[String, ActorRef[SessionProtocol]]
+    var maxDataSize: Int = 0
+
+    Behaviors.withTimers { timers =>
+      timers.startTimerWithFixedDelay(Tick, Tick, 5.minutes)
+
+      Behaviors.receiveMessage[Protocol] {
+        case SessionStarted(session, user, replyTo) if !sessions.contains(session.getId) =>
+          val actor: ActorRef[SessionProtocol] = context.spawnAnonymous(RealtimeSessionActor.behavior(session))
+          context.watch(actor)
+
+          sessions += (session.getId -> actor)
+
+          user.foreach { user =>
+            userSubscriptions += (user -> actor)
+          }
+
+          val dataSize = context.children.size
+
+          if (dataSize > maxDataSize) {
+            maxDataSize = dataSize
+          }
+
+          replyTo ! Done
+
+          Behaviors.same
+        case SubscribeTopic(session, topic, replyTo) if sessions.contains(session.getId) =>
+          val actor = sessions(session.getId)
+
+          topicSubscriptions += (topic -> actor)
+
+          replyTo ! Done
+
+          Behaviors.same
+        case SessionTerminated(id) =>
+          sessions.get(id) foreach { actor =>
+            context.log.debug("Session was terminated, stopping actor")
+
+            actor ! TerminateSession
+          }
+
+          Behaviors.same
+        case msg@NewComment(msgid, _) =>
+          context.log.debug(s"New comment in topic $msgid")
+
+          topicSubscriptions.sets.getOrElse(msgid, Set.empty).foreach {
+            _ ! msg
+          }
+
+          Behaviors.same
+        case msg@RefreshEvents(users) =>
+          users.foreach { user =>
+            userSubscriptions.sets.getOrElse(user, Set.empty).foreach {
+              _ ! msg
+            }
+          }
+
+          Behaviors.same
+        case Tick =>
+          context.log.info(s"Realtime hub: maximum number connections was $maxDataSize")
+          maxDataSize = 0
+
+          Behaviors.same
+      }.receiveSignal {
+        case (context, Terminated(deadRef)) =>
+          val actorRef: ActorRef[SessionProtocol] = deadRef.unsafeUpcast
+          context.log.debug(s"RealtimeSessionActor $actorRef terminated")
+
+          topicSubscriptions.sets.find(_._2.contains(actorRef)).foreach { case (msgid, _) =>
+            topicSubscriptions -= (msgid -> actorRef)
+          }
+
+          userSubscriptions.sets.find(_._2.contains(actorRef)).foreach { case (user, _) =>
+            userSubscriptions -= (user -> actorRef)
+          }
+
+          sessions.find(_._2 == actorRef).foreach { f =>
+            context.log.debug(s"Removed $actorRef")
+            sessions.remove(f._1)
+          }
+
+          Behaviors.same
+      }
+    }
   }
 }
 
@@ -275,7 +285,7 @@ class RealtimeConfigurationBeans(actorSystem: ActorSystem) {
   def hub: ActorRef[Protocol] = {
     import akka.actor.typed.scaladsl.adapter.*
 
-    actorSystem.actorOf(RealtimeEventHub.props, "realtimeHubWS")
+    actorSystem.spawn(RealtimeEventHub.behavior, "realtimeHubWS")
   }
 }
 
