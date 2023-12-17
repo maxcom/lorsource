@@ -58,4 +58,9 @@ class IgnoreListDao(ds: DataSource) extends StrictLogging {
     jdbcTemplate.queryForObject[Integer](
       "SELECT count(*) as inum FROM ignore_list JOIN users ON ignore_list.userid = users.id" +
         " WHERE ignored=? AND not blocked", ignoredUser.getId).get
+
+  def isIgnored(byUserId: Int, commentId: Int): Boolean =
+    jdbcTemplate.queryForObject[Boolean](
+      "select exists (select ignored from ignore_list where userid=? intersect select get_branch_authors(?))",
+      byUserId, commentId).get
 }
