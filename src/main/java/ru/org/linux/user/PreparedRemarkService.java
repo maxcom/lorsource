@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import java.util.List;
 public class PreparedRemarkService {
 
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   public List<PreparedRemark> prepareRemarkList(List<Remark> list) {
     if (list.isEmpty()) {
@@ -35,11 +35,10 @@ public class PreparedRemarkService {
 
     List<PreparedRemark> remarksPrepared = new ArrayList<>(list.size());
     for (Remark remark : list) {
-      User refUser = userDao.getUserCached(remark.getRefUserId());
+      User refUser = userService.getUserCached(remark.getRefUserId());
       remarksPrepared.add(new PreparedRemark(remark,refUser));
     }
 
     return remarksPrepared;
   }
-
 }

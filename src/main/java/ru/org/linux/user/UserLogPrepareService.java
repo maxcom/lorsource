@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -29,7 +29,7 @@ import static ru.org.linux.util.StringUtil.escapeHtml;
 
 @Service
 public class UserLogPrepareService {
-  private final UserDao userDao;
+  private final UserService userService;
   private final UserAgentDao userAgentDao;
 
   private final static ImmutableMap<String, String> OPTION_DESCRIPTION;
@@ -48,8 +48,8 @@ public class UserLogPrepareService {
     OPTION_DESCRIPTION = builder.build();
   }
 
-  public UserLogPrepareService(UserDao userDao, UserAgentDao userAgentDao) {
-    this.userDao = userDao;
+  public UserLogPrepareService(UserService userService, UserAgentDao userAgentDao) {
+    this.userService = userService;
     this.userAgentDao = userAgentDao;
   }
 
@@ -75,7 +75,7 @@ public class UserLogPrepareService {
             value = "<a href=\"/sameip.jsp?ip=" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue()) + "</a>";
             break;
           case UserLogDao.OPTION_INVITED_BY:
-            User user = userDao.getUserCached(Integer.parseInt(option.getValue()));
+            User user = userService.getUserCached(Integer.parseInt(option.getValue()));
 
             value = "<a href=\"/people/" + user.getNick() + "/profile\">" + user.getNick() + "</a>";
 
@@ -98,7 +98,7 @@ public class UserLogPrepareService {
         options.put(key, value);
       }
 
-      return new PreparedUserLogItem(item, userDao.getUserCached(item.getActionUser()), options);
+      return new PreparedUserLogItem(item, userService.getUserCached(item.getActionUser()), options);
     }).collect(Collectors.toList());
   }
 }

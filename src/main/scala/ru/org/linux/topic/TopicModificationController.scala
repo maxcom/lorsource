@@ -27,7 +27,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.MsgbaseDao
-import ru.org.linux.user.{UserDao, UserErrorException}
+import ru.org.linux.user.{UserErrorException, UserService}
 
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOption
@@ -35,7 +35,7 @@ import scala.jdk.OptionConverters.RichOption
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
                                   sectionService: SectionService, groupDao: GroupDao,
-                                  userDao: UserDao, searchQueueSender: SearchQueueSender,
+                                  userService: UserService, searchQueueSender: SearchQueueSender,
                                   msgbaseDao: MsgbaseDao, textService: MessageTextService) extends StrictLogging {
 
   @RequestMapping(value = Array("/setpostscore.jsp"), method = Array(RequestMethod.GET))
@@ -135,7 +135,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     new ModelAndView("mtn", Map (
       "message" -> topic,
       "groups" -> groupDao.getGroups(section),
-      "author" -> userDao.getUserCached(topic.authorUserId)
+      "author" -> userService.getUserCached(topic.authorUserId)
     ).asJava)
   }
 
@@ -148,7 +148,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     new ModelAndView("mtn", Map(
       "message" -> topic,
       "groups" -> groupDao.getGroups(section),
-      "author" -> userDao.getUserCached(topic.authorUserId)
+      "author" -> userService.getUserCached(topic.authorUserId)
     ).asJava)
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import ru.org.linux.gallery.ImageDao
 import ru.org.linux.group.GroupDao
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
-import ru.org.linux.user.UserDao
+import ru.org.linux.user.UserService
 
 import java.io.File
 
@@ -50,15 +50,15 @@ class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigu
 
   @Bean
   def galleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
-                                   topicPermissionService: TopicPermissionService, userDao: UserDao) = {
-    val interceptor = new GalleryPermissionInterceptor(imageDao, topicDao, groupDao, topicPermissionService, userDao)
+                                   topicPermissionService: TopicPermissionService, userService: UserService) = {
+    val interceptor = new GalleryPermissionInterceptor(imageDao, topicDao, groupDao, topicPermissionService, userService)
 
     new MappedInterceptor(Array("/images/**", "/gallery/**"), interceptor)
   }
 
   @Bean
-  def userpicPermissionInterceptor(userDao: UserDao) = {
-    val interceptor = new UserpicPermissionInterceptor(userDao)
+  def userpicPermissionInterceptor(userService: UserService) = {
+    val interceptor = new UserpicPermissionInterceptor(userService)
 
     new MappedInterceptor(Array("/photos/**"), interceptor)
   }

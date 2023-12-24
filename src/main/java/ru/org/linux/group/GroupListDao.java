@@ -26,8 +26,8 @@ import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.tracker.TrackerFilterEnum;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.UserService;
 import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;
@@ -40,13 +40,13 @@ import java.util.Optional;
 public class GroupListDao {
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
-  public GroupListDao(UserDao userDao, TopicTagService topicTagService, DataSource ds) {
-    this.userDao = userDao;
+  public GroupListDao(UserService userService, TopicTagService topicTagService, DataSource ds) {
+    this.userService = userService;
     this.topicTagService = topicTagService;
     jdbcTemplate = new NamedParameterJdbcTemplate(ds);
   }
 
-  private final UserDao userDao;
+  private final UserService userService;
 
   private final TopicTagService topicTagService;
 
@@ -264,7 +264,7 @@ public class GroupListDao {
     List<TopicsListItem> res = new ArrayList<>(topics);
     
     while (resultSet.next()) {
-      User author = userDao.getUserCached(resultSet.getInt("author"));
+      User author = userService.getUserCached(resultSet.getInt("author"));
       int msgid = resultSet.getInt("id");
       Timestamp lastmod = resultSet.getTimestamp("lastmod");
       int stat1 = resultSet.getInt("stat1");
@@ -277,7 +277,7 @@ public class GroupListDao {
         int id = resultSet.getInt("last_comment_by");
 
         if (id != 0) {
-          lastCommentBy = userDao.getUserCached(id);
+          lastCommentBy = userService.getUserCached(id);
         } else {
           lastCommentBy = null;
         }

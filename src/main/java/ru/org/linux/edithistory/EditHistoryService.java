@@ -36,7 +36,6 @@ import ru.org.linux.topic.PreparedImage;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.user.UserService;
 import scala.Option;
@@ -48,8 +47,6 @@ import java.util.stream.Collectors;
 @Service
 public class EditHistoryService {
   private final TopicTagService topicTagService;
-
-  private final UserDao userDao;
 
   private final UserService userService;
 
@@ -65,11 +62,10 @@ public class EditHistoryService {
 
   private final PollDao pollDao;
 
-  public EditHistoryService(TopicTagService topicTagService, UserDao userDao, UserService userService,
-                            MessageTextService textService, MsgbaseDao msgbaseDao, EditHistoryDao editHistoryDao,
-                            ImageDao imageDao, ImageService imageService, PollDao pollDao) {
+  public EditHistoryService(TopicTagService topicTagService, UserService userService, MessageTextService textService,
+                            MsgbaseDao msgbaseDao, EditHistoryDao editHistoryDao, ImageDao imageDao,
+                            ImageService imageService, PollDao pollDao) {
     this.topicTagService = topicTagService;
-    this.userDao = userDao;
     this.userService = userService;
     this.textService = textService;
     this.msgbaseDao = msgbaseDao;
@@ -113,7 +109,7 @@ public class EditHistoryService {
       editHistories.add(
         new PreparedEditHistory(
                 textService,
-          userDao.getUserCached(dto.getEditor()),
+          userService.getUserCached(dto.getEditor()),
           dto.getEditdate(),
           dto.getOldmessage() != null ? currentMessage : null,
           dto.getOldtitle() != null ? currentTitle : null,
@@ -176,7 +172,7 @@ public class EditHistoryService {
 
       editHistories.add(new PreparedEditHistory(
               textService,
-              userDao.getUserCached(topic.getAuthorUserId()),
+              userService.getUserCached(topic.getAuthorUserId()),
               topic.getPostdate(),
               currentMessage,
               currentTitle,
@@ -211,7 +207,7 @@ public class EditHistoryService {
       editHistories.add(
         new PreparedEditHistory(
                 textService,
-          userDao.getUserCached(dto.getEditor()),
+          userService.getUserCached(dto.getEditor()),
           dto.getEditdate(),
           dto.getOldmessage() != null ? currentMessage : null,
           dto.getOldtitle() != null ? currentTitle : null,
@@ -237,7 +233,7 @@ public class EditHistoryService {
       editHistories.add(
         new PreparedEditHistory(
                 textService,
-          userDao.getUserCached(comment.getUserid()),
+          userService.getUserCached(comment.getUserid()),
           comment.getPostdate(),
           currentMessage,
           currentTitle,

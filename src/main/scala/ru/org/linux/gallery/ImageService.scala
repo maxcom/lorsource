@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartRequest
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
-import ru.org.linux.user.{User, UserDao}
+import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.BadImageException
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 
@@ -38,7 +38,7 @@ import scala.util.control.NonFatal
 
 @Service
 class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
-                   topicDao: TopicDao, userDao: UserDao, siteConfig: SiteConfig,
+                   topicDao: TopicDao, userService: UserService, siteConfig: SiteConfig,
                    val transactionManager: PlatformTransactionManager)
   extends StrictLogging with TransactionManagement {
 
@@ -69,7 +69,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   }
 
   def prepareGalleryItem(item: GalleryItem):PreparedGalleryItem = {
-    PreparedGalleryItem(item, userDao.getUserCached(item.getUserid))
+    PreparedGalleryItem(item, userService.getUserCached(item.getUserid))
   }
 
   def prepareImage(image: Image): Option[PreparedImage] = {

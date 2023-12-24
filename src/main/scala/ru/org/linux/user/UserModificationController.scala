@@ -307,6 +307,6 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
 
   @InitBinder
   def initBinder(binder: WebDataBinder): Unit = {
-    binder.registerCustomEditor(classOf[User], new UserIdPropertyEditor(userDao))
+    binder.registerCustomEditor(classOf[User], new UserIdPropertyEditor(userService))
   }
 }

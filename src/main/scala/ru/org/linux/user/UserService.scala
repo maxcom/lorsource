@@ -245,7 +245,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def createUser(nick: String, password: String, mail: InternetAddress, ip: String, invite: Option[String],
                  userAgent: Option[String], language: Option[String]): Int = {
-    transactional() { _ =>
+    val result = transactional() { _ =>
       val newUserId = userDao.createUser("", nick, password, null, mail, null)
 
       invite.foreach { token =>
@@ -264,6 +264,11 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
       newUserId
     }
+
+    // обновляет кеш на случай, если пользователь был заново зарегистрирован с тем же ником после неудачи с активацией
+    nameToIdCache.put(nick, result)
+
+    result
   }
 
   def getAllInvitedUsers(user: User): util.List[User] =

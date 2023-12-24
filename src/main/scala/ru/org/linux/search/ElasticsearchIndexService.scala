@@ -31,7 +31,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicTagService}
-import ru.org.linux.user.UserDao
+import ru.org.linux.user.{UserDao, UserService}
 
 import scala.collection.Seq as MSeq
 import scala.jdk.CollectionConverters.*
@@ -71,7 +71,7 @@ object ElasticsearchIndexService {
 }
 
 @Service
-class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupDao, userDao: UserDao,
+class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupDao, userService: UserService,
                                 topicTagService: TopicTagService, messageTextService: MessageTextService,
                                 msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentReadService,
                                 elastic: ElasticClient, topicPermissionService: TopicPermissionService) extends StrictLogging {
@@ -174,8 +174,8 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
 
   private def indexOfComment(topic: Topic, comment: Comment, message: String, group: Group): IndexRequest = {
     val section = sectionService.getSection(topic.sectionId)
-    val author = userDao.getUserCached(comment.userid)
-    val topicAuthor = userDao.getUserCached(topic.authorUserId)
+    val author = userService.getUserCached(comment.userid)
+    val topicAuthor = userService.getUserCached(topic.authorUserId)
 
     val topicTitle = topic.getTitleUnescaped
 
@@ -211,7 +211,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
 
   private def indexOfTopic(topic: Topic, group: Group): IndexRequest = {
     val section = sectionService.getSection(topic.sectionId)
-    val author = userDao.getUserCached(topic.authorUserId)
+    val author = userService.getUserCached(topic.authorUserId)
 
     indexInto(MessageIndexType) id topic.id.toString fields(
       "section" -> section.getUrlName,

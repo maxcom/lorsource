@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,12 +22,12 @@ import ru.org.linux.gallery.ImageDao
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
-import ru.org.linux.user.{User, UserDao}
+import ru.org.linux.user.{User, UserService}
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
-                                   topicPermissionService: TopicPermissionService, userDao: UserDao)
+                                   topicPermissionService: TopicPermissionService, userService: UserService)
   extends HandlerInterceptor with StrictLogging {
 
   import GalleryPermissionInterceptor.*
@@ -69,7 +69,7 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
   private def visible(currentUser: User, topic: Topic): Boolean = {
     try {
       topicPermissionService.checkView(groupDao.getGroup(topic.groupId), topic, currentUser,
-        userDao.getUserCached(topic.authorUserId), false)
+        userService.getUserCached(topic.authorUserId), false)
 
       true
     } catch {
