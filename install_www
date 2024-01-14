@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SERVICE=tomcat-opt.service
+SERVICE=tomcat.service
 
 set -e
 
