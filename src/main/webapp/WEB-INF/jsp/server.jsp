@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -71,15 +71,15 @@
 Мы работаем на:
   </p>
     <ul>
-      <li>CentOS 7.x;</li>
-      <li>СУБД PostgreSQL 15;</li>
-      <li>OpenJDK 17 (Temurin);</li>
+      <li>AlmaLinux OS 9.x;</li>
+      <li>СУБД PostgreSQL 16;</li>
+      <li>OpenJDK 17;</li>
       <li>Scala 2.13;</li>
       <li>Apache Tomcat 9.0;</li>
-      <li>ActiveMQ 5.18;</li>
-      <li>Spring 5.3;</li>
+      <li>ActiveMQ 5.x;</li>
+      <li>Spring 5.x;</li>
       <li>OpenSearch 2.x;</li>
-      <li>Nginx 1.24.</li>
+      <li>Nginx 1.x.</li>
     </ul>
 
 <h1>Исходные тексты</h1>
