@@ -193,20 +193,28 @@ public class UserDao {
                                                 "ORDER BY regdate", Integer.class);
   }
 
-  public List<Tuple3<Integer, Timestamp, Timestamp>> getNewUsersByIP(@Nullable String ip) {
+  public List<Tuple3<Integer, Timestamp, Timestamp>> getNewUsersByIP(@Nullable String ip, @Nullable Integer userAgent) {
     RowMapper<Tuple3<Integer, Timestamp, Timestamp>> mapper = (rs, rowNum) -> Tuple3.apply(
             rs.getInt("id"),
             rs.getTimestamp("regdate"),
             rs.getTimestamp("lastlogin"));
 
 
-    if (ip!=null) {
-      return jdbcTemplate.query("SELECT users.id, lastlogin, regdate from users join user_log on users.id = user_log.userid WHERE " +
+    if (ip!=null || userAgent!=null) {
+      var params = new HashMap<String, Object>();
+
+      params.put("ip", ip);
+      params.put("user_agent", userAgent);
+
+      String ipQuery = ip!=null?"AND (info->'ip')::inet <<= :ip::inet ":"";
+      String userAgentQuery = userAgent!=null?"AND (info->'user_agent')=:user_agent::text ":"";
+
+      return namedJdbcTemplate.query("SELECT users.id, lastlogin, regdate from users join user_log on users.id = user_log.userid WHERE " +
                       "regdate IS NOT null " +
                       "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
-                      "and action='register' and (info->'ip')::inet <<= ?::inet " +
+                      "and action='register' " + ipQuery + userAgentQuery +
                       "ORDER BY regdate desc",
-              mapper, ip);
+              params, mapper);
     } else {
       return jdbcTemplate.query("SELECT users.id, lastlogin, regdate from users WHERE " +
                       "regdate IS NOT null " +
@@ -241,7 +249,7 @@ public class UserDao {
   /**
    * Отчистка userpicture пользователя, с обрезанием шкворца если удаляет модератор
    * @param user пользовтель у которого чистят
-   * @param cleaner пользователь который чистит
+   * @param cleaner пользователь, который чистит
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
@@ -262,7 +270,7 @@ public class UserDao {
       userLogDao.logResetUserpic(user, cleaner, 0);
     }
 
-    return r;
+    return true;
   }
 
   /**
