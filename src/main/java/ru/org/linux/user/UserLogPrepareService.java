@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ru.org.linux.user.UserLogDao.*;
 import static ru.org.linux.util.StringUtil.escapeHtml;
 
 @Service
@@ -39,10 +40,10 @@ public class UserLogPrepareService {
 
     builder.put(UserLogDao.OPTION_BONUS, "Изменение score");
     builder.put(UserLogDao.OPTION_NEW_EMAIL, "Новый email");
-    builder.put(UserLogDao.OPTION_NEW_USERPIC, "Новая фотография");
+    builder.put(OPTION_NEW_USERPIC, "Новая фотография");
     builder.put(UserLogDao.OPTION_OLD_EMAIL, "Старый email");
     builder.put(UserLogDao.OPTION_OLD_INFO, "Старый текст информации");
-    builder.put(UserLogDao.OPTION_OLD_USERPIC, "Старая фотография");
+    builder.put(OPTION_OLD_USERPIC, "Старая фотография");
     builder.put(UserLogDao.OPTION_REASON, "Причина");
 
     OPTION_DESCRIPTION = builder.build();
@@ -67,24 +68,26 @@ public class UserLogPrepareService {
         String value;
 
         switch (option.getKey()) {
-          case UserLogDao.OPTION_OLD_USERPIC:
-          case UserLogDao.OPTION_NEW_USERPIC:
+          case OPTION_OLD_USERPIC:
+          case OPTION_NEW_USERPIC:
             value = "<a href=\"/photos/" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue()) + "</a>";
             break;
-          case UserLogDao.OPTION_IP:
+          case OPTION_IP:
             value = "<a href=\"/sameip.jsp?ip=" + escapeHtml(option.getValue()) + "\">" + escapeHtml(option.getValue()) + "</a>";
             break;
-          case UserLogDao.OPTION_INVITED_BY:
+          case OPTION_INVITED_BY:
             User user = userService.getUserCached(Integer.parseInt(option.getValue()));
 
             value = "<a href=\"/people/" + user.getNick() + "/profile\">" + user.getNick() + "</a>";
 
             break;
-          case UserLogDao.OPTION_USET_AGENT:
+          case OPTION_USET_AGENT:
             int id = Integer.parseInt(option.getValue());
+            var ip = item.getOptions().getOrDefault(OPTION_IP, "");
 
             if (id != 0) {
-              value = "<a href=\"/sameip.jsp?ua=" + id + "\">" + userAgentDao.getUserAgentById(id).orElse("<не найден>") + "</a>";
+              value = "<a href=\"/sameip.jsp?ua=" + id + "&ip="+ip+"&mask=0\">" +
+                      userAgentDao.getUserAgentById(id).orElse("<не найден>") + "</a>";
             } else {
               value = "<нет>";
             }
