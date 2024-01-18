@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,6 +31,7 @@ import ru.org.linux.comment.PreparedCommentsListItem;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.UserAgentDao;
+import ru.org.linux.user.UserAndAgent;
 import ru.org.linux.user.UserService;
 import ru.org.linux.util.StringUtil;
 import scala.Tuple2;
@@ -128,7 +129,7 @@ public class SameIPController {
     mv.getModel().put("hasMoreComments", comments.size() == rowsLimit);
     mv.getModel().put("rowsLimit", rowsLimit);
 
-    List<UserItem> users = getUsers(ipMask, userAgent, rowsLimit);
+    List<UserAndAgent> users = userService.getUsersWithAgent(ipMask, userAgent, rowsLimit);
     mv.getModel().put("users", users);
     mv.getModel().put("hasMoreUsers", users.size() == rowsLimit);
 
@@ -196,31 +197,6 @@ public class SameIPController {
     );
   }
 
-  private List<UserItem> getUsers(@Nullable String ip, @Nullable Integer userAgent, int limit) {
-    String ipQuery = ip!=null?"AND c.postip <<= :ip::inet ":"";
-    String userAgentQuery = userAgent!=null?"AND c.ua_id=:userAgent ":"";
-
-    Map<String, Object> params = new HashMap<>();
-
-    params.put("ip", ip);
-    params.put("userAgent", userAgent);
-    params.put("limit", limit);
-
-    return namedJdbcTemplate.query(
-            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent, blocked " +
-                    "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
-                    "JOIN users u ON c.userid = u.id " +
-                    "WHERE c.postdate>CURRENT_TIMESTAMP - '1 year'::interval " +
-                    ipQuery +
-                    userAgentQuery +
-                    "GROUP BY u.nick, blocked, c.ua_id, ua.name " +
-                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name " +
-                    "LIMIT :limit",
-            params,
-            (rs, rowNum) -> new UserItem(rs)
-    );
-  }
-
   public static class TopicItem {
     private final String ptitle;
     private final String gtitle;
@@ -261,36 +237,6 @@ public class SameIPController {
 
     public boolean isDeleted() {
       return deleted;
-    }
-  }
-
-  public static class UserItem {
-    private final Timestamp lastdate;
-    private final String nick;
-    private final String userAgent;
-    private final boolean blocked;
-
-    private UserItem(ResultSet rs) throws SQLException {
-      lastdate = rs.getTimestamp("lastdate");
-      nick = rs.getString("nick");
-      userAgent = rs.getString("user_agent");
-      blocked = rs.getBoolean("blocked");
-    }
-
-    public Timestamp getLastdate() {
-      return lastdate;
-    }
-
-    public String getNick() {
-      return nick;
-    }
-
-    public String getUserAgent() {
-      return userAgent;
-    }
-
-    public boolean isBlocked() {
-      return blocked;
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,14 +18,13 @@ package ru.org.linux.user;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,14 +40,15 @@ import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
 public class UserDao {
-  private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
-
   private final JdbcTemplate jdbcTemplate;
+  private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
   private final UserLogDao userLogDao;
 
@@ -68,6 +68,7 @@ public class UserDao {
   public UserDao(UserLogDao userLogDao, DataSource dataSource) {
     this.userLogDao = userLogDao;
     jdbcTemplate = new JdbcTemplate(dataSource);
+    namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
   public int findUserId(String nick) throws UserNotFoundException {
@@ -587,5 +588,34 @@ public class UserDao {
             "select count(*) from users join user_log on users.id = user_log.userid " +
                     "where not activated and not blocked and regdate>CURRENT_TIMESTAMP-'1 day'::interval " +
                       "and action='register' and info->'ip'=?", Integer.class, ip);
+  }
+
+  public List<UserAndAgent> getUsersWithAgent(@Nullable String ip, @Nullable Integer userAgent, int limit) {
+    String ipQuery = ip!=null?"AND c.postip <<= :ip::inet ":"";
+    String userAgentQuery = userAgent!=null?"AND c.ua_id=:userAgent ":"";
+
+    Map<String, Object> params = new HashMap<>();
+
+    params.put("ip", ip);
+    params.put("userAgent", userAgent);
+    params.put("limit", limit);
+
+    return namedJdbcTemplate.query(
+            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent, blocked " +
+                    "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
+                    "JOIN users u ON c.userid = u.id " +
+                    "WHERE c.postdate>CURRENT_TIMESTAMP - '1 year'::interval " +
+                    ipQuery +
+                    userAgentQuery +
+                    "GROUP BY u.nick, blocked, c.ua_id, ua.name " +
+                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name " +
+                    "LIMIT :limit",
+            params,
+            (rs, rowNum) -> new UserAndAgent(
+                    rs.getTimestamp("lastdate"),
+                    rs.getString("nick"),
+                    rs.getString("user_agent"),
+                    rs.getBoolean("blocked"))
+    );
   }
 }

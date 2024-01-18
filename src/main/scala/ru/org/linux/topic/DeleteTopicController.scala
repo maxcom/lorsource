@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
-import ru.org.linux.user.{User, UserDao, UserErrorException}
+import ru.org.linux.user.{User, UserErrorException, UserService}
 
 import scala.jdk.CollectionConverters.*
 
@@ -33,7 +33,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
                             topicDao: TopicDao, topicService: TopicService,
                             prepareService: TopicPrepareService,
                             permissionService: GroupPermissionService,
-                            userDao: UserDao) extends StrictLogging {
+                            userService: UserService) extends StrictLogging {
   private def checkUndeletable(topic: Topic, currentUser: User): Unit = {
     if (!permissionService.isUndeletable(topic, currentUser)) {
       throw new AccessViolationException("это сообщение нельзя восстановить")
@@ -56,7 +56,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
     new ModelAndView("delete", Map[String, Any](
       "bonus" -> (!section.isPremoderated && !topic.draft && !topic.expired),
-      "author" -> userDao.getUser(topic.authorUserId),
+      "author" -> userService.getUserCached(topic.authorUserId),
       "msgid" -> msgid,
       "draft" -> topic.draft,
       "uncommited" -> (section.isPremoderated && !topic.commited)
