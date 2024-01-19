@@ -610,7 +610,7 @@ public class UserDao {
 
     return namedJdbcTemplate.query(
             "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent, blocked " +
-                    "FROM (SELECT ua_id, userid, postdate, postip FROM comments UNION ALL SELECT ua_id, userid, postdate FROM topics) c " +
+                    "FROM (SELECT ua_id, userid, postdate, postip FROM comments UNION ALL SELECT ua_id, userid, postdate, postip FROM topics) c " +
                     "LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
                     "JOIN users u ON c.userid = u.id " +
                     "WHERE c.postdate>CURRENT_TIMESTAMP - '1 year'::interval " +
