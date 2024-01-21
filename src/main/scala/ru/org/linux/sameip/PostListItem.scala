@@ -12,7 +12,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.comment
+
+package ru.org.linux.sameip
 
 import ru.org.linux.user.User
 
@@ -20,11 +21,10 @@ import java.sql.Timestamp
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
-case class CommentsListItem(@BeanProperty gtitle: String, @BeanProperty msgid: Int, @BeanProperty title: String,
-                            @BeanProperty @Nullable reason: String, @BeanProperty @Nullable delDate: Timestamp,
-                            @BeanProperty bonus: Int, @BeanProperty commentId: Int,
-                            @BooleanBeanProperty deleted: Boolean, @BeanProperty postdate: Timestamp,
-                            authorId: Int, @BooleanBeanProperty topicDeleted: Boolean)
-
-case class PreparedCommentsListItem(@BeanProperty comment: CommentsListItem, @BeanProperty author: User,
-                                    @BeanProperty textPreview: String)
+case class PostListItem(authorId: Int, commentId: Option[Int], topicId: Int, groupTitle: String, title: String,
+                        deleted: Boolean, @Nullable reason: String, postdate: Timestamp)
+case class PreparedPostListItem(@BeanProperty link: String, @BeanProperty groupTitle: String,
+                                @BeanProperty author: User, @BeanProperty title: String,
+                                @BooleanBeanProperty deleted: Boolean, @BeanProperty textPreview: String,
+                                @BeanProperty @Nullable reason: String, @BeanProperty postdate: Timestamp,
+                                @BooleanBeanProperty comment: Boolean)

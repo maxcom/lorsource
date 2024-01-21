@@ -156,79 +156,46 @@
 
 </c:if>
 
-<h2>Темы за 3 дня
-  <c:if test="${hasMoreTopics}">(показаны первые ${rowsLimit})</c:if>
-</h2>
-
-<div class=forum>
-<table width="100%" class="message-table">
-<thead>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th></tr>
-<tbody>
-<c:forEach items="${topics}" var="topic">
-<tr>
-  <td>
-    ${topic.ptitle}
-  </td>
-  <td>
-    ${topic.gtitle}
-  </td>
-  <td>
-    <c:if test="${topic.deleted}">
-      <s>
-    </c:if>
-    <a href="view-message.jsp?msgid=${topic.id}" rev=contents><l:title>${topic.title}</l:title></a>
-    <c:if test="${topic.deleted}">
-      </s>
-    </c:if>
-  </td>
-  <td>
-    <lor:date date="${topic.postdate}"/>
-  </td>
-</tr>
-</c:forEach>
-</table>
-</div>
-
-<h2>Комментарии за 3 дня
+<h2>Сообщения за 3 дня
   <c:if test="${hasMoreComments}">(показаны первые ${rowsLimit})</c:if>
 </h2>
 
 <div class=comments>
 <c:forEach items="${comments}" var="comment">
-<a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" class="comments-item">
+<a href="${comment.link}" class="comments-item">
   <div class="comments-group"><p>
-    <span class="group-label">${comment.comment.gtitle}</span><br class="hideon-phone hideon-tablet">
+    <span class="group-label">${comment.groupTitle}</span><br class="hideon-phone hideon-tablet">
     <lor:user user="${comment.author}"/>
   </p>
   </div>
   <div class="comments-title">
     <div class="text-preview-box">
       <div class="text-preview">
-        <l:title>${comment.comment.title}</l:title>
+        <c:if test="${comment.comment}"><i class="icon-comment"></i></c:if>
+        <l:title>${comment.title}</l:title>
       </div>
     </div>
   </div>
   <div class="comments-text">
     <div class="text-preview-box">
       <div class="text-preview">
-        <c:if test="${comment.comment.deleted}">
+        <c:if test="${comment.deleted}">
         <s>
           </c:if>
           <c:out value="${comment.textPreview}"/>
-          <c:if test="${comment.comment.deleted}">
+          <c:if test="${comment.deleted}">
         </s>
         </c:if>
       </div>
     </div>
-    <c:if test="${comment.comment.deleted}">
+    <c:if test="${comment.deleted}">
       <img src="/img/del.png" alt="[X]" width="15" height="15">
-      Удалено по причине: <c:out escapeXml="true" value="${comment.comment.reason}"/>
+      Удалено по причине: <c:out escapeXml="true" value="${comment.reason}"/>
     </c:if>
   </div>
   <div class="comments-date">
     <p>
-      <lor:dateinterval date="${comment.comment.postdate}" compact="true"/>
+      <lor:dateinterval date="${comment.postdate}" compact="true"/>
     </p>
   </div>
 </a>

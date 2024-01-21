@@ -16,7 +16,6 @@
 package ru.org.linux.spring;
 
 import com.google.common.collect.ImmutableList;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,25 +24,16 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.comment.CommentDao;
-import ru.org.linux.comment.CommentPrepareService;
-import ru.org.linux.comment.PreparedCommentsListItem;
+import ru.org.linux.sameip.SameIpService;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.UserAndAgent;
 import ru.org.linux.user.UserService;
-import ru.org.linux.util.StringUtil;
 import scala.Tuple2;
 
-import javax.annotation.Nullable;
-import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,19 +46,15 @@ public class SameIPController {
   private final UserService userService;
 
   private final UserAgentDao userAgentDao;
-  private final CommentDao commentDao;
-  private final CommentPrepareService commentPrepareService;
 
-  private final NamedParameterJdbcTemplate namedJdbcTemplate;
+  private final SameIpService sameIpService;
 
-  public SameIPController(IPBlockDao ipBlockDao, UserService userService, UserAgentDao userAgentDao, CommentDao commentDao,
-                          CommentPrepareService commentPrepareService, DataSource ds) {
+  public SameIPController(IPBlockDao ipBlockDao, UserService userService, UserAgentDao userAgentDao,
+                          SameIpService sameIpService) {
     this.ipBlockDao = ipBlockDao;
     this.userService = userService;
     this.userAgentDao = userAgentDao;
-    this.commentDao = commentDao;
-    this.commentPrepareService = commentPrepareService;
-    namedJdbcTemplate = new NamedParameterJdbcTemplate(ds);
+    this.sameIpService = sameIpService;
   }
 
   @ModelAttribute("masks")
@@ -120,11 +106,8 @@ public class SameIPController {
 
     int rowsLimit = 50;
 
-    List<TopicItem> topics = getTopics(ipMask, userAgent, rowsLimit);
-    List<PreparedCommentsListItem> comments = commentPrepareService.prepareCommentsList(commentDao.getCommentsByUAIP(ipMask, userAgent, rowsLimit));
+    var comments = sameIpService.getPosts(Optional.ofNullable(ipMask), Optional.ofNullable(userAgent), rowsLimit);
 
-    mv.getModel().put("topics", topics);
-    mv.getModel().put("hasMoreTopics", topics.size() == rowsLimit);
     mv.getModel().put("comments", comments);
     mv.getModel().put("hasMoreComments", comments.size() == rowsLimit);
     mv.getModel().put("rowsLimit", rowsLimit);
@@ -167,72 +150,5 @@ public class SameIPController {
     }
 
     return mv;
-  }
-
-  private List<TopicItem> getTopics(@Nullable String ip, @Nullable Integer userAgent, int limit) {
-    String ipQuery = ip!=null?"AND topics.postip <<= :ip::inet ":"";
-    String userAgentQuery = userAgent!=null?"AND topics.ua_id=:userAgent ":"";
-
-    Map<String, Object> params = new HashMap<>();
-
-    params.put("ip", ip);
-    params.put("userAgent", userAgent);
-    params.put("limit", limit);
-
-    return namedJdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
-                    "FROM topics, groups, sections, users " +
-                    "WHERE topics.groupid=groups.id " +
-                    "AND sections.id=groups.section " +
-                    "AND users.id=topics.userid " +
-                    ipQuery +
-                    userAgentQuery +
-                    "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC LIMIT :limit",
-            params,
-            (rs, rowNum) -> new TopicItem(rs)
-    );
-  }
-
-  public static class TopicItem {
-    private final String ptitle;
-    private final String gtitle;
-    private final int id;
-    private final String title;
-    private final Timestamp postdate;
-    private final boolean deleted;
-
-    private TopicItem(ResultSet rs) throws SQLException {
-      ptitle = rs.getString("ptitle");
-      gtitle = rs.getString("gtitle");
-      id = rs.getInt("msgid");
-      title = StringUtil.makeTitle(rs.getString("title"));
-      postdate = rs.getTimestamp("postdate");
-
-      deleted = rs.getBoolean("deleted");
-    }
-
-    public String getPtitle() {
-      return ptitle;
-    }
-
-    public String getGtitle() {
-      return gtitle;
-    }
-
-    public int getId() {
-      return id;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-
-    public Timestamp getPostdate() {
-      return postdate;
-    }
-
-    public boolean isDeleted() {
-      return deleted;
-    }
   }
 }

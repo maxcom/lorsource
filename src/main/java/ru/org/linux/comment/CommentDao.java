@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,6 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
@@ -72,11 +70,9 @@ public class CommentDao {
   private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=? AND not deleted";
 
   private final JdbcTemplate jdbcTemplate;
-  private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
   public CommentDao(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
-    namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
   /**
@@ -281,43 +277,5 @@ public class CommentDao {
                             rs.getBoolean("topic_deleted")),
             userId
     );
-  }
-
-  public List<CommentsListItem> getCommentsByUAIP(@Nullable String ip, @Nullable Integer userAgent, int limit) {
-    String ipQuery = ip!=null?"AND comments.postip <<= :ip::inet ":"";
-    String userAgentQuery = userAgent!=null?"AND comments.ua_id=:userAgent ":"";
-
-    Map<String, Object> params = new HashMap<>();
-
-    params.put("ip", ip);
-    params.put("userAgent", userAgent);
-    params.put("limit", limit);
-
-    return namedJdbcTemplate.query(
-            "SELECT groups.title as gtitle, topics.title, topics.id as msgid, " +
-                  "comments.id as cid, comments.postdate, comments.deleted, del_info.deldate, del_info.reason, " +
-                  "del_info.bonus, comments.userid, topics.deleted topic_deleted " +
-                "FROM groups JOIN topics ON groups.id=topics.groupid " +
-                  "JOIN comments ON comments.topic=topics.id " +
-                  "LEFT JOIN del_info ON del_info.msgid=comments.id " +
-                "WHERE comments.postdate>CURRENT_TIMESTAMP-'3 days'::interval " +
-                  ipQuery +
-                  userAgentQuery +
-                "ORDER BY postdate DESC LIMIT :limit",
-            params,
-            (rs, rowNum) ->
-                    new CommentsListItem(
-                            rs.getString("gtitle"),
-                            rs.getInt("msgid"),
-                            StringUtil.makeTitle(rs.getString("title")),
-                            rs.getString("reason"),
-                            rs.getTimestamp("deldate"),
-                            rs.getInt("bonus"),
-                            rs.getInt("cid"),
-                            rs.getBoolean("deleted"),
-                            rs.getTimestamp("postdate"),
-                            rs.getInt("userid"),
-                            rs.getBoolean("topic_deleted"))
-            );
   }
 }
