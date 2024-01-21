@@ -2,7 +2,6 @@ package ru.org.linux.sameip
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.org.linux.comment.CommentsListItem
 import ru.org.linux.util.StringUtil
 
 import java.sql.ResultSet
@@ -39,14 +38,14 @@ class SameIpDao(dataSource: DataSource) {
         "m.userid " +
         "FROM groups JOIN topics ON groups.id=topics.groupid " +
         "JOIN comments m ON m.topic=topics.id " + "LEFT JOIN del_info ON del_info.msgid=m.id " +
-        "WHERE m.postdate>CURRENT_TIMESTAMP-'3 days'::interval " + ipQuery + userAgentQuery +
+        "WHERE m.postdate>CURRENT_TIMESTAMP-'5 days'::interval " + ipQuery + userAgentQuery +
       "UNION ALL " +
         "SELECT groups.title as group_title, m.title, m.id as topic_id, " +
         "0 as cid, m.postdate, m.deleted, del_info.reason, " +
         "m.userid " +
         "FROM groups JOIN topics m ON groups.id=m.groupid " +
         "LEFT JOIN del_info ON del_info.msgid=m.id " +
-        "WHERE m.postdate>CURRENT_TIMESTAMP-'3 days'::interval " + ipQuery + userAgentQuery +
+        "WHERE m.postdate>CURRENT_TIMESTAMP-'5 days'::interval " + ipQuery + userAgentQuery +
       "ORDER BY postdate DESC LIMIT :limit",
       params.asJava, (rs: ResultSet, _: Int) =>
         PostListItem(

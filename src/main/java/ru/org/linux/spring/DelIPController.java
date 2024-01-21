@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -48,7 +48,7 @@ public class DelIPController {
    * Контроллер удаление топиков и сообщений по ip и времени
    * @param reason причина удаления
    * @param ip ip по которому удаляем
-   * @param time время за которое удаляем (hour, day, 3day)
+   * @param time время за которое удаляем (hour, day, 3day, 5day)
    * @return возвращаем страничку с результатом выполнения
    */
   @RequestMapping(value="/delip.jsp", method= RequestMethod.POST)
@@ -67,27 +67,25 @@ public class DelIPController {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
 
-    if ("hour".equals(time)) {
-      calendar.add(Calendar.HOUR_OF_DAY, -1);
-    } else if ("day".equals(time)) {
-      calendar.add(Calendar.DAY_OF_MONTH, -1);
-    } else if ("3day".equals(time)) {
-      calendar.add(Calendar.DAY_OF_MONTH, -3);
-    } else {
-      throw new UserErrorException("Invalid count");
+    switch (time) {
+      case "hour" -> calendar.add(Calendar.HOUR_OF_DAY, -1);
+      case "day" -> calendar.add(Calendar.DAY_OF_MONTH, -1);
+      case "3day" -> calendar.add(Calendar.DAY_OF_MONTH, -3);
+      case "5day" -> calendar.add(Calendar.DAY_OF_MONTH, -5);
+      default -> throw new UserErrorException("Invalid count");
     }
 
     Timestamp ts = new Timestamp(calendar.getTimeInMillis());
     params.put("message", "Удаляем темы и сообщения после "+ ts +" с IP "+ip+"<br>");
 
-      User moderator = AuthUtil.getCurrentUser();
+    User moderator = AuthUtil.getCurrentUser();
 
     DeleteCommentResult deleteResult = commentDeleteService.deleteCommentsByIPAddress(ip, ts, moderator, reason);
 
     params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
     params.put("deleted", deleteResult.getDeleteInfo());
 
-    for(int topicId : deleteResult.getDeletedTopicIds()) {
+    for (int topicId : deleteResult.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);
     }
 

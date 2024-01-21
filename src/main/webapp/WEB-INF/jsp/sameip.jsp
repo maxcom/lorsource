@@ -156,7 +156,7 @@
 
 </c:if>
 
-<h2>Сообщения за 3 дня
+<h2>Сообщения за 5 дней
   <c:if test="${hasMoreComments}">(показаны первые ${rowsLimit})</c:if>
 </h2>
 
@@ -311,6 +311,7 @@
       <option value="hour">1 час</option>
       <option value="day">1 день</option>
       <option value="3day">3 дня</option>
+      <option value="5day">5 дней</option>
     </select>
       <p>
         <button type="submit" name="del" class="btn btn-danger">del from ip</button>
