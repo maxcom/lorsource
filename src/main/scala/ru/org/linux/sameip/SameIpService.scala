@@ -40,11 +40,9 @@ class SameIpService(userService: UserService, msgbaseDao: MsgbaseDao, textServic
       val textPreview = MessageTextService.trimPlainText(plainText, 250, encodeHtml = false)
 
       PreparedPostListItem(
-        link = if (item.commentId.isDefined) {
-          s"jump-message.jsp?msgid=${item.topicId}&amp;cid=${item.commentId}"
-        } else {
-          s"jump-message.jsp?msgid=${item.topicId}"
-        },
+        link = item.commentId.map { commentId =>
+          s"jump-message.jsp?msgid=${item.topicId}&amp;cid=$commentId"
+        }.getOrElse(s"jump-message.jsp?msgid=${item.topicId}"),
         groupTitle = item.groupTitle,
         author = users(item.authorId),
         title = item.title,
