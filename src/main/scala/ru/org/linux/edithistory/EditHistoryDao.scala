@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -45,6 +45,8 @@ class EditHistoryDao(dataSource: DataSource) {
     editHistoryRecord.setOldtitle(resultSet.getString("oldtitle"))
     editHistoryRecord.setOldtags(resultSet.getString("oldtags"))
     editHistoryRecord.setObjectType(resultSet.getString("object_type"))
+    editHistoryRecord.setOldurl(resultSet.getString("oldurl"))
+    editHistoryRecord.setOldlinktext(resultSet.getString("oldlinktext"))
 
     editHistoryRecord.setOldimage(resultSet.getInt("oldimage"))
     if (resultSet.wasNull) editHistoryRecord.setOldimage(null)
@@ -67,20 +69,20 @@ class EditHistoryDao(dataSource: DataSource) {
    * @return список изменений топика
    */
   def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): util.List[EditHistoryRecord] = {
-    jdbcTemplate.query("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC", (resultSet: ResultSet, i: Int) => {
+    jdbcTemplate.query("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC", (resultSet: ResultSet, _: Int) => {
       parseEditHistoryRecord(resultSet)
     }, id, objectTypeEnum.toString)
   }
 
   def getEditRecord(msgid: Int, recordId: Int, objectTypeEnum: EditHistoryObjectTypeEnum): EditHistoryRecord = {
-    jdbcTemplate.queryForObject("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type AND id=?", (resultSet: ResultSet, i: Int) => {
+    jdbcTemplate.queryForObject("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type AND id=?", (resultSet: ResultSet, _: Int) => {
       parseEditHistoryRecord(resultSet)
     }, msgid, objectTypeEnum.toString, recordId)
   }
 
   def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): util.List[BriefEditInfo] = {
     jdbcTemplate.query("SELECT editdate, editor FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC",
-      (rs: ResultSet, rowNum: Int) =>
+      (rs: ResultSet, _: Int) =>
         BriefEditInfo(rs.getTimestamp("editdate"), rs.getInt("editor")), id, objectTypeEnum.toString)
   }
 
