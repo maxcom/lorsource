@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,10 +19,10 @@ import com.google.common.collect.ImmutableList;
 
 public class Theme {
   private static final Theme BLACK = new Theme("black", "black/head.jsp", "black/head-main.jsp");
-  private static final Theme WHITE2 = new Theme("white2", "white2/head-main.jsp", "white2/head-main.jsp");
+  private static final Theme WHITE2 = new Theme("white2", "white2/head-main.jsp", "white2/head-main.jsp", true);
   private static final Theme TANGO = new Theme("tango", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme WALTZ = new Theme("waltz", "tango/head-main.jsp", "tango/head-main.jsp");
-  private static final Theme ZOMG_PONIES = new Theme("zomg_ponies", "zomg_ponies/head-main.jsp", "zomg_ponies/head-main.jsp");
+  private static final Theme ZOMG_PONIES = new Theme("zomg_ponies", "zomg_ponies/head-main.jsp", "zomg_ponies/head-main.jsp", true);
 
   public static final ImmutableList<Theme> THEMES = ImmutableList.of(
           TANGO,
