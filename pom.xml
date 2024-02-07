@@ -18,7 +18,7 @@
     <dependency.spring.version>5.3.31</dependency.spring.version>
     <spring.security.version>5.5.8</spring.security.version>
     <jdbc.postgresql.version>42.7.1</jdbc.postgresql.version>
-    <elastic4s.version>7.13.0</elastic4s.version>
+    <elastic4s.version>7.17.4</elastic4s.version>
     <scala.version>2.13.12</scala.version>
     <scala.suffix>2.13</scala.suffix>
     <activemq.version>5.18.3</activemq.version>
@@ -304,7 +304,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.12.7.1</version>
+      <version>2.13.5</version>
     </dependency>
 
     <dependency>

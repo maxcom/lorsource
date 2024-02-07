@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
 import com.sksamuel.elastic4s.requests.searches.queries.Query
 import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.WeightScore
+import com.sksamuel.elastic4s.requests.searches.queries.matches.MatchQuery
 import org.joda.time.DateTimeZone
 
 import scala.concurrent.Await
@@ -34,8 +35,8 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     } else {
       boolQuery().
         should(
-          commonTermsQuery("title", queryText) lowFreqMinimumShouldMatch 2,
-          commonTermsQuery("message", queryText) lowFreqMinimumShouldMatch 2,
+          MatchQuery("title", queryText).minimumShouldMatch("2"),
+          MatchQuery("message", queryText).minimumShouldMatch("2"),
           matchPhraseQuery("message", queryText)).minimumShouldMatch(1)
     }
   }
