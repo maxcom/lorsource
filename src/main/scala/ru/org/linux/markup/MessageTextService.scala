@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -107,7 +107,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case Html =>
         Jsoup.parse(text.text).text
       case Markdown =>
-        Jsoup.parse(markdownFormatter.renderToHtml(text.text, nofollow = false)).text()
+        markdownFormatter.renderToText(text.text)
     }
   }
 

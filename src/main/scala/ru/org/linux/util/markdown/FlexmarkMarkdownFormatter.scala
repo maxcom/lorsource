@@ -15,14 +15,18 @@
 
 package ru.org.linux.util.markdown
 
-import com.vladsch.flexmark.util.ast.{NodeVisitor, VisitHandler}
 import com.vladsch.flexmark.ext.autolink.AutolinkExtension
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension
 import com.vladsch.flexmark.ext.tables.TablesExtension
 import com.vladsch.flexmark.ext.typographic.TypographicExtension
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
+import com.vladsch.flexmark.util.ast.{NodeVisitor, VisitHandler}
 import com.vladsch.flexmark.util.options.MutableDataSet
+import org.jsoup.Jsoup
+import org.jsoup.internal.StringUtil
+import org.jsoup.nodes.{CDataNode, Document, Element, Node, TextNode}
+import org.jsoup.select.{NodeTraversor, NodeVisitor as JsoupNodeVisitor}
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.CommentDao
@@ -31,7 +35,9 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
-import scala.jdk.CollectionConverters._
+import javax.annotation.Nullable
+import java.lang.StringBuilder as JStringBuilder
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 
 @Service
@@ -112,5 +118,79 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
     visitor.visit(document)
 
     mentions.toSet.flatMap(userService.findUserCached)
+  }
+
+  def renderToText(content: String): String = {
+    text(Jsoup.parse(renderToHtml(content, nofollow = false)))
+  }
+
+  private def text(doc: Document): String = {
+    val accum = StringUtil.borrowBuilder
+    NodeTraversor.traverse(new FormattingVisitor(accum), doc)
+    StringUtil.releaseBuilder(accum).trim
+  }
+
+
+  private class FormattingVisitor(accum: JStringBuilder) extends JsoupNodeVisitor {
+    private def lastCharIsWhitespace(sb: JStringBuilder) = !sb.isEmpty && sb.charAt(sb.length - 1) == ' '
+
+    private def appendNormalisedText(accum: JStringBuilder, textNode: TextNode): Unit = {
+      val text = textNode.getWholeText
+
+      if (preserveWhitespace(textNode.parentNode) || textNode.isInstanceOf[CDataNode]) {
+        accum.append(text)
+      } else {
+        StringUtil.appendNormalisedWhitespace(accum, text, lastCharIsWhitespace(accum))
+      }
+    }
+
+    private def preserveWhitespace(@Nullable node: Node): Boolean = {
+      // looks only at this element and five levels up, to prevent recursion & needless stack searches
+      node match {
+        case element: Element =>
+          var el = element
+          var i = 0
+          do {
+            if (el.tag.preserveWhitespace) {
+              return true
+            }
+
+            el = el.parent
+            i += 1
+          } while (i < 6 && el != null)
+        case _ =>
+      }
+      false
+    }
+
+    override def head(node: Node, depth: Int): Unit = {
+      node match {
+        case textNode: TextNode =>
+          appendNormalisedText(accum, textNode)
+        case element: Element =>
+          if (element.nameIs("blockquote")) {
+            accum.append('«')
+          } else if (!accum.isEmpty && (element.isBlock || element.nameIs("br")) && !lastCharIsWhitespace(accum)) {
+            accum.append(' ')
+          }
+        case _ =>
+      }
+    }
+
+    override def tail(node: Node, depth: Int): Unit = {
+      // make sure there is a space between block tags and immediately following text nodes or inline elements <div>One</div>Two should be "One Two".
+      node match {
+        case element: Element =>
+          val next = node.nextSibling
+          if (element.nameIs("blockquote")) {
+            accum.append("» ")
+          } else if (element.isBlock &&
+            (next.isInstanceOf[TextNode] || next.isInstanceOf[Element] && !next.asInstanceOf[Element].tag.formatAsBlock) &&
+            !lastCharIsWhitespace(accum)) {
+              accum.append(' ')
+          }
+        case _ =>
+      }
+    }
   }
 }
