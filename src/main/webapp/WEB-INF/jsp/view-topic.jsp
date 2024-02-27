@@ -303,7 +303,7 @@
 
 <c:if test="${threadMode}">
   <div class=nav>
-    Показаны ответы на комментарий. <a href="${message.link}">Показать</a> все комментарии.
+    Показаны ответы на комментарий. <a href="${message.link}?cid=${threadRoot}">Показать</a> все комментарии.
   </div>
 </c:if>
 
