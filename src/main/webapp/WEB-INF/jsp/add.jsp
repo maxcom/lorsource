@@ -157,7 +157,9 @@
   <label for="form_msg">Сообщение</label>
     <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
     <div class="help-block"><b>Внимание:</b> прочитайте описание разметки
-      <a target="_blank" href="/help/markdown.md">Markdown</a> или <a href="/help/lorcode.md" target="_blank">LORCODE</a>.</div>
+        <a target="_blank" href="/help/markdown.md">Markdown</a> или <a href="/help/lorcode.md" target="_blank">LORCODE</a>.<br>
+        Обратите внимание на то, как <a target=_blank href="/forum/linux-org-ru/15431459">правильно копировать вывод терминала</a>.
+    </div>
 </div>
 
 <c:if test="${group!=null and group.linksAllowed}">
