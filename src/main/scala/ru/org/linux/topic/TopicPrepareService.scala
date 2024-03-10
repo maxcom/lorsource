@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 package ru.org.linux.topic
 
 import org.springframework.stereotype.Service
+import ru.org.linux.auth.CurrentUser
 import ru.org.linux.edithistory.EditInfoSummary
 import ru.org.linux.gallery.{Image, ImageService}
 import ru.org.linux.group.{GroupDao, GroupPermissionService}
@@ -52,11 +53,13 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
       null, text, image)
 
-  def prepareEditInfo(editInfo: EditInfoSummary): PreparedEditInfoSummary = {
+  def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic, currentUserOpt: Option[CurrentUser]): PreparedEditInfoSummary = {
     val lastEditor = userService.getUserCached(editInfo.editor).getNick
     val editCount = editInfo.editCount
     val lastEditDate = editInfo.editdate
-    PreparedEditInfoSummary.apply(lastEditor, editCount, lastEditDate)
+
+    PreparedEditInfoSummary(lastEditor, editCount, lastEditDate,
+      showHistory = topicPermissionService.canViewHistory(topic, currentUserOpt.map(_.user).orNull))
   }
 
   /**

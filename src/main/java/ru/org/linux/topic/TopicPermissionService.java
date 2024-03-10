@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -86,7 +86,7 @@ public class TopicPermissionService {
               "<b>Ограничение на отправку комментариев</b>: " + User.getStars(postscore, postscore, true);
       case POSTSCORE_MOD_AUTHOR ->
               "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
-      case POSTSCORE_MODERATORS_ONLY -> "" +
+      case POSTSCORE_MODERATORS_ONLY ->
               "<b>Ограничение на отправку комментариев</b>: только для модераторов";
       case POSTSCORE_NO_COMMENTS ->
               "<b>Ограничение на отправку комментариев</b>: комментарии запрещены";
@@ -476,5 +476,21 @@ public class TopicPermissionService {
             && !msg.isDraft()
             && (msg.getPostscore() != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
             && (!group.isPremoderated() || msg.isCommited() || msg.getAuthorUserId() != User.ANONYMOUS_ID);
+  }
+
+  public boolean canViewHistory(Topic msg, @Nullable User viewer) {
+    if (viewer!=null && viewer.isModerator()) {
+      return true;
+    }
+
+    if (viewer!=null && msg.authorUserId() == viewer.getId()) {
+      return true;
+    }
+
+    if (viewer!=null && !msg.isExpired()) {
+      return true;
+    }
+
+    return false;
   }
 }

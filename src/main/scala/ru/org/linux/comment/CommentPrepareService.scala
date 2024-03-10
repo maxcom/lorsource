@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -132,12 +132,6 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  private def prepareRSSComment(messageText: MessageText, comment: Comment) = {
-    val author = userService.getUserCached(comment.userid)
-    val processedMessage = textService.renderTextRSS(messageText)
-    new PreparedRSSComment(comment, author, processedMessage)
-  }
-
   def prepareCommentOnly(comment: Comment, @Nullable currentUser: User, profile: Profile,
                          topic: Topic, ignoreList: java.util.Set[Integer]): PreparedComment = {
     val messageText = msgbaseDao.getMessageText(comment.id)
@@ -192,20 +186,6 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
           samePageComments, currentUser, group, ignoreList, filterShow)
       }
     }
-  }
-
-  def prepareCommentsList(comments: java.util.List[CommentsListItem]): java.util.List[PreparedCommentsListItem] = {
-    val users = userService.getUsersCachedMap(comments.asScala.map(_.authorId))
-
-    val texts = msgbaseDao.getMessageText(comments.asScala.map(_.commentId))
-
-    comments.asScala.map { comment =>
-      val author = users(comment.authorId)
-      val plainText = textService.extractPlainText(texts(comment.commentId))
-      val textPreview = MessageTextService.trimPlainText(plainText, 250, encodeHtml = false)
-
-      PreparedCommentsListItem(comment, author, textPreview)
-    }.asJava
   }
 
   def buildDateJumpSet(comments: collection.Seq[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {

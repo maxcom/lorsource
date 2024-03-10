@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,7 +31,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicTagService}
-import ru.org.linux.user.{UserDao, UserService}
+import ru.org.linux.user.UserService
 
 import scala.collection.Seq as MSeq
 import scala.jdk.CollectionConverters.*
@@ -39,11 +39,11 @@ import scala.jdk.CollectionConverters.*
 object ElasticsearchIndexService {
   val MessageIndex = "messages"
 
-  val MessageIndexType: Index = Index(MessageIndex)
+  private val MessageIndexType: Index = Index(MessageIndex)
 
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
 
-  val Mapping: MappingDefinition = properties(
+  private val Mapping: MappingDefinition = properties(
     keywordField("group"),
     keywordField("section"),
     booleanField("is_comment"),
@@ -57,7 +57,7 @@ object ElasticsearchIndexService {
     textField("message").analyzer("text_analyzer").termVector(TermVector.WithPositionsOffsets),
     booleanField("topic_awaits_commit"))
 
-  val Analyzers: Seq[CustomAnalyzerDefinition] = Seq(
+  private val Analyzers: Seq[CustomAnalyzerDefinition] = Seq(
     CustomAnalyzerDefinition(
       "text_analyzer",
       tokenizer = StandardTokenizer("text_tokenizer"),

@@ -190,7 +190,12 @@
     <br>
     Последнее исправление: ${briefEditInfo.lastEditor()}<c:out value=" "/><lor:date
           date="${briefEditInfo.lastEditDate()}"/>
-    (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount()}</a>)
+    <c:if test="${briefEditInfo.showHistory}">
+        (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount()}</a>)
+    </c:if>
+    <c:if test="${not briefEditInfo.showHistory}">
+        (всего исправлений: ${briefEditInfo.editCount()})
+    </c:if>
   </c:if>
   <c:if test="${preparedMessage.userAgent!=null}">
     <br>

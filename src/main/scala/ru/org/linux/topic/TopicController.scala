@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -169,12 +169,10 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     val params = new mutable.HashMap[String, AnyRef]()
 
-    if (currentUserOpt.isDefined) {
-      val editInfoSummary = editHistoryService.editInfoSummary(topic.id, TOPIC)
+    val editInfoSummary = editHistoryService.editInfoSummary(topic.id, TOPIC)
 
-      if (editInfoSummary.nonEmpty) {
-        params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get))
-      }
+    if (editInfoSummary.nonEmpty) {
+      params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get, topic, currentUserOpt))
     }
 
     permissionService.checkView(group, topic, currentUserOpt.map(_.user).orNull, preparedMessage.author, showDeleted)
