@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,8 +32,8 @@ import static org.mockito.Mockito.mock;
 @ImportResource("classpath:common.xml")
 public class ImageDaoIntegrationTestConfiguration {
   @Bean
-  public ImageDao imageDao() {
-    return new ImageDao();
+  public ImageDao imageDao(SectionService sectionService, DataSource dataSource) {
+    return new ImageDao(sectionService, dataSource);
   }
 
   @Bean

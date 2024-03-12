@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -68,7 +68,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
       None
   }
 
-  def prepareGalleryItem(item: GalleryItem):PreparedGalleryItem = {
+  def prepareGalleryItem(item: GalleryItem): PreparedGalleryItem = {
     PreparedGalleryItem(item, userService.getUserCached(item.getUserid))
   }
 
@@ -90,16 +90,15 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   }
 
 
-    // java api
+  // java api
   def prepareImageJava(image: Image): Optional[PreparedImage] = prepareImage(image).toJava
 
   def prepareGalleryItem(items: java.util.List[GalleryItem]): java.util.List[PreparedGalleryItem] =
     items.asScala.map(prepareGalleryItem).asJava
 
-  def getGalleryItems(countItems: Int, tagId: Int): java.util.List[GalleryItem] =
-    imageDao.getGalleryItems(countItems, tagId)
+  def getGalleryItems(countItems: Int, tagId: Int): Seq[GalleryItem] = imageDao.getGalleryItems(countItems, tagId)
 
-  def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems)
+  def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems).asJava
 
   def imageForTopic(topic: Topic): Optional[Image] = Option(imageDao.imageForTopic(topic)).toJava
 
