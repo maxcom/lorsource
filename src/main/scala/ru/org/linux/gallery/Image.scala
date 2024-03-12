@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,16 +53,10 @@ object Image {
 
 }
 
-case class Image(
-  @BeanProperty id: Int,
-  @BeanProperty topicId: Int,
-  @BeanProperty original: String
-) {
+case class Image(@BeanProperty id: Int, @BeanProperty topicId: Int, @BeanProperty original: String, deleted: Boolean) {
   def getMedium: String = Image.main(original, id)
   def getSrcset: String = Image.srcset(original, id)
   def getSrcsetUpTo(width: Int): String = Image.srcset(original, id, width)
 }
 
-case class PreparedGalleryItem(
-  @BeanProperty item: GalleryItem,
-  @BeanProperty user: User)
+case class PreparedGalleryItem(@BeanProperty item: GalleryItem, @BeanProperty user: User)

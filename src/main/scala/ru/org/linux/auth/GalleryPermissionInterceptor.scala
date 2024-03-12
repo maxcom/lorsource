@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package ru.org.linux.auth
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.web.servlet.HandlerInterceptor
-import ru.org.linux.gallery.ImageDao
+import ru.org.linux.gallery.{Image, ImageDao}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
@@ -44,9 +44,10 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
         case ImagesPattern(id) =>
 
           try {
-            val topic = topicDao.getById(imageDao.getImage(id.toInt).topicId)
+            val image = imageDao.getImage(id.toInt)
+            val topic = topicDao.getById(image.topicId)
 
-            (visible(AuthUtil.getCurrentUser, topic), 403)
+            (visible(AuthUtil.getCurrentUser, topic, image), 403)
           } catch {
             case _: EmptyResultDataAccessException =>
               (false, 404)
@@ -66,12 +67,16 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
     continue
   }
 
-  private def visible(currentUser: User, topic: Topic): Boolean = {
+  private def visible(currentUser: User, topic: Topic, image: Image): Boolean = {
     try {
       topicPermissionService.checkView(groupDao.getGroup(topic.groupId), topic, currentUser,
         userService.getUserCached(topic.authorUserId), false)
 
-      true
+      if (image.deleted) {
+        topicPermissionService.canViewHistory(topic, currentUser)
+      } else {
+        true
+      }
     } catch {
       case ex: MessageNotFoundException =>
         logger.info(s"topic ${topic.id} non-visible: ${ex.getMessage}")

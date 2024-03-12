@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -86,7 +86,7 @@ public class ImageDao {
   @Nullable
   public Image imageForTopic(@Nonnull Topic topic) {
     List<Image> found = jdbcTemplate.query(
-            "SELECT id, topic, extension FROM images WHERE topic=? AND NOT deleted",
+            "SELECT id, topic, extension, deleted FROM images WHERE topic=? AND NOT deleted",
             new ImageRowMapper(),
             topic.getId()
     );
@@ -94,16 +94,15 @@ public class ImageDao {
     if (found.isEmpty()) {
       return null;
     } else if (found.size() == 1) {
-      return found.get(0);
+      return found.getFirst();
     } else {
       throw new RuntimeException("Too many images for topic="+topic.getId());
     }
   }
 
-  @Nonnull
   public Image getImage(int id) {
     return jdbcTemplate.queryForObject(
-            "SELECT id, topic, extension FROM images WHERE id=?",
+            "SELECT id, topic, extension, deleted FROM images WHERE id=?",
             new ImageRowMapper(),
             id
     );
@@ -123,7 +122,8 @@ public class ImageDao {
       return new Image(
               imageid,
               rs.getInt("topic"),
-              "images/"+imageid+"/original."+rs.getString("extension"));
+              "images/"+imageid+"/original."+rs.getString("extension"),
+              rs.getBoolean("deleted"));
     }
   }
 
@@ -151,8 +151,8 @@ public class ImageDao {
       Image image = new Image(
               imageid,
               rs.getInt("msgid"),
-              "images/"+imageid+"/original."+rs.getString("extension")
-      );
+              "images/"+imageid+"/original."+rs.getString("extension"),
+              false);
 
       item.setImage(image);
 

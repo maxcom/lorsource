@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -244,7 +244,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val previewMsg: Topic = Topic.fromAddRequest(form, user, request.getRemoteAddr)
 
-    val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName))
+    val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false))
 
     val tagNames = TagName.parseAndSanitizeTags(form.getTags)
 
