@@ -384,7 +384,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params.put("newMsg", newMsg)
 
     val imageObject: Option[Image] = imagePreview.map { i =>
-      new Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false)
+      new Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true)
     }
 
     params.put("newPreparedMessage",

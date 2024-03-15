@@ -244,7 +244,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val previewMsg: Topic = Topic.fromAddRequest(form, user, request.getRemoteAddr)
 
-    val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false))
+    val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true))
 
     val tagNames = TagName.parseAndSanitizeTags(form.getTags)
 

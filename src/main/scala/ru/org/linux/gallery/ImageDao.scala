@@ -30,7 +30,10 @@ import scala.jdk.CollectionConverters.MapHasAsJava
 object ImageDao {
   private def imageRowMapper(rs: ResultSet, i: Int): Image = {
     val imageid = rs.getInt("id")
-    new Image(imageid, rs.getInt("topic"), "images/" + imageid + "/original." + rs.getString("extension"), rs.getBoolean("deleted"))
+    val extension = rs.getString("extension")
+
+    Image(id = imageid, topicId = rs.getInt("topic"), original = s"images/$imageid/original.$extension",
+      deleted = rs.getBoolean("deleted"), main = rs.getBoolean("main"))
   }
 
   private def galleryItemRowMapper(gallery: Section)(rs: ResultSet, rowNum: Int): GalleryItem = {
@@ -42,7 +45,8 @@ object ImageDao {
     item.setCommitDate(rs.getTimestamp("commitdate"))
     val imageid = rs.getInt("imageid")
 
-    val image = new Image(imageid, rs.getInt("msgid"), "images/" + imageid + "/original." + rs.getString("extension"), deleted = false)
+    val extension = rs.getString("extension")
+    val image = Image(imageid, rs.getInt("msgid"), s"images/$imageid/original.$extension", deleted = false, main = true)
 
     item.setImage(image)
     item.setUserid(rs.getInt("userid"))
@@ -74,7 +78,7 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
          |    FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
          |     AND section=${Section.SECTION_GALLERY} AND NOT topics.deleted AND commitdate IS NOT NULL
          |     ORDER BY commitdate DESC LIMIT ?) as t JOIN images ON t.msgid = images.topic
-         |WHERE NOT images.deleted ORDER BY commitdate DESC""".stripMargin
+         |WHERE NOT images.deleted AND images.main ORDER BY commitdate DESC""".stripMargin
 
     jdbcTemplate.queryAndMap(sql, countItems)(galleryItemRowMapper(gallery))
   }
@@ -93,29 +97,21 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
          |      AND section=${Section.SECTION_GALLERY} AND NOT topics.deleted AND commitdate IS NOT NULL AND
          |      topics.id IN (SELECT msgid FROM tags WHERE tagid=?) ORDER BY commitdate DESC LIMIT ?) as t
          |  JOIN images ON t.msgid = images.topic
-         |WHERE NOT images.deleted""".stripMargin
+         |WHERE NOT images.deleted AND images.main""".stripMargin
 
     jdbcTemplate.queryAndMap(sql, tagId, countItems)(galleryItemRowMapper(gallery))
   }
 
   @Nullable
-  def imageForTopic(topic: Topic): Image = {
-    val found = jdbcTemplate.queryAndMap(
-        "SELECT id, topic, extension, deleted FROM images WHERE topic=? AND NOT deleted",
-        topic.id)(ImageDao.imageRowMapper)
-
-    if (found.isEmpty) {
-      null
-    } else if (found.size == 1) {
-      found.head
-    } else {
-      throw new RuntimeException(s"Too many images for topic=${topic.id}")
-    }
-  }
+  def imageForTopic(topic: Topic): Image =
+    jdbcTemplate.queryAndMap(
+        "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted AND main", topic.id
+    )(ImageDao.imageRowMapper).headOption.orNull
 
   def getImage(id: Int): Image =
-    jdbcTemplate.queryForObjectAndMap("SELECT id, topic, extension, deleted FROM images WHERE id=?",
-      id)(ImageDao.imageRowMapper).getOrElse(throw new RuntimeException("Image not found: " + id))
+    jdbcTemplate.queryAndMap(
+      "SELECT id, topic, extension, deleted, main FROM images WHERE id=?", id
+    )(ImageDao.imageRowMapper).headOption.getOrElse(throw new RuntimeException("Image not found: " + id))
 
   def saveImage(topicId: Int, extension: String): Int = {
     val dataMap: Map[String, Any] = Map("topic" -> topicId, "extension" -> extension)
