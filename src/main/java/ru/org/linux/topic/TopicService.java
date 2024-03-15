@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,6 @@
 
 package ru.org.linux.topic;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.edithistory.EditHistoryDao;
+import ru.org.linux.edithistory.EditHistoryRecord;
+import ru.org.linux.gallery.Image;
+import ru.org.linux.gallery.ImageDao;
 import ru.org.linux.gallery.ImageService;
 import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
@@ -33,6 +35,7 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
+import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
@@ -43,6 +46,7 @@ import scala.Tuple2;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -53,42 +57,44 @@ import static com.google.common.base.Predicates.in;
 @Service
 public class TopicService {
   private static final Logger logger = LoggerFactory.getLogger(TopicService.class);
+  private final TopicDao topicDao;
+  private final MsgbaseDao msgbaseDao;
+  private final SectionService sectionService;
+  private final ImageService imageService;
+  private final PollDao pollDao;
+  private final UserEventService userEventService;
+  private final TopicTagService topicTagService;
+  private final UserService userService;
+  private final UserTagService userTagService;
+  private final UserDao userDao;
+  private final DeleteInfoDao deleteInfoDao;
+  private final MessageTextService textService;
+  private final EditHistoryDao editHistoryDao;
+  private final ImageDao imageDao;
+
+  public TopicService(TopicDao topicDao, MsgbaseDao msgbaseDao, SectionService sectionService,
+                      ImageService imageService, PollDao pollDao, UserEventService userEventService,
+                      TopicTagService topicTagService, UserService userService, UserTagService userTagService,
+                      UserDao userDao, DeleteInfoDao deleteInfoDao, MessageTextService textService,
+                      EditHistoryDao editHistoryDao, ImageDao imageDao) {
+    this.topicDao = topicDao;
+    this.msgbaseDao = msgbaseDao;
+    this.sectionService = sectionService;
+    this.imageService = imageService;
+    this.pollDao = pollDao;
+    this.userEventService = userEventService;
+    this.topicTagService = topicTagService;
+    this.userService = userService;
+    this.userTagService = userTagService;
+    this.userDao = userDao;
+    this.deleteInfoDao = deleteInfoDao;
+    this.textService = textService;
+    this.editHistoryDao = editHistoryDao;
+    this.imageDao = imageDao;
+  }
 
   @Autowired
-  private TopicDao topicDao;
-
-  @Autowired
-  private MsgbaseDao msgbaseDao;
-
-  @Autowired
-  private SectionService sectionService;
-
-  @Autowired
-  private ImageService imageService;
-
-  @Autowired
-  private PollDao pollDao;
-
-  @Autowired
-  private UserEventService userEventService;
-
-  @Autowired
-  private TopicTagService topicTagService;
-
-  @Autowired
-  private UserService userService;
-
-  @Autowired
-  private UserTagService userTagService;
-
-  @Autowired
-  private UserDao userDao;
-
-  @Autowired
-  private DeleteInfoDao deleteInfoDao;
-
-  @Autowired
-  private MessageTextService textService;
+  private SiteConfig siteConfig;
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public Tuple2<Integer, Set<Integer>> addMessage(
@@ -131,12 +137,12 @@ public class TopicService {
 
     if (!previewMsg.isDraft()) {
       if (section.isPremoderated()) {
-        notified = sendEvents(message, msgid, ImmutableList.of(), user.getId());
+        notified = sendEvents(message, msgid, List.of(), user.getId());
       } else {
         notified = sendEvents(message, msgid, tags, user.getId());
       }
     } else {
-      notified = ImmutableSet.of();
+      notified = Set.of();
     }
 
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
@@ -169,7 +175,7 @@ public class TopicService {
             .filter(id -> !notifiedUsers.contains(id))
             .collect(Collectors.toSet());
 
-    // не оповещать пользователей. которые ранее были оповещены через упоминание
+    // Не оповещать пользователей, которые ранее были оповещены через упоминание
     List<Integer> tagUsers = userIdListByTags.stream()
             .filter((in(userRefIds).or(in(notifiedUsers))).negate()).collect(Collectors.toList());
 
@@ -213,7 +219,7 @@ public class TopicService {
 
     if (deleted) {
       deleteInfoDao.insert(mid, moderator, reason, bonus);
-      userEventService.processTopicDeleted(ImmutableList.of(mid));
+      userEventService.processTopicDeleted(List.of(mid));
     }
 
     return deleted;
@@ -280,8 +286,20 @@ public class TopicService {
           Map<Integer, Integer> editorBonus,
           UploadedImagePreview imagePreview
   ) throws IOException {
-    boolean modified = topicDao.updateMessage(oldMsg, newMsg, user, newTags, newText.text(), imagePreview,
+    EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
+
+    boolean modified = topicDao.updateMessage(editHistoryRecord, oldMsg, newMsg, user, newTags, newText.text(),
             pollVariants, multiselect);
+
+    if (imagePreview!=null) {
+      replaceImage(oldMsg, imagePreview, editHistoryRecord);
+
+      modified = true;
+    }
+
+    if (modified) {
+      editHistoryDao.insert(editHistoryRecord);
+    }
 
     Set<Integer> notified;
 
@@ -291,10 +309,10 @@ public class TopicService {
       if (newTags!=null && sendTagEventsNeeded(section, oldMsg, commit)) {
         notified = sendEvents(newText, oldMsg.getId(), newTags, oldMsg.getAuthorUserId());
       } else {
-        notified = sendEvents(newText, oldMsg.getId(), ImmutableList.of(), oldMsg.getAuthorUserId());
+        notified = sendEvents(newText, oldMsg.getId(), List.of(), oldMsg.getAuthorUserId());
       }
     } else {
-      notified = ImmutableSet.of();
+      notified = Set.of();
     }
 
     if (oldMsg.isDraft() && !newMsg.isDraft()) {
@@ -316,6 +334,26 @@ public class TopicService {
     }
 
     return Tuple2.apply(modified, notified);
+  }
+
+  private void replaceImage(Topic oldMsg, UploadedImagePreview imagePreview, EditHistoryRecord editHistoryRecord) throws IOException {
+    Image oldImage = imageDao.imageForTopic(oldMsg);
+
+    if (oldImage!=null) {
+      imageDao.deleteImage(oldImage);
+    }
+
+    int id = imageDao.saveImage(oldMsg.getId(), imagePreview.extension());
+
+    File galleryPath = new File(siteConfig.getUploadPath() + "/images");
+
+    imagePreview.moveTo(galleryPath, Integer.toString(id));
+
+    if (oldImage!=null) {
+      editHistoryRecord.setOldimage(oldImage.getId());
+    } else {
+      editHistoryRecord.setOldimage(0);
+    }
   }
 
   private void commit(Topic msg, User commiter, int bonus, Map<Integer, Integer> editorBonus) {

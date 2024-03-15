@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,12 +24,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.edithistory.EditHistoryDao;
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
 import ru.org.linux.edithistory.EditHistoryRecord;
-import ru.org.linux.gallery.Image;
-import ru.org.linux.gallery.ImageDao;
-import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
@@ -40,7 +35,6 @@ import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
@@ -48,11 +42,10 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -74,16 +67,7 @@ public class TopicDao {
   private DeleteInfoDao deleteInfoDao; // TODO move to TopicService
 
   @Autowired
-  private EditHistoryDao editHistoryDao; // TODO move to TopicService
-
-  @Autowired
-  private ImageDao imageDao; // TODO move to TopicService
-
-  @Autowired
   private PollDao pollDao; // TODO move to TopicService
-
-  @Autowired
-  private SiteConfig siteConfig;
 
   /**
    * Запрос получения полной информации о топике
@@ -230,10 +214,9 @@ public class TopicDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText,
-                               UploadedImagePreview imagePreview, List<PollVariant> newPollVariants,
-                               boolean multiselect) throws IOException {
-    EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
+  public boolean updateMessage(EditHistoryRecord editHistoryRecord, Topic oldMsg, Topic msg, User editor,
+                               List<String> newTags, String newText, List<PollVariant> newPollVariants,
+                               boolean multiselect) {
 
     editHistoryRecord.setMsgid(msg.getId());
     editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
@@ -256,7 +239,7 @@ public class TopicDao {
 
       namedJdbcTemplate.update(
         "UPDATE topics SET title=:title WHERE id=:id",
-        ImmutableMap.of("title", msg.getTitle(), "id", msg.getId())
+        Map.of("title", msg.getTitle(), "id", msg.getId())
       );
     }
 
@@ -266,7 +249,7 @@ public class TopicDao {
 
       namedJdbcTemplate.update(
         "UPDATE topics SET linktext=:linktext WHERE id=:id",
-        ImmutableMap.of("linktext", msg.getLinktext(), "id", msg.getId())
+        Map.of("linktext", msg.getLinktext(), "id", msg.getId())
       );
     }
 
@@ -276,7 +259,7 @@ public class TopicDao {
 
       namedJdbcTemplate.update(
         "UPDATE topics SET url=:url WHERE id=:id",
-        ImmutableMap.of("url", msg.getUrl(), "id", msg.getId())
+        Map.of("url", msg.getUrl(), "id", msg.getId())
       );
     }
 
@@ -293,31 +276,9 @@ public class TopicDao {
 
     if (oldMsg.isMinor() != msg.isMinor()) {
       namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
-              ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
+              Map.of("minor", msg.isMinor(), "id", msg.getId()));
 
       editHistoryRecord.setOldminor(oldMsg.isMinor());
-
-      modified = true;
-    }
-
-    if (imagePreview!=null) {
-      Image oldImage = imageDao.imageForTopic(msg);
-
-      if (oldImage!=null) {
-        imageDao.deleteImage(oldImage);
-      }
-
-      int id = imageDao.saveImage(msg.getId(), imagePreview.extension());
-
-      File galleryPath = new File(siteConfig.getUploadPath() + "/images");
-
-      imagePreview.moveTo(galleryPath, Integer.toString(id));
-
-      if (oldImage!=null) {
-        editHistoryRecord.setOldimage(oldImage.getId());
-      } else {
-        editHistoryRecord.setOldimage(0);
-      }
 
       modified = true;
     }
@@ -336,7 +297,6 @@ public class TopicDao {
     }
 
     if (modified) {
-      editHistoryDao.insert(editHistoryRecord);
       updateLastmod(msg.getId(), false);
     }
 
@@ -426,11 +386,11 @@ public class TopicDao {
     }
 
     try {
-      if (res.isEmpty() || res.get(0)==null) {
+      if (res.isEmpty() || res.getFirst()==null) {
         return null;
       }
 
-      int prevMsgid = res.get(0);
+      int prevMsgid = res.getFirst();
 
       return getById(prevMsgid);
     } catch (MessageNotFoundException e) {
@@ -493,11 +453,11 @@ public class TopicDao {
     }
 
     try {
-      if (res.isEmpty() || res.get(0)==null) {
+      if (res.isEmpty() || res.getFirst()==null) {
         return null;
       }
 
-      int nextMsgid = res.get(0);
+      int nextMsgid = res.getFirst();
 
       return getById(nextMsgid);
     } catch (MessageNotFoundException e) {
