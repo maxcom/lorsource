@@ -129,6 +129,10 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     } else {
       val section = sectionService.getSection(form.getGroup.sectionId)
 
+      if (form.getAdditionalUploadedImages.isEmpty) {
+        form.setAdditionalUploadedImages(new Array[String](groupPermissionService.additionalImageLimit(section, currentUser.map(_.user).orNull)))
+      }
+
       val params = prepareModel(Some(form.getGroup), currentUser.map(_.user), section)
 
       new ModelAndView("add", params.asJava)

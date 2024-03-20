@@ -119,6 +119,15 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
+  def additionalImageLimit(section: Section, @Nullable currentUser: User): Int = {
+    if (isImagePostingAllowed(section, currentUser) && section.getId == Section.SECTION_GALLERY &&
+      currentUser!=null && currentUser.isAdministrator) {
+      3
+    } else {
+      0
+    }
+  }
+
   def getPostScoreInfo(group: Group): String = {
     val postscore = effectivePostscore(group)
 

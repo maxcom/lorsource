@@ -3,7 +3,7 @@
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
 <%@ page import="ru.org.linux.gallery.Image" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -132,8 +132,18 @@
     <form:hidden path="uploadedImage"/>
     <div class="control-group">
       <label for="image">Изображение:</label>
-      <input id="image" type="file" name="image">
+      <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" >
     </div>
+
+    <c:if test="${not empty form.additionalUploadedImages}">
+      <div class="control-group">
+        <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
+          <form:hidden path="additionalUploadedImages[${i.index}]"/>
+          <label>Дополнительное изображение #${i.index}:
+          <input type="file" name="additionalImage[${i.index}]" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif"></label>
+        </c:forEach>
+      </div>
+    </c:if>
   </c:if>
 
   <c:if test="${section.pollPostAllowed}">
@@ -149,8 +159,10 @@
   </c:if>
 
 <c:if test="${not empty modes}">
-<label>Разметка:*<br>
-<form:select path="mode" items="${modes}"/></label><br>
+  <div class="control-group">
+    <label for="mode">Разметка:*<br>
+    <form:select path="mode" items="${modes}"/></label>
+  </div>
 </c:if>
 
 <div class="control-group">

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -30,6 +30,7 @@ public class AddTopicRequest {
   private boolean noinfo;
   private String[] poll = new String[Poll.MaxPollSize()];
   private boolean multiSelect;
+  private String[] additionalUploadedImages = new String[] {};
 
   private User nick;
   private String password;
@@ -178,5 +179,13 @@ public class AddTopicRequest {
 
   public void setUploadedImage(String uploadedImage) {
     this.uploadedImage = uploadedImage;
+  }
+
+  public String[] getAdditionalUploadedImages() {
+    return additionalUploadedImages;
+  }
+
+  public void setAdditionalUploadedImages(String[] additionalUploadedImages) {
+    this.additionalUploadedImages = additionalUploadedImages;
   }
 }
