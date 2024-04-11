@@ -96,7 +96,7 @@ public class DeleteInfoDao {
 
   public int getRecentScoreLoss(User user) {
     return Math.abs(jdbcTemplate.queryForObject(
-            "select COALESCE(sum(bonus), 0) from del_info where deldate>CURRENT_TIMESTAMP-'2 week'::interval and " +
+            "select COALESCE(sum(bonus), 0) from del_info where deldate>CURRENT_TIMESTAMP-'3 days'::interval and " +
                     "msgid in (select id from comments where comments.userid = ? union all select id from topics where topics.userid = ?)",
             Integer.class, user.getId(), user.getId()));
   }
