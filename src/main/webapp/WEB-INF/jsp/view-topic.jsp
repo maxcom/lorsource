@@ -93,10 +93,10 @@
         <tr valign=middle>
           <c:if test="${prevMessage != null}">
             <td style="padding-right: 5px">
-              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
+              <a href="${fn:escapeXml(prevMessage.link)}">←</a>
             </td>
             <td align=left valign=top class="hideon-phone">
-              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
+              <a href="${fn:escapeXml(prevMessage.link)}">
                 <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
@@ -111,12 +111,12 @@
         <table align="right">
           <tr valign=middle align=right>
             <td class="hideon-phone">
-              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
+              <a href="${fn:escapeXml(nextMessage.link)}">
                 <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
             <td align="right" valign="middle" style="padding-left: 5px">
-              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
+              <a href="${fn:escapeXml(nextMessage.link)}">→</a>
             </td>
           </tr>
         </table>
@@ -134,10 +134,10 @@
         <tr valign=middle>
           <c:if test="${prevMessage != null}">
             <td style="padding-right: 5px">
-              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
+              <a href="${fn:escapeXml(prevMessage.link)}">←</a>
             </td>
             <td align=left valign=top class="hideon-phone">
-              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
+              <a href="${fn:escapeXml(prevMessage.link)}">
                 <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
@@ -156,12 +156,12 @@
         <table align="right">
           <tr valign=middle align=right>
             <td class="hideon-phone">
-              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
+              <a href="${fn:escapeXml(nextMessage.link)}">
                 <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
             <td align="right" valign="middle" style="padding-left: 5px">
-              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
+              <a href="${fn:escapeXml(nextMessage.link)}">→</a>
             </td>
           </tr>
         </table>
@@ -174,7 +174,7 @@
 <c:set var="bufInfo">
 <c:if test="${pages!=null}">
     <c:if test="${pages.hasPrevious}">
-        &emsp;<a class='page-number' href='${pages.previous}#comments'>←</a>
+        &emsp;<a class='page-number' href='${pages.previous}#comments' rel='prev'>←</a>
     </c:if>
     <c:if test="${not pages.hasPrevious}">
         &emsp;<span class='page-number'>←</span>
@@ -190,7 +190,7 @@
     </c:forEach>
 
     <c:if test="${pages.hasNext}">
-      <a class='page-number' href='${pages.next}#comments'>→</a>
+      <a class='page-number' href='${pages.next}#comments' rel='next'>→</a>
     </c:if>
     <c:if test="${not pages.hasNext}">
         <span class='page-number'>→</span>
