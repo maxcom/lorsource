@@ -61,12 +61,12 @@
   <div style="display: table; width: 100%">
     <div style="display: table-cell; text-align: left">
       <c:if test="${not empty prevLink}">
-        <a href="${prevLink}">← предыдущие</a>
+        <a href="${prevLink}" rel="prev">← предыдущие</a>
       </c:if>
     </div>
     <div style="display: table-cell; text-align: right">
       <c:if test="${not empty nextLink}">
-        <a href="${nextLink}">следующие →</a>
+        <a href="${nextLink}" rel="next">следующие →</a>
       </c:if>
     </div>
   </div>
