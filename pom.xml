@@ -19,9 +19,9 @@
     <spring.security.version>5.5.8</spring.security.version>
     <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
     <elastic4s.version>7.17.4</elastic4s.version>
-    <scala.version>2.13.13</scala.version>
+    <scala.version>2.13.14</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>5.18.3</activemq.version>
+    <activemq.version>5.18.4</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
@@ -31,7 +31,7 @@
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
-    <circe.version>0.14.6</circe.version>
+    <circe.version>0.14.7</circe.version>
     <twemoji.version>14.0.2</twemoji.version>
     <sttp.version>3.9.7</sttp.version>
     <flexmark.version>0.42.14</flexmark.version>
