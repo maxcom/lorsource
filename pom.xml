@@ -15,9 +15,9 @@
     <java.version>21</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>5.3.34</dependency.spring.version>
+    <dependency.spring.version>5.3.36</dependency.spring.version>
     <spring.security.version>5.5.8</spring.security.version>
-    <jdbc.postgresql.version>42.7.2</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
     <elastic4s.version>7.17.4</elastic4s.version>
     <scala.version>2.13.13</scala.version>
     <scala.suffix>2.13</scala.suffix>
@@ -33,7 +33,7 @@
     <js-cookie.version>3.0.1</js-cookie.version>
     <circe.version>0.14.6</circe.version>
     <twemoji.version>14.0.2</twemoji.version>
-    <sttp.version>3.9.4</sttp.version>
+    <sttp.version>3.9.7</sttp.version>
     <flexmark.version>0.42.14</flexmark.version>
   </properties>
 
@@ -118,7 +118,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.0.0-jre</version>
+      <version>33.2.1-jre</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
