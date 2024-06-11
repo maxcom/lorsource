@@ -60,14 +60,6 @@
 
 <link rel="canonical" href="${configuration.secureUrlWithoutSlash}${message.getLinkPage(page)}">
 
-<c:if test="${prevMessage != null}">
-  <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>">
-</c:if>
-
-<c:if test="${nextMessage != null}">
-  <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.link)}" title="<l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>">
-</c:if>
-
 <script type="text/javascript">
   $script.ready('lorjs', function() { initNextPrevKeys(); });
   <c:if test="${not message.expired and template.sessionAuthorized}">
