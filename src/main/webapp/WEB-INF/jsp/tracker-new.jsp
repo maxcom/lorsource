@@ -1,7 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -72,7 +72,7 @@
   </div>
 </div>
 
-<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers || not empty recentUserpics}">
+<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers || not empty recentUserpics || not empty blockedIps || not empty unBlockedIps}">
   <h2>Пользователи</h2>
   <p>
     Новые пользователи за последние 3 дня:
@@ -108,6 +108,20 @@
       <lor:user user="${user}" link="true"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(unBlockedUsers)})
+  </p>
+  <p>
+    Заблокированные IP за последние 3 дня:
+    <c:forEach items="${blockedIps}" var="ip">
+      <a href="/sameip.jsp?ip=${ip}">${ip}</a>
+    </c:forEach>
+    (всего ${fn:length(blockedIps)})
+  </p>
+  <p>
+    Разблокированные IP за последние 3 дня:
+    <c:forEach items="${unBlockedIps}" var="ip">
+      <a href="/sameip.jsp?ip=${ip}">${ip}</a>
+    </c:forEach>
+    (всего ${fn:length(unBlockedIps)})
   </p>
 
   <div class="userpic-list">

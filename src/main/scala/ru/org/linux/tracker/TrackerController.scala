@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, 
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.group.GroupListDao
 import ru.org.linux.site.Template
 import ru.org.linux.user.{UserErrorException, UserService}
@@ -28,7 +29,7 @@ import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.{RichOption, RichOptional}
 
 @Controller
-class TrackerController(groupListDao: GroupListDao, userService: UserService) {
+class TrackerController(groupListDao: GroupListDao, userService: UserService, ipBlockDao: IPBlockDao) {
   @ModelAttribute("filters")
   def getFilter: java.util.List[TrackerFilterEnum] = AuthorizedOpt { currentUserOpt =>
     if (currentUserOpt.exists(_.moderator)) {
@@ -113,6 +114,8 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
       params.put("blockedUsers", userService.getRecentlyBlocked.asJava)
       params.put("unBlockedUsers", userService.getRecentlyUnBlocked.asJava)
       params.put("recentUserpics", userService.getRecentUserpics.asJava)
+      params.put("blockedIps", ipBlockDao.getRecentlyBlocked)
+      params.put("unBlockedIps", ipBlockDao.getRecentlyUnBlocked)
     } else {
       params.put("newUsers", Seq.empty.asJava)
       params.put("frozenUsers", Seq.empty.asJava)
@@ -120,6 +123,8 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
       params.put("blockedUsers", Seq.empty.asJava)
       params.put("unBlockedUsers", Seq.empty.asJava)
       params.put("recentUserpics", Seq.empty.asJava)
+      params.put("blockedIps", Seq.empty.asJava)
+      params.put("unBlockedIps", Seq.empty.asJava)
     }
 
     new ModelAndView("tracker-new", params)

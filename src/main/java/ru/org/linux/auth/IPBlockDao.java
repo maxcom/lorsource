@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,13 +15,11 @@
 
 package ru.org.linux.auth;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.Errors;
 import ru.org.linux.user.User;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -29,10 +27,9 @@ import java.util.List;
 
 @Repository
 public class IPBlockDao {
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
-  @Autowired
-  public void setDataSource(DataSource ds) {
+  public IPBlockDao(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
@@ -46,22 +43,22 @@ public class IPBlockDao {
     if (list.isEmpty()) {
       return new IPBlockInfo(addr);
     } else {
-      return list.get(0);
+      return list.getFirst();
     }
   }
 
-  public void checkBlockIP(@Nonnull String addr, @Nonnull Errors errors, @Nullable User user) {
+  public void checkBlockIP(String addr, Errors errors, @Nullable User user) {
     checkBlockIP(getBlockInfo(addr), errors, user);
   }
 
-  public static void checkBlockIP(@Nonnull IPBlockInfo block, @Nonnull Errors errors, @Nullable User user) {
+  public static void checkBlockIP(IPBlockInfo block, Errors errors, @Nullable User user) {
     if (block.isBlocked() && (user == null || user.isAnonymousScore() || !block.isAllowRegistredPosting())) {
       errors.reject(null, "Постинг заблокирован: " + block.getReason());
     }
   }
 
-  public void blockIP(String ip, int moderatorId, String reason, Timestamp banUntil,
-                      boolean allow_posting, boolean captcha_required) {
+  public void blockIP(String ip, int moderatorId, String reason, @Nullable Timestamp banUntil,
+                      boolean allowPosting, boolean captchaRequired) {
     IPBlockInfo blockInfo = getBlockInfo(ip);
 
     if (!blockInfo.isInitialized()) {
@@ -72,9 +69,8 @@ public class IPBlockDao {
               moderatorId,
               reason,
               banUntil,
-              allow_posting,
-              captcha_required
-      );
+              allowPosting,
+              captchaRequired);
     } else {
       jdbcTemplate.update(
               "UPDATE b_ips SET mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=?, allow_posting=?, captcha_required=?"+
@@ -82,10 +78,19 @@ public class IPBlockDao {
               moderatorId,
               reason,
               banUntil,
-              allow_posting,
-              captcha_required,
-              ip
-      );
+              allowPosting,
+              captchaRequired,
+              ip);
     }
+  }
+
+  public List<String> getRecentlyBlocked() {
+    return jdbcTemplate.queryForList("select ip from b_ips " +
+            "where date>CURRENT_TIMESTAMP - interval '3 days' and ban_date > CURRENT_TIMESTAMP and mod_id != 0 order by date", String.class);
+  }
+
+  public List<String> getRecentlyUnBlocked() {
+    return jdbcTemplate.queryForList("select ip from b_ips " +
+            "where ban_date < CURRENT_TIMESTAMP and ban_date > CURRENT_TIMESTAMP - interval '3 days' and mod_id !=0 order by ban_date", String.class);
   }
 }

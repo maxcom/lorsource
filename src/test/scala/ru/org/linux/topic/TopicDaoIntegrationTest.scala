@@ -93,7 +93,7 @@ class TopicDaoIntegrationTestConfiguration {
   def imageDao(sectionService: SectionService, ds: DataSource) = new ImageDao(sectionService, ds)
 
   @Bean
-  def ipBlockDao = new IPBlockDao()
+  def ipBlockDao(ds: DataSource) = new IPBlockDao(ds)
 
   @Bean
   def imageService = Mockito.mock(classOf[ImageService])
