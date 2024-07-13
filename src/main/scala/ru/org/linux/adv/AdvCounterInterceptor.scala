@@ -14,12 +14,13 @@
  */
 package ru.org.linux.adv
 
+import akka.actor.typed.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.web.servlet.{HandlerInterceptor, ModelAndView}
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-class AdvCounterInterceptor(advCounterDao: AdvCounterDao) extends HandlerInterceptor with StrictLogging {
+class AdvCounterInterceptor(advCounterActor: ActorRef[AdvCounterActor.Protocol]) extends HandlerInterceptor with StrictLogging {
   override def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any,
                           modelAndView: ModelAndView): Unit = {
     if (response.getStatus < 400 && response.getStatus >= 200) {
@@ -27,7 +28,7 @@ class AdvCounterInterceptor(advCounterDao: AdvCounterDao) extends HandlerInterce
 
       logger.debug(s"Adv counter: ${path}")
 
-      advCounterDao.count(path, 1)
+      advCounterActor ! AdvCounterActor.Count(path)
     }
   }
 }
