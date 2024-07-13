@@ -119,7 +119,14 @@
 
   <rule>
     <from>\.(gif)|(jpg)|(png)$</from>
+    <condition type="request-uri" operator="notequal">/adv/</condition>
     <set type="response-header" name="Cache-Control">max-age=315360000</set>
+  </rule>
+
+  <rule>
+    <from>\.(gif)|(jpg)|(png)$</from>
+    <condition type="request-uri">/adv/</condition>
+    <set type="response-header" name="Cache-Control">no-cache</set>
   </rule>
 
     <outbound-rule encodefirst="true">
