@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -36,7 +36,7 @@
 
 <div id="mainpage">
 <div id="news">
-
+<%--
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
   <style>
@@ -80,7 +80,7 @@
   </script>
   </div>
 </c:if>
-<%--
+--%>
   <div style="text-align: center; margin-top: 0.5em; height: 125px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -88,17 +88,58 @@
         var ads = [
             {
                 type: 'rimg',
-                img320: '/adv/Observe_Welcome_320x100.png',
-                img730: '/adv/Observe_Welcome_730x90.png',
-                img980: '/adv/Observe_Welcome_980x120.png',
-                href: 'https://otus.ru/lessons/monitoring/?utm_source=partners&utm_medium=cpm&utm_campaign=monitoring&utm_term=linuxorg&utm_content=welcome_banner'
+                img320: '/adv/MD-2817-01-320x100 (1).png',
+                img730: '/adv/MD-2817-01-730x90 (1).png',
+                img980: '/adv/MD-2817-01-980x120 (1).png',
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_12072024_01'
+            },
+            {
+                type: 'rimg',
+                img320: '/adv/MD-2817-01-320x100 (1).png',
+                img730: '/adv/MD-2817-01-730x90 (1).png',
+                img980: '/adv/MD-2817-01-980x120 (1).png',
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_12072024_01'
+            },
+            {
+                type: 'rimg',
+                img320: '/adv/MD-2817-02-320x100 (1).png',
+                img730: '/adv/MD-2817-02-730x90 (1).png',
+                img980: '/adv/MD-2817-02-980x120 (1).png',
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_12072024_02'
+            },
+            {
+                type: 'rimg',
+                img320: '/adv/MD-2817-03-320x100 (1).png',
+                img730: '/adv/MD-2817-03-730x90 (1).png',
+                img980: '/adv/MD-2817-03-980x120 (1).png',
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_12072024_03'
+            },
+            {
+                type: 'rimg',
+                img320: '/adv/MD-2833-01-320x100 (1).png',
+                img730: '/adv/MD-2833-01-730x90 (1).png',
+                img980: '/adv/MD-2833-01-980x120 (1).png',
+                href: 'https://pro.selectel.ru/100-s3/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=storage_12072024_01'
+            },
+            {
+                type: 'rimg',
+                img320: '/adv/MD-2833-02-320x100.png',
+                img730: '/adv/MD-2833-02-730x90.png',
+                img980: '/adv/MD-2833-02-980x120.png',
+                href: 'https://pro.selectel.ru/100-s3/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=12072024_02'
+            },
+            {
+                type: 'rimg',
+                img320: '/adv/MD-2833-03-320x100.png',
+                img730: '/adv/MD-2833-03-730x90 (1).png',
+                img980: '/adv/MD-2833-03-980x120.png',
+                href: 'https://pro.selectel.ru/100-s3/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=12072024_03'
             }
         ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
