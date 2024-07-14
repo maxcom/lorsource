@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,11 +28,7 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
-/**
- * Created by bvn13 on 15.11.2018.
- */
 public class MarkdownFormatterTest {
-
   private static final String TEXT1 = "# First header \n" +
           "\n" +
           "## Second Header\n" +
@@ -75,4 +71,16 @@ public class MarkdownFormatterTest {
     assertEquals(TEXT1_RESULT, markdownFormatter.renderToHtml(TEXT1, false));
   }
 
+  @Test
+  public void testLinkText() {
+    assertEquals("https://www.linux.org.ru/",
+            markdownFormatter.renderToText("https://www.linux.org.ru/"));
+
+    assertEquals("test https://www.linux.org.ru/",
+            markdownFormatter.renderToText("[test](https://www.linux.org.ru/)"));
+
+    assertEquals( "X".repeat(100) + "test https://www.linux.org.ru/ 1234",
+            markdownFormatter.renderToText("X".repeat(100) + "[test](https://www.linux.org.ru/) 1234"));
+
+  }
 }

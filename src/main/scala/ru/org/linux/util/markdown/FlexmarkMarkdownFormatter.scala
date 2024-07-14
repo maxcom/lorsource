@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -184,6 +184,12 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
           val next = node.nextSibling
           if (element.nameIs("blockquote")) {
             accum.append("» ")
+          } else if (element.nameIs("a")) {
+            val link = node.attr("href")
+
+            if (accum.length() < link.length || !accum.subSequence(accum.length() - link.length, accum.length()).equals(link)) {
+              accum.append(" " + link + " ")
+            }
           } else if (element.isBlock &&
             (next.isInstanceOf[TextNode] || next.isInstanceOf[Element] && !next.asInstanceOf[Element].tag.formatAsBlock) &&
             !lastCharIsWhitespace(accum)) {
