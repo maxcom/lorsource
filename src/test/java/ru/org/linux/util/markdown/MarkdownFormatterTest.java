@@ -29,23 +29,27 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 public class MarkdownFormatterTest {
-  private static final String TEXT1 = "# First header \n" +
-          "\n" +
-          "## Second Header\n" +
-          "\n" +
-          "```sql\n" +
-          "select id from table1;\n" +
-          "```\n" +
-          "\n" +
-          "Вот такой должно получиться\n" +
-          "\n" +
-          "И это тоже должно работать";
-  private static final String TEXT1_RESULT = "<h1>First header</h1>\n" +
-          "<h2>Second Header</h2>\n" +
-          "<div class=\"code\"><pre><code class=\"language-sql\">select id from table1;\n" +
-          "</code></pre>\n</div>\n" +
-          "<p>Вот такой должно получиться</p>\n" +
-          "<p>И это тоже должно работать</p>\n";
+  private static final String TEXT1 = """
+          # First header\s
+
+          ## Second Header
+
+          ```sql
+          select id from table1;
+          ```
+
+          Вот такой должно получиться
+
+          И это тоже должно работать""";
+  private static final String TEXT1_RESULT = """
+          <h1>First header</h1>
+          <h2>Second Header</h2>
+          <div class="code"><pre><code class="language-sql">select id from table1;
+          </code></pre>
+          </div>
+          <p>Вот такой должно получиться</p>
+          <p>И это тоже должно работать</p>
+          """;
 
   private MarkdownFormatter markdownFormatter;
 
