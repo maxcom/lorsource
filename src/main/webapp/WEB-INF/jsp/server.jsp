@@ -62,7 +62,7 @@
   <li>Supermicro 6016T-UF;</li>
   <li>2 x Intel Xeon X5675 12M Cache, 3.06 GHz, 6 ядер;</li>
   <li>96 GB DDR3, ECC, REG;</li>
-  <li>2x 960Gb Samsung P883 (RAID1 mdadm).</li>
+  <li>2x 960Gb Samsung PM883 (RAID1 mdadm).</li>
   <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm);</li>
 </ul>
 
