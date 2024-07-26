@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -129,7 +129,9 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
       }
 
-      if (userDao.getByEmail(new InternetAddress(form.getEmail).getAddress.toLowerCase, false) != null) {
+      val byEmail = userDao.getByEmail(new InternetAddress(form.getEmail).getAddress.toLowerCase, true)
+
+      if (byEmail != null && (!byEmail.isBlocked || userService.wasRecentlyBlocker(byEmail))) {
         errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
           "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
       }

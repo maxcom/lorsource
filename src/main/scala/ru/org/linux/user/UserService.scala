@@ -280,6 +280,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp
   }
 
+  def wasRecentlyBlocker(user: User): Boolean =
+    userLogDao.hasRecentModerationEvent(user, Duration.ofDays(14), UserLogAction.BLOCK_USER)
+
   def canLoadUserpic(user: User): Boolean = {
     def userpicSetCount = userLogDao.getUserpicSetCount(user, Duration.ofHours(1))
 
