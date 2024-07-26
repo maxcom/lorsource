@@ -17,7 +17,6 @@ package ru.org.linux.user
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
-import org.joda.time.DateTime
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -30,7 +29,7 @@ import ru.org.linux.util.{BadImageException, StringUtil}
 
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
-import java.time.Duration
+import java.time.{Duration, Instant}
 import java.util
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
@@ -175,8 +174,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       (getUserCached(id), regdate, lastlogin)
     }.asJava
 
-  private def makeFrozenList(users: util.List[(Integer, DateTime)], activityDays: Int): collection.Seq[(User, Boolean)] = {
-    val recentSeenDate = DateTime.now().minusDays(activityDays)
+  private def makeFrozenList(users: util.List[(Integer, Instant)], activityDays: Int): collection.Seq[(User, Boolean)] = {
+    val recentSeenDate = Instant.now().minus(Duration.ofDays(activityDays))
 
     users.asScala.map { case (userId, lastlogin) =>
       val user = getUserCached(userId)

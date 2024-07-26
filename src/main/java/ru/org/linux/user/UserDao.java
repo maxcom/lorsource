@@ -17,7 +17,6 @@ package ru.org.linux.user;
 
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
-import org.joda.time.DateTime;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -40,6 +39,7 @@ import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +94,7 @@ public class UserDao {
       throw new RuntimeException("list.size()>1 ???");
     }
 
-    return list.get(0);
+    return list.getFirst();
   }
 
   @Cacheable("Users")
@@ -128,7 +128,7 @@ public class UserDao {
       throw new RuntimeException("list.size()>1 ???");
     }
 
-    return list.get(0);
+    return list.getFirst();
   }
 
   /**
@@ -166,7 +166,7 @@ public class UserDao {
     if (infoList.isEmpty()) {
       return null;
     } else {
-      return infoList.get(0);
+      return infoList.getFirst();
     }
   }
 
@@ -224,18 +224,18 @@ public class UserDao {
     }
   }
 
-  public List<Tuple2<Integer, DateTime>> getFrozenUserIds() {
+  public List<Tuple2<Integer, Instant>> getFrozenUserIds() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
             "frozen_until > CURRENT_TIMESTAMP and not blocked " +
             "ORDER BY frozen_until",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getTimestamp("lastlogin").toInstant()));
   }
 
-  public List<Tuple2<Integer, DateTime>> getUnFrozenUserIds() {
+  public List<Tuple2<Integer, Instant>> getUnFrozenUserIds() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
                     "frozen_until < CURRENT_TIMESTAMP and frozen_until > CURRENT_TIMESTAMP - '3 days'::interval and not blocked " +
                     "ORDER BY frozen_until",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getTimestamp("lastlogin").toInstant()));
   }
 
   public void removeTown(User user) {
@@ -426,20 +426,20 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void unblock(@Nonnull User user, @Nonnull User moderator){
+  public void unblock(User user, User moderator){
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
     userLogDao.logUnblockUser(user, moderator);
   }
 
-  public List<Tuple2<Integer, DateTime>> getModerators() {
+  public List<Tuple2<Integer, Instant>> getModerators() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where canmod ORDER BY id",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getTimestamp("lastlogin").toInstant()));
   }
 
-  public List<Tuple2<Integer, DateTime>> getCorrectors() {
+  public List<Tuple2<Integer, Instant>> getCorrectors() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where corrector ORDER BY id",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getTimestamp("lastlogin").toInstant()));
   }
 
   @Nullable
