@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,7 +25,6 @@ import com.sksamuel.elastic4s.requests.searches.aggs.responses.FilterAggregation
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.TermBucket;
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.Terms;
 import org.joda.time.DateTimeZone;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -57,20 +56,20 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class SearchController {
-  @Autowired
-  private SectionService sectionService;
+  private final SectionService sectionService;
+  private final UserService userService;
+  private final GroupDao groupDao;
+  private final ElasticClient client;
+  private final SearchResultsService resultsService;
 
-  @Autowired
-  private UserService userService;
-
-  @Autowired
-  private GroupDao groupDao;
-
-  @Autowired
-  private ElasticClient client;
-
-  @Autowired
-  private SearchResultsService resultsService;
+  public SearchController(SectionService sectionService, UserService userService, GroupDao groupDao,
+                          ElasticClient client, SearchResultsService resultsService) {
+    this.sectionService = sectionService;
+    this.userService = userService;
+    this.groupDao = groupDao;
+    this.client = client;
+    this.resultsService = resultsService;
+  }
 
   @ModelAttribute("sorts")
   public static Map<String, String> getSorts() {

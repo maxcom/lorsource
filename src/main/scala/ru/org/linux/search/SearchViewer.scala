@@ -33,16 +33,20 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     if (queryText.isEmpty) {
       matchAllQuery()
     } else {
-      boolQuery().
-        should(
-          MatchQuery("title", queryText).minimumShouldMatch("2"),
-          MatchQuery("message", queryText).minimumShouldMatch("2"),
-          matchPhraseQuery("message", queryText)).minimumShouldMatch(1)
+      boolQuery()
+        .must(
+          should(
+            MatchQuery("title", queryText).minimumShouldMatch("2"),
+            MatchQuery("message", queryText).minimumShouldMatch("2")))
+        .should(
+          matchPhraseQuery("message", queryText),
+          MatchQuery("message.raw", queryText).minimumShouldMatch("2")
+        ).minimumShouldMatch(0)
     }
   }
 
   private def boost(query: Query) = {
-    functionScoreQuery(query) functions(
+    functionScoreQuery(query).functions(
       WeightScore(TopicBoost).filter(termQuery("is_comment", "false")),
       WeightScore(RecentBoost).filter(rangeQuery("postdate").gte("now/d-3y"))
     )
@@ -56,7 +60,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     }
   }
 
-  def performSearch(tz:DateTimeZone): SearchResponse = {
+  def performSearch(tz: DateTimeZone): SearchResponse = {
     val typeFilter = Option(query.getRange.getValue) map { value =>
       termQuery(query.getRange.getColumn, value)
     }

@@ -16,14 +16,13 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticDsl.*
-import com.sksamuel.elastic4s.requests.analyzers.*
+import com.sksamuel.elastic4s.analysis.{Analysis, CustomAnalyzer, LengthTokenFilter, MappingCharFilter, SnowballTokenFilter, StandardTokenizer}
 import com.sksamuel.elastic4s.requests.bulk.{BulkCompatibleRequest, BulkRequest}
 import com.sksamuel.elastic4s.requests.indexes.IndexRequest
 import com.sksamuel.elastic4s.requests.mappings.{MappingDefinition, TermVector}
 import com.sksamuel.elastic4s.{ElasticClient, Index}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.StringEscapeUtils
-import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
@@ -54,19 +53,34 @@ object ElasticsearchIndexService {
     longField("topic_id"),
     textField("topic_title").index(false),
     textField("title").analyzer("text_analyzer"),
-    textField("message").analyzer("text_analyzer").termVector(TermVector.WithPositionsOffsets),
+    textField("message").analyzer("text_analyzer").termVector(TermVector.WithPositionsOffsets).fields {
+      textField("raw").termVector(TermVector.WithPositionsOffsets).analyzer("exact_analyzer")
+    },
     booleanField("topic_awaits_commit"))
 
-  private val Analyzers: Seq[CustomAnalyzerDefinition] = Seq(
-    CustomAnalyzerDefinition(
-      "text_analyzer",
-      tokenizer = StandardTokenizer("text_tokenizer"),
-      filters = Seq(
-        LengthTokenFilter("m_long_word").max(100),
-        LowercaseTokenFilter,
-        MappingCharFilter("m_ee", "ё" -> "е", "Ё" -> "Е"),
-        SnowballTokenFilter("m_my_snow_ru", "Russian"),
-        SnowballTokenFilter("m_my_snow_en", "English")))
+  private val Analyzers = Analysis(
+    analyzers = List(
+      CustomAnalyzer(
+        name = "text_analyzer",
+        tokenizer = "text_tokenizer",
+        tokenFilters = List("m_long_word", "lowercase", "m_my_snow_ru", "m_my_snow_en"),
+        charFilters = List("m_ee")),
+      CustomAnalyzer(
+        name = "exact_analyzer",
+        tokenizer = "text_tokenizer",
+        tokenFilters = List("m_long_word", "lowercase"),
+        charFilters = List("m_ee"))),
+    tokenizers = List(
+      StandardTokenizer("text_tokenizer")
+    ),
+    tokenFilters = List(
+      LengthTokenFilter("m_long_word").max(100),
+      SnowballTokenFilter("m_my_snow_ru", "Russian"),
+      SnowballTokenFilter("m_my_snow_en", "English")
+    ),
+    charFilters = List(
+      MappingCharFilter("m_ee", Map("ё" -> "е", "Ё" -> "Е"))
+    )
   )
 }
 
@@ -197,7 +211,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
         "topic_title" -> topicTitle,
         COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
         "message" -> message,
-        "postdate" -> new DateTime(comment.postdate),
+        "postdate" -> comment.postdate.toInstant,
         "tag" -> topicTagService.getTags(topic),
         "is_comment" -> true) ++ title.map("title" -> _)
       )
@@ -213,7 +227,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
     val section = sectionService.getSection(topic.sectionId)
     val author = userService.getUserCached(topic.authorUserId)
 
-    indexInto(MessageIndexType) id topic.id.toString fields(
+    indexInto(MessageIndexType).id(topic.id.toString).fields(
       "section" -> section.getUrlName,
       "topic_author" -> author.getNick,
       "topic_id" -> topic.id,
@@ -222,7 +236,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
       "title" -> topic.getTitleUnescaped,
       "topic_title" -> topic.getTitleUnescaped,
       "message" -> messageTextService.extractPlainText(msgbaseDao.getMessageText(topic.id)),
-      "postdate" -> new DateTime(topic.postdate),
+      "postdate" -> topic.postdate.toInstant,
       "tag" -> topicTagService.getTags(topic),
       COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
       "is_comment" -> false)
