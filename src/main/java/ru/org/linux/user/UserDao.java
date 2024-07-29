@@ -43,6 +43,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -224,18 +225,22 @@ public class UserDao {
     }
   }
 
-  public List<Tuple2<Integer, Instant>> getFrozenUserIds() {
+  public List<Tuple2<Integer, Optional<Instant>>> getFrozenUserIds() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
             "frozen_until > CURRENT_TIMESTAMP and not blocked " +
             "ORDER BY frozen_until",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getTimestamp("lastlogin").toInstant()));
+            (rs, rowNum) -> Tuple2.apply(
+                    rs.getInt("id"),
+                    Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
-  public List<Tuple2<Integer, Instant>> getUnFrozenUserIds() {
+  public List<Tuple2<Integer, Optional<Instant>>> getUnFrozenUserIds() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
                     "frozen_until < CURRENT_TIMESTAMP and frozen_until > CURRENT_TIMESTAMP - '3 days'::interval and not blocked " +
                     "ORDER BY frozen_until",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getTimestamp("lastlogin").toInstant()));
+            (rs, rowNum) -> Tuple2.apply(
+                    rs.getInt("id"),
+                    Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
   public void removeTown(User user) {
@@ -432,14 +437,18 @@ public class UserDao {
     userLogDao.logUnblockUser(user, moderator);
   }
 
-  public List<Tuple2<Integer, Instant>> getModerators() {
+  public List<Tuple2<Integer, Optional<Instant>>> getModerators() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where canmod ORDER BY id",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getTimestamp("lastlogin").toInstant()));
+            (rs, rowNum) -> Tuple2.apply(
+                    rs.getInt("id"),
+                    Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
-  public List<Tuple2<Integer, Instant>> getCorrectors() {
+  public List<Tuple2<Integer, Optional<Instant>>> getCorrectors() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where corrector ORDER BY id",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), rs.getTimestamp("lastlogin").toInstant()));
+            (rs, rowNum) -> Tuple2.apply(
+                    rs.getInt("id"),
+                    Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
   @Nullable
