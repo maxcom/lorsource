@@ -35,6 +35,8 @@ import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
+import java.time.ZoneId
+import java.time.temporal.TemporalField
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable.ArrayBuffer
@@ -138,9 +140,8 @@ class MoreLikeThisService(
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
       link = link,
-      year = postdate.year().get(),
-      sectionService.getSectionByName(section).getTitle
-    )
+      year = postdate.atZone(ZoneId.systemDefault()).getYear,
+      sectionService.getSectionByName(section).getTitle)
   }
 
   private def titleQuery(topic:Topic) = {

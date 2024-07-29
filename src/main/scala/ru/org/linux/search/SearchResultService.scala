@@ -29,6 +29,7 @@ import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
 
+import java.time.Instant
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
 
@@ -173,7 +174,7 @@ class SearchResultsService(
 object SearchResultsService {
   private val isoDateTime = ISODateTimeFormat.dateTime
 
-  def postdate(doc: SearchHit) = isoDateTime.parseDateTime(doc.sourceAsMap("postdate").asInstanceOf[String])
+  def postdate(doc: SearchHit) = Instant.parse(doc.sourceAsMap("postdate").asInstanceOf[String])
   def section(doc: SearchHit) = doc.sourceAsMap("section").asInstanceOf[String]
   def group(doc: SearchHit) = doc.sourceAsMap("group").asInstanceOf[String]
 }
