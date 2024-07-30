@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,10 +17,8 @@ package ru.org.linux.search
 
 import com.sksamuel.elastic4s.requests.searches.SearchHit
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.{Aggregations, FilterAggregationResult}
-import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.TermBucket
+import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.{TermBucket, Terms}
 import com.typesafe.scalalogging.StrictLogging
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupDao
@@ -30,19 +28,19 @@ import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
 
 import java.time.Instant
+import java.util.Date
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
 
 case class SearchItem (
   @BeanProperty title: String,
-  @BeanProperty postdate: DateTime,
-  @BeanProperty user: User, // TODO use UserRef
+  @BeanProperty postdate: Date,
+  @BeanProperty user: User,
   @BeanProperty message: String,
   @BeanProperty url: String,
   @BeanProperty score: Float,
   @BeanProperty comment: Boolean,
-  @BeanProperty tags: java.util.List[TagRef]
-)
+  @BeanProperty tags: java.util.List[TagRef])
 
 @Service
 class SearchResultsService(
@@ -55,7 +53,7 @@ class SearchResultsService(
   def prepare(doc: SearchHit):SearchItem = {
     val author = userService.getUserCached(doc.sourceAsMap("author").asInstanceOf[String])
 
-    val postdate = isoDateTime.parseDateTime(doc.sourceAsMap("postdate").asInstanceOf[String])
+    val postdate = Instant.parse(doc.sourceAsMap("postdate").asInstanceOf[String])
 
     val comment = doc.sourceAsMap("is_comment").asInstanceOf[Boolean]
 
@@ -72,7 +70,7 @@ class SearchResultsService(
 
     SearchItem(
       title = getTitle(doc),
-      postdate = postdate,
+      postdate = Date.from(postdate),
       user = author,
       url = getUrl(doc),
       score = doc.score,
@@ -120,7 +118,7 @@ class SearchResultsService(
       FacetItem(urlName, s"$name ($count)")
     }
 
-    val agg = sectionFacet.terms("sections")
+    val agg = sectionFacet.result[Terms]("sections")
 
     val items = for (entry <- agg.buckets) yield {
       mkItem(entry.key, entry.docCount)
@@ -142,7 +140,7 @@ class SearchResultsService(
 
     val facetItems = for {
       selectedSection <- maybeSection.toSeq
-      groups = selectedSection.terms("groups")
+      groups = selectedSection.result[Terms]("groups")
       section = sectionService.getSectionByName(selectedSection.key)
       entry <- groups.buckets
     } yield {
@@ -172,8 +170,6 @@ class SearchResultsService(
 }
 
 object SearchResultsService {
-  private val isoDateTime = ISODateTimeFormat.dateTime
-
   def postdate(doc: SearchHit) = Instant.parse(doc.sourceAsMap("postdate").asInstanceOf[String])
   def section(doc: SearchHit) = doc.sourceAsMap("section").asInstanceOf[String]
   def group(doc: SearchHit) = doc.sourceAsMap("group").asInstanceOf[String]

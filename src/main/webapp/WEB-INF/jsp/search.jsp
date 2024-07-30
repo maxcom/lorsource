@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -136,7 +136,7 @@
           </c:if>
 
           <div class=sign>
-            <lor:sign postdate="${item.postdate.toDate()}" shortMode="false" user="${item.user}"/>
+            <lor:sign postdate="${item.postdate}" shortMode="false" user="${item.user}"/>
           </div>
 
           <c:if test="${param.debug}"><div>Rank: ${item.score}</div></c:if>
