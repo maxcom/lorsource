@@ -41,7 +41,6 @@
       <input type="hidden" name="ua" value="${ua}">
     </c:if>
     <div class="control-group">
-      <label class="control-label" for="ip-field">Адрес: </label>
       <div class="controls">
         <input class="input-lg" name="ip" type="search" size="17" maxlength="17" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+">
 
@@ -53,6 +52,17 @@
             <button name="mask" value="${v._1()}" type="submit" class="btn btn-default">${v._2()}</button>
           </c:if>
         </c:forEach>
+
+        <select name="score" class="btn btn-default" onchange="this.form.submit()">
+          <c:forEach items="${scores}" var="v">
+            <c:if test="${v._1() == score}">
+              <option value="${v._1()}" type="submit" selected>${v._2()}</option>
+            </c:if>
+            <c:if test="${v._1() != score}">
+              <option value="${v._1()}" type="submit">${v._2()}</option>
+            </c:if>
+          </c:forEach>
+        </select>
       </div>
     </div>
   </form>

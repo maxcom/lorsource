@@ -20,13 +20,11 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.UserService
 
-import scala.jdk.CollectionConverters.SeqHasAsJava
-
 @Service
 class SameIpService(userService: UserService, msgbaseDao: MsgbaseDao, textService: MessageTextService,
                     sameIpDao: SameIpDao) {
-  def getPosts(ip: Option[String], userAgent: Option[Integer], limit: Int): java.util.List[PreparedPostListItem] = {
-    prepareCommentList(sameIpDao.getComments(ip, userAgent.map(_.toInt), limit)).asJava
+  def getPosts(ip: Option[String], userAgent: Option[Int], score: Option[Int], limit: Int): collection.Seq[PreparedPostListItem] = {
+    prepareCommentList(sameIpDao.getComments(ip, userAgent, score, limit))
   }
 
   private def prepareCommentList(items: collection.Seq[PostListItem]): collection.Seq[PreparedPostListItem] = {

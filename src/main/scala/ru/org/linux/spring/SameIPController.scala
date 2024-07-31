@@ -35,12 +35,17 @@ object SameIPController {
 @Controller
 class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAgentDao: UserAgentDao, sameIpService: SameIpService) {
   @ModelAttribute("masks")
-  def getMasks: util.List[(String, String)] =
-    Seq("32" -> "IP", "24" -> "Сеть /24", "16" -> "Сеть /16", "0" -> "Не фильтровать").asJava
+  def masks: util.List[(String, String)] =
+    Seq("32" -> "IP", "24" -> "Сеть /24", "16" -> "Сеть /16", "0" -> "Любой IP").asJava
+
+  @ModelAttribute("scores")
+  def scores: util.List[(String, String)] =
+    Seq("" -> "Любой score", "45" -> "score < 45", "50" -> "score < 50", "100" -> "score < 100").asJava
 
   @RequestMapping(Array("/sameip.jsp"))
   def sameIP(@RequestParam(required = false) ip: String, @RequestParam(required = false, defaultValue = "32") mask: Int,
-             @RequestParam(required = false, name = "ua") userAgent: Integer): ModelAndView = ModeratorOnly { _ =>
+             @RequestParam(required = false, name = "ua") userAgent: Integer,
+             @RequestParam(required = false) score: Integer): ModelAndView = ModeratorOnly { _ =>
     val mv = new ModelAndView("sameip")
 
     val ipMask = Option(ip).flatMap { ip =>
@@ -61,16 +66,17 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
     }.orNull
 
     val rowsLimit = 50
-    val comments = sameIpService.getPosts(Option(ipMask), Option(userAgent), rowsLimit)
+    val posts = sameIpService.getPosts(Option(ipMask), Option(userAgent), Option(score), rowsLimit)
 
-    mv.getModel.put("comments", comments)
-    mv.getModel.put("hasMoreComments", comments.size == rowsLimit)
+    mv.getModel.put("comments", posts.asJava)
+    mv.getModel.put("hasMoreComments", posts.size == rowsLimit)
     mv.getModel.put("rowsLimit", rowsLimit)
 
     val users = userService.getUsersWithAgent(ipMask, userAgent, rowsLimit)
 
     mv.getModel.put("users", users)
     mv.getModel.put("hasMoreUsers", users.size == rowsLimit)
+    mv.getModel.put("score", score)
 
     if (ip != null) {
       mv.getModel.put("ip", ip)
