@@ -36,7 +36,7 @@ object SameIPController {
 class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAgentDao: UserAgentDao, sameIpService: SameIpService) {
   @ModelAttribute("masks")
   def masks: util.List[(String, String)] =
-    Seq("32" -> "IP", "24" -> "Сеть /24", "16" -> "Сеть /16", "0" -> "Любой IP").asJava
+    Seq("32" -> "Только IP", "24" -> "Сеть /24", "16" -> "Сеть /16", "0" -> "Любой IP").asJava
 
   @ModelAttribute("scores")
   def scores: util.List[(String, String)] =

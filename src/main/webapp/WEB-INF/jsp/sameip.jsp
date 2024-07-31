@@ -44,14 +44,16 @@
       <div class="controls">
         <input class="input-lg" name="ip" type="search" size="17" maxlength="17" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+">
 
-        <c:forEach items="${masks}" var="v">
-          <c:if test="${v._1() == mask}">
-            <button name="mask" value="${v._1()}" type="submit" class="btn btn-selected">${v._2()}</button>
-          </c:if>
-          <c:if test="${v._1() != mask}">
-            <button name="mask" value="${v._1()}" type="submit" class="btn btn-default">${v._2()}</button>
-          </c:if>
-        </c:forEach>
+        <select name="mask" class="btn btn-default" onchange="this.form.submit()">
+          <c:forEach items="${masks}" var="v">
+            <c:if test="${v._1() == mask}">
+              <option value="${v._1()}" selected>${v._2()}</option>
+            </c:if>
+            <c:if test="${v._1() != mask}">
+              <option value="${v._1()}">${v._2()}</option>
+            </c:if>
+          </c:forEach>
+        </select>
 
         <select name="score" class="btn btn-default" onchange="this.form.submit()">
           <c:forEach items="${scores}" var="v">
@@ -242,9 +244,7 @@
 </table>
 </div>
 
-<c:if test="${ip != null}">
-
-<c:if test="${!hasMask}">
+<c:if test="${ip != null and !hasMask}">
   <h2>Управление</h2>
 
   <fieldset>
@@ -310,6 +310,7 @@
     </form>
   </fieldset>
 
+  <c:if test="${empty score}">
   <fieldset>
     <legend>Удалить темы и сообщения с IP</legend>
     <form method="post" action="delip.jsp">
@@ -327,6 +328,6 @@
         <button type="submit" name="del" class="btn btn-danger">del from ip</button>
     </form>
   </fieldset>
-</c:if>
+  </c:if>
 </c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
