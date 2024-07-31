@@ -24,7 +24,7 @@ import ru.org.linux.user.UserService
 class SameIpService(userService: UserService, msgbaseDao: MsgbaseDao, textService: MessageTextService,
                     sameIpDao: SameIpDao) {
   def getPosts(ip: Option[String], userAgent: Option[Int], score: Option[Int], limit: Int): collection.Seq[PreparedPostListItem] = {
-    prepareCommentList(sameIpDao.getComments(ip, userAgent, score, limit))
+    prepareCommentList(sameIpDao.getComments(ip = ip, userAgent = userAgent, score = score, limit = limit))
   }
 
   private def prepareCommentList(items: collection.Seq[PostListItem]): collection.Seq[PreparedPostListItem] = {

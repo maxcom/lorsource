@@ -55,7 +55,6 @@ class SameIpDao(dataSource: DataSource) {
 
     params.put("limit", Integer.valueOf(limit))
 
-
     namedJdbcTemplate.query(
       "SELECT groups.title as group_title, topics.title, topics.id as topic_id, " +
         "m.id as cid, m.postdate, m.deleted, del_info.reason, " +

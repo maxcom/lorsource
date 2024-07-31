@@ -66,13 +66,17 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
     }.orNull
 
     val rowsLimit = 50
-    val posts = sameIpService.getPosts(Option(ipMask), Option(userAgent), Option(score), rowsLimit)
+
+    val userAgentOpt = Option[Integer](userAgent).map(_.toInt)
+    val scoreOpt = Option[Integer](score).map(_.toInt)
+
+    val posts = sameIpService.getPosts(ip = Option(ipMask), userAgent = userAgentOpt, score = scoreOpt, limit = rowsLimit)
 
     mv.getModel.put("comments", posts.asJava)
     mv.getModel.put("hasMoreComments", posts.size == rowsLimit)
     mv.getModel.put("rowsLimit", rowsLimit)
 
-    val users = userService.getUsersWithAgent(ipMask, userAgent, rowsLimit)
+    val users = userService.getUsersWithAgent(ip = Option(ipMask), userAgent = userAgentOpt, limit = rowsLimit)
 
     mv.getModel.put("users", users)
     mv.getModel.put("hasMoreUsers", users.size == rowsLimit)

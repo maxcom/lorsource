@@ -379,7 +379,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def isFreezable(user: User, by: User): Boolean = by.isModerator && !user.isModerator
 
-  def getUsersWithAgent(@Nullable ip: String, @Nullable userAgent: Integer, limit: Int): java.util.List[UserAndAgent] = {
-    userDao.getUsersWithAgent(ip, userAgent, limit)
+  def getUsersWithAgent(ip: Option[String], userAgent: Option[Int], limit: Int): java.util.List[UserAndAgent] = {
+    userDao.getUsersWithAgent(ip.orNull, userAgent.map(Integer.valueOf).orNull, limit)
   }
 }
