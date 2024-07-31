@@ -40,7 +40,7 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
 
   @ModelAttribute("scores")
   def scores: util.List[(String, String)] =
-    Seq("" -> "Любой score", "45" -> "score < 45", "50" -> "score < 50", "100" -> "score < 100").asJava
+    Seq("" -> "Любой score", "46" -> "score <= 45", "50" -> "score < 50", "100" -> "score < 100").asJava
 
   @RequestMapping(Array("/sameip.jsp"))
   def sameIP(@RequestParam(required = false) ip: String, @RequestParam(required = false, defaultValue = "32") mask: Int,
