@@ -21,6 +21,7 @@ import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.sameip.SameIpService
 import ru.org.linux.site.BadInputException
+import ru.org.linux.spring.SameIPController.AnonymousScoreFilter
 import ru.org.linux.spring.dao.UserAgentDao
 import ru.org.linux.user.UserService
 
@@ -30,6 +31,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object SameIPController {
   private val ipRE = Pattern.compile("^\\d+\\.\\d+\\.\\d+\\.\\d+$")
+  private val AnonymousScoreFilter = -9999
 }
 
 @Controller
@@ -40,7 +42,12 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
 
   @ModelAttribute("scores")
   def scores: util.List[(String, String)] =
-    Seq("" -> "Любой score", "46" -> "score <= 45", "50" -> "score < 50", "100" -> "score < 100").asJava
+    Seq(
+      "" -> "Любой score",
+      "-9999" -> "anonymous",
+      "46" -> "score <= 45",
+      "50" -> "score < 50",
+      "100" -> "score < 100").asJava
 
   @RequestMapping(Array("/sameip.jsp"))
   def sameIP(@RequestParam(required = false) ip: String, @RequestParam(required = false, defaultValue = "32") mask: Int,
@@ -76,10 +83,15 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
     mv.getModel.put("hasMoreComments", posts.size == rowsLimit)
     mv.getModel.put("rowsLimit", rowsLimit)
 
-    val users = userService.getUsersWithAgent(ip = Option(ipMask), userAgent = userAgentOpt, limit = rowsLimit)
+    val users = if (!scoreOpt.contains(AnonymousScoreFilter)) {
+      userService.getUsersWithAgent(ip = Option(ipMask), userAgent = userAgentOpt, limit = rowsLimit)
+    } else {
+      Seq.empty.asJava
+    }
 
     mv.getModel.put("users", users)
     mv.getModel.put("hasMoreUsers", users.size == rowsLimit)
+
     mv.getModel.put("score", score)
 
     if (ip != null) {
@@ -110,7 +122,13 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
       }
     }
 
-    mv.getModel.put("newUsers", userService.getNewUsersByUAIp(ipMask, userAgent))
+    val newUsers = if (!scoreOpt.contains(AnonymousScoreFilter)) {
+      userService.getNewUsersByUAIp(ipMask, userAgent)
+    } else {
+      Seq.empty.asJava
+    }
+
+    mv.getModel.put("newUsers", newUsers)
 
     if (userAgent != null) {
       mv.getModel.put("userAgent", userAgentDao.getUserAgentById(userAgent).orElse(null))
