@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -136,7 +136,7 @@ public class GroupListDao {
 
     String tagFilter = tagId.map(t -> " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
 
-    return load(partFilter + tagFilter + " AND lastmod"+dateFilter, "", currentUser,
+    return load(partFilter + tagFilter + " AND lastmod"+dateFilter, currentUser,
             topics, offset, messagesInPage, "comment_postdate",
             "AND comments.postdate"+dateFilter,
             "t.postdate"+dateFilter, false, false);
@@ -158,7 +158,7 @@ public class GroupListDao {
 
     String tagFilter = tagId.map(t -> " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
 
-    return load(partFilter + tagFilter, "", currentUser,
+    return load(partFilter + tagFilter, currentUser,
             topics, offset, messagesInPage,
             "topic_postdate", "", "", showIgnored, showDeleted);
   }
@@ -169,7 +169,7 @@ public class GroupListDao {
 
     String tagFilter = " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+tagId+") ";
 
-    return load(partFilter + tagFilter, "", currentUser,
+    return load(partFilter + tagFilter, currentUser,
             topics, offset, messagesInPage,
             "topic_postdate", "", "", false, false);
   }
@@ -179,7 +179,7 @@ public class GroupListDao {
 
     String tagFilter = tagId.map(t -> " AND topics.id IN (SELECT msgid FROM tags WHERE tagid="+t+") ").orElse("");
 
-    return load(partFilter + tagFilter, "", Optional.empty(),
+    return load(partFilter + tagFilter, Optional.empty(),
             100, 0, messagesInPage,
             "topic_postdate", "", "", true, false);
   }
@@ -193,20 +193,14 @@ public class GroupListDao {
       default -> "";
     };
 
-    String userFilter = switch (filter) {
-      case SCORE50 -> " AND userid IN (SELECT id FROM users WHERE score<50) ";
-      case SCORE100 -> " AND userid IN (SELECT id FROM users WHERE score<100) ";
-      default -> "";
-    };
-
     String dateFilter = ">CURRENT_TIMESTAMP-'7 days'::interval ";
 
-    return load(partFilter +" AND lastmod"+dateFilter, userFilter, currentUser, topics, offset, messagesInPage, "comment_postdate",
+    return load(partFilter +" AND lastmod"+dateFilter, currentUser, topics, offset, messagesInPage, "comment_postdate",
             "AND comments.postdate"+dateFilter,
             "t.postdate"+dateFilter, false, false);
   }
 
-  private List<TopicsListItem> load(String partFilter, String authorFilter, Optional<User> currentUserOpt,
+  private List<TopicsListItem> load(String partFilter, Optional<User> currentUserOpt,
                                     int topics, int offset, final int messagesInPage, String orderColumn,
                                     String commentInterval, String topicInterval, boolean showIgnored,
                                     boolean showDeleted) {
@@ -251,9 +245,9 @@ public class GroupListDao {
 
     query = String.format(
             // topics CTE
-            queryTrackerMain, partDeleted, partIgnored, authorFilter, tagIgnored, partUncommited, partFilter, innerSortLimit,
+            queryTrackerMain, partDeleted, partIgnored, "", tagIgnored, partUncommited, partFilter, innerSortLimit,
             // comments part
-            commentIgnored, authorFilter, commentInterval,
+            commentIgnored, "", commentInterval,
             // topics part
             topicInterval.isEmpty()?"":("WHERE " + topicInterval),
             // order

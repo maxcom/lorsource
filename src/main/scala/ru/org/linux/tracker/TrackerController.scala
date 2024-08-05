@@ -31,13 +31,7 @@ import scala.jdk.OptionConverters.{RichOption, RichOptional}
 @Controller
 class TrackerController(groupListDao: GroupListDao, userService: UserService, ipBlockDao: IPBlockDao) {
   @ModelAttribute("filters")
-  def getFilter: java.util.List[TrackerFilterEnum] = AuthorizedOpt { currentUserOpt =>
-    if (currentUserOpt.exists(_.moderator)) {
-      TrackerFilterEnum.values.toSeq.asJava
-    } else {
-      TrackerFilterEnum.values.toSeq.filterNot(_.isModeratorOnly).asJava
-    }
-  }
+  def getFilter: java.util.List[TrackerFilterEnum] = TrackerFilterEnum.values.toSeq.asJava
 
   @RequestMapping(path = Array("/tracker.jsp"))
   @throws[Exception]
@@ -47,7 +41,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
     val redirectView = new RedirectView("/tracker/")
 
     redirectView.setExposeModelAttributes(false)
-    val filter = TrackerFilterEnum.getByValue(filterAction, currentUserOpt.exists(_.moderator)).toScala
+    val filter = TrackerFilterEnum.getByValue(filterAction).toScala
 
     if (!filter.contains(defaultFilter)) {
       redirectView.setUrl("/tracker/?filter=" + URLEncoder.encode(filterAction, "UTF-8"))
@@ -81,7 +75,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
 
     val tmpl = Template.getTemplate
     val defaultFilter = tmpl.getProf.getTrackerMode
-    val trackerFilter = TrackerFilterEnum.getByValue(filterAction, currentUserOpt.exists(_.moderator)).orElse(defaultFilter)
+    val trackerFilter = TrackerFilterEnum.getByValue(filterAction).orElse(defaultFilter)
 
     val params = new java.util.HashMap[String, AnyRef]
 

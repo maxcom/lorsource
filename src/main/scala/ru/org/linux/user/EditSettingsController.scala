@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -99,7 +99,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
     tmpl.getProf.setStyle(request.getParameter("style"))
     userDao.setStyle(currentUser.user, request.getParameter("style"))
     tmpl.getProf.setOldTracker("on" == request.getParameter("oldTracker"))
-    tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode"), tmpl.isModeratorSession).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
+    tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
 
     val avatar = request.getParameter("avatar")
     if (!DefaultProfile.getAvatars.contains(avatar)) {

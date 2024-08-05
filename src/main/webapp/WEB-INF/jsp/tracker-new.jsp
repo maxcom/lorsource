@@ -47,6 +47,11 @@
         <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
       </c:if>
   </c:forEach>
+
+  <c:if test="${template.moderatorSession}">
+    <a class="btn btn-default" href="/sameip.jsp?score=-9999">anonymous</a>
+    <a class="btn btn-default" href="/sameip.jsp?score=46">score <= 45</a>
+  </c:if>
 </nav>
 
 <c:if test="${template.prof.oldTracker}">

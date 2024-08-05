@@ -35,25 +35,25 @@
   <c:out value="${userAgent}" escapeXml="true"/>
 </c:if>
 
-<c:if test="${ip != null}">
   <form action="sameip.jsp">
     <c:if test="${ua != null}">
       <input type="hidden" name="ua" value="${ua}">
     </c:if>
     <div class="control-group">
       <div class="controls">
-        <input class="input-lg" name="ip" type="search" size="17" maxlength="17" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+">
-
-        <select name="mask" class="btn btn-default" onchange="this.form.submit()">
-          <c:forEach items="${masks}" var="v">
-            <c:if test="${v._1() == mask}">
-              <option value="${v._1()}" selected>${v._2()}</option>
-            </c:if>
-            <c:if test="${v._1() != mask}">
-              <option value="${v._1()}">${v._2()}</option>
-            </c:if>
-          </c:forEach>
-        </select>
+        <c:if test="${ip != null}">
+          <input class="input-lg" name="ip" type="search" size="17" maxlength="17" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+">
+          <select name="mask" class="btn btn-default" onchange="this.form.submit()">
+            <c:forEach items="${masks}" var="v">
+              <c:if test="${v._1() == mask}">
+                <option value="${v._1()}" selected>${v._2()}</option>
+              </c:if>
+              <c:if test="${v._1() != mask}">
+                <option value="${v._1()}">${v._2()}</option>
+              </c:if>
+            </c:forEach>
+          </select>
+        </c:if>
 
         <select name="score" class="btn btn-default" onchange="this.form.submit()">
           <c:forEach items="${scores}" var="v">
@@ -69,50 +69,49 @@
     </div>
   </form>
 
-  <c:if test="${!hasMask}">
-    <div>
-      <strong>Текущий статус: </strong>
+<c:if test="${ip != null and !hasMask}">
+  <div>
+    <strong>Текущий статус: </strong>
 
-      <c:if test="${blockInfo == null}">
-        адрес не заблокирован
+    <c:if test="${blockInfo == null}">
+      адрес не заблокирован
+    </c:if>
+
+    <c:if test="${blockInfo != null}">
+      адрес заблокирован
+
+      <c:if test="${blockModerator == null}">
+        автоматически
       </c:if>
 
-      <c:if test="${blockInfo != null}">
-        адрес заблокирован
+      <c:if test="${blockModerator != null}">
+        модератором <lor:user user="${blockModerator}"/>
+      </c:if>
 
-        <c:if test="${blockModerator == null}">
-          автоматически
+      <c:out value=" "/> <lor:date date="${blockInfo.originalDate}"/>
+
+      <c:if test="${blockInfo.banDate != null}">
+        до <lor:date date="${blockInfo.banDate}"/>
+        <c:if test="${not blockInfo.blocked}">
+          (блокировка истекла)
         </c:if>
+      </c:if>
 
-        <c:if test="${blockModerator != null}">
-          модератором <lor:user user="${blockModerator}"/>
-        </c:if>
+      <c:if test="${blockInfo.banDate == null}">
+        постоянно
+      </c:if>
 
-        <c:out value=" "/> <lor:date date="${blockInfo.originalDate}"/>
-
-        <c:if test="${blockInfo.banDate != null}">
-          до <lor:date date="${blockInfo.banDate}"/>
-          <c:if test="${not blockInfo.blocked}">
-            (блокировка истекла)
+      <br>
+      <c:if test="${allowPosting}">
+        Зарегистрированным можно постить
+          <c:if test="${captchaRequired}">
+            с вводом каптчи
           </c:if>
-        </c:if>
-
-        <c:if test="${blockInfo.banDate == null}">
-          постоянно
-        </c:if>
-
         <br>
-        <c:if test="${allowPosting}">
-          Зарегистрированным можно постить
-            <c:if test="${captchaRequired}">
-              с вводом каптчи
-            </c:if>
-          <br>
-        </c:if>
-        <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
       </c:if>
-    </div>
-  </c:if>
+      <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
+    </c:if>
+  </div>
 
   <div>
     <strong>Местоположение ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>)</strong>: <span id="geolookup">...</span>
@@ -135,7 +134,6 @@
           });
       })
   </script>
-
 </c:if>
 
 <c:if test="${not empty newUsers}">
@@ -214,6 +212,7 @@
 </c:forEach>
 </div>
 
+<c:if test="${not empty users}">
 <h2>Пользователи за год (по топикам и комментариям)
   <c:if test="${hasMoreUsers}">(показаны первые ${rowsLimit})</c:if>
 </h2>
@@ -243,6 +242,7 @@
 </c:forEach>
 </table>
 </div>
+</c:if>
 
 <c:if test="${ip != null and !hasMask}">
   <h2>Управление</h2>
