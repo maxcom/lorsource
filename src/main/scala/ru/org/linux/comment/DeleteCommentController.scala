@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.{BadParameterException, ScriptErrorException, Template}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
-import ru.org.linux.user.{IgnoreListDao, UserErrorException}
+import ru.org.linux.user.{IgnoreListDao, UserErrorException, UserService}
 
 import scala.collection.Seq
 import scala.jdk.CollectionConverters.*
@@ -35,7 +35,8 @@ import scala.jdk.CollectionConverters.*
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentReadService,
                               topicDao: TopicDao, prepareService: CommentPrepareService,
                               permissionService: TopicPermissionService, commentDeleteService: CommentDeleteService,
-                              deleteInfoDao: DeleteInfoDao, ignoreListDao: IgnoreListDao) extends StrictLogging {
+                              deleteInfoDao: DeleteInfoDao, ignoreListDao: IgnoreListDao,
+                              userService: UserService) extends StrictLogging {
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val tmpl = Template.getTemplate
@@ -144,10 +145,22 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       None
     }
 
-    new ModelAndView("action-done", (Map(
-      "message" -> message,
-      "link" -> nextLink
-    ) ++ bigMessage).asJava)
+    val author = userService.getUserCached(comment.userid)
+
+    if (currentUser.moderator && currentUser.user != author) {
+      new ModelAndView("comment-deleted-by-moderator", (Map(
+        "message" -> message,
+        "link" -> nextLink,
+        "author" -> author,
+        "ip" -> comment.postIP,
+        "ua" -> comment.userAgentId
+      ) ++ bigMessage).asJava)
+    } else {
+      new ModelAndView("action-done", (Map(
+        "message" -> message,
+        "link" -> nextLink
+      ) ++ bigMessage).asJava)
+    }
   }
 
   @ExceptionHandler(Array(classOf[ScriptErrorException], classOf[UserErrorException], classOf[AccessViolationException]))
