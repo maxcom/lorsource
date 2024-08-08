@@ -25,12 +25,12 @@
 
 <p>${bigMessage}</p>
 
-<p>
+<nav>
   <a class="btn btn-primary" href="${link}">Назад в топик</a>
   <a class="btn btn-default" href="/people/${author.nick}/profile">Профиль ${author.nick}</a>
   <a class="btn btn-default" href="/sameip.jsp?ip=${ip}">Поиск по IP</a>
   <a class="btn btn-default" href="/sameip.jsp?ip=${ip}&ua=${ua}&mask=0">Поиск по User-Agent</a>
-</p>
+</nav>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
 
