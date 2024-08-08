@@ -72,7 +72,12 @@
 Блоки кода выделяются тегом `[code]`. Язык программирования можно указать в параметре, например `[code=java]`. 
 Поддерживаются следующие языки: 
 
+* ARMASM
+* AVRASM
+* AWK
 * Bash, Shell
+* Basic
+* Brainfuck
 * C
 * C# ('c#', 'cs')
 * C++ ('c++', 'cpp', 'cxx', 'cc')
@@ -91,8 +96,16 @@
 * Ini
 * Java
 * JavaScript ('js', 'javascript')
-* Lisp, Scheme
+* JSON
+* Julia
+* Lisp
+* LLVM
 * Lua
+* Makefile
+* MIPSASM
+* Nim
+* Nix
+* Ocaml
 * Objective C ('objc', 'objectivec')
 * Pascal, Delphi
 * Perl
@@ -101,10 +114,17 @@
 * Ruby
 * Rust
 * Scala
+* Scheme
 * Smalltalk
 * SQL
+* TCL
+* TypeScript
 * TeX
 * Vala
+* Vim
+* WASM
+* X86ASM
+* YAML
 
 ## Спойлер (cut) в ленте
 
