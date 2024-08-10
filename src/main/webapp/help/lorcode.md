@@ -79,23 +79,23 @@
 * Basic
 * Brainfuck
 * C
-* C# ('c#', 'cs')
-* C++ ('c++', 'cpp', 'cxx', 'cc')
+* C# (`c#`, `cs`)
+* C++ (`c++`, `cpp`, `cxx`, `cc`)
 * Clojure
 * CMake
 * CoffeeScript
 * CSS
 * D
-* Diff ('patch', 'diff')
+* Diff (`patch`, `diff`)
 * Erlang
-* F# ('f#', 'fs')
+* F# (`f#`, `fs`)
 * Fortran
 * Go
 * Haskell
 * HTML, XML
 * Ini
 * Java
-* JavaScript ('js', 'javascript')
+* JavaScript (`js`, `javascript`)
 * JSON
 * Julia
 * Lisp
@@ -106,7 +106,7 @@
 * Nim
 * Nix
 * Ocaml
-* Objective C ('objc', 'objectivec')
+* Objective C (`objc`, `objectivec`)
 * Pascal, Delphi
 * Perl
 * PHP
