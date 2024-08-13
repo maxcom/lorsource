@@ -15,7 +15,6 @@
 
 package ru.org.linux.spring;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
+import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.comment.CommentDeleteService;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
@@ -31,18 +31,23 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Controller
 public class DelIPController {
-  @Autowired
-  private SearchQueueSender searchQueueSender;
+  private final SearchQueueSender searchQueueSender;
+  private final CommentDeleteService commentDeleteService;
+  private final IPBlockDao ipBlockDao;
 
-  @Autowired
-  private CommentDeleteService commentDeleteService;
+  public DelIPController(SearchQueueSender searchQueueSender, CommentDeleteService commentDeleteService,
+                         IPBlockDao ipBlockDao) {
+    this.searchQueueSender = searchQueueSender;
+    this.commentDeleteService = commentDeleteService;
+    this.ipBlockDao = ipBlockDao;
+  }
 
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
@@ -54,8 +59,9 @@ public class DelIPController {
   @RequestMapping(value="/delip.jsp", method= RequestMethod.POST)
   public ModelAndView delIp(@RequestParam("reason") String reason,
                             @RequestParam("ip") String ip,
-                            @RequestParam("time") String time
-                            ) {
+                            @RequestParam("time") String time,
+                            @RequestParam(value = "ban_time", required = false) String banTime,
+                            @RequestParam(value = "ban_mode", required = false) String banMode) {
     Map<String, Object> params = new HashMap<>();
 
     Template tmpl = Template.getTemplate();
@@ -64,18 +70,24 @@ public class DelIPController {
       throw new AccessViolationException("Not moderator");
     }
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(new Date());
-
-    switch (time) {
-      case "hour" -> calendar.add(Calendar.HOUR_OF_DAY, -1);
-      case "day" -> calendar.add(Calendar.DAY_OF_MONTH, -1);
-      case "3day" -> calendar.add(Calendar.DAY_OF_MONTH, -3);
-      case "5day" -> calendar.add(Calendar.DAY_OF_MONTH, -5);
+    var delFrom = switch (time) {
+      case "hour" -> Instant.now().minus(1, ChronoUnit.HOURS);
+      case "day" -> Instant.now().minus(1, ChronoUnit.DAYS);
+      case "3day" -> Instant.now().minus(3, ChronoUnit.DAYS);
+      case "5day" ->Instant.now().minus(5, ChronoUnit.DAYS);
       default -> throw new UserErrorException("Invalid count");
-    }
+    };
 
-    Timestamp ts = new Timestamp(calendar.getTimeInMillis());
+    Optional<OffsetDateTime> banTo = switch (banTime) {
+      case "hour" -> Optional.of(OffsetDateTime.now().plusHours(1));
+      case "day" -> Optional.of(OffsetDateTime.now().plusDays(1));
+      case "month" -> Optional.of(OffsetDateTime.now().plusMonths(1));
+      case "3month" -> Optional.of(OffsetDateTime.now().plusMonths(3));
+      case "6month" -> Optional.of(OffsetDateTime.now().plusMonths(6));
+      case null, default -> Optional.empty();
+    };
+
+    Timestamp ts = new Timestamp(delFrom.toEpochMilli());
     params.put("message", "Удаляем темы и сообщения после "+ ts +" с IP "+ip+"<br>");
 
     User moderator = AuthUtil.getCurrentUser();
@@ -84,6 +96,28 @@ public class DelIPController {
 
     params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
     params.put("deleted", deleteResult.getDeleteInfo());
+
+    if (banTo.isPresent()) {
+      boolean allowPosting, captchaRequired;
+
+      switch(banMode) {
+        case "anonymous_and_captcha" -> {
+          allowPosting = true;
+          captchaRequired = true;
+        }
+        case "anonymous_only" -> {
+          allowPosting = true;
+          captchaRequired = false;
+        }
+        default -> {
+          allowPosting = false;
+          captchaRequired = false;
+        }
+      }
+
+      ipBlockDao.blockIP(ip, moderator.getId(), reason,
+              banTo.map(v -> new Timestamp(v.toInstant().toEpochMilli())).get(), allowPosting, captchaRequired);
+    }
 
     for (int topicId : deleteResult.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);

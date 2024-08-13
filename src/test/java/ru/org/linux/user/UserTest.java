@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -50,11 +50,6 @@ public class UserTest {
     } catch (AccessViolationException e) {
       Assert.fail();
     }
-    try {
-      user.checkCommit();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
     try {
       user.checkDelete();
@@ -99,12 +94,6 @@ public class UserTest {
     } catch (AccessViolationException e) {
       Assert.fail();
     }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for anonymous user", e.getMessage());
-    }
     Assert.assertFalse(user.isBlocked());
     try {
       user.checkDelete();
@@ -147,11 +136,6 @@ public class UserTest {
     }
     try {
       user.checkFrozen();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      user.checkCommit();
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -202,14 +186,6 @@ public class UserTest {
     } catch (AccessViolationException e) {
       Assert.fail();
     }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
-    }
     Assert.assertFalse(user.isBlocked());
     try {
       user.checkDelete();
@@ -257,14 +233,6 @@ public class UserTest {
     } catch (AccessViolationException e) {
       Assert.fail();
     }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
-    }
     Assert.assertFalse(user.isBlocked());
     try {
       user.checkDelete();
@@ -311,14 +279,6 @@ public class UserTest {
       user.checkFrozen();
     } catch (AccessViolationException e) {
       Assert.fail();
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -368,12 +328,6 @@ public class UserTest {
     } catch (AccessViolationException e) {
       Assert.fail();
     }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for anonymous user", e.getMessage());
-    }
     Assert.assertTrue(user.isBlocked());
     try {
       user.checkDelete();
@@ -418,14 +372,6 @@ public class UserTest {
       user.checkFrozen();
     } catch (AccessViolationException e) {
       Assert.fail();
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -474,14 +420,6 @@ public class UserTest {
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Пользователь временно заморожен", e.getMessage());
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {

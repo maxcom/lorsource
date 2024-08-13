@@ -212,6 +212,51 @@
 </c:forEach>
 </div>
 
+  <c:if test="${ip != null and !hasMask and empty score and not empty comments}">
+  <fieldset>
+    <legend>Удалить темы и сообщения с IP</legend>
+    <form method="post" action="delip.jsp">
+      <lor:csrf/>
+      <input type="hidden" name="ip" value="${ip}">
+      по причине: <br>
+      <input type="text" name="reason" maxlength="254" size="40" value=""><br>
+      за последний(ие) <select name="time">
+      <option value="hour">1 час</option>
+      <option value="day">1 день</option>
+      <option value="3day">3 дня</option>
+      <option value="5day">5 дней</option>
+      </select>
+      <c:if test="${blockInfo == null || not blockInfo.blocked}">
+      и
+      <select name="ban_time" onchange="banTimeChange(this);">
+        <option value="remove">не блокировать</option>
+        <option value="hour">блокировать на 1 час</option>
+        <option value="day">блокировать на 1 день</option>
+        <option value="month">блокировать на 1 месяц</option>
+        <option value="3month">блокировать на 3 месяца</option>
+        <option value="6month">блокировать на 6 месяцев</option>
+        <option value="unlim">блокировать постоянно</option>
+      </select>
+      <label style="display: none" ><input checked type="radio" name="ban_mode" value="anonymous_and_captcha">только anonymous, требовать captcha у зарегистрированных</label>
+      <label style="display: none"><input type="radio" name="ban_mode" value="anonymous_only">только anonymous</label>
+      <label style="display: none"><input type="radio" name="ban_mode" value="all">всех</label>
+      </c:if>
+      <p>
+        <button type="submit" name="del" class="btn btn-danger">del from ip</button>
+
+      <script type="text/javascript">
+        function banTimeChange(object) {
+          if ($(object).val() == "remove") {
+            $(object).parent().find("input[name=ban_mode]").parent().hide();
+          } else {
+            $(object).parent().find("input[name=ban_mode]").parent().show();
+          }
+        }
+      </script>
+    </form>
+  </fieldset>
+  </c:if>
+
 <c:if test="${not empty users}">
 <h2>Пользователи за год (по топикам и комментариям)
   <c:if test="${hasMoreUsers}">(показаны первые ${rowsLimit})</c:if>
@@ -309,25 +354,5 @@
         </script>
     </form>
   </fieldset>
-
-  <c:if test="${empty score}">
-  <fieldset>
-    <legend>Удалить темы и сообщения с IP</legend>
-    <form method="post" action="delip.jsp">
-      <lor:csrf/>
-      <input type="hidden" name="ip" value="${ip}">
-      по причине: <br>
-      <input type="text" name="reason" maxlength="254" size="40" value=""><br>
-      за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
-      <option value="hour">1 час</option>
-      <option value="day">1 день</option>
-      <option value="3day">3 дня</option>
-      <option value="5day">5 дней</option>
-    </select>
-      <p>
-        <button type="submit" name="del" class="btn btn-danger">del from ip</button>
-    </form>
-  </fieldset>
-  </c:if>
 </c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

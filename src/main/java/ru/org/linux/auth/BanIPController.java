@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.auth;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,15 +30,15 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Controller
 public class BanIPController {
-  private IPBlockDao ipBlockDao;
+  private final IPBlockDao ipBlockDao;
 
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
+  public BanIPController(IPBlockDao ipBlockDao) {
     this.ipBlockDao = ipBlockDao;
   }
 
@@ -58,42 +57,30 @@ public class BanIPController {
       throw new IllegalAccessException("Not authorized");
     }
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(new Date());
+    Optional<OffsetDateTime> banTo = switch (time) {
+      case "hour" -> Optional.of(OffsetDateTime.now().plusHours(1));
+      case "day" -> Optional.of(OffsetDateTime.now().plusDays(1));
+      case "month" -> Optional.of(OffsetDateTime.now().plusMonths(1));
+      case "3month" -> Optional.of(OffsetDateTime.now().plusMonths(3));
+      case "6month" -> Optional.of(OffsetDateTime.now().plusMonths(6));
+      case "custom" -> {
+        int days = ServletRequestUtils.getRequiredIntParameter(request, "ban_days");
 
-    if ("hour".equals(time)) {
-      calendar.add(Calendar.HOUR_OF_DAY, 1);
-    } else if ("day".equals(time)) {
-      calendar.add(Calendar.DAY_OF_MONTH, 1);
-    } else if ("month".equals(time)) {
-      calendar.add(Calendar.MONTH, 1);
-    } else if ("3month".equals(time)) {
-      calendar.add(Calendar.MONTH, 3);
-    } else if ("6month".equals(time)) {
-      calendar.add(Calendar.MONTH, 6);
-    } else if ("remove".equals(time)) {
-    } else if ("custom".equals(time)) {
-      int days = ServletRequestUtils.getRequiredIntParameter(request, "ban_days");
+        if (days <= 0 || days > 180) {
+          throw new UserErrorException("Invalid days count");
+        }
 
-      if (days <= 0 || days > 180) {
-        throw new UserErrorException("Invalid days count");
+        yield Optional.of(OffsetDateTime.now().plusDays(days));
       }
+      case "unlim" -> Optional.empty();
+      case "remove" -> Optional.of(OffsetDateTime.now());
+      default -> throw new UserErrorException("Invalid count");
+    };
 
-      calendar.add(Calendar.DAY_OF_MONTH, days);
-    }
+    User moderator = AuthUtil.getCurrentUser();
 
-    Timestamp ts;
-    if ("unlim".equals(time)) {
-      ts = null;
-    } else {
-      ts = new Timestamp(calendar.getTimeInMillis());
-    }
-
-      User user = AuthUtil.getCurrentUser();
-
-    user.checkCommit();
-
-    ipBlockDao.blockIP(ip, user.getId(), reason, ts, allowPosting, captchaRequired);
+    ipBlockDao.blockIP(ip, moderator.getId(), reason, banTo.map(v -> new Timestamp(v.toInstant().toEpochMilli())).orElse(null),
+            allowPosting, captchaRequired);
 
     return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, StandardCharsets.UTF_8)));
   }
