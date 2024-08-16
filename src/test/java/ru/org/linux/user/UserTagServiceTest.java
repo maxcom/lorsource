@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -58,6 +58,7 @@ public class UserTagServiceTest {
     reset(userTagDao);
     reset(tagService);
     when(tagService.getTagId(eq("tag1"), anyBoolean())).thenReturn(2);
+    when(tagService.getTagIdOptWithSynonym(eq("tag1"))).thenReturn(Option.apply(2));
     user = getUser(1);
   }
 
@@ -73,7 +74,7 @@ public class UserTagServiceTest {
 
   @Test
   public void favoriteAddTest() throws TagNotFoundException {
-    when(tagDao.getTagId("tag1", false)).thenReturn(Option.apply((Object) 2));
+    when(tagDao.getTagId("tag1", false)).thenReturn(Option.apply(2));
     userTagService.favoriteAdd(user, "tag1");
     verify(userTagDao).addTag(eq(1), eq(2), eq(true));
   }
@@ -105,7 +106,7 @@ public class UserTagServiceTest {
 
     List<String> actual = userTagService.favoritesGet(user);
     Assert.assertEquals(etalon.size(), actual.size());
-    Assert.assertEquals(etalon.get(0), actual.get(0));
+    Assert.assertEquals(etalon.getFirst(), actual.getFirst());
   }
 
   @Test
@@ -117,20 +118,20 @@ public class UserTagServiceTest {
 
     List<String> actual = userTagService.ignoresGet(user);
     Assert.assertEquals(etalon.size(), actual.size());
-    Assert.assertEquals(etalon.get(0), actual.get(0));
+    Assert.assertEquals(etalon.getFirst(), actual.getFirst());
   }
 
   @Test
   public void getUserIdListByTagsTest() {
     List<Integer> etalon = new ArrayList<>();
-    etalon.add(123);
     List<String> tags = new ArrayList<>();
+    etalon.add(123);
     tags.add("tag1");
-    when(userTagDao.getUserIdListByTags(1, tags)).thenReturn(etalon);
+    when(userTagDao.getUserIdListByTags(1, List.of(2))).thenReturn(etalon);
 
     List<Integer> actual = userTagService.getUserIdListByTags(user.getId(), tags);
     Assert.assertEquals(etalon.size(), actual.size());
-    Assert.assertEquals(etalon.get(0), actual.get(0));
+    Assert.assertEquals(etalon.getFirst(), actual.getFirst());
   }
 
   @Test

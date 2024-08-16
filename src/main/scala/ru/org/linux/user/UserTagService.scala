@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Service
 class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
@@ -113,7 +113,9 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @return список ID пользователей
     */
   def getUserIdListByTags(userid: Int, tags: java.util.List[String]): java.util.List[Integer] = {
-    userTagDao.getUserIdListByTags(userid, tags)
+    val tagIds = tags.asScala.flatMap(tagService.getTagIdOptWithSynonym).distinct
+
+    userTagDao.getUserIdListByTags(userid, tagIds.map(Integer.valueOf).asJava)
   }
 
   /**
@@ -123,9 +125,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @param tagName название тега
     * @return true если у пользователя есть тег
     */
-  def hasFavoriteTag(user: User, tagName: String): Boolean = {
-    favoritesGet(user).contains(tagName)
-  }
+  def hasFavoriteTag(user: User, tagName: String): Boolean = favoritesGet(user).contains(tagName)
 
   /**
     * Проверяет, есть ли указанный игнорируемый тег у пользователя.
@@ -139,7 +139,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
   }
 
   /**
-    * Добавление нескольких тегов из строки. разделённых запятой.
+    * Добавление нескольких тегов из строки, разделённых запятой.
     *
     * @param user       объект пользователя
     * @param tagsStr    строка, содержащая разделённые запятой теги
@@ -173,7 +173,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
   def countIgnore(id: Int): Int = userTagDao.countIgnore(id)
 
   /**
-    * преобразование ошибок в массив строк.
+    * Преобразование ошибок в массив строк.
     *
     * @param errors объект ошибок
     * @return массив строк, содержащий описания ошибок

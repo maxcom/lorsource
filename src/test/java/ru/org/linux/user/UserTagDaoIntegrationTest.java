@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -234,18 +234,18 @@ public class UserTagDaoIntegrationTest {
   public void getUserIdListByTagsTest() {
     prepareUserTags();
     List<Integer> userIdList;
-    List<String> tags = new ArrayList<>();
-    tags.add("UserTagDaoIntegrationTest_tag1");
+    List<Integer> tags = new ArrayList<>();
+    tags.add(tag1Id);
     userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
     assertEquals("Wrong count of user ID's.", 1, userIdList.size());
 
-    tags.add("UserTagDaoIntegrationTest_tag2");
+    tags.add(tag2Id);
     userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
     assertEquals("Wrong count of user ID's.", 1, userIdList.size());
 
     tags.clear();
     userTagDao.deleteTag(user1Id, tag5Id, true);
-    tags.add("UserTagDaoIntegrationTest_tag5");
+    tags.add(tag5Id);
     userIdList = userTagDao.getUserIdListByTags(user1Id, tags);
     assertEquals("Wrong count of user ID's.", 1, userIdList.size());
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -59,15 +59,15 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
 
   def getTagIdOpt(tag: String): Option[Int] = tagDao.getTagId(tag)
 
+  def getTagIdOptWithSynonym(tag: String): Option[Int] = tagDao.getTagId(tag).orElse(tagDao.getTagSynonymId(tag))
+
   /**
    * Получение идентификационного номера тега по названию, либо создание нового тега.
    *
    * @param tagName название тега
    * @return идентификационный номер тега
    */
-  def getOrCreateTag(tagName: String): Int = {
-    tagDao.getTagId(tagName).orElse(tagDao.getTagSynonymId(tagName)).getOrElse(tagDao.createTag(tagName))
-  }
+  def getOrCreateTag(tagName: String): Int = getTagIdOptWithSynonym(tagName).getOrElse(tagDao.createTag(tagName))
 
   def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] = {
     if (TagName.isGoodTag(tag)) {
