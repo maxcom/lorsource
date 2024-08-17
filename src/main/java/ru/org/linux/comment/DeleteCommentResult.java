@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,29 +16,16 @@
 package ru.org.linux.comment;
 
 import java.util.List;
-import java.util.Map;
 
-/**
- * Результат работы deleteCommentsByIPAddress
- */
 public class DeleteCommentResult {
-  /**
-   * список id удаленных топиков
-   */
   private final List<Integer> deletedTopicIds;
-  /**
-   * список id удаленных комментариев
-   */
   private final List<Integer> deletedCommentIds;
-  /**
-   * хэш id удаляемого топика -> строка с результатом удален или пропущен
-   */
-  private final Map<Integer, String> deleteInfo;
+  private final List<Integer> skippedComments;
 
-  DeleteCommentResult(List<Integer> deletedTopicIds, List<Integer> deletedCommentIds, Map<Integer, String> deleteInfo) {
+  DeleteCommentResult(List<Integer> deletedTopicIds, List<Integer> deletedCommentIds, List<Integer> skippedComments) {
     this.deletedCommentIds = deletedCommentIds;
     this.deletedTopicIds = deletedTopicIds;
-    this.deleteInfo = deleteInfo;
+    this.skippedComments = skippedComments;
   }
 
   public List<Integer> getDeletedTopicIds() {
@@ -49,7 +36,7 @@ public class DeleteCommentResult {
     return deletedCommentIds;
   }
 
-  public Map<Integer, String> getDeleteInfo() {
-    return deleteInfo;
+  public List<Integer> getSkippedComments() {
+    return skippedComments;
   }
 }

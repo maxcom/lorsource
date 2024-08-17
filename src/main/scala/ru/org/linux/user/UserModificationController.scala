@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -134,21 +134,23 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new UserErrorException("Пользователь уже блокирован")
     }
 
-    val params = new mutable.HashMap[String, AnyRef]
-    params.put("message", "Удалено")
-    val deleteCommentResult = commentService.deleteAllCommentsAndBlock(user, moderator.user, reason)
+    val deleteResult = commentService.deleteAllCommentsAndBlock(user, moderator.user, reason)
 
     logger.info(s"User ${user.getNick} blocked by ${moderator.user.getNick}")
 
-    params.put("bigMessage", s"Удалено комментариев: ${deleteCommentResult.getDeletedCommentIds.size}<br>Удалено тем: ${deleteCommentResult.getDeletedTopicIds.size}")
-
-    deleteCommentResult.getDeletedTopicIds.asScala.foreach { topicId =>
+    deleteResult.getDeletedTopicIds.asScala.foreach { topicId =>
       searchQueueSender.updateMessage(topicId, true)
     }
 
-    searchQueueSender.updateComment(deleteCommentResult.getDeletedCommentIds)
+    searchQueueSender.updateComment(deleteResult.getDeletedCommentIds)
 
-    new ModelAndView("action-done", params.asJava)
+    val params = new mutable.HashMap[String, AnyRef]
+
+    params.put("topics", Integer.valueOf(deleteResult.getDeletedTopicIds.size))
+    params.put("comments", Integer.valueOf(deleteResult.getDeletedCommentIds.size))
+    params.put("skipped", deleteResult.getSkippedComments)
+
+    return new ModelAndView("delip", params.asJava)
   }
 
   /**

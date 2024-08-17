@@ -83,11 +83,6 @@ public class DelIPController {
 
     User moderator = AuthUtil.getCurrentUser();
 
-    DeleteCommentResult deleteResult = commentDeleteService.deleteCommentsByIPAddress(ip, ts, moderator, reason);
-
-    params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
-    params.put("deleted", deleteResult.getDeleteInfo());
-
     if (banTime != null) {
       Optional<OffsetDateTime> banTo = switch (banTime) {
         case "hour" -> Optional.of(OffsetDateTime.now().plusHours(1));
@@ -96,6 +91,7 @@ public class DelIPController {
         case "3month" -> Optional.of(OffsetDateTime.now().plusMonths(3));
         case "6month" -> Optional.of(OffsetDateTime.now().plusMonths(6));
         case "unlim" -> Optional.empty();
+        case "remove" -> Optional.of(OffsetDateTime.now());
         default -> throw new UserErrorException("Invalid count");
       };
 
@@ -118,6 +114,12 @@ public class DelIPController {
 
       ipBlockDao.blockIP(ip, moderator.getId(), reason, banTo.orElse(null), allowPosting, captchaRequired);
     }
+
+    DeleteCommentResult deleteResult = commentDeleteService.deleteCommentsByIPAddress(ip, ts, moderator, reason);
+
+    params.put("topics", deleteResult.getDeletedTopicIds().size());
+    params.put("comments", deleteResult.getDeletedCommentIds().size());
+    params.put("skipped", deleteResult.getSkippedComments());
 
     for (int topicId : deleteResult.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);

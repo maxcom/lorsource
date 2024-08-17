@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -168,7 +168,7 @@ public class CommentDeleteService {
     List<DeleteInfoDao.InsertDeleteInfo> deleteInfos = new ArrayList<>(replys.size());
 
     for (CommentAndDepth cur : replys) {
-      Comment child = cur.getComment();
+      Comment child = cur.comment();
 
       DeleteInfoDao.InsertDeleteInfo info = cur.deleteInfo(score, user);
 
@@ -214,11 +214,7 @@ public class CommentDeleteService {
   {
     List<Integer> deletedTopics = topicService.deleteByIPAddress(ip, timeDelta, moderator, reason);
 
-    Map<Integer, String> deleteInfo = new HashMap<>();
-
-    for (int msgid : deletedTopics) {
-      deleteInfo.put(msgid, "Топик " + msgid + " удален");
-    }
+    List<Integer> skippedComments = new ArrayList<>();
 
     // Удаляем комментарии если на них нет ответа
     List<Integer> commentIds = commentDao.getCommentsByIPAddressForUpdate(ip, timeDelta);
@@ -229,12 +225,9 @@ public class CommentDeleteService {
       if (commentDao.getRepliesCount(msgid) == 0) {
         if (doDeleteComment(msgid, reason, moderator)) {
           deletedCommentIds.add(msgid);
-          deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
-        } else {
-          deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
         }
       } else {
-        deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
+        skippedComments.add(msgid);
       }
     }
 
@@ -244,7 +237,7 @@ public class CommentDeleteService {
 
     userEventService.processCommentsDeleted(deletedCommentIds);
 
-    return new DeleteCommentResult(deletedTopics, deletedCommentIds, deleteInfo);
+    return new DeleteCommentResult(deletedTopics, deletedCommentIds, skippedComments);
   }
 
   /**
@@ -261,35 +254,25 @@ public class CommentDeleteService {
 
     List<Integer> deletedTopicIds = topicService.deleteAllByUser(user, moderator);
 
-    List<Integer> deletedCommentIds = deleteAllCommentsByUser(user, moderator);
-
-    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
-  }
-
-  /**
-     * Массовое удаление комментариев пользователя со всеми ответами на комментарии.
-     *
-     * @param user      пользователь для экзекуции
-     * @param moderator экзекутор-модератор
-     * @return список удаленных комментариев
-     */
-  private List<Integer> deleteAllCommentsByUser(User user, final User moderator) {
     final List<Integer> deletedCommentIds = new ArrayList<>();
 
     // Удаляем все комментарии
     List<Integer> commentIds = commentDao.getAllByUserForUpdate(user);
+    List<Integer> skippedComments = new ArrayList<>();
 
     for (int msgid : commentIds) {
       if (commentDao.getRepliesCount(msgid) == 0) {
         doDeleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator);
         commentDao.updateStatsAfterDelete(msgid, 1);
         deletedCommentIds.add(msgid);
+      } else {
+        skippedComments.add(msgid);
       }
     }
 
     userEventService.processCommentsDeleted(deletedCommentIds);
 
-    return deletedCommentIds;
+    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, skippedComments);
   }
 
   private static List<CommentAndDepth> getAllReplys(CommentNode node, int depth) {
@@ -303,46 +286,35 @@ public class CommentDeleteService {
     return replys;
   }
 
-  private static class CommentAndDepth {
-    private final Comment comment;
-    private final int depth;
-
-    private CommentAndDepth(Comment comment, int depth) {
-      this.comment = comment;
-      this.depth = depth;
-    }
-
-    public Comment getComment() {
-      return comment;
-    }
+  private record CommentAndDepth(Comment comment, int depth) {
 
     private DeleteInfoDao.InsertDeleteInfo deleteInfo(boolean score, User user) {
-      int bonus;
-      String reason;
+        int bonus;
+        String reason;
 
-      if (score) {
-        switch (depth) {
-          case 0 -> {
-            reason = "7.1 Ответ на некорректное сообщение (авто, уровень 0)";
-            bonus = -2;
+        if (score) {
+          switch (depth) {
+            case 0 -> {
+              reason = "7.1 Ответ на некорректное сообщение (авто, уровень 0)";
+              bonus = -2;
+            }
+            case 1 -> {
+              reason = "7.1 Ответ на некорректное сообщение (авто, уровень 1)";
+              bonus = -1;
+            }
+            default -> {
+              reason = "7.1 Ответ на некорректное сообщение (авто, уровень >1)";
+              bonus = 0;
+            }
           }
-          case 1 -> {
-            reason = "7.1 Ответ на некорректное сообщение (авто, уровень 1)";
-            bonus = -1;
-          }
-          default -> {
-            reason = "7.1 Ответ на некорректное сообщение (авто, уровень >1)";
-            bonus = 0;
-          }
+        } else {
+          reason = "7.1 Ответ на некорректное сообщение (авто)";
+          bonus = 0;
         }
-      } else {
-        reason = "7.1 Ответ на некорректное сообщение (авто)";
-        bonus = 0;
-      }
 
-      return new DeleteInfoDao.InsertDeleteInfo(comment.getId(), reason, bonus, user.getId());
+        return new DeleteInfoDao.InsertDeleteInfo(comment.getId(), reason, bonus, user.getId());
+      }
     }
-  }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void undeleteComment(Comment comment) {

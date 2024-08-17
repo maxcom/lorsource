@@ -2,7 +2,7 @@
 <%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -17,12 +17,6 @@
   --%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<%
-
-  response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
-  response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
-
-%>
 <title>delip</title>
 <link rel="parent" title="Linux.org.ru" href="/">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -33,15 +27,15 @@ ${message}
 
 <br/>
 
-Удалено тем: ${topics}
+Удалено тем: ${topics}; удалено комментариев: ${comments}
 
 <ul>
 
-  <c:forEach var="del" items="${deleted}">
+  <c:forEach var="del" items="${skipped}">
 
     <li>
     
-Удаляется #${del.key}: ${del.value}
+Пропущен <a href="delete_comment.jsp?msgid=${del}">#${del}</a>
 
     </li>
                       
