@@ -104,7 +104,7 @@
 <jsp:include page="header.jsp"/>
 
 <c:if test="${viewByOwner}">
-    <div style="margin-bottom: 1em">
+    <nav>
         <a href="/people/${user.nick}/edit" class="btn btn-default">Редактировать профиль</a>
         <a href="/people/${user.nick}/settings" class="btn btn-default">Настройки</a>
 
@@ -121,7 +121,7 @@
             <lor:csrf/>
             <button type="submit" class="btn btn-danger">Выйти со всех устройств</button>
         </form>
-    </div>
+    </nav>
 </c:if>
 
 <c:if test="${not viewByOwner}">
