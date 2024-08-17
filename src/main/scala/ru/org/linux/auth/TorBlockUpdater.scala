@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,12 +15,11 @@
 package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
-import org.joda.time.DateTime
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import sttp.client3.*
 
-import java.sql.Timestamp
+import java.time.OffsetDateTime
 
 @Component
 class TorBlockUpdater(httpClient: SttpBackend[Identity, Any], dao: IPBlockDao) extends StrictLogging {
@@ -35,8 +34,7 @@ class TorBlockUpdater(httpClient: SttpBackend[Identity, Any], dao: IPBlockDao) e
         logger.debug("Updating TOR exit node list")
 
         body.linesIterator.foreach { ip =>
-          dao.blockIP(ip, 0, "TOR Exit Node", new Timestamp(DateTime.now().plusMonths(1).getMillis),
-            true, false)
+          dao.blockIP(ip, 0, "TOR Exit Node", OffsetDateTime.now().plusMonths(1), true, false)
         }
       case Left(error) =>
         logger.warn(s"Can't update TOR exit node list: $error")

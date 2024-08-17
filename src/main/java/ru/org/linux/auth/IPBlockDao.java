@@ -22,7 +22,7 @@ import ru.org.linux.user.User;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
@@ -57,7 +57,7 @@ public class IPBlockDao {
     }
   }
 
-  public void blockIP(String ip, int moderatorId, String reason, @Nullable Timestamp banUntil,
+  public void blockIP(String ip, int moderatorId, String reason, @Nullable OffsetDateTime banUntil,
                       boolean allowPosting, boolean captchaRequired) {
     IPBlockInfo blockInfo = getBlockInfo(ip);
 

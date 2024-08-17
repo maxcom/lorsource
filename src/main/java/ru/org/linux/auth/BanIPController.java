@@ -29,9 +29,7 @@ import ru.org.linux.user.UserErrorException;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Controller
@@ -42,7 +40,7 @@ public class BanIPController {
     this.ipBlockDao = ipBlockDao;
   }
 
-  @RequestMapping(value="/banip.jsp", method= RequestMethod.POST)
+  @RequestMapping(value="/banip.jsp", method=RequestMethod.POST)
   public ModelAndView banIP(
     HttpServletRequest request,
     @RequestParam("ip") String ip,
@@ -79,8 +77,7 @@ public class BanIPController {
 
     User moderator = AuthUtil.getCurrentUser();
 
-    ipBlockDao.blockIP(ip, moderator.getId(), reason, banTo.map(v -> new Timestamp(v.toInstant().toEpochMilli())).orElse(null),
-            allowPosting, captchaRequired);
+    ipBlockDao.blockIP(ip, moderator.getId(), reason, banTo.orElse(null), allowPosting, captchaRequired);
 
     return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, StandardCharsets.UTF_8)));
   }

@@ -78,15 +78,6 @@ public class DelIPController {
       default -> throw new UserErrorException("Invalid count");
     };
 
-    Optional<OffsetDateTime> banTo = switch (banTime) {
-      case "hour" -> Optional.of(OffsetDateTime.now().plusHours(1));
-      case "day" -> Optional.of(OffsetDateTime.now().plusDays(1));
-      case "month" -> Optional.of(OffsetDateTime.now().plusMonths(1));
-      case "3month" -> Optional.of(OffsetDateTime.now().plusMonths(3));
-      case "6month" -> Optional.of(OffsetDateTime.now().plusMonths(6));
-      case null, default -> Optional.empty();
-    };
-
     Timestamp ts = new Timestamp(delFrom.toEpochMilli());
     params.put("message", "Удаляем темы и сообщения после "+ ts +" с IP "+ip+"<br>");
 
@@ -97,10 +88,20 @@ public class DelIPController {
     params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
     params.put("deleted", deleteResult.getDeleteInfo());
 
-    if (banTo.isPresent()) {
+    if (banTime != null) {
+      Optional<OffsetDateTime> banTo = switch (banTime) {
+        case "hour" -> Optional.of(OffsetDateTime.now().plusHours(1));
+        case "day" -> Optional.of(OffsetDateTime.now().plusDays(1));
+        case "month" -> Optional.of(OffsetDateTime.now().plusMonths(1));
+        case "3month" -> Optional.of(OffsetDateTime.now().plusMonths(3));
+        case "6month" -> Optional.of(OffsetDateTime.now().plusMonths(6));
+        case "unlim" -> Optional.empty();
+        default -> throw new UserErrorException("Invalid count");
+      };
+
       boolean allowPosting, captchaRequired;
 
-      switch(banMode) {
+      switch (banMode) {
         case "anonymous_and_captcha" -> {
           allowPosting = true;
           captchaRequired = true;
@@ -115,8 +116,7 @@ public class DelIPController {
         }
       }
 
-      ipBlockDao.blockIP(ip, moderator.getId(), reason,
-              banTo.map(v -> new Timestamp(v.toInstant().toEpochMilli())).get(), allowPosting, captchaRequired);
+      ipBlockDao.blockIP(ip, moderator.getId(), reason, banTo.orElse(null), allowPosting, captchaRequired);
     }
 
     for (int topicId : deleteResult.getDeletedTopicIds()) {
