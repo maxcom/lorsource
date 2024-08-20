@@ -70,27 +70,29 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
       } else {
         Some(ip)
       }
-    }.orNull
+    }
 
     val rowsLimit = 50
 
     val userAgentOpt = Option[Integer](userAgent).map(_.toInt)
     val scoreOpt = Option[Integer](score).map(_.toInt)
 
-    val posts = sameIpService.getPosts(ip = Option(ipMask), userAgent = userAgentOpt, score = scoreOpt, limit = rowsLimit)
+    val posts = sameIpService.getPosts(ip = ipMask, userAgent = userAgentOpt, score = scoreOpt, limit = rowsLimit)
 
     mv.getModel.put("comments", posts.asJava)
     mv.getModel.put("hasMoreComments", posts.size == rowsLimit)
     mv.getModel.put("rowsLimit", rowsLimit)
 
-    val users = if (!scoreOpt.contains(AnonymousScoreFilter)) {
-      userService.getUsersWithAgent(ip = Option(ipMask), userAgent = userAgentOpt, limit = rowsLimit)
+    val (users, newUsers) = if (!scoreOpt.contains(AnonymousScoreFilter) && (ipMask.isDefined || userAgentOpt.isDefined)) {
+      (userService.getUsersWithAgent(ip = ipMask, userAgent = userAgentOpt, limit = rowsLimit),
+        userService.getNewUsersByUAIp(ipMask, userAgent))
     } else {
-      Seq.empty.asJava
+      (Seq.empty.asJava, Seq.empty.asJava)
     }
 
     mv.getModel.put("users", users)
     mv.getModel.put("hasMoreUsers", users.size == rowsLimit)
+    mv.getModel.put("newUsers", newUsers)
 
     mv.getModel.put("score", score)
 
@@ -122,15 +124,7 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
       }
     }
 
-    val newUsers = if (!scoreOpt.contains(AnonymousScoreFilter)) {
-      userService.getNewUsersByUAIp(ipMask, userAgent)
-    } else {
-      Seq.empty.asJava
-    }
-
-    mv.getModel.put("newUsers", newUsers)
-
-    if (userAgent != null) {
+    userAgentOpt.foreach { userAgent =>
       mv.getModel.put("userAgent", userAgentDao.getUserAgentById(userAgent).orElse(null))
       mv.getModel.put("ua", userAgent)
     }

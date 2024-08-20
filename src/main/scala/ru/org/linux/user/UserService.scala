@@ -171,8 +171,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getNewUsers: util.List[User] = getUsersCachedJava(userDao.getNewUserIds)
 
-  def getNewUsersByUAIp(@Nullable ip: String, @Nullable userAgent: Integer): util.List[(User, Timestamp, Timestamp)] =
-    userDao.getNewUsersByIP(ip, userAgent).asScala.map { case (id, regdate, lastlogin) =>
+  def getNewUsersByUAIp(ip: Option[String], @Nullable userAgent: Integer): util.List[(User, Timestamp, Timestamp)] =
+    userDao.getNewUsersByIP(ip.orNull, userAgent).asScala.map { case (id, regdate, lastlogin) =>
       (getUserCached(id), regdate, lastlogin)
     }.asJava
 
