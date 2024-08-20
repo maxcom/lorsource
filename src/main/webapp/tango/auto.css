@@ -1,0 +1,27 @@
+@media (prefers-color-scheme: light) {
+    :root {
+        --main-background: #d3d7cf;
+        --text-color: #2e3436;
+        --link-color: #204a87;
+        --site-title-color: #2e3436;
+        --header-color: #555753;
+        --blockquote-color: #555753;
+        --table-border-color: #babdb6;
+        --table-link-color: #2e3436;
+        --table-hover-background: #ad7fa8;
+        --tag-color: #ce5c00;
+        --main-menu-color: #8f5902;
+        --signature-user-color: #4e9a06;
+        --signature-remark-color: #444444;
+        --article-background: #eeeeec;
+        --button-border-color: #ef2929;
+        --button-selected-text-color: white;
+        --button-primary-background: #729fcf;
+        --button-danger-background: #fa3535;
+        --icon-button-active-color: #c17d11;
+        --tagpage-group-label-background: #e9b96e;
+        --icon-reply-color: #729fcf;
+        --icon-pin-color: #c4a000;
+        --preview-border-color: #c4a000;
+    }
+}
