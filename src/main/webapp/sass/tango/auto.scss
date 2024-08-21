@@ -1,3 +1,6 @@
+$heatmap_max: #8ae234;
+$heatmap_scale: 1.5;
+
 @media (prefers-color-scheme: light) {
     :root {
         --main-background: #d3d7cf;
@@ -23,5 +26,12 @@
         --icon-reply-color: #729fcf;
         --icon-pin-color: #c4a000;
         --preview-border-color: #c4a000;
+
+        --heatmap-empty: #babdb6;
+        --heatmap-max: #{adjust-color($heatmap_max, $lightness: -20%*$heatmap_scale)};
+        --heatmap-q4: #{adjust-color($heatmap_max, $lightness: -15%*$heatmap_scale)};
+        --heatmap-q3: #{adjust-color($heatmap_max, $lightness: -10%*$heatmap_scale)};
+        --heatmap-q2: #{adjust-color($heatmap_max, $lightness: -5%*$heatmap_scale)};
+        --heatmap-q1: #{$heatmap_max};
     }
 }
