@@ -36,6 +36,7 @@
 
   --button-primary-background: #204a87;
   --button-danger-background: #a40000;
+  --button-danger-text-color: #eeeeec;
 
   --icon-button-active-color: #c17d11;
 
@@ -77,7 +78,7 @@ $button_text_color: $table_link_color;
 $button_primary_background: var(--button-primary-background);
 $button_primary_text: $button_text_color;
 $button_danger_background: var(--button-danger-background);
-$button_danger_text: $button_text_color;
+$button_danger_text: var(--button-danger-text-color);
 
 $icon_button_active_color: var(--icon-button-active-color);
 
