@@ -12,8 +12,8 @@ fi
 cwd=`pwd`
 
 cd "$highlight_js_path" && node "tools/build.js" \
-    armasm avrasm awk basic bash brainfuck clojure cmake coffeescript c cpp csharp css d delphi diff erlang \
-    fortran fsharp go haskell ini java javascript json julia lisp llvm lua makefile mipsasm nim nix ocaml \
+    abnf armasm avrasm awk basic bash bnf brainfuck clojure cmake coffeescript c cpp csharp css d delphi diff ebnf erlang \
+    fortran fsharp go haskell ini java javascript json julia lisp llvm lua makefile markdown mipsasm nim nix ocaml \
     objectivec perl php python ruby rust sql scala scheme smalltalk tcl typescript latex vala vim wasm x86asm xml yaml \
 
 cp "$highlight_js_path/build/highlight.min.js" $cwd/src/main/webapp/js/highlight.min.js
