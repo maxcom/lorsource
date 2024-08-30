@@ -36,6 +36,7 @@
 
 <div id="mainpage">
 <div id="news">
+<%--
 
 <c:if test="${showAdsense}">
   <div align="center" width="100%">
@@ -80,6 +81,7 @@
   </script>
   </div>
 </c:if>
+--%>
 
   <div style="text-align: center; margin-top: 0.5em; height: 125px" id="interpage">
   </div>
@@ -106,7 +108,6 @@
     });
   </script>
 
-<%--
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
   <c:if test="${uncommited > 0}">
@@ -120,7 +121,6 @@
   </c:if>
 </div>
 </c:if>
---%>
 
 <%
   boolean multiPortal = tmpl.getProf().isShowGalleryOnMain();
