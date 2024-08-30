@@ -81,7 +81,6 @@
   </div>
 </c:if>
 
-<%--
   <div style="text-align: center; margin-top: 0.5em; height: 125px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -92,57 +91,22 @@
                 img320: '/adv/MD-2817-01-320x100 (1).png',
                 img730: '/adv/MD-2817-01-730x90 (1).png',
                 img980: '/adv/MD-2817-01-980x120 (1).png',
-                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_12072024_01'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/MD-2817-01-320x100 (1).png',
-                img730: '/adv/MD-2817-01-730x90 (1).png',
-                img980: '/adv/MD-2817-01-980x120 (1).png',
-                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_12072024_01'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/MD-2817-02-320x100 (1).png',
-                img730: '/adv/MD-2817-02-730x90 (1).png',
-                img980: '/adv/MD-2817-02-980x120 (1).png',
-                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_12072024_02'
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_31082024_01'
             },
             {
                 type: 'rimg',
                 img320: '/adv/MD-2817-03-320x100 (1).png',
                 img730: '/adv/MD-2817-03-730x90 (1).png',
                 img980: '/adv/MD-2817-03-980x120 (1).png',
-                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_12072024_03'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/MD-2833-01-320x100 (1).png',
-                img730: '/adv/MD-2833-01-730x90 (1).png',
-                img980: '/adv/MD-2833-01-980x120 (1).png',
-                href: 'https://pro.selectel.ru/100-s3/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=storage_12072024_01'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/MD-2833-02-320x100.png',
-                img730: '/adv/MD-2833-02-730x90.png',
-                img980: '/adv/MD-2833-02-980x120.png',
-                href: 'https://pro.selectel.ru/100-s3/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=12072024_02'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/MD-2833-03-320x100.png',
-                img730: '/adv/MD-2833-03-730x90 (1).png',
-                img980: '/adv/MD-2833-03-980x120.png',
-                href: 'https://pro.selectel.ru/100-s3/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=12072024_03'
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_31082024_03'
             }
         ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
+<%--
   <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
   <c:if test="${uncommited > 0}">
@@ -156,6 +120,8 @@
   </c:if>
 </div>
 </c:if>
+--%>
+
 <%
   boolean multiPortal = tmpl.getProf().isShowGalleryOnMain();
 %>
