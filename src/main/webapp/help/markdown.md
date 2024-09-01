@@ -189,11 +189,15 @@ git pull && sbt compile
 
 Поддерживаются следующие языки:
 
-* ARMASM
-* AVRASM
+* ABNF
+* ASM-ARM
+* ASM-AVR
+* ASM-MIPS
+* ASM-X86 (`asm`)
 * AWK
 * Bash, Shell
-* Basic
+* Basic (`bas`)
+* BNF
 * Brainfuck
 * C
 * C# (`c#`, `cs`)
@@ -204,6 +208,7 @@ git pull && sbt compile
 * CSS
 * D
 * Diff (`patch`, `diff`)
+* EBNF
 * Erlang
 * F# (`f#`, `fs`)
 * Fortran
@@ -214,33 +219,32 @@ git pull && sbt compile
 * Java
 * JavaScript (`js`, `javascript`)
 * JSON
-* Julia
+* Julia (`jl`)
 * Lisp
 * LLVM
 * Lua
 * Makefile
-* MIPSASM
+* Markdown (`md`)
 * Nim
 * Nix
-* Ocaml
+* OCaml
 * Objective C (`objc`, `objectivec`)
-* Pascal, Delphi
+* Pascal, Delphi (`pas`)
 * Perl
 * PHP
-* Python
-* Ruby
-* Rust
+* Python (`py`)
+* Ruby (`rb`)
+* Rust (`rs`)
 * Scala
 * Scheme
 * Smalltalk
 * SQL
 * TCL
-* TypeScript
+* TypeScript (`ts`)
 * TeX
 * Vala
 * Vim
 * WASM
-* X86ASM
 * YAML
 
 ## Спойлер (cut) в ленте
