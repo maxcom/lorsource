@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -15,24 +15,19 @@
   --%>
 
 <%
-   response.setStatus(404);
+   response.setStatus(403);
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Error 404</title>
+<title>Error 403</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div id="warning-body">
     <div id="warning-logo"><img src="/img/good-penguin.png" alt="good-penguin" /></div>
     <div id="warning-text">
-        <h1>404</h1>
-        <p>Регистрация новых пользователей временно закрыта.</p>
-        <p>Сейчас единственный способ зарегистрироваться - по приглашению одного из постоянных
-        участников сайта.</p>
-        <p>Также мы прорабатываем другие способы регистрации на сайте.</p>
+        <p>Регистрация временно не доступна, попробуйте позже.</p>
     </div>
 </div>
 <div id="warning-footer"></div>
-
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
