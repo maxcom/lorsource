@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -22,7 +22,7 @@
 </head>
 <% out.flush(); %>
 <body>
-<div id="hd">
+<header id="hd">
   <div id="topProfile">
     <c:if test="${template.sessionAuthorized}">
       <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
@@ -32,7 +32,7 @@
 
   <span id="sitetitle"><a href="/">LINUX.ORG.RU</a></span>
 
-  <div class="menu">
+  <nav class="menu">
     <div id="loginGreating">
       <c:if test="${not template.sessionAuthorized}">
         <div id="regmenu" class="head">
@@ -64,6 +64,6 @@
 
       <li><a href="/search.jsp">Поиск</a></li>
     </ul>
-  </div>
-</div>
+  </nav>
+</header>
 <div style="clear: both"></div>

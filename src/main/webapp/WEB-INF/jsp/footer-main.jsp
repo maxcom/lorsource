@@ -16,8 +16,8 @@
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
-</div>
-<div id="ft">
+</main>
+<footer id="ft">
   <p id="ft-info">
     <a href="/about">О Сервере</a> -
     <a href="/help/rules.md">Правила форума</a><br>
@@ -36,6 +36,6 @@
   </c:if>
 </script>
 
-</div>
+</footer>
 </body>
 </html>
