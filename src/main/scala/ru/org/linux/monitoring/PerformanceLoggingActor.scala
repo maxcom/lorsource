@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -85,7 +85,6 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
       if (r.hasFailures) {
         log.warning(s"Failed to write perf metrics: ${r.failures.flatMap(_.error).map(_.reason).mkString(", ")}")
       }
-      log.debug(s"Logged ${r.items.length} metrics")
       context.become(ready)
     case Failure(ex) =>
       log.error(ex, "Failed to write perf metrics")

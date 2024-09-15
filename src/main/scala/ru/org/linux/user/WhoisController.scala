@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -156,7 +156,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
   @ExceptionHandler(Array(classOf[UserNotFoundException]))
   @ResponseStatus(HttpStatus.NOT_FOUND)
   def handleUserNotFound(ex: UserNotFoundException): ModelAndView = {
-    logger.debug("User not found", ex)
+    logger.debug("User not found {}", ex.toString)
 
     val mav = new ModelAndView("errors/good-penguin")
 
