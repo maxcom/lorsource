@@ -90,17 +90,10 @@
         var ads = [
             {
                 type: 'rimg',
-                img320: '/adv/MD-2817-01-320x100 (1).png',
-                img730: '/adv/MD-2817-01-730x90 (1).png',
-                img980: '/adv/MD-2817-01-980x120 (1).png',
+                img320: '/adv/MD-2817-01-320x100 (2).png',
+                img730: '/adv/MD-2817-01-730x90 (2).png',
+                img980: '/adv/MD-2817-01-980x120 (2).png',
                 href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_31082024_01'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/MD-2817-03-320x100 (1).png',
-                img730: '/adv/MD-2817-03-730x90 (1).png',
-                img980: '/adv/MD-2817-03-980x120 (1).png',
-                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_31082024_03'
             }
         ];
 
