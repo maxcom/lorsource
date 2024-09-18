@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -63,10 +63,6 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val tmpl = Template.getTemplate
 
-    if (add.getMode == null) {
-      add.setMode(tmpl.getFormatMode)
-    }
-
     topicPermissionService.checkCommentsAllowed(add.getTopic, currentUser.map(_.user).toJava, errors)
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
@@ -81,15 +77,10 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     */
   @RequestMapping(path = Array("/comment-message.jsp"))
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = AuthorizedOpt { currentUser =>
-    val tmpl = Template.getTemplate
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, currentUser.map(_.user).orNull)
 
     if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, currentUser.map(_.user).toJava, false))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
-
-    if (add.getMode == null) {
-      add.setMode(tmpl.getFormatMode)
-    }
 
     new ModelAndView("comment-message", "preparedMessage", preparedTopic)
   }
@@ -117,16 +108,11 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val tmpl = Template.getTemplate
 
-    if (!MarkupPermissions.allowedFormats(AuthUtil.getCurrentUser).map(_.formId).contains(add.getMode)) {
-      errors.rejectValue("mode", null, "Некорректный режим разметки")
-      add.setMode(MarkupType.Lorcode.formId)
-    }
-
-    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.ofFormId(add.getMode)))) {
+    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.ofFormId(tmpl.getFormatMode)))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
-    val msg = commentService.getCommentBody(add, user, errors)
+    val msg = commentService.getCommentBody(add, user, errors, tmpl.getFormatMode)
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {
       val info = if (add.getTopic != null) {
@@ -162,7 +148,9 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
 
-    val msg = commentService.getCommentBody(add, user, errors)
+    val tmpl = Template.getTemplate
+
+    val msg = commentService.getCommentBody(add, user, errors, tmpl.getFormatMode)
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {

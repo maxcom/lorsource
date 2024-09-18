@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,7 +20,6 @@ import ru.org.linux.user.User;
 
 public class CommentRequest {
   private String preview;
-  private String mode;
   private String msg;
   private Comment replyto;
   private Comment original;
@@ -39,14 +38,6 @@ public class CommentRequest {
 
   public boolean isPreviewMode() {
     return preview!=null;
-  }
-
-  public String getMode() {
-    return mode;
-  }
-
-  public void setMode(String mode) {
-    this.mode = mode;
   }
 
   public String getMsg() {

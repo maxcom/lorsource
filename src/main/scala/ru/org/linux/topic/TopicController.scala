@@ -277,7 +277,6 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("modes", MessageTextService.postingModeSelector(currentUserOpt, tmpl.getFormatMode).asJava)
 
     val add = new CommentRequest
-    add.setMode(tmpl.getFormatMode)
     params.put("add", add)
 
     if (pages > 1 && !showDeleted && threadRoot == 0 && comments.comments.nonEmpty) {

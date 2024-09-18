@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -148,10 +148,6 @@ public class CommentCreateService {
 
     Template tmpl = Template.getTemplate();
 
-    if (commentRequest.getMode() == null) {
-      commentRequest.setMode(tmpl.getFormatMode());
-    }
-
     if (!commentRequest.isPreviewMode() &&
       (!tmpl.isSessionAuthorized() || ipBlockInfo.isCaptchaRequired())) {
       captcha.checkCaptcha(request, errors);
@@ -182,9 +178,10 @@ public class CommentCreateService {
   public MessageText getCommentBody(
     CommentRequest commentRequest,
     User user,
-    Errors errors
+    Errors errors,
+    String mode
   ) {
-    MessageText messageText = MessageTextService.processPostingText(commentRequest.getMsg(), commentRequest.getMode());
+    MessageText messageText = MessageTextService.processPostingText(commentRequest.getMsg(), mode);
     String commentBody = (messageText.text());
 
     if (user.isAnonymous()) {

@@ -27,39 +27,27 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.csrf.CSRFNoAuto
-import ru.org.linux.csrf.CSRFProtectionService
-import ru.org.linux.gallery.Image
-import ru.org.linux.gallery.ImageService
-import ru.org.linux.gallery.UploadedImagePreview
-import ru.org.linux.group.Group
-import ru.org.linux.group.GroupDao
-import ru.org.linux.group.GroupPermissionService
-import ru.org.linux.markup.MarkupPermissions
+import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
+import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
+import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
-import ru.org.linux.poll.Poll
-import ru.org.linux.poll.PollVariant
+import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.section.Section
-import ru.org.linux.section.SectionService
+import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
-import ru.org.linux.markup.MarkupType
 import ru.org.linux.spring.dao.MessageText
-import ru.org.linux.tag.TagName
-import ru.org.linux.tag.TagService
-import ru.org.linux.user.User
-import ru.org.linux.user.UserPropertyEditor
-import ru.org.linux.user.UserService
+import ru.org.linux.tag.{TagName, TagService}
+import ru.org.linux.user.{User, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.markdown.MarkdownFormatter
 
-import javax.annotation.Nullable
-import javax.servlet.http.HttpServletRequest
-import javax.validation.Valid
 import java.beans.PropertyEditorSupport
 import java.nio.charset.StandardCharsets
+import javax.annotation.Nullable
 import javax.servlet.ServletContext
+import javax.servlet.http.HttpServletRequest
+import javax.validation.Valid
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava}
 
@@ -112,10 +100,6 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = AuthorizedOpt { currentUser =>
     val tmpl = Template.getTemplate
-
-    if (form.getMode == null) {
-      form.setMode(tmpl.getFormatMode)
-    }
 
     val group = form.getGroup
 
@@ -196,20 +180,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val tmpl = Template.getTemplate
 
-    if (form.getMode == null) {
-      form.setMode(tmpl.getFormatMode)
-    }
-
     if (!groupPermissionService.enableAllowAnonymousCheckbox(group, user)) {
       form.setAllowAnonymous(true)
     }
 
-    if (!MarkupPermissions.allowedFormats(sessionUserOpt.map(_.user).orNull).map(_.formId).contains(form.getMode)) {
-      errors.rejectValue("mode", null, "Некорректный режим разметки")
-      form.setMode(MarkupType.Lorcode.formId)
-    }
-
-    val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), form.getMode)
+    val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), tmpl.getFormatMode)
 
     if (user.isAnonymous) {
       if (message.text.length > AddTopicController.MAX_MESSAGE_LENGTH_ANONYMOUS) {
@@ -360,11 +335,5 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def requestValidator(binder: WebDataBinder): Unit = {
     binder.setValidator(addTopicRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
-  }
-
-  @ModelAttribute("modes")
-  def getModes: java.util.Map[String, String] = AuthorizedOpt { currentUser =>
-    val tmpl = Template.getTemplate
-    MessageTextService.postingModeSelector(currentUser, tmpl.getFormatMode).asJava
   }
 }

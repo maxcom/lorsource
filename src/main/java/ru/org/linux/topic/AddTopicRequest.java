@@ -25,7 +25,6 @@ public class AddTopicRequest {
   private String url;
   private Group group;
   private String linktext;
-  private String mode;
   private String tags;
   private boolean noinfo;
   private String[] poll = new String[Poll.MaxPollSize()];
@@ -99,14 +98,6 @@ public class AddTopicRequest {
 
   public void setPassword(String password) {
     this.password = password;
-  }
-
-  public String getMode() {
-    return mode;
-  }
-
-  public void setMode(String mode) {
-    this.mode = mode;
   }
 
   public String getTags() {

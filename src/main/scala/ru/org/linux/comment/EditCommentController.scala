@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -110,13 +110,11 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
     val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.id)
 
-    commentRequest.setMode(originalMessageText.markup.formId)
-
-    if (textService.isEmpty(MessageText.apply(commentRequest.getMsg, MarkupType.ofFormId(commentRequest.getMode)))) {
+    if (textService.isEmpty(MessageText.apply(commentRequest.getMsg, originalMessageText.markup))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
-    val msg = commentService.getCommentBody(commentRequest, user, errors)
+    val msg = commentService.getCommentBody(commentRequest, user, errors, originalMessageText.markup.formId)
 
     if (commentRequest.getTopic != null) {
       val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)

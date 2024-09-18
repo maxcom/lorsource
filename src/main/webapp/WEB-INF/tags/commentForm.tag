@@ -24,7 +24,6 @@
 <%@ attribute name="replyto" required="false" type="java.lang.Integer" %>
 <%@ attribute name="original" required="false" type="java.lang.Integer" %>
 <%@ attribute name="msg" required="false" type="java.lang.String" %>
-<%@ attribute name="mode" required="true" type="java.lang.String" %>
 <%@ attribute name="form_action_url" required="true" type="java.lang.String" %>
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>

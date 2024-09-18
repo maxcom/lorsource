@@ -158,13 +158,6 @@
       </p>
   </c:if>
 
-<c:if test="${not empty modes}">
-  <div class="control-group">
-    <label for="mode">Разметка:*<br>
-    <form:select path="mode" items="${modes}"/></label>
-  </div>
-</c:if>
-
 <div class="control-group">
   <label for="form_msg">Сообщение</label>
     <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
