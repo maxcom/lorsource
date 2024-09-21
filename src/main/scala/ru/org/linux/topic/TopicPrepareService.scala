@@ -129,9 +129,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     val postscore = topicPermissionService.getPostscore(group, topic)
 
-    val showRegisterInvite = currentUser==null &&
-      postscore <= 45 &&
-      postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED
+    val showRegisterInvite = currentUser == null &&
+      (postscore <= 45 &&
+        postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED ||
+        userService.getAnonymous.isFrozen)
 
     val userAgent = if (currentUser != null && currentUser.isModerator) {
       userAgentDao.getUserAgentById(topic.userAgentId).toScala
