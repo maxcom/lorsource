@@ -15,6 +15,7 @@
 package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -39,7 +40,6 @@ import ru.org.linux.user.{IgnoreListDao, MemoriesDao, User}
 import java.time.Instant
 import java.util
 import java.util.concurrent.{Callable, TimeUnit}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}

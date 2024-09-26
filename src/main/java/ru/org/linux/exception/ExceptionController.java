@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,14 +14,14 @@
  */
 package ru.org.linux.exception;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class ExceptionController {
@@ -34,7 +34,7 @@ public class ExceptionController {
     HttpServletResponse response,
     Object handler
   ) {
-    Throwable ex = (Throwable) request.getAttribute("javax.servlet.error.exception");
+    Throwable ex = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
     if (ex == null) {
       return new ModelAndView(new RedirectView("/"));
     }

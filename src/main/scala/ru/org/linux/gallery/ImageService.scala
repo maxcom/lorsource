@@ -17,6 +17,7 @@ package ru.org.linux.gallery
 
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -31,7 +32,6 @@ import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 
 import java.io.{File, FileNotFoundException, IOException}
 import java.util.Optional
-import javax.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOption
 import scala.util.control.NonFatal

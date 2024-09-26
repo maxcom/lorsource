@@ -14,6 +14,7 @@
  */
 package ru.org.linux.comment
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
@@ -23,7 +24,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
-import ru.org.linux.markup.{MarkupType, MessageTextService}
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
@@ -32,7 +33,6 @@ import ru.org.linux.user.IgnoreListDao
 import ru.org.linux.util.ServletParameterException
 
 import java.util
-import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import scala.jdk.OptionConverters.RichOption
 

@@ -16,6 +16,7 @@ package ru.org.linux.topic
 
 import akka.actor.typed.ActorRef
 import com.google.common.base.Strings
+import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.text.StringEscapeUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
@@ -51,7 +52,6 @@ import ru.org.linux.user.User
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
-import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsJava, SetHasAsScala}

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 
 package ru.org.linux.gallery;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +28,6 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.topic.*;
 import ru.org.linux.user.User;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/delete_image")

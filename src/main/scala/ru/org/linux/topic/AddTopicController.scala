@@ -16,6 +16,8 @@ package ru.org.linux.topic
 
 import akka.actor.typed.ActorRef
 import com.google.common.base.Strings
+import jakarta.servlet.ServletContext
+import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.io.IOUtils
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
@@ -45,8 +47,6 @@ import ru.org.linux.util.markdown.MarkdownFormatter
 import java.beans.PropertyEditorSupport
 import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
-import javax.servlet.ServletContext
-import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava}

@@ -19,6 +19,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,6 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import scala.Tuple2;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import java.beans.PropertyEditorSupport;
 import java.util.HashSet;
 import java.util.List;

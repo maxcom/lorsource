@@ -17,6 +17,7 @@ package ru.org.linux.user
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
 import io.circe.syntax.EncoderOps
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.jasypt.util.text.AES256TextEncryptor
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
@@ -38,7 +39,6 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
 import javax.mail.internet.InternetAddress
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
 

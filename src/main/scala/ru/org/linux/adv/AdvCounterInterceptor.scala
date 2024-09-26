@@ -16,9 +16,8 @@ package ru.org.linux.adv
 
 import akka.actor.typed.ActorRef
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.web.servlet.{HandlerInterceptor, ModelAndView}
-
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 class AdvCounterInterceptor(advCounterActor: ActorRef[AdvCounterActor.Protocol]) extends HandlerInterceptor with StrictLogging {
   override def postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any,

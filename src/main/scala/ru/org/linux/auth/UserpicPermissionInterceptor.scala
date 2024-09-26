@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,10 +16,9 @@
 package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.web.servlet.HandlerInterceptor
 import ru.org.linux.user.{UserNotFoundException, UserService}
-
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 class UserpicPermissionInterceptor(userService: UserService) extends HandlerInterceptor with StrictLogging {
   private val ImagesPattern = """^photos/(\d+)((?::-?\d+)?\.\w+).*""".r

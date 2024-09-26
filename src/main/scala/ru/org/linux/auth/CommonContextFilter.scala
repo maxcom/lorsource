@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,6 +14,8 @@
  */
 package ru.org.linux.auth
 
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
+import jakarta.servlet.{FilterChain, ServletRequest, ServletResponse}
 import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.web.context.support.WebApplicationContextUtils
@@ -23,8 +25,6 @@ import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
 
 import java.util.Locale
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 
 class CommonContextFilter extends GenericFilterBean with InitializingBean {
   final private val russian = new Locale("ru")

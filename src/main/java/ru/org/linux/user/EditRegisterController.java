@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,6 +16,8 @@
 package ru.org.linux.user;
 
 import com.google.common.base.Strings;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,8 +42,6 @@ import ru.org.linux.util.URLUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Controller
@@ -76,7 +76,7 @@ public class EditRegisterController {
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView show(
       @ModelAttribute("form") EditRegisterRequest form,
-      @PathVariable String nick,
+      @PathVariable("nick") String nick,
       HttpServletResponse response
   ) {
     Template tmpl = Template.getTemplate();

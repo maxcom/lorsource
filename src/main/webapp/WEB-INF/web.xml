@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 1998-2016 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -14,9 +14,9 @@
   ~    limitations under the License.
   -->
 <web-app
-        version="3.0"
-        xmlns="http://java.sun.com/xml/ns/javaee"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+        version="5.0"
+        xmlns="https://jakarta.ee/xml/ns/jakartaee"
+        xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         metadata-complete="true"
         >
@@ -86,6 +86,10 @@
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <async-supported>true</async-supported>
+    <multipart-config>
+      <max-file-size>5300000</max-file-size>
+      <max-request-size>5300000</max-request-size>
+    </multipart-config>
   </servlet>
 
   <servlet-mapping>
@@ -307,9 +311,5 @@
 
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-  </listener>
-
-  <listener>
-    <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
   </listener>
 </web-app>

@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,6 @@ import ru.org.linux.util.LorHttpUtils;
 import scala.Tuple2;
 
 import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;

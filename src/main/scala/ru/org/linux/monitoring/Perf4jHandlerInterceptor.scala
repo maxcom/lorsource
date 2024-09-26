@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,6 +18,7 @@ package ru.org.linux.monitoring
 import akka.actor.ActorRef
 import com.google.common.base.Stopwatch
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.web.method.HandlerMethod
@@ -26,7 +27,6 @@ import org.springframework.web.servlet.{HandlerInterceptor, ModelAndView}
 import ru.org.linux.monitoring.Perf4jHandlerInterceptor.*
 
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.concurrent.duration.*
 import scala.util.control.NonFatal
 

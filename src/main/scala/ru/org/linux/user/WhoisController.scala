@@ -18,6 +18,7 @@ import com.google.common.base.Strings
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
 import io.circe.syntax.*
+import jakarta.servlet.http.HttpServletRequest
 import org.joda.time.DateTimeZone
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -32,7 +33,6 @@ import ru.org.linux.util.bbcode.LorCodeService
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletionStage
-import javax.servlet.http.HttpServletRequest
 import scala.compat.java8.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*

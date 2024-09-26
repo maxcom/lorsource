@@ -16,6 +16,7 @@
 package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.web.servlet.HandlerInterceptor
 import ru.org.linux.gallery.{Image, ImageDao}
@@ -23,8 +24,6 @@ import ru.org.linux.group.GroupDao
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.{User, UserService}
-
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
                                    topicPermissionService: TopicPermissionService, userService: UserService)

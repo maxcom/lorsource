@@ -23,7 +23,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
-       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-5.8.xsd">
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-6.3.xsd">
 
     <!-- the application context definition for the springapp DispatcherServlet -->
 
@@ -71,10 +71,6 @@
                 <prop key="org.springframework.security.web.firewall.RequestRejectedException">errors/bad-parameter</prop>
             </props>
         </property>
-    </bean>
-
-    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-        <property name="maxUploadSize" value="5300000"/>
     </bean>
 
     <bean id="absractRomeView" class="ru.org.linux.spring.AbstractRomeView" abstract="true">

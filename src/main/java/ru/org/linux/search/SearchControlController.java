@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 
 package ru.org.linux.search;
 
+import jakarta.servlet.ServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.topic.TopicDao;
 
-import javax.servlet.ServletRequest;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
@@ -34,7 +33,6 @@ public class SearchControlController {
   private TopicDao messageDao;
 
   @Autowired
-  @Required
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
     this.searchQueueSender = searchQueueSender;
   }

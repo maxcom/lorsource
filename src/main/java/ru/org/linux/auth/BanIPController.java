@@ -15,6 +15,7 @@
 
 package ru.org.linux.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;

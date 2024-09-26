@@ -15,6 +15,7 @@
 
 package ru.org.linux.user
 
+import jakarta.servlet.ServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
@@ -26,7 +27,6 @@ import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
 
 import java.util
-import javax.servlet.ServletRequest
 import scala.jdk.CollectionConverters.*
 
 @Controller

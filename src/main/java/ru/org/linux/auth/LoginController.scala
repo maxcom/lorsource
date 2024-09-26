@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.{Encoder, Json}
 import io.circe.syntax.*
+import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import org.springframework.security.authentication.{AccountStatusException, AuthenticationManager, BadCredentialsException, LockedException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.{UserDetailsService, UsernameNotFoundException}
@@ -29,7 +30,6 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.user.UserDao
 
 import java.util.concurrent.CompletionStage
-import javax.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Promise

@@ -24,6 +24,7 @@ import com.sksamuel.elastic4s.requests.searches.SearchResponse;
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.FilterAggregationResult;
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.TermBucket;
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.Terms;
+import jakarta.servlet.http.HttpServletRequest;
 import org.joda.time.DateTimeZone;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,7 +53,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class SearchController {
