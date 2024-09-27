@@ -77,6 +77,10 @@
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
     <async-supported>true</async-supported>
+    <multipart-config>
+      <max-file-size>5300000</max-file-size>
+      <max-request-size>5300000</max-request-size>
+    </multipart-config>
   </servlet>
 
   <servlet-mapping>

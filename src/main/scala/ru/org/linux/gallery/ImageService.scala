@@ -155,8 +155,8 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
         if (multipartFile != null && !multipartFile.isEmpty) {
           val uploadedFile = File.createTempFile("lor-image-", "")
-          logger.debug("Transfering upload to: " + uploadedFile)
-          multipartFile.transferTo(uploadedFile)
+          logger.debug(s"Transferring upload to: $uploadedFile")
+          multipartFile.transferTo(uploadedFile.toPath)
 
           Some(uploadedFile)
         } else {

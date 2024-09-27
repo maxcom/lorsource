@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -95,7 +95,7 @@ public class UserpicController {
     Path uploadedFile = Files.createTempFile("userpic-", "");
 
     try {
-      file.transferTo(uploadedFile.toFile());
+      file.transferTo(uploadedFile);
 
       ImageParam param = userService.checkUserPic(uploadedFile.toFile());
       String extension = param.getExtension();
@@ -114,7 +114,7 @@ public class UserpicController {
 
       userDao.setPhoto(currentUser, photoname);
 
-      logger.info("Установлена фотография пользователем " + currentUser.getNick());
+      logger.info("Установлена фотография пользователем {}", currentUser.getNick());
 
       UriComponents profileUri = UriComponentsBuilder
               .fromUri(PROFILE_URI_TEMPLATE.expand(currentUser.getNick()))
