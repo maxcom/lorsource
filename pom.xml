@@ -549,6 +549,7 @@
           <target>21</target>
           <compilerArgument>-Xlint:deprecation</compilerArgument>
           <compilerArgument>-Xlint:unchecked</compilerArgument>
+          <parameters>true</parameters>
         </configuration>
       </plugin>
 
