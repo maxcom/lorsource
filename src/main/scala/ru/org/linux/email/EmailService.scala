@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,6 +33,7 @@ import java.net.URLEncoder
 import java.util.{Date, Properties}
 import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail.{Message, MessagingException, Session, Transport}
+import javax.servlet.RequestDispatcher
 import javax.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters.*
 
@@ -149,11 +150,11 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     }
 
     text.append("\n\n")
-    val attributeUrl = request.getAttribute("javax.servlet.error.request_uri")
+    val attributeUrl = request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI)
     if (attributeUrl != null) {
       text.append(s"Attribute URL: $attributeUrl\n")
     }
-    val forwardUrl = request.getAttribute("javax.servlet.forward.request_uri")
+    val forwardUrl = request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI)
     if (forwardUrl != null) {
       text.append(s"Forward URL: $forwardUrl\n")
     }
