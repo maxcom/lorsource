@@ -29,7 +29,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
 import ru.org.linux.auth.{AccessViolationException, AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
-import ru.org.linux.markup.{MarkupPermissions, MarkupType, MessageTextService}
+import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
