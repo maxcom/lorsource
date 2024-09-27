@@ -970,12 +970,7 @@
     </profile>
 
     <profile>
-      <id>travis</id>
-      <activation>
-        <property>
-          <name>env.TRAVIS</name>
-        </property>
-      </activation>
+      <id>CI</id>
       <build>
         <plugins>
           <plugin>
