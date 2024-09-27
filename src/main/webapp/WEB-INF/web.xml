@@ -18,8 +18,7 @@
         xmlns="https://jakarta.ee/xml/ns/jakartaee"
         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        metadata-complete="true"
-        >
+        metadata-complete="true">
   <absolute-ordering/>
 
   <display-name>linux.org.ru</display-name>
@@ -65,14 +64,6 @@
     <location>/ExceptionResolver</location>
   </error-page>
   <jsp-config>
-    <taglib>
-      <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
-      <taglib-location>/WEB-INF/c.tld</taglib-location>
-    </taglib>
-    <taglib>
-      <taglib-uri>http://java.sun.com/jsp/jstl/functions</taglib-uri>
-      <taglib-location>/WEB-INF/fn.tld</taglib-location>
-    </taglib>
     <jsp-property-group>
       <url-pattern>*.jsp</url-pattern>
       <trim-directive-whitespaces>true</trim-directive-whitespaces>

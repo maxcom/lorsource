@@ -95,7 +95,7 @@ public class UserpicController {
     Path uploadedFile = Files.createTempFile("userpic-", "");
 
     try {
-      file.transferTo(uploadedFile.toFile());
+      file.transferTo(uploadedFile);
 
       ImageParam param = userService.checkUserPic(uploadedFile.toFile());
       String extension = param.getExtension();
@@ -114,7 +114,7 @@ public class UserpicController {
 
       userDao.setPhoto(currentUser, photoname);
 
-      logger.info("Установлена фотография пользователем " + currentUser.getNick());
+      logger.info("Установлена фотография пользователем {}", currentUser.getNick());
 
       UriComponents profileUri = UriComponentsBuilder
               .fromUri(PROFILE_URI_TEMPLATE.expand(currentUser.getNick()))

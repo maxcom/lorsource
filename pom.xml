@@ -268,9 +268,9 @@
       <version>${activemq.version}</version>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
-      <version>2.6.11</version>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>3.1.8</version>
     </dependency>
 
     <!-- костыль для ehcache 2.x -->
@@ -989,12 +989,7 @@
     </profile>
 
     <profile>
-      <id>travis</id>
-      <activation>
-        <property>
-          <name>env.TRAVIS</name>
-        </property>
-      </activation>
+      <id>CI</id>
       <build>
         <plugins>
           <plugin>
