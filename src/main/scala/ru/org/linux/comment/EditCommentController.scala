@@ -23,7 +23,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
-import ru.org.linux.markup.{MarkupType, MessageTextService}
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}

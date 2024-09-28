@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.util.markdown.MarkdownFormatter
 
 import java.nio.charset.StandardCharsets
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class HelpController(renderService: MarkdownFormatter) extends StrictLogging {
