@@ -76,7 +76,7 @@ public class EditRegisterController {
   @RequestMapping(method = RequestMethod.GET)
   public ModelAndView show(
       @ModelAttribute("form") EditRegisterRequest form,
-      @PathVariable("nick") String nick,
+      @PathVariable("nick")  String nick,
       HttpServletResponse response
   ) {
     Template tmpl = Template.getTemplate();
