@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -121,7 +121,8 @@ class EditRegisterControllerWebTest {
       .send(WebHelper.backend)
 
     assertEquals(StatusCode.Found, cr2.code)
-    assertEquals(Some("http://127.0.0.1:8080/people/JB/profile"), cr2.header(HeaderNames.Location))
+    assertEquals(Some(Uri.unsafeParse("http://127.0.0.1:8080/people/JB/profile")),
+      cr2.header(HeaderNames.Location).map(Uri.unsafeParse).map(WebHelper.MainUrl.resolve))
   }
 
   @Test
@@ -172,8 +173,10 @@ class EditRegisterControllerWebTest {
     val newAuth = getAuthCookie(cr2)
     assertNotNull(newAuth)
 
+    val location = Uri.unsafeParse(cr2.header(HeaderNames.Location).get)
+
     val cr3 = basicRequest
-      .get(Uri.unsafeParse(cr2.header(HeaderNames.Location).get))
+      .get(WebHelper.MainUrl.resolve(location))
       .cookie(WebHelper.AuthCookie, newAuth)
       .send(WebHelper.backend)
 
@@ -201,8 +204,10 @@ class EditRegisterControllerWebTest {
 
     val newAuth2 = getAuthCookie(cr4)
 
+    val location2 = Uri.unsafeParse(cr4.header(HeaderNames.Location).get)
+
     val cr5 = basicRequest
-      .get(Uri.unsafeParse(cr4.header(HeaderNames.Location).get))
+      .get(WebHelper.MainUrl.resolve(location2))
       .cookie(WebHelper.AuthCookie, newAuth2)
       .send(WebHelper.backend)
 

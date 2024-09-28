@@ -25,7 +25,7 @@ import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.test.WebHelper
 import sttp.client3.*
-import sttp.model.{HeaderNames, StatusCode}
+import sttp.model.{HeaderNames, StatusCode, Uri}
 
 import java.io.File
 import javax.sql.DataSource
@@ -157,14 +157,13 @@ class UserpicControllerWebTest {
 
     assertEquals(StatusCode.Found, cr.code)
 
-    val redirect = cr.header(HeaderNames.Location).getOrElse("")
+    val redirect = cr.header(HeaderNames.Location).map(Uri.unsafeParse)
 
-    val url = "http://127.0.0.1:8080/people/JB/profile"
-    val `val` = "?nocache="
+    val url = Uri.unsafeParse("http://127.0.0.1:8080/people/JB/profile")
 
-    assertEquals(url, redirect.substring(0, url.length))
-    assertEquals(`val`, redirect.substring(url.length, url.length + `val`.length))
-    assertTrue("у nocache должен быть аргумент", redirect.length > url.length + `val`.length)
+    assertEquals(Some(url.path), redirect.map(_.path))
+    assertTrue(redirect.get.params.get("nocache").isDefined)
+    assertTrue("у nocache должен быть аргумент", redirect.get.params.get("nocache").exists(_.nonEmpty))
   }
 
   /**
