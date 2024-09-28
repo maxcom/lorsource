@@ -273,13 +273,6 @@
       <version>3.1.8</version>
     </dependency>
 
-    <!-- костыль для ehcache 2.x -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
-      <version>5.3.39</version>
-    </dependency>
-
     <dependency>
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
