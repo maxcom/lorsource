@@ -46,8 +46,6 @@ case class SearchItem (
 class SearchResultsService(
   userService: UserService, sectionService: SectionService, groupDao: GroupDao
 ) extends StrictLogging {
-  import ru.org.linux.search.SearchResultsService.*
-
   def prepareAll(docs:java.lang.Iterable[SearchHit]) = (docs.asScala map prepare).asJavaCollection
 
   def prepare(doc: SearchHit):SearchItem = {
