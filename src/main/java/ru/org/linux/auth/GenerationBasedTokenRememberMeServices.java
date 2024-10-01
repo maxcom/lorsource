@@ -29,6 +29,8 @@ public class GenerationBasedTokenRememberMeServices extends TokenBasedRememberMe
   public GenerationBasedTokenRememberMeServices(String key, UserDetailsService userDetailsService, UserDao userDao) {
     super(key, userDetailsService);
 
+    setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
+
     this.userDao = userDao;
   }
 
