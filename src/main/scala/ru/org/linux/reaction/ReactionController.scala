@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -78,7 +78,9 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("Сообщение не доступно")
     }
 
-    if (reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
+    val set = action == "true"
+
+    if (set && reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
       throw new ReactionRateLimitException
     }
 
@@ -86,7 +88,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("unsupported reaction")
     }
 
-    reactionService.setCommentReaction(topic, comment, currentUser.user, reaction, action == "true")
+    reactionService.setCommentReaction(topic, comment, currentUser.user, reaction, set)
   }
 
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.POST))
@@ -148,7 +150,9 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("Сообщение не доступно")
     }
 
-    if (reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
+    val set = action == "true"
+
+    if (set && reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
       throw new ReactionRateLimitException
     }
 
@@ -156,7 +160,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("unsupported reaction")
     }
 
-    reactionService.setTopicReaction(topic, currentUser.user, reaction, action == "true")
+    reactionService.setTopicReaction(topic, currentUser.user, reaction, set)
   }
 
   @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.POST))
