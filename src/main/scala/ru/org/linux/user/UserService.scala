@@ -35,12 +35,10 @@ import java.util.Optional
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.collection.mutable
-import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOption
+import scala.jdk.OptionConverters.*
 import scala.util.{Failure, Success, Try}
 
-@Service
 object UserService {
   val MaxFileSize: Int = 100 * 1024
   val MinImageSize = 50
@@ -182,7 +180,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     users.asScala.map { case (userId, lastlogin) =>
       val user = getUserCached(userId)
-      (user, lastlogin.asScala.exists(_.isAfter(recentSeenDate)))
+      (user, lastlogin.toScala.exists(_.isAfter(recentSeenDate)))
     }
   }
 
