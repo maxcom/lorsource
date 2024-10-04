@@ -23,7 +23,6 @@ import ru.org.linux.comment.Comment
 import ru.org.linux.user.UserEventFilterEnum.*
 
 import java.util
-import java.util.Optional
 import scala.jdk.CollectionConverters.*
 
 @Service
@@ -36,8 +35,8 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    * @param topicId   идентификационный номер топика
    * @param commentId идентификационный номер комментария
    */
-  def addUserRefEvent(users: java.lang.Iterable[User], topicId: Int, commentId: Int): Unit = {
-    for (user <- users.asScala) {
+  def addUserRefEvent(users: collection.Set[User], topicId: Int, commentId: Int): Unit = {
+    for (user <- users) {
       userEventDao.addEvent(REFERENCE.getType, user.getId, isPrivate = false, Some(topicId), Some(commentId), None)
     }
   }
@@ -142,9 +141,9 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     users.asJava
   }
 
-  def insertCommentWatchNotification(comment: Comment, parentComment: Optional[Comment],
-                                     commentId: Int): util.List[Integer] =
+  def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment],
+                                     commentId: Int): collection.Seq[Int] =
     transactional(propagation = Propagation.MANDATORY) { _ =>
-      userEventDao.insertCommentWatchNotification(comment, parentComment, commentId).asJava
+      userEventDao.insertCommentWatchNotification(comment, parentComment, commentId)
     }
 }

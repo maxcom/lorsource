@@ -78,7 +78,7 @@ class UserFilterController(userService: UserService, ignoreListDao: IgnoreListDa
       throw new BadInputException("нельзя игнорировать самого себя")
     }
 
-    val ignoreSet = ignoreListDao.getJava(currentUser.user)
+    val ignoreSet = ignoreListDao.get(currentUser.user.getId)
 
     if (!ignoreSet.contains(addUser.getId)) {
       ignoreListDao.addUser(currentUser.user, addUser)

@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.auth.{AccessViolationException, AuthUtil, IPBlockDao, IPBlockInfo}
+import ru.org.linux.auth.{AccessViolationException, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.realtime.RealtimeEventHub
@@ -38,7 +38,6 @@ import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.util.{ServletParameterException, StringUtil}
 
-import java.util.Optional
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOption
@@ -67,7 +66,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
-    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser.map(_.user).orNull, tmpl.getProf, add.getTopic).asScala.toMap + (
+    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser.map(_.user), tmpl.getProf, add.getTopic) + (
       "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
     )).asJava)
   }
@@ -97,8 +96,8 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOpt { sessionUserOpt =>
-    val user = commentService.getCommentUser(sessionUserOpt.map(_.user).orNull, add, errors)
-    commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
+    val user = commentService.getCommentUser(sessionUserOpt.map(_.user), add, errors)
+    commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false)
 
     val comment = commentService.getComment(add, user, request)
 
@@ -126,14 +125,14 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
 
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, AuthUtil.getCurrentUser, tmpl.getProf, add.getTopic).asScala ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add, sessionUserOpt.map(_.user), tmpl.getProf, add.getTopic) ++ info).asJava)
     } else {
-      val (msgid, mentions) = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
-        Optional.ofNullable(request.getHeader("user-agent")))
+      val (msgid, mentions) = commentService.create(user, comment, msg, remoteAddress = request.getRemoteAddr,
+        xForwardedFor = Option(request.getHeader("X-Forwarded-For")), userAgent = Option(request.getHeader("user-agent")))
 
       searchQueueSender.updateComment(msgid)
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.topicId, msgid)
-      realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions.asScala.map(_.toInt).toSet)
+      realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions)
 
       new ModelAndView(new RedirectView(add.getTopic.getLink + "?cid=" + msgid))
     }
@@ -144,9 +143,9 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   @ResponseBody
   def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                      @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): Json = AuthorizedOpt { sessionUserOpt =>
-    val user = commentService.getCommentUser(sessionUserOpt.map(_.user).orNull, add, errors)
+    val user = commentService.getCommentUser(sessionUserOpt.map(_.user), add, errors)
 
-    commentService.checkPostData(add, user, ipBlockInfo, request, errors, false)
+    commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false)
 
     val tmpl = Template.getTemplate
 
@@ -168,13 +167,13 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
         CommentPreview(errorsList, None).asJson
       }
     } else {
-      val (msgid, mentions) = commentService.create(user, comment, msg, request.getRemoteAddr, request.getHeader("X-Forwarded-For"),
-        Optional.ofNullable(request.getHeader("user-agent")))
+      val (msgid, mentions) = commentService.create(user, comment, msg, remoteAddress = request.getRemoteAddr,
+        xForwardedFor = Option(request.getHeader("X-Forwarded-For")), userAgent = Option(request.getHeader("user-agent")))
 
       searchQueueSender.updateComment(msgid)
 
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.topicId, msgid)
-      realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions.asScala.map(_.toInt).toSet)
+      realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions)
 
       Map("url" -> (add.getTopic.getLink + "?cid=" + msgid)).asJson
     }

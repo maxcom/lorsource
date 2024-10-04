@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -29,7 +29,6 @@ import ru.org.linux.user.UserEvent.NoReaction
 import ru.org.linux.util.StringUtil
 
 import java.util
-import java.util.Optional
 import javax.sql.DataSource
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
@@ -266,14 +265,14 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     }
   }
 
-  def insertCommentWatchNotification(comment: Comment, parentComment: Optional[Comment], commentId: Int): collection.Seq[Integer] = {
+  def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment], commentId: Int): collection.Seq[Int] = {
     transactional(propagation = Propagation.MANDATORY) { _ =>
       val params = new util.HashMap[String, Integer]
       params.put("topic", comment.topicId)
       params.put("id", commentId)
       params.put("userid", comment.userid)
 
-      val userIds = (if (parentComment.isPresent) {
+      val userIds = (if (parentComment.isDefined) {
         params.put("parent_author", parentComment.get.userid)
         namedJdbcTemplate.queryForList("SELECT memories.userid " + "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " + "AND memories.userid != :parent_author " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors(:id))) AND watch", params, classOf[Integer])
       } else {
@@ -293,7 +292,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
         insert.executeBatch(batch*)
       }
 
-      userIds
+      userIds.map(i => i)
     }
   }
 }

@@ -133,14 +133,14 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   }
 
   def prepareCommentOnly(comment: Comment, @Nullable currentUser: User, profile: Profile,
-                         topic: Topic, ignoreList: java.util.Set[Integer]): PreparedComment = {
+                         topic: Topic, ignoreList: Set[Int]): PreparedComment = {
     val messageText = msgbaseDao.getMessageText(comment.id)
     val author = userService.getUserCached(comment.userid)
     val group = groupDao.getGroup(topic.groupId)
 
     prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
       profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = Option(currentUser),
-      group = group, ignoreList = ignoreList.asScala.map(_.toInt).toSet, filterShow = false)
+      group = group, ignoreList = ignoreList, filterShow = false)
   }
 
   /**

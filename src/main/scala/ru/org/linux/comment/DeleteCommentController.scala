@@ -187,7 +187,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
-    val ignoreList = ignoreListDao.getJava(currentUser.user)
+    val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
     new ModelAndView("undelete_comment", Map[String, Any](
       "comment" -> prepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic, ignoreList),

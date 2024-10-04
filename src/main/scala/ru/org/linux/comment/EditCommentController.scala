@@ -34,6 +34,7 @@ import ru.org.linux.util.ServletParameterException
 
 import java.util
 import javax.validation.Valid
+import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.jdk.OptionConverters.RichOption
 
 @Controller
@@ -74,7 +75,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       val formParams = new util.HashMap[String, AnyRef]
 
-      val ignoreList = ignoreListDao.getJava(currentUser.user)
+      val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
       formParams.put("comment", commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf,
         topic, ignoreList))
@@ -101,12 +102,12 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
                              request: HttpServletRequest,
                              @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { currentUser =>
     val user = currentUser.user
-    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, true)
+    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, editMode = true)
 
     val comment = commentService.getComment(commentRequest, user, request)
     val tmpl = Template.getTemplate
 
-    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, AuthUtil.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
+    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, Some(currentUser.user), tmpl.getProf, commentRequest.getTopic).asJava)
 
     val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.id)
 
@@ -133,9 +134,13 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
       deadline.foreach(value => formParams.put("deadline", value.toDate))
       modelAndView
     } else {
-      commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr, request.getHeader("X-Forwarded-For"), user, originalMessageText)
+      commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr,
+        Option(request.getHeader("X-Forwarded-For")), user, originalMessageText)
+
       searchQueueSender.updateComment(commentRequest.getOriginal.id)
+
       val returnUrl = "/jump-message.jsp?msgid=" + commentRequest.getTopic.id + "&cid=" + commentRequest.getOriginal.id
+
       new ModelAndView(new RedirectView(returnUrl))
     }
   }
