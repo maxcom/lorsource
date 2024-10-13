@@ -41,9 +41,11 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
 
     val params = new util.HashMap[String, AnyRef]
 
-    val nonDeprecatedThemes = Theme.THEMES.asScala.toVector.filterNot(_.isDeprecated).map(_.getId)
+    val nonDeprecatedThemes = Theme.THEMES.asScala.view.filterNot(_.isDeprecated).map(_.getId).toVector
 
-    if (DefaultProfile.getTheme(currentUser.user.getStyle).isDeprecated) {
+    if (currentUser.user.getScore >= 500) {
+      params.put("stylesList", Theme.THEMES.asScala.map(_.getId).asJava)
+    } else if (DefaultProfile.getTheme(currentUser.user.getStyle).isDeprecated) {
       params.put("stylesList", (nonDeprecatedThemes :+ currentUser.user.getStyle).asJava)
     } else {
       params.put("stylesList", nonDeprecatedThemes.asJava)
