@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -128,26 +128,35 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.GET))
-  def moveTopicFormForum(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
+  def moveToForumForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
     val section = sectionService.getSection(Section.SECTION_FORUM)
 
     new ModelAndView("mtn", Map (
       "message" -> topic,
-      "groups" -> groupDao.getGroups(section),
+      "groups" -> groupDao.getGroups(section).asScala.map(g => g.id -> g.title).asJava,
       "author" -> userService.getUserCached(topic.authorUserId)
     ).asJava)
   }
 
   @RequestMapping(value = Array("/mtn.jsp"), method = Array(RequestMethod.GET))
   @throws[Exception]
-  def moveTopicForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
+  def movePremoderatedForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
-    val section = sectionService.getSection(topic.sectionId)
+
+    val currentSection = sectionService.getSection(topic.sectionId)
+
+    val sections = if (currentSection.isPremoderated && !currentSection.isPollPostAllowed) {
+      sectionService.sections.filter(s => s.isPremoderated && !s.isPollPostAllowed)
+    } else {
+      Seq(currentSection)
+    }
+
+    val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
 
     new ModelAndView("mtn", Map(
       "message" -> topic,
-      "groups" -> groupDao.getGroups(section),
+      "groups" -> groups.map(g => g.id -> s"${sectionService.getSection(g.sectionId).getTitle}: ${g.title}").asJava,
       "author" -> userService.getUserCached(topic.authorUserId)
     ).asJava)
   }

@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -20,28 +20,37 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<title>Перенос</title>
+<title>Перенос топика</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-перенос <strong>${message.id}</strong> в группу:
-<form method="post" action="/mt.jsp">
+
+<h1>Перенос топика</h1>
+
+<form method="post" action="/mt.jsp" style="margin-top: 1em">
 <lor:csrf/>
 <input type=hidden name="msgid" value="${message.id}">
-<select name="moveto">
-  <c:forEach var="group" items="${groups}">
-    <c:if test="${group.id == message.groupId}">
-      <option value="${group.id}" selected="selected">${group.title}</option>
-    </c:if>
-    <c:if test="${group.urlName != \"club\"}">
-      <c:if test="${group.id != message.groupId}">
-        <option value="${group.id}">${group.title}</option>
-      </c:if>
-    </c:if>
-  </c:forEach>
-</select>
-<input type='submit' name='move' value='move'>
+<div class="control-group">
+  <label>
+    Группа:
+    <select name="moveto">
+      <c:forEach var="group" items="${groups}">
+        <c:if test="${group._1() == message.groupId}">
+          <option value="${group._1()}" selected="selected">${group._2()}</option>
+        </c:if>
+        <c:if test="${group._1() != message.groupId}">
+          <option value="${group._1()}">${group._2()}</option>
+        </c:if>
+      </c:forEach>
+    </select>
+  </label>
+</div>
+
+<div class="form-actions">
+<button type='submit' class="btn btn-primary">Переместить</button>
+</div>
 </form>
 
-сообщение написано
-<lor:user user="${author}"/>, score=${author.score}
+<p>
+    Сообщение написано <lor:user user="${author}"/>, score=${author.score}
+</p>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
