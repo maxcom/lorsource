@@ -18,7 +18,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <changeSet id="2024102601" author="Maxim Valyanskiy">
+  <changeSet id="2024102602" author="Maxim Valyanskiy">
     <createTable tableName="message_warnings">
       <column name="id" type="serial">
         <constraints primaryKey="true"/>
@@ -37,6 +37,9 @@
       </column>
       <column name="target" type="int">
         <constraints nullable="true" references="users(id)" foreignKeyName="message_warnings_target_fkey"/>
+      </column>
+      <column name="message" type="text">
+        <constraints nullable="false"/>
       </column>
     </createTable>
 
@@ -57,7 +60,7 @@
     </createIndex>
 
     <sql>
-      alter type event_type add value 'WARNING'
+      alter type event_type add value if not exists 'WARNING'
     </sql>
 
     <sql>
