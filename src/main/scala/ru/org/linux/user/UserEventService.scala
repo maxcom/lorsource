@@ -152,5 +152,15 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
                                      commentId: Int): collection.Seq[Int] =
     transactional(propagation = Propagation.MANDATORY) { _ =>
       userEventDao.insertCommentWatchNotification(comment, parentComment, commentId)
+  }
+
+  def getEventTypes(user: User): Seq[UserEventFilterEnum] = {
+    val unsorted = userEventDao.getEventTypes(user.getId).toSet
+
+    if (unsorted.sizeIs > 1) {
+      UserEventFilterEnum.values.view.filter(v => v == UserEventFilterEnum.ALL || unsorted(v)).toSeq
+    } else {
+      Seq.empty
     }
+  }
 }

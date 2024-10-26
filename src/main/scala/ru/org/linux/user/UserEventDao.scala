@@ -296,4 +296,10 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
       userIds.map(i => i)
     }
   }
+
+  def getEventTypes(userId: Int): Seq[UserEventFilterEnum] = {
+    jdbcTemplate.queryAndMap("select distinct(type) from user_events where userid=?", userId) { (rs, _) =>
+      UserEventFilterEnum.valueOfByType(rs.getString("type"))
+    }
+  }
 }
