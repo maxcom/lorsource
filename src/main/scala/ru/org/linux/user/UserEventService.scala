@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -145,5 +145,15 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
                                      commentId: Int): collection.Seq[Int] =
     transactional(propagation = Propagation.MANDATORY) { _ =>
       userEventDao.insertCommentWatchNotification(comment, parentComment, commentId)
+  }
+
+  def getEventTypes(user: User): Seq[UserEventFilterEnum] = {
+    val unsorted = userEventDao.getEventTypes(user.getId).toSet
+
+    if (unsorted.sizeIs > 1) {
+      UserEventFilterEnum.values.view.filter(v => v == UserEventFilterEnum.ALL || unsorted(v)).toSeq
+    } else {
+      Seq.empty
     }
+  }
 }
