@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
+import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEventFilterEnum.*
 
 import java.util
@@ -76,6 +77,12 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
 
     userIdList.asScala.foreach { userId =>
       userEventDao.addEvent(TAG.getType, userId, isPrivate = false, Some(topicId), None, None)
+    }
+  }
+
+  def addWarningEvent(author: User, users: collection.Seq[User], topic: Topic, comment: Option[Comment], message: String): Unit = {
+    for (user <- users) {
+      userEventDao.addEvent(WARNING.getType, user.getId, isPrivate = true, Some(topic.id), comment.map(_.id), Some(message), Some(author.getId))
     }
   }
 

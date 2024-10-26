@@ -65,7 +65,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
   private val insert = {
     val insert = new SimpleJdbcInsert(ds)
     insert.setTableName("user_events")
-    insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message")
+    insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message", "origin_user")
   }
 
   private val insertTopicUsersNotified = {
@@ -88,12 +88,13 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param message   дополнительное сообщение уведомления (null если нет)
    */
   def addEvent(eventType: String, userId: Int, isPrivate: Boolean, topicId: Option[Int],
-               commentId: Option[Int], message: Option[String]): Unit = {
+               commentId: Option[Int], message: Option[String], originUser: Option[Int] = None): Unit = {
     val params = mutable.Map("userid" -> userId, "type" -> eventType, "private" -> isPrivate)
 
     topicId.foreach(v => params.put("message_id", v))
     commentId.foreach(v => params.put("comment_id", v))
     message.foreach(v => params.put("message", v))
+    originUser.foreach(v => params.put("origin_user", v))
 
     insert.execute(params.asJava)
   }

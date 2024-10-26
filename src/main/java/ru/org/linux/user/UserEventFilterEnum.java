@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,8 @@ public enum UserEventFilterEnum {
   DELETED("удаленное", "DEL"),
   REFERENCE("упоминания", "REF"),
   TAG("теги", "TAG"),
-  REACTION("реакции", "REACTION");
+  REACTION("реакции", "REACTION"),
+  WARNING("предупреждения", "WARNING");
 
   private final String label;
   private final String type;
