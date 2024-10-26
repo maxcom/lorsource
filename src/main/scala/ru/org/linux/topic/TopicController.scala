@@ -244,7 +244,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       params.put("threadMode", Boolean.box(true))
       params.put("threadRoot", Integer.valueOf(threadRoot))
 
-      (commentService.getCommentsSubtree(comments, threadRoot, hideSet).sortBy(_.postdate),
+      (commentService.getCommentsSubtree(comments, threadRoot, hideSet).sortBy(_.id),
         commentService.getCommentsSubtree(comments, threadRoot, Set.empty[Int]).size)
     } else {
       (getCommentsForPage(comments, page, tmpl.getProf.getMessages, hideSet),
