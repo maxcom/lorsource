@@ -20,7 +20,6 @@ import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.site.MessageNotFoundException
@@ -35,7 +34,7 @@ class PostWarningRequest(@BeanProperty var topic: Topic, @BeanProperty var comme
 @Controller
 class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
-  def showForm(@ModelAttribute request: PostWarningRequest): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
+  def showForm(@ModelAttribute(value = "request") request: PostWarningRequest): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
     if (!warningService.canPostWarning(currentUser)) {
       throw new AccessViolationException("Вы не можете отправить уведомление")
     }
@@ -61,21 +60,22 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
   }
 
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
-  def post(@ModelAttribute request: PostWarningRequest, errors: Errors): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
+  def post(@ModelAttribute(value = "request")  request: PostWarningRequest,
+           errors: Errors): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
     if (!warningService.canPostWarning(currentUser)) {
       throw new AccessViolationException("Вы не можете отправить уведомление")
     }
 
     if (request.topic.isDeleted) {
-      errors.reject("Топик удален")
+      errors.reject(null, "Топик удален")
     }
 
     if (request.topic.isExpired) {
-      errors.reject("Топик перемещен в архив")
+      errors.reject(null, "Топик перемещен в архив")
     }
 
     if (request.comment!=null && request.comment.isDeleted) {
-      errors.reject("Комментарий удален")
+      errors.reject(null, "Комментарий удален")
     }
 
     // TODO rate limit warning
@@ -89,14 +89,20 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     } else {
       warningService.postWarning(request.topic, Option(request.comment), currentUser.user, request.text)
 
-      // TODO action-done view
       val builder = TopicLinkBuilder.baseLink(request.topic)
 
-      if (request.comment != null) {
-        new ModelAndView(new RedirectView(builder.comment(request.comment.id).build()))
+      val link = (if (request.comment != null) {
+        builder.comment(request.comment.id)
       } else {
-        new ModelAndView(new RedirectView(builder.build()))
-      }
+        builder
+      }).build()
+
+      val mv = new ModelAndView("action-done")
+
+      mv.addObject("message", "Уведомление отправлено")
+      mv.addObject("link", link)
+
+      mv
     }
   }
 
@@ -112,6 +118,8 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
             throw new IllegalArgumentException(e)
         }
       }
+
+      override def getAsText: String = Option(this.getValue).map(_.asInstanceOf[Topic].id.toString).orNull
     })
 
     binder.registerCustomEditor(classOf[Comment], new PropertyEditorSupport() {
@@ -128,6 +136,8 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
           }
         }
       }
+
+      override def getAsText: String = Option(this.getValue).map(_.asInstanceOf[Comment].id.toString).orNull
     })
   }
 }
