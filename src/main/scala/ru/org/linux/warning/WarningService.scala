@@ -34,7 +34,7 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
     warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.getId, message = message)
   }
 
-  def canPostWarning(user: CurrentUser): Boolean = {
-    user.moderator
+  def canPostWarning(user: CurrentUser, topic: Topic, comment: Option[Comment]): Boolean = {
+    !topic.deleted && !topic.expired && comment.forall(!_.deleted) && user.moderator
   }
 }

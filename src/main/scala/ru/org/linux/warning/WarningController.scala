@@ -35,20 +35,8 @@ class PostWarningRequest(@BeanProperty var topic: Topic, @BeanProperty var comme
 class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
   def showForm(@ModelAttribute(value = "request") request: PostWarningRequest): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
-    if (!warningService.canPostWarning(currentUser)) {
+    if (!warningService.canPostWarning(currentUser, request.topic, Option(request.comment))) {
       throw new AccessViolationException("Вы не можете отправить уведомление")
-    }
-
-    if (request.topic.isDeleted) {
-      throw new AccessViolationException("Топик удален")
-    }
-
-    if (request.topic.isExpired) {
-      throw new AccessViolationException("Топик перемещен в архив")
-    }
-
-    if (request.comment!=null && request.comment.isDeleted) {
-      throw new AccessViolationException("Комментарий удален")
     }
 
     // TODO rate limit warning
@@ -62,19 +50,19 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
   def post(@ModelAttribute(value = "request")  request: PostWarningRequest,
            errors: Errors): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
-    if (!warningService.canPostWarning(currentUser)) {
-      throw new AccessViolationException("Вы не можете отправить уведомление")
+    if (!warningService.canPostWarning(currentUser, request.topic, Option(request.comment))) {
+      errors.reject(null, "Вы не можете отправить уведомление")
     }
 
-    if (request.topic.isDeleted) {
+    if (request.topic.deleted) {
       errors.reject(null, "Топик удален")
     }
 
-    if (request.topic.isExpired) {
+    if (request.topic.expired) {
       errors.reject(null, "Топик перемещен в архив")
     }
 
-    if (request.comment!=null && request.comment.isDeleted) {
+    if (request.comment!=null && request.comment.deleted) {
       errors.reject(null, "Комментарий удален")
     }
 
