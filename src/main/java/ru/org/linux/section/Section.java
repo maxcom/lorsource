@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -62,7 +62,7 @@ public class Section implements Serializable {
     if (!rs.wasNull()) {
       topicsRestriction = restrictTopicsValue;
     } else {
-      topicsRestriction = TopicPermissionService.POSTSCORE_UNRESTRICTED;
+      topicsRestriction = TopicPermissionService.POSTSCORE_UNRESTRICTED();
     }
 
     scrollMode = SectionScrollModeEnum.valueOf(rs.getString("scroll_mode"));
@@ -110,7 +110,7 @@ public class Section implements Serializable {
   public static int getCommentPostscore(int id) {
     //TODO move this to database
     if (id == SECTION_NEWS || id == SECTION_FORUM) {
-      return TopicPermissionService.POSTSCORE_UNRESTRICTED;
+      return TopicPermissionService.POSTSCORE_UNRESTRICTED();
     } else if (id == SECTION_ARTICLES || id == SECTION_GALLERY) {
       return 45;
     } else {
