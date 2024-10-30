@@ -258,7 +258,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       list = commentsFiltered,
       topic = topic,
       hideSet = hideSet,
-      currentUser = currentUserOpt.map(_.user),
+      currentUser = currentUserOpt,
       profile = tmpl.getProf,
       ignoreList = ignoreList,
       filterShow = filterModeShow)

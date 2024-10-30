@@ -68,7 +68,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "comments" -> comments,
       "topic" -> topic,
       "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, Set.empty[Int],
-        Some(currentUser.user), tmpl.getProf, ignoreList, filterShow = false).asJava
+        Some(currentUser), tmpl.getProf, ignoreList, filterShow = false).asJava
     ).asJava)
   }
 
@@ -191,7 +191,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
     new ModelAndView("undelete_comment", Map[String, Any](
-      "comment" -> prepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic, ignoreList),
+      "comment" -> prepareService.prepareCommentOnly(comment, Some(currentUser), tmpl.getProf, topic, ignoreList),
       "topic" -> topic
     ).asJava)
   }
