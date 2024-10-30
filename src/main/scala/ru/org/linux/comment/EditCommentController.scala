@@ -120,7 +120,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     if (commentRequest.getTopic != null) {
       val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore))
-      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, Some(user).toJava, errors)
+      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, Some(user), errors)
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg))
     }
 

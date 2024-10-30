@@ -40,7 +40,6 @@ import ru.org.linux.util.{ServletParameterException, StringUtil}
 
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOption
 
 @Controller
 class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: CommentPrepareService,
@@ -62,7 +61,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val tmpl = Template.getTemplate
 
-    topicPermissionService.checkCommentsAllowed(add.getTopic, currentUser.map(_.user).toJava, errors)
+    topicPermissionService.checkCommentsAllowed(add.getTopic, currentUser.map(_.user), errors)
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
@@ -78,7 +77,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = AuthorizedOpt { currentUser =>
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, currentUser.map(_.user).orNull)
 
-    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, currentUser.map(_.user).toJava, false))
+    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, currentUser.map(_.user), ignoreFrozen = false))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
 
     new ModelAndView("comment-message", "preparedMessage", preparedTopic)
@@ -102,7 +101,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user).toJava, errors)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user), errors)
     }
 
     val tmpl = Template.getTemplate
@@ -153,7 +152,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user).toJava, errors)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, Some(user), errors)
     }
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {

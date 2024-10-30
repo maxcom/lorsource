@@ -82,7 +82,7 @@ public class GroupListDao {
         "t.deleted, " +
         "t.postscore as topic_postscore " +
       "FROM topics AS t JOIN comments ON (t.id=comments.topic) " +
-      "WHERE t.postscore IS DISTINCT FROM " + TopicPermissionService.POSTSCORE_HIDE_COMMENTS + " " +
+      "WHERE t.postscore IS DISTINCT FROM " + TopicPermissionService.POSTSCORE_HIDE_COMMENTS() + " " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
           "%s" + /* user!=null ? queryCommentIgnored */
           "%s" + // queryAuthorFilter
@@ -291,7 +291,7 @@ public class GroupListDao {
       tags = topicTagService.getTagsForTitle(msgid);
 
       int topicPostscore = (resultSet.getObject("topic_postscore") == null)
-              ? TopicPermissionService.POSTSCORE_UNRESTRICTED
+              ? TopicPermissionService.POSTSCORE_UNRESTRICTED()
               : resultSet.getInt("topic_postscore");
 
       res.add(new TopicsListItem(author, msgid, lastmod, stat1,

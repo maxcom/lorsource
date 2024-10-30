@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -108,7 +108,7 @@ public class TopicsListItem {
   }
 
   public int getCommentCount() {
-    if (topicPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+    if (topicPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS()) {
       return stat1;
     } else {
       return 0;
@@ -176,6 +176,6 @@ public class TopicsListItem {
   }
 
   public boolean isCommentsClosed() {
-    return topicPostscore >= TopicPermissionService.POSTSCORE_MODERATORS_ONLY;
+    return topicPostscore >= TopicPermissionService.POSTSCORE_MODERATORS_ONLY();
   }
 }
