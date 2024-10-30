@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -209,35 +209,42 @@
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
           <ul id="topicMenu">
-          <c:if test="${not message.expired}">
-            <c:if test="${messageMenu.commentsAllowed}">
-              <li><a href="comment-message.jsp?topic=${message.id}">Ответить<span class="hideon-phone"> на это сообщение</span></a></li>
+            <c:if test="${not message.expired}">
+              <c:if test="${messageMenu.commentsAllowed}">
+                <li><a href="comment-message.jsp?topic=${message.id}">Ответить<span class="hideon-phone"> на это сообщение</span></a></li>
+              </c:if>
             </c:if>
-        </c:if>
 
-        <c:if test="${preparedMessage.reactions.emptyMap and preparedMessage.reactions.allowInteract}">
-          <li><a class="reaction-show" href="/reactions?topic=${message.id}">Реакции</a></li>
-        </c:if>
+            <c:if test="${preparedMessage.reactions.emptyMap and preparedMessage.reactions.allowInteract}">
+              <li><a class="reaction-show" href="/reactions?topic=${message.id}">Реакции</a></li>
+            </c:if>
 
-        <c:if test="${messageMenu.editable}">
-            <li><a href="edit.jsp?msgid=${message.id}">Править</a></li>
-        </c:if>
-        <c:if test="${messageMenu.deletable}">
-          <li><a href="delete.jsp?msgid=${message.id}">Удалить</a></li>
-        </c:if>
-        <c:if test="${messageMenu.resolvable}">
-            <c:if test="${message.resolved}">
-                <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешённую</a></li>
+            <c:if test="${messageMenu.editable}">
+                <li><a href="edit.jsp?msgid=${message.id}">Править</a></li>
             </c:if>
-            <c:if test="${not message.resolved}">
-                <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решённую</a></li>
+
+            <c:if test="${messageMenu.deletable}">
+              <li><a href="delete.jsp?msgid=${message.id}">Удалить</a></li>
             </c:if>
-        </c:if>
+
+            <c:if test="${messageMenu.resolvable}">
+                <c:if test="${message.resolved}">
+                    <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешённую</a></li>
+                </c:if>
+                <c:if test="${not message.resolved}">
+                    <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решённую</a></li>
+                </c:if>
+            </c:if>
+
+            <c:if test="${messageMenu.warningsAllowed}">
+              <li><a href="/post-warning?topic=${message.id}">Уведомить модераторов</a></li>
+            </c:if>
+
             <li><a href="${message.link}">Ссылка</a></li>
           </ul>
-        <c:if test="${template.sessionAuthorized and not message.expired}">
-          <br>${preparedMessage.postscoreInfo}
-        </c:if>
+          <c:if test="${template.sessionAuthorized and not message.expired}">
+            <br>${preparedMessage.postscoreInfo}
+          </c:if>
         </div>
       </c:if>
 

@@ -219,7 +219,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     TopicMenu(topicEditable, tagsEditable, resolvable,
       topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUserOpt.map(_.user), ignoreFrozen = false), deletable,
-      undeletable, groupPermissionService.canCommit(currentUserOpt.map(_.user), topic.message), userpic.orNull, showComments)
+      undeletable, groupPermissionService.canCommit(currentUserOpt.map(_.user), topic.message), userpic.orNull, showComments,
+      topicPermissionService.canPostWarning(currentUserOpt, topic.message, comment = None))
   }
 
   def prepareBrief(topic: Topic, groupInTitle: Boolean): BriefTopicRef = {
