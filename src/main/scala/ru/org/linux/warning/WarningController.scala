@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, Requ
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.comment.{Comment, CommentReadService}
+import ru.org.linux.group.GroupDao
 import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder}
+import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder, TopicPermissionService}
+import ru.org.linux.user.UserService
 
 import java.beans.PropertyEditorSupport
 import scala.beans.BeanProperty
@@ -32,10 +34,16 @@ class PostWarningRequest(@BeanProperty var topic: Topic, @BeanProperty var comme
                          @BeanProperty var text: String)
 
 @Controller
-class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService) {
+class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService,
+                        topicPermissionService: TopicPermissionService, groupDao: GroupDao, userService: UserService) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
   def showForm(@ModelAttribute(value = "request") request: PostWarningRequest): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
-    if (!warningService.canPostWarning(currentUser, request.topic, Option(request.comment))) {
+    val group = groupDao.getGroup(request.topic.groupId)
+    val topicAuthor = userService.getUserCached(request.topic.authorUserId)
+
+    topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
+
+    if (!topicPermissionService.canPostWarning(currentUser, request.topic, Option(request.comment))) {
       throw new AccessViolationException("Вы не можете отправить уведомление")
     }
 
@@ -50,7 +58,12 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
   def post(@ModelAttribute(value = "request")  request: PostWarningRequest,
            errors: Errors): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
-    if (!warningService.canPostWarning(currentUser, request.topic, Option(request.comment))) {
+    val group = groupDao.getGroup(request.topic.groupId)
+    val topicAuthor = userService.getUserCached(request.topic.authorUserId)
+
+    topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
+
+    if (!topicPermissionService.canPostWarning(currentUser, request.topic, Option(request.comment))) {
       errors.reject(null, "Вы не можете отправить уведомление")
     }
 

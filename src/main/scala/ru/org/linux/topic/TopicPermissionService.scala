@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, CurrentUser}
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.{MarkupPermissions, MarkupType}
@@ -419,5 +419,9 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
 
     false
+  }
+
+  def canPostWarning(user: CurrentUser, topic: Topic, comment: Option[Comment]): Boolean = {
+    !topic.deleted && !topic.expired && comment.forall(!_.deleted) && user.moderator
   }
 }

@@ -18,7 +18,6 @@ package ru.org.linux.warning
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.auth.CurrentUser
 import ru.org.linux.comment.Comment
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.{User, UserEventService, UserService}
@@ -32,9 +31,5 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
     eventService.addWarningEvent(author, moderators, topic, comment, message)
 
     warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.getId, message = message)
-  }
-
-  def canPostWarning(user: CurrentUser, topic: Topic, comment: Option[Comment]): Boolean = {
-    !topic.deleted && !topic.expired && comment.forall(!_.deleted) && user.moderator
   }
 }
