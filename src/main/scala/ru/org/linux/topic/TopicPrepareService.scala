@@ -31,7 +31,7 @@ import ru.org.linux.util.StringUtil
 
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.{RichOption, RichOptional}
+import scala.jdk.OptionConverters.RichOptional
 
 @Service
 class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, deleteInfoDao: DeleteInfoDao,
@@ -159,15 +159,16 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: collection.Seq[Topic], user: Option[User], profile: Profile, loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
+  def prepareTopicsForUser(messages: collection.Seq[Topic], user: Option[CurrentUser], profile: Profile,
+                           loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.map { message =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        user.orNull, textMap(message.id), None)
+        user.map(_.user).orNull, textMap(message.id), None)
 
-      val topicMenu = getTopicMenu(preparedMessage, user.orNull, profile, loadUserpics)
+      val topicMenu = getTopicMenu(preparedMessage, user, profile, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
     }.asJava
   }
@@ -192,22 +193,20 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }.toSeq
   }
 
-  def getTopicMenu(topic: PreparedTopic, @Nullable currentUser: User, profile: Profile,
+  def getTopicMenu(topic: PreparedTopic, currentUserOpt: Option[CurrentUser], profile: Profile,
                    loadUserpics: Boolean): TopicMenu = {
-    val topicEditable = groupPermissionService.isEditable(topic, currentUser)
-    val tagsEditable = groupPermissionService.isTagsEditable(topic, currentUser)
+    val topicEditable = groupPermissionService.isEditable(topic, currentUserOpt.map(_.user).orNull)
+    val tagsEditable = groupPermissionService.isTagsEditable(topic, currentUserOpt.map(_.user))
 
-    val (resolvable, deletable, undeletable) = if (currentUser != null) {
-      val resolvable = (currentUser.isModerator || (topic.author.getId == currentUser.getId)) &&
+    val (resolvable, deletable, undeletable) = currentUserOpt.map  { currentUser =>
+      val resolvable = (currentUser.moderator || (topic.author.getId == currentUser.user.getId)) &&
         topic.group.resolvable
 
-      val deletable = groupPermissionService.isDeletable(topic.message, currentUser)
-      val undeletable = groupPermissionService.isUndeletable(topic.message, currentUser)
+      val deletable = groupPermissionService.isDeletable(topic.message, currentUser.user)
+      val undeletable = groupPermissionService.isUndeletable(topic.message, currentUser.user)
 
       (resolvable, deletable, undeletable)
-    } else {
-      (false, false, false)
-    }
+    }.getOrElse((false, false, false))
 
     val userpic = if (loadUserpics && profile.isShowPhotos) {
       Some(userService.getUserpic(topic.author, profile.getAvatarMode, misteryMan = true))
@@ -219,8 +218,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val showComments = postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 
     TopicMenu(topicEditable, tagsEditable, resolvable,
-      topicPermissionService.isCommentsAllowed(topic.group, topic.message, Option(currentUser), ignoreFrozen = false), deletable,
-      undeletable, groupPermissionService.canCommit(currentUser, topic.message), userpic.orNull, showComments)
+      topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUserOpt.map(_.user), ignoreFrozen = false), deletable,
+      undeletable, groupPermissionService.canCommit(currentUserOpt.map(_.user), topic.message), userpic.orNull, showComments)
   }
 
   def prepareBrief(topic: Topic, groupInTitle: Boolean): BriefTopicRef = {

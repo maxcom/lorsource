@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -235,7 +235,9 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @param by    редактор
     * @return true если можно, false если нет
     */
-  def isTagsEditable(topic: PreparedTopic, @Nullable by: User): Boolean = {
+  def isTagsEditable(topic: PreparedTopic, byOpt: Option[User]): Boolean = {
+    val by = byOpt.orNull
+
     val message = topic.message
     val section = topic.section
     val author = topic.author
@@ -279,6 +281,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def canCommit(user: User, topic: Topic): Boolean =
-    user!=null && (user.isModerator || (user.canCorrect && topic.authorUserId != user.getId))
+  def canCommit(userOpt: Option[User], topic: Topic): Boolean =
+    userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.getId))
 }

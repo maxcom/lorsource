@@ -220,7 +220,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       }
     }
 
-    params.put("messageMenu", topicPrepareService.getTopicMenu(preparedMessage, currentUserOpt.map(_.user).orNull, tmpl.getProf, loadUserpics = true))
+    params.put("messageMenu", topicPrepareService.getTopicMenu(preparedMessage, currentUserOpt, tmpl.getProf, loadUserpics = true))
     params.put("memoriesInfo", memoriesDao.getTopicInfo(topic.id, currentUserOpt.map(_.user)))
 
     val ignoreList: Set[Int] = currentUserOpt.map { currentUser =>

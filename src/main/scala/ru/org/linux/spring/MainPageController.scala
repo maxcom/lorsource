@@ -52,13 +52,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
     val mv = new ModelAndView("index")
 
-    mv.getModel.put("news",
-      prepareService.prepareTopicsForUser(
-        messages,
-        currentUser.map(_.user),
-        profile,
-        loadUserpics = false)
-    )
+    mv.getModel.put("news", prepareService.prepareTopicsForUser(messages, currentUser, profile, loadUserpics = false))
 
     val briefNewsByDate = TopicListTools.datePartition(titles)
 

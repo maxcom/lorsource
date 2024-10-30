@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, CurrentUser}
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
@@ -49,7 +49,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = false)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, currentUser.map(_.user))
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, currentUser)
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -74,7 +74,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getDrafts(user, offset)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, Some(currentUser.user))
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, Some(currentUser))
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -129,7 +129,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
       modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
 
-      prepareTopicsForPlainOrRss(modelAndView, rss, messages, currentUser.map(_.user))
+      prepareTopicsForPlainOrRss(modelAndView, rss, messages, currentUser)
 
       if (!rss) {
         modelAndView.setViewName("user-topics")
@@ -184,14 +184,14 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("offset", offset)
 
     val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = true)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, Some(currentUser.user))
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, Some(currentUser))
     modelAndView.setViewName("user-topics")
 
     modelAndView
   }
 
   private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic],
-                                         currentUser: Option[User]): Unit = {
+                                         currentUser: Option[CurrentUser]): Unit = {
     if (rss) {
       modelAndView.addObject("messages", prepareService.prepareTopics(messages).asJava)
       modelAndView.setViewName("section-rss")

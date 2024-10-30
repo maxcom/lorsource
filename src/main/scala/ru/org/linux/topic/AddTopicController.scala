@@ -240,7 +240,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     params.put("message", preparedTopic)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, sessionUserOpt.map(_.user).orNull, tmpl.getProf, loadUserpics = true)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, sessionUserOpt, tmpl.getProf, loadUserpics = true)
     params.put("topicMenu", topicMenu)
 
     if (!form.isPreviewMode && !errors.hasErrors) {

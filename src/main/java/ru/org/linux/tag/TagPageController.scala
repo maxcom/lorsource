@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil
+import ru.org.linux.auth.{AuthUtil, CurrentUser}
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionService}
@@ -94,7 +94,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).toJava
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
-        val (news, newsDate) = getNewsSection(tag, currentUser)
+        val (news, newsDate) = getNewsSection(tag, currentUserObj)
         val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, currentUser)
         val gallery = getGallerySection(tag, tagInfo.id, currentUser)
         val (polls, _) = getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, currentUser)
@@ -139,10 +139,10 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 }
 
-  private def getNewsSection(tag: String, currentUser: Option[User]) = {
+  private def getNewsSection(tag: String, currentUser: Option[CurrentUser]) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
-      TagPageController.TotalNewsCount, currentUser, noTalks = false, tech = false)
+      TagPageController.TotalNewsCount, currentUser.map(_.user), noTalks = false, tech = false)
 
     val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.map(_.commitDate.toInstant).exists(isRecent)) {
       newsTopics.splitAt(1)
@@ -163,7 +163,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
 
-    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection, currentUser)) {
+    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection, currentUser.map(_.user))) {
       Some("addNews" -> AddTopicController.getAddUrl(newsSection, tag))
     } else {
       None
