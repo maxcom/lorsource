@@ -105,6 +105,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser.map(_.user).orNull, deleteInfo)
     val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.map(_.user).orNull, topic, hasAnswers)
     val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.map(_.user).orNull, hasAnswers, topic, messageText.markup)
+    val warningsAllowed = topicPermissionService.canPostWarning(currentUser, topic, Some(comment))
 
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, Some(author), ignoreFrozen = true)
 
@@ -113,7 +114,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
-      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser.map(_.user), topic, Some(comment)))
+      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser.map(_.user), topic, Some(comment)),
+      warningsAllowed = warningsAllowed)
   }
 
   private def loadDeleteInfo(comment: Comment) = {
@@ -158,7 +160,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     PreparedComment(comment = comment, author = author, reply = None, editable = false, remark = None,
       userpic = None, deleteInfo = None, editSummary = None, postIP = None, userAgent = None, undeletable = false,
       answerCount = 0, answerLink = None, answerSamepage = false, authorReadonly = false,
-      processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.emptyDisabled)
+      processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.emptyDisabled,
+      warningsAllowed = false)
   }
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],

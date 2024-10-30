@@ -29,7 +29,7 @@ object PreparedComment {
             undeletable: Boolean, editable: Boolean, remark: Option[String], userpic: Option[Userpic], answerCount: Int,
             deleteInfo: Option[ApiDeleteInfo], editSummary: Option[EditSummary], userAgent: Option[String],
             answerLink: Option[String], answerSamepage: Boolean, authorReadonly: Boolean, postIP: Option[String],
-            @BeanProperty reactions: PreparedReactions): PreparedComment = {
+            reactions: PreparedReactions, warningsAllowed: Boolean): PreparedComment = {
     val encodedTitle = Strings.emptyToNull(comment.title.trim)
 
     val title = if (encodedTitle != null) {
@@ -60,7 +60,8 @@ object PreparedComment {
       answerLink = answerLink.orNull,
       answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
-      reactions = reactions)
+      reactions = reactions,
+      warningsAllowed = warningsAllowed)
   }
 }
 
@@ -74,4 +75,4 @@ case class PreparedComment(@BeanProperty id: Int, @BeanProperty author: User, @B
                            @BeanProperty @Nullable answerLink: String, @BooleanBeanProperty answerSamepage: Boolean,
                            @BooleanBeanProperty authorReadonly: Boolean, @Nullable @BeanProperty title: String,
                            @BooleanBeanProperty deleted: Boolean, @BeanProperty postdate: Timestamp,
-                           @BeanProperty reactions: PreparedReactions)
+                           @BeanProperty reactions: PreparedReactions, @BooleanBeanProperty warningsAllowed: Boolean)
