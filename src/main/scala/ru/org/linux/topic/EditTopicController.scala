@@ -69,7 +69,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val tmpl = Template.getTemplate
     val topic = messageDao.getById(msgid)
 
-    if (!permissionService.canCommit(currentUser.user, topic)) {
+    if (!permissionService.canCommit(Some(currentUser.user), topic)) {
       throw new AccessViolationException("Not authorized")
     }
 
@@ -84,7 +84,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     initForm(preparedTopic, form)
-    val mv = new ModelAndView("edit", prepareModel(preparedTopic, currentUser.user, tmpl.getProf).asJava)
+    val mv = new ModelAndView("edit", prepareModel(preparedTopic, currentUser, tmpl.getProf).asJava)
 
     mv.getModel.put("commit", true)
 
@@ -98,17 +98,17 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val user = currentUser.user
     val preparedTopic = prepareService.prepareTopic(message, user)
 
-    if (!permissionService.isEditable(preparedTopic, user) && !permissionService.isTagsEditable(preparedTopic, user)) {
+    if (!permissionService.isEditable(preparedTopic, user) && !permissionService.isTagsEditable(preparedTopic, Some(user))) {
       throw new AccessViolationException("это сообщение нельзя править")
     }
 
     val tmpl = Template.getTemplate
 
     initForm(preparedTopic, form)
-    new ModelAndView("edit", prepareModel(preparedTopic, user, tmpl.getProf).asJava)
+    new ModelAndView("edit", prepareModel(preparedTopic, currentUser, tmpl.getProf).asJava)
   }
 
-  private def prepareModel(preparedTopic: PreparedTopic, currentUser: User, profile: Profile): mutable.HashMap[String, AnyRef] = {
+  private def prepareModel(preparedTopic: PreparedTopic, currentUser: CurrentUser, profile: Profile): mutable.HashMap[String, AnyRef] = {
     val params = mutable.HashMap[String, AnyRef]()
 
     val message = preparedTopic.message
@@ -122,7 +122,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params.put("groups", groupDao.getGroups(preparedTopic.section))
     params.put("newMsg", message)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, currentUser, profile, loadUserpics = true)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, Some(currentUser), profile, loadUserpics = true)
 
     params.put("topicMenu", topicMenu)
 
@@ -139,7 +139,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val messageText = msgbaseDao.getMessageText(message.id)
 
-    params.put("imagepost", Boolean.box(permissionService.isImagePostingAllowed(preparedTopic.section, currentUser)))
+    params.put("imagepost", Boolean.box(permissionService.isImagePostingAllowed(preparedTopic.section, currentUser.user)))
     params.put("mode", messageText.markup.title)
 
     params
@@ -202,14 +202,14 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val topic = messageDao.getById(msgid)
     val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
 
-    val params = prepareModel(preparedTopic, currentUser.user, tmpl.getProf)
+    val params = prepareModel(preparedTopic, currentUser, tmpl.getProf)
 
     val group = preparedTopic.group
     val user = currentUser.user
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user)
 
-    val tagsEditable = permissionService.isTagsEditable(preparedTopic, user)
+    val tagsEditable = permissionService.isTagsEditable(preparedTopic, Some(user))
     val editable = permissionService.isEditable(preparedTopic, user)
 
     if (!editable && !tagsEditable) {
@@ -242,7 +242,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val commit = request.getParameter("commit") != null
 
     if (commit) {
-      if (!permissionService.canCommit(user, topic)) {
+      if (!permissionService.canCommit(Some(user), topic)) {
         throw new AccessViolationException("Not authorized")
       }
 
@@ -251,7 +251,9 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
     }
 
-    params.put("commit", Boolean.box(!topic.commited && preparedTopic.section.isPremoderated && permissionService.canCommit(user, topic)))
+    val canCommit = !topic.commited && preparedTopic.section.isPremoderated && permissionService.canCommit(Some(user), topic)
+
+    params.put("commit", Boolean.box(canCommit))
 
     val newMsg = Topic.fromEditRequest(group, topic, form, publish)
 
@@ -306,7 +308,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       throw new AccessViolationException("нельзя править это сообщение, только теги")
     }
 
-    if (form.getMinor != null && !permissionService.canCommit(user, topic)) {
+    if (form.getMinor != null && !permissionService.canCommit(Some(user), topic)) {
       throw new AccessViolationException("вы не можете менять статус новости")
     }
 
