@@ -17,6 +17,7 @@ package ru.org.linux.comment
 import com.google.common.base.Strings
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
+import ru.org.linux.auth.CurrentUser
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.reaction.{PreparedReactions, ReactionService}
@@ -25,7 +26,6 @@ import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgen
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.user.*
 
-import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
@@ -37,7 +37,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
-                             hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[User],
+                             hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[CurrentUser],
                              group: Group, ignoreList: Set[Int], filterShow: Boolean) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
@@ -96,15 +96,15 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val apiDeleteInfo = deleteInfo.map(i => new ApiDeleteInfo(userService.getUserCached(i.userid).getNick, i.getReason))
     val editSummary = loadEditSummary(comment)
 
-    val (postIP, userAgent) = if (currentUser != null && currentUser.exists(_.isModerator)) {
+    val (postIP, userAgent) = if (currentUser != null && currentUser.exists(_.moderator)) {
       (Option(comment.postIP), userAgentDao.getUserAgentById(comment.userAgentId).toScala)
     } else {
       (None, None)
     }
 
-    val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser.orNull, deleteInfo)
-    val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.orNull, topic, hasAnswers)
-    val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.orNull, hasAnswers, topic, messageText.markup)
+    val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser.map(_.user).orNull, deleteInfo)
+    val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.map(_.user).orNull, topic, hasAnswers)
+    val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.map(_.user).orNull, hasAnswers, topic, messageText.markup)
 
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, Some(author), ignoreFrozen = true)
 
@@ -113,7 +113,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
-      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser, topic, Some(comment)))
+      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser.map(_.user), topic, Some(comment)))
   }
 
   private def loadDeleteInfo(comment: Comment) = {
@@ -132,14 +132,14 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  def prepareCommentOnly(comment: Comment, @Nullable currentUser: User, profile: Profile,
+  def prepareCommentOnly(comment: Comment, currentUser: Option[CurrentUser], profile: Profile,
                          topic: Topic, ignoreList: Set[Int]): PreparedComment = {
     val messageText = msgbaseDao.getMessageText(comment.id)
     val author = userService.getUserCached(comment.userid)
     val group = groupDao.getGroup(topic.groupId)
 
     prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
-      profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = Option(currentUser),
+      profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = currentUser,
       group = group, ignoreList = ignoreList, filterShow = false)
   }
 
@@ -162,7 +162,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   }
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],
-                         currentUser: Option[User], profile: Profile, ignoreList: Set[Int],
+                         currentUser: Option[CurrentUser], profile: Profile, ignoreList: Set[Int],
                          filterShow: Boolean): Seq[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty
@@ -172,7 +172,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       val group = groupDao.getGroup(topic.groupId)
 
       val remarks = currentUser.map { user =>
-        remarkDao.getRemarks(user, users.values)
+        remarkDao.getRemarks(user.user, users.values)
       }.getOrElse(Map.empty[Int, Remark])
 
       val samePageComments = list.map(_.id).toSet

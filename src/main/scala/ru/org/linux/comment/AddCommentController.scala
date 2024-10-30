@@ -65,7 +65,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
-    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser.map(_.user), tmpl.getProf, add.getTopic) + (
+    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser, tmpl.getProf, add.getTopic) + (
       "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
     )).asJava)
   }
@@ -124,7 +124,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
 
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, sessionUserOpt.map(_.user), tmpl.getProf, add.getTopic) ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add, sessionUserOpt, tmpl.getProf, add.getTopic) ++ info).asJava)
     } else {
       val (msgid, mentions) = commentService.create(user, comment, msg, remoteAddress = request.getRemoteAddr,
         xForwardedFor = Option(request.getHeader("X-Forwarded-For")), userAgent = Option(request.getHeader("user-agent")))
