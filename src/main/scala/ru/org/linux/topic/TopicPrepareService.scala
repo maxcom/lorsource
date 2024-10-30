@@ -218,7 +218,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val postscore = topicPermissionService.getPostscore(topic.group, topic.message)
     val showComments = postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 
-    new TopicMenu(topicEditable, tagsEditable, resolvable,
+    TopicMenu(topicEditable, tagsEditable, resolvable,
       topicPermissionService.isCommentsAllowed(topic.group, topic.message, Option(currentUser), ignoreFrozen = false), deletable,
       undeletable, groupPermissionService.canCommit(currentUser, topic.message), userpic.orNull, showComments)
   }
