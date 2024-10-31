@@ -136,6 +136,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   def prepareCommentOnly(comment: Comment, currentUser: Option[CurrentUser], profile: Profile,
                          topic: Topic, ignoreList: Set[Int]): PreparedComment = {
+    assert(comment.topicId == topic.id)
+
     val messageText = msgbaseDao.getMessageText(comment.id)
     val author = userService.getUserCached(comment.userid)
     val group = groupDao.getGroup(topic.groupId)

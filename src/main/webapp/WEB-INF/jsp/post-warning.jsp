@@ -51,4 +51,17 @@
     </div>
   </div>
 </form:form>
+
+<c:if test="${preparedTopic != null}">
+  <div class=messages>
+    <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedTopic}" message="${request.topic}" showMenu="false"/>
+  </div>
+</c:if>
+
+<c:if test="${preparedComment != null}">
+  <div class=messages>
+    <lor:comment commentsAllowed="false" showMenu="false" comment="${preparedComment}" topic="${request.topic}"/>
+  </div>
+</c:if>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

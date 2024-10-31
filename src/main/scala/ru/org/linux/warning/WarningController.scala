@@ -20,11 +20,11 @@ import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
-import ru.org.linux.comment.{Comment, CommentReadService}
+import ru.org.linux.auth.{AccessViolationException, AuthUtil, CurrentUser}
+import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.group.GroupDao
-import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder, TopicPermissionService}
+import ru.org.linux.site.{MessageNotFoundException, Template}
+import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder, TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.UserService
 
 import java.beans.PropertyEditorSupport
@@ -35,7 +35,8 @@ class PostWarningRequest(@BeanProperty var topic: Topic, @BeanProperty var comme
 
 @Controller
 class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService,
-                        topicPermissionService: TopicPermissionService, groupDao: GroupDao, userService: UserService) {
+                        topicPermissionService: TopicPermissionService, groupDao: GroupDao, userService: UserService,
+                        topicPrepareService: TopicPrepareService, commentPrepareService: CommentPrepareService) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
   def showForm(@ModelAttribute(value = "request") request: PostWarningRequest): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
     val group = groupDao.getGroup(request.topic.groupId)
@@ -52,11 +53,26 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
 
     // TODO rate limit warning
-    // TODO show topic / comment
 
     val mv = new ModelAndView("post-warning")
 
+    prepareView(request, currentUser, mv)
+
     mv
+  }
+
+  private def prepareView(request: PostWarningRequest, currentUser: CurrentUser, mv: ModelAndView): Unit = {
+    if (request.comment == null) {
+      val preparedTopic = topicPrepareService.prepareTopic(request.getTopic, currentUser.user)
+      mv.addObject("preparedTopic", preparedTopic)
+    } else {
+      val tmpl = Template.getTemplate
+
+      val preparedComment = commentPrepareService.prepareCommentOnly(request.comment, Some(currentUser), tmpl.getProf,
+        request.topic, Set.empty)
+
+      mv.addObject("preparedComment", preparedComment)
+    }
   }
 
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
@@ -88,11 +104,12 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
 
     // TODO rate limit warning
-    // TODO show topic / comment
     // TODO check text length
 
     if (errors.hasErrors) {
       val mv = new ModelAndView("post-warning")
+
+      prepareView(request, currentUser, mv)
 
       mv
     } else {
