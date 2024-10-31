@@ -60,6 +60,7 @@
         <span>(не подтверждено)</span>
       </c:if>
     </span>
+    <c:if test="${showMenu}">
       &emsp;
       <c:if test="${messageMenu.commitable}">
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
@@ -82,6 +83,7 @@
         <c:if test="${message.commited and not message.expired}">
           [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
         </c:if>
+      </c:if>
       </c:if>
     </span>
     </div>
