@@ -43,6 +43,10 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
     topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
 
+    if (topicPermissionService.getPostscore(group, request.topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+      throw new AccessViolationException("Вы не можете отправить уведомление")
+    }
+
     if (!topicPermissionService.canPostWarning(Some(currentUser), request.topic, Option(request.comment))) {
       throw new AccessViolationException("Вы не можете отправить уведомление")
     }
@@ -62,6 +66,10 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     val topicAuthor = userService.getUserCached(request.topic.authorUserId)
 
     topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
+
+    if (topicPermissionService.getPostscore(group, request.topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+      throw new AccessViolationException("Вы не можете отправить уведомление")
+    }
 
     if (!topicPermissionService.canPostWarning(Some(currentUser), request.topic, Option(request.comment))) {
       errors.reject(null, "Вы не можете отправить уведомление")
