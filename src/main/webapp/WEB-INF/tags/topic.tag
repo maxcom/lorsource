@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -60,6 +60,7 @@
         <span>(не подтверждено)</span>
       </c:if>
     </span>
+    <c:if test="${showMenu}">
       &emsp;
       <c:if test="${messageMenu.commitable}">
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
@@ -82,6 +83,7 @@
         <c:if test="${message.commited and not message.expired}">
           [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
         </c:if>
+      </c:if>
       </c:if>
     </span>
     </div>
