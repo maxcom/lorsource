@@ -37,6 +37,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.MemoriesDao;
+import ru.org.linux.warning.WarningService;
 import sttp.client3.SttpBackend;
 
 import java.io.FileInputStream;
@@ -78,10 +79,10 @@ public class TopicIntegrationTestConfiguration {
                                          EditHistoryService editHistoryService, MemoriesDao memoriesDao,
                                          TopicPermissionService permissionService, MoreLikeThisService moreLikeThisService,
                                          TopicTagService topicTagService, MsgbaseDao msgbaseDao, MessageTextService textService,
-                                         GroupDao groupDao) {
+                                         GroupDao groupDao, WarningService warningService) {
     return new TopicController(sectionService, messageDao, prepareService, topicPrepareService, commentService,
             ignoreListDao, ipBlockDao, editHistoryService, memoriesDao,  permissionService,
-            moreLikeThisService, topicTagService, msgbaseDao, textService, groupDao);
+            moreLikeThisService, topicTagService, msgbaseDao, textService, groupDao, warningService);
   }
 
   @Bean

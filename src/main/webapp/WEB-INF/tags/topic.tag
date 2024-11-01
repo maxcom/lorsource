@@ -146,9 +146,11 @@
         </p>
       </c:if>
 
-        <c:if test="${preparedMessage.image != null}">
-          <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
-        </c:if>
+      <lor:warnings warnings="${preparedMessage.warnings}"/>
+
+      <c:if test="${preparedMessage.image != null}">
+        <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
+      </c:if>
     </div>
 <footer>
 

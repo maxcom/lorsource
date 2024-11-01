@@ -36,6 +36,7 @@ import ru.org.linux.section.{Section, SectionScrollModeEnum, SectionService}
 import ru.org.linux.site.{MessageNotFoundException, Template}
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{IgnoreListDao, MemoriesDao, User}
+import ru.org.linux.warning.WarningService
 
 import java.time.Instant
 import java.util
@@ -92,7 +93,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                       ignoreListDao: IgnoreListDao, ipBlockDao: IPBlockDao, editHistoryService: EditHistoryService,
                       memoriesDao: MemoriesDao, permissionService: TopicPermissionService,
                       moreLikeThisService: MoreLikeThisService, topicTagService: TopicTagService,
-                      msgbaseDao: MsgbaseDao, textService: MessageTextService, groupDao: GroupDao) extends StrictLogging {
+                      msgbaseDao: MsgbaseDao, textService: MessageTextService, groupDao: GroupDao,
+                      warningService: WarningService) extends StrictLogging {
   @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"))
   def getMessageNewMain(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
                         @RequestParam(value = "filter", required = false) filter: String,
@@ -159,7 +161,13 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val messageText = msgbaseDao.getMessageText(topic.id)
     val plainText = textService.extractPlainText(messageText)
 
-    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, currentUserOpt.map(_.user), messageText)
+    val warnings = if (currentUserOpt.exists(_.moderator) || currentUserOpt.exists(_.corrector)) {
+      warningService.load(topic, currentUserOpt.exists(_.moderator))
+    } else {
+      Seq.empty
+    }
+
+    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, currentUserOpt.map(_.user), messageText, warnings)
 
     val group = preparedMessage.group
 

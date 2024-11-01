@@ -22,6 +22,7 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.DeleteInfo
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user.{Remark, User}
+import ru.org.linux.warning.{PreparedWarning, Warning}
 
 import javax.annotation.Nullable
 import scala.beans.BeanProperty
@@ -34,6 +35,7 @@ case class PreparedTopic(@BeanProperty message: Topic, @BeanProperty author: Use
                          @BeanProperty markupType: MarkupType, @Nullable @BeanProperty image: PreparedImage,
                          @BeanProperty postscoreInfo: String, @Nullable @BeanProperty remark: Remark,
                          @BeanProperty showRegisterInvite: Boolean, @Nullable @BeanProperty userAgent: String,
-                         @BeanProperty reactions: PreparedReactions) {
+                         @BeanProperty reactions: PreparedReactions,
+                         @BeanProperty warnings: java.util.List[PreparedWarning]) {
   def getId: Int = message.id
 }

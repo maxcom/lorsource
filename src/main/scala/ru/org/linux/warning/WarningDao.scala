@@ -47,10 +47,16 @@ class WarningDao(ds: DataSource) {
       warningType = WarningType.idToType(rs.getString("warning_type")))
   }
 
-  def loadForTopic(topicId: Int): Option[Warning] = {
-      namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type from message_warnings " +
-      "where topic=:topic and comment is null " +
-      "order by postdate", Map("topic" -> topicId).asJava, mapper).asScala.headOption
+  def loadForTopic(topicId: Int, forModerator: Boolean): collection.Seq[Warning] = {
+    val filter = if (forModerator) {
+      ""
+    } else {
+      "and warning_type IN ('tag', 'spelling') "
+    }
+
+    namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type from message_warnings " +
+      "where topic=:topic and comment is null " + filter +
+      "order by postdate", Map("topic" -> topicId).asJava, mapper).asScala
   }
 
   def loadForComments(topicId: Int, comments: Set[Int]): Map[Int, Warning] = {

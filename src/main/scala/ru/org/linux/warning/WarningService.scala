@@ -23,6 +23,8 @@ import ru.org.linux.comment.Comment
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.{User, UserEventService, UserService}
 
+import java.util.Date
+
 object WarningService {
   val MaxWarningsPerHour = 5
 }
@@ -46,4 +48,15 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
   }
 
   def lastWarningsCount(user: CurrentUser): Int = warningDao.lastWarningsCount(user.user.getId)
+
+  def prepareWarning(warnings: Seq[Warning]): Seq[PreparedWarning] =
+    warnings.map { warning =>
+      PreparedWarning(
+        postdate = new Date(warning.postdate.toEpochMilli),
+        author = userService.getUserCached(warning.authorId),
+        message = s"[${warning.warningType.name}] ${warning.message}")
+    }
+
+  def load(topic: Topic, forModerator: Boolean): Seq[Warning] =
+    warningDao.loadForTopic(topic.id, forModerator).toVector
 }

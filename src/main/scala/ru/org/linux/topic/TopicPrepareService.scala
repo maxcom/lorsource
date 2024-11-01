@@ -28,6 +28,7 @@ import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgen
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user.*
 import ru.org.linux.util.StringUtil
+import ru.org.linux.warning.{Warning, WarningService}
 
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -40,13 +41,15 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           topicPermissionService: TopicPermissionService,
                           groupPermissionService: GroupPermissionService, topicTagService: TopicTagService,
                           msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao,
-                          reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao) {
+                          reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao,
+                          warningService: WarningService) {
   def prepareTopic(message: Topic, user: User): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, user,
       msgbaseDao.getMessageText(message.id), None)
 
-  def prepareTopic(message: Topic, tags: java.util.List[TagRef], user: Option[User], text: MessageText): PreparedTopic =
-    prepareTopic(message, tags.asScala, minimizeCut = false, None, user.orNull, text, None)
+  def prepareTopic(message: Topic, tags: java.util.List[TagRef], user: Option[User], text: MessageText,
+                   warnings: Seq[Warning]): PreparedTopic =
+    prepareTopic(message, tags.asScala, minimizeCut = false, None, user.orNull, text, None, warnings)
 
   def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
                           image: Option[Image]): PreparedTopic =
@@ -73,7 +76,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @return подготовленный топик
    */
   private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
-                           @Nullable currentUser: User, text: MessageText, image: Option[Image]): PreparedTopic = try {
+                           @Nullable currentUser: User, text: MessageText, image: Option[Image],
+                           warnings: Seq[Warning] = Seq.empty): PreparedTopic = try {
     val group = groupDao.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
     val section = sectionService.getSection(topic.sectionId)
@@ -143,7 +147,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
       TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull,
-      reactionPrepareService.prepare(topic.reactions, ignoreList, Option(currentUser), topic, None))
+      reactionPrepareService.prepare(topic.reactions, ignoreList, Option(currentUser), topic, None),
+      warningService.prepareWarning(warnings).asJava)
   } catch {
     case e: PollNotFoundException =>
       throw new RuntimeException(e)

@@ -15,7 +15,11 @@
 
 package ru.org.linux.warning
 
+import ru.org.linux.user.User
+
 import java.time.Instant
+import java.util.Date
+import scala.beans.BeanProperty
 
 sealed trait WarningType {
   def id: String
@@ -48,3 +52,5 @@ object SpellingWarning extends WarningType {
 
 case class Warning(id: Int, topicId: Int, commentId: Option[Int], postdate: Instant, authorId: Int, message: String,
                    warningType: WarningType)
+
+case class PreparedWarning(@BeanProperty postdate: Date, @BeanProperty author: User, @BeanProperty message: String)
