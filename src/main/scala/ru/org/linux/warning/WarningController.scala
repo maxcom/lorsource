@@ -22,16 +22,18 @@ import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, Requ
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.{AccessViolationException, AuthUtil, CurrentUser}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.site.{MessageNotFoundException, Template}
 import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder, TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.UserService
+import ru.org.linux.warning.WarningType.idToType
 
 import java.beans.PropertyEditorSupport
 import scala.beans.BeanProperty
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 class PostWarningRequest(@BeanProperty var topic: Topic, @BeanProperty var comment: Comment,
-                         @BeanProperty var text: String)
+                         @BeanProperty var text: String, @BeanProperty var warningType: WarningType)
 
 @Controller
 class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService,
@@ -56,9 +58,22 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
     val mv = new ModelAndView("post-warning")
 
+    mv.addObject("warningTypes", warningTypes(request, group).asJava)
     prepareView(request, currentUser, mv)
 
     mv
+  }
+
+  private def warningTypes(request: PostWarningRequest, group: Group) = {
+    if (request.comment != null) {
+      Seq(RuleWarning)
+    } else {
+      if (group.isPremoderated) {
+        Seq(RuleWarning, SpellingWarning, TagsWarning)
+      } else {
+        Seq(RuleWarning, TagsWarning)
+      }
+    }
   }
 
   private def prepareView(request: PostWarningRequest, currentUser: CurrentUser, mv: ModelAndView): Unit = {
@@ -103,17 +118,31 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
       errors.reject(null, "Комментарий удален")
     }
 
+    val types = warningTypes(request, group)
+
+    if (request.warningType == null || !types.contains(request.warningType)) {
+      errors.reject(null, "Не выбран тип уведомления")
+    }
+
+    if (request.text == null || request.text.trim.isEmpty) {
+      errors.reject(null, "Сообщение не может быть пустым")
+    }
+
+    if (request.text !=null && request.text.length > 140) {
+      errors.reject(null, "Сообщение не может быть более 140 символов")
+    }
+
     // TODO rate limit warning
-    // TODO check text length
 
     if (errors.hasErrors) {
       val mv = new ModelAndView("post-warning")
 
+      mv.addObject("warningTypes", types.asJava)
       prepareView(request, currentUser, mv)
 
       mv
     } else {
-      warningService.postWarning(request.topic, Option(request.comment), currentUser.user, request.text)
+      warningService.postWarning(request.topic, Option(request.comment), currentUser.user, request.text, request.warningType)
 
       val builder = TopicLinkBuilder.baseLink(request.topic)
 
@@ -164,6 +193,19 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
       }
 
       override def getAsText: String = Option(this.getValue).map(_.asInstanceOf[Comment].id.toString).orNull
+    })
+
+    binder.registerCustomEditor(classOf[WarningType], new PropertyEditorSupport() {
+      @throws[IllegalArgumentException]
+      override def setAsText(text: String): Unit = {
+        if (text.isEmpty) {
+          setValue(null)
+        } else {
+          setValue(idToType.getOrElse(text, new IllegalArgumentException("unknown type")))
+        }
+      }
+
+      override def getAsText: String = Option(this.getValue).map(_.asInstanceOf[WarningType].id).orNull
     })
   }
 }

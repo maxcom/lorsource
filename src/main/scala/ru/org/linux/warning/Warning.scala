@@ -17,4 +17,34 @@ package ru.org.linux.warning
 
 import java.time.Instant
 
-case class Warning(id: Int, topicId: Int, commentId: Option[Int], postdate: Instant, authorId: Int, message: String)
+sealed trait WarningType {
+  def id: String
+  def name: String
+
+  // for jsp
+  final def getId: String = id
+  final def getName: String = name
+}
+
+object WarningType {
+  private val AllTypes = Seq(RuleWarning, TagsWarning, SpellingWarning)
+  val idToType: Map[String, WarningType] = AllTypes.map(t => t.id -> t).toMap
+}
+
+object RuleWarning extends WarningType {
+  override def id: String = "rule"
+  override def name: String = "Нарушение правил"
+}
+
+object TagsWarning extends WarningType {
+  override def id: String = "tags"
+  override def name: String = "Некорректные теги"
+}
+
+object SpellingWarning extends WarningType {
+  override def id: String = "spelling"
+  override def name: String = "Опечатка или форматирование"
+}
+
+case class Warning(id: Int, topicId: Int, commentId: Option[Int], postdate: Instant, authorId: Int, message: String,
+                   warningType: WarningType)

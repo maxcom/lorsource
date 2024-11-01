@@ -60,4 +60,16 @@
       grant insert, select on message_warnings to linuxweb
     </sql>
   </changeSet>
+
+  <changeSet id="2024110101" author="Maxim Valyanskiy">
+    <sql>
+      create type warning_type as enum ('rule', 'tag', 'spelling');
+    </sql>
+
+    <addColumn tableName="message_warnings">
+      <column name="warning_type" type="warning_type" defaultValue="rule">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

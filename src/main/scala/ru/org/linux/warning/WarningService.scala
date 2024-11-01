@@ -25,11 +25,18 @@ import ru.org.linux.user.{User, UserEventService, UserService}
 @Service
 class WarningService(warningDao: WarningDao, eventService: UserEventService, userService: UserService,
                      val transactionManager: PlatformTransactionManager) extends TransactionManagement {
-  def postWarning(topic: Topic, comment: Option[Comment], author: User, message: String): Unit = transactional() { _ =>
-    val moderators = userService.getModerators.filter(_._2).map(_._1)
+  def postWarning(topic: Topic, comment: Option[Comment], author: User, message: String,
+                  warningType: WarningType): Unit = transactional() { _ =>
+    val notifyList = warningType match {
+      case RuleWarning =>
+        userService.getModerators.filter(_._2).map(_._1)
+      case TagsWarning | SpellingWarning =>
+        (userService.getModerators.filter(_._2).map(_._1) ++ userService.getCorrectors.filter(_._2).map(_._1)).distinct
+    }
 
-    eventService.addWarningEvent(author, moderators, topic, comment, message)
+    eventService.addWarningEvent(author, notifyList, topic, comment, s"[${warningType.name}] $message")
 
-    warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.getId, message = message)
+    warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.getId,
+      message = message, warningType = warningType)
   }
 }

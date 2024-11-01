@@ -26,11 +26,11 @@ import scala.jdk.CollectionConverters.*
 @Repository
 class WarningDao(ds: DataSource) {
   private val insert =
-    new SimpleJdbcInsert(ds).usingColumns("topic", "comment", "author", "message").withTableName("message_warnings")
+    new SimpleJdbcInsert(ds).usingColumns("topic", "comment", "author", "message", "warning_type").withTableName("message_warnings")
   private val namedJdbcTemplate = new NamedParameterJdbcTemplate(ds)
 
-  def postWarning(topicId: Int, commentId: Option[Int], authorId: Int, message: String): Unit = {
-    val args = Map("topic" -> topicId, "author" -> authorId, "message" -> message) ++
+  def postWarning(topicId: Int, commentId: Option[Int], authorId: Int, message: String, warningType: WarningType): Unit = {
+    val args = Map("topic" -> topicId, "author" -> authorId, "message" -> message, "warning_type" -> warningType.id) ++
       commentId.map("comment" -> _)
 
     insert.execute(args.asJava)
@@ -43,11 +43,12 @@ class WarningDao(ds: DataSource) {
       topicId = rs.getInt("topic"),
       commentId = Some(rs.getInt("comment")).filter(_ != 0),
       postdate = rs.getTimestamp("postdate").toInstant,
-      message = rs.getString("message"))
+      message = rs.getString("message"),
+      warningType = WarningType.idToType(rs.getString("warning_type")))
   }
 
   def loadForTopic(topicId: Int): Option[Warning] = {
-      namedJdbcTemplate.query("select id, topic, comment, postdate, author, message from message_warnings " +
+      namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type from message_warnings " +
       "where topic=:topic and comment is null " +
       "order by postdate", Map("topic" -> topicId).asJava, mapper).asScala.headOption
   }
