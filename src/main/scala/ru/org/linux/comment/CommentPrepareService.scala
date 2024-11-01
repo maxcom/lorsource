@@ -25,6 +25,7 @@ import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.user.*
+import ru.org.linux.warning.{PreparedWarning, Warning, WarningService}
 
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
@@ -33,12 +34,13 @@ import scala.jdk.OptionConverters.*
 class CommentPrepareService(textService: MessageTextService, msgbaseDao: MsgbaseDao,
                             topicPermissionService: TopicPermissionService, userService: UserService,
                             deleteInfoDao: DeleteInfoDao, userAgentDao: UserAgentDao, remarkDao: RemarkDao,
-                            groupDao: GroupDao, reactionPrepareService: ReactionService) {
+                            groupDao: GroupDao, reactionPrepareService: ReactionService,
+                            warningService: WarningService) {
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
                              hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[CurrentUser],
-                             group: Group, ignoreList: Set[Int], filterShow: Boolean) = {
+                             group: Group, ignoreList: Set[Int], filterShow: Boolean, warnings: Seq[Warning]) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
     val (answerLink, answerSamepage, answerCount, replyInfo, hasAnswers) = if (comments.isDefined) {
@@ -109,13 +111,15 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, Some(author), ignoreFrozen = true)
 
+    val preparedWarnings = warningService.prepareWarning(warnings)
+
     PreparedComment(comment = comment, author = author, processedMessage = processedMessage, reply = replyInfo,
       deletable = deletable, editable = editable, remark = remark, userpic = userpic, deleteInfo = apiDeleteInfo,
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
       reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser.map(_.user), topic, Some(comment)),
-      warningsAllowed = warningsAllowed)
+      warningsAllowed = warningsAllowed, warnings = preparedWarnings)
   }
 
   private def loadDeleteInfo(comment: Comment) = {
@@ -144,7 +148,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
     prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
       profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = currentUser,
-      group = group, ignoreList = ignoreList, filterShow = false)
+      group = group, ignoreList = ignoreList, filterShow = false, warnings = Seq.empty)
   }
 
   /**
@@ -163,7 +167,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       userpic = None, deleteInfo = None, editSummary = None, postIP = None, userAgent = None, undeletable = false,
       answerCount = 0, answerLink = None, answerSamepage = false, authorReadonly = false,
       processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.emptyDisabled,
-      warningsAllowed = false)
+      warningsAllowed = false, warnings = Seq.empty)
   }
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],
@@ -176,6 +180,12 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       val users = userService.getUsersCachedMap(list.map(_.userid))
       val group = groupDao.getGroup(topic.groupId)
 
+      val allWarnings: Map[Int, Seq[Warning]] = if (!topic.expired && currentUser.exists(_.moderator)) {
+        warningService.load(list)
+      } else {
+        Map.empty
+      }
+
       val remarks = currentUser.map { user =>
         remarkDao.getRemarks(user.user, users.values)
       }.getOrElse(Map.empty[Int, Remark])
@@ -186,9 +196,10 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
         val text = texts(comment.id)
         val author = users(comment.userid)
         val remark = remarks.get(author.getId)
+        val warnings = allWarnings.getOrElse(comment.id, Seq.empty)
 
         prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSet,
-          samePageComments, currentUser, group, ignoreList, filterShow)
+          samePageComments, currentUser, group, ignoreList, filterShow, warnings)
       }
     }
   }

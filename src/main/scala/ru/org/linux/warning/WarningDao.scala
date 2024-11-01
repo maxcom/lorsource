@@ -59,14 +59,12 @@ class WarningDao(ds: DataSource) {
       "order by postdate", Map("topic" -> topicId).asJava, mapper).asScala
   }
 
-  def loadForComments(topicId: Int, comments: Set[Int]): Map[Int, Warning] = {
-    val params = Map(
-      "topic" -> topicId,
-      "list" -> comments.asJava)
+  def loadForComments(comments: Set[Int]): Map[Int, Seq[Warning]] = {
+    val params = Map("list" -> comments.asJava)
 
-    namedJdbcTemplate.query("select id, topic, comment, postdate, author, message from message_warnings " +
-      "where topic=:topic and comment in (:list) " +
-      "order by postdate", params.asJava, mapper).asScala.view.map(w => w.commentId.get -> w).toMap
+    namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type from message_warnings " +
+      "where comment in (:list) and postdate>CURRENT_TIMESTAMP-'5 days'::interval " +
+      "order by postdate", params.asJava, mapper).asScala.toVector.groupBy(_.commentId.get)
   }
 
   def lastWarningsCount(userId: Int): Int =

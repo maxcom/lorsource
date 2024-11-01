@@ -19,17 +19,19 @@ import org.apache.commons.text.StringEscapeUtils
 import ru.org.linux.reaction.PreparedReactions
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.user.{User, Userpic}
+import ru.org.linux.warning.PreparedWarning
 
 import java.sql.Timestamp
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object PreparedComment {
   def apply(comment: Comment, author: User, processedMessage: String, reply: Option[ReplyInfo], deletable: Boolean,
             undeletable: Boolean, editable: Boolean, remark: Option[String], userpic: Option[Userpic], answerCount: Int,
             deleteInfo: Option[ApiDeleteInfo], editSummary: Option[EditSummary], userAgent: Option[String],
             answerLink: Option[String], answerSamepage: Boolean, authorReadonly: Boolean, postIP: Option[String],
-            reactions: PreparedReactions, warningsAllowed: Boolean): PreparedComment = {
+            reactions: PreparedReactions, warningsAllowed: Boolean, warnings: Seq[PreparedWarning]): PreparedComment = {
     val encodedTitle = Strings.emptyToNull(comment.title.trim)
 
     val title = if (encodedTitle != null) {
@@ -61,7 +63,8 @@ object PreparedComment {
       answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
       reactions = reactions,
-      warningsAllowed = warningsAllowed)
+      warningsAllowed = warningsAllowed,
+      warnings = warnings.asJava)
   }
 }
 
@@ -75,4 +78,5 @@ case class PreparedComment(@BeanProperty id: Int, @BeanProperty author: User, @B
                            @BeanProperty @Nullable answerLink: String, @BooleanBeanProperty answerSamepage: Boolean,
                            @BooleanBeanProperty authorReadonly: Boolean, @Nullable @BeanProperty title: String,
                            @BooleanBeanProperty deleted: Boolean, @BeanProperty postdate: Timestamp,
-                           @BeanProperty reactions: PreparedReactions, @BooleanBeanProperty warningsAllowed: Boolean)
+                           @BeanProperty reactions: PreparedReactions, @BooleanBeanProperty warningsAllowed: Boolean,
+                           @BeanProperty warnings: java.util.List[PreparedWarning])

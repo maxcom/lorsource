@@ -161,7 +161,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val messageText = msgbaseDao.getMessageText(topic.id)
     val plainText = textService.extractPlainText(messageText)
 
-    val warnings = if (!topic.isExpired && currentUserOpt.exists(u => u.moderator || u.corrector)) {
+    val warnings = if (!topic.expired && currentUserOpt.exists(u => u.moderator || u.corrector)) {
       warningService.load(topic, currentUserOpt.exists(_.moderator))
     } else {
       Seq.empty

@@ -51,12 +51,16 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
 
   def prepareWarning(warnings: Seq[Warning]): Seq[PreparedWarning] =
     warnings.map { warning =>
+      val text = s"[${warning.warningType.name}] ${warning.message}"
+
       PreparedWarning(
         postdate = new Date(warning.postdate.toEpochMilli),
         author = userService.getUserCached(warning.authorId),
-        message = s"[${warning.warningType.name}] ${warning.message}")
+        message = text)
     }
 
   def load(topic: Topic, forModerator: Boolean): Seq[Warning] =
     warningDao.loadForTopic(topic.id, forModerator).toVector
+
+  def load(comments: Seq[Comment]): Map[Int, Seq[Warning]] = warningDao.loadForComments(comments.map(_.id).toSet)
 }
