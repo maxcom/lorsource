@@ -37,7 +37,7 @@ object RuleWarning extends WarningType {
 }
 
 object TagsWarning extends WarningType {
-  override def id: String = "tags"
+  override def id: String = "tag"
   override def name: String = "Некорректные теги"
 }
 

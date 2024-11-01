@@ -18,9 +18,14 @@ package ru.org.linux.warning
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.auth.CurrentUser
 import ru.org.linux.comment.Comment
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.{User, UserEventService, UserService}
+
+object WarningService {
+  val MaxWarningsPerHour = 5
+}
 
 @Service
 class WarningService(warningDao: WarningDao, eventService: UserEventService, userService: UserService,
@@ -39,4 +44,6 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
     warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.getId,
       message = message, warningType = warningType)
   }
+
+  def lastWarningsCount(user: CurrentUser): Int = warningDao.lastWarningsCount(user.user.getId)
 }

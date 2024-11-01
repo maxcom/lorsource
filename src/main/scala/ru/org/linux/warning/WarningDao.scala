@@ -62,4 +62,9 @@ class WarningDao(ds: DataSource) {
       "where topic=:topic and comment in (:list) " +
       "order by postdate", params.asJava, mapper).asScala.view.map(w => w.commentId.get -> w).toMap
   }
+
+  def lastWarningsCount(userId: Int): Int =
+    namedJdbcTemplate.queryForObject("select count(*) from message_warnings where " +
+      "postdate > CURRENT_TIMESTAMP-'1 hour'::interval and author = :author",
+      Map("author" -> userId).asJava, classOf[Int])
 }

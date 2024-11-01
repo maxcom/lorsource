@@ -26,6 +26,7 @@ import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.site.{MessageNotFoundException, Template}
 import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder, TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.UserService
+import ru.org.linux.warning.WarningService.MaxWarningsPerHour
 import ru.org.linux.warning.WarningType.idToType
 
 import java.beans.PropertyEditorSupport
@@ -40,21 +41,11 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
                         topicPermissionService: TopicPermissionService, groupDao: GroupDao, userService: UserService,
                         topicPrepareService: TopicPrepareService, commentPrepareService: CommentPrepareService) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
-  def showForm(@ModelAttribute(value = "request") request: PostWarningRequest): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
+  def showForm(@ModelAttribute(value = "request") request: PostWarningRequest,
+               errors: Errors): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
     val group = groupDao.getGroup(request.topic.groupId)
-    val topicAuthor = userService.getUserCached(request.topic.authorUserId)
 
-    topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
-
-    if (topicPermissionService.getPostscore(group, request.topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
-      throw new AccessViolationException("Вы не можете отправить уведомление")
-    }
-
-    if (!topicPermissionService.canPostWarning(Some(currentUser), request.topic, Option(request.comment))) {
-      throw new AccessViolationException("Вы не можете отправить уведомление")
-    }
-
-    // TODO rate limit warning
+    checkRequest(group, request, errors, currentUser)
 
     val mv = new ModelAndView("post-warning")
 
@@ -94,29 +85,8 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
   def post(@ModelAttribute(value = "request")  request: PostWarningRequest,
            errors: Errors): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
     val group = groupDao.getGroup(request.topic.groupId)
-    val topicAuthor = userService.getUserCached(request.topic.authorUserId)
 
-    topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
-
-    if (topicPermissionService.getPostscore(group, request.topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
-      throw new AccessViolationException("Вы не можете отправить уведомление")
-    }
-
-    if (!topicPermissionService.canPostWarning(Some(currentUser), request.topic, Option(request.comment))) {
-      errors.reject(null, "Вы не можете отправить уведомление")
-    }
-
-    if (request.topic.deleted) {
-      errors.reject(null, "Топик удален")
-    }
-
-    if (request.topic.expired) {
-      errors.reject(null, "Топик перемещен в архив")
-    }
-
-    if (request.comment!=null && request.comment.deleted) {
-      errors.reject(null, "Комментарий удален")
-    }
+    checkRequest(group, request, errors, currentUser)
 
     val types = warningTypes(request, group)
 
@@ -131,8 +101,6 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     if (request.text !=null && request.text.length > 140) {
       errors.reject(null, "Сообщение не может быть более 140 символов")
     }
-
-    // TODO rate limit warning
 
     if (errors.hasErrors) {
       val mv = new ModelAndView("post-warning")
@@ -158,6 +126,39 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
       mv.addObject("link", link)
 
       mv
+    }
+  }
+
+  private def checkRequest(group: Group, request: PostWarningRequest, errors: Errors, currentUser: CurrentUser): Unit = {
+    assert(request.topic.groupId == group.id)
+    assert(request.comment == null || request.comment.topicId == request.topic.id)
+
+    val topicAuthor = userService.getUserCached(request.topic.authorUserId)
+
+    topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
+
+    if (topicPermissionService.getPostscore(group, request.topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+      throw new AccessViolationException("Вы не можете отправить уведомление")
+    }
+
+    if (!topicPermissionService.canPostWarning(Some(currentUser), request.topic, Option(request.comment))) {
+      errors.reject(null, "Вы не можете отправить уведомление")
+    }
+
+    if (request.topic.deleted) {
+      errors.reject(null, "Топик удален")
+    }
+
+    if (request.topic.expired) {
+      errors.reject(null, "Топик перемещен в архив")
+    }
+
+    if (request.comment != null && request.comment.deleted) {
+      errors.reject(null, "Комментарий удален")
+    }
+
+    if (!errors.hasErrors && warningService.lastWarningsCount(currentUser) >= MaxWarningsPerHour) {
+      errors.reject(null, s"Вы не можете отправить более ${MaxWarningsPerHour} уведомлений в час")
     }
   }
 
