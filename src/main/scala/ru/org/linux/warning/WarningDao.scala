@@ -55,7 +55,7 @@ class WarningDao(ds: DataSource) {
     }
 
     namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type from message_warnings " +
-      "where topic=:topic and comment is null " + filter +
+      "where topic=:topic and comment is null and postdate>CURRENT_TIMESTAMP-'5 days'::interval " + filter +
       "order by postdate", Map("topic" -> topicId).asJava, mapper).asScala
   }
 

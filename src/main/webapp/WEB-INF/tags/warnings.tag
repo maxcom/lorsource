@@ -21,7 +21,7 @@
   <div class="infoblock">
     <c:forEach var="warning" items="${warnings}">
       <div>
-        ⚠️${' '} <lor:dateonly date="${warning.postdate}"/> ${' '} <lor:user user="${warning.author}" link="true"/>:
+        ⚠️${' '} <lor:date date="${warning.postdate}"/> ${' '} <lor:user user="${warning.author}" link="true"/>:
       <c:out value="${warning.message}" escapeXml="true"/>
       </div>
     </c:forEach>

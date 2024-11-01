@@ -72,4 +72,10 @@
       </column>
     </addColumn>
   </changeSet>
+
+  <changeSet id="2024110102" author="Maxim Valyanskiy">
+    <createIndex tableName="message_warnings" indexName="message_warnings_postdate_idx">
+      <column name="postdate"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>
