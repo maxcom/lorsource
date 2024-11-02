@@ -78,4 +78,25 @@
       <column name="postdate"/>
     </createIndex>
   </changeSet>
+
+  <changeSet id="2024110201" author="Maxim Valyanskiy">
+    <addColumn tableName="message_warnings">
+      <column name="closed_by" type="int">
+        <constraints nullable="true" references="users(id)" foreignKeyName="message_warnings_closed_by_fkey"/>
+      </column>
+      <column name="closed_when" type="timestamptz"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2024110202" author="Maxim Valyanskiy">
+    <createIndex tableName="message_warnings" indexName="message_warnings_closed_by_idx">
+      <column name="closed_by"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="2024110203" author="Maxim Valyanskiy">
+    <sql>
+      grant update on message_warnings to linuxweb
+    </sql>
+  </changeSet>
 </databaseChangeLog>

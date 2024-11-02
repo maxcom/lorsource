@@ -56,11 +56,17 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
       PreparedWarning(
         postdate = new Date(warning.postdate.toEpochMilli),
         author = userService.getUserCached(warning.authorId),
-        message = text)
+        message = text,
+        id = warning.id,
+        closedBy = warning.closedBy.map(userService.getUserCached).orNull)
     }
 
   def load(topic: Topic, forModerator: Boolean): Seq[Warning] =
     warningDao.loadForTopic(topic.id, forModerator).toVector
 
   def load(comments: Seq[Comment]): Map[Int, Seq[Warning]] = warningDao.loadForComments(comments.map(_.id).toSet)
+
+  def get(id: Int): Warning = warningDao.get(id)
+
+  def clear(warning: Warning, by: CurrentUser) = warningDao.clear(warning.id, by.user.getId)
 }

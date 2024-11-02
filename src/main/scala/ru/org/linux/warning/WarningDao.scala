@@ -44,7 +44,9 @@ class WarningDao(ds: DataSource) {
       commentId = Some(rs.getInt("comment")).filter(_ != 0),
       postdate = rs.getTimestamp("postdate").toInstant,
       message = rs.getString("message"),
-      warningType = WarningType.idToType(rs.getString("warning_type")))
+      warningType = WarningType.idToType(rs.getString("warning_type")),
+      closedBy = Some(rs.getInt("closed_by")).filter(_ != 0),
+      closedWhen = Option(rs.getTimestamp("closed_when")).map(_.toInstant))
   }
 
   def loadForTopic(topicId: Int, forModerator: Boolean): collection.Seq[Warning] = {
@@ -54,16 +56,18 @@ class WarningDao(ds: DataSource) {
       "and warning_type IN ('tag', 'spelling') "
     }
 
-    namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type from message_warnings " +
-      "where topic=:topic and comment is null and postdate>CURRENT_TIMESTAMP-'5 days'::interval " + filter +
+    namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type, closed_by, closed_when " +
+      "from message_warnings " +
+      "where topic=:topic and comment is null " + filter +
       "order by postdate", Map("topic" -> topicId).asJava, mapper).asScala
   }
 
   def loadForComments(comments: Set[Int]): Map[Int, Seq[Warning]] = {
     val params = Map("list" -> comments.asJava)
 
-    namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type from message_warnings " +
-      "where comment in (:list) and postdate>CURRENT_TIMESTAMP-'5 days'::interval " +
+    namedJdbcTemplate.query("select id, topic, comment, postdate, author, message, warning_type, closed_by, closed_when " +
+      "from message_warnings " +
+      "where comment in (:list) " +
       "order by postdate", params.asJava, mapper).asScala.toVector.groupBy(_.commentId.get)
   }
 
@@ -71,4 +75,20 @@ class WarningDao(ds: DataSource) {
     namedJdbcTemplate.queryForObject("select count(*) from message_warnings where " +
       "postdate > CURRENT_TIMESTAMP-'1 hour'::interval and author = :author",
       Map("author" -> userId).asJava, classOf[Int])
+
+  def get(id: Int): Warning =
+    namedJdbcTemplate.queryForObject("select id, topic, comment, postdate, author, message, warning_type, closed_by, closed_when " +
+      "from message_warnings " +
+      "where id=:id " +
+      "order by postdate", Map("id" -> id).asJava, mapper)
+
+  def clear(id: Int, byUserId: Int): Unit = {
+    val params = Map(
+      "byUserId" -> byUserId,
+      "id" -> id
+    )
+
+    namedJdbcTemplate.update("update message_warnings set closed_by = :byUserId, closed_when = CURRENT_TIMESTAMP " +
+      "where id=:id and closed_by is null", params.asJava)
+  }
 }

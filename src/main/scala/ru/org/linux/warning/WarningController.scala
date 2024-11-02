@@ -18,8 +18,10 @@ package ru.org.linux.warning
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod}
+import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod, RequestParam, RequestPart}
 import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, CorrectorOrModerator}
 import ru.org.linux.auth.{AccessViolationException, AuthUtil, CurrentUser}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
@@ -42,7 +44,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
                         topicPrepareService: TopicPrepareService, commentPrepareService: CommentPrepareService) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
   def showForm(@ModelAttribute(value = "request") request: PostWarningRequest,
-               errors: Errors): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
+               errors: Errors): ModelAndView = AuthorizedOnly { currentUser =>
     val group = groupDao.getGroup(request.topic.groupId)
 
     checkRequest(group, request, errors, currentUser)
@@ -82,8 +84,8 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
   }
 
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
-  def post(@ModelAttribute(value = "request")  request: PostWarningRequest,
-           errors: Errors): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
+  def post(@ModelAttribute(value = "request") request: PostWarningRequest,
+           errors: Errors): ModelAndView = AuthorizedOnly { currentUser =>
     val group = groupDao.getGroup(request.topic.groupId)
 
     checkRequest(group, request, errors, currentUser)
@@ -160,6 +162,22 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     if (!errors.hasErrors && warningService.lastWarningsCount(currentUser) >= MaxWarningsPerHour) {
       errors.reject(null, s"Вы не можете отправить более ${MaxWarningsPerHour} уведомлений в час")
     }
+  }
+
+  @RequestMapping(value = Array("/clear-warning"), method = Array(RequestMethod.POST))
+  def clear(@RequestParam(value = "id") id: Int): ModelAndView = CorrectorOrModerator { currentUser =>
+    val warning = warningService.get(id)
+    val topic = topicDao.getById(warning.topicId)
+
+    warningService.clear(warning, currentUser)
+
+    val builder = TopicLinkBuilder.baseLink(topic)
+
+    val link = warning.commentId.map { commentId =>
+      builder.comment(commentId)
+    }.getOrElse(builder).build()
+
+    new ModelAndView(new RedirectView(link))
   }
 
   @InitBinder

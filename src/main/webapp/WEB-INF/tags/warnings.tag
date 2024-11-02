@@ -20,9 +20,23 @@
 <c:if test="${not empty warnings}">
   <div class="infoblock">
     <c:forEach var="warning" items="${warnings}">
-      <div>
-        ⚠️${' '} <lor:date date="${warning.postdate}"/> ${' '} <lor:user user="${warning.author}" link="true"/>:
-      <c:out value="${warning.message}" escapeXml="true"/>
+      <div style="margin-bottom: 0.5em">
+        ⚠️${' '}
+        <c:if test="${warning.closed}"><s></c:if>
+        <lor:date date="${warning.postdate}"/> ${' '} <lor:user user="${warning.author}" link="true"/>:
+        <c:out value="${warning.message}" escapeXml="true"/>
+        <c:if test="${warning.closed}"></s>
+            (закрыт <lor:user user="${warning.closedBy}" link="true"/>)
+        </c:if>
+
+        <c:if test="${not warning.closed}">
+          &nbsp;
+          <form action="clear-warning" method="POST" style="display: inline-block">
+            <lor:csrf/>
+            <input type="hidden" name="id" value="${warning.id}">
+            <button type="submit" class="btn btn-small btn-default">закрыть</button>
+          </form>
+        </c:if>
       </div>
     </c:forEach>
   </div>
