@@ -237,11 +237,11 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
         Seq.empty
       } else {
         val affectedUsers = namedJdbcTemplate.queryForList(
-          "SELECT DISTINCT (userid) FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION')",
+          "SELECT DISTINCT (userid) FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')",
           ImmutableMap.of("list", topics.asJava), classOf[Integer])
 
         namedJdbcTemplate.update(
-          "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION')",
+          "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')",
           ImmutableMap.of("list", topics.asJava))
 
         affectedUsers.asScala
@@ -255,11 +255,11 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
         Seq.empty
       } else {
         val affectedUsers = namedJdbcTemplate.queryForList(
-          "SELECT DISTINCT (userid) FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION')",
-          ImmutableMap.of("list", comments.asJava), classOf[Integer])
+          "SELECT DISTINCT (userid) FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')",
+          Map("list" -> comments.asJava).asJava, classOf[Integer])
 
-        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION')",
-          ImmutableMap.of("list", comments.asJava))
+        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')",
+          Map("list" -> comments.asJava).asJava)
 
         affectedUsers.asScala
       }
