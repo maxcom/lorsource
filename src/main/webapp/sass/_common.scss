@@ -534,7 +534,7 @@ h1 {
 }
 
 .msg_body .infoblock:after {
-  content: ""; /* undo clearfix */
+  display: none; /* undo clearfix */
 }
 
 .infoblock-small {
