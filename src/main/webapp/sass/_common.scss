@@ -533,6 +533,10 @@ h1 {
   border: 1px solid;
 }
 
+.msg_body .infoblock:after {
+  content: ""; /* undo clearfix */
+}
+
 .infoblock-small {
     font-size: smaller;
 }
