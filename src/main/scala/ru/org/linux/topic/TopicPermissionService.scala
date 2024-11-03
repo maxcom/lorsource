@@ -423,6 +423,6 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
   def canPostWarning(currentUserOpt: Option[CurrentUser], topic: Topic, comment: Option[Comment]): Boolean = {
     currentUserOpt.exists(user => !topic.deleted && !topic.expired && comment.forall(!_.deleted) &&
-      user.user.isAdministrator && !user.user.isFrozen)
+      user.user.isModerator && !user.user.isFrozen)
   }
 }
