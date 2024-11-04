@@ -28,10 +28,9 @@
         <c:if test="${warning.closed}"></s>
             (закрыт <lor:user user="${warning.closedBy}" link="true"/>)
         </c:if>
-
         <c:if test="${not warning.closed}">
           &nbsp;
-          <form action="clear-warning" method="POST" style="display: inline-block">
+          <form class="clear-warning-form" action="clear-warning" method="POST" style="display: inline-block">
             <lor:csrf/>
             <input type="hidden" name="id" value="${warning.id}">
             <button type="submit" class="btn btn-small btn-default">закрыть</button>

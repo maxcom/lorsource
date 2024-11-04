@@ -420,6 +420,17 @@ $(document).ready(function() {
     });
   }
 
+  function initClearWarningForm() {
+    $script.ready('plugins', function() {
+      $('.clear-warning-form').ajaxForm({
+        success: function(responseText, statusText, xhr, form) {
+          form.hide();
+          form.parent().wrap("<s></s>")
+        }
+      });
+    });
+  }
+
   function initReactionsUI() {
     $script.ready('plugins', function() {
       twemoji.parse(document.body, { 'base': 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/' });
@@ -505,6 +516,8 @@ $(document).ready(function() {
 
   initSamepageCommentNavigation();
   initScollupButton();
+  initClearWarningForm();
+
   
   replace_state();
   $(window).bind('hashchange', replace_state);
