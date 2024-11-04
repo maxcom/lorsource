@@ -67,8 +67,6 @@
 
       ${comment.processedMessage}
 
-      <lor:warnings warnings="${comment.warnings}"/>
-
       <div class="sign">
         <lor:sign user="${comment.author}" postdate="${comment.postdate}"/>
 
@@ -140,6 +138,8 @@
           </ul>
         </div>
       </c:if>
+
+      <lor:warnings warnings="${comment.warnings}"/>
 
       <lor:reactions reactions="${comment.reactions}" reactionList="${reactionList}" topic="${topic}"
                      comment="${comment}"/>

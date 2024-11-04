@@ -146,8 +146,6 @@
         </p>
       </c:if>
 
-      <lor:warnings warnings="${preparedMessage.warnings}"/>
-
       <c:if test="${preparedMessage.image != null}">
         <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
       </c:if>
@@ -251,6 +249,8 @@
           </c:if>
         </div>
       </c:if>
+
+    <lor:warnings warnings="${preparedMessage.warnings}"/>
 
     <lor:reactions reactions="${preparedMessage.reactions}" reactionList="${reactionList}" topic="${message}"/>
   </div>
