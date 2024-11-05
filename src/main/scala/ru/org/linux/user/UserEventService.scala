@@ -80,9 +80,18 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     }
   }
 
-  def addWarningEvent(author: User, users: collection.Seq[User], topic: Topic, comment: Option[Comment], message: String): Unit = {
+  def addWarningEvent(author: User, users: collection.Seq[User], topic: Topic, comment: Option[Comment],
+                      message: String, warningId: Int): Unit = {
     for (user <- users) {
-      userEventDao.addEvent(WARNING.getType, user.getId, isPrivate = true, Some(topic.id), comment.map(_.id), Some(message), Some(author.getId))
+      userEventDao.addEvent(
+        eventType = WARNING.getType,
+        userId = user.getId,
+        isPrivate = true,
+        topicId = Some(topic.id),
+        commentId = comment.map(_.id),
+        topic = Some(message),
+        originUser = Some(author.getId),
+        warningId = Some(warningId))
     }
   }
 

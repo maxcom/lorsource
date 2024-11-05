@@ -65,7 +65,7 @@ class UserEventDaoIntegrationTest {
       isPrivate = false,
       topicId = Some(UserEventDaoIntegrationTest.TestTopicId),
       commentId = None,
-      message = None)
+      topic = None)
 
   @Test
   def testAddRemove(): Unit = {

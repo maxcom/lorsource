@@ -39,10 +39,12 @@ object UserEventDao {
     """
       |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
       |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions
+      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
+      |  message_warnings.closed_by is not null as closed_warning
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
+      |  LEFT JOIN message_warnings ON (message_warnings.id=warning_id)
       |WHERE user_events.userid = ? %s
       |ORDER BY id DESC LIMIT ? OFFSET ?
       |""".stripMargin
@@ -65,7 +67,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
   private val insert = {
     val insert = new SimpleJdbcInsert(ds)
     insert.setTableName("user_events")
-    insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message", "origin_user")
+    insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message", "origin_user", "warning_id")
   }
 
   private val insertTopicUsersNotified = {
@@ -85,16 +87,18 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param isPrivate приватное ли уведомление
    * @param topicId   идентификационный номер топика (null если нет)
    * @param commentId идентификационный номер комментария (null если нет)
-   * @param message   дополнительное сообщение уведомления (null если нет)
+   * @param topic     дополнительное сообщение уведомления (null если нет)
    */
   def addEvent(eventType: String, userId: Int, isPrivate: Boolean, topicId: Option[Int],
-               commentId: Option[Int], message: Option[String], originUser: Option[Int] = None): Unit = {
+               commentId: Option[Int], topic: Option[String], originUser: Option[Int] = None,
+               warningId: Option[Int] = None): Unit = {
     val params = mutable.Map("userid" -> userId, "type" -> eventType, "private" -> isPrivate)
 
     topicId.foreach(v => params.put("message_id", v))
     commentId.foreach(v => params.put("comment_id", v))
-    message.foreach(v => params.put("message", v))
+    topic.foreach(v => params.put("message", v))
     originUser.foreach(v => params.put("origin_user", v))
+    warningId.foreach(v => params.put("warning_id", v))
 
     insert.execute(params.asJava)
   }
@@ -227,7 +231,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
 
       UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread,
         resultSet.getInt("tAuthor"), resultSet.getInt("id"),
-        originUser, reaction)
+        originUser, reaction, resultSet.getBoolean("closed_warning"))
     }
   }
 

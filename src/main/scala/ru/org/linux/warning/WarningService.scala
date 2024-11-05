@@ -41,10 +41,10 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
         (userService.getModerators.filter(_._2).map(_._1) ++ userService.getCorrectors.filter(_._2).map(_._1)).distinct
     }
 
-    eventService.addWarningEvent(author, notifyList, topic, comment, s"[${warningType.name}] $message")
-
-    warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.getId,
+    val id = warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.getId,
       message = message, warningType = warningType)
+
+    eventService.addWarningEvent(author, notifyList, topic, comment, s"[${warningType.name}] $message", warningId = id)
   }
 
   def lastWarningsCount(user: CurrentUser): Int = warningDao.lastWarningsCount(user.user.getId)
@@ -68,5 +68,5 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
 
   def get(id: Int): Warning = warningDao.get(id)
 
-  def clear(warning: Warning, by: CurrentUser) = warningDao.clear(warning.id, by.user.getId)
+  def clear(warning: Warning, by: CurrentUser): Unit = warningDao.clear(warning.id, by.user.getId)
 }

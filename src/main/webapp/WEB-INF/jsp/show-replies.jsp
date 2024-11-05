@@ -140,7 +140,9 @@
 
       <c:if test="${topic.event.eventType == 'WARNING'}">
         <br>
+        <c:if test="${topic.event.closedWarning}"><s></c:if>
         <c:out value="${topic.event.eventMessage}" escapeXml="true"/> ${' '}
+        <c:if test="${topic.event.closedWarning}"></s></c:if>
       </c:if>
 
     <c:if test="${topic.event.unread}">&bull;</c:if>

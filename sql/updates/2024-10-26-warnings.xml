@@ -99,4 +99,16 @@
       grant update on message_warnings to linuxweb
     </sql>
   </changeSet>
+
+  <changeSet id="2024110501" author="Maxim Valyanskiy">
+    <addColumn tableName="user_events">
+      <column name="warning_id" type="int">
+        <constraints nullable="true" references="message_warnings(id)" foreignKeyName="user_events_warning_id_fkey"/>
+      </column>
+    </addColumn>
+
+    <createIndex tableName="user_events" indexName="user_events_warning_id_idx">
+      <column name="warning_id"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>

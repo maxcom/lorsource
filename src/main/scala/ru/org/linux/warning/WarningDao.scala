@@ -26,14 +26,17 @@ import scala.jdk.CollectionConverters.*
 @Repository
 class WarningDao(ds: DataSource) {
   private val insert =
-    new SimpleJdbcInsert(ds).usingColumns("topic", "comment", "author", "message", "warning_type").withTableName("message_warnings")
+    new SimpleJdbcInsert(ds).usingColumns("topic", "comment", "author", "message", "warning_type")
+      .withTableName("message_warnings")
+      .usingGeneratedKeyColumns("id")
+
   private val namedJdbcTemplate = new NamedParameterJdbcTemplate(ds)
 
-  def postWarning(topicId: Int, commentId: Option[Int], authorId: Int, message: String, warningType: WarningType): Unit = {
+  def postWarning(topicId: Int, commentId: Option[Int], authorId: Int, message: String, warningType: WarningType): Int = {
     val args = Map("topic" -> topicId, "author" -> authorId, "message" -> message, "warning_type" -> warningType.id) ++
       commentId.map("comment" -> _)
 
-    insert.execute(args.asJava)
+    insert.executeAndReturnKey(args.asJava).intValue()
   }
 
   private val mapper: RowMapper[Warning] = { (rs, _) =>
