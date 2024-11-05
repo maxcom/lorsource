@@ -53,7 +53,8 @@ object UserEventDao {
     """
       |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
       |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions
+      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
+      |  false as closed_warning
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
