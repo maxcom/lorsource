@@ -111,4 +111,10 @@
       <column name="warning_id"/>
     </createIndex>
   </changeSet>
+
+  <changeSet id="2024110601" author="Maxim Valyanskiy">
+    <sql>
+      alter type warning_type add value if not exists 'group'
+    </sql>
+  </changeSet>
 </databaseChangeLog>

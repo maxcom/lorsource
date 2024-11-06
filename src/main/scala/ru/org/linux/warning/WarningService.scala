@@ -35,7 +35,7 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
   def postWarning(topic: Topic, comment: Option[Comment], author: User, message: String,
                   warningType: WarningType): Unit = transactional() { _ =>
     val notifyList = warningType match {
-      case RuleWarning =>
+      case RuleWarning | GroupWarning =>
         userService.getModerators.filter(_._2).map(_._1)
       case TagsWarning | SpellingWarning =>
         (userService.getModerators.filter(_._2).map(_._1) ++ userService.getCorrectors.filter(_._2).map(_._1)).distinct

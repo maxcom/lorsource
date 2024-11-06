@@ -32,7 +32,7 @@ sealed trait WarningType {
 }
 
 object WarningType {
-  private val AllTypes = Seq(RuleWarning, TagsWarning, SpellingWarning)
+  private val AllTypes = Seq(RuleWarning, TagsWarning, SpellingWarning, GroupWarning)
   val idToType: Map[String, WarningType] = AllTypes.map(t => t.id -> t).toMap
 }
 
@@ -49,6 +49,11 @@ object TagsWarning extends WarningType {
 object SpellingWarning extends WarningType {
   override def id: String = "spelling"
   override def name: String = "Опечатка или форматирование"
+}
+
+object GroupWarning extends WarningType {
+  override def id: String = "group"
+  override def name: String = "Некорректная группа или раздел"
 }
 
 case class Warning(id: Int, topicId: Int, commentId: Option[Int], postdate: Instant, authorId: Int, message: String,

@@ -62,9 +62,9 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
       Seq(RuleWarning)
     } else {
       if (group.isPremoderated) {
-        Seq(RuleWarning, SpellingWarning, TagsWarning)
+        Seq(RuleWarning, SpellingWarning, TagsWarning, GroupWarning)
       } else {
-        Seq(RuleWarning, TagsWarning)
+        Seq(RuleWarning, TagsWarning, GroupWarning)
       }
     }
   }
