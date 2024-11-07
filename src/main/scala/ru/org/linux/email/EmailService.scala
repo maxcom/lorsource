@@ -23,7 +23,6 @@ import jakarta.servlet.http.HttpServletRequest
 import org.joda.time.{DateTime, DateTimeZone}
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AuthUtil
 import ru.org.linux.email.EmailService.createMessage
 import ru.org.linux.exception.ExceptionMailingActor
 import ru.org.linux.site.DateFormats
@@ -33,6 +32,7 @@ import ru.org.linux.user.User
 import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
 import java.util.{Date, Properties}
+import javax.annotation.Nullable
 import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail.{Message, MessagingException, Session, Transport}
 import scala.jdk.CollectionConverters.*
@@ -140,7 +140,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
    * @param exception исключение
    * @return Строку, содержащую состояние отсылки письма
    */
-  def sendExceptionReport(request: HttpServletRequest, exception: Exception): String = {
+  def sendExceptionReport(request: HttpServletRequest, exception: Exception, @Nullable currentUser: User): String = {
     val text = new StringBuilder
 
     if (exception.getMessage == null) {
@@ -166,8 +166,8 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     text.append('\n')
     text.append(s"IP: ${request.getRemoteAddr}\n")
 
-    if (AuthUtil.getNick != null) {
-      text.append(s"Current user: ${AuthUtil.getNick}\n")
+    if (currentUser != null) {
+      text.append(s"Current user: ${currentUser.getNick}\n")
     }
 
     text.append("Headers: ")

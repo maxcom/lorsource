@@ -23,6 +23,7 @@ import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.email.EmailService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.user.UserErrorException;
@@ -104,7 +105,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
       exceptionType = ExceptionType.SCRIPT_ERROR;
     } else {
       logger.warn("Unexcepted exception caught", exception);
-      String infoMessage = emailService.sendExceptionReport(request, exception);
+      String infoMessage = emailService.sendExceptionReport(request, exception, AuthUtil.getCurrentUser());
       modelAndView.addObject("infoMessage", infoMessage);
     }
     modelAndView.addObject("exceptionType", exceptionType.name());

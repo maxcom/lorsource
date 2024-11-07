@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, Requ
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.auth.{AuthUtil, IPBlockDao, IPBlockInfo}
+import ru.org.linux.auth.{IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
@@ -66,7 +66,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
     val messageText = msgbaseDao.getMessageText(original.id)
 
-    val commentEditable = topicPermissionService.isCommentEditableNow(comment, AuthUtil.getCurrentUser,
+    val commentEditable = topicPermissionService.isCommentEditableNow(comment, currentUser.user,
       commentReadService.hasAnswers(comment), topic, messageText.markup)
 
     if (commentEditable) {
@@ -125,7 +125,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     }
 
     topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic,
-      AuthUtil.getCurrentUser, errors, originalMessageText.markup)
+      currentUser.user, errors, originalMessageText.markup)
 
     if (commentRequest.isPreviewMode || errors.hasErrors || comment == null) {
       val modelAndView = new ModelAndView("edit_comment", formParams)

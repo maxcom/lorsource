@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
-import ru.org.linux.auth.AuthUtil
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.realtime.RealtimeEventHub
 
@@ -31,9 +30,9 @@ class UserEventApiController(userEventService: UserEventService,
                              @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]) {
   @ResponseBody
   @RequestMapping(value = Array("/notifications-count"), method = Array(RequestMethod.GET))
-  def getEventsCount(response: HttpServletResponse): Json = AuthorizedOnly { _ =>
+  def getEventsCount(response: HttpServletResponse): Json = AuthorizedOnly { currentUser =>
     response.setHeader("Cache-control", "no-cache")
-    AuthUtil.getCurrentUser.getUnreadEvents.asJson
+    currentUser.user.getUnreadEvents.asJson
   }
 
   @RequestMapping(value = Array("/notifications-reset"), method = Array(RequestMethod.POST))
