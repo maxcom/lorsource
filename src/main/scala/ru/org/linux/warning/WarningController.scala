@@ -100,8 +100,8 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
       errors.reject(null, "Сообщение не может быть пустым")
     }
 
-    if (request.text !=null && request.text.length > 140) {
-      errors.reject(null, "Сообщение не может быть более 140 символов")
+    if (request.text !=null && request.text.length > 256) { // sync with post-warning.jsp
+      errors.reject(null, "Сообщение не может быть более 256 символов")
     }
 
     if (errors.hasErrors) {

@@ -48,7 +48,7 @@
     </label>
 
     <div class="controls">
-      <form:textarea id="reason-input" path="text" maxlength="140" required="required" style="width: 40em"/>
+      <form:textarea id="reason-input" path="text" maxlength="256" required="required" style="width: 40em"/>
     </div>
   </div>
 
