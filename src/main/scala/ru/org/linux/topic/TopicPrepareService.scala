@@ -43,7 +43,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao,
                           reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao,
                           warningService: WarningService) {
-  def prepareTopic(message: Topic, user: User): PreparedTopic =
+  def prepareTopic(message: Topic, @Nullable user: User): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, user,
       msgbaseDao.getMessageText(message.id), None)
 
