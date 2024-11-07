@@ -18,11 +18,11 @@ package ru.org.linux.warning
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod, RequestParam, RequestPart}
+import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, CorrectorOrModerator}
-import ru.org.linux.auth.{AccessViolationException, AuthUtil, CurrentUser}
+import ru.org.linux.auth.{AccessViolationException, CurrentUser}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.site.{MessageNotFoundException, Template}

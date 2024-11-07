@@ -35,7 +35,6 @@ import ru.org.linux.util.ServletParameterException
 import java.util
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.MapHasAsJava
-import scala.jdk.OptionConverters.RichOption
 
 @Controller
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
@@ -102,7 +101,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
                              request: HttpServletRequest,
                              @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { currentUser =>
     val user = currentUser.user
-    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, editMode = true)
+    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, editMode = true, sessionAuthorized = true)
 
     val comment = commentService.getComment(commentRequest, user, request)
     val tmpl = Template.getTemplate

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,8 +21,6 @@ import ru.org.linux.markup.MarkupType;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
-import javax.annotation.Nonnull;
-
 public final class Template {
   private final Profile userProfile;
 
@@ -30,11 +28,12 @@ public final class Template {
     userProfile = AuthUtil.getProfile();
   }
 
-  @Deprecated
+  /* used in jsp */
   public String getStyle() {
     return getTheme().getId();
   }
 
+  /* used in jsp */
   public Theme getTheme() {
     User user = AuthUtil.getCurrentUser();
 
@@ -55,19 +54,22 @@ public final class Template {
     }
   }
 
-  @Nonnull
+  /* used in jsp */
   public Profile getProf() {
     return userProfile;
   }
 
+  /* used in jsp */
   public boolean isSessionAuthorized() {
     return AuthUtil.isSessionAuthorized();
   }
 
+  /* used in jsp */
   public boolean isModeratorSession() {
     return AuthUtil.isModeratorSession();
   }
 
+  /* used in jsp */
   public boolean isCorrectorSession() {
     return AuthUtil.isCorrectorSession();
   }

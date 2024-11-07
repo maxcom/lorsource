@@ -96,7 +96,9 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOpt { sessionUserOpt =>
     val user = commentService.getCommentUser(sessionUserOpt.map(_.user), add, errors)
-    commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false)
+
+    commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
+      sessionAuthorized = sessionUserOpt.isDefined)
 
     val comment = commentService.getComment(add, user, request)
 
@@ -144,7 +146,8 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
                      @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): Json = AuthorizedOpt { sessionUserOpt =>
     val user = commentService.getCommentUser(sessionUserOpt.map(_.user), add, errors)
 
-    commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false)
+    commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
+      sessionAuthorized = sessionUserOpt.isDefined)
 
     val tmpl = Template.getTemplate
 

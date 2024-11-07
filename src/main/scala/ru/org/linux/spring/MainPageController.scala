@@ -65,7 +65,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
       mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(user)))
     }
 
-    if (tmpl.isModeratorSession || tmpl.isCorrectorSession) {
+    if (currentUser.exists(u => u.moderator || u.corrector)) {
       val uncommited = topicDao.getUncommitedCount
 
       mv.getModel.put("uncommited", Int.box(uncommited))
@@ -79,7 +79,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
       mv.getModel.put("uncommitedNews", Int.box(uncommitedNews))
     }
 
-    mv.getModel.put("showAdsense", Boolean.box(!tmpl.isSessionAuthorized || !tmpl.getProf.isHideAdsense))
+    mv.getModel.put("showAdsense", Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense))
 
     val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
 

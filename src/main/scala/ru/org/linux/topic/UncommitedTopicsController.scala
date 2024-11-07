@@ -73,7 +73,8 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     modelAndView.addObject("messages", topics)
 
-    val deleted = topicListService.getDeletedTopics(sectionId, !tmpl.isModeratorSession, includeAnonymous)
+    val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = currentUserOpt.forall(!_.moderator),
+      includeAnonymous = includeAnonymous)
 
     modelAndView.addObject("deletedTopics", deleted.asJava)
     modelAndView.addObject("sections", sectionService.sections.asJava)

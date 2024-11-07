@@ -29,7 +29,6 @@ import ru.org.linux.edithistory.EditHistoryRecord
 import ru.org.linux.edithistory.EditHistoryService
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.Topic
@@ -120,15 +119,13 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * @param errors         обработчик ошибок ввода для формы
    */
   def checkPostData(commentRequest: CommentRequest, user: User, ipBlockInfo: IPBlockInfo, request: HttpServletRequest,
-                    errors: Errors, editMode: Boolean): Unit = {
+                    errors: Errors, editMode: Boolean, sessionAuthorized: Boolean): Unit = {
     if (commentRequest.getMsg == null) {
       errors.rejectValue("msg", null, "комментарий не задан")
       commentRequest.setMsg("")
     }
 
-    val tmpl = Template.getTemplate
-
-    if (!commentRequest.isPreviewMode && (!tmpl.isSessionAuthorized || ipBlockInfo.isCaptchaRequired)) {
+    if (!commentRequest.isPreviewMode && (!sessionAuthorized || ipBlockInfo.isCaptchaRequired)) {
       captcha.checkCaptcha(request, errors)
     }
 
