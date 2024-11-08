@@ -15,8 +15,6 @@
 
 package ru.org.linux.site.tags;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
@@ -38,9 +36,7 @@ public class BoxListTag extends BodyTagSupport {
   public int doStartTag() {
     Template t = Template.getTemplate();
 
-    List<String> boxnames = ImmutableList.copyOf(
-            Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate()::test)
-    );
+    List<String> boxnames = t.getProf().getBoxlets().stream().filter(DefaultProfile::isBox).toList();
 
     pageContext.setAttribute(var, boxnames);
     return EVAL_BODY_INCLUDE;

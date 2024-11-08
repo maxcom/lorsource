@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,17 +15,14 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.site.DefaultProfile;
@@ -34,12 +31,15 @@ import ru.org.linux.site.Template;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
-@SessionAttributes("allboxes")
 public class AddRemoveBoxesController {
-  @Autowired
-  private ProfileDao profileDao;
+  private final ProfileDao profileDao;
+
+  public AddRemoveBoxesController(ProfileDao profileDao) {
+    this.profileDao = profileDao;
+  }
 
   @RequestMapping(value = {"/remove-box.jsp", "/add-box.jsp"}, method = RequestMethod.GET)
   public ModelMap showRemove(@RequestParam(required = false) Integer pos)
@@ -58,8 +58,7 @@ public class AddRemoveBoxesController {
   }
 
   @RequestMapping(value = "/remove-box.jsp", method = RequestMethod.POST)
-  public String doRemove(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
-                         SessionStatus status) {
+  public String doRemove(@ModelAttribute("form") EditBoxesRequest form, BindingResult result) {
     Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
@@ -86,7 +85,6 @@ public class AddRemoveBoxesController {
       }
     }
     
-    status.setComplete();
     return "redirect:/edit-boxes.jsp";
   }
 
@@ -96,9 +94,7 @@ public class AddRemoveBoxesController {
   }
 
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
-  public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
-                      SessionStatus status) {
-
+  public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result) {
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
     if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {
       result.addError(new FieldError("boxName", "boxName.invalid", "Неверный бокслет"));
@@ -116,9 +112,8 @@ public class AddRemoveBoxesController {
       form.setPosition(0);
     }
 
-    List<String> boxlets = Lists.newArrayList(
-            Iterables.filter(t.getProf().getBoxlets(), DefaultProfile.boxPredicate()::test)
-    );
+    List<String> boxlets = t.getProf().getBoxlets().stream().filter(DefaultProfile::isBox)
+            .collect(Collectors.toCollection(ArrayList::new));
 
     if (boxlets.size() > form.position) {
       boxlets.add(form.position, form.boxName);
@@ -128,10 +123,14 @@ public class AddRemoveBoxesController {
     
     t.getProf().setBoxlets(boxlets);
 
-      profileDao.writeProfile(AuthUtil.getCurrentUser(), t.getProf());
+    profileDao.writeProfile(AuthUtil.getCurrentUser(), t.getProf());
 
-    status.setComplete();
     return "redirect:/edit-boxes.jsp";
+  }
+
+  @RequestMapping("/edit-boxes.jsp")
+  public ModelAndView view() {
+    return new ModelAndView("edit-boxes");
   }
 
   public static class EditBoxesRequest {
