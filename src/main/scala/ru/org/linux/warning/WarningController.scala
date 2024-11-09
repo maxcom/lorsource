@@ -61,7 +61,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     if (request.comment != null) {
       Seq(RuleWarning)
     } else {
-      if (group.isPremoderated) {
+      if (group.premoderated) {
         Seq(RuleWarning, SpellingWarning, TagsWarning, GroupWarning)
       } else {
         Seq(RuleWarning, TagsWarning, GroupWarning)
@@ -71,7 +71,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
   private def prepareView(request: PostWarningRequest, currentUser: CurrentUser, mv: ModelAndView): Unit = {
     if (request.comment == null) {
-      val preparedTopic = topicPrepareService.prepareTopic(request.getTopic, currentUser.user)
+      val preparedTopic = topicPrepareService.prepareTopic(request.topic, currentUser.user)
       mv.addObject("preparedTopic", preparedTopic)
     } else {
       val tmpl = Template.getTemplate
@@ -160,7 +160,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
 
     if (!errors.hasErrors && warningService.lastWarningsCount(currentUser) >= MaxWarningsPerHour) {
-      errors.reject(null, s"Вы не можете отправить более ${MaxWarningsPerHour} уведомлений в час")
+      errors.reject(null, s"Вы не можете отправить более $MaxWarningsPerHour уведомлений в час")
     }
   }
 

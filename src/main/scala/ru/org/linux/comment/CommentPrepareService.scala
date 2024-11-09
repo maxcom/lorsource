@@ -25,7 +25,7 @@ import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.user.*
-import ru.org.linux.warning.{PreparedWarning, Warning, WarningService}
+import ru.org.linux.warning.{Warning, WarningService}
 
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*

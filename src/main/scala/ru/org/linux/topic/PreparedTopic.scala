@@ -22,7 +22,7 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.DeleteInfo
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user.{Remark, User}
-import ru.org.linux.warning.{PreparedWarning, Warning}
+import ru.org.linux.warning.PreparedWarning
 
 import javax.annotation.Nullable
 import scala.beans.BeanProperty

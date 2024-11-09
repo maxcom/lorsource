@@ -121,7 +121,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
       val viewByAuthor = currentUser != null && currentUser.getId == message.authorUserId
 
-      if (message.isDeleted) {
+      if (message.deleted) {
         if (message.expired) {
           throw new MessageNotFoundException(message.id, "нельзя посмотреть устаревшие удаленные сообщения")
         }

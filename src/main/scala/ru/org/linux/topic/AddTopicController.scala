@@ -99,8 +99,6 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = AuthorizedOpt { currentUser =>
-    val tmpl = Template.getTemplate
-
     val group = form.getGroup
 
     if (currentUser.isDefined && !groupPermissionService.isTopicPostingAllowed(group, currentUser.map(_.user).orNull)) {

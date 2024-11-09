@@ -57,7 +57,7 @@ class GroupModificationController(groupDao: GroupDao, prepareService: GroupInfoP
 
     groupDao.setParams(group, title, info, longInfo, resolvable != null, urlName)
 
-    logger.info("Настройки группы {} изменены {}", group.getUrlName, currentUser.user.getNick)
+    logger.info("Настройки группы {} изменены {}", group.urlName, currentUser.user.getNick)
 
     new ModelAndView("action-done", "message", "Параметры изменены")
   }

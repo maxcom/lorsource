@@ -20,7 +20,7 @@ import ru.org.linux.user.User
 import java.time.Instant
 import java.util.Date
 import javax.annotation.Nullable
-import scala.beans.{BeanProperty, BooleanBeanProperty}
+import scala.beans.BeanProperty
 
 sealed trait WarningType {
   def id: String
@@ -62,5 +62,5 @@ case class Warning(id: Int, topicId: Int, commentId: Option[Int], postdate: Inst
 case class PreparedWarning(@BeanProperty postdate: Date, @BeanProperty author: User, @BeanProperty message: String,
                           @BeanProperty id: Int, @BeanProperty @Nullable closedBy: User) {
   // for jsp
-  def isClosed = closedBy != null
+  def isClosed: Boolean = closedBy != null
 }

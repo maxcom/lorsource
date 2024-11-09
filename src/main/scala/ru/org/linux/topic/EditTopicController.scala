@@ -48,7 +48,6 @@ import ru.org.linux.tag.TagName
 import ru.org.linux.tag.TagRef
 import ru.org.linux.tag.TagService
 import ru.org.linux.user.Profile
-import ru.org.linux.user.User
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
