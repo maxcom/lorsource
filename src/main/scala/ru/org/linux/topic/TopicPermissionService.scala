@@ -91,16 +91,16 @@ object TopicPermissionService {
 @Service
 class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupDao: GroupDao,
                              deleteInfoDao: DeleteInfoDao, userService: UserService) {
-  def allowViewDeletedComments(message: Topic, @Nullable currentUser: User): Boolean = {
-    if (currentUser == null || !currentUser.isModerator) {
+  def allowViewDeletedComments(message: Topic, currentUser: Option[User]): Boolean = {
+    if (!currentUser.exists(_.isModerator)) {
       val topicForbidden = message.expired || message.draft ||
           message.postscore == TopicPermissionService.POSTSCORE_MODERATORS_ONLY ||
           message.postscore == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
           message.postscore == TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 
-      val userAllowed = currentUser != null && !currentUser.isAnonymous && !currentUser.isFrozen
+      val userAllowed = currentUser.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= 50)
 
-      !topicForbidden && userAllowed
+      !topicForbidden && userAllowed && (deleteInfoDao.scoreLoss(message.id) < 150)
     } else {
       true
     }
@@ -115,7 +115,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     if (currentUser == null || !currentUser.isModerator) {
       val unauthorized = currentUser == null || currentUser.isAnonymous
 
-      if (showDeleted && !allowViewDeletedComments(message, currentUser)) {
+      if (showDeleted && !allowViewDeletedComments(message, Option(currentUser))) {
         throw new MessageNotFoundException(message.id, "вы не можете смотреть удаленные комментарии")
       }
 

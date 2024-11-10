@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -126,6 +126,13 @@ public class DeleteInfoDao {
 
   public void delete(int msgid) {
     jdbcTemplate.update("DELETE FROM del_info WHERE msgid=?", msgid);
+  }
+
+  public int scoreLoss(int msgid) {
+    return jdbcTemplate.queryForObject("select COALESCE((select sum(-bonus) as total_bonus from del_info " +
+            "join comments on comments.id = del_info.msgid where bonus is not null and " +
+            "comments.userid!=2 and topic = ? " +
+            "group by topic), 0)", Integer.class, msgid);
   }
 
   public static class InsertDeleteInfo {

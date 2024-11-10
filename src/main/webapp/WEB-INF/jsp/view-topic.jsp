@@ -365,7 +365,7 @@
     <form action="${message.link}" method=POST>
     <lor:csrf/>
     <input type=hidden name=deleted value=1>
-    <input type=submit value="Показать удаленные комментарии">
+    <input type=submit class="btn btn-default" value="Показать удаленные комментарии">
     </form>
     <hr>
 </c:if>

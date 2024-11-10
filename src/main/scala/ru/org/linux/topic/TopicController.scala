@@ -296,7 +296,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
         moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
     })
 
-    params.put("showDeletedButton", Boolean.box(permissionService.allowViewDeletedComments(topic, currentUserOpt.map(_.user).orNull) && !showDeleted))
+    params.put("showDeletedButton", Boolean.box(permissionService.allowViewDeletedComments(topic, currentUserOpt.map(_.user)) && !showDeleted))
     params.put("dateJumps", prepareService.buildDateJumpSet(commentsFiltered, TopicController.JUMP_MIN_DURATION))
 
     new ModelAndView("view-topic", params.asJava)
