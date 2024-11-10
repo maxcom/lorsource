@@ -27,7 +27,7 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
+import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED}
 import ru.org.linux.user.{User, UserService}
 
 import java.time.Instant
@@ -198,9 +198,25 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       TopicPermissionService.POSTSCORE_REGISTERED_ONLY
     }
 
+  private def getScoreLossPostscore(topic: Topic): Int = {
+    if (!topic.isSticky) {
+      val scoreLoss = deleteInfoDao.scoreLoss(topic.id)
+
+      if (scoreLoss >= 150) {
+        100
+      } else if (scoreLoss >= 100) {
+        50
+      } else {
+        POSTSCORE_UNRESTRICTED;
+      }
+    } else {
+      POSTSCORE_UNRESTRICTED
+    }
+  }
+
   def getPostscore(group: Group, topic: Topic): Int = Seq(topic.postscore, group.commentsRestriction,
     Section.getCommentPostscore(topic.sectionId), TopicPermissionService.getCommentCountRestriction(topic),
-    getAllowAnonymousPostscore(topic)).max
+    getAllowAnonymousPostscore(topic), getScoreLossPostscore(topic)).max
 
   def getPostscore(topic: Topic): Int = {
     val group = groupDao.getGroup(topic.groupId)
