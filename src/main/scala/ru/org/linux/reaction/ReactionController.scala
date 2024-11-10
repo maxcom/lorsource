@@ -51,7 +51,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       case None =>
         new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
       case Some(currentUser) =>
-        if (comment.deleted || topic.deleted || topic.postscore == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+        if (comment.deleted || topic.deleted || topic.isCommentsHidden) {
           throw new AccessViolationException("Сообщение не доступно")
         }
 

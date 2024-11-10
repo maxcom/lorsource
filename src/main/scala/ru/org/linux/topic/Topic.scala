@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import ru.org.linux.group.Group
 import ru.org.linux.reaction.{ReactionDao, Reactions}
 import ru.org.linux.section.Section
 import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_NEWS}
+import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
 import ru.org.linux.util.{StringUtil, URLUtil}
 
@@ -68,6 +69,8 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
       Section.getSectionLink(sectionId) + URLEncoder.encode(groupUrl, StandardCharsets.UTF_8) + '/' + id + "/page" + page
     }
   }
+
+  def isCommentsHidden: Boolean = postscore == POSTSCORE_HIDE_COMMENTS
 
   def withId(id: Int): Topic = copy(id = id)
 }

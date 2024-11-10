@@ -125,7 +125,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       !topic.expired &&
       comment.forall(!_.deleted) &&
       currentUser.forall(_.getId != authorId) &&
-      (comment.isEmpty || topic.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS)
+      (comment.isEmpty || !topic.isCommentsHidden)
   }
 
   def prepareReactionList(reactions: Reactions, reactionsLog: Seq[ReactionsLogItem], ignoreList: Set[Int]): PreparedReactionList = {

@@ -139,7 +139,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
     topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
 
-    if (topicPermissionService.getPostscore(group, request.topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+    if (request.topic.isCommentsHidden) {
       throw new AccessViolationException("Вы не можете отправить уведомление")
     }
 

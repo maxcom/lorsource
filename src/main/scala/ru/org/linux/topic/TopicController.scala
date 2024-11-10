@@ -28,7 +28,7 @@ import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.comment.*
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC
 import ru.org.linux.edithistory.EditHistoryService
-import ru.org.linux.group.{Group, GroupDao}
+import ru.org.linux.group.GroupDao
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.paginator.PagesInfo
 import ru.org.linux.search.{MoreLikeThisService, MoreLikeThisTopic}
@@ -245,7 +245,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     loadTopicScroller(params, topic, currentUserOpt.map(_.user), ignoreList.nonEmpty)
 
-    val comments = getCommentList(topic, group, showDeleted)
+    val comments = getCommentList(topic, showDeleted)
     val hideSet = commentService.makeHideSet(comments, filterMode, ignoreList)
 
     val (commentsFiltered, unfilteredCount) = if (threadRoot != 0) {
@@ -302,8 +302,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     new ModelAndView("view-topic", params.asJava)
   }
 
-  private def getCommentList(topic: Topic, group: Group, showDeleted: Boolean): CommentList = {
-    if (permissionService.getPostscore(group, topic) == TopicPermissionService.POSTSCORE_HIDE_COMMENTS && !showDeleted) {
+  private def getCommentList(topic: Topic, showDeleted: Boolean): CommentList = {
+    if (topic.isCommentsHidden && !showDeleted) {
       new CommentList(Vector.empty, Instant.EPOCH)
     } else {
       commentService.getCommentList(topic, showDeleted)
@@ -404,9 +404,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
   private def jumpMessage(msgid: Int, cid: Int, skipDeleted: Boolean): ModelAndView = AuthorizedOpt { currentUserOpt =>
     val topic = topicDao.getById(msgid)
-    val group = groupDao.getGroup(topic.groupId)
 
-    var comments = getCommentList(topic, group, showDeleted = false)
+    var comments = getCommentList(topic, showDeleted = false)
 
     var node = comments.getNodeOpt(cid).orNull
 
@@ -424,7 +423,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     var deleted = false
 
     if (node == null && currentUserOpt.exists(_.moderator)) {
-      comments = getCommentList(topic, group, showDeleted = true)
+      comments = getCommentList(topic, showDeleted = true)
       node = comments.getNode(cid)
       deleted = true
     }

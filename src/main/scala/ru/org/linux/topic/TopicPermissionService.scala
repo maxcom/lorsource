@@ -27,6 +27,7 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
+import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.{User, UserService}
 
 import java.time.Instant
@@ -40,7 +41,7 @@ object TopicPermissionService {
   val POSTSCORE_UNRESTRICTED: Int = -9999
   val POSTSCORE_MODERATORS_ONLY = 10000 // при смене номера поправить GroupListDao
   val POSTSCORE_NO_COMMENTS = 10001 // запрещает новые, но оставляет старые
-  val POSTSCORE_HIDE_COMMENTS = 10002 // запрещает новые, скрывает старые
+  val POSTSCORE_HIDE_COMMENTS = 10002 // Запрещает новые, скрывает старые. Работает только при явной установке на топике
   val POSTSCORE_REGISTERED_ONLY: Int = -50
 
   private val LinkFollowMinScore = 100
@@ -96,7 +97,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       val topicForbidden = message.expired || message.draft ||
           message.postscore == TopicPermissionService.POSTSCORE_MODERATORS_ONLY ||
           message.postscore == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
-          message.postscore == TopicPermissionService.POSTSCORE_HIDE_COMMENTS
+          message.postscore == POSTSCORE_HIDE_COMMENTS
 
       val userAllowed = currentUser.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= 50)
 
@@ -220,7 +221,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
     val score = getPostscore(group, topic)
 
-    if (score == TopicPermissionService.POSTSCORE_NO_COMMENTS || score == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+    if (score == TopicPermissionService.POSTSCORE_NO_COMMENTS || score == POSTSCORE_HIDE_COMMENTS) {
       return false
     }
 
@@ -401,7 +402,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   def isTopicSearchable(msg: Topic, group: Group): Boolean = {
     Preconditions.checkArgument(msg.groupId == group.id)
 
-    !msg.deleted && !msg.draft && (msg.postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS) &&
+    !msg.deleted && !msg.draft && !msg.isCommentsHidden &&
       (!group.premoderated || msg.commited || msg.authorUserId != User.ANONYMOUS_ID)
   }
 

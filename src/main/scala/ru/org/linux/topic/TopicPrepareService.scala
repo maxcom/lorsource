@@ -219,8 +219,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       None
     }
 
-    val postscore = topicPermissionService.getPostscore(topic.group, topic.message)
-    val showComments = postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS
+    val showComments = !topic.message.isCommentsHidden
 
     TopicMenu(topicEditable, tagsEditable, resolvable,
       topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUserOpt.map(_.user), ignoreFrozen = false), deletable,
@@ -231,8 +230,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   def prepareBrief(topic: Topic, groupInTitle: Boolean): BriefTopicRef = {
     val group = groupDao.getGroup(topic.groupId)
 
-    val postscore = topicPermissionService.getPostscore(group, topic)
-    val showComments = postscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS
+    val showComments = !topic.isCommentsHidden
 
     val commentCount = if (showComments) topic.commentCount else 0
 
