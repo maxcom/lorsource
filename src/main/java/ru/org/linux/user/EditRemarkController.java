@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,11 +30,13 @@ import scala.Option;
 @Controller
 @RequestMapping("/people/{nick}/remark")
 public class EditRemarkController {
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
+  private final RemarkDao remarkDao;
 
-  @Autowired
-  private RemarkDao remarkDao;
+  public EditRemarkController(UserService userService, RemarkDao remarkDao) {
+    this.userService = userService;
+    this.remarkDao = remarkDao;
+  }
 
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm(@PathVariable String nick) {
@@ -60,19 +61,18 @@ public class EditRemarkController {
   }
 
   @RequestMapping(method=RequestMethod.POST)
-  public ModelAndView editProfile(
-          @RequestParam("text") String text,
-          @PathVariable String nick
-  ) {
+  public ModelAndView editProfile(@RequestParam("text") String text, @PathVariable String nick) {
     Template tmpl = Template.getTemplate();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-    if(text.length()>255){
+
+    if (text.length()>255){
       text=text.substring(0,255);
     }
-      User user = AuthUtil.getCurrentUser();
+
+    User user = AuthUtil.getCurrentUser();
     User refUser = userService.getUserCached(nick);
     remarkDao.setOrUpdateRemark(user, refUser, text);
 
