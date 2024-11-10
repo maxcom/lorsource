@@ -32,7 +32,8 @@ public enum UserLogAction {
   UNSET_CORRECTOR("unset_corrector", "Убраны права корректора"),
   REGISTER("register", "Зарегистрирован"),
   FROZEN("frozen", "Заморожен"),
-  DEFROSTED("defrosted", "Разморожен");
+  DEFROSTED("defrosted", "Разморожен"),
+  SENT_PASSWORD_RESET("sent_password_reset", "Отправлен код сброса пароля");
 
   private final String name;
   private final String description;

@@ -493,14 +493,6 @@ public class UserDao {
     }
   }
 
-  public boolean canResetPassword(User user) {
-    return !jdbcTemplate.queryForObject(
-            "SELECT lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE id=?",
-            Boolean.class,
-            user.getId()
-    );
-  }
-
   @CacheEvict(value="Users", key="#user.id")
   public void activateUser(User user) {
     jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());

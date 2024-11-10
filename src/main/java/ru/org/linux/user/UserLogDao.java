@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -38,6 +39,7 @@ public class UserLogDao {
   public static final String OPTION_NEW_USERPIC = "new_userpic";
   public static final String OPTION_BONUS = "bonus";
   public static final String OPTION_REASON = "reason";
+  public static final String OPTION_EMAIL = "email";
   public static final String OPTION_OLD_EMAIL = "old_email";
   public static final String OPTION_NEW_EMAIL = "new_email";
   public static final String OPTION_OLD_INFO = "old_info";
@@ -212,6 +214,17 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logSentPasswordReset(User resetFor, @Nullable User resetBy, String email) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            resetFor.getId(),
+            resetBy!=null?resetBy.getId():resetFor.getId(),
+            UserLogAction.SENT_PASSWORD_RESET.toString(),
+            ImmutableMap.of(OPTION_EMAIL, email)
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logResetPassword(@Nonnull User user, @Nonnull User moderator) {
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
@@ -278,6 +291,15 @@ public class UserLogDao {
   public boolean hasRecentModerationEvent(User user, Duration duration, UserLogAction action) {
     return jdbcTemplate.queryForObject(
             "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid!=action_userid)",
+            Boolean.class,
+            user.getId(),
+            action.toString(),
+            OffsetDateTime.now().minus(duration));
+  }
+
+  public boolean hasRecentSelfEvent(User user, Duration duration, UserLogAction action) {
+    return jdbcTemplate.queryForObject(
+            "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid=action_userid)",
             Boolean.class,
             user.getId(),
             action.toString(),
