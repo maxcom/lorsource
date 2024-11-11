@@ -250,7 +250,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     if (!form.isPreviewMode && !errors.hasErrors) {
-      dupeProtector.checkRateLimit(FloodProtector.Action.ADD_TOPIC, request.getRemoteAddr, user, errors)
+      dupeProtector.checkRateLimit(FloodProtector.AddTopic, request.getRemoteAddr, user, errors)
     }
 
     if (!form.isPreviewMode && !errors.hasErrors) {
