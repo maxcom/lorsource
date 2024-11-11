@@ -18,7 +18,9 @@ import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
+import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.user.User
+
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -38,7 +40,7 @@ object FloodProtector {
 }
 
 @Component
-class FloodProtector {
+class FloodProtector(deleteInfoDao: DeleteInfoDao) {
   final private val performedActions: Cache[String, Instant] =
     CacheBuilder.newBuilder.expireAfterWrite(30, TimeUnit.MINUTES).build
 
@@ -56,7 +58,9 @@ class FloodProtector {
   }
 
   def checkRateLimit(action: FloodProtector.Action, ip: String, user: User, errors: Errors): Unit = {
-    val threshold: Duration = if (!user.isAnonymous && user.getScore < 35) {
+    val threshold: Duration = if (user.isAnonymous) {
+      action.threshold
+    } else if (user.getScore < 35 || deleteInfoDao.getRecentScoreLoss(user) >= 30) {
       action.thresholdLowScore
     } else if (user.getScore >= 100) {
       action.thresholdTrusted
