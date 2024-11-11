@@ -138,7 +138,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, user)
 
     if (!commentRequest.isPreviewMode && !errors.hasErrors && !editMode) {
-      floodProtector.checkDuplication(FloodProtector.Action.ADD_COMMENT, request.getRemoteAddr, user, errors)
+      floodProtector.checkRateLimit(FloodProtector.Action.ADD_COMMENT, request.getRemoteAddr, user, errors)
     }
   }
 

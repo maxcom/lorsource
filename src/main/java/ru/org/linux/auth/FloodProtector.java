@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,54 +17,54 @@ package ru.org.linux.auth;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import ru.org.linux.user.User;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class FloodProtector {
-  private final Cache<String,DateTime> hash =
+  private final Cache<String, Instant> performedActions =
           CacheBuilder.newBuilder()
                   .expireAfterWrite(30, TimeUnit.MINUTES)
-                  .maximumSize(100000)
                   .build();
 
   public enum Action {
-    ADD_COMMENT(300000, 30000, 3000),
-    ADD_TOPIC(600000, 600000, 30000);
+    ADD_COMMENT(Duration.ofMinutes(5), Duration.ofSeconds(30), Duration.ofSeconds(3)),
+    ADD_TOPIC(Duration.ofMinutes(10), Duration.ofMinutes(10), Duration.ofSeconds(30));
 
-    private final int thresholdLowScore;
-    private final int threshold;
-    private final int thresholdTrusted;
+    private final Duration thresholdLowScore;
+    private final Duration threshold;
+    private final Duration thresholdTrusted;
 
-    Action(int thresholdLowScore, int threshold, int thresholdTrusted) {
+    Action(Duration thresholdLowScore, Duration threshold, Duration thresholdTrusted) {
       this.thresholdLowScore = thresholdLowScore;
       this.threshold = threshold;
       this.thresholdTrusted = thresholdTrusted;
     }
  }
 
-  private boolean check(Action action, String ip, int threshold) {
+  private boolean check(Action action, String ip, Duration threshold) {
     String key = action.toString() + ':' + ip;
 
-    DateTime date = hash.getIfPresent(key);
+    Instant date = performedActions.getIfPresent(key);
 
     if (date!=null) {
-      if (date.plusMillis(threshold).isAfterNow()) {
+      if (date.plus(threshold).isAfter(Instant.now())) {
         return false;
       }
     }
 
-    hash.put(key, new DateTime());
+    performedActions.put(key, Instant.now());
 
     return true;
   }
 
-  public void checkDuplication(Action action, String ip, User user, Errors errors) {
-    int threshold;
+  public void checkRateLimit(Action action, String ip, User user, Errors errors) {
+    Duration threshold;
 
     if (!user.isAnonymous() && user.getScore() < 35) {
       threshold = action.thresholdLowScore;
@@ -77,7 +77,7 @@ public class FloodProtector {
     if (!check(action, ip, threshold)) {
       errors.reject(
               null,
-              String.format("Следующее сообщение может быть записано не менее чем через %d секунд после предыдущего", threshold/1000)
+              String.format("Следующее сообщение может быть записано не менее чем через %d секунд после предыдущего", threshold.toSeconds())
       );
     }
   }
