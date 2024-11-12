@@ -172,6 +172,7 @@ public class User implements Serializable {
     return frozenBy;
   }
 
+  @Nullable
   public Timestamp getFrozenUntil() {
     return frozenUntil;
   }

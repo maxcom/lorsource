@@ -23,6 +23,7 @@ import ru.org.linux.user.User
 
 import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 object FloodProtector {
@@ -60,7 +61,9 @@ class FloodProtector(deleteInfoDao: DeleteInfoDao) {
   def checkRateLimit(action: FloodProtector.Action, ip: String, user: User, errors: Errors): Unit = {
     val threshold: Duration = if (user.isAnonymous) {
       action.threshold
-    } else if (user.getScore < 35 || deleteInfoDao.getRecentScoreLoss(user) >= 30) {
+    } else if (user.getScore < 35 ||
+        Option(user.getFrozenUntil).map(_.toInstant).exists(_.isAfter(Instant.now.minus(3, ChronoUnit.DAYS))) ||
+        deleteInfoDao.getRecentScoreLoss(user) >= 30) {
       action.thresholdLowScore
     } else if (user.getScore >= 100) {
       action.thresholdTrusted
