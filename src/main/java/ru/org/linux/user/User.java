@@ -145,12 +145,6 @@ public class User implements Serializable {
     }
   }
 
-  public void checkFrozen() throws AccessViolationException {
-    if (isFrozen()) {
-      throw new AccessViolationException("Пользователь временно заморожен");
-    }
-  }
-
   public void checkFrozen(Errors errors) {
     if (isFrozen()) {
       errors.reject(null, "Пользователь временно заморожен");

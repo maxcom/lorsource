@@ -17,15 +17,26 @@ package ru.org.linux.user;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.validation.MapBindingResult;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.test.Users;
 
 import java.sql.ResultSet;
+import java.util.Map;
 
 /**
  * Unit Tests для User
  */
 public class UserTest {
+  private void checkFrozen(User user) {
+    var errors = new MapBindingResult(Map.of(), "obj");
+
+    user.checkFrozen(errors);
+
+    if (errors.hasErrors()) {
+      throw new AccessViolationException("Пользователь временно заморожен");
+    }
+  }
 
   /**
    * проверка администратора
@@ -46,7 +57,7 @@ public class UserTest {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -90,7 +101,7 @@ public class UserTest {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -135,7 +146,7 @@ public class UserTest {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -182,7 +193,7 @@ public class UserTest {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -229,7 +240,7 @@ public class UserTest {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -276,7 +287,7 @@ public class UserTest {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -324,7 +335,7 @@ public class UserTest {
       Assert.assertEquals("Пользователь заблокирован", e.getMessage());
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -369,7 +380,7 @@ public class UserTest {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -416,7 +427,7 @@ public class UserTest {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Пользователь временно заморожен", e.getMessage());

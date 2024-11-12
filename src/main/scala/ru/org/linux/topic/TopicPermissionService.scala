@@ -15,7 +15,6 @@
 package ru.org.linux.topic
 
 import com.google.common.base.Preconditions
-import com.google.common.collect.ImmutableMap
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
@@ -33,6 +32,7 @@ import ru.org.linux.user.{User, UserService}
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.annotation.Nullable
+import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.jdk.OptionConverters.RichOptional
 
 object TopicPermissionService {
@@ -199,7 +199,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
 
   private def getScoreLossPostscore(topic: Topic): Int = {
-    if (!topic.isSticky) {
+    if (!topic.sticky) {
       val scoreLoss = deleteInfoDao.scoreLoss(topic.id)
 
       if (scoreLoss >= 150) {
@@ -207,7 +207,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       } else if (scoreLoss >= 100) {
         50
       } else {
-        POSTSCORE_UNRESTRICTED;
+        POSTSCORE_UNRESTRICTED
       }
     } else {
       POSTSCORE_UNRESTRICTED
@@ -301,7 +301,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
    */
   def isCommentEditableNow(comment: Comment, @Nullable currentUser: User, haveAnswers: Boolean, topic: Topic,
                            markup: MarkupType): Boolean = {
-    val errors = new MapBindingResult(ImmutableMap.of, "obj")
+    val errors = new MapBindingResult(Map.empty.asJava, "obj")
 
     checkCommentsAllowed(topic, Option(currentUser), errors)
     checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors, markup)

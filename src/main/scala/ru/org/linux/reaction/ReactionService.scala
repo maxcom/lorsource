@@ -28,7 +28,7 @@ import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.section.Section
 import ru.org.linux.site.DateFormats
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
-import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
+import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
 
 import java.net.URLEncoder

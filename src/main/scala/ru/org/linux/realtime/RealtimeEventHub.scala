@@ -33,7 +33,7 @@ import ru.org.linux.auth.UserDetailsImpl
 import ru.org.linux.comment.CommentReadService
 import ru.org.linux.realtime.RealtimeEventHub.*
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.topic.{TopicDao, TopicPermissionService}
+import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.IgnoreListDao
 
 import java.io.IOException

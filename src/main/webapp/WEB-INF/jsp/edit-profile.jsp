@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -176,7 +176,7 @@ $script.ready('plugins', function() {
 <li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
 <li><a href="/edit-boxes.jsp">Настройка главной страницы</a>
 <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a>
-<c:if test="${currentUser.score >= 100 && !template.moderatorSession && !currentUser.administrator}">
+<c:if test="${currentUser.score >= 100 && !template.moderatorSession && !currentUser.administrator && !currentUser.frozen}">
   <li><a href="/deregister.jsp">Удаление аккаунта</a>
 </c:if>
 </ul>
