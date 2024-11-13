@@ -51,8 +51,9 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
     val mv = new ModelAndView("post-warning")
 
-    mv.addObject("warningTypes", warningTypes(request, group).asJava)
-    prepareView(request, currentUser, mv)
+    val types = warningTypes(request, group)
+
+    prepareView(request, currentUser, mv, types)
 
     mv
   }
@@ -69,7 +70,8 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
   }
 
-  private def prepareView(request: PostWarningRequest, currentUser: CurrentUser, mv: ModelAndView): Unit = {
+  private def prepareView(request: PostWarningRequest, currentUser: CurrentUser, mv: ModelAndView,
+                          types: Seq[WarningType]): Unit = {
     if (request.comment == null) {
       val preparedTopic = topicPrepareService.prepareTopic(request.topic, currentUser.user)
       mv.addObject("preparedTopic", preparedTopic)
@@ -81,6 +83,10 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
       mv.addObject("preparedComment", preparedComment)
     }
+
+    if (types.size > 1) {
+      mv.addObject("warningTypes", types.asJava)
+    }
   }
 
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
@@ -91,6 +97,10 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     checkRequest(group, request, errors, currentUser)
 
     val types = warningTypes(request, group)
+
+    if (request.warningType == null && types.size == 1) {
+      request.warningType = types.head
+    }
 
     if (request.warningType == null || !types.contains(request.warningType)) {
       errors.reject(null, "Не выбран тип уведомления")
@@ -107,8 +117,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     if (errors.hasErrors) {
       val mv = new ModelAndView("post-warning")
 
-      mv.addObject("warningTypes", types.asJava)
-      prepareView(request, currentUser, mv)
+      prepareView(request, currentUser, mv, types)
 
       mv
     } else {

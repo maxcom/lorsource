@@ -26,21 +26,23 @@
 
 <form:form method="POST" action="/post-warning" class="form-horizontal" modelAttribute="request">
 <lor:csrf/>
-  <div class="control-group">
-    <label class="control-label" for="reason-input">
-      Проблема
-    </label>
+  <c:if test="${warningTypes != null}">
+    <div class="control-group">
+      <label class="control-label" for="reason-input">
+        Проблема
+      </label>
 
-    <div class="controls">
-      <form:select path="warningType">
-        <form:options items="${warningTypes}" itemLabel="name" itemValue="id"/>
-      </form:select>
+      <div class="controls">
+        <form:select path="warningType">
+          <form:options items="${warningTypes}" itemLabel="name" itemValue="id"/>
+        </form:select>
 
-      <span class="help-block">
-        Если проблемы нет в списке, то, пожалуйста, воспользуйтесь другими способами обратной связи.
-      </span>
+        <span class="help-block">
+          Если проблемы нет в списке, то, пожалуйста, воспользуйтесь другими способами обратной связи.
+        </span>
+      </div>
     </div>
-  </div>
+  </c:if>
 
   <div class="control-group">
     <label class="control-label" for="reason-input">
