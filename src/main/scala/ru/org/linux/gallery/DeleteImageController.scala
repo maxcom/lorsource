@@ -36,7 +36,7 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
       throw new AccessViolationException("Вы не можете редактировать эту тему")
     }
 
-    if (topic.getSection.isImagepost) {
+    if (topic.section.isImagepost) {
       throw new AccessViolationException("В этой теме нельзя удалять изображения")
     }
   }
@@ -44,7 +44,7 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
   @RequestMapping(method = Array(RequestMethod.GET))
   def deleteForm(@RequestParam id: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val image = imageDao.getImage(id)
-    val topic = topicDao.getById(image.getTopicId)
+    val topic = topicDao.getById(image.topicId)
 
     val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
 
@@ -61,7 +61,7 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
   @RequestMapping(method = Array(RequestMethod.POST))
   def deleteImage(@RequestParam id: Int): RedirectView = AuthorizedOnly { currentUser =>
     val image = imageDao.getImage(id)
-    val topic = topicDao.getById(image.getTopicId)
+    val topic = topicDao.getById(image.topicId)
 
     val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
 
