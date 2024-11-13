@@ -39,7 +39,6 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters.RichOption
 
 object CommentCreateService {
@@ -288,7 +287,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
 
   /* кастование пользователей */
   private def notifyMentions(author: User, comment: Comment, commentBody: MessageText, commentId: Int) = {
-    val userRefs = textService.mentions(commentBody).asScala.filter((p: User) => !userService.isIgnoring(p.getId, author.getId))
+    val userRefs = textService.mentions(commentBody).filter((p: User) => !userService.isIgnoring(p.getId, author.getId))
 
     userEventService.addUserRefEvent(userRefs, comment.topicId, commentId)
 
@@ -316,7 +315,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
     val userRefs = mutable.Set[User]()
 
     /* кастовать только тех, кто добавился. Существующие ранее не кастуются */
-    for (user <- newUserRefs.asScala) {
+    for (user <- newUserRefs) {
       if (!oldUserRefs.contains(user)) {
         userRefs.add(user)
       }

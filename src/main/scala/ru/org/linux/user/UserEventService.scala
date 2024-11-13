@@ -48,10 +48,10 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    * @param users   список пользователей. которых надо оповестить
    * @param topicId идентификационный номер топика
    */
-  def addUserRefEvent(users: java.util.Set[Integer], topicId: Int): Unit = transactional() { _ =>
-    userEventDao.insertTopicNotification(topicId, users.asScala)
+  def addUserRefEvent(users: Set[Int], topicId: Int): Unit = transactional() { _ =>
+    userEventDao.insertTopicNotification(topicId, users)
 
-    users.asScala.foreach { user =>
+    users.foreach { user =>
       userEventDao.addEvent(REFERENCE.getType, user, isPrivate = false, Some(topicId), None, None)
     }
   }
@@ -72,10 +72,10 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    * @param userIdList список ID пользователей, которых надо оповестить
    * @param topicId    идентификационный номер топика
    */
-  def addUserTagEvent(userIdList: java.util.List[Integer], topicId: Int): Unit = transactional() { _ =>
-    userEventDao.insertTopicNotification(topicId, userIdList.asScala)
+  def addUserTagEvent(userIdList: Seq[Int], topicId: Int): Unit = transactional() { _ =>
+    userEventDao.insertTopicNotification(topicId, userIdList)
 
-    userIdList.asScala.foreach { userId =>
+    userIdList.foreach { userId =>
       userEventDao.addEvent(TAG.getType, userId, isPrivate = false, Some(topicId), None, None)
     }
   }
@@ -142,8 +142,8 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    *
    * @param msgids идентификаторы топиков
    */
-  def processTopicDeleted(msgids: util.List[Integer]): Unit = transactional() { _ =>
-    userEventDao.recalcEventCount(userEventDao.deleteTopicEvents(msgids.asScala))
+  def processTopicDeleted(msgids: Seq[Int]): Unit = transactional() { _ =>
+    userEventDao.recalcEventCount(userEventDao.deleteTopicEvents(msgids))
   }
 
   /**

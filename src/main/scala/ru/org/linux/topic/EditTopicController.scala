@@ -361,9 +361,15 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     if (!preview && !errors.hasErrors) {
-      val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags.map(_.asJava).orNull, newText, commit,
-        changeGroupId, form.getBonus, newPoll.map(_.getVariants).orNull, form.isMultiselect,
-        form.getEditorBonus, imagePreview.orNull)
+      val editorBonus = if (form.getEditorBonus!=null) {
+        form.getEditorBonus.asScala.view.map(p => p._1.toInt -> p._2.toInt).toMap
+      } else {
+        null
+      }
+
+      val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
+        Option[Integer](changeGroupId).map(_.toInt), form.getBonus, newPoll.map(_.variants).orNull, form.isMultiselect,
+        editorBonus, imagePreview.orNull)
 
       if (changed || commit || publish) {
         if (!newMsg.draft) {

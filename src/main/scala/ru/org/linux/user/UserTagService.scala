@@ -112,10 +112,14 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @param tags   список фаворитных тегов
     * @return список ID пользователей
     */
-  def getUserIdListByTags(userid: Int, tags: java.util.List[String]): java.util.List[Integer] = {
-    val tagIds = tags.asScala.flatMap(tagService.getTagIdOptWithSynonym).distinct
+  def getUserIdListByTags(userid: Int, tags: Seq[String]): Seq[Int] = {
+    val tagIds = tags.flatMap(tagService.getTagIdOptWithSynonym).distinct
 
-    userTagDao.getUserIdListByTags(userid, tagIds.map(Integer.valueOf).asJava)
+    userTagDao.getUserIdListByTags(userid, tagIds.map(Integer.valueOf).asJava).asScala.view.map(_.toInt).toSeq
+  }
+
+  def getUserIdListByTagsJava(userid: Int, tags: java.util.List[String]): java.util.List[Integer] = {
+    getUserIdListByTags(userid, tags.asScala.toSeq).map(Integer.valueOf).asJava
   }
 
   /**

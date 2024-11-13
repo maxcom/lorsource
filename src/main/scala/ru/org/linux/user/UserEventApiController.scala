@@ -15,7 +15,6 @@
 package ru.org.linux.user
 
 import akka.actor.typed.ActorRef
-import com.google.common.collect.ImmutableList
 import io.circe.Json
 import io.circe.syntax.*
 import jakarta.servlet.http.HttpServletResponse
@@ -39,7 +38,7 @@ class UserEventApiController(userEventService: UserEventService,
   @ResponseBody
   def resetNotifications(@RequestParam topId: Int): Json = AuthorizedOnly { currentUser =>
     userEventService.resetUnreadReplies(currentUser.user, topId)
-    RealtimeEventHub.notifyEvents(realtimeHubWS, ImmutableList.of(currentUser.user.getId))
+    RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.getId))
 
     "ok".asJson
   }

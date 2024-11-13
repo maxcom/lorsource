@@ -111,16 +111,16 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
     }
   }
 
-  def mentions(text: MessageText): java.util.Set[User] = {
+  def mentions(text: MessageText): collection.Set[User] = {
     text.markup match {
       case Lorcode =>
-        lorCodeService.getReplierFromMessage(prepareLorcode(text.text))
+        lorCodeService.getReplierFromMessage(prepareLorcode(text.text)).asScala
       case LorcodeUlb =>
-        lorCodeService.getReplierFromMessage(prepareUlb(text.text))
+        lorCodeService.getReplierFromMessage(prepareUlb(text.text)).asScala
       case Html =>
-        Set.empty[User].asJava
+        Set.empty[User]
       case Markdown =>
-        markdownFormatter.mentions(text.text).asJava
+        markdownFormatter.mentions(text.text)
     }
   }
 

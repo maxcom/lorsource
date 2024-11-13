@@ -40,7 +40,6 @@ import java.io.IOException
 import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
 object RealtimeEventHub {
@@ -68,9 +67,8 @@ object RealtimeEventHub {
     session.sendMessage(new TextMessage(s"events-refresh"))
   }
 
-  def notifyEvents(realtimeEventHub: ActorRef[RefreshEvents], users: java.lang.Iterable[Integer]): Unit = {
-    realtimeEventHub ! RefreshEvents(users.asScala.map(_.toInt).toSet)
-  }
+  def notifyEvents(realtimeEventHub: ActorRef[RefreshEvents], users: Set[Int]): Unit =
+    realtimeEventHub ! RefreshEvents(users)
 
   def behavior(ignoreListDao: IgnoreListDao): Behavior[Protocol] = Behaviors.setup { context =>
     val topicSubscriptions: mutable.MultiDict[Int, ActorRef[SessionProtocol]] = mutable.MultiDict[Int, ActorRef[SessionProtocol]]()

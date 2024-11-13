@@ -104,7 +104,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     insert.execute(params.asJava)
   }
 
-  def insertTopicNotification(topicId: Int, userIds: Iterable[Integer]): Unit = {
+  def insertTopicNotification(topicId: Int, userIds: Iterable[Int]): Unit = {
     val batch = userIds.view.map(userId => Map("topic" -> topicId, "userid" -> userId).asJava).toSeq
 
     insertTopicUsersNotified.executeBatch(batch*)
@@ -236,7 +236,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     }
   }
 
-  def deleteTopicEvents(topics: collection.Seq[Integer]): collection.Seq[Integer] = {
+  def deleteTopicEvents(topics: Seq[Int]): collection.Seq[Integer] = {
     transactional() { _ =>
       if (topics.isEmpty) {
         Seq.empty
