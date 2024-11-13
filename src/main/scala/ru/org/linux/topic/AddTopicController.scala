@@ -266,7 +266,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   private def createNewTopic(request: HttpServletRequest, form: AddTopicRequest, group: Group,
                              params: mutable.Map[String, AnyRef], section: Section, user: User, message: MessageText,
                              scrn: Option[UploadedImagePreview], previewMsg: Topic) = {
-    val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, scrn.orNull, previewMsg)
+    val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, scrn, previewMsg)
 
     if (!previewMsg.draft) {
       searchQueueSender.updateMessageOnly(msgid)

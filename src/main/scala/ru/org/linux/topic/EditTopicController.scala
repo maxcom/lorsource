@@ -351,7 +351,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     if (form.getEditorBonus != null) {
       val editors = editHistoryService.getEditors(topic, editInfoList.asJava)
 
-      form.getEditorBonus.asScala.keySet.filter(userid => !editors.contains(userid)).foreach { _ =>
+      form.getEditorBonus.asScala.keySet.filterNot(editors.contains).foreach { _ =>
         errors.reject("editorBonus", "некорректный корректор?!")
       }
     }
@@ -364,12 +364,12 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       val editorBonus = if (form.getEditorBonus!=null) {
         form.getEditorBonus.asScala.view.map(p => p._1.toInt -> p._2.toInt).toMap
       } else {
-        null
+        Map.empty[Int, Int]
       }
 
       val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
         Option[Integer](changeGroupId).map(_.toInt), form.getBonus, newPoll.map(_.variants).orNull, form.isMultiselect,
-        editorBonus, imagePreview.orNull)
+        editorBonus, imagePreview)
 
       if (changed || commit || publish) {
         if (!newMsg.draft) {

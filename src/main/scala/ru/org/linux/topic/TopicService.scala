@@ -64,18 +64,18 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    val transactionManager: PlatformTransactionManager) extends TransactionManagement with StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
-                 imagePreview: UploadedImagePreview, previewMsg: Topic): (Int, Set[Int]) = transactional() { _ =>
+                 imagePreview: Option[UploadedImagePreview], previewMsg: Topic): (Int, Set[Int]) = transactional() { _ =>
     val section = sectionService.getSection(group.sectionId)
 
-    if (section.isImagepost && imagePreview == null) {
-      throw new ScriptErrorException("scrn==null!?")
+    if (section.isImagepost && imagePreview.isEmpty) {
+      throw new ScriptErrorException("scrn is empty?!")
     }
 
     val msgid = topicDao.saveNewMessage(previewMsg, user, request.getHeader("User-Agent"), group)
 
     msgbaseDao.saveNewMessage(message, msgid)
 
-    if (imagePreview != null) {
+    imagePreview.foreach { imagePreview =>
       imageService.saveScreenshot(imagePreview, msgid)
     }
 
@@ -206,14 +206,15 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   def updateAndCommit(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]],
                       newText: MessageText, commit: Boolean, changeGroupId: Option[Int], bonus: Int,
                       pollVariants: Seq[PollVariant], multiselect: Boolean,
-                      editorBonus: Map[Int, Int], imagePreview: UploadedImagePreview): (Boolean, Set[Int]) = transactional() { _ =>
+                      editorBonus: Map[Int, Int], imagePreview: Option[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
     val editHistoryRecord = new EditHistoryRecord
 
     var modified = topicDao.updateMessage(editHistoryRecord, oldMsg, newMsg, user, newTags.map(_.asJava).orNull, newText.text,
       pollVariants.asJava, multiselect)
 
-    if (imagePreview != null) {
+    imagePreview.foreach { imagePreview =>
       replaceImage(oldMsg, imagePreview, editHistoryRecord)
+
       modified = true
     }
 
@@ -286,10 +287,8 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     userDao.changeScore(msg.authorUserId, bonus)
 
-    if (editorBonus != null) {
-      for ((key, delta) <- editorBonus) {
-        userDao.changeScore(key, delta)
-      }
+    for ((key, delta) <- editorBonus) {
+      userDao.changeScore(key, delta)
     }
   }
 }
