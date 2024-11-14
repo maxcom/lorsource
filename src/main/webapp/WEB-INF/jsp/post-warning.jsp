@@ -28,12 +28,12 @@
 <lor:csrf/>
   <c:if test="${warningTypes != null}">
     <div class="control-group">
-      <label class="control-label" for="reason-input">
+      <label class="control-label" for="warning-select">
         Проблема
       </label>
 
       <div class="controls">
-        <form:select path="warningType">
+        <form:select path="warningType" id="warning-select" style="width: 40em">
           <form:options items="${warningTypes}" itemLabel="name" itemValue="id"/>
         </form:select>
 
@@ -44,13 +44,31 @@
     </div>
   </c:if>
 
+  <c:if test="${ruleTypes != null}">
+    <div class="control-group">
+      <label class="control-label" for="rule-select">
+        Пункт правил
+      </label>
+
+      <div class="controls">
+        <form:select id="rule-select" path="ruleType" items="${ruleTypes}" style="width: 40em"/>
+
+        <c:if test="${warningTypes != null}">
+          <span class="help-block">
+            Заполняйте только в уведомлении о нарушении правил.
+          </span>
+        </c:if>
+      </div>
+    </div>
+  </c:if>
+
   <div class="control-group">
     <label class="control-label" for="reason-input">
       Комментарий
     </label>
 
     <div class="controls">
-      <form:textarea id="reason-input" path="text" maxlength="256" required="required" style="width: 40em"/>
+      <form:textarea id="reason-input" path="text" maxlength="256" style="width: 40em"/>
     </div>
   </div>
 

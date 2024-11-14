@@ -17,7 +17,7 @@ package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
+import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
@@ -26,6 +26,7 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
 import ru.org.linux.user.{User, UserErrorException, UserService}
 
+import java.util
 import scala.jdk.CollectionConverters.*
 
 @Controller
@@ -39,6 +40,9 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       throw new AccessViolationException("это сообщение нельзя восстановить")
     }
   }
+
+  @ModelAttribute("deleteReasons")
+  def deleteReasons: util.List[String] = TopicService.DeleteReasons.asJava
 
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>

@@ -26,7 +26,7 @@ import ru.org.linux.auth.{AccessViolationException, CurrentUser}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.site.{MessageNotFoundException, Template}
-import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder, TopicPermissionService, TopicPrepareService}
+import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder, TopicPermissionService, TopicPrepareService, TopicService}
 import ru.org.linux.user.UserService
 import ru.org.linux.warning.WarningService.MaxWarningsPerHour
 import ru.org.linux.warning.WarningType.idToType
@@ -36,7 +36,8 @@ import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 class PostWarningRequest(@BeanProperty var topic: Topic, @BeanProperty var comment: Comment,
-                         @BeanProperty var text: String, @BeanProperty var warningType: WarningType)
+                         @BeanProperty var text: String, @BeanProperty var warningType: WarningType,
+                         @BeanProperty var ruleType: String)
 
 @Controller
 class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService,
@@ -87,6 +88,10 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     if (types.size > 1) {
       mv.addObject("warningTypes", types.asJava)
     }
+
+    if (types.contains(RuleWarning)) {
+      mv.addObject("ruleTypes", ("" +: TopicService.DeleteReasons).asJava)
+    }
   }
 
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
@@ -98,19 +103,26 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
     val types = warningTypes(request, group)
 
+    val hasRuleType = Option(request.ruleType).exists(_.trim.nonEmpty)
+    val hasText = Option(request.text).exists(_.trim.nonEmpty)
+
     if (request.warningType == null && types.size == 1) {
       request.warningType = types.head
+    }
+
+    if (request.warningType != RuleWarning && hasRuleType) {
+      errors.reject(null, "Пункт правил можно выбрать только при уведомлении о нарушении")
     }
 
     if (request.warningType == null || !types.contains(request.warningType)) {
       errors.reject(null, "Не выбран тип уведомления")
     }
 
-    if (request.text == null || request.text.trim.isEmpty) {
-      errors.reject(null, "Сообщение не может быть пустым")
+    if (!hasText && !hasRuleType) {
+      errors.reject(null, "Заполните комментарий")
     }
 
-    if (request.text !=null && request.text.length > 256) { // sync with post-warning.jsp
+    if (hasText && request.text.length > 256) { // sync with post-warning.jsp
       errors.reject(null, "Сообщение не может быть более 256 символов")
     }
 
@@ -121,7 +133,15 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
       mv
     } else {
-      warningService.postWarning(request.topic, Option(request.comment), currentUser.user, request.text, request.warningType)
+      val text = if (!hasRuleType) {
+        request.text
+      } else if (!hasText) {
+        request.ruleType
+      } else {
+        s"[${request.ruleType}] ${request.text}"
+      }
+
+      warningService.postWarning(request.topic, Option(request.comment), currentUser.user, text, request.warningType)
 
       val builder = TopicLinkBuilder.baseLink(request.topic)
 

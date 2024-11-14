@@ -25,9 +25,10 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.{BadParameterException, ScriptErrorException, Template}
 import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.topic.{TopicDao, TopicPermissionService}
+import ru.org.linux.topic.{TopicDao, TopicPermissionService, TopicService}
 import ru.org.linux.user.{IgnoreListDao, UserErrorException, UserService}
 
+import java.util
 import scala.collection.Seq
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOptional
@@ -38,6 +39,9 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
                               permissionService: TopicPermissionService, commentDeleteService: CommentDeleteService,
                               deleteInfoDao: DeleteInfoDao, ignoreListDao: IgnoreListDao,
                               userService: UserService) extends StrictLogging {
+  @ModelAttribute("deleteReasons")
+  def deleteReasons: util.List[String] = TopicService.DeleteReasons.asJava
+
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val tmpl = Template.getTemplate
