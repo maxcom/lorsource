@@ -20,7 +20,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
+import ru.org.linux.auth.AuthUtil.ModeratorOnly
+import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.util.StringUtil
 
 import scala.jdk.CollectionConverters.MapHasAsJava
@@ -29,7 +30,7 @@ import scala.jdk.CollectionConverters.MapHasAsJava
 class ResetPasswordController(userDao: UserDao, userService: UserService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD),
     params = Array("reset-password"))
-  def showModeratorForm(@PathVariable nick: String): ModelAndView = AuthUtil.ModeratorOnly { _ =>
+  def showModeratorForm(@PathVariable nick: String): ModelAndView = ModeratorOnly { _ =>
     val user = userService.getUser(nick)
 
     val modelAndView = new ModelAndView("confirm-password-reset")

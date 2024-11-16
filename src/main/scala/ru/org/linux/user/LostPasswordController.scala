@@ -52,11 +52,11 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
       throw new AccessViolationException("Anonymous user")
     }
 
-    if (user.isModerator && !tmpl.isModeratorSession) {
+    if (user.isModerator && !currentUser.exists(_.moderator)) {
       throw new AccessViolationException("этот пароль могут сбросить только модераторы")
     }
 
-    if (!tmpl.isModeratorSession && !userService.canResetPassword(user)) {
+    if (!currentUser.exists(_.moderator) && !userService.canResetPassword(user)) {
       throw new BadInputException("Нельзя запрашивать пароль чаще одного раза в неделю!")
     }
 
