@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import ru.org.linux.user.{Profile, User, UserDao}
 
 import javax.annotation.Nullable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 case class CurrentUser(user: User, corrector: Boolean, moderator: Boolean)
 
@@ -49,6 +49,8 @@ object AuthUtil {
   def isModeratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_MODERATOR")
 
   def isCorrectorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_CORRECTOR")
+
+  def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
 
   private def hasAuthority(authName: String): Boolean = {
     val authentication = SecurityContextHolder.getContext.getAuthentication
@@ -138,6 +140,14 @@ object AuthUtil {
   def CorrectorOrModerator[T](f: CurrentUser => T): T = {
     if (!(isCorrectorSession || isModeratorSession)) {
       throw new AccessViolationException("Not corrector or moderator")
+    }
+
+    AuthorizedOnly(f)
+  }
+
+  def AdministratorOnly[T](f: CurrentUser => T): T = {
+    if (!isAdministratorSession) {
+      throw new AccessViolationException("Not administrator")
     }
 
     AuthorizedOnly(f)
