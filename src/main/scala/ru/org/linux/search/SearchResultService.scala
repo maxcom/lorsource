@@ -46,7 +46,7 @@ case class SearchItem (
 class SearchResultsService(
   userService: UserService, sectionService: SectionService, groupDao: GroupDao
 ) extends StrictLogging {
-  def prepareAll(docs:java.lang.Iterable[SearchHit]) = (docs.asScala map prepare).asJavaCollection
+  def prepareAll(docs: Iterable[SearchHit]): Iterable[SearchItem] = docs.map(prepare)
 
   def prepare(doc: SearchHit):SearchItem = {
     val author = userService.getUserCached(doc.sourceAsMap("author").asInstanceOf[String])
@@ -168,9 +168,9 @@ class SearchResultsService(
 }
 
 object SearchResultsService {
-  def postdate(doc: SearchHit) = Instant.parse(doc.sourceAsMap("postdate").asInstanceOf[String])
-  def section(doc: SearchHit) = doc.sourceAsMap("section").asInstanceOf[String]
-  def group(doc: SearchHit) = doc.sourceAsMap("group").asInstanceOf[String]
+  def postdate(doc: SearchHit): Instant = Instant.parse(doc.sourceAsMap("postdate").asInstanceOf[String])
+  def section(doc: SearchHit): String = doc.sourceAsMap("section").asInstanceOf[String]
+  def group(doc: SearchHit): String = doc.sourceAsMap("group").asInstanceOf[String]
 }
 
 case class FacetItem(@BeanProperty key:String, @BeanProperty label:String)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,11 +15,8 @@
 
 package ru.org.linux.search
 
-import java.util
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.requests.searches.sort.{Sort, SortOrder}
-
-import scala.jdk.CollectionConverters.*
 
 sealed trait SearchOrder {
   def name: String
@@ -51,8 +48,6 @@ object SearchOrder {
   }
 
   val values: Seq[SearchOrder] = Seq(Relevance, Date, DateReverse)
-
-  def jvalues: util.List[SearchOrder] = values.asJava
 
   def valueOf(str: String): Object =
     values.find(_.id == str).getOrElse(new IllegalArgumentException(s"bad order $str"))
