@@ -328,8 +328,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
   }
 
-  def updateUser(user: User, name: String, url: String, @Nullable newEmail: String, town: String,
-                @Nullable password: String, info: String, ip: String): Unit = transactional() { _ =>
+  def updateUser(user: User, name: String, url: String, newEmail: Option[String], town: String,
+                 password: Option[String], info: String, ip: String): Unit = transactional() { _ =>
     val changed = mutable.Map[String, String]()
 
     if (userDao.updateName(user, name)) changed += "name" -> name
@@ -342,17 +342,19 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     updateEmailPasswd(user, newEmail, password, ip)
 
-    if (changed.nonEmpty) userLogDao.logSetUserInfo(user, changed.asJava)
+    if (changed.nonEmpty) {
+      userLogDao.logSetUserInfo(user, changed.asJava)
+    }
   }
 
-  def updateEmailPasswd(user: User, @Nullable newEmail: String, @Nullable password: String,
+  def updateEmailPasswd(user: User, newEmail: Option[String], password: Option[String],
                         ip: String): Unit = transactional() { _ =>
-    if (password != null) {
+    password.foreach { password =>
       userDao.setPassword(user, password)
       userLogDao.logSetPassword(user, ip)
     }
 
-    if (newEmail != null) userDao.setNewEmail(user, newEmail)
+    newEmail.foreach(userDao.setNewEmail(user, _))
   }
 
   def isBlockable(user: User, by: User): Boolean =

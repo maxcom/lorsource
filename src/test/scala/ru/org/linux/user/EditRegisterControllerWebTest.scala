@@ -55,13 +55,13 @@ class EditRegisterControllerWebTest {
 
   private def rescueMaxcom(): Unit = {
     val user = userDao.getUser(userDao.findUserId("maxcom"))
-    userService.updateUser(user, MAXCOM_NAME, MAXCOM_URL, MAXCOM_EMAIL, MAXCOM_TOWN, MAXCOM_PASS, MAXCOM_INFO,  "127.0.0.1")
+    userService.updateUser(user, MAXCOM_NAME, MAXCOM_URL, Some(MAXCOM_EMAIL), MAXCOM_TOWN, Some(MAXCOM_PASS), MAXCOM_INFO,  "127.0.0.1")
     userDao.acceptNewEmail(user, MAXCOM_EMAIL)
   }
 
   private def rescueJB(): Unit = {
     val user = userDao.getUser(userDao.findUserId("JB"))
-    userService.updateUser(user, JB_NAME, JB_URL, JB_EMAIL, JB_TOWN, JB_PASS, JB_INFO, "127.0.0.1")
+    userService.updateUser(user, JB_NAME, JB_URL, Some(JB_EMAIL), JB_TOWN, Some(JB_PASS), JB_INFO, "127.0.0.1")
     userDao.acceptNewEmail(user, JB_EMAIL)
     userDao.unblock(user, user)
   }
@@ -114,7 +114,7 @@ class EditRegisterControllerWebTest {
           ("info", info),
           ("csrf", "csrf"),
           ("oldpass", JB_PASS)))
-      .post(WebHelper.MainUrl.addPath("people", "maxcom", "edit"))
+      .post(WebHelper.MainUrl.addPath("people", "JB", "edit"))
       .cookie(WebHelper.AuthCookie, auth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
       .followRedirects(false)

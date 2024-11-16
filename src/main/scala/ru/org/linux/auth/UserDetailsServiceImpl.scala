@@ -17,7 +17,6 @@ package ru.org.linux.auth
 import org.springframework.dao.DataAccessException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
@@ -53,7 +52,7 @@ object UserDetailsServiceImpl {
 class UserDetailsServiceImpl(userDao: UserDao, userService: UserService, profileDao: ProfileDao) extends UserDetailsService {
   @throws[UsernameNotFoundException]
   @throws[DataAccessException]
-  override def loadUserByUsername(username: String): UserDetails = {
+  override def loadUserByUsername(username: String): UserDetailsImpl = {
     val user: User = if (username.contains("@")) {
       userDao.getByEmail(username, true)
     } else {

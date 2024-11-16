@@ -322,6 +322,7 @@ public class User implements Serializable {
     return anonymous || blocked || score<ANONYMOUS_LEVEL_SCORE;
   }
 
+  @Nullable
   public String getEmail() {
     return email;
   }
