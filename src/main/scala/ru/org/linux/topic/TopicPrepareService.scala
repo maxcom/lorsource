@@ -208,7 +208,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
         topic.group.resolvable
 
       val deletable = groupPermissionService.isDeletable(topic.message, currentUser.user)
-      val undeletable = groupPermissionService.isUndeletable(topic.message, currentUser.user)
+      val undeletable = groupPermissionService.isUndeletable(topic.message, currentUser)
 
       (resolvable, deletable, undeletable)
     }.getOrElse((false, false, false))

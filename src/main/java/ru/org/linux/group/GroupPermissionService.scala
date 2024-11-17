@@ -16,6 +16,7 @@ package ru.org.linux.group
 
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.markup.MarkupPermissions
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.DeleteInfoDao
@@ -57,11 +58,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isUndeletable(topic: Topic, user: User): Boolean = {
-    if (!topic.deleted || !user.isModerator) {
+  def isUndeletable(topic: Topic, user: AuthorizedSession): Boolean = {
+    if (!topic.deleted || !user.moderator) {
       false
     } else {
-      if (user.isAdministrator) {
+      if (user.administrator) {
         true
       } else if (!topic.expired) {
         true

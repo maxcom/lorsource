@@ -25,6 +25,7 @@ sealed trait AnySession {
   def authorized: Boolean
   def corrector: Boolean
   def moderator: Boolean
+  def administrator: Boolean
 
   // TODO minimize usages
   def userOpt: Option[User]
@@ -33,7 +34,8 @@ sealed trait AnySession {
   def opt: Option[AuthorizedSession]
 }
 
-case class AuthorizedSession(user: User, corrector: Boolean, moderator: Boolean) extends AnySession {
+case class AuthorizedSession(user: User, corrector: Boolean, moderator: Boolean,
+                             administrator: Boolean) extends AnySession {
   override def userOpt: Some[User] = Some(user)
   override def opt: Option[AuthorizedSession] = Some(this)
   override def authorized: Boolean = true
@@ -43,6 +45,7 @@ case object NonAuthorizedSession extends AnySession {
   override def userOpt: None.type = None
   override def corrector: Boolean = false
   override def moderator: Boolean = false
+  override def administrator: Boolean = false
   override def opt: Option[AuthorizedSession] = None
   override def authorized: Boolean = false
 }
@@ -135,7 +138,11 @@ object AuthUtil {
 
   def MaybeAuthorized[T](f: AnySession => T): T = {
     if (isSessionAuthorized) {
-      val currentUser = AuthorizedSession(getCurrentUser, isCorrectorSession, isModeratorSession)
+      val currentUser = AuthorizedSession(
+        user = getCurrentUser,
+        corrector = isCorrectorSession,
+        moderator = isModeratorSession,
+        administrator = isAdministratorSession)
 
       f(currentUser)
     } else {
@@ -148,7 +155,11 @@ object AuthUtil {
       throw new AccessViolationException("Not authorized")
     }
 
-    val currentUser = AuthorizedSession(getCurrentUser, isCorrectorSession, isModeratorSession)
+    val currentUser = AuthorizedSession(
+      user = getCurrentUser,
+      corrector = isCorrectorSession,
+      moderator = isModeratorSession,
+      administrator = isAdministratorSession)
 
     f(currentUser)
   }

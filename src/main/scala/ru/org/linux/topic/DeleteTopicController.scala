@@ -19,12 +19,12 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
-import ru.org.linux.user.{User, UserErrorException, UserService}
+import ru.org.linux.user.{UserErrorException, UserService}
 
 import java.util
 import scala.jdk.CollectionConverters.*
@@ -35,7 +35,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
                             prepareService: TopicPrepareService,
                             permissionService: GroupPermissionService,
                             userService: UserService) extends StrictLogging {
-  private def checkUndeletable(topic: Topic, currentUser: User): Unit = {
+  private def checkUndeletable(topic: Topic, currentUser: AuthorizedSession): Unit = {
     if (!permissionService.isUndeletable(topic, currentUser)) {
       throw new AccessViolationException("это сообщение нельзя восстановить")
     }
@@ -92,7 +92,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.GET))
   def undeleteForm(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val topic = topicDao.getById(msgid)
-    checkUndeletable(topic, currentUser.user)
+    checkUndeletable(topic, currentUser)
 
     new ModelAndView("undelete", Map(
       "message" -> topic,
@@ -103,7 +103,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.POST))
   def undelete(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
     val topic = topicDao.getById(msgid)
-    checkUndeletable(topic, currentUser.user)
+    checkUndeletable(topic, currentUser)
 
     if (topic.deleted) {
       topicDao.undelete(topic)

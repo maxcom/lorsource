@@ -32,7 +32,7 @@ class ResolveController(messageDao: TopicDao, groupDao: GroupDao) {
   def resolve(@RequestParam("msgid") msgid: Int,
               @RequestParam("resolve") resolved: String): RedirectView = AuthorizedOnly { currentUser =>
     val message = messageDao.getById(msgid)
-    val group = groupDao.getGroup(message.getGroupId)
+    val group = groupDao.getGroup(message.groupId)
 
     if (!group.isResolvable) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные")
