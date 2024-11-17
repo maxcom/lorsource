@@ -16,6 +16,7 @@ package ru.org.linux.auth
 
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.validation.Errors
 import ru.org.linux.user.{Profile, User, UserDao}
 
 import javax.annotation.Nullable
@@ -28,6 +29,8 @@ sealed trait AnySession {
   def administrator: Boolean
 
   // TODO minimize usages
+  // TODO тут можно возвращать userService.getAnonymous для анонимуса, но надо убрать все места, где
+  // TODO это используется как признак наличия аутентификации
   def userOpt: Option[User]
 
   // TODO deprecate
@@ -186,5 +189,31 @@ object AuthUtil {
     }
 
     AuthorizedOnly(f)
+  }
+
+  def postingUser(session: AnySession, formUser: Option[User], formPassword: Option[String], errors: Errors): AnySession = {
+    if (session.authorized) {
+      session
+    } else {
+      formUser match {
+        case None =>
+          NonAuthorizedSession
+        case Some(formUser) if formUser.isAnonymous =>
+          NonAuthorizedSession
+        case Some(formUser) =>
+          try {
+            formUser.checkPassword(formPassword.orNull)
+
+            formUser.checkBlocked(errors)
+            formUser.checkFrozen(errors)
+
+            AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false)
+          } catch {
+            case e: BadPasswordException =>
+              errors.rejectValue("password", null, e.getMessage)
+              NonAuthorizedSession
+          }
+      }
+    }
   }
 }

@@ -16,7 +16,7 @@ package ru.org.linux.group
 
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AuthorizedSession
+import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.markup.MarkupPermissions
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.DeleteInfoDao
@@ -81,17 +81,17 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     Math.max(group.topicRestriction, section.getTopicsRestriction)
   }
 
-  def enableAllowAnonymousCheckbox(group: Group, @Nullable currentUser: User): Boolean = {
-    currentUser!=null && !group.premoderated &&
+  def enableAllowAnonymousCheckbox(group: Group, currentUser: AnySession): Boolean = {
+    currentUser.authorized && !group.premoderated &&
       Math.max(group.commentsRestriction,
         Section.getCommentPostscore(group.sectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
   }
 
-  def isTopicPostingAllowed(section: Section, currentUser: Option[User]): Boolean =
-    isTopicPostingAllowed(section.getTopicsRestriction, currentUser.orNull)
+  def isTopicPostingAllowed(section: Section, currentUser: AnySession): Boolean =
+    isTopicPostingAllowed(section.getTopicsRestriction, currentUser.userOpt.orNull)
 
-  def isTopicPostingAllowed(group: Group, @Nullable currentUser: User): Boolean =
-    isTopicPostingAllowed(effectivePostscore(group), currentUser)
+  def isTopicPostingAllowed(group: Group, currentUser: AnySession): Boolean =
+    isTopicPostingAllowed(effectivePostscore(group), currentUser.userOpt.orNull)
 
   private def isTopicPostingAllowed(restriction: Int, @Nullable currentUser: User): Boolean = {
     if (currentUser!=null && (currentUser.isBlocked || currentUser.isFrozen)) {
@@ -110,19 +110,21 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isImagePostingAllowed(section: Section, @Nullable currentUser: User): Boolean = {
+  def isImagePostingAllowed(section: Section, currentUser: AnySession): Boolean = {
     if (section.isImagepost) {
       true
-    } else if (currentUser != null && (currentUser.isModerator || currentUser.canCorrect || currentUser.getScore >= 50)) {
+    } else if (currentUser.authorized &&
+        (currentUser.moderator || currentUser.corrector || currentUser.userOpt.exists(_.getScore >= 50))) {
       section.isImageAllowed
     } else {
       false
     }
   }
 
-  def additionalImageLimit(section: Section, @Nullable currentUser: User): Int = {
-    if (isImagePostingAllowed(section, currentUser) && section.getId == Section.SECTION_GALLERY &&
-      currentUser!=null && currentUser.isAdministrator) {
+  def additionalImageLimit(section: Section, currentUser: AnySession): Int = {
+    if (isImagePostingAllowed(section, currentUser) &&
+        section.getId == Section.SECTION_GALLERY &&
+        currentUser.administrator) {
       3
     } else {
       0
@@ -233,7 +235,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * Можно ли редактировать теги сообщения
     *
     * @param topic тема
-    * @param by    редактор
+    * @param byOpt редактор
     * @return true если можно, false если нет
     */
   def isTagsEditable(topic: PreparedTopic, byOpt: Option[User]): Boolean = {
@@ -274,7 +276,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def canCreateTag(section: Section, user: User): Boolean = {
+  def canCreateTag(section: Section, @Nullable user: User): Boolean = {
     if (section.isPremoderated && user!=null && !user.isAnonymous) {
       true
     } else {

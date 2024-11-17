@@ -138,7 +138,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val messageText = msgbaseDao.getMessageText(message.id)
 
-    params.put("imagepost", Boolean.box(permissionService.isImagePostingAllowed(preparedTopic.section, currentUser.user)))
+    params.put("imagepost", Boolean.box(permissionService.isImagePostingAllowed(preparedTopic.section, currentUser)))
     params.put("mode", messageText.markup.title)
 
     params
@@ -289,7 +289,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     val imagePreview: Option[UploadedImagePreview] =
-      if (permissionService.isImagePostingAllowed(preparedTopic.section, user) && permissionService.isTopicPostingAllowed(group, user)) {
+      if (permissionService.isImagePostingAllowed(preparedTopic.section, currentUser) && permissionService.isTopicPostingAllowed(group, currentUser)) {
         val image = imageService.processUploadImage(request)
         val preview = imageService.processUpload(user, Option(form.getUploadedImage), image, errors)
 

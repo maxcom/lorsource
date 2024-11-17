@@ -20,13 +20,12 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
 import ru.org.linux.topic.{ArchiveDao, TagTopicListController}
-import ru.org.linux.user.User
 import ru.org.linux.util.ServletParameterBadValueException
 
 import java.util
@@ -85,7 +84,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       throw new ServletParameterBadValueException("month", "указан некорректный месяц")
     }
 
-    forum(section, group, currentUserOpt.userOpt, offset, lastmod = false, Some((year, month)), tagInfo = None,
+    forum(section, group, currentUserOpt, offset, lastmod = false, Some((year, month)), tagInfo = None,
       showDeleted = false, showIgnored = showIgnored)
   }
 
@@ -125,13 +124,13 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       if (tagOpt.isDefined && tagInfo.isEmpty) {
         Future.successful(new ModelAndView("errors/code404")).toJava
       } else {
-        forum(section, group, currentUserOpt.userOpt, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
+        forum(section, group, currentUserOpt, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
           showIgnored = showIgnored)
       }
     }
   }
 
-  private def forum(section: Section, group: Group, currentUser: Option[User], offset: Int, lastmod: Boolean,
+  private def forum(section: Section, group: Group, currentUser: AnySession, offset: Int, lastmod: Boolean,
                     yearMonth: Option[(Int, Int)], tagInfo: Option[TagInfo], showDeleted: Boolean,
                     showIgnored: Boolean): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
@@ -171,11 +170,11 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
 
     val mainTopics = if (!lastmod) {
-      groupListDao.getGroupListTopics(group.id, currentUser.toJava, tmpl.getProf.getTopics, offset,
+      groupListDao.getGroupListTopics(group.id, currentUser.userOpt.toJava, tmpl.getProf.getTopics, offset,
         tmpl.getProf.getMessages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
         yearMonth.map(p => Integer.valueOf(p._2)).toJava, tagId)
     } else {
-      groupListDao.getGroupTrackerTopics(group.id, currentUser.toJava, tmpl.getProf.getTopics, offset,
+      groupListDao.getGroupTrackerTopics(group.id, currentUser.userOpt.toJava, tmpl.getProf.getTopics, offset,
         tmpl.getProf.getMessages, tagId)
     }
 
@@ -201,7 +200,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       params.put("topicsList", mainTopics)
     }
 
-    params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group, currentUser.orNull)))
+    params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group, currentUser)))
 
     activeTagsF.map { activeTags =>
       if (activeTags.nonEmpty) {

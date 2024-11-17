@@ -145,7 +145,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.userOpt)) {
+        if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt)) {
           modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))
         }
 

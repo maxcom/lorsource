@@ -43,7 +43,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
     section.foreach { section =>
       modelAndView.addObject("section", section)
 
-      if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.userOpt)) {
+      if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt)) {
         modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
       }
     }

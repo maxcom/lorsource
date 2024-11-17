@@ -83,7 +83,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
     val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
 
-    if (groupPermissionService.isTopicPostingAllowed(sectionNews, currentUser.userOpt)) {
+    if (groupPermissionService.isTopicPostingAllowed(sectionNews, currentUser)) {
       mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
     }
 

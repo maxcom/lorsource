@@ -29,7 +29,7 @@ import ru.org.linux.site.Template
 import ru.org.linux.tag.TagPageController.isRecent
 import ru.org.linux.topic.*
 import ru.org.linux.topic.TopicListDto.CommitMode
-import ru.org.linux.user.{User, UserTagService}
+import ru.org.linux.user.UserTagService
 
 import java.time
 import java.time.Instant
@@ -59,9 +59,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
                         imageService: ImageService, groupPermissionService: GroupPermissionService) extends StrictLogging {
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserObj =>
-    val currentUser = currentUserObj.userOpt
-
+  def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUser =>
     val deadline = TagPageController.Timeout.fromNow
 
     if (!TagName.isGoodTag(tag)) {
@@ -79,23 +77,23 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
         }
       }
 
-    val favs = currentUser match {
-      case Some(currentUser) =>
-        Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(currentUser, tag),
-          "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(currentUser, tag),
-          "showIgnoreTagButton" -> (!currentUserObj.moderator && !userTagService.hasIgnoreTag(currentUser, tag)),
-          "showUnIgnoreTagButton" -> (!currentUserObj.moderator && userTagService.hasIgnoreTag(currentUser, tag)))
+    val favs = currentUser.userOpt match {
+      case Some(user) =>
+        Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(user, tag),
+          "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(user, tag),
+          "showIgnoreTagButton" -> (!currentUser.moderator && !userTagService.hasIgnoreTag(user, tag)),
+          "showUnIgnoreTagButton" -> (!currentUser.moderator && userTagService.hasIgnoreTag(user, tag)))
       case None =>
         Seq.empty
     }
 
-    tagService.getTagInfo(tag, skipZero = !currentUserObj.moderator) match {
+    tagService.getTagInfo(tag, skipZero = !currentUser.moderator) match {
       case None =>
         tagService.getTagBySynonym(tag).map { mainName =>
           Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).toJava
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
-        val (news, newsDate) = getNewsSection(tag, currentUserObj)
+        val (news, newsDate) = getNewsSection(tag, currentUser)
         val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, currentUser)
         val gallery = getGallerySection(tag, tagInfo.id, currentUser)
         val (polls, _) = getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, currentUser)
@@ -114,8 +112,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           "title" -> WordUtils.capitalize(tag),
           "favsCount" -> userTagService.countFavs(tagInfo.id),
           "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
-          "showAdsense" -> Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense),
-          "showDelete" -> Boolean.box(currentUserObj.moderator),
+          "showAdsense" -> Boolean.box(!currentUser.authorized || !tmpl.getProf.isHideAdsense),
+          "showDelete" -> Boolean.box(currentUser.moderator),
           "synonyms" -> synonyms.asJava,
           "newsFirst" -> Boolean.box(newsFirst)
         ) ++ sections ++ favs
@@ -164,7 +162,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
 
-    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection, currentUser.userOpt)) {
+    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection, currentUser)) {
       Some("addNews" -> AddTopicController.getAddUrl(newsSection, tag))
     } else {
       None
@@ -176,7 +174,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ more ++ addNews, newestDate)
   }
 
-  private def getGallerySection(tag: String, tagId: Int, currentUser: Option[User]) = {
+  private def getGallerySection(tag: String, tagId: Int, currentUser: AnySession) = {
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId).asJava)
     val section = sectionService.getSection(Section.SECTION_GALLERY)
 
@@ -197,7 +195,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ add ++ more
   }
 
-  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode, currentUser: Option[User]) = {
+  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode, currentUser: AnySession) = {
     val forumSection = sectionService.getSection(section)
 
     val topicListDto = new TopicListDto
@@ -206,7 +204,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
-    val forumTopics = topicListService.getTopics(topicListDto, currentUser)
+    val forumTopics = topicListService.getTopics(topicListDto, currentUser.userOpt)
     val topicByDate = TopicListTools.datePartition(forumTopics)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {

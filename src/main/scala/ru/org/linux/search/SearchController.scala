@@ -141,7 +141,7 @@ class SearchController(sectionService: SectionService, userService: UserService,
           if (group.isEmpty) {
             query.setGroup("")
           } else {
-            query.setGroup(group.get.getUrlName)
+            query.setGroup(group.get.urlName)
           }
         } else {
           query.setGroup("")

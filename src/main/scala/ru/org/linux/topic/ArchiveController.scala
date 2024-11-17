@@ -45,9 +45,9 @@ class ArchiveController(sectionService: SectionService, groupDao: GroupDao, arch
     mv.getModel.put("items", items)
 
     val addUrl = group match {
-      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt.userOpt.orNull) =>
+      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt) =>
         AddTopicController.getAddUrl(group)
-      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.userOpt) =>
+      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt) =>
         AddTopicController.getAddUrl(section)
       case _ =>
         ""

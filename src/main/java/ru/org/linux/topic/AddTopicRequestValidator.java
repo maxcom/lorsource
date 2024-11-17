@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,7 +20,6 @@ import org.jdom2.Verifier;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.org.linux.auth.BadPasswordException;
 import ru.org.linux.tag.TagName;
 import ru.org.linux.util.URLUtil;
 
@@ -76,15 +75,6 @@ public class AddTopicRequestValidator implements Validator {
 
       if (form.getLinktext()==null || form.getLinktext().isEmpty()) {
         errors.rejectValue("linktext", null, "URL указан без текста ссылки");
-      }
-    }
-
-    if (form.getNick()!=null) {
-      try {
-        form.getNick().checkPassword(form.getPassword());
-      } catch (BadPasswordException e) {
-        errors.rejectValue("password", null, e.getMessage());
-        form.setNick(null);
       }
     }
 

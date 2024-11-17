@@ -19,12 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.auth.AuthUtil
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.group.Group
 import ru.org.linux.group.GroupDao
-import ru.org.linux.site.Template
-import ru.org.linux.user.User
 
 @Controller
 class ResolveController(messageDao: TopicDao, groupDao: GroupDao) {
@@ -38,11 +34,11 @@ class ResolveController(messageDao: TopicDao, groupDao: GroupDao) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные")
     }
 
-    if (!currentUser.moderator && currentUser.user.getId != message.getAuthorUserId) {
+    if (!currentUser.moderator && currentUser.user.getId != message.authorUserId) {
       throw new AccessViolationException("У Вас нет прав на решение данной темы")
     }
 
-    messageDao.resolveMessage(message.getId, "yes" == resolved)
+    messageDao.resolveMessage(message.id, "yes" == resolved)
 
     new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod.build)
   }
