@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
@@ -31,7 +31,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 class UncommitedTopicsController(sectionService: SectionService, topicListService: TopicListService,
                                  prepareService: TopicPrepareService, groupPermissionService: GroupPermissionService) {
   @RequestMapping
-  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
     val modelAndView = new ModelAndView("view-all")
 
     val section: Option[Section] = if (sectionId != 0) {
@@ -43,7 +43,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
     section.foreach { section =>
       modelAndView.addObject("section", section)
 
-      if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user))) {
+      if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.userOpt)) {
         modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
       }
     }
@@ -63,17 +63,17 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
     calendar.setTime(new Date)
     calendar.add(Calendar.MONTH, -3)
 
-    val includeAnonymous = currentUserOpt.exists(u => u.moderator || u.corrector)
+    val includeAnonymous = currentUserOpt.moderator || currentUserOpt.corrector
 
     val messages = topicListService.getUncommitedTopic(section, calendar.getTime, includeAnonymous)
 
     val tmpl = Template.getTemplate
 
-    val topics = prepareService.prepareTopicsForUser(messages, currentUserOpt, tmpl.getProf, loadUserpics = false)
+    val topics = prepareService.prepareTopicsForUser(messages, currentUserOpt.opt, tmpl.getProf, loadUserpics = false)
 
     modelAndView.addObject("messages", topics)
 
-    val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = currentUserOpt.forall(!_.moderator),
+    val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = !currentUserOpt.moderator,
       includeAnonymous = includeAnonymous)
 
     modelAndView.addObject("deletedTopics", deleted.asJava)

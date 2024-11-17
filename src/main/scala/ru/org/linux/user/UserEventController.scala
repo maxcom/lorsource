@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 import ru.org.linux.site.{BadInputException, Template}
 import ru.org.linux.spring.StatUpdater
@@ -185,41 +185,40 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   @RequestMapping(value = Array("/show-replies.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD), params = Array("output"))
   def repliesFeed(@RequestParam(value = "output") output: String, response: HttpServletResponse,
                   @RequestParam(value = "filter", defaultValue = "all") filter: String,
-                  @RequestParam(value = "nick") nick: String): ModelAndView =
-    AuthUtil.AuthorizedOpt { currentUserOpt =>
-      if (!StringUtil.checkLoginName(nick)) {
-        throw new BadInputException("некорректное имя пользователя")
-      }
+                  @RequestParam(value = "nick") nick: String): ModelAndView = MaybeAuthorized { currentUserOpt =>
+    if (!StringUtil.checkLoginName(nick)) {
+      throw new BadInputException("некорректное имя пользователя")
+    }
 
-      val viewByOwner = currentUserOpt.exists(_.user.getNick == nick)
+    val viewByOwner = currentUserOpt.userOpt.exists(_.getNick == nick)
 
-      val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
+    val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
 
-      val params = mutable.Map[String, Any]()
+    val params = mutable.Map[String, Any]()
 
-      params.put("nick", nick)
-      params.put("link", s"/show-replies.jsp?nick=$nick")
+    params.put("nick", nick)
+    params.put("link", s"/show-replies.jsp?nick=$nick")
 
-      val topics = 200
+    val topics = 200
 
-      val time = System.currentTimeMillis
-      response.setDateHeader("Expires", time + 1000 * 90)
+    val time = System.currentTimeMillis
+    response.setDateHeader("Expires", time + 1000 * 90)
 
-      val user = userService.getUser(nick)
+    val user = userService.getUser(nick)
 
-      val list = userEventService.getUserEvents(user, viewByOwner, topics, 0, eventFilter)
-      val prepared = prepareService.prepareSimple(list, withText = true)
-      params.put("topicsList", prepared.asJava)
+    val list = userEventService.getUserEvents(user, viewByOwner, topics, 0, eventFilter)
+    val prepared = prepareService.prepareSimple(list, withText = true)
+    params.put("topicsList", prepared.asJava)
 
-      val result = new ModelAndView(feedView, params.asJava)
+    val result = new ModelAndView(feedView, params.asJava)
 
-      result.addObject("feed-type", "rss")
+    result.addObject("feed-type", "rss")
 
-      if ("atom" == output) {
-        result.addObject("feed-type", "atom")
-      }
+    if ("atom" == output) {
+      result.addObject("feed-type", "atom")
+    }
 
-      result
+    result
   }
 
   @ExceptionHandler(Array(classOf[UserNotFoundException]))

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
@@ -43,11 +43,11 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
                          reactionService: ReactionService, reactionsDao: ReactionDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
-  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
     val comment = commentDao.getById(commentId)
     val topic = topicDao.getById(comment.topicId)
 
-    currentUserOpt match {
+    currentUserOpt.opt match {
       case None =>
         new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
       case Some(currentUser) =>
@@ -115,17 +115,17 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
 
   @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.GET))
-  def topicReaction(@RequestParam("topic") topicId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def topicReaction(@RequestParam("topic") topicId: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
     val topic = topicDao.getById(topicId)
 
-    currentUserOpt match {
+    currentUserOpt.opt match {
       case None =>
         new ModelAndView(new RedirectView(topic.getLink))
       case Some(currentUser) =>
         val group = groupDao.getGroup(topic.groupId)
         val topicAuthor = userService.getUserCached(topic.authorUserId)
 
-        permissionService.checkView(group, topic, currentUser.user, topicAuthor, false)
+        permissionService.checkView(group, topic, currentUser.user, topicAuthor, showDeleted = false)
 
         if (topic.deleted) {
           throw new AccessViolationException("Сообщение не доступно")

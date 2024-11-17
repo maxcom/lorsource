@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.auth.AuthUtil.{AuthorizedOpt, ModeratorOnly}
+import ru.org.linux.auth.AuthUtil.{MaybeAuthorized, ModeratorOnly}
 import ru.org.linux.topic.TagTopicListController
 
 import scala.jdk.CollectionConverters.*
@@ -49,7 +49,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    */
   @RequestMapping(path = Array("/tags/{firstLetter}"))
   @throws[TagNotFoundException]
-  def showTagListHandler(@PathVariable firstLetter: String): ModelAndView = AuthorizedOpt { currentUser =>
+  def showTagListHandler(@PathVariable firstLetter: String): ModelAndView = MaybeAuthorized { currentUser =>
     val modelAndView = new ModelAndView("tags")
 
     val firstLetters = tagService.getFirstLetters
@@ -62,7 +62,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
     } else {
       modelAndView.addObject("currentLetter", firstLetter)
 
-      val threshold = if (currentUser.exists(u => u.corrector || u.moderator)) {
+      val threshold = if (currentUser.corrector || currentUser.moderator) {
         1
       } else {
         2

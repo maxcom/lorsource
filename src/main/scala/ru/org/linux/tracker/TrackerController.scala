@@ -18,7 +18,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.group.GroupListDao
 import ru.org.linux.site.Template
@@ -35,7 +35,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
 
   @RequestMapping(path = Array("/tracker.jsp"))
   @throws[Exception]
-  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = AuthorizedOpt { currentUserOpt =>
+  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = {
     val tmpl = Template.getTemplate
     val defaultFilter = tmpl.getProf.getTrackerMode
     val redirectView = new RedirectView("/tracker/")
@@ -70,7 +70,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
               @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int
-             ): ModelAndView = AuthorizedOpt { currentUserOpt =>
+             ): ModelAndView = MaybeAuthorized { currentUserOpt =>
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
     val tmpl = Template.getTemplate
@@ -86,7 +86,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
     val messages = tmpl.getProf.getMessages
     val topics = tmpl.getProf.getTopics
 
-    val user = currentUserOpt.map(_.user)
+    val user = currentUserOpt.userOpt
     params.put("title", makeTitle(trackerFilter, defaultFilter))
 
     val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user.toJava, topics, offset, messages)
@@ -101,7 +101,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
       params.put("prevLink", buildTrackerUrl(offset - topics, Some(trackerFilter).filter(_ != defaultFilter)))
     }
 
-    if (currentUserOpt.exists(_.moderator)) {
+    if (currentUserOpt.moderator) {
       params.put("newUsers", userService.getNewUsers)
       params.put("frozenUsers", userService.getFrozenUsers.asJava)
       params.put("unFrozenUsers", userService.getUnFrozenUsers.asJava)

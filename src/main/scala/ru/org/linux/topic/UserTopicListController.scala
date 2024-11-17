@@ -20,8 +20,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
-import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.user.*
@@ -37,7 +37,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   def showUserFavs(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
-  ): ModelAndView = AuthorizedOpt { currentUser =>
+  ): ModelAndView = MaybeAuthorized { currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
     modelAndView.addObject("url",
@@ -49,7 +49,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = false)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, currentUser)
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, currentUser.opt)
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -86,10 +86,10 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
     @RequestParam(value = "section", defaultValue = "0") sectionId: Int,
     @RequestParam(value = "output", required = false) output: String
-  ): ModelAndView = AuthorizedOpt { currentUser =>
+  ): ModelAndView = MaybeAuthorized { currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
-    if (user.getId == User.ANONYMOUS_ID && !currentUser.exists(_.moderator)) {
+    if (user.getId == User.ANONYMOUS_ID && !currentUser.moderator) {
       throw new UserErrorException("Лента для пользователя anonymous не доступна")
     }
 
@@ -129,7 +129,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
       modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
 
-      prepareTopicsForPlainOrRss(modelAndView, rss, messages, currentUser)
+      prepareTopicsForPlainOrRss(modelAndView, rss, messages, currentUser.opt)
 
       if (!rss) {
         modelAndView.setViewName("user-topics")

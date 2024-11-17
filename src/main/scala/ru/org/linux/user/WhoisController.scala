@@ -25,7 +25,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.site.Template
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.util.bbcode.LorCodeService
@@ -44,14 +44,14 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
                       topicDao: TopicDao) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def getInfoNew(@PathVariable nick: String): CompletionStage[ModelAndView] = AuthorizedOpt { currentUserOpt =>
+  def getInfoNew(@PathVariable nick: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
 
-    if (user.isBlocked && currentUserOpt.isEmpty) {
+    if (user.isBlocked && !currentUserOpt.authorized) {
       throw new UserBanedException(user, userDao.getBanInfoClass(user))
     }
 
-    if (!user.isActivated && !currentUserOpt.exists(_.moderator)) {
+    if (!user.isActivated && !currentUserOpt.moderator) {
       throw new UserNotFoundException(user.getName)
     }
 
@@ -70,8 +70,8 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       mv.getModel.put("banInfo", userDao.getBanInfoClass(user))
     }
 
-    mv.getModel.put("blockable", currentUserOpt.exists(by => userService.isBlockable(user = user, by = by.user)))
-    mv.getModel.put("freezable", currentUserOpt.exists(by => userService.isFreezable(user = user, by = by.user)))
+    mv.getModel.put("blockable", currentUserOpt.opt.exists(by => userService.isBlockable(user = user, by = by.user)))
+    mv.getModel.put("freezable", currentUserOpt.opt.exists(by => userService.isFreezable(user = user, by = by.user)))
 
     // add the isFrozen to simplify controller,
     // and put information about moderator who
@@ -82,7 +82,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       mv.getModel.put("freezer", freezer)
     }
 
-    if (currentUserOpt.exists(_.moderator)) {
+    if (currentUserOpt.moderator) {
       val othersWithSameEmail = userDao.getAllByEmail(user.getEmail).asScala.filter(_.getId != user.getId)
 
       mv.getModel.put("otherUsers", othersWithSameEmail.asJava)
@@ -93,19 +93,19 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       mv.getModel.put("favPresent", memoriesDao.isFavPresetForUser(user))
     }
 
-    val viewByOwner = currentUserOpt.exists(_.user.getNick == nick)
+    val viewByOwner = currentUserOpt.userOpt.exists(_.getNick == nick)
 
-    mv.getModel.put("moderatorOrCurrentUser", viewByOwner || currentUserOpt.exists(_.moderator))
+    mv.getModel.put("moderatorOrCurrentUser", viewByOwner || currentUserOpt.moderator)
     mv.getModel.put("viewByOwner", viewByOwner)
     mv.getModel.put("canInvite", viewByOwner && userService.canInvite(user))
 
-    currentUserOpt.foreach { currentUser =>
+    currentUserOpt.userOpt.foreach { currentUser =>
       if (!viewByOwner) {
-        val ignoreList = ignoreListDao.get(currentUser.user.getId)
+        val ignoreList = ignoreListDao.get(currentUser.getId)
 
         mv.getModel.put("ignored", ignoreList.contains(user.getId))
 
-        remarkDao.getRemark(currentUser.user, user).foreach { remark =>
+        remarkDao.getRemark(currentUser, user).foreach { remark =>
           mv.getModel.put("remark", remark)
         }
       }
@@ -124,10 +124,10 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     mv.addObject("favoriteTags", userTagService.favoritesGet(user))
 
-    if (viewByOwner || currentUserOpt.exists(_.moderator)) {
+    if (viewByOwner || currentUserOpt.moderator) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user))
 
-      val logItems = userLogDao.getLogItems(user, currentUserOpt.exists(_.moderator))
+      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator)
       if (!logItems.isEmpty) mv.addObject("userlog", userLogPrepareService.prepare(logItems))
 
       mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))
@@ -169,10 +169,10 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD), params = Array("year-stats"))
   @ResponseBody
-  def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[Json] = AuthorizedOpt { currentUser =>
+  def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[Json] = MaybeAuthorized { currentUser =>
     val user = userService.getUser(nick)
 
-    if (!currentUser.exists(_.moderator)) {
+    if (!currentUser.moderator) {
       user.checkBlocked()
     }
 

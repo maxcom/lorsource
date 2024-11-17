@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{GroupListDao, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
@@ -78,7 +78,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
   def tagFeed(@PathVariable tag: String,
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
                @RequestParam(value = "section", defaultValue = "0") sectionId: Int
-  ): CompletionStage[ModelAndView] = AuthorizedOpt { currentUserOpt =>
+  ): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     TagName.checkTag(tag)
 
     val deadline = TagPageController.Timeout.fromNow
@@ -109,7 +109,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
 
         modelAndView.addObject("sectionList", sections.asJava)
 
-        currentUserOpt.foreach { currentUser =>
+        currentUserOpt.opt.foreach { currentUser =>
           modelAndView.addObject("showFavoriteTagButton", !userTagService.hasFavoriteTag(currentUser.user, tag))
           modelAndView.addObject("showUnFavoriteTagButton", userTagService.hasFavoriteTag(currentUser.user, tag))
 
@@ -122,13 +122,13 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
         val prof = Template.getTemplate.getProf
 
         val (preparedTopics, pageSize) = if (forumMode) {
-          (groupListDao.getSectionListTopics(section, currentUserOpt.map(_.user).toJava,
+          (groupListDao.getSectionListTopics(section, currentUserOpt.userOpt.toJava,
             prof.getTopics, offset, prof.getMessages, tagInfo.id), prof.getTopics)
         } else {
           val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
-            20, currentUserOpt.map(_.user), noTalks = false, tech = false)
+            20, currentUserOpt.userOpt, noTalks = false, tech = false)
 
-          (prepareService.prepareTopicsForUser(topics, currentUserOpt, prof, loadUserpics = false), 20)
+          (prepareService.prepareTopicsForUser(topics, currentUserOpt.opt, prof, loadUserpics = false), 20)
         }
 
         modelAndView.addObject("messages", preparedTopics)
@@ -145,7 +145,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user))) {
+        if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.userOpt)) {
           modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))
         }
 

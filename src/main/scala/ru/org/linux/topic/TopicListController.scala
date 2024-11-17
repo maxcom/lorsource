@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.{ScriptErrorException, Template}
@@ -100,7 +100,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
                           prepareService: TopicPrepareService, tagService: TagService,
                           groupDao: GroupDao, groupPermissionService: GroupPermissionService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
-                                    group: Option[Group]): Future[ModelAndView] = AuthorizedOpt { currentUserOpt =>
+                                    group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
 
     checkRequestConditions(section, group)
@@ -137,19 +137,19 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val tmpl = Template.getTemplate
 
     val messages = topicListService.getTopicsFeed(section, group, None, topicListForm.offset,
-      topicListForm.yearMonth, 20, currentUserOpt.map(_.user), topicListForm.filter.contains(NoTalks),
+      topicListForm.yearMonth, 20, currentUserOpt.userOpt, topicListForm.filter.contains(NoTalks),
       topicListForm.filter.contains(Tech))
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, currentUserOpt, tmpl.getProf, loadUserpics = false))
+      prepareService.prepareTopicsForUser(messages, currentUserOpt.opt, tmpl.getProf, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
 
     val addUrl = group match {
-      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt.map(_.user).orNull) =>
+      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt.userOpt.orNull) =>
         AddTopicController.getAddUrl(group)
-      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user)) =>
+      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.userOpt) =>
         AddTopicController.getAddUrl(section)
       case _ =>
         ""

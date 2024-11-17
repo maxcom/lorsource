@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
-import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.realtime.RealtimeEventHub
 
 @Controller
@@ -46,11 +46,13 @@ class UserEventApiController(userEventService: UserEventService,
   @ResponseBody
   @RequestMapping(value = Array("/yandex-tableau"), method = Array(RequestMethod.GET),
     produces = Array("application/json"))
-  def getYandexWidget(response: HttpServletResponse): Json = AuthorizedOpt {
-    case None =>
-      Map.empty[String, Int].asJson
-    case Some(currentUser) =>
-      response.setHeader("Cache-control", "no-cache")
-      Map("notifications" -> currentUser.user.getUnreadEvents).asJson
+  def getYandexWidget(response: HttpServletResponse): Json = MaybeAuthorized { session =>
+    session.opt match {
+      case None =>
+        Map.empty[String, Int].asJson
+      case Some(currentUser) =>
+        response.setHeader("Cache-control", "no-cache")
+        Map("notifications" -> currentUser.user.getUnreadEvents).asJson
+    }
   }
 }

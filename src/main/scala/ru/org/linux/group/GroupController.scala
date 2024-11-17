@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
@@ -73,7 +73,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
   def forumArchive(@PathVariable("group") groupName: String,
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
-                   @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean): CompletionStage[ModelAndView] = AuthorizedOpt { currentUserOpt =>
+                   @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val section = sectionService.getSection(Section.SECTION_FORUM)
     val group = groupDao.getGroup(section, groupName)
 
@@ -85,7 +85,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       throw new ServletParameterBadValueException("month", "указан некорректный месяц")
     }
 
-    forum(section, group, currentUserOpt.map(_.user), offset, lastmod = false, Some((year, month)), tagInfo = None,
+    forum(section, group, currentUserOpt.userOpt, offset, lastmod = false, Some((year, month)), tagInfo = None,
       showDeleted = false, showIgnored = showIgnored)
   }
 
@@ -106,11 +106,11 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
             @RequestParam(defaultValue = "false") lastmod: Boolean, @RequestParam(required = false) tag: String,
             @RequestParam(defaultValue = "false") showDeleted: Boolean,
             @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
-            request: HttpServletRequest): CompletionStage[ModelAndView] = AuthorizedOpt { currentUserOpt =>
+            request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val section = sectionService.getSection(Section.SECTION_FORUM)
     val group = groupDao.getGroup(section, groupName)
 
-    if (showDeleted && currentUserOpt.isEmpty) {
+    if (showDeleted && !currentUserOpt.authorized) {
       throw new AccessViolationException("Вы не авторизованы")
     }
 
@@ -125,7 +125,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       if (tagOpt.isDefined && tagInfo.isEmpty) {
         Future.successful(new ModelAndView("errors/code404")).toJava
       } else {
-        forum(section, group, currentUserOpt.map(_.user), offset, lastmod, None, tagInfo, showDeleted = showDeleted,
+        forum(section, group, currentUserOpt.userOpt, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
           showIgnored = showIgnored)
       }
     }

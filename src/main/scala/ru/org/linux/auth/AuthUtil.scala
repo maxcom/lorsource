@@ -22,9 +22,12 @@ import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
 
 sealed trait AnySession {
-  def userOpt: Option[User]
+  def authorized: Boolean
   def corrector: Boolean
   def moderator: Boolean
+
+  // TODO minimize usages
+  def userOpt: Option[User]
 
   // TODO deprecate
   def opt: Option[AuthorizedSession]
@@ -33,6 +36,7 @@ sealed trait AnySession {
 case class AuthorizedSession(user: User, corrector: Boolean, moderator: Boolean) extends AnySession {
   override def userOpt: Some[User] = Some(user)
   override def opt: Option[AuthorizedSession] = Some(this)
+  override def authorized: Boolean = true
 }
 
 case object NonAuthorizedSession extends AnySession {
@@ -40,6 +44,7 @@ case object NonAuthorizedSession extends AnySession {
   override def corrector: Boolean = false
   override def moderator: Boolean = false
   override def opt: Option[AuthorizedSession] = None
+  override def authorized: Boolean = false
 }
 
 object AuthUtil {
@@ -125,17 +130,6 @@ object AuthUtil {
         case _ =>
           Profile.createDefault
       }
-    }
-  }
-
-  // TODO deprecate
-  def AuthorizedOpt[T](f: Option[AuthorizedSession] => T): T = {
-    if (isSessionAuthorized) {
-      val currentUser = AuthorizedSession(getCurrentUser, isCorrectorSession, isModeratorSession)
-
-      f(Some(currentUser))
-    } else {
-      f(None)
     }
   }
 

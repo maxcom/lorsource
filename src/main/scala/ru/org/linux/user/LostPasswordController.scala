@@ -16,18 +16,15 @@ package ru.org.linux.user
 
 import com.google.common.base.Strings
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
+import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.email.EmailService
-import ru.org.linux.site.BadInputException
-import ru.org.linux.site.Template
+import ru.org.linux.site.{BadInputException, Template}
 
-import javax.mail.internet.AddressException
 import java.sql.Timestamp
+import javax.mail.internet.AddressException
 
 @Controller
 @RequestMapping(Array("/lostpwd.jsp"))
@@ -37,7 +34,7 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
 
   @RequestMapping(method = Array(RequestMethod.POST))
   @throws[Exception]
-  def sendPassword(@RequestParam("email") email: String): ModelAndView = AuthUtil.AuthorizedOpt { currentUser =>
+  def sendPassword(@RequestParam("email") email: String): ModelAndView = MaybeAuthorized { currentUser =>
     val tmpl = Template.getTemplate
     if (Strings.isNullOrEmpty(email)) throw new BadInputException("email не задан")
 
@@ -52,11 +49,11 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
       throw new AccessViolationException("Anonymous user")
     }
 
-    if (user.isModerator && !currentUser.exists(_.moderator)) {
+    if (user.isModerator && !currentUser.moderator) {
       throw new AccessViolationException("этот пароль могут сбросить только модераторы")
     }
 
-    if (!currentUser.exists(_.moderator) && !userService.canResetPassword(user)) {
+    if (!currentUser.moderator && !userService.canResetPassword(user)) {
       throw new BadInputException("Нельзя запрашивать пароль чаще одного раза в неделю!")
     }
 
@@ -67,7 +64,7 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
 
       emailService.sendPasswordReset(user, resetCode)
 
-      userService.updateResetDate(user, currentUser.map(_.user).orNull, user.getEmail, now)
+      userService.updateResetDate(user, currentUser.userOpt.orNull, user.getEmail, now)
 
       new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email")
     } catch {

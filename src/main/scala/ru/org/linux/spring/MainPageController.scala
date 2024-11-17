@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
@@ -31,7 +31,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
                          memoriesDao: MemoriesDao, groupPermissionService: GroupPermissionService,
                          sectionService: SectionService) {
   @RequestMapping(path = Array("/", "/index.jsp"))
-  def mainPage(response: HttpServletResponse): ModelAndView = AuthorizedOpt { currentUser =>
+  def mainPage(response: HttpServletResponse): ModelAndView = MaybeAuthorized { currentUser =>
     val tmpl = Template.getTemplate
 
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
@@ -52,7 +52,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
     val mv = new ModelAndView("index")
 
-    mv.getModel.put("news", prepareService.prepareTopicsForUser(messages, currentUser, profile, loadUserpics = false))
+    mv.getModel.put("news", prepareService.prepareTopicsForUser(messages, currentUser.opt, profile, loadUserpics = false))
 
     val briefNewsByDate = TopicListTools.datePartition(titles)
 
@@ -60,12 +60,12 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
       "briefNews",
       TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false))))
 
-    currentUser.map(_.user).foreach { user =>
+    currentUser.userOpt.foreach { user =>
       mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(user)))
       mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(user)))
     }
 
-    if (currentUser.exists(u => u.moderator || u.corrector)) {
+    if (currentUser.moderator || currentUser.corrector) {
       val uncommited = topicDao.getUncommitedCount
 
       mv.getModel.put("uncommited", Int.box(uncommited))
@@ -79,11 +79,11 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
       mv.getModel.put("uncommitedNews", Int.box(uncommitedNews))
     }
 
-    mv.getModel.put("showAdsense", Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense))
+    mv.getModel.put("showAdsense", Boolean.box(!currentUser.authorized || !tmpl.getProf.isHideAdsense))
 
     val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
 
-    if (groupPermissionService.isTopicPostingAllowed(sectionNews, currentUser.map(_.user))) {
+    if (groupPermissionService.isTopicPostingAllowed(sectionNews, currentUser.userOpt)) {
       mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
     }
 

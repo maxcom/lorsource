@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AuthUtil
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{GroupDao, GroupNotFoundException, GroupPermissionService}
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
@@ -29,7 +29,7 @@ import ru.org.linux.section.SectionService
 @Controller
 class ArchiveController(sectionService: SectionService, groupDao: GroupDao, archiveDao: ArchiveDao,
                         groupPermissionService: GroupPermissionService) {
-  private def archiveList(sectionid: Int, groupName: Option[String] = None) = AuthUtil.AuthorizedOpt { currentUserOpt =>
+  private def archiveList(sectionid: Int, groupName: Option[String] = None) = MaybeAuthorized { currentUserOpt =>
     val mv = new ModelAndView("view-news-archive")
 
     val section = sectionService.getSection(sectionid)
@@ -45,9 +45,9 @@ class ArchiveController(sectionService: SectionService, groupDao: GroupDao, arch
     mv.getModel.put("items", items)
 
     val addUrl = group match {
-      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt.map(_.user).orNull) =>
+      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt.userOpt.orNull) =>
         AddTopicController.getAddUrl(group)
-      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.map(_.user)) =>
+      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt.userOpt) =>
         AddTopicController.getAddUrl(section)
       case _ =>
         ""

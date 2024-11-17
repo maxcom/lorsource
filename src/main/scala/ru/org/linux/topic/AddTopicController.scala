@@ -28,7 +28,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.*
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
 import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
@@ -98,10 +98,10 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
-  def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = AuthorizedOpt { currentUser =>
+  def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = MaybeAuthorized { currentUser =>
     val group = form.getGroup
 
-    if (currentUser.isDefined && !groupPermissionService.isTopicPostingAllowed(group, currentUser.map(_.user).orNull)) {
+    if (currentUser.authorized && !groupPermissionService.isTopicPostingAllowed(group, currentUser.userOpt.orNull)) {
       val errorView = new ModelAndView("errors/good-penguin")
 
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу")
@@ -112,10 +112,10 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       val section = sectionService.getSection(form.getGroup.sectionId)
 
       if (form.getAdditionalUploadedImages.isEmpty) {
-        form.setAdditionalUploadedImages(new Array[String](groupPermissionService.additionalImageLimit(section, currentUser.map(_.user).orNull)))
+        form.setAdditionalUploadedImages(new Array[String](groupPermissionService.additionalImageLimit(section, currentUser.userOpt.orNull)))
       }
 
-      val params = prepareModel(Some(form.getGroup), currentUser.map(_.user), section)
+      val params = prepareModel(Some(form.getGroup), currentUser.userOpt, section)
 
       new ModelAndView("add", params.asJava)
     }
@@ -158,14 +158,14 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
   def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest, errors: BindingResult,
-            @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOpt { sessionUserOpt =>
+            @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = MaybeAuthorized { sessionUserOpt =>
 
     val group = form.getGroup
     val section = sectionService.getSection(group.sectionId)
 
-    val params = prepareModel(Some(group), sessionUserOpt.map(_.user), section).to(mutable.HashMap)
+    val params = prepareModel(Some(group), sessionUserOpt.userOpt, section).to(mutable.HashMap)
 
-    val user = postingUser(sessionUserOpt, form)
+    val user = postingUser(sessionUserOpt.opt, form)
 
     user.checkBlocked(errors)
     user.checkFrozen(errors)
@@ -238,14 +238,14 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     params.put("message", preparedTopic)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, sessionUserOpt, tmpl.getProf, loadUserpics = true)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, sessionUserOpt.opt, tmpl.getProf, loadUserpics = true)
     params.put("topicMenu", topicMenu)
 
     if (!form.isPreviewMode && !errors.hasErrors) {
       CSRFProtectionService.checkCSRF(request, errors)
     }
 
-    if (!form.isPreviewMode && !errors.hasErrors && sessionUserOpt.isEmpty || ipBlockInfo.isCaptchaRequired) {
+    if (!form.isPreviewMode && !errors.hasErrors && !sessionUserOpt.authorized || ipBlockInfo.isCaptchaRequired) {
       captcha.checkCaptcha(request, errors)
     }
 
@@ -286,7 +286,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   @RequestMapping(path = Array("/add-section.jsp"))
   def showForm(@RequestParam("section") sectionId: Int,
-               @RequestParam(value = "tag", required = false) tag: String): ModelAndView = AuthorizedOpt { currentUser =>
+               @RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { currentUser =>
     val section = sectionService.getSection(sectionId)
 
     if (tag != null) {
@@ -298,7 +298,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     if (groups.size == 1) {
       new ModelAndView(new RedirectView(AddTopicController.getAddUrl(groups.get(0), tag)))
     } else {
-      val params = prepareModel(None, currentUser.map(_.user), section).to(mutable.HashMap)
+      val params = prepareModel(None, currentUser.userOpt, section).to(mutable.HashMap)
 
       params.put("groups", groups)
 

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.comment.*
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC
@@ -147,12 +147,12 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
   private def getMessage(section: Section, webRequest: WebRequest, request: HttpServletRequest,
                          response: HttpServletResponse, page: Int, filter: String, groupName: String, msgid: Int,
-                         threadRoot: Int, showDeleted: Boolean): ModelAndView = AuthorizedOpt { currentUserOpt =>
+                         threadRoot: Int, showDeleted: Boolean): ModelAndView = MaybeAuthorized { currentUserOpt =>
     val deadline = TopicController.MoreLikeThisTimeout.fromNow
 
     val topic = topicDao.getById(msgid)
 
-    if (!currentUserOpt.exists(_.moderator) && showDeleted && !("POST" == request.getMethod)) {
+    if (!currentUserOpt.moderator && showDeleted && !("POST" == request.getMethod)) {
       return new ModelAndView(new RedirectView(topic.getLink))
     }
 
@@ -161,13 +161,13 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val messageText = msgbaseDao.getMessageText(topic.id)
     val plainText = textService.extractPlainText(messageText)
 
-    val warnings = if (!topic.expired && currentUserOpt.exists(u => u.moderator || u.corrector)) {
-      warningService.load(topic, currentUserOpt.exists(_.moderator))
+    val warnings = if (!topic.expired && (currentUserOpt.moderator || currentUserOpt.corrector)) {
+      warningService.load(topic, forModerator = currentUserOpt.moderator)
     } else {
       Seq.empty
     }
 
-    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, currentUserOpt.map(_.user), messageText, warnings)
+    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, currentUserOpt.userOpt, messageText, warnings)
 
     val group = preparedMessage.group
 
@@ -180,10 +180,10 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val editInfoSummary = editHistoryService.editInfoSummary(topic.id, TOPIC)
 
     if (editInfoSummary.nonEmpty) {
-      params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get, topic, currentUserOpt))
+      params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get, topic, currentUserOpt.opt))
     }
 
-    permissionService.checkView(group, topic, currentUserOpt.map(_.user).orNull, preparedMessage.author, showDeleted)
+    permissionService.checkView(group, topic, currentUserOpt.userOpt.orNull, preparedMessage.author, showDeleted)
 
     val tmpl = Template.getTemplate
 
@@ -199,7 +199,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     if (showDeleted || topic.deleted) {
       logger.info(s"View deleted ${topic.getLink} by " +
-        s"${currentUserOpt.map(_.user.getNick).getOrElse("<none>")} (deleted = ${topic.deleted})")
+        s"${currentUserOpt.userOpt.map(_.getNick).getOrElse("<none>")} (deleted = ${topic.deleted})")
     }
 
     params.put("showDeleted", Boolean.box(showDeleted))
@@ -213,9 +213,9 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("ogDescription", MessageTextService.trimPlainText(plainText, 250, encodeHtml = true))
     params.put("page", Integer.valueOf(page))
     params.put("group", group)
-    params.put("showAdsense", Boolean.box(currentUserOpt.isEmpty || !tmpl.getProf.isHideAdsense))
+    params.put("showAdsense", Boolean.box(!currentUserOpt.authorized || !tmpl.getProf.isHideAdsense))
 
-    if (currentUserOpt.isEmpty && topic.expired) {
+    if (!currentUserOpt.authorized && topic.expired) {
       val etag = TopicController.getEtag(topic)
 
       response.setHeader("Etag", etag)
@@ -228,11 +228,11 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       }
     }
 
-    params.put("messageMenu", topicPrepareService.getTopicMenu(preparedMessage, currentUserOpt, tmpl.getProf, loadUserpics = true))
-    params.put("memoriesInfo", memoriesDao.getTopicInfo(topic.id, currentUserOpt.map(_.user)))
+    params.put("messageMenu", topicPrepareService.getTopicMenu(preparedMessage, currentUserOpt.opt, tmpl.getProf, loadUserpics = true))
+    params.put("memoriesInfo", memoriesDao.getTopicInfo(topic.id, currentUserOpt.userOpt))
 
-    val ignoreList: Set[Int] = currentUserOpt.map { currentUser =>
-      ignoreListDao.get(currentUser.user.getId)
+    val ignoreList: Set[Int] = currentUserOpt.userOpt.map { currentUser =>
+      ignoreListDao.get(currentUser.getId)
     }.getOrElse(Set.empty)
 
     val (filterMode, filterModeShow) = if (filter=="show") {
@@ -243,7 +243,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     params.put("filterModeShow", Boolean.box(filterModeShow))
 
-    loadTopicScroller(params, topic, currentUserOpt.map(_.user), ignoreList.nonEmpty)
+    loadTopicScroller(params, topic, currentUserOpt.userOpt, ignoreList.nonEmpty)
 
     val comments = getCommentList(topic, showDeleted)
     val hideSet = commentService.makeHideSet(comments, filterMode, ignoreList)
@@ -266,7 +266,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       list = commentsFiltered,
       topic = topic,
       hideSet = hideSet,
-      currentUser = currentUserOpt,
+      currentUser = currentUserOpt.opt,
       profile = tmpl.getProf,
       ignoreList = ignoreList,
       filterShow = filterModeShow)
@@ -282,7 +282,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
     params.put("ipBlockInfo", ipBlockInfo)
-    params.put("modes", MessageTextService.postingModeSelector(currentUserOpt, tmpl.getFormatMode).asJava)
+    params.put("modes", MessageTextService.postingModeSelector(currentUserOpt.opt, tmpl.getFormatMode).asJava)
 
     val add = new CommentRequest
     params.put("add", add)
@@ -296,7 +296,9 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
         moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
     })
 
-    params.put("showDeletedButton", Boolean.box(permissionService.allowViewDeletedComments(topic, currentUserOpt.map(_.user)) && !showDeleted))
+    params.put("showDeletedButton",
+      Boolean.box(permissionService.allowViewDeletedComments(topic, currentUserOpt.userOpt) && !showDeleted))
+
     params.put("dateJumps", prepareService.buildDateJumpSet(commentsFiltered, TopicController.JUMP_MIN_DURATION))
 
     new ModelAndView("view-topic", params.asJava)
@@ -310,7 +312,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     }
   }
 
-  private def getCommentsForPage(commentList: CommentList, page: Int, messagesPerPage: Int, hideSet: Set[Int]): Seq[Comment] = {
+  private def getCommentsForPage(commentList: CommentList, page: Int, messagesPerPage: Int,
+                                 hideSet: Set[Int]): Seq[Comment] = {
     val comments = commentList.comments
 
     if (page != -1) {
@@ -402,7 +405,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     new ModelAndView(new RedirectView(link.toString))
   }
 
-  private def jumpMessage(msgid: Int, cid: Int, skipDeleted: Boolean): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  private def jumpMessage(msgid: Int, cid: Int, skipDeleted: Boolean): ModelAndView = MaybeAuthorized { currentUserOpt =>
     val topic = topicDao.getById(msgid)
 
     var comments = getCommentList(topic, showDeleted = false)
@@ -422,7 +425,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     var deleted = false
 
-    if (node == null && currentUserOpt.exists(_.moderator)) {
+    if (node == null && currentUserOpt.moderator) {
       comments = getCommentList(topic, showDeleted = true)
       node = comments.getNode(cid)
       deleted = true
@@ -440,8 +443,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     if (deleted) redirectUrl = redirectUrl.showDeleted
 
-    if (currentUserOpt.isDefined && !deleted) {
-      val ignoreList = ignoreListDao.get(currentUserOpt.get.user.getId)
+    if (currentUserOpt.authorized && !deleted) {
+      val ignoreList = ignoreListDao.get(currentUserOpt.userOpt.get.getId)
       val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(ignoreList.isEmpty), ignoreList)
 
       if (hideSet.contains(node.getComment.id)) {
