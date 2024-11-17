@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, Requ
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, CorrectorOrModerator}
-import ru.org.linux.auth.{AccessViolationException, CurrentUser}
+import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.site.{MessageNotFoundException, Template}
@@ -71,7 +71,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
   }
 
-  private def prepareView(request: PostWarningRequest, currentUser: CurrentUser, mv: ModelAndView,
+  private def prepareView(request: PostWarningRequest, currentUser: AuthorizedSession, mv: ModelAndView,
                           types: Seq[WarningType]): Unit = {
     if (request.comment == null) {
       val preparedTopic = topicPrepareService.prepareTopic(request.topic, currentUser.user)
@@ -160,7 +160,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
   }
 
-  private def checkRequest(group: Group, request: PostWarningRequest, errors: Errors, currentUser: CurrentUser): Unit = {
+  private def checkRequest(group: Group, request: PostWarningRequest, errors: Errors, currentUser: AuthorizedSession): Unit = {
     assert(request.topic.groupId == group.id)
     assert(request.comment == null || request.comment.topicId == request.topic.id)
 

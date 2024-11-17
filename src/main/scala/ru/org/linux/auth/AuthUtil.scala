@@ -21,7 +21,26 @@ import ru.org.linux.user.{Profile, User, UserDao}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
 
-case class CurrentUser(user: User, corrector: Boolean, moderator: Boolean)
+sealed trait AnySession {
+  def userOpt: Option[User]
+  def corrector: Boolean
+  def moderator: Boolean
+
+  // TODO deprecate
+  def opt: Option[AuthorizedSession]
+}
+
+case class AuthorizedSession(user: User, corrector: Boolean, moderator: Boolean) extends AnySession {
+  override def userOpt: Some[User] = Some(user)
+  override def opt: Option[AuthorizedSession] = Some(this)
+}
+
+case object NonAuthorizedSession extends AnySession {
+  override def userOpt: None.type = None
+  override def corrector: Boolean = false
+  override def moderator: Boolean = false
+  override def opt: Option[AuthorizedSession] = None
+}
 
 object AuthUtil {
   def updateLastLogin(authentication: Authentication, userDao: UserDao): Unit = {
@@ -109,9 +128,10 @@ object AuthUtil {
     }
   }
 
-  def AuthorizedOpt[T](f: Option[CurrentUser] => T): T = {
+  // TODO deprecate
+  def AuthorizedOpt[T](f: Option[AuthorizedSession] => T): T = {
     if (isSessionAuthorized) {
-      val currentUser = CurrentUser(getCurrentUser, isCorrectorSession, isModeratorSession)
+      val currentUser = AuthorizedSession(getCurrentUser, isCorrectorSession, isModeratorSession)
 
       f(Some(currentUser))
     } else {
@@ -119,17 +139,27 @@ object AuthUtil {
     }
   }
 
-  def AuthorizedOnly[T](f: CurrentUser => T): T = {
+  def MaybeAuthorized[T](f: AnySession => T): T = {
+    if (isSessionAuthorized) {
+      val currentUser = AuthorizedSession(getCurrentUser, isCorrectorSession, isModeratorSession)
+
+      f(currentUser)
+    } else {
+      f(NonAuthorizedSession)
+    }
+  }
+
+  def AuthorizedOnly[T](f: AuthorizedSession => T): T = {
     if (!isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
     }
 
-    val currentUser = CurrentUser(getCurrentUser, isCorrectorSession, isModeratorSession)
+    val currentUser = AuthorizedSession(getCurrentUser, isCorrectorSession, isModeratorSession)
 
     f(currentUser)
   }
 
-  def ModeratorOnly[T](f: CurrentUser => T): T = {
+  def ModeratorOnly[T](f: AuthorizedSession => T): T = {
     if (!isModeratorSession) {
       throw new AccessViolationException("Not moderator")
     }
@@ -137,7 +167,7 @@ object AuthUtil {
     AuthorizedOnly(f)
   }
 
-  def CorrectorOrModerator[T](f: CurrentUser => T): T = {
+  def CorrectorOrModerator[T](f: AuthorizedSession => T): T = {
     if (!(isCorrectorSession || isModeratorSession)) {
       throw new AccessViolationException("Not corrector or moderator")
     }
@@ -145,7 +175,7 @@ object AuthUtil {
     AuthorizedOnly(f)
   }
 
-  def AdministratorOnly[T](f: CurrentUser => T): T = {
+  def AdministratorOnly[T](f: AuthorizedSession => T): T = {
     if (!isAdministratorSession) {
       throw new AccessViolationException("Not administrator")
     }

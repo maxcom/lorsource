@@ -15,7 +15,7 @@
 package ru.org.linux.topic
 
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.CurrentUser
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.EditInfoSummary
 import ru.org.linux.gallery.{Image, ImageService}
 import ru.org.linux.group.{GroupDao, GroupPermissionService}
@@ -56,7 +56,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
       null, text, image)
 
-  def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic, currentUserOpt: Option[CurrentUser]): PreparedEditInfoSummary = {
+  def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic, currentUserOpt: Option[AuthorizedSession]): PreparedEditInfoSummary = {
     val lastEditor = userService.getUserCached(editInfo.editor).getNick
     val editCount = editInfo.editCount
     val lastEditDate = editInfo.editdate
@@ -164,7 +164,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: collection.Seq[Topic], user: Option[CurrentUser], profile: Profile,
+  def prepareTopicsForUser(messages: collection.Seq[Topic], user: Option[AuthorizedSession], profile: Profile,
                            loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
@@ -198,7 +198,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }.toSeq
   }
 
-  def getTopicMenu(topic: PreparedTopic, currentUserOpt: Option[CurrentUser], profile: Profile,
+  def getTopicMenu(topic: PreparedTopic, currentUserOpt: Option[AuthorizedSession], profile: Profile,
                    loadUserpics: Boolean): TopicMenu = {
     val topicEditable = groupPermissionService.isEditable(topic, currentUserOpt.map(_.user).orNull)
     val tagsEditable = groupPermissionService.isTagsEditable(topic, currentUserOpt.map(_.user))

@@ -17,7 +17,7 @@ package ru.org.linux.comment
 import com.google.common.base.Strings
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.CurrentUser
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.reaction.{PreparedReactions, ReactionService}
@@ -39,7 +39,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
-                             hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[CurrentUser],
+                             hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[AuthorizedSession],
                              group: Group, ignoreList: Set[Int], filterShow: Boolean, warnings: Seq[Warning]) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
@@ -138,7 +138,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  def prepareCommentOnly(comment: Comment, currentUser: Option[CurrentUser], profile: Profile,
+  def prepareCommentOnly(comment: Comment, currentUser: Option[AuthorizedSession], profile: Profile,
                          topic: Topic, ignoreList: Set[Int]): PreparedComment = {
     assert(comment.topicId == topic.id)
 
@@ -171,7 +171,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   }
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],
-                         currentUser: Option[CurrentUser], profile: Profile, ignoreList: Set[Int],
+                         currentUser: Option[AuthorizedSession], profile: Profile, ignoreList: Set[Int],
                          filterShow: Boolean): Seq[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty

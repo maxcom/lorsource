@@ -107,7 +107,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     new ModelAndView("edit", prepareModel(preparedTopic, currentUser, tmpl.getProf).asJava)
   }
 
-  private def prepareModel(preparedTopic: PreparedTopic, currentUser: CurrentUser, profile: Profile): mutable.HashMap[String, AnyRef] = {
+  private def prepareModel(preparedTopic: PreparedTopic, currentUser: AuthorizedSession, profile: Profile): mutable.HashMap[String, AnyRef] = {
     val params = mutable.HashMap[String, AnyRef]()
 
     val message = preparedTopic.message

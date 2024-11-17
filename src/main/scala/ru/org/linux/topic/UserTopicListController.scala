@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.{AccessViolationException, CurrentUser}
+import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
@@ -191,7 +191,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   }
 
   private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic],
-                                         currentUser: Option[CurrentUser]): Unit = {
+                                         currentUser: Option[AuthorizedSession]): Unit = {
     if (rss) {
       modelAndView.addObject("messages", prepareService.prepareTopics(messages).asJava)
       modelAndView.setViewName("section-rss")

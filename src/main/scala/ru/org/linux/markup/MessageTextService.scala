@@ -18,7 +18,7 @@ package ru.org.linux.markup
 import com.google.common.base.Strings
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.CurrentUser
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.markup.MarkupType.*
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.user.User
@@ -208,7 +208,7 @@ object MessageTextService {
   def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")
   def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
 
-  def postingModeSelector(user: Option[CurrentUser], defaultMarkup: String): Map[String, String] = {
+  def postingModeSelector(user: Option[AuthorizedSession], defaultMarkup: String): Map[String, String] = {
     val modes = MarkupPermissions.allowedFormats(user.map(_.user).orNull).filter(f => !f.deprecated || f.formId == defaultMarkup)
 
     if (modes.size > 1) {

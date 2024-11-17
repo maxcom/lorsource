@@ -144,7 +144,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     params.result()
   }
 
-  private def postingUser(sessionUserOpt: Option[CurrentUser], form: AddTopicRequest) = {
+  private def postingUser(sessionUserOpt: Option[AuthorizedSession], form: AddTopicRequest) = {
     sessionUserOpt match {
       case Some(currentUser) =>
         currentUser.user

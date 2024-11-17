@@ -20,7 +20,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.{AuthUtil, CurrentUser}
+import ru.org.linux.auth.AnySession
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionService}
@@ -58,8 +59,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
                         imageService: ImageService, groupPermissionService: GroupPermissionService) extends StrictLogging {
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = AuthUtil.AuthorizedOpt { currentUserObj =>
-    val currentUser = currentUserObj.map(_.user)
+  def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserObj =>
+    val currentUser = currentUserObj.userOpt
 
     val deadline = TagPageController.Timeout.fromNow
 
@@ -82,13 +83,13 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       case Some(currentUser) =>
         Seq("showFavoriteTagButton" -> !userTagService.hasFavoriteTag(currentUser, tag),
           "showUnFavoriteTagButton" -> userTagService.hasFavoriteTag(currentUser, tag),
-          "showIgnoreTagButton" -> (currentUserObj.forall(!_.moderator) && !userTagService.hasIgnoreTag(currentUser, tag)),
-          "showUnIgnoreTagButton" -> (currentUserObj.forall(!_.moderator) && userTagService.hasIgnoreTag(currentUser, tag)))
+          "showIgnoreTagButton" -> (!currentUserObj.moderator && !userTagService.hasIgnoreTag(currentUser, tag)),
+          "showUnIgnoreTagButton" -> (!currentUserObj.moderator && userTagService.hasIgnoreTag(currentUser, tag)))
       case None =>
         Seq.empty
     }
 
-    tagService.getTagInfo(tag, skipZero = currentUserObj.forall(!_.moderator)) match {
+    tagService.getTagInfo(tag, skipZero = !currentUserObj.moderator) match {
       case None =>
         tagService.getTagBySynonym(tag).map { mainName =>
           Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).toJava
@@ -114,7 +115,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           "favsCount" -> userTagService.countFavs(tagInfo.id),
           "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
           "showAdsense" -> Boolean.box(currentUser.isEmpty || !tmpl.getProf.isHideAdsense),
-          "showDelete" -> Boolean.box(currentUserObj.exists(_.moderator)),
+          "showDelete" -> Boolean.box(currentUserObj.moderator),
           "synonyms" -> synonyms.asJava,
           "newsFirst" -> Boolean.box(newsFirst)
         ) ++ sections ++ favs
@@ -139,10 +140,10 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 }
 
-  private def getNewsSection(tag: String, currentUser: Option[CurrentUser]) = {
+  private def getNewsSection(tag: String, currentUser: AnySession) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
-      TagPageController.TotalNewsCount, currentUser.map(_.user), noTalks = false, tech = false)
+      TagPageController.TotalNewsCount, currentUser.userOpt, noTalks = false, tech = false)
 
     val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.map(_.commitDate.toInstant).exists(isRecent)) {
       newsTopics.splitAt(1)
@@ -151,7 +152,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 
     val tmpl = Template.getTemplate
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, currentUser, tmpl.getProf, loadUserpics = false)
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, currentUser.opt, tmpl.getProf, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 
@@ -163,7 +164,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
 
-    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection, currentUser.map(_.user))) {
+    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection, currentUser.userOpt)) {
       Some("addNews" -> AddTopicController.getAddUrl(newsSection, tag))
     } else {
       None

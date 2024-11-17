@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.{AccessViolationException, CurrentUser}
+import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
@@ -32,7 +32,7 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 @Controller
 class DeregisterController(userService: UserService) {
-  private def checkUser(currentUser: CurrentUser): Unit = {
+  private def checkUser(currentUser: AuthorizedSession): Unit = {
     if (currentUser.user.getScore < 100) {
       throw new AccessViolationException("Удаление аккаунта недоступно для пользователей со score < 100")
     }

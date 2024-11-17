@@ -18,7 +18,7 @@ package ru.org.linux.warning
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.auth.CurrentUser
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.comment.Comment
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.{User, UserEventService, UserService}
@@ -47,7 +47,7 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
     eventService.addWarningEvent(author, notifyList, topic, comment, s"[${warningType.name}] $message", warningId = id)
   }
 
-  def lastWarningsCount(user: CurrentUser): Int = warningDao.lastWarningsCount(user.user.getId)
+  def lastWarningsCount(user: AuthorizedSession): Int = warningDao.lastWarningsCount(user.user.getId)
 
   def prepareWarning(warnings: Seq[Warning]): Seq[PreparedWarning] =
     warnings.map { warning =>
@@ -68,5 +68,5 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
 
   def get(id: Int): Warning = warningDao.get(id)
 
-  def clear(warning: Warning, by: CurrentUser): Unit = warningDao.clear(warning.id, by.user.getId)
+  def clear(warning: Warning, by: AuthorizedSession): Unit = warningDao.clear(warning.id, by.user.getId)
 }

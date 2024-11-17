@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
-import ru.org.linux.auth.{AccessViolationException, CurrentUser}
+import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.reaction.ReactionController.ReactionsLimit
@@ -70,7 +70,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
   }
 
   private def doSetCommentReaction(topic: Topic, comment: Comment, reactionAction: String,
-                                   currentUser: CurrentUser): Int = {
+                                   currentUser: AuthorizedSession): Int = {
     val Array(reaction, action) = reactionAction.split("-", 2)
 
     if (!reactionService.allowInteract(Some(currentUser.user), topic, Some(comment))) {
@@ -142,7 +142,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
     }
   }
 
-  private def doSetTopicReaction(topic: Topic, reactionAction: String, currentUser: CurrentUser): Int = {
+  private def doSetTopicReaction(topic: Topic, reactionAction: String, currentUser: AuthorizedSession): Int = {
     val Array(reaction, action) = reactionAction.split("-", 2)
 
     if (!reactionService.allowInteract(Some(currentUser.user), topic, None)) {
