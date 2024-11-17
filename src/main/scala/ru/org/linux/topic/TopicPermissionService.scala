@@ -440,7 +440,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
   def canPostWarning(currentUserOpt: Option[AuthorizedSession], topic: Topic, comment: Option[Comment]): Boolean = {
     !topic.deleted && !topic.expired && comment.forall(!_.deleted) && currentUserOpt.exists { user =>
-      user.user.getScore >= 400 && !user.user.isFrozen
+      user.user.getScore >= 300 && !user.user.isFrozen
     }
   }
 }
