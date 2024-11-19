@@ -18,7 +18,7 @@ import com.google.common.base.Preconditions
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
-import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
+import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.{MarkupPermissions, MarkupType}
@@ -438,8 +438,8 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     false
   }
 
-  def canPostWarning(currentUserOpt: Option[AuthorizedSession], topic: Topic, comment: Option[Comment]): Boolean = {
-    !topic.deleted && !topic.expired && comment.forall(!_.deleted) && currentUserOpt.exists { user =>
+  def canPostWarning(currentUserOpt: AnySession, topic: Topic, comment: Option[Comment]): Boolean = {
+    !topic.deleted && !topic.expired && comment.forall(!_.deleted) && currentUserOpt.opt.exists { user =>
       user.user.getScore >= 300 && !user.user.isFrozen
     }
   }

@@ -31,7 +31,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 class UncommitedTopicsController(sectionService: SectionService, topicListService: TopicListService,
                                  prepareService: TopicPrepareService, groupPermissionService: GroupPermissionService) {
   @RequestMapping
-  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
+  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
     val modelAndView = new ModelAndView("view-all")
 
     val section: Option[Section] = if (sectionId != 0) {
@@ -43,7 +43,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
     section.foreach { section =>
       modelAndView.addObject("section", section)
 
-      if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt)) {
+      if (groupPermissionService.isTopicPostingAllowed(section)) {
         modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
       }
     }
@@ -69,7 +69,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     val tmpl = Template.getTemplate
 
-    val topics = prepareService.prepareTopicsForUser(messages, currentUserOpt.opt, tmpl.getProf, loadUserpics = false)
+    val topics = prepareService.prepareTopicsForUser(messages, tmpl.getProf, loadUserpics = false)
 
     modelAndView.addObject("messages", topics)
 

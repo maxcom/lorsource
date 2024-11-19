@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
-import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
+import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.user.*
@@ -37,7 +37,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   def showUserFavs(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
-  ): ModelAndView = MaybeAuthorized { currentUser =>
+  ): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
     modelAndView.addObject("url",
@@ -49,7 +49,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = false)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, currentUser.opt)
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -59,7 +59,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   def showUserDrafts(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
-  ): ModelAndView = AuthorizedOnly { currentUser =>
+  ): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
     if (!currentUser.moderator && !(user == currentUser.user)) {
@@ -74,7 +74,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getDrafts(user, offset)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, Some(currentUser))
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -86,7 +86,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
     @RequestParam(value = "section", defaultValue = "0") sectionId: Int,
     @RequestParam(value = "output", required = false) output: String
-  ): ModelAndView = MaybeAuthorized { currentUser =>
+  ): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
     if (user.getId == User.ANONYMOUS_ID && !currentUser.moderator) {
@@ -129,7 +129,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
       modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
 
-      prepareTopicsForPlainOrRss(modelAndView, rss, messages, currentUser.opt)
+      prepareTopicsForPlainOrRss(modelAndView, rss, messages)
 
       if (!rss) {
         modelAndView.setViewName("user-topics")
@@ -167,7 +167,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   def showUserWatches(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
-  ): ModelAndView = AuthorizedOnly { currentUser =>
+  ): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
     if (!currentUser.moderator && !(user == currentUser.user)) {
@@ -184,21 +184,21 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("offset", offset)
 
     val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = true)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages, Some(currentUser))
+    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
   }
 
-  private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic],
-                                         currentUser: Option[AuthorizedSession]): Unit = {
+  private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic])
+                                        (implicit currentUser: AnySession): Unit = {
     if (rss) {
       modelAndView.addObject("messages", prepareService.prepareTopics(messages).asJava)
       modelAndView.setViewName("section-rss")
     } else {
       val tmpl = Template.getTemplate
       modelAndView.addObject("messages",
-        prepareService.prepareTopicsForUser(messages, currentUser, tmpl.getProf, loadUserpics = false))
+        prepareService.prepareTopicsForUser(messages, tmpl.getProf, loadUserpics = false))
     }
   }
 

@@ -35,8 +35,8 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
                             prepareService: TopicPrepareService,
                             permissionService: GroupPermissionService,
                             userService: UserService) extends StrictLogging {
-  private def checkUndeletable(topic: Topic, currentUser: AuthorizedSession): Unit = {
-    if (!permissionService.isUndeletable(topic, currentUser)) {
+  private def checkUndeletable(topic: Topic)(implicit currentUser: AuthorizedSession): Unit = {
+    if (!permissionService.isUndeletable(topic)) {
       throw new AccessViolationException("это сообщение нельзя восстановить")
     }
   }
@@ -45,14 +45,14 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   def deleteReasons: util.List[String] = TopicService.DeleteReasons.asJava
 
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.GET))
-  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
+  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = topicDao.getById(msgid)
 
     if (topic.deleted) {
       throw new UserErrorException("Сообщение уже удалено")
     }
 
-    if (!permissionService.isDeletable(topic, currentUser.user)) {
+    if (!permissionService.isDeletable(topic)) {
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
 
@@ -69,17 +69,17 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.POST))
   def deleteMessage(@RequestParam("msgid") msgid: Int, @RequestParam("reason") reason: String,
-                    @RequestParam(value = "bonus", defaultValue = "0") bonus: Int): ModelAndView = AuthorizedOnly { currentUser =>
-    val user = currentUser.user
-
+                    @RequestParam(value = "bonus", defaultValue = "0") bonus: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val message = topicDao.getById(msgid)
     if (message.deleted) {
       throw new UserErrorException("Сообщение уже удалено")
     }
 
-    if (!permissionService.isDeletable(message, user)) {
+    if (!permissionService.isDeletable(message)) {
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
+
+    val user = currentUser.user
 
     topicService.deleteWithBonus(message, user, reason, bonus)
     logger.info(s"Удалено сообщение $msgid пользователем ${user.getNick} по причине `$reason'")
@@ -90,9 +90,9 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   }
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.GET))
-  def undeleteForm(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
+  def undeleteForm(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = topicDao.getById(msgid)
-    checkUndeletable(topic, currentUser)
+    checkUndeletable(topic)
 
     new ModelAndView("undelete", Map(
       "message" -> topic,
@@ -101,9 +101,9 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   }
 
   @RequestMapping(value = Array("/undelete"), method = Array(RequestMethod.POST))
-  def undelete(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { currentUser =>
+  def undelete(@RequestParam msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = topicDao.getById(msgid)
-    checkUndeletable(topic, currentUser)
+    checkUndeletable(topic)
 
     if (topic.deleted) {
       topicDao.undelete(topic)

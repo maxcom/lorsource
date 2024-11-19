@@ -31,7 +31,7 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
                             userService: UserService, topicPrepareService: TopicPrepareService) {
   @RequestMapping(Array("/news/{group}/{id}/history", "/forum/{group}/{id}/history", "/gallery/{group}/{id}/history",
     "/polls/{group}/{id}/history", "/articles/{group}/{id}/history"))
-  def showEditInfo(@PathVariable("id") msgid: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
+  def showEditInfo(@PathVariable("id") msgid: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
     val topic = messageDao.getById(msgid)
     val group = groupDao.getGroup(topic.groupId)
 
@@ -49,7 +49,7 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
 
     modelAndView.getModel.put("message", topic)
     modelAndView.getModel.put("editHistories", editHistories)
-    modelAndView.getModel.put("canRestore", groupPermissionService.isEditable(preparedMessage, currentUserOpt.userOpt.orNull))
+    modelAndView.getModel.put("canRestore", groupPermissionService.isEditable(preparedMessage))
 
     modelAndView
   }

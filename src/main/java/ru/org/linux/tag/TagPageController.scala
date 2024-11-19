@@ -59,7 +59,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
                         imageService: ImageService, groupPermissionService: GroupPermissionService) extends StrictLogging {
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUser =>
+  def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUser =>
     val deadline = TagPageController.Timeout.fromNow
 
     if (!TagName.isGoodTag(tag)) {
@@ -93,11 +93,11 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).toJava
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
-        val (news, newsDate) = getNewsSection(tag, currentUser)
-        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY, currentUser)
-        val gallery = getGallerySection(tag, tagInfo.id, currentUser)
-        val (polls, _) = getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY, currentUser)
-        val (articles, _) = getTopicList(tag, tagInfo.id, Section.SECTION_ARTICLES, CommitMode.COMMITED_ONLY, currentUser)
+        val (news, newsDate) = getNewsSection(tag)
+        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY)
+        val gallery = getGallerySection(tag, tagInfo.id)
+        val (polls, _) = getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY)
+        val (articles, _) = getTopicList(tag, tagInfo.id, Section.SECTION_ARTICLES, CommitMode.COMMITED_ONLY)
 
         val newsFirst = newsDate.isDefined && (newsDate.exists(isRecent) || newsDate.zip(forumDate).exists(p => p._1.isAfter(p._2)))
 
@@ -138,7 +138,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 }
 
-  private def getNewsSection(tag: String, currentUser: AnySession) = {
+  private def getNewsSection(tag: String)(implicit  currentUser: AnySession) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
       TagPageController.TotalNewsCount, currentUser.userOpt, noTalks = false, tech = false)
@@ -150,7 +150,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 
     val tmpl = Template.getTemplate
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, currentUser.opt, tmpl.getProf, loadUserpics = false)
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, tmpl.getProf, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 
@@ -162,7 +162,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
 
-    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection, currentUser)) {
+    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection)) {
       Some("addNews" -> AddTopicController.getAddUrl(newsSection, tag))
     } else {
       None
@@ -174,11 +174,11 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ more ++ addNews, newestDate)
   }
 
-  private def getGallerySection(tag: String, tagId: Int, currentUser: AnySession) = {
+  private def getGallerySection(tag: String, tagId: Int)(implicit  currentUser: AnySession) = {
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId).asJava)
     val section = sectionService.getSection(Section.SECTION_GALLERY)
 
-    val add = if (groupPermissionService.isTopicPostingAllowed(section, currentUser)) {
+    val add = if (groupPermissionService.isTopicPostingAllowed(section)) {
       Some("addGallery" -> AddTopicController.getAddUrl(section, tag))
     } else {
       None
@@ -195,7 +195,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ add ++ more
   }
 
-  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode, currentUser: AnySession) = {
+  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode)(implicit currentUser: AnySession) = {
     val forumSection = sectionService.getSection(section)
 
     val topicListDto = new TopicListDto
@@ -213,7 +213,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    val add = if (groupPermissionService.isTopicPostingAllowed(forumSection, currentUser)) {
+    val add = if (groupPermissionService.isTopicPostingAllowed(forumSection)) {
       Some(forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag))
     } else {
       None

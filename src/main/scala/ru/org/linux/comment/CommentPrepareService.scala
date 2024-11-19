@@ -17,7 +17,7 @@ package ru.org.linux.comment
 import com.google.common.base.Strings
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AuthorizedSession
+import ru.org.linux.auth.AnySession
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.reaction.{PreparedReactions, ReactionService}
@@ -39,7 +39,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], profile: Profile, topic: Topic,
-                             hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[AuthorizedSession],
+                             hideSet: Set[Int], samePageComments: Set[Int], currentUser: AnySession,
                              group: Group, ignoreList: Set[Int], filterShow: Boolean, warnings: Seq[Warning]) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
@@ -98,15 +98,15 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val apiDeleteInfo = deleteInfo.map(i => new ApiDeleteInfo(userService.getUserCached(i.userid).getNick, i.getReason))
     val editSummary = loadEditSummary(comment)
 
-    val (postIP, userAgent) = if (currentUser != null && currentUser.exists(_.moderator)) {
+    val (postIP, userAgent) = if (currentUser != null && currentUser.moderator) {
       (Option(comment.postIP), userAgentDao.getUserAgentById(comment.userAgentId).toScala)
     } else {
       (None, None)
     }
 
-    val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser.map(_.user).orNull, deleteInfo)
-    val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.map(_.user).orNull, topic, hasAnswers)
-    val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.map(_.user).orNull, hasAnswers, topic, messageText.markup)
+    val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser.userOpt.orNull, deleteInfo)
+    val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.userOpt.orNull, topic, hasAnswers)
+    val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.userOpt.orNull, hasAnswers, topic, messageText.markup)
     val warningsAllowed = topicPermissionService.canPostWarning(currentUser, topic, Some(comment))
 
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, Some(author), ignoreFrozen = true)
@@ -118,7 +118,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
-      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser.map(_.user), topic, Some(comment)),
+      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser.userOpt, topic, Some(comment)),
       warningsAllowed = warningsAllowed, warnings = preparedWarnings)
   }
 
@@ -138,7 +138,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  def prepareCommentOnly(comment: Comment, currentUser: Option[AuthorizedSession], profile: Profile,
+  def prepareCommentOnly(comment: Comment, currentUser: AnySession, profile: Profile,
                          topic: Topic, ignoreList: Set[Int]): PreparedComment = {
     assert(comment.topicId == topic.id)
 
@@ -171,7 +171,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   }
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],
-                         currentUser: Option[AuthorizedSession], profile: Profile, ignoreList: Set[Int],
+                         currentUser: AnySession, profile: Profile, ignoreList: Set[Int],
                          filterShow: Boolean): Seq[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty
@@ -180,13 +180,13 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       val users = userService.getUsersCachedMap(list.map(_.userid))
       val group = groupDao.getGroup(topic.groupId)
 
-      val allWarnings: Map[Int, Seq[Warning]] = if (!topic.expired && currentUser.exists(_.moderator)) {
+      val allWarnings: Map[Int, Seq[Warning]] = if (!topic.expired && currentUser.moderator) {
         warningService.load(list)
       } else {
         Map.empty
       }
 
-      val remarks = currentUser.map { user =>
+      val remarks = currentUser.opt.map { user =>
         remarkDao.getRemarks(user.user, users.values)
       }.getOrElse(Map.empty[Int, Remark])
 

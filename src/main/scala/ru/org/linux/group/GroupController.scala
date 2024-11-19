@@ -72,7 +72,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
   def forumArchive(@PathVariable("group") groupName: String,
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
-                   @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
+                   @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val section = sectionService.getSection(Section.SECTION_FORUM)
     val group = groupDao.getGroup(section, groupName)
 
@@ -84,7 +84,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       throw new ServletParameterBadValueException("month", "указан некорректный месяц")
     }
 
-    forum(section, group, currentUserOpt, offset, lastmod = false, Some((year, month)), tagInfo = None,
+    forum(section, group, offset, lastmod = false, Some((year, month)), tagInfo = None,
       showDeleted = false, showIgnored = showIgnored)
   }
 
@@ -105,7 +105,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
             @RequestParam(defaultValue = "false") lastmod: Boolean, @RequestParam(required = false) tag: String,
             @RequestParam(defaultValue = "false") showDeleted: Boolean,
             @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
-            request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
+            request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val section = sectionService.getSection(Section.SECTION_FORUM)
     val group = groupDao.getGroup(section, groupName)
 
@@ -124,15 +124,15 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       if (tagOpt.isDefined && tagInfo.isEmpty) {
         Future.successful(new ModelAndView("errors/code404")).toJava
       } else {
-        forum(section, group, currentUserOpt, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
+        forum(section, group, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
           showIgnored = showIgnored)
       }
     }
   }
 
-  private def forum(section: Section, group: Group, currentUser: AnySession, offset: Int, lastmod: Boolean,
+  private def forum(section: Section, group: Group, offset: Int, lastmod: Boolean,
                     yearMonth: Option[(Int, Int)], tagInfo: Option[TagInfo], showDeleted: Boolean,
-                    showIgnored: Boolean): CompletionStage[ModelAndView] = {
+                    showIgnored: Boolean)(implicit currentUser: AnySession): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val firstPage = isFirstPage(offset)
@@ -200,7 +200,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       params.put("topicsList", mainTopics)
     }
 
-    params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group, currentUser)))
+    params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group)))
 
     activeTagsF.map { activeTags =>
       if (activeTags.nonEmpty) {

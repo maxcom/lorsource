@@ -79,7 +79,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     } else {
       val tmpl = Template.getTemplate
 
-      val preparedComment = commentPrepareService.prepareCommentOnly(request.comment, Some(currentUser), tmpl.getProf,
+      val preparedComment = commentPrepareService.prepareCommentOnly(request.comment, currentUser, tmpl.getProf,
         request.topic, Set.empty)
 
       mv.addObject("preparedComment", preparedComment)
@@ -172,7 +172,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
       throw new AccessViolationException("Вы не можете отправить уведомление")
     }
 
-    if (!topicPermissionService.canPostWarning(Some(currentUser), request.topic, Option(request.comment))) {
+    if (!topicPermissionService.canPostWarning(currentUser, request.topic, Option(request.comment))) {
       errors.reject(null, "Вы не можете отправить уведомление")
     }
 

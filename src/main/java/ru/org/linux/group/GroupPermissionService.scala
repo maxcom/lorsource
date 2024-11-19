@@ -58,7 +58,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isUndeletable(topic: Topic, user: AuthorizedSession): Boolean = {
+  def isUndeletable(topic: Topic)(implicit user: AnySession): Boolean = {
     if (!topic.deleted || !user.moderator) {
       false
     } else {
@@ -81,16 +81,16 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     Math.max(group.topicRestriction, section.getTopicsRestriction)
   }
 
-  def enableAllowAnonymousCheckbox(group: Group, currentUser: AnySession): Boolean = {
+  def enableAllowAnonymousCheckbox(group: Group)(implicit currentUser: AnySession): Boolean = {
     currentUser.authorized && !group.premoderated &&
       Math.max(group.commentsRestriction,
         Section.getCommentPostscore(group.sectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
   }
 
-  def isTopicPostingAllowed(section: Section, currentUser: AnySession): Boolean =
+  def isTopicPostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean =
     isTopicPostingAllowed(section.getTopicsRestriction, currentUser.userOpt.orNull)
 
-  def isTopicPostingAllowed(group: Group, currentUser: AnySession): Boolean =
+  def isTopicPostingAllowed(group: Group)(implicit currentUser: AnySession): Boolean =
     isTopicPostingAllowed(effectivePostscore(group), currentUser.userOpt.orNull)
 
   private def isTopicPostingAllowed(restriction: Int, @Nullable currentUser: User): Boolean = {
@@ -110,7 +110,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isImagePostingAllowed(section: Section, currentUser: AnySession): Boolean = {
+  def isImagePostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean = {
     if (section.isImagepost) {
       true
     } else if (currentUser.authorized &&
@@ -121,8 +121,8 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def additionalImageLimit(section: Section, currentUser: AnySession): Int = {
-    if (isImagePostingAllowed(section, currentUser) &&
+  def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
+    if (isImagePostingAllowed(section) &&
         section.getId == Section.SECTION_GALLERY &&
         currentUser.administrator) {
       3
@@ -148,16 +148,16 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isDeletable(topic: Topic, user: User): Boolean = {
-    if (user.isAdministrator) {
+  def isDeletable(topic: Topic)(implicit user: AuthorizedSession): Boolean = {
+    if (user.administrator) {
       true
     } else {
       val section = sectionService.getSection(topic.sectionId)
 
-      val deletableByUser = isDeletableByUser(topic, user, section)
+      val deletableByUser = isDeletableByUser(topic, user.user, section)
 
-      if (!deletableByUser && user.isModerator) {
-        isDeletableByModerator(topic, user, section)
+      if (!deletableByUser && user.moderator) {
+        isDeletableByModerator(topic, user.user, section)
       } else {
         deletableByUser
       }
@@ -188,10 +188,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * Можно ли редактировать сообщения полностью
     *
     * @param topic тема
-    * @param by    редактор
     * @return true если можно, false если нет
     */
-  def isEditable(topic: PreparedTopic, @Nullable by: User): Boolean = {
+  def isEditable(topic: PreparedTopic)(implicit session: AnySession): Boolean = {
+    val by = session.userOpt.orNull
+
     val message = topic.message
     val section = topic.section
     val author = topic.author
@@ -235,11 +236,10 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * Можно ли редактировать теги сообщения
     *
     * @param topic тема
-    * @param byOpt редактор
     * @return true если можно, false если нет
     */
-  def isTagsEditable(topic: PreparedTopic, byOpt: Option[User]): Boolean = {
-    val by = byOpt.orNull
+  def isTagsEditable(topic: PreparedTopic)(implicit session: AnySession): Boolean = {
+    val by = session.userOpt.orNull
 
     val message = topic.message
     val section = topic.section
@@ -276,7 +276,9 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def canCreateTag(section: Section, @Nullable user: User): Boolean = {
+  def canCreateTag(section: Section)(implicit session: AnySession): Boolean = {
+    val user = session.userOpt.orNull
+
     if (section.isPremoderated && user!=null && !user.isAnonymous) {
       true
     } else {
@@ -284,6 +286,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def canCommit(userOpt: Option[User], topic: Topic): Boolean =
-    userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.getId))
+  def canCommit(topic: Topic)(implicit session: AnySession): Boolean =
+    session.userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.getId))
 }

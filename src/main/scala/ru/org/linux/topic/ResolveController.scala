@@ -30,7 +30,7 @@ class ResolveController(messageDao: TopicDao, groupDao: GroupDao) {
     val message = messageDao.getById(msgid)
     val group = groupDao.getGroup(message.groupId)
 
-    if (!group.isResolvable) {
+    if (!group.resolvable) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные")
     }
 

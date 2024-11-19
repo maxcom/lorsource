@@ -147,7 +147,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
   private def getMessage(section: Section, webRequest: WebRequest, request: HttpServletRequest,
                          response: HttpServletResponse, page: Int, filter: String, groupName: String, msgid: Int,
-                         threadRoot: Int, showDeleted: Boolean): ModelAndView = MaybeAuthorized { currentUserOpt =>
+                         threadRoot: Int, showDeleted: Boolean): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TopicController.MoreLikeThisTimeout.fromNow
 
     val topic = topicDao.getById(msgid)
@@ -228,7 +228,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       }
     }
 
-    params.put("messageMenu", topicPrepareService.getTopicMenu(preparedMessage, currentUserOpt.opt, tmpl.getProf, loadUserpics = true))
+    params.put("messageMenu", topicPrepareService.getTopicMenu(preparedMessage, tmpl.getProf, loadUserpics = true))
     params.put("memoriesInfo", memoriesDao.getTopicInfo(topic.id, currentUserOpt.userOpt))
 
     val ignoreList: Set[Int] = currentUserOpt.userOpt.map { currentUser =>
@@ -266,7 +266,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       list = commentsFiltered,
       topic = topic,
       hideSet = hideSet,
-      currentUser = currentUserOpt.opt,
+      currentUser = currentUserOpt,
       profile = tmpl.getProf,
       ignoreList = ignoreList,
       filterShow = filterModeShow)

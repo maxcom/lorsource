@@ -63,7 +63,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         new ModelAndView("reaction-comment", Map[String, Any](
           "topic" -> topic,
           "preparedComment" ->
-            commentPrepareService.prepareCommentOnly(comment, Some(currentUser), tmpl.getProf, topic, ignoreList),
+            commentPrepareService.prepareCommentOnly(comment, currentUser, tmpl.getProf, topic, ignoreList),
           "reactionList" -> reactionService.prepareReactionList(comment.reactions, reactionLog, ignoreList)
         ).asJava)
     }

@@ -78,7 +78,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
   def tagFeed(@PathVariable tag: String,
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
                @RequestParam(value = "section", defaultValue = "0") sectionId: Int
-  ): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
+  ): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     TagName.checkTag(tag)
 
     val deadline = TagPageController.Timeout.fromNow
@@ -128,7 +128,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
             20, currentUserOpt.userOpt, noTalks = false, tech = false)
 
-          (prepareService.prepareTopicsForUser(topics, currentUserOpt.opt, prof, loadUserpics = false), 20)
+          (prepareService.prepareTopicsForUser(topics, prof, loadUserpics = false), 20)
         }
 
         modelAndView.addObject("messages", preparedTopics)
@@ -145,7 +145,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        if (groupPermissionService.isTopicPostingAllowed(section, currentUserOpt)) {
+        if (groupPermissionService.isTopicPostingAllowed(section)) {
           modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))
         }
 

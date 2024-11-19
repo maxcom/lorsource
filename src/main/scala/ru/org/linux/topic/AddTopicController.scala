@@ -39,6 +39,7 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.MessageText
+import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
 import ru.org.linux.user.{User, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
@@ -49,7 +50,7 @@ import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava}
+import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
 
 @Controller
 object AddTopicController {
@@ -98,10 +99,10 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
-  def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = MaybeAuthorized { currentUser =>
+  def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val group = form.getGroup
 
-    if (currentUser.authorized && !groupPermissionService.isTopicPostingAllowed(group, currentUser)) {
+    if (currentUser.authorized && !groupPermissionService.isTopicPostingAllowed(group)) {
       val errorView = new ModelAndView("errors/good-penguin")
 
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу")
@@ -112,16 +113,17 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       val section = sectionService.getSection(form.getGroup.sectionId)
 
       if (form.getAdditionalUploadedImages.isEmpty) {
-        form.setAdditionalUploadedImages(new Array[String](groupPermissionService.additionalImageLimit(section, currentUser)))
+        form.setAdditionalUploadedImages(new Array[String](groupPermissionService.additionalImageLimit(section)))
       }
 
-      val params = prepareModel(Some(form.getGroup), currentUser, section)
+      val params = prepareModel(Some(form.getGroup), section)
 
       new ModelAndView("add", params.asJava)
     }
   }
 
-  private def prepareModel(group: Option[Group], currentUser: AnySession, section: Section): Map[String, AnyRef] = {
+  private def prepareModel(group: Option[Group], section: Section)
+                          (implicit currentUser: AnySession): Map[String, AnyRef] = {
     val params = Map.newBuilder[String, AnyRef]
 
     val helpResource = servletContext.getResource("/help/new-topic-" + Section.getUrlName(section.getId) + ".md")
@@ -137,8 +139,8 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     group.foreach { group =>
       params.addOne("group" -> group)
       params.addOne("postscoreInfo" -> groupPermissionService.getPostScoreInfo(group))
-      params.addOne("showAllowAnonymous" -> Boolean.box(groupPermissionService.enableAllowAnonymousCheckbox(group, currentUser)))
-      params.addOne("imagepost" -> Boolean.box(groupPermissionService.isImagePostingAllowed(section, currentUser)))
+      params.addOne("showAllowAnonymous" -> Boolean.box(groupPermissionService.enableAllowAnonymousCheckbox(group)))
+      params.addOne("imagepost" -> Boolean.box(groupPermissionService.isImagePostingAllowed(section)))
     }
 
     params.result()
@@ -148,29 +150,29 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   @CSRFNoAuto
   def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest, errors: BindingResult,
             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = MaybeAuthorized { sessionUserOpt =>
-
+    // не используем implicit, так как есть sessionUser и postingUser
     val group = form.getGroup
     val section = sectionService.getSection(group.sectionId)
 
-    val params = prepareModel(Some(group), sessionUserOpt, section).to(mutable.HashMap)
+    val params = prepareModel(Some(group), section)(sessionUserOpt).to(mutable.HashMap)
 
-    val user = AuthUtil.postingUser(sessionUserOpt, Option(form.getNick), Option(form.getPassword), errors)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.getNick), Option(form.getPassword), errors)
 
-    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user.userOpt.orNull)
+    IPBlockDao.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
-    if (!groupPermissionService.isTopicPostingAllowed(group, user)) {
+    if (!groupPermissionService.isTopicPostingAllowed(group)(postingUser)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
     }
 
     val tmpl = Template.getTemplate
 
-    if (!groupPermissionService.enableAllowAnonymousCheckbox(group, user)) {
+    if (!groupPermissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
       form.setAllowAnonymous(true)
     }
 
     val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), tmpl.getFormatMode)
 
-    if (!user.authorized) {
+    if (!postingUser.authorized) {
       if (message.text.length > AddTopicController.MAX_MESSAGE_LENGTH_ANONYMOUS) {
         errors.rejectValue("msg", null, "Слишком большое сообщение")
       }
@@ -184,10 +186,10 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     var imagePreview: Option[UploadedImagePreview] = None
 
-    if (groupPermissionService.isImagePostingAllowed(section, user)) {
-      if (groupPermissionService.isTopicPostingAllowed(group, user)) {
+    if (groupPermissionService.isImagePostingAllowed(section)(postingUser)) {
+      if (groupPermissionService.isTopicPostingAllowed(group)(postingUser)) {
         val image = imageService.processUploadImage(request)
-        imagePreview = imageService.processUpload(user.userOpt.orNull, Option(form.getUploadedImage), image, errors)
+        imagePreview = imageService.processUpload(postingUser.userOpt.orNull, Option(form.getUploadedImage), image, errors)
 
         imagePreview.foreach { img =>
           form.setUploadedImage(img.mainFile.getName)
@@ -205,13 +207,13 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       None
     }
 
-    val previewMsg: Topic = Topic.fromAddRequest(form, user.userOpt.getOrElse(userService.getAnonymous), request.getRemoteAddr)
+    val previewMsg: Topic = Topic.fromAddRequest(form, postingUser.userOpt.getOrElse(userService.getAnonymous), request.getRemoteAddr)
 
     val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true))
 
     val tagNames = TagName.parseAndSanitizeTags(form.getTags)
 
-    if (!groupPermissionService.canCreateTag(section, user.userOpt.orNull)) {
+    if (!groupPermissionService.canCreateTag(section)(postingUser)) {
       val newTags = tagService.getNewTags(tagNames)
 
       if (newTags.nonEmpty) {
@@ -219,12 +221,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       }
     }
 
-    val preparedTopic =
-      prepareService.prepareTopicPreview(previewMsg, TagService.namesToRefs(tagNames.asJava).asScala.toSeq, poll, message, imageObject)
+    val preparedTopic = prepareService.prepareTopicPreview(previewMsg, tagNames.map(tagRef), poll, message, imageObject)
 
     params.put("message", preparedTopic)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, sessionUserOpt.opt, tmpl.getProf, loadUserpics = true)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, tmpl.getProf, loadUserpics = true)(sessionUserOpt)
     params.put("topicMenu", topicMenu)
 
     if (!form.isPreviewMode && !errors.hasErrors) {
@@ -236,13 +237,13 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     if (!form.isPreviewMode && !errors.hasErrors) {
-      dupeProtector.checkRateLimit(FloodProtector.AddTopic, request.getRemoteAddr, user.userOpt.orNull, errors)
+      dupeProtector.checkRateLimit(FloodProtector.AddTopic, request.getRemoteAddr, postingUser.userOpt.orNull, errors)
     }
 
     if (!form.isPreviewMode && !errors.hasErrors) {
       session.removeAttribute("image")
 
-      createNewTopic(request, form, group, params, section, user.userOpt.orNull, message, imagePreview, previewMsg)
+      createNewTopic(request, form, group, params, section, postingUser.userOpt.orNull, message, imagePreview, previewMsg)
     } else {
       new ModelAndView("add", params.asJava)
     }
@@ -272,7 +273,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   @RequestMapping(path = Array("/add-section.jsp"))
   def showForm(@RequestParam("section") sectionId: Int,
-               @RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { currentUser =>
+               @RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val section = sectionService.getSection(sectionId)
 
     if (tag != null) {
@@ -284,7 +285,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     if (groups.size == 1) {
       new ModelAndView(new RedirectView(AddTopicController.getAddUrl(groups.get(0), tag)))
     } else {
-      val params = prepareModel(None, currentUser, section).to(mutable.HashMap)
+      val params = prepareModel(None, section).to(mutable.HashMap)
 
       params.put("groups", groups)
 

@@ -15,24 +15,21 @@
 package ru.org.linux.gallery
 
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.topic.*
-import ru.org.linux.user.User
 
 @Controller
 @RequestMapping(Array("/delete_image"))
 class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topicDao: TopicDao,
                             prepareService: TopicPrepareService, permissionService: GroupPermissionService) {
   @throws[AccessViolationException]
-  private def checkDelete(topic: PreparedTopic, user: User): Unit = {
-    if (!permissionService.isEditable(topic, user)) {
+  private def checkDelete(topic: PreparedTopic)(implicit user: AuthorizedSession): Unit = {
+    if (!permissionService.isEditable(topic)) {
       throw new AccessViolationException("Вы не можете редактировать эту тему")
     }
 
@@ -42,13 +39,13 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
   }
 
   @RequestMapping(method = Array(RequestMethod.GET))
-  def deleteForm(@RequestParam id: Int): ModelAndView = AuthorizedOnly { currentUser =>
+  def deleteForm(@RequestParam id: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val image = imageDao.getImage(id)
     val topic = topicDao.getById(image.topicId)
 
     val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
 
-    checkDelete(preparedTopic, currentUser.user)
+    checkDelete(preparedTopic)
 
     val mv = new ModelAndView("delete_image")
 
@@ -59,13 +56,13 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
   }
 
   @RequestMapping(method = Array(RequestMethod.POST))
-  def deleteImage(@RequestParam id: Int): RedirectView = AuthorizedOnly { currentUser =>
+  def deleteImage(@RequestParam id: Int): RedirectView = AuthorizedOnly { implicit currentUser =>
     val image = imageDao.getImage(id)
     val topic = topicDao.getById(image.topicId)
 
     val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
 
-    checkDelete(preparedTopic, currentUser.user)
+    checkDelete(preparedTopic)
 
     imageService.deleteImage(currentUser.user, image)
 

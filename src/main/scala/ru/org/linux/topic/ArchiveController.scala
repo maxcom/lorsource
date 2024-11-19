@@ -29,7 +29,8 @@ import ru.org.linux.section.SectionService
 @Controller
 class ArchiveController(sectionService: SectionService, groupDao: GroupDao, archiveDao: ArchiveDao,
                         groupPermissionService: GroupPermissionService) {
-  private def archiveList(sectionid: Int, groupName: Option[String] = None) = MaybeAuthorized { currentUserOpt =>
+  private def archiveList(sectionid: Int,
+                          groupName: Option[String] = None) = MaybeAuthorized { implicit currentUserOpt =>
     val mv = new ModelAndView("view-news-archive")
 
     val section = sectionService.getSection(sectionid)
@@ -45,9 +46,9 @@ class ArchiveController(sectionService: SectionService, groupDao: GroupDao, arch
     mv.getModel.put("items", items)
 
     val addUrl = group match {
-      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt) =>
+      case Some(group) if groupPermissionService.isTopicPostingAllowed(group) =>
         AddTopicController.getAddUrl(group)
-      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt) =>
+      case None if groupPermissionService.isTopicPostingAllowed(section) =>
         AddTopicController.getAddUrl(section)
       case _ =>
         ""

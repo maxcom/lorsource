@@ -100,7 +100,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
                           prepareService: TopicPrepareService, tagService: TagService,
                           groupDao: GroupDao, groupPermissionService: GroupPermissionService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
-                                    group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { currentUserOpt =>
+                                    group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
 
     checkRequestConditions(section, group)
@@ -142,14 +142,14 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, currentUserOpt.opt, tmpl.getProf, loadUserpics = false))
+      prepareService.prepareTopicsForUser(messages, tmpl.getProf, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
 
     val addUrl = group match {
-      case Some(group) if groupPermissionService.isTopicPostingAllowed(group, currentUserOpt) =>
+      case Some(group) if groupPermissionService.isTopicPostingAllowed(group) =>
         AddTopicController.getAddUrl(group)
-      case None if groupPermissionService.isTopicPostingAllowed(section, currentUserOpt) =>
+      case None if groupPermissionService.isTopicPostingAllowed(section) =>
         AddTopicController.getAddUrl(section)
       case _ =>
         ""

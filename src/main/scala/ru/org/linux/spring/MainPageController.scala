@@ -31,7 +31,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
                          memoriesDao: MemoriesDao, groupPermissionService: GroupPermissionService,
                          sectionService: SectionService) {
   @RequestMapping(path = Array("/", "/index.jsp"))
-  def mainPage(response: HttpServletResponse): ModelAndView = MaybeAuthorized { currentUser =>
+  def mainPage(response: HttpServletResponse): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val tmpl = Template.getTemplate
 
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
@@ -52,7 +52,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
     val mv = new ModelAndView("index")
 
-    mv.getModel.put("news", prepareService.prepareTopicsForUser(messages, currentUser.opt, profile, loadUserpics = false))
+    mv.getModel.put("news", prepareService.prepareTopicsForUser(messages, profile, loadUserpics = false))
 
     val briefNewsByDate = TopicListTools.datePartition(titles)
 
@@ -83,7 +83,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
     val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
 
-    if (groupPermissionService.isTopicPostingAllowed(sectionNews, currentUser)) {
+    if (groupPermissionService.isTopicPostingAllowed(sectionNews)) {
       mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
     }
 

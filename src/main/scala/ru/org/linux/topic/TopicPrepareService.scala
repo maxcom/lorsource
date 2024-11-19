@@ -15,7 +15,7 @@
 package ru.org.linux.topic
 
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AuthorizedSession
+import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.edithistory.EditInfoSummary
 import ru.org.linux.gallery.{Image, ImageService}
 import ru.org.linux.group.{GroupDao, GroupPermissionService}
@@ -164,16 +164,16 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: collection.Seq[Topic], user: Option[AuthorizedSession], profile: Profile,
-                           loadUserpics: Boolean): java.util.List[PersonalizedPreparedTopic] = {
+  def prepareTopicsForUser(messages: collection.Seq[Topic], profile: Profile,
+                           loadUserpics: Boolean)(implicit user: AnySession): java.util.List[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.map { message =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        user.map(_.user).orNull, textMap(message.id), None)
+        user.userOpt.orNull, textMap(message.id), None)
 
-      val topicMenu = getTopicMenu(preparedMessage, user, profile, loadUserpics)
+      val topicMenu = getTopicMenu(preparedMessage, profile, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
     }.asJava
   }
@@ -198,17 +198,17 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }.toSeq
   }
 
-  def getTopicMenu(topic: PreparedTopic, currentUserOpt: Option[AuthorizedSession], profile: Profile,
-                   loadUserpics: Boolean): TopicMenu = {
-    val topicEditable = groupPermissionService.isEditable(topic, currentUserOpt.map(_.user).orNull)
-    val tagsEditable = groupPermissionService.isTagsEditable(topic, currentUserOpt.map(_.user))
+  def getTopicMenu(topic: PreparedTopic, profile: Profile, loadUserpics: Boolean)
+                  (implicit currentUserOpt: AnySession): TopicMenu = {
+    val topicEditable = groupPermissionService.isEditable(topic)
+    val tagsEditable = groupPermissionService.isTagsEditable(topic)
 
-    val (resolvable, deletable, undeletable) = currentUserOpt.map  { currentUser =>
+    val (resolvable, deletable, undeletable) = currentUserOpt.opt.map  { implicit currentUser =>
       val resolvable = (currentUser.moderator || (topic.author.getId == currentUser.user.getId)) &&
         topic.group.resolvable
 
-      val deletable = groupPermissionService.isDeletable(topic.message, currentUser.user)
-      val undeletable = groupPermissionService.isUndeletable(topic.message, currentUser)
+      val deletable = groupPermissionService.isDeletable(topic.message)
+      val undeletable = groupPermissionService.isUndeletable(topic.message)
 
       (resolvable, deletable, undeletable)
     }.getOrElse((false, false, false))
@@ -222,8 +222,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val showComments = !topic.message.isCommentsHidden
 
     TopicMenu(topicEditable, tagsEditable, resolvable,
-      topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUserOpt.map(_.user), ignoreFrozen = false), deletable,
-      undeletable, groupPermissionService.canCommit(currentUserOpt.map(_.user), topic.message), userpic.orNull, showComments,
+      topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUserOpt.userOpt, ignoreFrozen = false), deletable,
+      undeletable, groupPermissionService.canCommit(topic.message), userpic.orNull, showComments,
       topicPermissionService.canPostWarning(currentUserOpt, topic.message, comment = None))
   }
 
