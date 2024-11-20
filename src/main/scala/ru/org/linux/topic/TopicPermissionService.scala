@@ -189,9 +189,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
     val group = groupDao.getGroup(topic.groupId)
 
-    val user = anySession.userOpt
-
-    if (!isCommentsAllowed(group, topic, user, ignoreFrozen = false)) {
+    if (!isCommentsAllowed(group, topic)) {
       errors.reject(null, "Вы не можете добавлять комментарии в эту тему")
     }
   }
@@ -229,7 +227,10 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     getPostscore(group, topic)
   }
 
-  def isCommentsAllowed(group: Group, topic: Topic, user: Option[User], ignoreFrozen: Boolean): Boolean = {
+  def isCommentsAllowed(group: Group, topic: Topic)(implicit anySession: AnySession): Boolean =
+    isCommentsAllowedByUser(group, topic, anySession.userOpt, ignoreFrozen = false)
+
+  def isCommentsAllowedByUser(group: Group, topic: Topic, user: Option[User], ignoreFrozen: Boolean): Boolean = {
     if (topic.deleted || topic.expired || topic.draft) {
       return false
     }

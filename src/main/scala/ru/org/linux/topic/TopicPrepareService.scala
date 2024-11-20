@@ -221,10 +221,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     val showComments = !topic.message.isCommentsHidden
 
-    TopicMenu(topicEditable, tagsEditable, resolvable,
-      topicPermissionService.isCommentsAllowed(topic.group, topic.message, currentUserOpt.userOpt, ignoreFrozen = false), deletable,
-      undeletable, groupPermissionService.canCommit(topic.message), userpic.orNull, showComments,
-      topicPermissionService.canPostWarning(topic.message, comment = None))
+    TopicMenu(topicEditable = topicEditable, tagsEditable = tagsEditable, resolvable = resolvable,
+      commentsAllowed = topicPermissionService.isCommentsAllowed(topic.group, topic.message), deletable = deletable,
+      undeletable = undeletable, commitable = groupPermissionService.canCommit(topic.message), userpic = userpic.orNull,
+      showComments = showComments, warningsAllowed = topicPermissionService.canPostWarning(topic.message, comment = None))
   }
 
   def prepareBrief(topic: Topic, groupInTitle: Boolean): BriefTopicRef = {

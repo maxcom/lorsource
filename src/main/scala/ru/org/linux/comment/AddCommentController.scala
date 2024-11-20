@@ -78,7 +78,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, currentUser.userOpt.orNull)
 
-    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic, currentUser.userOpt, ignoreFrozen = false))
+    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
 
     new ModelAndView("comment-message", "preparedMessage", preparedTopic)
