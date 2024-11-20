@@ -54,7 +54,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     * Показ формы изменения комментария.
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.GET))
-  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest): ModelAndView = AuthorizedOnly { currentUser =>
+  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = commentRequest.getTopic
     if (topic == null) throw new ServletParameterException("тема не задана")
 
@@ -66,8 +66,8 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
     val messageText = msgbaseDao.getMessageText(original.id)
 
-    val commentEditable = topicPermissionService.isCommentEditableNow(comment, currentUser.user,
-      commentReadService.hasAnswers(comment), topic, messageText.markup)
+    val commentEditable = topicPermissionService.isCommentEditableNow(comment, commentReadService.hasAnswers(comment),
+      topic, messageText.markup)
 
     if (commentEditable) {
       commentRequest.setMsg(messageText.text)
@@ -99,7 +99,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   @CSRFNoAuto
   def editCommentPostHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest, errors: Errors,
                              request: HttpServletRequest,
-                             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { currentUser =>
+                             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val user = currentUser.user
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, editMode = true, sessionAuthorized = true)
 
@@ -120,12 +120,12 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     if (commentRequest.getTopic != null) {
       val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore))
-      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, Some(user), errors)
+      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, errors)
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg))
     }
 
-    topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic,
-      currentUser.user, errors, originalMessageText.markup)
+    topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic, errors,
+      originalMessageText.markup)
 
     if (commentRequest.isPreviewMode || errors.hasErrors || comment == null) {
       val modelAndView = new ModelAndView("edit_comment", formParams)

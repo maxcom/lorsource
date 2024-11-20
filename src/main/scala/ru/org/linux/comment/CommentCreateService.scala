@@ -186,27 +186,6 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
     }
   }
 
-  /**
-   * Получить объект пользователя, добавляющего или изменяющего комментарий
-   *
-   * @param commentRequest WEB-форма, содержащая данные
-   * @param errors         обработчик ошибок ввода для формы
-   * @return объект пользователя
-   */
-  def getCommentUser(currentUser: Option[User], commentRequest: CommentRequest, errors: Errors): User = {
-    if (currentUser.isDefined) {
-      currentUser.get
-    } else if (commentRequest.getNick != null) {
-      if (commentRequest.getPassword == null) {
-        errors.reject(null, "Требуется авторизация")
-      }
-
-      commentRequest.getNick
-    } else {
-      userService.getAnonymous
-    }
-  }
-
   @throws[UserNotFoundException]
   def prepareReplyto(add: CommentRequest, currentUser: AnySession, profile: Profile, topic: Topic): Map[String, AnyRef] = {
     if (add.getReplyto != null) {

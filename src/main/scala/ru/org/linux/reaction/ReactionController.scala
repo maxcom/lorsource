@@ -115,7 +115,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
 
   @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.GET))
-  def topicReaction(@RequestParam("topic") topicId: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
+  def topicReaction(@RequestParam("topic") topicId: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
     val topic = topicDao.getById(topicId)
 
     currentUserOpt.opt match {
@@ -125,7 +125,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         val group = groupDao.getGroup(topic.groupId)
         val topicAuthor = userService.getUserCached(topic.authorUserId)
 
-        permissionService.checkView(group, topic, currentUser.user, topicAuthor, showDeleted = false)
+        permissionService.checkView(group, topic, topicAuthor, showDeleted = false)
 
         if (topic.deleted) {
           throw new AccessViolationException("Сообщение не доступно")

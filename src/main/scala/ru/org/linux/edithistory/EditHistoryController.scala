@@ -37,9 +37,9 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
 
     val preparedMessage = topicPrepareService.prepareTopic(topic, currentUserOpt.userOpt.orNull)
 
-    topicPermissionService.checkView(group, topic, currentUserOpt.userOpt.orNull, preparedMessage.author, showDeleted = false)
+    topicPermissionService.checkView(group, topic, preparedMessage.author, showDeleted = false)
 
-    if (!topicPermissionService.canViewHistory(topic, currentUserOpt.userOpt.orNull)) {
+    if (!topicPermissionService.canViewHistory(topic)) {
       throw new AccessViolationException("Forbidden")
     }
 
@@ -58,14 +58,14 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
     "/gallery/{group}/{id}/{commentid}/history", "/polls/{group}/{id}/{commentid}/history",
     "/articles/{group}/{id}/{commentid}/history"))
   def showCommentEditInfo(@PathVariable("id") msgid: Int,
-                          @PathVariable("commentid") commentId: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
+                          @PathVariable("commentid") commentId: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val topic = messageDao.getById(msgid)
     val group = groupDao.getGroup(topic.groupId)
     val comment = commentService.getById(commentId)
     val editHistories = editHistoryService.prepareEditInfo(comment)
     val topicAuthor = userService.getUserCached(topic.authorUserId)
 
-    topicPermissionService.checkView(group, topic, currentUserOpt.userOpt.orNull, topicAuthor, showDeleted = false)
+    topicPermissionService.checkView(group, topic, topicAuthor, showDeleted = false)
 
     val modelAndView = new ModelAndView("history")
 

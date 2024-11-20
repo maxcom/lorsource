@@ -92,14 +92,14 @@ object TopicPermissionService {
 @Service
 class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupDao: GroupDao,
                              deleteInfoDao: DeleteInfoDao, userService: UserService) {
-  def allowViewDeletedComments(message: Topic, currentUser: Option[User]): Boolean = {
-    if (!currentUser.exists(_.isModerator)) {
+  def allowViewDeletedComments(message: Topic)(implicit currentUser: AnySession): Boolean = {
+    if (!currentUser.moderator) {
       val topicForbidden = message.expired || message.draft ||
           message.postscore == TopicPermissionService.POSTSCORE_MODERATORS_ONLY ||
           message.postscore == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
           message.postscore == POSTSCORE_HIDE_COMMENTS
 
-      val userAllowed = currentUser.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= 50)
+      val userAllowed = currentUser.userOpt.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= 50)
 
       !topicForbidden && userAllowed && (deleteInfoDao.scoreLoss(message.id) < 150)
     } else {
@@ -109,14 +109,17 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
   @throws[MessageNotFoundException]
   @throws[AccessViolationException]
-  def checkView(group: Group, message: Topic, @Nullable currentUser: User, topicAuthor: User, showDeleted: Boolean): Unit = {
+  def checkView(group: Group, message: Topic, topicAuthor: User, showDeleted: Boolean)
+               (implicit session: AnySession): Unit = {
     Preconditions.checkArgument(message.groupId == group.id)
     Preconditions.checkArgument(message.authorUserId == topicAuthor.getId)
 
-    if (currentUser == null || !currentUser.isModerator) {
+    if (!session.moderator) {
+      val currentUser = session.userOpt.orNull
+
       val unauthorized = currentUser == null || currentUser.isAnonymous
 
-      if (showDeleted && !allowViewDeletedComments(message, Option(currentUser))) {
+      if (showDeleted && !allowViewDeletedComments(message)) {
         throw new MessageNotFoundException(message.id, "вы не можете смотреть удаленные комментарии")
       }
 
@@ -171,7 +174,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
   }
 
-  def checkCommentsAllowed(topic: Topic, user: Option[User], errors: Errors): Unit = {
+  def checkCommentsAllowed(topic: Topic, errors: Errors)(implicit anySession: AnySession): Unit = {
     if (topic.deleted) {
       errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению")
     }
@@ -185,6 +188,8 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
 
     val group = groupDao.getGroup(topic.groupId)
+
+    val user = anySession.userOpt
 
     if (!isCommentsAllowed(group, topic, user, ignoreFrozen = false)) {
       errors.reject(null, "Вы не можете добавлять комментарии в эту тему")
@@ -273,14 +278,14 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   /**
    * Проверка на права редактирования комментария.
    */
-  def checkCommentsEditingAllowed(comment: Comment, topic: Topic, @Nullable currentUser: User, errors: Errors,
-                                  markup: MarkupType): Unit = {
+  def checkCommentsEditingAllowed(comment: Comment, topic: Topic, errors: Errors, markup: MarkupType)
+                                 (implicit session: AnySession): Unit = {
     Preconditions.checkNotNull(comment)
     Preconditions.checkNotNull(topic)
 
     val haveAnswers = commentService.hasAnswers(comment)
 
-    checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors, markup)
+    checkCommentEditableNow(comment, session.userOpt.orNull, haveAnswers, topic, errors, markup)
   }
 
   def getEditDeadline(comment: Comment): Option[DateTime] = {
@@ -299,12 +304,12 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
    * @param haveAnswers есть у комменатрия ответы
    * @return результат
    */
-  def isCommentEditableNow(comment: Comment, @Nullable currentUser: User, haveAnswers: Boolean, topic: Topic,
-                           markup: MarkupType): Boolean = {
+  def isCommentEditableNow(comment: Comment, haveAnswers: Boolean, topic: Topic,
+                           markup: MarkupType)(implicit anySession: AnySession): Boolean = {
     val errors = new MapBindingResult(Map.empty.asJava, "obj")
 
-    checkCommentsAllowed(topic, Option(currentUser), errors)
-    checkCommentEditableNow(comment, currentUser, haveAnswers, topic, errors, markup)
+    checkCommentsAllowed(topic, errors)
+    checkCommentEditableNow(comment, anySession.userOpt.orNull, haveAnswers, topic, errors, markup)
 
     !errors.hasErrors
   }
@@ -361,7 +366,10 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
    * @param haveAnswers у комментрия есть ответы?
    * @return резултат
    */
-  def isCommentDeletableNow(comment: Comment, @Nullable currentUser: User, topic: Topic, haveAnswers: Boolean): Boolean = {
+  def isCommentDeletableNow(comment: Comment, topic: Topic, haveAnswers: Boolean)
+                           (implicit session: AnySession): Boolean = {
+    val currentUser = session.userOpt.orNull
+
     if (comment.deleted || topic.deleted) {
       return false
     }
@@ -399,20 +407,17 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
   def isUserCastAllowed(author: User): Boolean = author.getScore >= 0
 
-  def isUndeletable(topic: Topic, comment: Comment, @Nullable user: User, deleteInfo: Option[DeleteInfo]): Boolean = {
-    if (user == null) {
-      return false
+  def isUndeletable(topic: Topic, comment: Comment, deleteInfo: Option[DeleteInfo])
+                   (implicit session: AnySession): Boolean = {
+    if (!session.authorized) {
+      false
+    } else if (topic.deleted || !comment.deleted || !session.moderator || topic.expired) {
+      false
+    } else if (comment.userid == deleteInfo.map(_.userid).getOrElse(0)) {
+      false
+    } else {
+      true
     }
-
-    if (topic.deleted || !comment.deleted || !user.isModerator || topic.expired) {
-      return false
-    }
-
-    if (comment.userid == deleteInfo.map(_.userid).getOrElse(0)) {
-      return false
-    }
-
-    true
   }
 
   def isTopicSearchable(msg: Topic, group: Group): Boolean = {
@@ -422,7 +427,9 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       (!group.premoderated || msg.commited || msg.authorUserId != User.ANONYMOUS_ID)
   }
 
-  def canViewHistory(msg: Topic, @Nullable viewer: User): Boolean = {
+  def canViewHistory(msg: Topic)(implicit session: AnySession): Boolean = {
+    val viewer = session.userOpt.orNull
+
     if (viewer != null && viewer.isModerator) {
       return true
     }
@@ -438,7 +445,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     false
   }
 
-  def canPostWarning(currentUserOpt: AnySession, topic: Topic, comment: Option[Comment]): Boolean = {
+  def canPostWarning(topic: Topic, comment: Option[Comment])(implicit currentUserOpt: AnySession): Boolean = {
     !topic.deleted && !topic.expired && comment.forall(!_.deleted) && currentUserOpt.opt.exists { user =>
       user.user.getScore >= 300 && !user.user.isFrozen
     }

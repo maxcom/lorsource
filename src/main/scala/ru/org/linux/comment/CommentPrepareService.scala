@@ -104,10 +104,10 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       (None, None)
     }
 
-    val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser.userOpt.orNull, deleteInfo)
-    val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.userOpt.orNull, topic, hasAnswers)
-    val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.userOpt.orNull, hasAnswers, topic, messageText.markup)
-    val warningsAllowed = topicPermissionService.canPostWarning(currentUser, topic, Some(comment))
+    val undeletable = topicPermissionService.isUndeletable(topic, comment, deleteInfo)(currentUser)
+    val deletable = topicPermissionService.isCommentDeletableNow(comment, topic, hasAnswers)(currentUser)
+    val editable = topicPermissionService.isCommentEditableNow(comment, hasAnswers, topic, messageText.markup)(currentUser)
+    val warningsAllowed = topicPermissionService.canPostWarning(topic, Some(comment))(currentUser)
 
     val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, Some(author), ignoreFrozen = true)
 

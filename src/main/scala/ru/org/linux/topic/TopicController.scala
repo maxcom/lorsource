@@ -180,10 +180,10 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val editInfoSummary = editHistoryService.editInfoSummary(topic.id, TOPIC)
 
     if (editInfoSummary.nonEmpty) {
-      params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get, topic, currentUserOpt.opt))
+      params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get, topic, currentUserOpt))
     }
 
-    permissionService.checkView(group, topic, currentUserOpt.userOpt.orNull, preparedMessage.author, showDeleted)
+    permissionService.checkView(group, topic, preparedMessage.author, showDeleted)
 
     val tmpl = Template.getTemplate
 
@@ -297,7 +297,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     })
 
     params.put("showDeletedButton",
-      Boolean.box(permissionService.allowViewDeletedComments(topic, currentUserOpt.userOpt) && !showDeleted))
+      Boolean.box(permissionService.allowViewDeletedComments(topic) && !showDeleted))
 
     params.put("dateJumps", prepareService.buildDateJumpSet(commentsFiltered, TopicController.JUMP_MIN_DURATION))
 

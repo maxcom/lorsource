@@ -45,10 +45,10 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
                         topicPrepareService: TopicPrepareService, commentPrepareService: CommentPrepareService) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
   def showForm(@ModelAttribute(value = "request") request: PostWarningRequest,
-               errors: Errors): ModelAndView = AuthorizedOnly { currentUser =>
+               errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val group = groupDao.getGroup(request.topic.groupId)
 
-    checkRequest(group, request, errors, currentUser)
+    checkRequest(group, request, errors)
 
     val mv = new ModelAndView("post-warning")
 
@@ -96,10 +96,10 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
   def post(@ModelAttribute(value = "request") request: PostWarningRequest,
-           errors: Errors): ModelAndView = AuthorizedOnly { currentUser =>
+           errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val group = groupDao.getGroup(request.topic.groupId)
 
-    checkRequest(group, request, errors, currentUser)
+    checkRequest(group, request, errors)
 
     val types = warningTypes(request, group)
 
@@ -160,19 +160,20 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
   }
 
-  private def checkRequest(group: Group, request: PostWarningRequest, errors: Errors, currentUser: AuthorizedSession): Unit = {
+  private def checkRequest(group: Group, request: PostWarningRequest, errors: Errors)
+                          (implicit currentUser: AuthorizedSession): Unit = {
     assert(request.topic.groupId == group.id)
     assert(request.comment == null || request.comment.topicId == request.topic.id)
 
     val topicAuthor = userService.getUserCached(request.topic.authorUserId)
 
-    topicPermissionService.checkView(group, request.topic, currentUser.user, topicAuthor, showDeleted = false)
+    topicPermissionService.checkView(group, request.topic, topicAuthor, showDeleted = false)
 
     if (request.topic.isCommentsHidden) {
       throw new AccessViolationException("Вы не можете отправить уведомление")
     }
 
-    if (!topicPermissionService.canPostWarning(currentUser, request.topic, Option(request.comment))) {
+    if (!topicPermissionService.canPostWarning(request.topic, Option(request.comment))) {
       errors.reject(null, "Вы не можете отправить уведомление")
     }
 
