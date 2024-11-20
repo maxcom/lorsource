@@ -90,17 +90,10 @@
         var ads = [
             {
                 type: 'rimg',
-                img320: '/adv/MD-2817-01-320x100 (2).png',
-                img730: '/adv/MD-2817-01-730x90 (2).png',
-                img980: '/adv/MD-2817-01-980x120 (2).png',
-                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_31082024_01'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/320x100_2.png',
-                img730: '/adv/730x90_2.png',
-                img980: '/adv/980x120_2.png',
-                href: 'https://slc.tl/bzr7w'
+                img320: '/adv/habr 320x100.png',
+                img730: '/adv/hadr 730x90.png',
+                img980: '/adv/habr 980x120.png',
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=bf2024'
             }
         ];
 

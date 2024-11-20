@@ -202,6 +202,7 @@
 
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
+<%--
 <c:if test="${showAdsense}">
 <style>
 @media screen and (max-width: 480px) {
@@ -267,31 +268,25 @@
 </script>
   <p>
 </c:if>
-
-<%--
-  <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
-  </div>
-  <script type="text/javascript">
-      $script.ready('lorjs', function () {
-          var ads = [
-              {
-                  type: 'rimg',
-                  img730: '/adv/linux-banner-730-90.png',
-                  img320: '/adv/linux-banner-320-100.png',
-                  href: 'https://otus.ru/lessons/linux-professional/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=kungfu-test&utm_term=linux-org-ru'
-              },
-              {
-                  type: 'rimg',
-                  img730: '/adv/spec-730x90.png',
-                  img320: '/adv/spec-320x100.png',
-                  href: 'https://otus.ru/lessons/linux-specialization/?utm_source=partners&utm_medium=cpm&utm_campaign=spec-linux&utm_content=all-lesson&utm_term=linux-org-ru#broadcast'
-              }
-          ];
-
-          init_interpage_adv(ads);
-      });
-  </script>
 --%>
+
+<div style="text-align: center; margin-top: 0.5em; height: 125px" id="interpage">
+</div>
+<script type="text/javascript">
+$script.ready('lorjs', function () {
+    var ads = [
+        {
+            type: 'rimg',
+            img320: '/adv/habr 320x100.png',
+            img730: '/adv/hadr 730x90.png',
+            img980: '/adv/habr 980x120.png',
+            href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=bf2024'
+        }
+    ];
+
+  init_interpage_adv(ads);
+});
+</script>
 
 <c:if test="${threadMode}">
   <div class=nav>
