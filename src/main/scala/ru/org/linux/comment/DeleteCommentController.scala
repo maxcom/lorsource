@@ -104,24 +104,24 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val user = currentUser.user
 
-    val deleted: Seq[Integer] = if (currentUser.moderator) {
-      val effectiveBonus = if (user.getId != comment.id) {
+    val deleted: Seq[Int] = if (currentUser.moderator) {
+      val effectiveBonus = if (user.getId != comment.userid) {
         bonus
       } else {
         0
       }
 
       if (deleteReplys) {
-        commentDeleteService.deleteWithReplys(topic, comment, reason, user, effectiveBonus).asScala
+        commentDeleteService.deleteWithReplys(topic, comment, reason, user, effectiveBonus)
       } else {
-        if (commentDeleteService.deleteComment(msgid, reason, user, effectiveBonus, false)) {
+        if (commentDeleteService.deleteComment(comment, reason, user, effectiveBonus, checkForReply = false)) {
           Seq(msgid)
         } else {
           Seq.empty
         }
       }
     } else {
-      if (commentDeleteService.deleteComment(msgid, reason, user, 0, true)) {
+      if (commentDeleteService.deleteComment(comment, reason, user, 0, checkForReply = true)) {
         Seq(msgid)
       } else {
         Seq.empty
@@ -129,7 +129,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     }
 
     val nextComment = findNextComment(comment)
-    searchQueueSender.updateComment(deleted.asJava)
+    searchQueueSender.updateComment(deleted.map(Integer.valueOf).asJava)
 
     val nextLink = nextComment match {
       case Some(c) =>
@@ -153,6 +153,8 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val author = userService.getUserCached(comment.userid)
 
     if (currentUser.moderator && currentUser.user != author) {
+      logger.info("Comment deleted by moderator {}: {}; {}", currentUser.user.getNick, message, bigMessage)
+
       new ModelAndView("comment-deleted-by-moderator", (Map(
         "message" -> message,
         "link" -> nextLink,
@@ -161,6 +163,8 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
         "ua" -> comment.userAgentId
       ) ++ bigMessage).asJava)
     } else {
+      logger.info("Comment deleted by author {}: {}", currentUser.user.getNick, message)
+
       new ModelAndView("action-done", (Map(
         "message" -> message,
         "link" -> nextLink

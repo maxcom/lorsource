@@ -145,11 +145,11 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     recalcEventCount(Seq(userId))
   }
 
-  def recalcEventCount(userids: collection.Seq[Integer]): Unit = {
+  def recalcEventCount(userids: collection.Seq[Int]): Unit = {
     if (userids.nonEmpty) {
       namedJdbcTemplate.update("UPDATE users SET unread_events = " +
         "(SELECT count(*) FROM user_events WHERE unread AND userid=users.id) WHERE users.id IN (:list)",
-        ImmutableMap.of("list", userids.asJavaCollection))
+        ImmutableMap.of("list", userids.map(Integer.valueOf).asJavaCollection))
     }
   }
 
@@ -236,7 +236,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     }
   }
 
-  def deleteTopicEvents(topics: Seq[Int]): collection.Seq[Integer] = {
+  def deleteTopicEvents(topics: Seq[Int]): collection.Seq[Int] = {
     transactional() { _ =>
       if (topics.isEmpty) {
         Seq.empty
@@ -249,24 +249,24 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
           "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')",
           ImmutableMap.of("list", topics.asJava))
 
-        affectedUsers.asScala
+        affectedUsers.asScala.map(i => i)
       }
     }
   }
 
-  def deleteCommentEvents(comments: collection.Seq[Integer]): collection.Seq[Integer] = {
+  def deleteCommentEvents(comments: Seq[Int]): collection.Seq[Int] = {
     transactional() { _ =>
       if (comments.isEmpty) {
         Seq.empty
       } else {
         val affectedUsers = namedJdbcTemplate.queryForList(
           "SELECT DISTINCT (userid) FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')",
-          Map("list" -> comments.asJava).asJava, classOf[Integer])
+          Map("list" -> comments.map(Integer.valueOf).asJava).asJava, classOf[Integer])
 
         namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')",
           Map("list" -> comments.asJava).asJava)
 
-        affectedUsers.asScala
+        affectedUsers.asScala.map(i => i)
       }
     }
   }

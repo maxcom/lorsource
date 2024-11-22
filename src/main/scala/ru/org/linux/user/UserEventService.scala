@@ -151,10 +151,12 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    *
    * @param msgids идентификаторы комментариев
    */
-  def processCommentsDeleted(msgids: util.List[Integer]): util.List[Integer] = transactional() { _ =>
-    val users = userEventDao.deleteCommentEvents(msgids.asScala)
+  def processCommentsDeleted(msgids: Seq[Int]): collection.Seq[Int] = transactional() { _ =>
+    val users = userEventDao.deleteCommentEvents(msgids)
+
     userEventDao.recalcEventCount(users)
-    users.asJava
+
+    users
   }
 
   def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment],

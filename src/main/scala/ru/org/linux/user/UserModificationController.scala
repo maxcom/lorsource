@@ -150,6 +150,9 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
     params.put("comments", Integer.valueOf(deleteResult.getDeletedCommentIds.size))
     params.put("skipped", deleteResult.getSkippedComments)
 
+    logger.info("Deleted {} by moderator {}: topic={}; comments={}", user.getNick,
+      moderator.user.getNick, deleteResult.getDeletedTopicIds.size, deleteResult.getDeletedCommentIds.size)
+
     new ModelAndView("delip", params.asJava)
   }
 

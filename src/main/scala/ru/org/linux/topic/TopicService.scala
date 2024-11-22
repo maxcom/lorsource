@@ -54,7 +54,7 @@ object TopicService {
     commit || (!needCommit && fresh)
   }
 
-  val DeleteReasons = Seq(
+  val DeleteReasons: Seq[String] = Seq(
     "3.1 Дубль",
     "3.2 Неверная кодировка",
     "3.3 Некорректное форматирование",
@@ -186,10 +186,10 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   }
 
   def deleteByIPAddress(ip: String, startTime: Timestamp, moderator: User,
-                        reason: String): java.util.List[Integer] = transactional() { _ =>
+                        reason: String): collection.Seq[Int] = transactional() { _ =>
     val topicIds = topicDao.getAllByIPForUpdate(ip, startTime).asScala.map(_.toInt)
 
-    massDelete(moderator, topicIds, reason).map(Integer.valueOf).asJava
+    massDelete(moderator, topicIds, reason)
   }
 
   /**
@@ -200,10 +200,10 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
    * @return список удаленных топиков
    * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
-  def deleteAllByUser(user: User, moderator: User): java.util.List[Integer] = transactional() { _ =>
+  def deleteAllByUser(user: User, moderator: User): collection.Seq[Int] = transactional() { _ =>
     val topics = topicDao.getUserTopicForUpdate(user).asScala.map(_.toInt)
 
-    massDelete(moderator, topics, "Блокировка пользователя с удалением сообщений").map(Integer.valueOf).asJava
+    massDelete(moderator, topics, "Блокировка пользователя с удалением сообщений")
   }
 
   private def massDelete(moderator: User, topics: Iterable[Int], reason: String): collection.Seq[Int] = {

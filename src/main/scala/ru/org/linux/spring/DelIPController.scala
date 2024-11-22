@@ -14,6 +14,7 @@
  */
 package ru.org.linux.spring
 
+import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -34,7 +35,7 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
 
 @Controller
 class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService: CommentDeleteService,
-                      ipBlockDao: IPBlockDao) {
+                      ipBlockDao: IPBlockDao) extends StrictLogging {
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
    *
@@ -104,6 +105,9 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
     }
 
     searchQueueSender.updateComment(deleteResult.getDeletedCommentIds)
+
+    logger.info("Deleted {} from {} by moderator {}: topic={}; comments={}", ip, time,
+      currentUser.user.getNick, deleteResult.getDeletedTopicIds.size, deleteResult.getDeletedCommentIds.size)
 
     new ModelAndView("delip", params.asJava)
   }

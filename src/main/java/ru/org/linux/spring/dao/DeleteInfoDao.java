@@ -106,6 +106,9 @@ public class DeleteInfoDao {
       return;
     }
 
+    deleteInfos.forEach(info ->
+            Preconditions.checkArgument(info.bonus <= 0, "Score bonus on delete must be non-positive"));
+
     jdbcTemplate.batchUpdate(INSERT_DELETE_INFO, new BatchPreparedStatementSetter() {
       @Override
       public void setValues(PreparedStatement ps, int i) throws SQLException {

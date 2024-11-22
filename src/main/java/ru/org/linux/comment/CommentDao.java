@@ -15,8 +15,6 @@
 
 package ru.org.linux.comment;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -37,8 +35,6 @@ import java.util.Date;
 
 @Repository
 public class CommentDao {
-  private static final Logger logger = LoggerFactory.getLogger(CommentDao.class);
-
   private static final String queryCommentById = "SELECT " +
     "postdate, topic, userid, comments.id as msgid, comments.title, " +
     "deleted, replyto, edit_count, edit_date, editor_id, " +
@@ -112,21 +108,12 @@ public class CommentDao {
      *
      *
    * @param msgid      идентификационнай номер комментария
-   * @param reason     причина удаления
-   * @param user       пользователь, удаляющий комментарий
    * @return true если комментарий был удалён, иначе false
      */
-  public boolean deleteComment(int msgid, String reason, User user) {
+  public boolean deleteComment(int msgid) {
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
-    if (deleteCount > 0) {
-      logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
-
-      return true;
-    } else {
-      logger.info("Пропускаем удаление уже удаленного " + msgid);
-      return false;
-    }
+    return deleteCount > 0;
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
