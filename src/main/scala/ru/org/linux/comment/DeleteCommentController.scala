@@ -153,7 +153,8 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val author = userService.getUserCached(comment.userid)
 
     if (currentUser.moderator && currentUser.user != author) {
-      logger.info("Comment deleted by moderator {}: {}; {}", currentUser.user.getNick, message, bigMessage)
+      logger.info("Comment deleted by moderator {}: {}; {}",
+        currentUser.user.getNick, message, bigMessage.map(_._2).getOrElse("<none>"))
 
       new ModelAndView("comment-deleted-by-moderator", (Map(
         "message" -> message,
