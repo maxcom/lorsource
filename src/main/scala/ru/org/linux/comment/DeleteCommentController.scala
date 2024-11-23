@@ -22,10 +22,11 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.common.DeleteReasons
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.{BadParameterException, ScriptErrorException, Template}
 import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.topic.{TopicDao, TopicPermissionService, TopicService}
+import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, UserErrorException, UserService}
 
 import java.util
@@ -36,11 +37,11 @@ import scala.jdk.OptionConverters.RichOptional
 @Controller
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentReadService,
                               topicDao: TopicDao, prepareService: CommentPrepareService,
-                              permissionService: TopicPermissionService, commentDeleteService: CommentDeleteService,
+                              permissionService: TopicPermissionService, commentDeleteService: DeleteService,
                               deleteInfoDao: DeleteInfoDao, ignoreListDao: IgnoreListDao,
                               userService: UserService) extends StrictLogging {
   @ModelAttribute("deleteReasons")
-  def deleteReasons: util.List[String] = TopicService.DeleteReasons.asJava
+  def deleteReasons: util.List[String] = DeleteReasons.DeleteReasons.asJava
 
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
@@ -112,7 +113,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       }
 
       if (deleteReplys) {
-        commentDeleteService.deleteWithReplys(topic, comment, reason, user, effectiveBonus)
+        commentDeleteService.deleteCommentWithReplys(topic, comment, reason, user, effectiveBonus)
       } else {
         if (commentDeleteService.deleteComment(comment, reason, user, effectiveBonus, checkForReply = false)) {
           Seq(msgid)

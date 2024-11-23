@@ -18,15 +18,16 @@ package ru.org.linux.warning
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod, RequestParam}
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, CorrectorOrModerator}
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
+import ru.org.linux.common.DeleteReasons
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.site.{MessageNotFoundException, Template}
-import ru.org.linux.topic.{Topic, TopicDao, TopicLinkBuilder, TopicPermissionService, TopicPrepareService, TopicService}
+import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
 import ru.org.linux.warning.WarningService.MaxWarningsPerHour
 import ru.org.linux.warning.WarningType.idToType
@@ -90,7 +91,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
 
     if (types.contains(RuleWarning)) {
-      mv.addObject("ruleTypes", ("" +: TopicService.DeleteReasons).asJava)
+      mv.addObject("ruleTypes", ("" +: DeleteReasons.DeleteReasons).asJava)
     }
   }
 

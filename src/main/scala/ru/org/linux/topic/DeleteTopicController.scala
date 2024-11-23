@@ -21,9 +21,12 @@ import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, 
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
+import ru.org.linux.comment.DeleteService
+import ru.org.linux.common.DeleteReasons
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionService
+import ru.org.linux.site.BadParameterException
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import java.util
@@ -31,7 +34,7 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService: SectionService,
-                            topicDao: TopicDao, topicService: TopicService,
+                            topicDao: TopicDao, deleteService: DeleteService,
                             prepareService: TopicPrepareService,
                             permissionService: GroupPermissionService,
                             userService: UserService) extends StrictLogging {
@@ -42,7 +45,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   }
 
   @ModelAttribute("deleteReasons")
-  def deleteReasons: util.List[String] = TopicService.DeleteReasons.asJava
+  def deleteReasons: util.List[String] = DeleteReasons.DeleteReasons.asJava
 
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
@@ -70,18 +73,28 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
   @RequestMapping(value = Array("/delete.jsp"), method = Array(RequestMethod.POST))
   def deleteMessage(@RequestParam("msgid") msgid: Int, @RequestParam("reason") reason: String,
                     @RequestParam(value = "bonus", defaultValue = "0") bonus: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val message = topicDao.getById(msgid)
-    if (message.deleted) {
+    if (bonus < 0 || bonus > 20) {
+      throw new BadParameterException("неправильный размер штрафа")
+    }
+
+    val topic = topicDao.getById(msgid)
+    if (topic.deleted) {
       throw new UserErrorException("Сообщение уже удалено")
     }
 
-    if (!permissionService.isDeletable(message)) {
+    if (!permissionService.isDeletable(topic)) {
       throw new AccessViolationException("Вы не можете удалить это сообщение")
+    }
+
+    val effectiveBonus = if (currentUser.moderator && currentUser.user.getId != topic.authorUserId && !topic.draft) {
+      bonus
+    } else {
+      0
     }
 
     val user = currentUser.user
 
-    topicService.deleteWithBonus(message, user, reason, bonus)
+    deleteService.deleteTopic(topic, user, reason, effectiveBonus)
     logger.info(s"Удалено сообщение $msgid пользователем ${user.getNick} по причине `$reason'")
 
     searchQueueSender.updateMessage(msgid, true)
@@ -106,7 +119,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     checkUndeletable(topic)
 
     if (topic.deleted) {
-      topicDao.undelete(topic)
+      deleteService.undeleteTopic(topic)
 
       logger.info(s"Восстановлено сообщение $msgid пользователем ${currentUser.user.getNick}")
 

@@ -84,11 +84,15 @@ public class DeleteInfoDao {
     if (list.isEmpty()) {
       return null;
     } else {
-      return list.get(0);
+      return list.getFirst();
     }
   }
 
-  public void insert(int msgid, User deleter, String reason, int scoreBonus) {
+  public void insert(InsertDeleteInfo info) {
+    insert(info.msgid(), info.deleteUser, info.reason, info.bonus);
+  }
+
+  private void insert(int msgid, User deleter, String reason, int scoreBonus) {
     Preconditions.checkArgument(scoreBonus <= 0, "Score bonus on delete must be non-positive");
 
     jdbcTemplate.update(INSERT_DELETE_INFO, msgid, deleter.getId(), reason, scoreBonus);
@@ -114,10 +118,10 @@ public class DeleteInfoDao {
       public void setValues(PreparedStatement ps, int i) throws SQLException {
         InsertDeleteInfo info = deleteInfos.get(i);
 
-        ps.setInt(1, info.getMsgid());
-        ps.setInt(2, info.getDeleteUser());
-        ps.setString(3, info.getReason());
-        ps.setInt(4, info.getBonus());
+        ps.setInt(1, info.msgid());
+        ps.setInt(2, info.deleteUser().getId());
+        ps.setString(3, info.reason());
+        ps.setInt(4, info.bonus());
       }
 
       @Override
@@ -138,35 +142,14 @@ public class DeleteInfoDao {
             "group by topic), 0)", Integer.class, msgid);
   }
 
-  public static class InsertDeleteInfo {
-    private final int msgid;
-    private final String reason;
-    private final int bonus;
-    private final int deleteUser;
+  public record InsertDeleteInfo(int msgid, String reason, int bonus, User deleteUser) {
+      public InsertDeleteInfo(int msgid, @Nonnull String reason, int bonus, User deleteUser) {
+        Preconditions.checkArgument(bonus <= 0, "Score bonus on delete must be non-positive");
 
-    public InsertDeleteInfo(int msgid, @Nonnull String reason, int bonus, int deleteUser) {
-      Preconditions.checkArgument(bonus <= 0, "Score bonus on delete must be non-positive");
-
-      this.msgid = msgid;
-      this.reason = reason;
-      this.bonus = bonus;
-      this.deleteUser = deleteUser;
+        this.msgid = msgid;
+        this.reason = reason;
+        this.bonus = bonus;
+        this.deleteUser = deleteUser;
+      }
     }
-
-    public int getMsgid() {
-      return msgid;
-    }
-
-    public String getReason() {
-      return reason;
-    }
-
-    public int getBonus() {
-      return bonus;
-    }
-
-    public int getDeleteUser() {
-      return deleteUser;
-    }
-  }
 }

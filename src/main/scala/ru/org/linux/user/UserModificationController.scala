@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, ModeratorOnly}
-import ru.org.linux.comment.CommentDeleteService
+import ru.org.linux.comment.DeleteService
 import ru.org.linux.search.SearchQueueSender
 
 import java.net.URLEncoder
@@ -53,7 +53,7 @@ object UserModificationController {
 
 @Controller
 class UserModificationController(searchQueueSender: SearchQueueSender, userDao: UserDao,
-                                 commentService: CommentDeleteService, userService: UserService) extends StrictLogging {
+                                 commentService: DeleteService, userService: UserService) extends StrictLogging {
   import UserModificationController.*
 
   /**
@@ -134,7 +134,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new UserErrorException("Пользователь уже блокирован")
     }
 
-    val deleteResult = commentService.deleteAllCommentsAndBlock(user, moderator.user, reason)
+    val deleteResult = commentService.deleteAllAndBlock(user, moderator.user, reason)
 
     logger.info(s"User ${user.getNick} blocked by ${moderator.user.getNick}")
 

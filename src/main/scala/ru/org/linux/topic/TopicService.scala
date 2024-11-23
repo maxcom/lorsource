@@ -14,36 +14,27 @@
  */
 package ru.org.linux.topic
 
+import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
 import org.joda.time.DateTime
+import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import ru.org.linux.edithistory.EditHistoryDao
-import ru.org.linux.edithistory.EditHistoryRecord
-import ru.org.linux.gallery.ImageDao
-import ru.org.linux.gallery.ImageService
-import ru.org.linux.gallery.UploadedImagePreview
+import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryRecord}
+import ru.org.linux.gallery.{ImageDao, ImageService, UploadedImagePreview}
 import ru.org.linux.group.Group
 import ru.org.linux.markup.MessageTextService
-import ru.org.linux.poll.PollDao
-import ru.org.linux.poll.PollVariant
-import ru.org.linux.section.Section
-import ru.org.linux.section.SectionService
+import ru.org.linux.poll.{PollDao, PollVariant}
+import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.spring.dao.MessageText
-import ru.org.linux.spring.dao.MsgbaseDao
+import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao}
 import ru.org.linux.tag.TagName
 import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils
 
 import java.io.File
-import java.sql.Timestamp
-import com.typesafe.scalalogging.StrictLogging
-import org.springframework.scala.transaction.support.TransactionManagement
-import org.springframework.transaction.PlatformTransactionManager
-
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 object TopicService {
   private def sendTagEventsNeeded(section: Section, oldMsg: Topic, commit: Boolean): Boolean = {
@@ -53,36 +44,14 @@ object TopicService {
 
     commit || (!needCommit && fresh)
   }
-
-  val DeleteReasons: Seq[String] = Seq(
-    "3.1 Дубль",
-    "3.2 Неверная кодировка",
-    "3.3 Некорректное форматирование",
-    "3.4 Пустое сообщение",
-    "4.1 Offtopic",
-    "4.2 Вызывающе неверная информация",
-    "4.3 Провокация flame",
-    "4.4 Обсуждение действий модераторов",
-    "4.5 Тестовые сообщения",
-    "4.6 Спам",
-    "4.7 Флуд",
-    "4.8 Дискуссия не на русском языке",
-    "5.1 Нецензурные выражения",
-    "5.2 Оскорбление участников дискуссии",
-    "5.3 Национальные/политические/религиозные споры",
-    "5.4 Личная переписка",
-    "5.5 Преднамеренное нарушение правил русского языка",
-    "6 Нарушение copyright",
-    "6.2 Warez",
-    "7.1 Ответ на некорректное сообщение")
 }
 
 @Service
 class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: SectionService,
                    imageService: ImageService, pollDao: PollDao, userEventService: UserEventService,
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
-                   userDao: UserDao, deleteInfoDao: DeleteInfoDao, textService: MessageTextService,
-                   editHistoryDao: EditHistoryDao, imageDao: ImageDao, siteConfig: SiteConfig,
+                   userDao: UserDao, textService: MessageTextService, editHistoryDao: EditHistoryDao,
+                   imageDao: ImageDao, siteConfig: SiteConfig,
                    val transactionManager: PlatformTransactionManager) extends TransactionManagement with StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
@@ -150,79 +119,6 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     userEventService.addUserTagEvent(tagUsers, msgid)
 
     userRefIds ++ tagUsers
-  }
-
-  /**
-   * Удаление топика и если удаляет модератор изменить автору score
-   *
-   * @param message удаляемый топик
-   * @param user    удаляющий пользователь
-   * @param reason  причина удаления
-   * @param bonus   дельта изменения score автора топика
-   */
-  def deleteWithBonus(message: Topic, user: User, reason: String, bonus: Int): Unit = transactional() { _ =>
-    assert(bonus <= 20 && bonus >= 0, "Некорректное значение bonus")
-
-    if (user.isModerator && bonus != 0 && user.getId != message.authorUserId && !message.draft) {
-      val deleted = deleteTopic(message.id, user, reason, -bonus)
-
-      if (deleted) {
-        userDao.changeScore(message.authorUserId, -bonus)
-      }
-    } else {
-      deleteTopic(message.id, user, reason, 0)
-    }
-  }
-
-  private def deleteTopic(mid: Int, moderator: User, reason: String, bonus: Int) = {
-    val deleted = topicDao.delete(mid)
-
-    if (deleted) {
-      deleteInfoDao.insert(mid, moderator, reason, bonus)
-      userEventService.processTopicDeleted(Seq(mid))
-    }
-
-    deleted
-  }
-
-  def deleteByIPAddress(ip: String, startTime: Timestamp, moderator: User,
-                        reason: String): collection.Seq[Int] = transactional() { _ =>
-    val topicIds = topicDao.getAllByIPForUpdate(ip, startTime).asScala.map(_.toInt)
-
-    massDelete(moderator, topicIds, reason)
-  }
-
-  /**
-   * Массовое удаление всех топиков пользователя.
-   *
-   * @param user      пользователь для экзекуции
-   * @param moderator экзекутор-модератор
-   * @return список удаленных топиков
-   * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
-   */
-  def deleteAllByUser(user: User, moderator: User): collection.Seq[Int] = transactional() { _ =>
-    val topics = topicDao.getUserTopicForUpdate(user).asScala.map(_.toInt)
-
-    massDelete(moderator, topics, "Блокировка пользователя с удалением сообщений")
-  }
-
-  private def massDelete(moderator: User, topics: Iterable[Int], reason: String): collection.Seq[Int] = {
-    val deletedTopicsBuilder = Vector.newBuilder[Int]
-
-    for (mid <- topics) {
-      val deleted = topicDao.delete(mid)
-
-      if (deleted) {
-        deleteInfoDao.insert(mid, moderator, reason, 0)
-        deletedTopicsBuilder.addOne(mid)
-      }
-    }
-
-    val deletedTopics = deletedTopicsBuilder.result()
-
-    userEventService.processTopicDeleted(deletedTopics)
-
-    deletedTopics
   }
 
   def updateAndCommit(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]],

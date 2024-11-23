@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.auth.IPBlockDao
-import ru.org.linux.comment.CommentDeleteService
+import ru.org.linux.comment.DeleteService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.user.UserErrorException
 
@@ -34,7 +34,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
 
 @Controller
-class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService: CommentDeleteService,
+class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService: DeleteService,
                       ipBlockDao: IPBlockDao) extends StrictLogging {
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
@@ -94,7 +94,7 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
       ipBlockDao.blockIP(ip, moderator.getId, reason, banTo.orNull, allowPosting, captchaRequired)
     }
 
-    val deleteResult = commentDeleteService.deleteCommentsByIPAddress(ip, ts, moderator, reason)
+    val deleteResult = commentDeleteService.deleteByIPAddress(ip, ts, moderator, reason)
 
     params.put("topics", Int.box(deleteResult.getDeletedTopicIds.size))
     params.put("comments", Int.box(deleteResult.getDeletedCommentIds.size))

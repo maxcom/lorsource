@@ -33,9 +33,7 @@ import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
@@ -62,9 +60,6 @@ public class TopicDao {
 
   @Autowired
   private MsgbaseDao msgbaseDao; // TODO move to TopicService
-
-  @Autowired
-  private DeleteInfoDao deleteInfoDao; // TODO move to TopicService
 
   @Autowired
   private PollDao pollDao; // TODO move to TopicService
@@ -143,7 +138,7 @@ public class TopicDao {
    * @param month месяц
    * @return список топиков
    */
-  public List<Integer> getMessageForMonth(int year, int month){
+  public List<Integer> getMessageForMonth(int year, int month) {
     Calendar calendar = Calendar.getInstance();
     calendar.set(year, month, 1);
     Timestamp ts_start = new Timestamp(calendar.getTimeInMillis());
@@ -156,16 +151,8 @@ public class TopicDao {
     return jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=? AND NOT deleted", msgid)>0;
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void undelete(Topic message) {
-    DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(message.getId(), true);
-
-    if (deleteInfo!=null && deleteInfo.getBonus()!=0) {
-      userDao.changeScore(message.getAuthorUserId(), -deleteInfo.getBonus());
-    }
-
     jdbcTemplate.update("UPDATE topics SET deleted='f' WHERE id=?", message.getId());
-    jdbcTemplate.update("DELETE FROM del_info WHERE msgid=?", message.getId());
   }
 
   private int allocateMsgid() {
