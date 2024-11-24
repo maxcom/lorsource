@@ -315,4 +315,13 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
             and topics.userid != :deletedBy and topics.userid != ${User.ANONYMOUS_ID})
       """, Map("message" -> reason, "topics" -> topicsIds.map(Integer.valueOf).asJava, "deletedBy" -> deletedBy).asJava)
   }
+
+  def insertCommentMassDeleteNotifications(commentIds: Seq[Int], reason: String, deletedBy: Int): Unit = {
+    namedJdbcTemplate.update(s"""
+        insert into user_events (userid, type, private, message_id, comment_id, message)
+          (select comments.userid, '${DELETED.getType}', true, comments.topic, comments.id,
+            :message from comments where comments.id in (:comments)
+            and comments.userid != :deletedBy and comments.userid != ${User.ANONYMOUS_ID})
+      """, Map("message" -> reason, "comments" -> commentIds.map(Integer.valueOf).asJava, "deletedBy" -> deletedBy).asJava)
+  }
 }

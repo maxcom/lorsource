@@ -177,7 +177,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     }
   }
 
-  def insertTopicDeleteNotifications(topic: Topic, info: InsertDeleteInfo): Unit = {
+  def insertTopicDeleteNotification(topic: Topic, info: InsertDeleteInfo): Unit = {
     assert(topic.id == info.msgid())
 
     if (info.deleteUser().getId != topic.authorUserId && topic.authorUserId != User.ANONYMOUS_ID) {
@@ -191,9 +191,29 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     }
   }
 
+  def insertCommentDeleteNotification(comment: Comment, info: InsertDeleteInfo): Unit = {
+    assert(comment.id == info.msgid())
+
+    if (info.deleteUser().getId != comment.userid && comment.userid != User.ANONYMOUS_ID) {
+      userEventDao.addEvent(
+        eventType = DELETED.getType,
+        userId = comment.userid,
+        isPrivate = true,
+        topicId = Some(comment.topicId),
+        commentId = Some(comment.id),
+        message = Some(info.reason()))
+    }
+  }
+
   def insertTopicMassDeleteNotifications(topicsIds: Seq[Int], reason: String, deletedBy: User): Unit = {
     if (topicsIds.nonEmpty) {
       userEventDao.insertTopicMassDeleteNotifications(topicsIds, reason, deletedBy.getId)
+    }
+  }
+
+  def insertCommentMassDeleteNotifications(commentIds: Seq[Int], reason: String, deletedBy: User): Unit = {
+    if (commentIds.nonEmpty) {
+      userEventDao.insertCommentMassDeleteNotifications(commentIds, reason, deletedBy.getId)
     }
   }
 }

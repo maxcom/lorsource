@@ -47,7 +47,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
       deleteInfoDao.insert(info)
 
       userEventService.processTopicDeleted(Seq(topic.id))
-      userEventService.insertTopicDeleteNotifications(topic, info)
+      userEventService.insertTopicDeleteNotification(topic, info)
     }
   }
 
@@ -74,6 +74,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
       commentDao.updateStatsAfterDelete(comment.id, 1)
       userEventService.processCommentsDeleted(Seq(comment.id))
+      userEventService.insertCommentDeleteNotification(comment, info)
     }
 
     deleted.isDefined
@@ -94,11 +95,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
     val replys = DeleteService.getAllReplys(node, 0)
 
-    val deleted = deleteReplys(comment, reason, replys, user, -scoreBonus)
-
-    userEventService.processCommentsDeleted(deleted)
-
-    deleted
+    deleteReplys(comment, reason, replys, user, -scoreBonus, notifyReplys = !topic.isExpired)
   }
 
   /**
@@ -207,7 +204,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
    * @return список идентификационных номеров удалённых комментариев
    */
   private def deleteReplys(root: Comment, rootReason: String, replys: Seq[DeleteService.CommentAndDepth],
-                           user: User, rootBonus: Int): Seq[Int] = {
+                           user: User, rootBonus: Int, notifyReplys: Boolean): Seq[Int] = {
     val score = rootBonus < -2
 
     val deleteInfos = new ArrayBuffer[InsertDeleteInfo](initialSize = replys.size)
@@ -220,6 +217,10 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
       del.foreach { info =>
         deleteInfos.addOne(info)
+
+        if (notifyReplys) {
+          userEventService.insertCommentDeleteNotification(child, info)
+        }
       }
     }
 
@@ -227,6 +228,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
     deletedMain.foreach { info =>
       deleteInfos.addOne(info)
+      userEventService.insertCommentDeleteNotification(root, info)
     }
 
     if (deleteInfos.nonEmpty) {
@@ -235,7 +237,11 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
       commentDao.updateStatsAfterDelete(root.id, deleteInfos.size)
     }
 
-    deleteInfos.map(_.msgid).toVector
+    val deletedComments = deleteInfos.map(_.msgid).toVector
+
+    userEventService.processCommentsDeleted(deletedComments)
+
+    deletedComments
   }
 
   private def doDeleteTopic(topic: Topic, moderator: User, reason: String, bonus: Int): Option[InsertDeleteInfo] = {
@@ -270,10 +276,6 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
     userEventService.processTopicDeleted(deletedTopics.map(_.msgid))
 
-    if (notifyUser) {
-      userEventService.insertTopicMassDeleteNotifications(deletedTopics.map(_.msgid), reason, moderator)
-    }
-
     // delete comments
     val skippedComments = new ArrayBuffer[Int]
     val deletedComments = new ArrayBuffer[InsertDeleteInfo]
@@ -291,18 +293,25 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
       }
     }
 
+    val deletedCommentIds = deletedComments.map(_.msgid).toVector
+
     for (info <- deletedComments) {
       commentDao.updateStatsAfterDelete(info.msgid, 1)
     }
 
-    userEventService.processCommentsDeleted(deletedComments.view.map(_.msgid).toVector)
+    userEventService.processCommentsDeleted(deletedCommentIds)
 
     // common
     deleteInfoDao.insert((deletedComments ++ deletedTopics).asJava)
 
+    if (notifyUser) {
+      userEventService.insertTopicMassDeleteNotifications(deletedTopics.map(_.msgid), reason, moderator)
+      userEventService.insertCommentMassDeleteNotifications(deletedCommentIds, reason, moderator)
+    }
+
     new DeleteCommentResult(
       deletedTopics.view.map(_.msgid).map(Integer.valueOf).toVector.asJava,
-      deletedComments.view.map(_.msgid).map(Integer.valueOf).toVector.asJava,
+      deletedCommentIds.map(Integer.valueOf).asJava,
       skippedComments.map(Integer.valueOf).asJava)
   }
 }

@@ -18,26 +18,10 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-  <changeSet id="2024112401" author="Maxim Valyanskiy">
-    <sql splitStatements="false">
-      CREATE OR REPLACE FUNCTION public.event_delete()
-       RETURNS trigger
-       LANGUAGE plpgsql
-      AS $function$
-      DECLARE
-        thecomment comments%ROWTYPE;
-      BEGIN
-        SELECT * INTO thecomment FROM comments WHERE id = NEW.msgid;
-
-        IF FOUND THEN
-          IF thecomment.userid != NEW.delby THEN
-            INSERT INTO user_events (userid, type, private, message_id, comment_id, message) VALUES (thecomment.userid, 'DEL', 't', thecomment.topic, NEW.msgid, NEW.reason);
-          END IF;
-        END IF;
-
-        RETURN NULL;
-      END;
-      $function$
+  <changeSet id="2024112402" author="Maxim Valyanskiy">
+    <sql>
+      DROP TRIGGER event_delete_t on del_info;
+      DROP FUNCTION event_delete();
     </sql>
   </changeSet>
 </databaseChangeLog>
