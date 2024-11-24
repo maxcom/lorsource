@@ -20,8 +20,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
+import ru.org.linux.spring.dao.DeleteInfoDao.InsertDeleteInfo
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEventFilterEnum.*
+import ru.org.linux.user.UserEventFilterEnum.DELETED
 
 import java.util
 import scala.jdk.CollectionConverters.*
@@ -89,7 +91,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
         isPrivate = true,
         topicId = Some(topic.id),
         commentId = comment.map(_.id),
-        topic = Some(message),
+        message = Some(message),
         originUser = Some(author.getId),
         warningId = Some(warningId))
     }
@@ -121,7 +123,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    */
   def getUserEvents(user: User, showPrivate: Boolean, topics: Int, offset: Int,
                     eventFilter: UserEventFilterEnum): Seq[UserEvent] = {
-    val eventFilterType = if (eventFilter!=ALL) {
+    val eventFilterType = if (eventFilter != ALL) {
       Some(eventFilter.getType)
     } else {
       None
@@ -163,7 +165,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
                                      commentId: Int): collection.Seq[Int] =
     transactional(propagation = Propagation.MANDATORY) { _ =>
       userEventDao.insertCommentWatchNotification(comment, parentComment, commentId)
-  }
+    }
 
   def getEventTypes(user: User): Seq[UserEventFilterEnum] = {
     val unsorted = userEventDao.getEventTypes(user.getId).toSet
@@ -172,6 +174,26 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
       UserEventFilterEnum.values.view.filter(v => v == UserEventFilterEnum.ALL || unsorted(v)).toSeq
     } else {
       Seq.empty
+    }
+  }
+
+  def insertTopicDeleteNotifications(topic: Topic, info: InsertDeleteInfo): Unit = {
+    assert(topic.id == info.msgid())
+
+    if (info.deleteUser().getId != topic.authorUserId && topic.authorUserId != User.ANONYMOUS_ID) {
+      userEventDao.addEvent(
+        eventType = DELETED.getType,
+        userId = topic.authorUserId,
+        isPrivate = true,
+        topicId = Some(topic.id),
+        commentId = None,
+        message = Some(info.reason()))
+    }
+  }
+
+  def insertTopicMassDeleteNotifications(topicsIds: Seq[Int], reason: String, deletedBy: User): Unit = {
+    if (topicsIds.nonEmpty) {
+      userEventDao.insertTopicMassDeleteNotifications(topicsIds, reason, deletedBy.getId)
     }
   }
 }

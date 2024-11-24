@@ -28,7 +28,7 @@ import ru.org.linux.poll.{PollDao, PollVariant}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao}
+import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.tag.TagName
 import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils

@@ -47,6 +47,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
       deleteInfoDao.insert(info)
 
       userEventService.processTopicDeleted(Seq(topic.id))
+      userEventService.insertTopicDeleteNotifications(topic, info)
     }
   }
 
@@ -130,7 +131,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
     val topics = topicDao.getUserTopicForUpdate(user).asScala.map(_.toInt)
     val comments = commentDao.getAllByUserForUpdate(user).asScala.map(_.toInt)
 
-    massDelete(moderator, topics, comments, "Блокировка пользователя с удалением сообщений")
+    massDelete(moderator, topics, comments, "Блокировка пользователя с удалением сообщений", notifyUser = false)
   }
 
   def undeleteComment(comment: Comment): Unit = transactional() { _ =>
@@ -252,7 +253,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
   }
 
   private def massDelete(moderator: User, topics: collection.Seq[Int], comments: collection.Seq[Int],
-                         reason: String) = {
+                         reason: String, notifyUser: Boolean = true): DeleteCommentResult = {
     // deleteTopics
     val deletedTopicsBuilder = Vector.newBuilder[InsertDeleteInfo]
 
@@ -268,6 +269,10 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
     val deletedTopics = deletedTopicsBuilder.result()
 
     userEventService.processTopicDeleted(deletedTopics.map(_.msgid))
+
+    if (notifyUser) {
+      userEventService.insertTopicMassDeleteNotifications(deletedTopics.map(_.msgid), reason, moderator)
+    }
 
     // delete comments
     val skippedComments = new ArrayBuffer[Int]
