@@ -77,6 +77,7 @@ class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: U
         } while (photofile.exists)
 
         Files.move(uploadedFile, photofile.toPath)
+        photofile.setReadable(true, true)
 
         userDao.setPhoto(currentUser.user, photoname)
 
