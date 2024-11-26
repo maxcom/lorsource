@@ -157,6 +157,9 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val params = prepareModel(Some(group), section)(sessionUserOpt).to(mutable.HashMap)
 
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.getNick), Option(form.getPassword), errors)
+    val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
+
+    user.checkFrozen(errors)
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
@@ -164,11 +167,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
     }
 
-    val tmpl = Template.getTemplate
-
     if (!groupPermissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
       form.setAllowAnonymous(true)
     }
+
+    val tmpl = Template.getTemplate
 
     val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), tmpl.getFormatMode)
 
@@ -207,7 +210,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       None
     }
 
-    val previewMsg: Topic = Topic.fromAddRequest(form, postingUser.userOpt.getOrElse(userService.getAnonymous), request.getRemoteAddr)
+    val previewMsg: Topic = Topic.fromAddRequest(form, user, request.getRemoteAddr)
 
     val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true))
 
@@ -243,7 +246,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     if (!form.isPreviewMode && !errors.hasErrors) {
       session.removeAttribute("image")
 
-      createNewTopic(request, form, group, params, section, postingUser.userOpt.orNull, message, imagePreview, previewMsg)
+      createNewTopic(request, form, group, params, section, user, message, imagePreview, previewMsg)
     } else {
       new ModelAndView("add", params.asJava)
     }
