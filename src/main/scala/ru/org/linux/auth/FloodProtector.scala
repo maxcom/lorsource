@@ -18,6 +18,7 @@ import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
+import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.user.User
 
@@ -42,9 +43,12 @@ object FloodProtector {
 }
 
 @Component
-class FloodProtector(deleteInfoDao: DeleteInfoDao) {
+class FloodProtector(deleteInfoDao: DeleteInfoDao, siteConfig: SiteConfig) {
   final private val performedActions: Cache[String, Instant] =
     CacheBuilder.newBuilder.expireAfterWrite(30, TimeUnit.MINUTES).build
+
+  // for tests
+  private val enabled: Boolean = siteConfig.getMainURI.getHost != "127.0.0.1"
 
   private def check(action: FloodProtector.Action, ip: String, threshold: Duration): Boolean = {
     val key = action.toString + ':' + ip
@@ -60,21 +64,23 @@ class FloodProtector(deleteInfoDao: DeleteInfoDao) {
   }
 
   def checkRateLimit(action: FloodProtector.Action, ip: String, @Nullable user: User, errors: Errors): Unit = {
-    val threshold: Duration = if (user==null || user.isAnonymous) {
-      action.threshold
-    } else if (user.getScore < 35 ||
+    if (enabled) {
+      val threshold: Duration = if (user == null || user.isAnonymous) {
+        action.threshold
+      } else if (user.getScore < 35 ||
         Option(user.getFrozenUntil).map(_.toInstant).exists(_.isAfter(Instant.now.minus(3, ChronoUnit.DAYS))) ||
         deleteInfoDao.getRecentScoreLoss(user) >= 30) {
-      action.thresholdLowScore
-    } else if (user.getScore >= 100) {
-      action.thresholdTrusted
-    } else {
-      action.threshold
-    }
+        action.thresholdLowScore
+      } else if (user.getScore >= 100) {
+        action.thresholdTrusted
+      } else {
+        action.threshold
+      }
 
-    if (!check(action, ip, threshold)) {
-      errors.reject(null,
-        s"Следующее сообщение может быть записано не менее чем через ${threshold.toSeconds} секунд после предыдущего")
+      if (!check(action, ip, threshold)) {
+        errors.reject(null,
+          s"Следующее сообщение может быть записано не менее чем через ${threshold.toSeconds} секунд после предыдущего")
+      }
     }
   }
 }

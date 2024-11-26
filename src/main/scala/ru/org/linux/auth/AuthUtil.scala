@@ -80,7 +80,7 @@ object AuthUtil {
 
   def isCorrectorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_CORRECTOR")
 
-  def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
+  private def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
 
   private def hasAuthority(authName: String): Boolean = {
     val authentication = SecurityContextHolder.getContext.getAuthentication
@@ -201,17 +201,14 @@ object AuthUtil {
         case Some(formUser) if formUser.isAnonymous =>
           NonAuthorizedSession
         case Some(formUser) =>
-          try {
-            formUser.checkPassword(formPassword.orNull)
-
-            formUser.checkBlocked(errors)
-            formUser.checkFrozen(errors)
-
+          if (formUser.isBlocked || !formUser.isActivated) {
+            errors.rejectValue("user", null, s"Пользователь \"${formUser.getNick}\" заблокирован или не активирован")
+            NonAuthorizedSession
+          } else if (!(formUser.isAnonymous && formPassword.get.isEmpty) && !formUser.matchPassword(formPassword.get)) {
+            errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.getNick}\" задан неверно!")
+            NonAuthorizedSession
+          } else {
             AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false)
-          } catch {
-            case e: BadPasswordException =>
-              errors.rejectValue("password", null, e.getMessage)
-              NonAuthorizedSession
           }
       }
     }
