@@ -27,7 +27,10 @@ $container_margin: 0;
 @import "clearfix";
 
 @mixin respond-to($media) {
-  @if $media == desktops {
+  @if $media == widedesktop {
+    @media only screen and (min-width: 100em) { @content; }
+  }
+  @else if $media == desktops {
     @media only screen and (min-width: 70em) { @content; }
   }
   @else if $media == tablet-and-desktops {
@@ -40,6 +43,10 @@ $container_margin: 0;
 html {
   text-size-adjust: none;
   -webkit-text-size-adjust: none;
+
+  @include respond-to(widedesktop) {
+    font-size: 1.125em;
+  }
 }
 
 body {
