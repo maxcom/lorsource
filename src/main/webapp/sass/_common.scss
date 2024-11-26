@@ -27,11 +27,8 @@ $container_margin: 0;
 @import "clearfix";
 
 @mixin respond-to($media) {
-  @if $media == widedesktop {
-    @media only screen and (min-width: 90em) { @content; }
-  }
-  @else if $media == desktops {
-    @media only screen and (min-width: 65em) { @content; }
+  @if $media == desktops {
+    @media only screen and (min-width: 70em) { @content; }
   }
   @else if $media == tablet-and-desktops {
     @media only screen and (min-width: 47em) { @content; }
@@ -43,14 +40,10 @@ $container_margin: 0;
 html {
   text-size-adjust: none;
   -webkit-text-size-adjust: none;
-
-  @include respond-to(widedesktop) {
-    font-size: 1.125em;
-  }
 }
 
 body {
-   max-width: 89em;
+   max-width: 85em;
    margin: auto;
    line-height: 1.4;
 }
