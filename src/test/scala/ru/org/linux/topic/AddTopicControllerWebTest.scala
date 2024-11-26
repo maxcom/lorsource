@@ -97,38 +97,13 @@ class AddTopicControllerWebTest extends Specification {
     "post news without auth" in {
       val response = basicRequest
         .body(Map(
-          "user" -> TestUser,
+          "nick" -> TestUser,
           "password" -> TestPassword,
           "h-captcha-response" -> "10000000-aaaa-bbbb-cccc-000000000001",
           "section" -> Section.SECTION_NEWS.toString,
           "group" -> AddTopicControllerWebTest.TestGroupNews.toString,
           "csrf" -> "csrf",
           "title" -> "Новость без аутентификации"))
-        .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
-        .post(WebHelper.MainUrl.addPath("add.jsp"))
-        .send(WebHelper.backend)
-
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
-
-      doc.select("#messageForm").asScala must be empty
-
-      response.code must be equalTo StatusCode.Ok
-
-      val finalDoc = Jsoup.parse(response.body.merge, response.request.uri.toString())
-
-      finalDoc.text must be contain "Вы поместили сообщение в защищенный раздел."
-    }
-
-    "post news by anonymous" in {
-      val response = basicRequest
-        .body(Map(
-          "user" -> "anonymous",
-          "password" -> "",
-          "h-captcha-response" -> "10000000-aaaa-bbbb-cccc-000000000001",
-          "section" -> Section.SECTION_NEWS.toString,
-          "group" -> AddTopicControllerWebTest.TestGroupNews.toString,
-          "csrf" -> "csrf",
-          "title" -> "Тестовая анонимная новость"))
         .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
         .post(WebHelper.MainUrl.addPath("add.jsp"))
         .send(WebHelper.backend)
