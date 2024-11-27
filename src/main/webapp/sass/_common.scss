@@ -816,7 +816,9 @@ figure.medium-image {
   .medium-image-container {
     width: 80%;
   }
+}
 
+@include respond-to(tablet-and-desktops) {
   .news .medium-image-container {
     margin-left: 1em;
     width: 40%;
