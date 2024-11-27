@@ -38,6 +38,16 @@ public class UserTest {
     }
   }
 
+  private void checkBlocked(User user) {
+    var errors = new MapBindingResult(Map.of(), "obj");
+
+    user.checkBlocked(errors);
+
+    if (errors.hasErrors()) {
+      throw new AccessViolationException("Пользователь заблокирован");
+    }
+  }
+
   /**
    * проверка администратора
    * @throws Exception хм
@@ -52,7 +62,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -96,7 +106,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertFalse(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -141,7 +151,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -188,7 +198,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -235,7 +245,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -282,7 +292,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -329,7 +339,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Пользователь заблокирован", e.getMessage());
@@ -375,7 +385,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -422,7 +432,7 @@ public class UserTest {
     Assert.assertEquals("tango", resultSet.getString("style"));
     Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -472,6 +482,4 @@ public class UserTest {
     User user = new User(resultSet);
     Assert.assertEquals("0428dfed932b07ea582efd94038b1076", user.getActivationCode("secret"));
   }
-
-
 }

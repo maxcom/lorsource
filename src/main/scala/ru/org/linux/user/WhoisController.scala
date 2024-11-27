@@ -25,6 +25,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.site.Template
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
@@ -172,8 +173,8 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
   def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[Json] = MaybeAuthorized { currentUser =>
     val user = userService.getUser(nick)
 
-    if (!currentUser.moderator) {
-      user.checkBlocked()
+    if (!currentUser.moderator && user.isBlocked) {
+      throw new AccessViolationException("Пользователь заблокирован")
     }
 
     val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]

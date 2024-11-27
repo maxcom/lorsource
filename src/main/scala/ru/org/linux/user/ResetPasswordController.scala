@@ -20,8 +20,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.util.StringUtil
 
 import scala.jdk.CollectionConverters.MapHasAsJava
@@ -50,14 +50,8 @@ class ResetPasswordController(userDao: UserDao, userService: UserService) extend
                     @RequestParam("code") formCode: String): ModelAndView = {
     val user = userService.getUser(nick)
 
-    user.checkBlocked()
-
-    if (user.isAnonymous) {
-      throw new AccessViolationException("Anonymous user")
-    }
-
-    if (user.isAdministrator) {
-      throw new AccessViolationException("this feature is not for you, ask me directly")
+    if (!userService.canResetPasswordByCode(user)) {
+      throw new AccessViolationException("Пароль этого пользователя нельзя сбросить")
     }
 
     val resetDate = userDao.getResetDate(user)

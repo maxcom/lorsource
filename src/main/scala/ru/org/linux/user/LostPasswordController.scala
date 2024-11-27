@@ -21,7 +21,7 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.email.EmailService
-import ru.org.linux.site.{BadInputException, Template}
+import ru.org.linux.site.BadInputException
 
 import java.sql.Timestamp
 import javax.mail.internet.AddressException
@@ -35,7 +35,6 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
   @RequestMapping(method = Array(RequestMethod.POST))
   @throws[Exception]
   def sendPassword(@RequestParam("email") email: String): ModelAndView = MaybeAuthorized { currentUser =>
-    val tmpl = Template.getTemplate
     if (Strings.isNullOrEmpty(email)) throw new BadInputException("email не задан")
 
     val user = userDao.getByEmail(email, true)
@@ -43,10 +42,8 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
       throw new BadInputException("Этот email не зарегистрирован!")
     }
 
-    user.checkBlocked()
-
-    if (user.isAnonymous) {
-      throw new AccessViolationException("Anonymous user")
+    if (!userService.canResetPasswordByCode(user)) {
+      throw new AccessViolationException("Пароль этого пользователя нельзя сбросить через email")
     }
 
     if (user.isModerator && !currentUser.moderator) {

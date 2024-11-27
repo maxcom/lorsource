@@ -106,16 +106,6 @@ public class User implements Serializable {
     }
   }
 
-  public void checkBlocked() throws AccessViolationException {
-    if (blocked) {
-      throw new AccessViolationException("Пользователь заблокирован");
-    }
-
-    if (!activated) {
-      throw new AccessViolationException("Пользователь не активирован");
-    }
-  }
-
   public void checkBlocked(Errors errors) {
     if (blocked) {
       errors.reject(null, "Пользователь заблокирован");

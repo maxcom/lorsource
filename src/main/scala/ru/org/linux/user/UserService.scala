@@ -20,7 +20,8 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.auth.{AccessViolationException, IPBlockDao}
+import ru.org.linux.auth.{AccessViolationException, AnySession, IPBlockDao}
+import ru.org.linux.site.BadInputException
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, UserAgentDao}
 import ru.org.linux.user.UserService.*
@@ -372,4 +373,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     userDao.block(user, user, "самостоятельная блокировка аккаунта")
   }
+
+  def canResetPasswordByCode(user: User): Boolean =
+    !user.isBlocked && user.isActivated && !user.isAnonymous && !user.isAdministrator
 }
