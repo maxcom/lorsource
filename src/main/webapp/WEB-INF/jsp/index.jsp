@@ -204,10 +204,12 @@
 
   <% out.flush(); %>
 
-  <div align="center" style="margin-bottom: 0.5em">
-    <a href="http://qrator.net/" rel="nofollow" target="_blank">
-      <img src="/adv/qrator-box.png" width="250" style="max-width: 100%; height: auto" alt="Protected by Qrator">
-    </a>
+  <div align="center" class="boxlet">
+    <div class="boxlet_content" style="padding-top: 1em">
+      <a href="http://qrator.net/" rel="nofollow" target="_blank">
+        <img src="/adv/qrator-box.png" width="250" style="max-width: 100%; height: auto" alt="Protected by Qrator">
+      </a>
+    </div>
   </div>
 
   <lor:boxlets var="boxes">
