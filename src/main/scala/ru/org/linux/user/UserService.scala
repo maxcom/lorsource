@@ -20,10 +20,9 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.auth.{AccessViolationException, AnySession, IPBlockDao}
-import ru.org.linux.site.BadInputException
+import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{DeleteInfoDao, UserAgentDao}
+import ru.org.linux.spring.dao.UserAgentDao
 import ru.org.linux.user.UserService.*
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
 import ru.org.linux.util.{BadImageException, StringUtil}
@@ -51,22 +50,14 @@ object UserService {
 
   private val NameCacheSize = 10000
 
-  val MaxTotalInvites = 15
-  val MaxUserInvites = 1
-  val MaxInviteScoreLoss = 10
-  val InviteScore = 200
-
-  val MaxUnactivatedPerIp = 2
-
   val CorrectorScore = 200
 
-  val MaxUserpicScoreLoss = 20
 }
 
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                  ipBlockDao: IPBlockDao, userAgentDao: UserAgentDao, val transactionManager: PlatformTransactionManager)
+                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
+                  val transactionManager: PlatformTransactionManager)
     extends StrictLogging with TransactionManagement {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
@@ -165,10 +156,6 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     userLogDao.logSentPasswordReset(forUser, byUser, email)
   }
 
-  def canResetPassword(user: User): Boolean = {
-    !userLogDao.hasRecentSelfEvent(user, Duration.ofDays(7), UserLogAction.SENT_PASSWORD_RESET)
-  }
-
   def getUsersCached(ids: Iterable[Int]): Seq[User] = ids.map(x => userDao.getUserCached(x)).toSeq
 
   def getUsersCachedMap(userIds: Iterable[Int]): Map[Int, User] =
@@ -234,16 +221,6 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       throw new RuntimeException("Anonymous not found!?", e)
   }
 
-  def canInvite(user: User): Boolean = user.isModerator || {
-    lazy val (totalInvites, userInvites) = userInvitesDao.countValidInvites(user)
-    lazy val userScoreLoss = deleteInfoDao.getRecentScoreLoss(user)
-
-    !user.isFrozen && user.getScore > InviteScore &&
-      totalInvites < MaxTotalInvites &&
-      userInvites < MaxUserInvites &&
-      userScoreLoss < MaxInviteScoreLoss
-  }
-
   def createUser(nick: String, password: String, mail: InternetAddress, ip: String, invite: Option[String],
                  userAgent: Option[String], language: Option[String]): Int = {
     val result = transactional() { _ =>
@@ -273,31 +250,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def getAllInvitedUsers(user: User): util.List[User] =
     userInvitesDao.getAllInvitedUsers(user).map(userDao.getUserCached).asJava
 
-  def canRegister(remoteAddr: String): Boolean = !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
-    userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp
-
   def wasRecentlyBlocker(user: User): Boolean =
     userLogDao.hasRecentModerationEvent(user, Duration.ofDays(14), UserLogAction.BLOCK_USER)
-
-  def canLoadUserpic(user: User): Boolean = {
-    def userpicSetCount = userLogDao.getUserpicSetCount(user, Duration.ofHours(1))
-
-    def wasReset = userLogDao.hasRecentModerationEvent(user, Duration.ofDays(30), UserLogAction.RESET_USERPIC)
-
-    def userScoreLoss = deleteInfoDao.getRecentScoreLoss(user)
-
-    user.getScore >= 45 &&
-      !user.isFrozen &&
-      (userpicSetCount < 3) &&
-      !wasReset &&
-      (userScoreLoss < MaxUserpicScoreLoss)
-  }
-
-  def canEditProfileInfo(user: User): Boolean =
-    !user.isFrozen &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_INFO) &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_URL) &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_TOWN)
 
   def removeUserInfo(user: User, moderator: User): Unit = transactional() { _ =>
     val userInfo = userDao.getUserInfo(user)
@@ -373,7 +327,4 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     userDao.block(user, user, "самостоятельная блокировка аккаунта")
   }
-
-  def canResetPasswordByCode(user: User): Boolean =
-    !user.isBlocked && user.isActivated && !user.isAnonymous && !user.isAdministrator
 }

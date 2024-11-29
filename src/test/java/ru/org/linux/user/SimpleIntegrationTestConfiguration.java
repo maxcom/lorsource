@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,9 +18,7 @@ package ru.org.linux.user;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.UserAgentDao;
 
 import javax.sql.DataSource;
@@ -43,8 +41,7 @@ public class SimpleIntegrationTestConfiguration {
   UserService userService(UserDao userDao, UserLogDao userLogDao,
                           PlatformTransactionManager transactionManager) {
     return new UserService(mock(SiteConfig.class), userDao, mock(IgnoreListDao.class), mock(UserInvitesDao.class),
-            userLogDao, mock(DeleteInfoDao.class), mock(IPBlockDao.class), mock(UserAgentDao.class),
-            transactionManager);
+            userLogDao, mock(UserAgentDao.class), transactionManager);
   }
 
   @Bean

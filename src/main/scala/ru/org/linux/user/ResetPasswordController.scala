@@ -27,7 +27,8 @@ import ru.org.linux.util.StringUtil
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
-class ResetPasswordController(userDao: UserDao, userService: UserService) extends StrictLogging {
+class ResetPasswordController(userDao: UserDao, userService: UserService,
+                              userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD),
     params = Array("reset-password"))
   def showModeratorForm(@PathVariable nick: String): ModelAndView = ModeratorOnly { _ =>
@@ -50,7 +51,7 @@ class ResetPasswordController(userDao: UserDao, userService: UserService) extend
                     @RequestParam("code") formCode: String): ModelAndView = {
     val user = userService.getUser(nick)
 
-    if (!userService.canResetPasswordByCode(user)) {
+    if (!userPermissionService.canResetPasswordByCode(user)) {
       throw new AccessViolationException("Пароль этого пользователя нельзя сбросить")
     }
 

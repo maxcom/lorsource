@@ -44,13 +44,14 @@ import javax.validation.Valid
 @RequestMapping(Array("/people/{nick}/edit"))
 class EditRegisterController(rememberMeServices: RememberMeServices, authenticationManager: AuthenticationManager,
                              userDetailsService: UserDetailsServiceImpl, ipBlockDao: IPBlockDao, userDao: UserDao,
-                             userService: UserService, emailService: EmailService, resourceLoader: ResourceLoader)
+                             userService: UserService, emailService: EmailService, resourceLoader: ResourceLoader,
+                             userPermissionService: UserPermissionService)
     extends StrictLogging {
   private val validator = new EditRegisterRequestValidator(resourceLoader)
 
   @RequestMapping(method = Array(RequestMethod.GET))
   def show(@ModelAttribute("form") form: EditRegisterRequest, @PathVariable("nick") nick: String,
-           response: HttpServletResponse): ModelAndView = AuthorizedOnly { currentUser =>
+           response: HttpServletResponse): ModelAndView = AuthorizedOnly { implicit currentUser =>
     if (currentUser.user.getNick != nick) {
       throw new AccessViolationException("Not authorized")
     }
@@ -61,8 +62,8 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
 
     val mv = new ModelAndView("edit-reg")
 
-    mv.getModel.put("canLoadUserpic", userService.canLoadUserpic(user))
-    mv.getModel.put("canEditInfo", userService.canEditProfileInfo(user))
+    mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
+    mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
 
     form.setEmail(user.getEmail)
     form.setUrl(userInfo.getUrl)
@@ -78,7 +79,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
   @RequestMapping(method = Array(RequestMethod.POST))
   def edit(request: HttpServletRequest, response: HttpServletResponse, @PathVariable("nick") nick: String,
            @Valid @ModelAttribute("form") form: EditRegisterRequest,
-           errors: Errors): ModelAndView = AuthorizedOnly { currentUser =>
+           errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
     if (currentUser.user.getNick != nick) {
       throw new AccessViolationException("Not authorized")
     }
@@ -127,7 +128,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     }
 
     if (!errors.hasErrors) {
-      if (userService.canEditProfileInfo(user)) {
+      if (userPermissionService.canEditProfileInfo) {
         userService.updateUser(user, name, url, newEmail, town, newPassword, info, request.getRemoteAddr)
       } else {
         userService.updateEmailPasswd(user, newEmail, newPassword, request.getRemoteAddr)
@@ -152,8 +153,8 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     } else {
       val mv = new ModelAndView("edit-reg")
 
-      mv.getModel.put("canLoadUserpic", userService.canLoadUserpic(user))
-      mv.getModel.put("canEditInfo", userService.canEditProfileInfo(user))
+      mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
+      mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
 
       mv
     }

@@ -31,9 +31,9 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 @RequestMapping (path = Array ("/people/{nick}/settings") )
-class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userService: UserService) {
+class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermissionService: UserPermissionService) {
   @RequestMapping(method = Array(RequestMethod.GET))
-  def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { currentUser =>
+  def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val tmpl = Template.getTemplate
     if (!(currentUser.user.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
@@ -63,7 +63,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
-    params.put("canLoadUserpic", Boolean.box(userService.canLoadUserpic(currentUser.user)))
+    params.put("canLoadUserpic", Boolean.box(userPermissionService.canLoadUserpic))
 
     new ModelAndView("edit-profile", params)
   }

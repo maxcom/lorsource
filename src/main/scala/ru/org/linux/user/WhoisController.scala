@@ -43,7 +43,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
                       lorCodeService: LorCodeService, userTagService: UserTagService,
                       topicPermissionService: TopicPermissionService, userService: UserService, userLogDao: UserLogDao,
                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
-                      topicDao: TopicDao) extends StrictLogging {
+                      topicDao: TopicDao, userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def getInfoNew(@PathVariable nick: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
@@ -98,7 +98,6 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     mv.getModel.put("moderatorOrCurrentUser", viewByOwner || currentUserOpt.moderator)
     mv.getModel.put("viewByOwner", viewByOwner)
-    mv.getModel.put("canInvite", viewByOwner && userService.canInvite(user))
 
     currentUserOpt.userOpt.foreach { currentUser =>
       if (!viewByOwner) {
@@ -113,8 +112,11 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     }
 
     if (viewByOwner) {
-      mv.getModel.put("hasRemarks", remarkDao.hasRemarks(user))
-      mv.getModel.put("canLoadUserpic", userService.canLoadUserpic(user))
+      currentUserOpt.opt.foreach { implicit authorized =>
+        mv.getModel.put("hasRemarks", remarkDao.hasRemarks(user))
+        mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
+        mv.getModel.put("canInvite", userPermissionService.canInvite)
+      }
     }
 
     val userinfo = userDao.getUserInfo(user)

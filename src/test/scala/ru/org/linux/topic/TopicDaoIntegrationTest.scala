@@ -103,10 +103,9 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                  IPBlockDao: IPBlockDao, userAgentDao: UserAgentDao, transactionManager: PlatformTransactionManager) =
-    new UserService(siteConfig, userDao, ignoreListDao, userInvitesDao, userLogDao, deleteInfoDao, IPBlockDao,
-      userAgentDao, transactionManager)
+                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
+                  transactionManager: PlatformTransactionManager) =
+    new UserService(siteConfig, userDao, ignoreListDao, userInvitesDao, userLogDao, userAgentDao, transactionManager)
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])

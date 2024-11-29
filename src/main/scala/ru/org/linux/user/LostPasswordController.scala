@@ -28,7 +28,8 @@ import javax.mail.internet.AddressException
 
 @Controller
 @RequestMapping(Array("/lostpwd.jsp"))
-class LostPasswordController(userDao: UserDao, userService: UserService, emailService: EmailService) {
+class LostPasswordController(userDao: UserDao, userService: UserService, emailService: EmailService,
+                             userPermissionService: UserPermissionService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm: ModelAndView = new ModelAndView("lostpwd-form")
 
@@ -42,7 +43,7 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
       throw new BadInputException("Этот email не зарегистрирован!")
     }
 
-    if (!userService.canResetPasswordByCode(user)) {
+    if (!userPermissionService.canResetPasswordByCode(user)) {
       throw new AccessViolationException("Пароль этого пользователя нельзя сбросить через email")
     }
 
@@ -50,7 +51,7 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
       throw new AccessViolationException("этот пароль могут сбросить только модераторы")
     }
 
-    if (!currentUser.moderator && !userService.canResetPassword(user)) {
+    if (!currentUser.moderator && !userPermissionService.canResetPassword(user)) {
       throw new BadInputException("Нельзя запрашивать пароль чаще одного раза в неделю!")
     }
 
