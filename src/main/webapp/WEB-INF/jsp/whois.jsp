@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -48,44 +48,50 @@
 
     $script.ready(['heatmap', 'jquery', 'plugins'], function () {
         $(function () {
-            if (window.matchMedia("(min-width: 768px)").matches) {
-                moment.locale("ru");
+            moment.locale("ru");
 
-                var size = 8;
+            var size = 8;
 
-                if (window.matchMedia("(min-width: 1024px)").matches) {
-                    size = 10;
-                }
-
-                var cal = new CalHeatMap();
-                cal.init({
-                    data: "/people/${user.nick}/profile?year-stats",
-                    domain: "month",
-                    subDomain: "day",
-                    range: 12,
-                    domainDynamicDimension: false,
-                    displayLegend: false,
-                    legend: [8, 32, 64, 128],
-                    cellSize: size,
-                    start: new Date("<%= DateTime.now().minusMonths(11).toString() %>"),
-                    tooltip: true,
-                    domainLabelFormat: function (date) {
-                        return moment(date).format("MMMM");
-                    },
-                    subDomainDateFormat: function (date) {
-                        return moment(date).format("LL");
-                    },
-                    subDomainTitleFormat: {
-                        empty: "{date}",
-                        filled: "{date}<br>сообщений: {count}"
-                    },
-                    onClick: function (date, count) {
-                        if (count > 0) {
-                            window.location.href = '/search.jsp?dt=' + date.getTime() + '&user=${user.nick}';
-                        }
-                    }
-                });
+            if (window.matchMedia("(min-width: 1024px)").matches) {
+                size = 10;
             }
+
+            var cal = new CalHeatMap();
+            var params = {
+                 data: "/people/${user.nick}/profile?year-stats",
+                 domain: "month",
+                 subDomain: "day",
+                 domainDynamicDimension: false,
+                 displayLegend: false,
+                 legend: [8, 32, 64, 128],
+                 cellSize: size,
+                 tooltip: true,
+                 domainLabelFormat: function (date) {
+                     return moment(date).format("MMMM");
+                 },
+                 subDomainDateFormat: function (date) {
+                     return moment(date).format("LL");
+                 },
+                 subDomainTitleFormat: {
+                     empty: "{date}",
+                     filled: "{date}<br>сообщений: {count}"
+                 },
+                 onClick: function (date, count) {
+                     if (count > 0) {
+                         window.location.href = '/search.jsp?dt=' + date.getTime() + '&user=${user.nick}';
+                     }
+                 }
+            };
+
+            if (window.matchMedia("(min-width: 768px)").matches) {
+                params['range'] = 12;
+                params['start'] = new Date("<%= DateTime.now().minusMonths(11).toString() %>")
+            } else {
+                params['range'] = 6;
+                params['start'] = new Date("<%= DateTime.now().minusMonths(5).toString() %>")
+            }
+
+            cal.init(params);
         });
     });
 

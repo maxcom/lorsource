@@ -827,10 +827,8 @@ figure.medium-image {
   }
 }
 
-@media screen and (min-width: 768px) {
-  #cal-heatmap {
-    min-height: 100px;
-  }
+#cal-heatmap {
+  min-height: 100px;
 }
 
 @media (prefers-color-scheme: dark) {
