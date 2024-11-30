@@ -17,6 +17,7 @@ package ru.org.linux.comment
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.common.DeleteReasons
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.dao.DeleteInfoDao
@@ -36,14 +37,15 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
    * Удаление топика и если удаляет модератор изменить автору score
    *
    * @param topic удаляемый топик
-   * @param user    удаляющий пользователь
    * @param reason  причина удаления
-   * @param bonus   дельта изменения score автора топика
+   * @param scoreBonus   дельта изменения score автора топика
    */
-  def deleteTopic(topic: Topic, user: User, reason: String, bonus: Int): Unit = transactional() { _ =>
-    assert(bonus <= 20 && bonus >= 0, "Некорректное значение bonus")
+  def deleteTopic(topic: Topic, reason: String, scoreBonus: Int)
+                 (implicit currentUser: AuthorizedSession): Unit = transactional() { _ =>
+    assert(scoreBonus <= 20 && scoreBonus >= 0, "Некорректное значение bonus")
+    assert(scoreBonus == 0 || currentUser.moderator, "Только модератор может менять score")
 
-    doDeleteTopic(topic, user, reason, -bonus).foreach { info =>
+    doDeleteTopic(topic, currentUser.user, reason, -scoreBonus).foreach { info =>
       deleteInfoDao.insert(info)
 
       userEventService.processTopicDeleted(Seq(topic.id))
@@ -56,18 +58,20 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
    *
    * @param comment       удаляемый комментарий
    * @param reason        причина удаления
-   * @param user          модератор который удаляет
    * @param scoreBonus    сколько шкворца снять
    * @param checkForReply производить ли проверку на ответы
    * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
-  def deleteComment(comment: Comment, reason: String, user: User, scoreBonus: Int,
-                    checkForReply: Boolean): Boolean = transactional() { _ =>
+  def deleteComment(comment: Comment, reason: String, scoreBonus: Int, checkForReply: Boolean)
+                   (implicit currentUser: AuthorizedSession): Boolean = transactional() { _ =>
+    assert(scoreBonus == 0 || currentUser.moderator, "Только модератор может менять score")
+    assert(checkForReply || currentUser.moderator, "Только модератор может удалять без ответов")
+
     if (checkForReply && commentDao.getRepliesCount(comment.id) != 0) {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами")
     }
 
-    val deleted = doDeleteCommentWithScore(comment, -scoreBonus, reason, deleteBy = user)
+    val deleted = doDeleteCommentWithScore(comment, -scoreBonus, reason, deleteBy = currentUser.user)
 
     deleted.foreach { info =>
       deleteInfoDao.insert(info)
@@ -84,18 +88,20 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
    * Удаление комментария с ответами.
    *
    * @param comment    удаляемый комментарий
-   * @param user       пользователь, удаляющий комментарий
    * @param scoreBonus сколько снять скора у автора комментария
    * @return список идентификационных номеров удалённых комментариев
    */
-  def deleteCommentWithReplys(topic: Topic, comment: Comment, reason: String, user: User, scoreBonus: Int): Seq[Int] = transactional() { _ =>
+  def deleteCommentWithReplys(topic: Topic, comment: Comment, reason: String, scoreBonus: Int)
+                             (implicit currentUser: AuthorizedSession): Seq[Int] = transactional() { _ =>
+    assert(currentUser.moderator, "Только модератор может удалять с ответами")
+
     val commentList = commentService.getCommentList(topic, showDeleted = false)
 
     val node = commentList.getNode(comment.id)
 
     val replys = DeleteService.getAllReplys(node, 0)
 
-    deleteReplys(comment, reason, replys, user, -scoreBonus, notifyReplys = !topic.isExpired)
+    deleteReplys(comment, reason, replys, currentUser.user, -scoreBonus, notifyReplys = !topic.expired)
   }
 
   /**
@@ -103,15 +109,17 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
    *
    * @param ip        ip для которых удаляем сообщения (не проверяется на корректность)
    * @param timeDelta врменной промежуток удаления (не проверяется на корректность)
-   * @param moderator экзекутор-можератор
    * @param reason    причина удаления, которая будет вписана для удаляемых топиков
    * @return список id удаленных сообщений
    */
-  def deleteByIPAddress(ip: String, timeDelta: Timestamp, moderator: User, reason: String): DeleteCommentResult = transactional() { _ =>
+  def deleteByIPAddress(ip: String, timeDelta: Timestamp, reason: String)
+                       (implicit currentUser: AuthorizedSession): DeleteCommentResult = transactional() { _ =>
+    assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
+
     val topics = topicDao.getAllByIPForUpdate(ip, timeDelta).asScala.map(_.toInt)
     val comments = commentDao.getCommentsByIPAddressForUpdate(ip, timeDelta).asScala.map(_.toInt)
 
-    massDelete(moderator, topics, comments, reason)
+    massDelete(currentUser.user, topics, comments, reason)
   }
 
   /**
@@ -122,16 +130,22 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
    * @param reason    прична блокировки
    * @return список удаленных комментариев
    */
-  def deleteAllAndBlock(user: User, moderator: User, reason: String): DeleteCommentResult = transactional() { _ =>
-    userDao.block(user, moderator, reason)
+  def deleteAllAndBlock(user: User,reason: String)
+                       (implicit currentUser: AuthorizedSession): DeleteCommentResult = transactional() { _ =>
+    assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
+
+    userDao.block(user, currentUser.user, reason)
 
     val topics = topicDao.getUserTopicForUpdate(user).asScala.map(_.toInt)
     val comments = commentDao.getAllByUserForUpdate(user).asScala.map(_.toInt)
 
-    massDelete(moderator, topics, comments, "Блокировка пользователя с удалением сообщений", notifyUser = false)
+    massDelete(currentUser.user, topics, comments, "Блокировка пользователя с удалением сообщений", notifyUser = false)
   }
 
-  def undeleteComment(comment: Comment): Unit = transactional() { _ =>
+  def undeleteComment(comment: Comment)
+                     (implicit currentUser: AuthorizedSession): Unit = transactional() { _ =>
+    assert(currentUser.moderator, "Только модератор может восстанавливать")
+
     val deleteInfo = deleteInfoDao.getDeleteInfo(comment.id, true)
 
     if (deleteInfo != null && deleteInfo.getBonus != 0) {
@@ -143,7 +157,10 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
     topicDao.updateLastmod(comment.topicId, false)
   }
 
-  def undeleteTopic(topic: Topic): Unit = transactional() { _ =>
+  def undeleteTopic(topic: Topic)
+                   (implicit currentUser: AuthorizedSession): Unit = transactional() { _ =>
+    assert(currentUser.moderator, "Только модератор может восстанавливать")
+
     val deleteInfo = deleteInfoDao.getDeleteInfo(topic.id, true)
 
     if (deleteInfo != null && deleteInfo.getBonus != 0) {
@@ -181,8 +198,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
   /**
    * Удалить комментарий и сменить score автору.
    *
-   * @param comment    удаляемый комментарий
-   * @param scoreBonus сколько снять скора у автора комментария
+   * @param commentId    удаляемый комментарий
    * @return DeleteInfo, rоторый потом надо вставить в БД
    */
   private def doDeleteComment(commentId: Int, reason: String, deleteBy: User): Option[InsertDeleteInfo] = {
@@ -244,15 +260,17 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
     deletedComments
   }
 
-  private def doDeleteTopic(topic: Topic, moderator: User, reason: String, bonus: Int): Option[InsertDeleteInfo] = {
+  private def doDeleteTopic(topic: Topic, moderator: User, reason: String, scoreBonus: Int): Option[InsertDeleteInfo] = {
+    assert(scoreBonus <= 0, s"Score bonus '$scoreBonus' on delete must be non-positive")
+
     val deleted = topicDao.delete(topic.id)
 
     if (deleted) {
-      if (bonus !=0) {
-        userDao.changeScore(topic.authorUserId, -bonus)
+      if (scoreBonus !=0) {
+        userDao.changeScore(topic.authorUserId, scoreBonus)
       }
 
-      Some(new InsertDeleteInfo(topic.id, reason, bonus, moderator))
+      Some(new InsertDeleteInfo(topic.id, reason, scoreBonus, moderator))
     } else {
       None
     }

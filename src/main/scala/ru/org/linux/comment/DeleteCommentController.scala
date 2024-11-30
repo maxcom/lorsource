@@ -113,16 +113,16 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       }
 
       if (deleteReplys) {
-        commentDeleteService.deleteCommentWithReplys(topic, comment, reason, user, effectiveBonus)
+        commentDeleteService.deleteCommentWithReplys(topic, comment, reason, effectiveBonus)
       } else {
-        if (commentDeleteService.deleteComment(comment, reason, user, effectiveBonus, checkForReply = false)) {
+        if (commentDeleteService.deleteComment(comment, reason, effectiveBonus, checkForReply = false)) {
           Seq(msgid)
         } else {
           Seq.empty
         }
       }
     } else {
-      if (commentDeleteService.deleteComment(comment, reason, user, 0, checkForReply = true)) {
+      if (commentDeleteService.deleteComment(comment, reason, 0, checkForReply = true)) {
         Seq(msgid)
       } else {
         Seq.empty
