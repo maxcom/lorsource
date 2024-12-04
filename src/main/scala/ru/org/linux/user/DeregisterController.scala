@@ -60,7 +60,7 @@ class DeregisterController(userService: UserService) {
 
     import currentUser.user
 
-    if (!user.matchPassword(form.password)) {
+    if (!UserService.matchPassword(user, form.password)) {
       errors.rejectValue("password", null, "Неверный пароль")
     }
 

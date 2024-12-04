@@ -111,7 +111,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
 
     if (Strings.isNullOrEmpty(form.getOldpass)) {
       errors.rejectValue("oldpass", null, "Для изменения регистрации нужен ваш пароль")
-    } else if (!user.matchPassword(form.getOldpass)) {
+    } else if (!UserService.matchPassword(user, form.getOldpass)) {
       errors.rejectValue("oldpass", null, "Неверный пароль")
     }
 

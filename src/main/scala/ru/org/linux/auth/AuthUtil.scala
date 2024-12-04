@@ -17,7 +17,7 @@ package ru.org.linux.auth
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.Errors
-import ru.org.linux.user.{Profile, User, UserDao}
+import ru.org.linux.user.{Profile, User, UserDao, UserService}
 
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -33,7 +33,6 @@ sealed trait AnySession {
   // TODO это используется как признак наличия аутентификации
   def userOpt: Option[User]
 
-  // TODO deprecate
   def opt: Option[AuthorizedSession]
 }
 
@@ -204,7 +203,7 @@ object AuthUtil {
           if (formUser.isBlocked || !formUser.isActivated) {
             errors.rejectValue("user", null, s"Пользователь \"${formUser.getNick}\" заблокирован или не активирован")
             NonAuthorizedSession
-          } else if (!(formUser.isAnonymous && formPassword.get.isEmpty) && !formUser.matchPassword(formPassword.get)) {
+          } else if (!(formUser.isAnonymous && formPassword.get.isEmpty) && !UserService.matchPassword(formUser, formPassword.get)) {
             errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.getNick}\" задан неверно!")
             NonAuthorizedSession
           } else {

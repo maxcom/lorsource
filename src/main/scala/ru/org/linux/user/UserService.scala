@@ -17,6 +17,8 @@ package ru.org.linux.user
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException
+import org.jasypt.util.password.BasicPasswordEncryptor
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
@@ -52,6 +54,16 @@ object UserService {
 
   val CorrectorScore = 200
 
+  private val UserPasswordEncryptor = new BasicPasswordEncryptor
+
+  def matchPassword(user: User, password: String): Boolean = {
+    try {
+      UserPasswordEncryptor.checkPassword(password, user.getPassword)
+    } catch {
+      case _: EncryptionOperationNotPossibleException =>
+        false
+    }
+  }
 }
 
 @Service
