@@ -44,6 +44,7 @@ public final class Template {
     }
   }
 
+  /* used in jsp */
   public String getFormatMode() {
     String mode = userProfile.getFormatMode();
 

@@ -34,10 +34,12 @@ sealed trait AnySession {
   def userOpt: Option[User]
 
   def opt: Option[AuthorizedSession]
+
+  def profile: Profile
 }
 
 case class AuthorizedSession(user: User, corrector: Boolean, moderator: Boolean,
-                             administrator: Boolean) extends AnySession {
+                             administrator: Boolean, profile: Profile) extends AnySession {
   override def userOpt: Some[User] = Some(user)
   override def opt: Option[AuthorizedSession] = Some(this)
   override def authorized: Boolean = true
@@ -50,6 +52,7 @@ case object NonAuthorizedSession extends AnySession {
   override def administrator: Boolean = false
   override def opt: Option[AuthorizedSession] = None
   override def authorized: Boolean = false
+  override def profile: Profile = Profile.DEFAULT
 }
 
 object AuthUtil {
@@ -125,7 +128,7 @@ object AuthUtil {
 
   def getProfile: Profile = {
     if (!isSessionAuthorized) {
-      Profile.createDefault
+      Profile.DEFAULT
     } else {
       val principal = SecurityContextHolder.getContext.getAuthentication.getPrincipal
 
@@ -133,7 +136,7 @@ object AuthUtil {
         case details: UserDetailsImpl =>
           details.getProfile
         case _ =>
-          Profile.createDefault
+          Profile.DEFAULT
       }
     }
   }
@@ -144,7 +147,8 @@ object AuthUtil {
         user = getCurrentUser,
         corrector = isCorrectorSession,
         moderator = isModeratorSession,
-        administrator = isAdministratorSession)
+        administrator = isAdministratorSession,
+        profile = getProfile)
 
       f(currentUser)
     } else {
@@ -161,7 +165,8 @@ object AuthUtil {
       user = getCurrentUser,
       corrector = isCorrectorSession,
       moderator = isModeratorSession,
-      administrator = isAdministratorSession)
+      administrator = isAdministratorSession,
+      profile = getProfile)
 
     f(currentUser)
   }
@@ -207,7 +212,7 @@ object AuthUtil {
             errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.getNick}\" задан неверно!")
             NonAuthorizedSession
           } else {
-            AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false)
+            AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false, profile = Profile.DEFAULT)
           }
       }
     }

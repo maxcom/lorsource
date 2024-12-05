@@ -19,24 +19,19 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil
-import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.Template
-import ru.org.linux.topic.BoxletTopicDao
+import ru.org.linux.topic.LastMiniNewsDao
 
-import scala.jdk.CollectionConverters.*
+import java.util
 
 @Controller
-class ArticlesBoxlet(topTenDao: BoxletTopicDao, sectionService: SectionService) extends AbstractBoxlet {
-  @RequestMapping(path = Array("/articles.boxlet"))
+class LastMiniNewsBoxlet(lastMiniNewsDao: LastMiniNewsDao) extends AbstractBoxlet {
+  @RequestMapping(Array("/lastMiniNews.boxlet"))
   override protected def getData(request: HttpServletRequest): ModelAndView = AuthUtil.MaybeAuthorized { session =>
-    val list = topTenDao.articles(session.profile.getMessages)
+    val params = new util.HashMap[String, AnyRef]
 
-    new ModelAndView(
-      "boxlets/topiclist",
-      Map(
-        "messages" -> list.asJava,
-        "name" -> "Статьи",
-        "link" -> sectionService.getSection(Section.SECTION_ARTICLES).getSectionLink,
-        "title" -> "Новые статьи").asJava)
+    params.put("topics", lastMiniNewsDao.getTopics(session.profile.getMessages))
+
+    new ModelAndView("boxlets/lastMiniNews", params)
   }
 }

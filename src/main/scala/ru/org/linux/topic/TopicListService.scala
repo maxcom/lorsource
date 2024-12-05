@@ -16,6 +16,7 @@ package ru.org.linux.topic
 
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
+import ru.org.linux.auth.AnySession
 import ru.org.linux.group.Group
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.TagNotFoundException
@@ -228,7 +229,8 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
   def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): Seq[DeletedTopic] =
     topicListDao.getDeletedTopics(sectionId, skipBadReason, includeAnonymous)
 
-  def getMainPageFeed(showGalleryOnMain: Boolean, count: Int, hideMinor: Boolean): collection.Seq[Topic] = {
+  def getMainPageFeed(count: Int)
+                     (implicit session: AnySession): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
     topicListDto.setLimit(count)
@@ -236,13 +238,13 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
 
     topicListDto.setFromDate(DateTime.now.minusMonths(3).toDate)
 
-    if (hideMinor) {
+    if (session.profile.isMiniNewsBoxletOnMainPage) {
       topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR)
     }
 
     topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
 
-    if (showGalleryOnMain) {
+    if (session.profile.isShowGalleryOnMain) {
       topicListDto.setSection(Section.SECTION_NEWS, Section.SECTION_GALLERY)
     } else {
       topicListDto.setSection(Section.SECTION_NEWS)

@@ -92,26 +92,28 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
       throw new BadInputException("некорректный режим форматирования")
     }
 
-    tmpl.getProf.setTopics(topics)
-    tmpl.getProf.setMessages(messages)
-    tmpl.getProf.setShowPhotos("on" == request.getParameter("photos"))
-    tmpl.getProf.setHideAdsense("on" == request.getParameter("hideAdsense"))
-    tmpl.getProf.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
-    tmpl.getProf.setFormatMode(formatMode)
-    tmpl.getProf.setStyle(request.getParameter("style"))
+    val builder = new ProfileBuilder(tmpl.getProf)
+
+    builder.setTopics(topics)
+    builder.setMessages(messages)
+    builder.setShowPhotos("on" == request.getParameter("photos"))
+    builder.setHideAdsense("on" == request.getParameter("hideAdsense"))
+    builder.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
+    builder.setFormatMode(formatMode)
+    builder.setStyle(request.getParameter("style"))
     userDao.setStyle(currentUser.user, request.getParameter("style"))
-    tmpl.getProf.setOldTracker("on" == request.getParameter("oldTracker"))
-    tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
+    builder.setOldTracker("on" == request.getParameter("oldTracker"))
+    builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
 
     val avatar = request.getParameter("avatar")
     if (!DefaultProfile.getAvatars.contains(avatar)) {
       throw new BadInputException("invalid avatar value")
     }
 
-    tmpl.getProf.setAvatarMode(avatar)
-    tmpl.getProf.setReactionNotification("on" == request.getParameter("reactionNotification"))
+    builder.setAvatarMode(avatar)
+    builder.setReactionNotification("on" == request.getParameter("reactionNotification"))
 
-    profileDao.writeProfile(currentUser.user, tmpl.getProf)
+    profileDao.writeProfile(currentUser.user, builder)
 
     new ModelAndView(new RedirectView("/people/" + nick + "/profile"))
   }

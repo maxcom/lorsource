@@ -67,9 +67,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     val messages = topicListService.getUncommitedTopic(section, calendar.getTime, includeAnonymous)
 
-    val tmpl = Template.getTemplate
-
-    val topics = prepareService.prepareTopicsForUser(messages, tmpl.getProf, loadUserpics = false)
+    val topics = prepareService.prepareTopicsForUser(messages, loadUserpics = false)
 
     modelAndView.addObject("messages", topics)
 

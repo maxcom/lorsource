@@ -134,15 +134,13 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject("navtitle", TopicListController.calculateNavTitle(section, group, topicListForm))
 
-    val tmpl = Template.getTemplate
-
     val messages = topicListService.getTopicsFeed(section, group, None, topicListForm.offset,
       topicListForm.yearMonth, 20, currentUserOpt.userOpt, topicListForm.filter.contains(NoTalks),
       topicListForm.filter.contains(Tech))
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, tmpl.getProf, loadUserpics = false))
+      prepareService.prepareTopicsForUser(messages, loadUserpics = false))
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -45,29 +45,21 @@ public class ProfileDaoIntegrationTest {
   }
 
   @Test
-  public void testReadEmpty() {
-    profileDao.deleteProfile(testUser);
-
-    Profile profile = profileDao.readProfile(testUser.getId());
-
-    assertNull(profile.getCustomBoxlets());
-  }
-
-  @Test
   public void testModification() {
-    Profile profile = Profile.createDefault();
+    Profile profile = Profile.DEFAULT;
 
     assertNotSame(125, profile.getMessages());
 
-    profile.setMessages(125);
+    var builder = new ProfileBuilder(profile);
 
-    profileDao.writeProfile(testUser, profile);
+    builder.setMessages(125);
+
+    profileDao.writeProfile(testUser, builder);
 
     Profile profile1 = profileDao.readProfile(testUser.getId());
 
     profileDao.deleteProfile(testUser);
 
     assertEquals(125, profile1.getMessages());
-    assertNull(profile1.getCustomBoxlets());
   }
 }

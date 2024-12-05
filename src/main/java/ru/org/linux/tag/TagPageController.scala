@@ -25,7 +25,6 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.tag.TagPageController.isRecent
 import ru.org.linux.topic.*
 import ru.org.linux.topic.TopicListDto.CommitMode
@@ -103,8 +102,6 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
         val sections = news ++ gallery ++ forum ++ polls ++ articles
 
-        val tmpl = Template.getTemplate
-
         val synonyms = tagService.getSynonymsFor(tagInfo.id)
 
         val model = Map(
@@ -112,7 +109,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           "title" -> WordUtils.capitalize(tag),
           "favsCount" -> userTagService.countFavs(tagInfo.id),
           "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
-          "showAdsense" -> Boolean.box(!currentUser.authorized || !tmpl.getProf.isHideAdsense),
+          "showAdsense" -> Boolean.box(!currentUser.authorized || !currentUser.profile.isHideAdsense),
           "showDelete" -> Boolean.box(currentUser.moderator),
           "synonyms" -> synonyms.asJava,
           "newsFirst" -> Boolean.box(newsFirst)
@@ -138,7 +135,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 }
 
-  private def getNewsSection(tag: String)(implicit  currentUser: AnySession) = {
+  private def getNewsSection(tag: String)(implicit currentUser: AnySession) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
       TagPageController.TotalNewsCount, currentUser.userOpt, noTalks = false, tech = false)
@@ -149,8 +146,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       (Seq.empty, newsTopics.take(TagPageController.TotalNewsCount-1))
     }
 
-    val tmpl = Template.getTemplate
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, tmpl.getProf, loadUserpics = false)
+    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 

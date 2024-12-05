@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,7 +24,6 @@ import ru.org.linux.tracker.TrackerFilterEnum;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static ru.org.linux.user.Profile.*;
 
@@ -81,19 +80,14 @@ public final class DefaultProfile {
     builder.put("DebugMode", Boolean.FALSE);
 
     // main page settings
-    ImmutableList<String> boxes = ImmutableList.of("poll", "articles", "top10", "gallery", "tagcloud");
 
-    builder.put(BOXES_MAIN2_PROPERTY, boxes);
+    builder.put(BOXES_MAIN2_PROPERTY, ImmutableList.of("poll", "articles", "top10", "gallery", "tagcloud"));
 
     return builder.build();
   }
 
   public static final ImmutableSet<Integer> TOPICS_VALUES = ImmutableSet.of(30, 50, 100, 200, 300, 500);
   public static final ImmutableSet<Integer> COMMENTS_VALUES = ImmutableSet.of(25, 50, 100, 200, 300, 500);
-
-  public static Predicate<String> boxPredicate() {
-    return DefaultProfile::isBox;
-  }
 
   public static boolean isStyle(String style) {
     return THEMES.containsKey(style);
@@ -116,6 +110,6 @@ public final class DefaultProfile {
 
   @Nonnull
   public static Theme getDefaultTheme() {
-    return Theme.THEMES.get(0);
+    return Theme.THEMES.getFirst();
   }
 }

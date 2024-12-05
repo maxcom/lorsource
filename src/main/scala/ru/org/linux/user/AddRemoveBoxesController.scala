@@ -59,9 +59,10 @@ class AddRemoveBoxesController(profileDao: ProfileDao) {
       if (boxlets.size > form.position) {
         boxlets.remove(form.position.intValue)
 
-        tmpl.getProf.setBoxlets(boxlets.asJava)
+        val builder = new ProfileBuilder(tmpl.getProf)
+        builder.setBoxlets(boxlets.asJava)
 
-        profileDao.writeProfile(currentUser.user, tmpl.getProf)
+        profileDao.writeProfile(currentUser.user, builder)
       }
 
       "redirect:/edit-boxes.jsp"
@@ -96,9 +97,11 @@ class AddRemoveBoxesController(profileDao: ProfileDao) {
         boxlets.addOne(form.boxName)
       }
 
-      t.getProf.setBoxlets(boxlets.asJava)
+      val builder = new ProfileBuilder(t.getProf)
 
-      profileDao.writeProfile(currentUser.user, t.getProf)
+      builder.setBoxlets(boxlets.asJava)
+
+      profileDao.writeProfile(currentUser.user, builder)
 
       "redirect:/edit-boxes.jsp"
     }

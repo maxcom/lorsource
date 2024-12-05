@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -63,7 +63,7 @@ public class ProfileDao {
     if (profiles.isEmpty()) {
       return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
     } else {
-      return profiles.get(0);
+      return profiles.getFirst();
     }
   }
 
@@ -71,7 +71,7 @@ public class ProfileDao {
     jdbcTemplate.update("DELETE FROM user_settings WHERE id=?", user.getId());
   }
 
-  public void writeProfile(User user, Profile profile) {
+  public void writeProfile(User user, ProfileBuilder profile) {
     String[] boxlets = null;
 
     List<String> customBoxlets = profile.getCustomBoxlets();

@@ -123,7 +123,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params.put("groups", groupDao.getGroups(preparedTopic.section))
     params.put("newMsg", message)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, profile, loadUserpics = true)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)
 
     params.put("topicMenu", topicMenu)
 

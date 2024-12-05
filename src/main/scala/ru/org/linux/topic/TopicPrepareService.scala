@@ -164,8 +164,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: collection.Seq[Topic], profile: Profile,
-                           loadUserpics: Boolean)(implicit user: AnySession): java.util.List[PersonalizedPreparedTopic] = {
+  def prepareTopicsForUser(messages: collection.Seq[Topic], loadUserpics: Boolean)
+                          (implicit user: AnySession): java.util.List[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
@@ -173,7 +173,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
         user.userOpt.orNull, textMap(message.id), None)
 
-      val topicMenu = getTopicMenu(preparedMessage, profile, loadUserpics)
+      val topicMenu = getTopicMenu(preparedMessage, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
     }.asJava
   }
@@ -198,12 +198,12 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }.toSeq
   }
 
-  def getTopicMenu(topic: PreparedTopic, profile: Profile, loadUserpics: Boolean)
-                  (implicit currentUserOpt: AnySession): TopicMenu = {
+  def getTopicMenu(topic: PreparedTopic, loadUserpics: Boolean)
+                  (implicit session: AnySession): TopicMenu = {
     val topicEditable = groupPermissionService.isEditable(topic)
     val tagsEditable = groupPermissionService.isTagsEditable(topic)
 
-    val (resolvable, deletable, undeletable) = currentUserOpt.opt.map  { implicit currentUser =>
+    val (resolvable, deletable, undeletable) = session.opt.map  { implicit currentUser =>
       val resolvable = (currentUser.moderator || (topic.author.getId == currentUser.user.getId)) &&
         topic.group.resolvable
 
@@ -213,8 +213,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       (resolvable, deletable, undeletable)
     }.getOrElse((false, false, false))
 
-    val userpic = if (loadUserpics && profile.isShowPhotos) {
-      Some(userService.getUserpic(topic.author, profile.getAvatarMode, misteryMan = true))
+    val userpic = if (loadUserpics && session.profile.isShowPhotos) {
+      Some(userService.getUserpic(topic.author, session.profile.getAvatarMode, misteryMan = true))
     } else {
       None
     }

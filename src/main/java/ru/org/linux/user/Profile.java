@@ -15,19 +15,19 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableList;
 import ru.org.linux.markup.MarkupType$;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.tracker.TrackerFilterEnum;
 import ru.org.linux.util.ProfileHashtable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Profile {
+  public static final Profile DEFAULT =
+          new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), Map.of()), null);
+
   public static final String STYLE_PROPERTY = "style";
   public static final String FORMAT_MODE_PROPERTY = "format.mode";
   public static final String MESSAGES_PROPERTY = "messages";
@@ -42,19 +42,19 @@ public class Profile {
 
   public static final String REACTION_NOTIFICATION_PROPERTY = "reactionNotification";
 
-  private String style;
-  private String formatMode;
-  private int messages;
-  private int topics;
-  private boolean showPhotos;
-  private boolean hideAdsense;
-  private boolean showGalleryOnMain;
-  private String avatarMode;
-  private boolean oldTracker;
-  private TrackerFilterEnum trackerMode;
-  private boolean reactionNotification;
+  private final String style;
+  private final String formatMode;
+  private final int messages;
+  private final int topics;
+  private final boolean showPhotos;
+  private final boolean hideAdsense;
+  private final boolean showGalleryOnMain;
+  private final String avatarMode;
+  private final boolean oldTracker;
+  private final TrackerFilterEnum trackerMode;
+  private final boolean reactionNotification;
 
-  private List<String> boxes;
+  private final ImmutableList<String> boxes;
 
   public Profile(ProfileHashtable p, List<String> boxes) {
     style = fixStyle(p.getString(STYLE_PROPERTY));
@@ -73,89 +73,43 @@ public class Profile {
     oldTracker = p.getBoolean(OLD_TRACKER);
     reactionNotification = p.getBoolean(REACTION_NOTIFICATION_PROPERTY);
 
-    this.boxes = boxes;
-  }
-
-  public Map<String, String> getSettings() {
-    ProfileHashtable p = new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>());
-
-    p.setString(STYLE_PROPERTY, style);
-    p.setString(FORMAT_MODE_PROPERTY, formatMode);
-    p.setInt(MESSAGES_PROPERTY, messages);
-    p.setInt(TOPICS_PROPERTY, topics);
-    p.setBoolean(PHOTOS_PROPERTY, showPhotos);
-    p.setBoolean(HIDE_ADSENSE_PROPERTY, hideAdsense);
-    p.setBoolean(MAIN_GALLERY_PROPERTY, showGalleryOnMain);
-    p.setString(AVATAR_PROPERTY, avatarMode);
-    p.setString(TRACKER_MODE, trackerMode.getValue());
-    p.setBoolean(OLD_TRACKER, oldTracker);
-    p.setBoolean(REACTION_NOTIFICATION_PROPERTY, reactionNotification);
-
-    return p.getSettings();
+    if (boxes!=null) {
+      this.boxes = ImmutableList.copyOf(boxes);
+    } else {
+      this.boxes = (ImmutableList<String>) DefaultProfile.getDefaultProfile().get(BOXES_MAIN2_PROPERTY);
+    }
   }
 
   public String getStyle() {
     return style;
   }
 
-  public void setStyle(String style) {
-    this.style = fixStyle(style);
-  }
-
   public String getFormatMode() {
     return formatMode;
-  }
-
-  public void setFormatMode(String formatMode) {
-    this.formatMode = fixFormat(formatMode);
   }
 
   public int getMessages() {
     return messages;
   }
 
-  public void setMessages(int messages) {
-    this.messages = messages;
-  }
-
   public int getTopics() {
     return topics;
-  }
-
-  public void setTopics(int topics) {
-    this.topics = topics;
   }
 
   public boolean isShowPhotos() {
     return showPhotos;
   }
 
-  public void setShowPhotos(boolean showPhotos) {
-    this.showPhotos = showPhotos;
-  }
-
   public boolean isHideAdsense() {
     return hideAdsense;
-  }
-
-  public void setHideAdsense(boolean hideAdsense) {
-    this.hideAdsense = hideAdsense;
   }
 
   public boolean isShowGalleryOnMain() {
     return showGalleryOnMain;
   }
 
-  public void setShowGalleryOnMain(boolean showGalleryOnMain) {
-    this.showGalleryOnMain = showGalleryOnMain;
-  }
-
   public String getAvatarMode() {
     return avatarMode;
-  }
-
-  public void setAvatarMode(String avatarMode) {
-    this.avatarMode = avatarMode;
   }
 
   public boolean isMiniNewsBoxletOnMainPage() {
@@ -166,11 +120,7 @@ public class Profile {
     return oldTracker;
   }
 
-  public void setOldTracker(boolean oldTracker) {
-    this.oldTracker = oldTracker;
-  }
-
-  private static String fixFormat(String mode) {
+  public static String fixFormat(String mode) {
     if (MarkupType$.MODULE$.AllFormIds().contains(mode)) {
       return mode;
     } else {
@@ -178,7 +128,7 @@ public class Profile {
     }
   }
 
-  private static String fixStyle(String style) {
+  public static String fixStyle(String style) {
     if (!DefaultProfile.isStyle(style)) {
       return (String) DefaultProfile.getDefaultProfile().get(STYLE_PROPERTY);
     }
@@ -190,39 +140,11 @@ public class Profile {
     return trackerMode;
   }
 
-  public void setTrackerMode(TrackerFilterEnum trackerMode) {
-    this.trackerMode = trackerMode;
-  }
-
-  @Nonnull
   public List<String> getBoxlets() {
-    List<String> list = boxes;
-
-    if (list == null) {
-      return (List<String>) DefaultProfile.getDefaultProfile().get(BOXES_MAIN2_PROPERTY);
-    } else {
-      return list;
-    }
-  }
-
-  @Nullable
-  public List<String> getCustomBoxlets() {
     return boxes;
-  }
-
-  public void setBoxlets(List<String> list) {
-    boxes = new ArrayList<>(list);
-  }
-
-  public static Profile createDefault() {
-    return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
   }
 
   public boolean isReactionNotificationEnabled() {
     return reactionNotification;
-  }
-
-  public void setReactionNotification(boolean reactionNotification) {
-    this.reactionNotification = reactionNotification;
   }
 }
