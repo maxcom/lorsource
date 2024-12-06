@@ -49,7 +49,7 @@ object UserDetailsServiceImpl {
 }
 
 @Component
-class UserDetailsServiceImpl(userDao: UserDao, userService: UserService, profileDao: ProfileDao) extends UserDetailsService {
+class UserDetailsServiceImpl(userDao: UserDao, userService: UserService) extends UserDetailsService {
   @throws[UsernameNotFoundException]
   @throws[DataAccessException]
   override def loadUserByUsername(username: String): UserDetailsImpl = {
@@ -68,6 +68,6 @@ class UserDetailsServiceImpl(userDao: UserDao, userService: UserService, profile
       throw new UsernameNotFoundException(username)
     }
 
-    new UserDetailsImpl(user, UserDetailsServiceImpl.retrieveUserAuthorities(user).asJava, profileDao.readProfile(user.getId))
+    new UserDetailsImpl(user, UserDetailsServiceImpl.retrieveUserAuthorities(user).asJava, userService.getProfile(user))
   }
 }

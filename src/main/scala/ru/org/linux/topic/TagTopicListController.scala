@@ -24,7 +24,6 @@ import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{GroupListDao, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
 import ru.org.linux.user.UserTagService
 
@@ -119,11 +118,11 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           }
         }
 
-        val prof = Template.getTemplate.getProf
+        val prof = currentUserOpt.profile
 
         val (preparedTopics, pageSize) = if (forumMode) {
           (groupListDao.getSectionListTopics(section, currentUserOpt.userOpt.toJava,
-            prof.getTopics, offset, prof.getMessages, tagInfo.id), prof.getTopics)
+            prof.topics, offset, prof.messages, tagInfo.id), prof.topics)
         } else {
           val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
             20, currentUserOpt.userOpt, noTalks = false, tech = false)

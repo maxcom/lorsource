@@ -157,7 +157,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
   }
 
   private def isNotificationsEnabledFor(userId: Int): Boolean =
-    profileDao.readProfile(userId).isReactionNotificationEnabled
+    profileDao.readProfile(userId).reactionNotification
 
   def setCommentReaction(topic: Topic, comment: Comment, user: User, reaction: String,
                          set: Boolean): Int = {

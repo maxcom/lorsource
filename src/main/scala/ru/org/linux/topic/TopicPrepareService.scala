@@ -213,8 +213,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       (resolvable, deletable, undeletable)
     }.getOrElse((false, false, false))
 
-    val userpic = if (loadUserpics && session.profile.isShowPhotos) {
-      Some(userService.getUserpic(topic.author, session.profile.getAvatarMode, misteryMan = true))
+    val userpic = if (loadUserpics && session.profile.showPhotos) {
+      Some(userService.getUserpic(topic.author, session.profile.avatarMode, misteryMan = true))
     } else {
       None
     }

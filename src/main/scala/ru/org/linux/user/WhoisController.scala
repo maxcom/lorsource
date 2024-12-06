@@ -27,7 +27,6 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.site.Template
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.util.bbcode.LorCodeService
 
@@ -63,9 +62,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     mv.getModel.put("user", user)
     mv.getModel.put("userInfo", userDao.getUserInfoClass(user))
 
-    val tmpl = Template.getTemplate
-
-    mv.getModel.put("userpic", userService.getUserpic(user, tmpl.getProf.getAvatarMode, misteryMan = true))
+    mv.getModel.put("userpic", userService.getUserpic(user, currentUserOpt.profile.avatarMode, misteryMan = true))
 
     if (user.isBlocked) {
       mv.getModel.put("banInfo", userDao.getBanInfoClass(user))

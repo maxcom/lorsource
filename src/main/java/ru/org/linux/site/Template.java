@@ -16,8 +16,6 @@
 package ru.org.linux.site;
 
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.markup.MarkupPermissions;
-import ru.org.linux.markup.MarkupType;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
@@ -46,13 +44,7 @@ public final class Template {
 
   /* used in jsp */
   public String getFormatMode() {
-    String mode = userProfile.getFormatMode();
-
-    if (MarkupPermissions.allowedFormatsJava(AuthUtil.getCurrentUser()).stream().map(MarkupType::formId).anyMatch(s -> s.equals(mode))) {
-      return mode;
-    } else {
-      return MarkupType.Lorcode$.MODULE$.formId();
-    }
+    return userProfile.formatMode();
   }
 
   /* used in jsp */

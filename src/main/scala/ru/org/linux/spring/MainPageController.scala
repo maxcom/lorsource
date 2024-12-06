@@ -22,7 +22,6 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
 
@@ -74,7 +73,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
       mv.getModel.put("uncommitedNews", Int.box(uncommitedNews))
     }
 
-    mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.isHideAdsense))
+    mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
 
     val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
 

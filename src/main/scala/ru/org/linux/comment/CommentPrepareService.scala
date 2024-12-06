@@ -88,8 +88,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       (None, false, 0, None, false)
     }
 
-    val userpic: Option[Userpic] = if (profile.isShowPhotos) {
-      Some(userService.getUserpic(author, profile.getAvatarMode, misteryMan = false))
+    val userpic: Option[Userpic] = if (profile.showPhotos) {
+      Some(userService.getUserpic(author, profile.avatarMode, misteryMan = false))
     } else {
       None
     }
@@ -138,8 +138,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  def prepareCommentOnly(comment: Comment, currentUser: AnySession, profile: Profile,
-                         topic: Topic, ignoreList: Set[Int]): PreparedComment = {
+  def prepareCommentOnly(comment: Comment, currentUser: AnySession, topic: Topic,
+                         ignoreList: Set[Int]): PreparedComment = {
     assert(comment.topicId == topic.id)
 
     val messageText = msgbaseDao.getMessageText(comment.id)
@@ -147,8 +147,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val group = groupDao.getGroup(topic.groupId)
 
     prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
-      profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = currentUser,
-      group = group, ignoreList = ignoreList, filterShow = false, warnings = Seq.empty)
+      profile = currentUser.profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty,
+      currentUser = currentUser, group = group, ignoreList = ignoreList, filterShow = false, warnings = Seq.empty)
   }
 
   /**
@@ -171,8 +171,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   }
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],
-                         currentUser: AnySession, profile: Profile, ignoreList: Set[Int],
-                         filterShow: Boolean): Seq[PreparedComment] = {
+                         ignoreList: Set[Int], filterShow: Boolean)
+                        (implicit currentUser: AnySession): Seq[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty
     } else {
@@ -198,7 +198,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
         val remark = remarks.get(author.getId)
         val warnings = allWarnings.getOrElse(comment.id, Seq.empty)
 
-        prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSet,
+        prepareComment(text, author, remark.map(_.getText), comment, Option(comments), currentUser.profile, topic, hideSet,
           samePageComments, currentUser, group, ignoreList, filterShow, warnings)
       }
     }

@@ -22,8 +22,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.markup.MarkupPermissions
-import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
+import ru.org.linux.site.{BadInputException, DefaultProfile, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
 
 import java.util
@@ -34,7 +33,6 @@ import scala.jdk.CollectionConverters.*
 class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermissionService: UserPermissionService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val tmpl = Template.getTemplate
     if (!(currentUser.user.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
@@ -53,13 +51,13 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
 
     params.put("trackerModes", TrackerFilterEnum.values.filter(_.isCanBeDefault))
 
-    params.put("topicsValues", (DefaultProfile.TOPICS_VALUES.asScala + tmpl.getProf.getTopics).toSeq.sorted.asJava)
-    params.put("messagesValues", (DefaultProfile.COMMENTS_VALUES.asScala + tmpl.getProf.getMessages).toSeq.sorted.asJava)
+    params.put("topicsValues", (DefaultProfile.TOPICS_VALUES.asScala + currentUser.profile.topics).toSeq.sorted.asJava)
+    params.put("messagesValues", (DefaultProfile.COMMENTS_VALUES.asScala + currentUser.profile.messages).toSeq.sorted.asJava)
 
-    params.put("format_mode", tmpl.getFormatMode)
+    params.put("format_mode", currentUser.profile.formatMode)
 
     params.put("formatModes",
-      MarkupPermissions.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
+      UserPermissionService.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
@@ -74,25 +72,24 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
                      @RequestParam("format_mode") formatMode: String,
                      @PathVariable nick: String
                  ): ModelAndView = AuthorizedOnly { currentUser =>
-    val tmpl = Template.getTemplate
     if (!(currentUser.user.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
-    if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == tmpl.getProf.getTopics)) {
+    if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == currentUser.profile.topics)) {
       throw new BadInputException("некорректное число тем")
     }
-    if (!(DefaultProfile.COMMENTS_VALUES.contains(messages) || messages == tmpl.getProf.getMessages)) {
+    if (!(DefaultProfile.COMMENTS_VALUES.contains(messages) || messages == currentUser.profile.messages)) {
       throw new BadInputException("некорректное число комментариев")
     }
     if (!DefaultProfile.isStyle(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы")
     }
 
-    if (!MarkupPermissions.allowedFormats(currentUser.user).map(_.formId).contains(formatMode)) {
+    if (!UserPermissionService.allowedFormats(currentUser.user).map(_.formId).contains(formatMode)) {
       throw new BadInputException("некорректный режим форматирования")
     }
 
-    val builder = new ProfileBuilder(tmpl.getProf)
+    val builder = new ProfileBuilder(currentUser.profile)
 
     builder.setTopics(topics)
     builder.setMessages(messages)

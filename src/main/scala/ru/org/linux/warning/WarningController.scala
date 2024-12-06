@@ -26,7 +26,7 @@ import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.common.DeleteReasons
 import ru.org.linux.group.{Group, GroupDao}
-import ru.org.linux.site.{MessageNotFoundException, Template}
+import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
 import ru.org.linux.warning.WarningService.MaxWarningsPerHour
@@ -78,10 +78,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
       val preparedTopic = topicPrepareService.prepareTopic(request.topic, currentUser.user)
       mv.addObject("preparedTopic", preparedTopic)
     } else {
-      val tmpl = Template.getTemplate
-
-      val preparedComment = commentPrepareService.prepareCommentOnly(request.comment, currentUser, tmpl.getProf,
-        request.topic, Set.empty)
+      val preparedComment = commentPrepareService.prepareCommentOnly(request.comment, currentUser, request.topic, Set.empty)
 
       mv.addObject("preparedComment", preparedComment)
     }

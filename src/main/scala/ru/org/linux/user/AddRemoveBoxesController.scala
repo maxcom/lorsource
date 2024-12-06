@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.site.{DefaultProfile, Template}
+import ru.org.linux.site.DefaultProfile
 
 import scala.beans.BeanProperty
 import scala.collection.mutable.ArrayBuffer
@@ -52,14 +52,12 @@ class AddRemoveBoxesController(profileDao: ProfileDao) {
     if (result.hasErrors) {
       "remove-box"
     } else {
-      val tmpl = Template.getTemplate
-
-      val boxlets = tmpl.getProf.getBoxlets.asScala.to(ArrayBuffer)
+      val boxlets = currentUser.profile.getBoxlets.asScala.to(ArrayBuffer)
 
       if (boxlets.size > form.position) {
         boxlets.remove(form.position.intValue)
 
-        val builder = new ProfileBuilder(tmpl.getProf)
+        val builder = new ProfileBuilder(currentUser.profile)
         builder.setBoxlets(boxlets.asJava)
 
         profileDao.writeProfile(currentUser.user, builder)
@@ -87,9 +85,7 @@ class AddRemoveBoxesController(profileDao: ProfileDao) {
         form.setPosition(0)
       }
 
-      val t = Template.getTemplate
-
-      val boxlets = t.getProf.getBoxlets.asScala.view.filter(DefaultProfile.isBox).to(ArrayBuffer)
+      val boxlets = currentUser.profile.getBoxlets.asScala.view.filter(DefaultProfile.isBox).to(ArrayBuffer)
 
       if (boxlets.size > form.position) {
         boxlets.insert(form.position, form.boxName)
@@ -97,7 +93,7 @@ class AddRemoveBoxesController(profileDao: ProfileDao) {
         boxlets.addOne(form.boxName)
       }
 
-      val builder = new ProfileBuilder(t.getProf)
+      val builder = new ProfileBuilder(currentUser.profile)
 
       builder.setBoxlets(boxlets.asJava)
 

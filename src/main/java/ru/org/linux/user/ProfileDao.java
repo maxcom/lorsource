@@ -20,7 +20,6 @@ import org.springframework.stereotype.Repository;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.util.ProfileHashtable;
 
-import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.PreparedStatement;
@@ -38,7 +37,6 @@ public class ProfileDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
-  @Nonnull
   public Profile readProfile(int userId) {
     List<Profile> profiles = jdbcTemplate.query(
             "SELECT settings, main FROM user_settings WHERE id=?",
@@ -46,12 +44,12 @@ public class ProfileDao {
               Array boxes = resultSet.getArray("main");
 
               if (boxes != null) {
-                return new Profile(
+                return Profile.apply(
                         new ProfileHashtable(DefaultProfile.getDefaultProfile(), (Map<String, String>) resultSet.getObject("settings")),
                         Arrays.asList((String[]) boxes.getArray())
                 );
               } else {
-                return new Profile(
+                return Profile.apply(
                         new ProfileHashtable(DefaultProfile.getDefaultProfile(), (Map<String, String>) resultSet.getObject("settings")),
                         null
                 );
@@ -61,7 +59,7 @@ public class ProfileDao {
     );
 
     if (profiles.isEmpty()) {
-      return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
+      return Profile.apply(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
     } else {
       return profiles.getFirst();
     }

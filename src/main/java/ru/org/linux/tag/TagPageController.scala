@@ -109,7 +109,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           "title" -> WordUtils.capitalize(tag),
           "favsCount" -> userTagService.countFavs(tagInfo.id),
           "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
-          "showAdsense" -> Boolean.box(!currentUser.authorized || !currentUser.profile.isHideAdsense),
+          "showAdsense" -> Boolean.box(!currentUser.authorized || !currentUser.profile.hideAdsense),
           "showDelete" -> Boolean.box(currentUser.moderator),
           "synonyms" -> synonyms.asJava,
           "newsFirst" -> Boolean.box(newsFirst)

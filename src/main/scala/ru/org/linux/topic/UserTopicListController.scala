@@ -23,7 +23,6 @@ import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.user.*
 
 import scala.jdk.CollectionConverters.*
@@ -145,15 +144,13 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
   @RequestMapping(value = Array("deleted-topics"), method = Array(RequestMethod.GET))
   def showDeletedTopics(@PathVariable nick: String): ModelAndView = AuthorizedOnly { currentUser =>
-    val tmpl = Template.getTemplate
-
     val user = userService.getUserCached(nick)
 
     if (!currentUser.moderator && !(user == currentUser.user)) {
       throw new AccessViolationException("Вы не можете смотреть удаленные темы другого пользователя")
     }
 
-    val topics = topicListService.getDeletedUserTopics(user, tmpl.getProf.getTopics)
+    val topics = topicListService.getDeletedUserTopics(user, currentUser.profile.topics)
 
     val params = Map(
       "topics" -> topics.asJava,

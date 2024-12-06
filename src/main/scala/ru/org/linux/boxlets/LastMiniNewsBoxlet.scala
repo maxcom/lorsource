@@ -19,7 +19,6 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil
-import ru.org.linux.site.Template
 import ru.org.linux.topic.LastMiniNewsDao
 
 import java.util
@@ -30,7 +29,7 @@ class LastMiniNewsBoxlet(lastMiniNewsDao: LastMiniNewsDao) extends AbstractBoxle
   override protected def getData(request: HttpServletRequest): ModelAndView = AuthUtil.MaybeAuthorized { session =>
     val params = new util.HashMap[String, AnyRef]
 
-    params.put("topics", lastMiniNewsDao.getTopics(session.profile.getMessages))
+    params.put("topics", lastMiniNewsDao.getTopics(session.profile.messages))
 
     new ModelAndView("boxlets/lastMiniNews", params)
   }

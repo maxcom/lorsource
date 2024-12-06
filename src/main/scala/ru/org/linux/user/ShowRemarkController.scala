@@ -15,13 +15,9 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestParam}
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.auth.AuthUtil
-import ru.org.linux.site.Template
+import ru.org.linux.auth.{AccessViolationException, AuthUtil}
 
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
@@ -38,9 +34,7 @@ class ShowRemarkController(remarkDao: RemarkDao, prepareService: PreparedRemarkS
 
     val mv = new ModelAndView("view-remarks")
 
-    val tmpl = Template.getTemplate
-
-    val limit = tmpl.getProf.getMessages
+    val limit = currentUser.profile.messages
 
     if (count > 0) {
       if (offset >= count || offset < 0) {

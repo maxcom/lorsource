@@ -54,8 +54,6 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
                         @RequestParam(value = "filter", defaultValue = "all") filter: String,
                         @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView =
     AuthorizedOnly { currentUser =>
-      val tmpl = Template.getTemplate
-
       val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
       val nick = currentUser.user.getNick
 
@@ -82,7 +80,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
       val firstPage = offset == 0
 
-      val topics = tmpl.getProf.getTopics
+      val topics = currentUser.profile.topics
 
       params.put("firstPage", firstPage)
       params.put("topics", topics)
@@ -97,7 +95,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         StatUpdater.MAX_EVENTS, 0, eventFilter
       ).filterNot(r => r.eventType == UserEventFilterEnum.REACTION && r.reaction == NoReaction)
 
-      val prepared = prepareService.prepareGrouped(list, !tmpl.getProf.isOldTracker)
+      val prepared = prepareService.prepareGrouped(list, !currentUser.profile.oldTracker)
 
       if (list.nonEmpty) {
         params.put("enableReset", true)
@@ -109,7 +107,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       params.put("topicsList", sliced.asJava)
       params.put("hasMore", sliced.size == topics)
 
-      if (!tmpl.getProf.isOldTracker) {
+      if (!currentUser.profile.oldTracker) {
         new ModelAndView("show-replies-new", params.asJava)
       } else {
         new ModelAndView("show-replies", params.asJava)
@@ -161,9 +159,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
       val firstPage = offset == 0
 
-      val tmpl = Template.getTemplate
-
-      val topics = tmpl.getProf.getTopics
+      val topics = currentUser.profile.topics
 
       params.put("firstPage", firstPage)
       params.put("topics", topics)

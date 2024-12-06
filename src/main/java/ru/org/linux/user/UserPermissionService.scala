@@ -16,10 +16,13 @@ package ru.org.linux.user
 
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AuthorizedSession, IPBlockDao}
+import ru.org.linux.markup.MarkupType
+import ru.org.linux.markup.MarkupType.{Html, Lorcode, LorcodeUlb, Markdown}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.user.UserPermissionService.*
 
 import java.time.Duration
+import scala.jdk.CollectionConverters.SetHasAsJava
 
 object UserPermissionService {
   val MaxTotalInvites = 15
@@ -28,6 +31,18 @@ object UserPermissionService {
   val InviteScore = 200
   val MaxUnactivatedPerIp = 2
   val MaxUserpicScoreLoss = 20
+
+  def allowedFormats(user: User): Set[MarkupType] = {
+    if (user==null) { // anonymous
+      Set(Lorcode, Markdown)
+    } else if (user.isAdministrator) {
+      Set(Lorcode, LorcodeUlb, Markdown, Html)
+    } else {
+      Set(Lorcode, LorcodeUlb, Markdown)
+    }
+  }
+
+  def allowedFormatsJava(user: User): java.util.Set[MarkupType] = allowedFormats(user).asJava
 }
 
 @Service

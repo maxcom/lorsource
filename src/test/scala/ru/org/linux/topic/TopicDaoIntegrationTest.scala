@@ -33,7 +33,7 @@ import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.TopicDaoIntegrationTest.*
-import ru.org.linux.user.{IgnoreListDao, UserDao, UserInvitesDao, UserLogDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, ProfileDao, UserDao, UserInvitesDao, UserLogDao, UserService}
 import ru.org.linux.util.bbcode.LorCodeService
 
 import javax.sql.DataSource
@@ -102,10 +102,15 @@ class TopicDaoIntegrationTestConfiguration {
   def ignoreListDao(ds: DataSource) = new IgnoreListDao(ds)
 
   @Bean
+  def profileDao(ds: DataSource) = new ProfileDao(ds)
+
+  @Bean
   def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
-                  transactionManager: PlatformTransactionManager) =
-    new UserService(siteConfig, userDao, ignoreListDao, userInvitesDao, userLogDao, userAgentDao, transactionManager)
+                  transactionManager: PlatformTransactionManager, profileDao: ProfileDao) =
+    new UserService(siteConfig = siteConfig, userDao = userDao, ignoreListDao = ignoreListDao,
+      userInvitesDao = userInvitesDao, userLogDao = userLogDao, userAgentDao = userAgentDao, profileDao = profileDao,
+      transactionManager = transactionManager)
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])

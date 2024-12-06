@@ -37,7 +37,6 @@ import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
@@ -171,9 +170,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       form.setAllowAnonymous(true)
     }
 
-    val tmpl = Template.getTemplate
-
-    val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), tmpl.getFormatMode)
+    val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), sessionUserOpt.profile.formatMode)
 
     if (!postingUser.authorized) {
       if (message.text.length > AddTopicController.MAX_MESSAGE_LENGTH_ANONYMOUS) {

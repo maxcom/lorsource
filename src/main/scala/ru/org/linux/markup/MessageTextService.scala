@@ -21,14 +21,14 @@ import org.springframework.stereotype.Service
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.markup.MarkupType.*
 import ru.org.linux.spring.dao.MessageText
-import ru.org.linux.user.User
+import ru.org.linux.user.{User, UserPermissionService}
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.bbcode.LorCodeService
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter
 import ru.org.linux.util.markdown.MarkdownFormatter
 
-import scala.jdk.CollectionConverters.*
 import scala.collection.immutable.ListMap
+import scala.jdk.CollectionConverters.*
 
 @Service
 class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
@@ -209,7 +209,7 @@ object MessageTextService {
   def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
 
   def postingModeSelector(user: Option[AuthorizedSession], defaultMarkup: String): Map[String, String] = {
-    val modes = MarkupPermissions.allowedFormats(user.map(_.user).orNull).filter(f => !f.deprecated || f.formId == defaultMarkup)
+    val modes = UserPermissionService.allowedFormats(user.map(_.user).orNull).filter(f => !f.deprecated || f.formId == defaultMarkup)
 
     if (modes.size > 1) {
       ListMap(modes.toSeq.sortBy(_.order).map(m => m.formId -> m.title) *)
@@ -217,18 +217,4 @@ object MessageTextService {
       Map.empty[String, String]
     }
   }
-}
-
-object MarkupPermissions {
-  def allowedFormats(user: User): Set[MarkupType] = {
-    if (user==null) { // anonymous
-      Set(Lorcode, Markdown)
-    } else if (user.isAdministrator) {
-      Set(Lorcode, LorcodeUlb, Markdown, Html)
-    } else {
-      Set(Lorcode, LorcodeUlb, Markdown)
-    }
-  }
-
-  def allowedFormatsJava(user: User): java.util.Set[MarkupType] = allowedFormats(user).asJava
 }

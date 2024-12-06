@@ -33,7 +33,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.paginator.PagesInfo
 import ru.org.linux.search.{MoreLikeThisService, MoreLikeThisTopic}
 import ru.org.linux.section.{Section, SectionScrollModeEnum, SectionService}
-import ru.org.linux.site.{MessageNotFoundException, Template}
+import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{IgnoreListDao, MemoriesDao, User}
 import ru.org.linux.warning.WarningService
@@ -63,7 +63,7 @@ object TopicController {
 
   private def buildPages(topic: Topic, filterModeShow: Boolean, currentPage: Int)
                         (implicit session: AnySession): PagesInfo = {
-    val messagesPerPage = session.profile.getMessages
+    val messagesPerPage = session.profile.messages
     var base = TopicLinkBuilder.baseLink(topic).lastmod(messagesPerPage)
 
     if (filterModeShow) {
@@ -187,9 +187,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     permissionService.checkView(group, topic, preparedMessage.author, showDeleted)
 
-    val tmpl = Template.getTemplate
-
-    val pages = topic.getPageCount(tmpl.getProf.getMessages)
+    val pages = topic.getPageCount(session.profile.messages)
 
     if (page >= pages && page > 0) {
       if (pages == 0) {
@@ -215,7 +213,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("ogDescription", MessageTextService.trimPlainText(plainText, 250, encodeHtml = true))
     params.put("page", Integer.valueOf(page))
     params.put("group", group)
-    params.put("showAdsense", Boolean.box(!session.authorized || !tmpl.getProf.isHideAdsense))
+    params.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
 
     if (!session.authorized && topic.expired) {
       val etag = TopicController.getEtag(topic)
@@ -268,8 +266,6 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       list = commentsFiltered,
       topic = topic,
       hideSet = hideSet,
-      currentUser = session,
-      profile = tmpl.getProf,
       ignoreList = ignoreList,
       filterShow = filterModeShow)
 
@@ -284,7 +280,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
     params.put("ipBlockInfo", ipBlockInfo)
-    params.put("modes", MessageTextService.postingModeSelector(session.opt, tmpl.getFormatMode).asJava)
+    params.put("modes", MessageTextService.postingModeSelector(session.opt, session.profile.formatMode).asJava)
 
     val add = new CommentRequest
     params.put("add", add)
@@ -319,8 +315,8 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val comments = commentList.comments
 
     if (page != -1) {
-      val limit = session.profile.getMessages
-      val offset = session.profile.getMessages * page
+      val limit = session.profile.messages
+      val offset = session.profile.messages * page
 
       comments.view.slice(offset, Math.min(offset + limit, comments.size)).filter(comment => !hideSet.contains(comment.id)).toSeq
     } else {
@@ -407,7 +403,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     new ModelAndView(new RedirectView(link.toString))
   }
 
-  private def jumpMessage(msgid: Int, cid: Int, skipDeleted: Boolean): ModelAndView = MaybeAuthorized { currentUserOpt =>
+  private def jumpMessage(msgid: Int, cid: Int, skipDeleted: Boolean): ModelAndView = MaybeAuthorized { session =>
     val topic = topicDao.getById(msgid)
 
     var comments = getCommentList(topic, showDeleted = false)
@@ -427,7 +423,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     var deleted = false
 
-    if (node == null && currentUserOpt.moderator) {
+    if (node == null && session.moderator) {
       comments = getCommentList(topic, showDeleted = true)
       node = comments.getNode(cid)
       deleted = true
@@ -437,16 +433,14 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       throw new MessageNotFoundException(topic, cid, s"Сообщение #$cid было удалено или не существует")
     }
 
-    val tmpl = Template.getTemplate
+    val pagenum = if (deleted) 0 else comments.getCommentPage(node.getComment, session.profile.messages)
 
-    val pagenum = if (deleted) 0 else comments.getCommentPage(node.getComment, tmpl.getProf.getMessages)
-
-    var redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum).lastmod(tmpl.getProf.getMessages).comment(node.getComment.id)
+    var redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum).lastmod(session.profile.messages).comment(node.getComment.id)
 
     if (deleted) redirectUrl = redirectUrl.showDeleted
 
-    if (currentUserOpt.authorized && !deleted) {
-      val ignoreList = ignoreListDao.get(currentUserOpt.userOpt.get.getId)
+    if (session.authorized && !deleted) {
+      val ignoreList = ignoreListDao.get(session.userOpt.get.getId)
       val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(ignoreList.isEmpty), ignoreList)
 
       if (hideSet.contains(node.getComment.id)) {

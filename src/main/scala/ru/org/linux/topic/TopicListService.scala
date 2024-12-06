@@ -238,13 +238,13 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
 
     topicListDto.setFromDate(DateTime.now.minusMonths(3).toDate)
 
-    if (session.profile.isMiniNewsBoxletOnMainPage) {
+    if (session.profile.hasMiniNewsBoxlet) {
       topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR)
     }
 
     topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
 
-    if (session.profile.isShowGalleryOnMain) {
+    if (session.profile.showGalleryOnMain) {
       topicListDto.setSection(Section.SECTION_NEWS, Section.SECTION_GALLERY)
     } else {
       topicListDto.setSection(Section.SECTION_NEWS)

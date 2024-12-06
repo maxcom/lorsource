@@ -21,7 +21,6 @@ import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.group.GroupListDao
-import ru.org.linux.site.Template
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import java.net.URLEncoder
@@ -35,9 +34,8 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
 
   @RequestMapping(path = Array("/tracker.jsp"))
   @throws[Exception]
-  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = {
-    val tmpl = Template.getTemplate
-    val defaultFilter = tmpl.getProf.getTrackerMode
+  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = MaybeAuthorized { session =>
+    val defaultFilter = session.profile.trackerMode
     val redirectView = new RedirectView("/tracker/")
 
     redirectView.setExposeModelAttributes(false)
@@ -73,8 +71,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
              ): ModelAndView = MaybeAuthorized { currentUserOpt =>
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
-    val tmpl = Template.getTemplate
-    val defaultFilter = tmpl.getProf.getTrackerMode
+    val defaultFilter = currentUserOpt.profile.trackerMode
     val trackerFilter = TrackerFilterEnum.getByValue(filterAction).orElse(defaultFilter)
 
     val params = new java.util.HashMap[String, AnyRef]
@@ -83,8 +80,8 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
 
     params.put("defaultFilter", defaultFilter)
 
-    val messages = tmpl.getProf.getMessages
-    val topics = tmpl.getProf.getTopics
+    val messages = currentUserOpt.profile.messages
+    val topics = currentUserOpt.profile.topics
 
     val user = currentUserOpt.userOpt
     params.put("title", makeTitle(trackerFilter, defaultFilter))

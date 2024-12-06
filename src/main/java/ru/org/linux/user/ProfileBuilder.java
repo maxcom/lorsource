@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.org.linux.user.Profile.*;
+import static ru.org.linux.site.DefaultProfile.*;
 
 public class ProfileBuilder {
   private String style;
@@ -43,19 +43,17 @@ public class ProfileBuilder {
   private List<String> boxes;
 
   public ProfileBuilder(Profile profile) {
-    style = profile.getStyle();
-    formatMode = profile.getFormatMode();
-    messages = profile.getMessages();
-    topics = profile.getTopics();
-    showPhotos = profile.isShowPhotos();
-    hideAdsense = profile.isHideAdsense();
-    showGalleryOnMain = profile.isShowGalleryOnMain();
-    avatarMode = profile.getAvatarMode();
-
-    trackerMode = profile.getTrackerMode();
-
-    oldTracker = profile.isOldTracker();
-    reactionNotification = profile.isReactionNotificationEnabled();
+    style = profile.style();
+    formatMode = profile.formatMode();
+    messages = profile.messages();
+    topics = profile.topics();
+    showPhotos = profile.showPhotos();
+    hideAdsense = profile.hideAdsense();
+    showGalleryOnMain = profile.showGalleryOnMain();
+    avatarMode = profile.avatarMode();
+    trackerMode = profile.trackerMode();
+    oldTracker = profile.oldTracker();
+    reactionNotification = profile.reactionNotification();
 
     this.boxes = profile.getBoxlets();
   }

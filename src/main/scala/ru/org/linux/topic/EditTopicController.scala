@@ -41,13 +41,11 @@ import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
-import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.tag.TagName
 import ru.org.linux.tag.TagRef
 import ru.org.linux.tag.TagService
-import ru.org.linux.user.Profile
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
@@ -66,7 +64,6 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   @RequestMapping(value = Array("/commit.jsp"), method = Array(RequestMethod.GET))
   def showCommitForm(@RequestParam("msgid") msgid: Int,
                      @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val tmpl = Template.getTemplate
     val topic = messageDao.getById(msgid)
 
     if (!permissionService.canCommit(topic)) {
@@ -84,7 +81,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     initForm(preparedTopic, form)
-    val mv = new ModelAndView("edit", prepareModel(preparedTopic, tmpl.getProf).asJava)
+    val mv = new ModelAndView("edit", prepareModel(preparedTopic).asJava)
 
     mv.getModel.put("commit", true)
 
@@ -102,13 +99,11 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       throw new AccessViolationException("это сообщение нельзя править")
     }
 
-    val tmpl = Template.getTemplate
-
     initForm(preparedTopic, form)
-    new ModelAndView("edit", prepareModel(preparedTopic, tmpl.getProf).asJava)
+    new ModelAndView("edit", prepareModel(preparedTopic).asJava)
   }
 
-  private def prepareModel(preparedTopic: PreparedTopic, profile: Profile)
+  private def prepareModel(preparedTopic: PreparedTopic)
                           (implicit currentUser: AuthorizedSession): mutable.HashMap[String, AnyRef] = {
     val params = mutable.HashMap[String, AnyRef]()
 
@@ -198,12 +193,10 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
            @RequestParam(value = "chgrp", required = false) changeGroupId: Integer,
            @Valid @ModelAttribute("form") form: EditTopicRequest, errors: Errors,
            @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val tmpl = Template.getTemplate
-
     val topic = messageDao.getById(msgid)
     val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
 
-    val params = prepareModel(preparedTopic, tmpl.getProf)
+    val params = prepareModel(preparedTopic)
 
     val group = preparedTopic.group
     val user = currentUser.user

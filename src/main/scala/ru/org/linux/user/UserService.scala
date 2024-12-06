@@ -23,6 +23,7 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.markup.MarkupType
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.UserAgentDao
 import ru.org.linux.user.UserService.*
@@ -69,7 +70,7 @@ object UserService {
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
-                  val transactionManager: PlatformTransactionManager)
+                  profileDao: ProfileDao, val transactionManager: PlatformTransactionManager)
     extends StrictLogging with TransactionManagement {
   private val nameToIdCache =
     CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
@@ -338,5 +339,19 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     updateUser(user, "", "", None, "", None, "", remoteAddr)
 
     userDao.block(user, user, "самостоятельная блокировка аккаунта")
+  }
+
+  def getProfile(user: User): Profile = {
+    val profile = profileDao.readProfile(user.getId)
+
+    val mode = profile.formatMode
+
+    val modeFixed = if (UserPermissionService.allowedFormats(user).map(_.formId).contains(mode)) {
+      mode
+    } else {
+      MarkupType.Lorcode.formId
+    }
+
+    profile.copy(formatMode = modeFixed)
   }
 }

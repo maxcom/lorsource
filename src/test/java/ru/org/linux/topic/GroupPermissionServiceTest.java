@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 public class GroupPermissionServiceTest {
   private AuthorizedSession sessionOf(User user) {
-    return AuthorizedSession.apply(user, user.isCorrector(), user.isModerator(), user.isAdministrator(), Profile.DEFAULT);
+    return AuthorizedSession.apply(user, user.isCorrector(), user.isModerator(), user.isAdministrator(), Profile.DEFAULT());
   }
 
   /**

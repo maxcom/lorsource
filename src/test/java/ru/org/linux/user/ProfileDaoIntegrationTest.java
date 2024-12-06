@@ -46,9 +46,9 @@ public class ProfileDaoIntegrationTest {
 
   @Test
   public void testModification() {
-    Profile profile = Profile.DEFAULT;
+    Profile profile = Profile.DEFAULT();
 
-    assertNotSame(125, profile.getMessages());
+    assertNotSame(125, profile.messages());
 
     var builder = new ProfileBuilder(profile);
 
@@ -60,6 +60,6 @@ public class ProfileDaoIntegrationTest {
 
     profileDao.deleteProfile(testUser);
 
-    assertEquals(125, profile1.getMessages());
+    assertEquals(125, profile1.messages());
   }
 }

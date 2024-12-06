@@ -21,13 +21,13 @@ import org.springframework.validation.{Errors, MapBindingResult}
 import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
-import ru.org.linux.markup.{MarkupPermissions, MarkupType}
+import ru.org.linux.markup.MarkupType
 import ru.org.linux.section.Section
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED}
-import ru.org.linux.user.{User, UserService}
+import ru.org.linux.user.{User, UserPermissionService, UserService}
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -353,7 +353,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         errors.reject(null, "У вас недостаточно прав для редактирования этого комментария")
       }
 
-      if (!MarkupPermissions.allowedFormatsJava(currentUser).contains(markup)) {
+      if (!UserPermissionService.allowedFormatsJava(currentUser).contains(markup)) {
         errors.reject(null, "Вы не можете редактировать тексты данного формата")
       }
     } else {

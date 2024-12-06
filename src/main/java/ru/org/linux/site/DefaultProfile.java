@@ -25,9 +25,20 @@ import ru.org.linux.tracker.TrackerFilterEnum;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-import static ru.org.linux.user.Profile.*;
-
 public final class DefaultProfile {
+  public static String STYLE_PROPERTY = "style";
+  public static String FORMAT_MODE_PROPERTY = "format.mode";
+  public static String MESSAGES_PROPERTY = "messages";
+  public static String TOPICS_PROPERTY = "topics";
+  public static String HIDE_ADSENSE_PROPERTY = "hideAdsense";
+  public static String PHOTOS_PROPERTY = "photos";
+  public static String MAIN_GALLERY_PROPERTY = "mainGallery";
+  public static String AVATAR_PROPERTY = "avatar";
+  public static String BOXES_MAIN2_PROPERTY = "main2";
+  public static String TRACKER_MODE = "trackerMode";
+  public static String OLD_TRACKER = "oldTracker";
+  public static String REACTION_NOTIFICATION_PROPERTY = "reactionNotification";
+
   private static final ImmutableMap<String, String> BOX_LEGEND = new ImmutableMap.Builder<String,String>()
       .put("poll", "Текущий опрос")
       .put("articles", "Новые статьи")

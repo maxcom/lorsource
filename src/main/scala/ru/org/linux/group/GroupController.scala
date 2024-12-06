@@ -23,7 +23,6 @@ import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.section.{Section, SectionController, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
 import ru.org.linux.topic.{ArchiveDao, TagTopicListController}
 import ru.org.linux.util.ServletParameterBadValueException
@@ -150,10 +149,8 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     params.put("firstPage", Boolean.box(firstPage))
     params.put("offset", Integer.valueOf(offset))
 
-    val tmpl = Template.getTemplate
-
-    params.put("prevPage", Integer.valueOf(offset - tmpl.getProf.getTopics))
-    params.put("nextPage", Integer.valueOf(offset + tmpl.getProf.getTopics))
+    params.put("prevPage", Integer.valueOf(offset - currentUser.profile.topics))
+    params.put("nextPage", Integer.valueOf(offset + currentUser.profile.topics))
     params.put("lastmod", Boolean.box(lastmod))
 
     params.put("showIgnored", Boolean.box(showIgnored))
@@ -170,12 +167,12 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
 
     val mainTopics = if (!lastmod) {
-      groupListDao.getGroupListTopics(group.id, currentUser.userOpt.toJava, tmpl.getProf.getTopics, offset,
-        tmpl.getProf.getMessages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
+      groupListDao.getGroupListTopics(group.id, currentUser.userOpt.toJava, currentUser.profile.topics, offset,
+        currentUser.profile.messages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
         yearMonth.map(p => Integer.valueOf(p._2)).toJava, tagId)
     } else {
-      groupListDao.getGroupTrackerTopics(group.id, currentUser.userOpt.toJava, tmpl.getProf.getTopics, offset,
-        tmpl.getProf.getMessages, tagId)
+      groupListDao.getGroupTrackerTopics(group.id, currentUser.userOpt.toJava, currentUser.profile.topics, offset,
+        currentUser.profile.messages, tagId)
     }
 
     yearMonth match {
@@ -185,15 +182,15 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
         params.put("url", s"${group.getUrl}$year/$month/")
 
         params.put("hasNext",
-          Boolean.box(offset + tmpl.getProf.getTopics < archiveDao.getArchiveCount(group.id, year, month)))
+          Boolean.box(offset + currentUser.profile.topics < archiveDao.getArchiveCount(group.id, year, month)))
       case None =>
         params.put("url", group.getUrl)
         params.put("hasNext",
-          Boolean.box(offset < GroupController.MaxOffset && mainTopics.size == tmpl.getProf.getTopics))
+          Boolean.box(offset < GroupController.MaxOffset && mainTopics.size == currentUser.profile.topics))
     }
 
     if (yearMonth.isEmpty && offset == 0 && !lastmod) {
-      val stickyTopics = groupListDao.getGroupStickyTopics(group, tmpl.getProf.getMessages, tagId)
+      val stickyTopics = groupListDao.getGroupStickyTopics(group, currentUser.profile.messages, tagId)
 
       params.put("topicsList", (stickyTopics.asScala.view ++ mainTopics.asScala).toSeq.asJava)
     } else {
@@ -207,7 +204,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
         params.put("activeTags", activeTags.asJava)
       }
 
-      if (!tmpl.getProf.isOldTracker) {
+      if (!currentUser.profile.oldTracker) {
         new ModelAndView("group-new", params)
       } else {
         new ModelAndView("group", params)

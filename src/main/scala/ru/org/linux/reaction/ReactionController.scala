@@ -26,7 +26,6 @@ import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.reaction.ReactionController.ReactionsLimit
-import ru.org.linux.site.Template
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.{IgnoreListDao, UserService}
 
@@ -58,12 +57,10 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         val ignoreList = ignoreListDao.get(currentUser.user.getId)
         val reactionLog = reactionsDao.getLogByComment(comment)
 
-        val tmpl = Template.getTemplate
-
         new ModelAndView("reaction-comment", Map[String, Any](
           "topic" -> topic,
           "preparedComment" ->
-            commentPrepareService.prepareCommentOnly(comment, currentUser, tmpl.getProf, topic, ignoreList),
+            commentPrepareService.prepareCommentOnly(comment, currentUser, topic, ignoreList),
           "reactionList" -> reactionService.prepareReactionList(comment.reactions, reactionLog, ignoreList)
         ).asJava)
     }

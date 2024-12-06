@@ -33,7 +33,6 @@ import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.UserService
@@ -60,13 +59,11 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     if (add.getTopic == null)
       throw new ServletParameterException("тема не задана")
 
-    val tmpl = Template.getTemplate
-
     topicPermissionService.checkCommentsAllowed(add.getTopic, errors)
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
-    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser, tmpl.getProf, add.getTopic) + (
+    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser, add.getTopic) + (
       "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
     )).asJava)
   }
@@ -108,13 +105,11 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(postingUser)
     }
 
-    val tmpl = Template.getTemplate
-
-    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.ofFormId(tmpl.getFormatMode)))) {
+    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.ofFormId(sessionUserOpt.profile.formatMode)))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
-    val msg = commentService.getCommentBody(add, user, errors, tmpl.getFormatMode)
+    val msg = commentService.getCommentBody(add, user, errors, sessionUserOpt.profile.formatMode)
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {
       val info = if (add.getTopic != null) {
@@ -128,7 +123,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
 
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, sessionUserOpt, tmpl.getProf, add.getTopic) ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add, sessionUserOpt, add.getTopic) ++ info).asJava)
     } else {
       val (msgid, mentions) = commentService.create(user, comment, msg, remoteAddress = request.getRemoteAddr,
         xForwardedFor = Option(request.getHeader("X-Forwarded-For")), userAgent = Option(request.getHeader("user-agent")))
@@ -152,9 +147,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
       sessionAuthorized = sessionUserOpt.authorized)
 
-    val tmpl = Template.getTemplate
-
-    val msg = commentService.getCommentBody(add, user, errors, tmpl.getFormatMode)
+    val msg = commentService.getCommentBody(add, user, errors, sessionUserOpt.profile.formatMode)
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {

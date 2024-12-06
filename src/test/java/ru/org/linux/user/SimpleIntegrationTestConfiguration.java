@@ -41,7 +41,7 @@ public class SimpleIntegrationTestConfiguration {
   UserService userService(UserDao userDao, UserLogDao userLogDao,
                           PlatformTransactionManager transactionManager) {
     return new UserService(mock(SiteConfig.class), userDao, mock(IgnoreListDao.class), mock(UserInvitesDao.class),
-            userLogDao, mock(UserAgentDao.class), transactionManager);
+            userLogDao, mock(UserAgentDao.class), mock(ProfileDao.class), transactionManager);
   }
 
   @Bean

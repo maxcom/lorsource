@@ -59,7 +59,7 @@ $script.ready('plugins', function() {
   <tr>
     <td>Уведомлять о реакциях</td>
     <td><input type="checkbox" name="reactionNotification"
-               <c:if test="${template.prof.reactionNotificationEnabled}">checked</c:if> ></td>
+               <c:if test="${template.prof.reactionNotification}">checked</c:if> ></td>
   </tr>
   <tr><td colspan=2><hr></td></tr>
 
