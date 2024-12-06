@@ -335,7 +335,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def deregister(user: User, remoteAddr: String): Unit = transactional() { _ =>
     userDao.resetUserpic(user, user)
 
-    updateUser(user, "", "", null, "", null, "", remoteAddr)
+    updateUser(user, "", "", None, "", None, "", remoteAddr)
 
     userDao.block(user, user, "самостоятельная блокировка аккаунта")
   }
