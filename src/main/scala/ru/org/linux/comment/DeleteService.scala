@@ -313,10 +313,6 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
     val deletedCommentIds = deletedComments.map(_.msgid).toVector
 
-    for (info <- deletedComments) {
-      commentDao.updateStatsAfterDelete(info.msgid, 1)
-    }
-
     userEventService.processCommentsDeleted(deletedCommentIds)
 
     // common
