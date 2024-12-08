@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.markup.MarkupType
+import ru.org.linux.site.DefaultProfile
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.UserAgentDao
 import ru.org.linux.user.UserService.*
@@ -352,6 +353,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       MarkupType.Lorcode.formId
     }
 
-    profile.copy(formatMode = modeFixed)
+    val boxletsFixed = profile.boxes.filter(DefaultProfile.isBox)
+
+    profile.copy(formatMode = modeFixed, boxes = boxletsFixed)
   }
 }

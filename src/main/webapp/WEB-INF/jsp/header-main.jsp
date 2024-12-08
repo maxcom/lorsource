@@ -18,9 +18,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
-<c:if test="${empty template}">
-    <c:set var="template" value="<%= Template.getTemplate() %>"/>
-</c:if>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 

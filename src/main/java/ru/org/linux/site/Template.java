@@ -19,6 +19,9 @@ import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
+/*
+  Current session helpers for JSP. Do not use in Scala/Java code.
+ */
 public final class Template {
   private final Profile userProfile;
 
@@ -67,6 +70,7 @@ public final class Template {
     return AuthUtil.isCorrectorSession();
   }
 
+  /* used in jsp */
   public static Template getTemplate() {
     return new Template();
   }
