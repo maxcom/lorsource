@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -68,7 +68,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
    */
   @throws[TagNotFoundException]
   def getTopicsFeed(section: Section, group: Option[Group], tag: Option[String], offset: Int, yearMonth: Option[(Int, Int)],
-                    count: Int, currentUser: Option[User], noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
+                    count: Int, noTalks: Boolean, tech: Boolean)(implicit currentUser: AnySession): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
     topicListDto.setNotalks(noTalks)
@@ -112,7 +112,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       }
     }
 
-    topicListDao.getTopics(topicListDto, currentUser)
+    topicListDao.getTopics(topicListDto, currentUser.userOpt)
   }
 
   /**
@@ -253,8 +253,8 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDao.getTopics(topicListDto, None)
   }
 
-  def getTopics(topicListDto: TopicListDto, currentUser: Option[User]): collection.Seq[Topic] =
-    topicListDao.getTopics(topicListDto, currentUser)
+  def getTopics(topicListDto: TopicListDto)(implicit currentUser: AnySession): collection.Seq[Topic] =
+    topicListDao.getTopics(topicListDto, currentUser.userOpt)
 
   def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] =
     topicListDao.getDeletedUserTopics(user, topics)

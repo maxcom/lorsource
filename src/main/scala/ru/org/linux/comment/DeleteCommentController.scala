@@ -197,7 +197,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
     new ModelAndView("undelete_comment", Map[String, Any](
-      "comment" -> prepareService.prepareCommentOnly(comment, currentUser, topic, ignoreList),
+      "comment" -> prepareService.prepareCommentOnly(comment, topic, ignoreList),
       "topic" -> topic
     ).asJava)
   }

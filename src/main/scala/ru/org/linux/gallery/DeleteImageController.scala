@@ -43,7 +43,7 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
     val image = imageDao.getImage(id)
     val topic = topicDao.getById(image.topicId)
 
-    val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
+    val preparedTopic = prepareService.prepareTopic(topic)
 
     checkDelete(preparedTopic)
 
@@ -60,11 +60,11 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
     val image = imageDao.getImage(id)
     val topic = topicDao.getById(image.topicId)
 
-    val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
+    val preparedTopic = prepareService.prepareTopic(topic)
 
     checkDelete(preparedTopic)
 
-    imageService.deleteImage(currentUser.user, image)
+    imageService.deleteImage(image)
 
     new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build)
   }

@@ -63,7 +63,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
-    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser, add.getTopic) + (
+    new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic) + (
       "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
     )).asJava)
   }
@@ -73,7 +73,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     */
   @RequestMapping(path = Array("/comment-message.jsp"))
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
-    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, currentUser.userOpt.orNull)
+    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic)
 
     if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
@@ -123,7 +123,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
 
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, sessionUserOpt, add.getTopic) ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic)(sessionUserOpt) ++ info).asJava)
     } else {
       val (msgid, mentions) = commentService.create(user, comment, msg, remoteAddress = request.getRemoteAddr,
         xForwardedFor = Option(request.getHeader("X-Forwarded-For")), userAgent = Option(request.getHeader("user-agent")))

@@ -74,7 +74,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       throw new UserErrorException("Сообщение уже подтверждено")
     }
 
-    val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
+    val preparedTopic = prepareService.prepareTopic(topic)
 
     if (!preparedTopic.section.isPremoderated) {
       throw new UserErrorException("Раздел не премодерируемый")
@@ -92,8 +92,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   def showEditForm(@RequestParam("msgid") msgid: Int,
                    @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val message = messageDao.getById(msgid)
-    val user = currentUser.user
-    val preparedTopic = prepareService.prepareTopic(message, user)
+    val preparedTopic = prepareService.prepareTopic(message)
 
     if (!permissionService.isEditable(preparedTopic) && !permissionService.isTagsEditable(preparedTopic)) {
       throw new AccessViolationException("это сообщение нельзя править")
@@ -194,7 +193,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
            @Valid @ModelAttribute("form") form: EditTopicRequest, errors: Errors,
            @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = messageDao.getById(msgid)
-    val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
+    val preparedTopic = prepareService.prepareTopic(topic)
 
     val params = prepareModel(preparedTopic)
 
@@ -286,7 +285,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val imagePreview: Option[UploadedImagePreview] =
       if (permissionService.isImagePostingAllowed(preparedTopic.section) && permissionService.isTopicPostingAllowed(group)) {
         val image = imageService.processUploadImage(request)
-        val preview = imageService.processUpload(user, Option(form.getUploadedImage), image, errors)
+        val preview = imageService.processUpload(Option(form.getUploadedImage), image, errors)
 
         preview.foreach { img =>
           modified = true

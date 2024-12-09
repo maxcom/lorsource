@@ -187,11 +187,11 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   }
 
   @throws[UserNotFoundException]
-  def prepareReplyto(add: CommentRequest, currentUser: AnySession, topic: Topic): Map[String, AnyRef] = {
+  def prepareReplyto(add: CommentRequest, topic: Topic)(implicit currentUser: AnySession): Map[String, AnyRef] = {
     if (add.getReplyto != null) {
       val ignoreList = currentUser.opt.map(user => ignoreListDao.get(user.user.getId)).getOrElse(Set.empty)
 
-      val preparedComment = commentPrepareService.prepareCommentOnly(add.getReplyto, currentUser, topic, ignoreList)
+      val preparedComment = commentPrepareService.prepareCommentOnly(add.getReplyto, topic, ignoreList)
 
       Map("onComment" -> preparedComment)
     } else {

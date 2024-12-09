@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
 import org.springframework.web.multipart.MultipartRequest
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
@@ -45,10 +46,10 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   private val previewPath = new File(siteConfig.getUploadPath + "/gallery/preview")
   private val galleryPath = new File(siteConfig.getUploadPath + "/images")
 
-  def deleteImage(editor: User, image: Image):Unit = {
+  def deleteImage(image: Image)(implicit session: AuthorizedSession): Unit = {
     transactional() { _ =>
       val info = new EditHistoryRecord
-      info.setEditor(editor.getId)
+      info.setEditor(session.user.getId)
       info.setMsgid(image.topicId)
       info.setOldimage(image.id)
       info.setObjectType(EditHistoryObjectTypeEnum.TOPIC)
@@ -59,7 +60,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  private def prepareException(image: Image):PartialFunction[Throwable, None.type] = {
+  private def prepareException(image: Image): PartialFunction[Throwable, None.type] = {
     case e: FileNotFoundException =>
       logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")
       None
@@ -167,12 +168,13 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  def processUpload(currentUser: User, uploadedImage: Option[String], image: Option[File], errors: Errors): Option[UploadedImagePreview] = {
+  def processUpload(uploadedImage: Option[String], image: Option[File], errors: Errors)
+                   (implicit currentUser: AuthorizedSession): Option[UploadedImagePreview] = {
     image match {
       case Some(image) =>
         try {
-          createImagePreview(currentUser, image, errors).map { previewImage =>
-            logger.info("SCREEN: " + image.getAbsolutePath + "\nINFO: SCREEN: " + image)
+          createImagePreview(currentUser.user, image, errors).map { previewImage =>
+            logger.info(s"Created image preview: $image -> ${previewImage.mainFile}")
 
             previewImage
           }
@@ -183,7 +185,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
         }
       case None =>
         uploadedImage
-          .filter(_.startsWith(uploadedImagePrefix(currentUser)))
+          .filter(_.startsWith(uploadedImagePrefix(currentUser.user)))
           .map(f => UploadedImagePreview.reuse(previewPath, f))
           .filter(_.mainFile.exists)
     }

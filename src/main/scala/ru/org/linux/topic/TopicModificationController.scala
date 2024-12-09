@@ -164,14 +164,14 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   @RequestMapping(value = Array("/uncommit.jsp"), method = Array(RequestMethod.GET))
-  def uncommitForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { currentUser =>
+  def uncommitForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { implicit currentUser =>
     val message = messageDao.getById(msgid)
 
     checkUncommitable(message)
 
     new ModelAndView("uncommit", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, currentUser.user)
+      "preparedMessage" -> prepareService.prepareTopic(message)
     ).asJava)
   }
 

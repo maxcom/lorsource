@@ -28,7 +28,6 @@ import ru.org.linux.auth.{AnySession, IPBlockDao}
 import ru.org.linux.comment.*
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC
 import ru.org.linux.edithistory.EditHistoryService
-import ru.org.linux.group.GroupDao
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.paginator.PagesInfo
 import ru.org.linux.search.{MoreLikeThisService, MoreLikeThisTopic}
@@ -95,7 +94,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                       ignoreListDao: IgnoreListDao, ipBlockDao: IPBlockDao, editHistoryService: EditHistoryService,
                       memoriesDao: MemoriesDao, permissionService: TopicPermissionService,
                       moreLikeThisService: MoreLikeThisService, topicTagService: TopicTagService,
-                      msgbaseDao: MsgbaseDao, textService: MessageTextService, groupDao: GroupDao,
+                      msgbaseDao: MsgbaseDao, textService: MessageTextService,
                       warningService: WarningService) extends StrictLogging {
   @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"))
   def getMessageNewMain(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
@@ -169,7 +168,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       Seq.empty
     }
 
-    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, session.userOpt, messageText, warnings)
+    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, messageText, warnings)
 
     val group = preparedMessage.group
 
@@ -182,7 +181,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val editInfoSummary = editHistoryService.editInfoSummary(topic.id, TOPIC)
 
     if (editInfoSummary.nonEmpty) {
-      params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get, topic, session))
+      params.put("editInfo", topicPrepareService.prepareEditInfo(editInfoSummary.get, topic))
     }
 
     permissionService.checkView(group, topic, preparedMessage.author, showDeleted)

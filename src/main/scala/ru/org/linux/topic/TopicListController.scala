@@ -26,7 +26,7 @@ import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
-import ru.org.linux.site.{ScriptErrorException, Template}
+import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.topic.TopicListController.ForumFilter.{NoTalks, Tech}
 import ru.org.linux.topic.TopicListController.{ForumFilter, ForumFilters, calculatePTitle}
@@ -135,8 +135,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("navtitle", TopicListController.calculateNavTitle(section, group, topicListForm))
 
     val messages = topicListService.getTopicsFeed(section, group, None, topicListForm.offset,
-      topicListForm.yearMonth, 20, currentUserOpt.userOpt, topicListForm.filter.contains(NoTalks),
-      topicListForm.filter.contains(Tech))
+      topicListForm.yearMonth, 20, topicListForm.filter.contains(NoTalks), topicListForm.filter.contains(Tech))
 
     modelAndView.addObject(
       "messages",

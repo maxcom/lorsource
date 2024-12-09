@@ -43,26 +43,26 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao,
                           reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao,
                           warningService: WarningService) {
-  def prepareTopic(message: Topic, @Nullable user: User): PreparedTopic =
-    prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, user,
+  def prepareTopic(message: Topic)(implicit session: AnySession): PreparedTopic =
+    prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, session.userOpt.orNull,
       msgbaseDao.getMessageText(message.id), None)
 
-  def prepareTopic(message: Topic, tags: java.util.List[TagRef], user: Option[User], text: MessageText,
-                   warnings: Seq[Warning]): PreparedTopic =
-    prepareTopic(message, tags.asScala, minimizeCut = false, None, user.orNull, text, None, warnings)
+  def prepareTopic(message: Topic, tags: java.util.List[TagRef], text: MessageText,
+                   warnings: Seq[Warning])(implicit session: AnySession): PreparedTopic =
+    prepareTopic(message, tags.asScala, minimizeCut = false, None, session.userOpt.orNull, text, None, warnings)
 
   def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
                           image: Option[Image]): PreparedTopic =
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
       null, text, image)
 
-  def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic, currentUserOpt: AnySession): PreparedEditInfoSummary = {
+  def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(implicit session: AnySession): PreparedEditInfoSummary = {
     val lastEditor = userService.getUserCached(editInfo.editor).getNick
     val editCount = editInfo.editCount
     val lastEditDate = editInfo.editdate
 
     PreparedEditInfoSummary(lastEditor, editCount, lastEditDate,
-      showHistory = topicPermissionService.canViewHistory(topic)(currentUserOpt))
+      showHistory = topicPermissionService.canViewHistory(topic))
   }
 
   /**
@@ -160,7 +160,6 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    *
    * @param messages     список топиков
    * @param user         пользователь
-   * @param profile      профиль пользователя
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */

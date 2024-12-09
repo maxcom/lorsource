@@ -35,7 +35,7 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
     val topic = messageDao.getById(msgid)
     val group = groupDao.getGroup(topic.groupId)
 
-    val preparedMessage = topicPrepareService.prepareTopic(topic, currentUserOpt.userOpt.orNull)
+    val preparedMessage = topicPrepareService.prepareTopic(topic)
 
     topicPermissionService.checkView(group, topic, preparedMessage.author, showDeleted = false)
 

@@ -74,7 +74,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
-      formParams.put("comment", commentPrepareService.prepareCommentOnly(comment, currentUser, topic, ignoreList))
+      formParams.put("comment", commentPrepareService.prepareCommentOnly(comment, topic, ignoreList))
 
       topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
 
@@ -102,8 +102,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
     val comment = commentService.getComment(commentRequest, user, request)
 
-    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, currentUser,
-      commentRequest.getTopic).asJava)
+    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, commentRequest.getTopic).asJava)
 
     val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.id)
 

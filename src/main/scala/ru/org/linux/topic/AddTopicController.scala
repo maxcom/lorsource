@@ -186,18 +186,20 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     var imagePreview: Option[UploadedImagePreview] = None
 
-    if (groupPermissionService.isImagePostingAllowed(section)(postingUser)) {
-      if (groupPermissionService.isTopicPostingAllowed(group)(postingUser)) {
-        val image = imageService.processUploadImage(request)
-        imagePreview = imageService.processUpload(postingUser.userOpt.orNull, Option(form.getUploadedImage), image, errors)
+    postingUser.opt.foreach { implicit user =>
+      if (groupPermissionService.isImagePostingAllowed(section)) {
+        if (groupPermissionService.isTopicPostingAllowed(group)) {
+          val image = imageService.processUploadImage(request)
+          imagePreview = imageService.processUpload(Option(form.getUploadedImage), image, errors)
 
-        imagePreview.foreach { img =>
-          form.setUploadedImage(img.mainFile.getName)
+          imagePreview.foreach { img =>
+            form.setUploadedImage(img.mainFile.getName)
+          }
         }
-      }
 
-      if (section.isImagepost && imagePreview.isEmpty) {
-        errors.reject(null, "Изображение отсутствует")
+        if (section.isImagepost && imagePreview.isEmpty) {
+          errors.reject(null, "Изображение отсутствует")
+        }
       }
     }
 

@@ -108,7 +108,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
     new ModelAndView("undelete", Map(
       "message" -> topic,
-      "preparedMessage" -> prepareService.prepareTopic(topic, currentUser.user)
+      "preparedMessage" -> prepareService.prepareTopic(topic)
     ).asJava)
   }
 

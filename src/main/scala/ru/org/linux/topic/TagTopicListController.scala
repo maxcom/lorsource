@@ -124,8 +124,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           (groupListDao.getSectionListTopics(section, currentUserOpt.userOpt.toJava,
             prof.topics, offset, prof.messages, tagInfo.id), prof.topics)
         } else {
-          val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
-            20, currentUserOpt.userOpt, noTalks = false, tech = false)
+          val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None, 20, noTalks = false, tech = false)
 
           (prepareService.prepareTopicsForUser(topics, loadUserpics = false), 20)
         }

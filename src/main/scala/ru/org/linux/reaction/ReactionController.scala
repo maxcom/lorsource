@@ -42,11 +42,11 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
                          reactionService: ReactionService, reactionsDao: ReactionDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
-  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
+  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val comment = commentDao.getById(commentId)
     val topic = topicDao.getById(comment.topicId)
 
-    currentUserOpt.opt match {
+    session.opt match {
       case None =>
         new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
       case Some(currentUser) =>
@@ -60,7 +60,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         new ModelAndView("reaction-comment", Map[String, Any](
           "topic" -> topic,
           "preparedComment" ->
-            commentPrepareService.prepareCommentOnly(comment, currentUser, topic, ignoreList),
+            commentPrepareService.prepareCommentOnly(comment, topic, ignoreList),
           "reactionList" -> reactionService.prepareReactionList(comment.reactions, reactionLog, ignoreList)
         ).asJava)
     }
@@ -133,7 +133,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
         new ModelAndView("reaction-topic", Map(
           "topic" -> topic,
-          "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user),
+          "preparedTopic" -> topicPrepareService.prepareTopic(topic),
           "reactionList" -> reactionService.prepareReactionList(topic.reactions, reactionLog, ignoreList)
         ).asJava)
     }

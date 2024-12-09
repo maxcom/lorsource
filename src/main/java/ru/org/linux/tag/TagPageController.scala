@@ -138,7 +138,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   private def getNewsSection(tag: String)(implicit currentUser: AnySession) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
-      TagPageController.TotalNewsCount, currentUser.userOpt, noTalks = false, tech = false)
+      TagPageController.TotalNewsCount, noTalks = false, tech = false)
 
     val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.map(_.commitDate.toInstant).exists(isRecent)) {
       newsTopics.splitAt(1)
@@ -200,7 +200,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
-    val forumTopics = topicListService.getTopics(topicListDto, currentUser.userOpt)
+    val forumTopics = topicListService.getTopics(topicListDto)
     val topicByDate = TopicListTools.datePartition(forumTopics)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {
