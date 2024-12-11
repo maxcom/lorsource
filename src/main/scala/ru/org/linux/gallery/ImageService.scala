@@ -32,6 +32,8 @@ import ru.org.linux.util.BadImageException
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 
 import java.io.{File, FileNotFoundException, IOException}
+import java.nio.file.Files
+import java.time.{Duration, Instant}
 import java.util.Optional
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOption
@@ -195,5 +197,20 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     val id = imageDao.saveImage(msgid, imagePreview.extension)
 
     imagePreview.moveTo(galleryPath, id.toString)
+  }
+
+  def cleanOldPreviews(age: Duration): Unit = {
+    if (previewPath.exists()) {
+      val deadline = Instant.now.minus(age)
+
+      Files.newDirectoryStream(previewPath.toPath)
+        .asScala
+        .filter(p => p.toFile.isFile && Files.getLastModifiedTime(p).toInstant.isBefore(deadline))
+        .foreach { p =>
+          logger.info(s"Delete old preview $p (last modified ${Files.getLastModifiedTime(p)})")
+
+          // TODO p.toFile.delete()
+        }
+    }
   }
 }
