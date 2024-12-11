@@ -183,7 +183,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
 
   def dropBannedUserEvents(): Int = transactional() { _ =>
     val count = jdbcTemplate.update(
-      "DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval AND user_events.id IN " +
+      "DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval AND user_events.userid IN " +
         "(SELECT id FROM users WHERE users.blocked and lastlogin < CURRENT_TIMESTAMP-'2 year'::interval)")
 
     jdbcTemplate.update(
