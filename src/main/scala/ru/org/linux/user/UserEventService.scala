@@ -109,6 +109,12 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
       logger.info(s"Cleaning up messages for userid=$userId")
       userEventDao.cleanupOldEvents(userId, maxEventsPerUser)
     }
+
+    val deleted = userEventDao.dropBannedUserEvents()
+
+    if (deleted != 0) {
+      logger.info(s"Deleted $deleted abandoned events")
+    }
   }
 
   /**

@@ -22,8 +22,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
-import ru.org.linux.site.{BadInputException, Template}
-import ru.org.linux.spring.StatUpdater
+import ru.org.linux.site.BadInputException
 import ru.org.linux.user.UserEvent.NoReaction
 import ru.org.linux.util.StringUtil
 
@@ -92,7 +91,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       response.addHeader("Cache-Control", "no-cache")
 
       val list = userEventService.getUserEvents(currentUser.user, showPrivate = true,
-        StatUpdater.MAX_EVENTS, 0, eventFilter
+        OldEventsCleaner.MaxEventsPerUser, 0, eventFilter
       ).filterNot(r => r.eventType == UserEventFilterEnum.REACTION && r.reaction == NoReaction)
 
       val prepared = prepareService.prepareGrouped(list, !currentUser.profile.oldTracker)
