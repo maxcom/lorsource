@@ -89,24 +89,10 @@
         var ads = [
             {
                 type: 'rimg',
-                img320: '/adv/320x100-1.png',
-                img730: '/adv/730x90-1.png',
-                img980: '/adv/980x120-1.png',
-                href: 'https://selectel.ru/blog/events/selectel-gamedev-meetup/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=gamedev_meetup'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/320x100-2.png',
-                img730: '/adv/730x90-2.png',
-                img980: '/adv/980x120-2.png',
-                href: 'https://selectel.ru/blog/events/selectel-gamedev-meetup/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=gamedev_meetup'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/320x100-3.png',
-                img730: '/adv/730x90-3.png',
-                img980: '/adv/980x120-3.png',
-                href: 'https://selectel.ru/blog/events/selectel-gamedev-meetup/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=gamedev_meetup'
+                img320: '/adv/habr 320x100.png',
+                img730: '/adv/hadr 730x90.png',
+                img980: '/adv/habr 980x120.png',
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=bf2024'
             }
         ];
 
