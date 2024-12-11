@@ -16,7 +16,6 @@ package ru.org.linux.gallery
 
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import ru.org.linux.spring.StatUpdater
 
 import java.time.Duration
 

@@ -209,7 +209,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
         .foreach { p =>
           logger.info(s"Delete old preview $p (last modified ${Files.getLastModifiedTime(p)})")
 
-          // TODO p.toFile.delete()
+          p.toFile.delete()
         }
     }
   }
