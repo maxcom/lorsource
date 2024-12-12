@@ -17,12 +17,11 @@ package ru.org.linux.gallery
 
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
-import org.springframework.web.multipart.MultipartRequest
+import org.springframework.web.multipart.MultipartFile
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.spring.SiteConfig
@@ -35,6 +34,7 @@ import java.io.{File, FileNotFoundException, IOException}
 import java.nio.file.Files
 import java.time.{Duration, Instant}
 import java.util.Optional
+import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOption
 import scala.util.control.NonFatal
@@ -151,27 +151,22 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   private def uploadedImagePrefix(user: User) = s"preview-${user.getId}-"
 
-  def processUploadImage(request: HttpServletRequest): Option[File] = {
-    request match {
-      case multipartRequest: MultipartRequest =>
-        val multipartFile = multipartRequest.getFile("image")
+  private def saveToTempFile(@Nullable imageUpload: MultipartFile): Option[File] = {
+    if (imageUpload != null && !imageUpload.isEmpty) {
+      val uploadedFile = File.createTempFile("lor-image-", "")
+      logger.debug(s"Transferring upload to: $uploadedFile")
+      imageUpload.transferTo(uploadedFile.toPath)
 
-        if (multipartFile != null && !multipartFile.isEmpty) {
-          val uploadedFile = File.createTempFile("lor-image-", "")
-          logger.debug(s"Transferring upload to: $uploadedFile")
-          multipartFile.transferTo(uploadedFile.toPath)
-
-          Some(uploadedFile)
-        } else {
-          None
-        }
-      case _ =>
-        None
+      Some(uploadedFile)
+    } else {
+      None
     }
   }
 
-  def processUpload(uploadedImage: Option[String], image: Option[File], errors: Errors)
+  def processUpload(uploadedImage: Option[String], imageUpload: MultipartFile, errors: Errors)
                    (implicit currentUser: AuthorizedSession): Option[UploadedImagePreview] = {
+    val image = saveToTempFile(imageUpload)
+
     image match {
       case Some(image) =>
         try {

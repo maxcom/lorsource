@@ -23,29 +23,21 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.edithistory.EditHistoryObjectTypeEnum
-import ru.org.linux.edithistory.EditHistoryService
-import ru.org.linux.gallery.Image
-import ru.org.linux.gallery.ImageService
-import ru.org.linux.gallery.UploadedImagePreview
-import ru.org.linux.group.GroupDao
-import ru.org.linux.group.GroupPermissionService
-import ru.org.linux.poll.Poll
-import ru.org.linux.poll.PollDao
-import ru.org.linux.poll.PollVariant
+import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
+import ru.org.linux.gallery.{ImageService, UploadedImagePreview}
+import ru.org.linux.group.{GroupDao, GroupPermissionService}
+import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
-import ru.org.linux.spring.dao.MessageText
-import ru.org.linux.spring.dao.MsgbaseDao
-import ru.org.linux.tag.TagName
-import ru.org.linux.tag.TagRef
-import ru.org.linux.tag.TagService
+import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
+import ru.org.linux.tag.{TagName, TagRef, TagService}
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
@@ -191,7 +183,8 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
            @RequestParam(value = "lastEdit", required = false) lastEdit: String,
            @RequestParam(value = "chgrp", required = false) changeGroupId: Integer,
            @Valid @ModelAttribute("form") form: EditTopicRequest, errors: Errors,
-           @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
+           @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo,
+           @RequestParam(required = false, name = "image") image: MultipartFile): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = messageDao.getById(msgid)
     val preparedTopic = prepareService.prepareTopic(topic)
 
@@ -283,18 +276,16 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     val imagePreview: Option[UploadedImagePreview] =
-      if (permissionService.isImagePostingAllowed(preparedTopic.section) && permissionService.isTopicPostingAllowed(group)) {
-        val image = imageService.processUploadImage(request)
-        val preview = imageService.processUpload(Option(form.getUploadedImage), image, errors)
-
-        preview.foreach { img =>
-          modified = true
-          form.setUploadedImage(img.mainFile.getName)
-        }
-
-        preview
+      if (permissionService.isImagePostingAllowed(preparedTopic.section) &&
+          permissionService.isTopicPostingAllowed(group)) {
+        imageService.processUpload(Option(form.getUploadedImage), image, errors)
     } else {
       None
+    }
+
+    imagePreview.foreach { img =>
+      modified = true
+      form.setUploadedImage(img.mainFile.getName)
     }
 
     if (!editable && modified) {
@@ -384,13 +375,9 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     params.put("newMsg", newMsg)
 
-    val imageObject: Option[Image] = imagePreview.map { i =>
-      new Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true)
-    }
-
     params.put("newPreparedMessage",
       prepareService.prepareTopicPreview(newMsg, newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
-        newPoll, newText, imageObject))
+        newPoll, newText, imagePreview))
 
     new ModelAndView("edit", params.asJava)
   }

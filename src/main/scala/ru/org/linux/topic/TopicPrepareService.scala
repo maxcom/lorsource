@@ -15,9 +15,9 @@
 package ru.org.linux.topic
 
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AnySession
+import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
 import ru.org.linux.edithistory.EditInfoSummary
-import ru.org.linux.gallery.{Image, ImageService}
+import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{GroupDao, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{Poll, PollNotFoundException, PollPrepareService, PreparedPoll}
@@ -44,17 +44,20 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao,
                           warningService: WarningService) {
   def prepareTopic(message: Topic)(implicit session: AnySession): PreparedTopic =
-    prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None, session.userOpt.orNull,
+    prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None,
       msgbaseDao.getMessageText(message.id), None)
 
   def prepareTopic(message: Topic, tags: java.util.List[TagRef], text: MessageText,
                    warnings: Seq[Warning])(implicit session: AnySession): PreparedTopic =
-    prepareTopic(message, tags.asScala, minimizeCut = false, None, session.userOpt.orNull, text, None, warnings)
+    prepareTopic(message, tags.asScala, minimizeCut = false, None, text, None, warnings)
 
   def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
-                          image: Option[Image]): PreparedTopic =
+                          imagePreview: Option[UploadedImagePreview]): PreparedTopic = {
+    val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true))
+
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
-      null, text, image)
+      text, imageObject)(NonAuthorizedSession)
+  }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(implicit session: AnySession): PreparedEditInfoSummary = {
     val lastEditor = userService.getUserCached(editInfo.editor).getNick
@@ -76,8 +79,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @return подготовленный топик
    */
   private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
-                           @Nullable currentUser: User, text: MessageText, image: Option[Image],
-                           warnings: Seq[Warning] = Seq.empty): PreparedTopic = try {
+                           text: MessageText, image: Option[Image], warnings: Seq[Warning] = Seq.empty)
+                          (implicit session: AnySession): PreparedTopic = try {
     val group = groupDao.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
     val section = sectionService.getSection(topic.sectionId)
@@ -91,7 +94,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val deleteUser = deleteInfo.map(_.userid).map(userService.getUserCached)
 
     val preparedPoll = if (section.isPollPostAllowed) {
-      Some(poll.getOrElse(pollPrepareService.preparePoll(topic, currentUser)))
+      Some(poll.getOrElse(pollPrepareService.preparePoll(topic, session.userOpt.orNull)))
     } else {
       None
     }
@@ -119,26 +122,22 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       None
     }
 
-    val remark = if (currentUser != null) {
-      remarkDao.getRemark(currentUser, author)
-    } else {
-      None
+    val remark = session.userOpt.flatMap { user =>
+      remarkDao.getRemark(user, author)
     }
 
-    val ignoreList = if (currentUser != null) {
-      ignoreListDao.get(currentUser.getId)
-    } else {
-      Set.empty[Int]
-    }
+    val ignoreList = session.userOpt.map { user =>
+      ignoreListDao.get(user.getId)
+    }.getOrElse(Set.empty[Int])
 
     val postscore = topicPermissionService.getPostscore(group, topic)
 
-    val showRegisterInvite = currentUser == null &&
+    val showRegisterInvite = !session.authorized &&
       (postscore <= 45 &&
         postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED ||
         userService.getAnonymous.isFrozen)
 
-    val userAgent = if (currentUser != null && currentUser.isModerator) {
+    val userAgent = if (session.moderator) {
       userAgentDao.getUserAgentById(topic.userAgentId).toScala
     } else {
       None
@@ -147,7 +146,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
       TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull,
-      reactionPrepareService.prepare(topic.reactions, ignoreList, Option(currentUser), topic, None),
+      reactionPrepareService.prepare(topic.reactions, ignoreList, session.userOpt, topic, None),
       warningService.prepareWarning(warnings).asJava)
   } catch {
     case e: PollNotFoundException =>
@@ -170,7 +169,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     messages.map { message =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        user.userOpt.orNull, textMap(message.id), None)
+        textMap(message.id), None)
 
       val topicMenu = getTopicMenu(preparedMessage, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
@@ -192,8 +191,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.view.map { message =>
-      prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, null,
-        textMap(message.id), None)
+      prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, textMap(message.id),
+        None)(NonAuthorizedSession)
     }.toSeq
   }
 

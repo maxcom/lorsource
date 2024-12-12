@@ -140,7 +140,7 @@
         <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
           <form:hidden path="additionalUploadedImages[${i.index}]"/>
           <label>Дополнительное изображение #${i.index}:
-          <input type="file" name="additionalImage[${i.index}]" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif"></label>
+          <input type="file" name="additionalImage" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif"></label>
         </c:forEach>
       </div>
     </c:if>

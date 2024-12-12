@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import org.springframework.web.multipart.MultipartFile;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.user.User;
@@ -30,6 +31,7 @@ public class AddTopicRequest {
   private String[] poll = new String[Poll.MaxPollSize()];
   private boolean multiSelect;
   private String[] additionalUploadedImages = new String[] {};
+  private MultipartFile[] additionalImage;
 
   private User nick;
   private String password;
@@ -38,6 +40,7 @@ public class AddTopicRequest {
   private String draft;
   private boolean allowAnonymous = true;
 
+  private MultipartFile image;
   private String uploadedImage;
 
   public String getTitle() {
@@ -178,5 +181,21 @@ public class AddTopicRequest {
 
   public void setAdditionalUploadedImages(String[] additionalUploadedImages) {
     this.additionalUploadedImages = additionalUploadedImages;
+  }
+
+  public MultipartFile getImage() {
+    return image;
+  }
+
+  public void setImage(MultipartFile image) {
+    this.image = image;
+  }
+
+  public MultipartFile[] getAdditionalImage() {
+    return additionalImage;
+  }
+
+  public void setAdditionalImage(MultipartFile[] additionalImage) {
+    this.additionalImage = additionalImage;
   }
 }

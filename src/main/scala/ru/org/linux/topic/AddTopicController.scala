@@ -30,7 +30,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
-import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
+import ru.org.linux.gallery.{ImageService, UploadedImagePreview}
 import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{Poll, PollVariant}
@@ -145,6 +145,47 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     params.result()
   }
 
+  private def processUploads(form: AddTopicRequest, errors: BindingResult)
+                            (postingUser: AnySession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
+    val section = sectionService.getSection(form.getGroup.sectionId)
+
+    val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
+      postingUser.opt.map { implicit user =>
+        if (groupPermissionService.isImagePostingAllowed(section) &&
+          groupPermissionService.isTopicPostingAllowed(form.getGroup)) {
+          val main = imageService.processUpload(Option(form.getUploadedImage), form.getImage, errors)
+
+          val additionalImagesNonNull = Option(form.getAdditionalImage).getOrElse(Array.empty)
+
+          val additionalImagePreviews =
+            Option(form.getAdditionalUploadedImages)
+              .getOrElse(Array.empty)
+              .view
+              .zipAll(additionalImagesNonNull, null, null)
+              .take(groupPermissionService.additionalImageLimit(section))
+              .flatMap { case (existing, upload) =>
+                imageService.processUpload(Option(existing), upload, errors)
+              }.toVector
+
+          (main, additionalImagePreviews)
+        } else {
+          (None, Seq.empty)
+        }
+      }.getOrElse((None, Seq.empty))
+
+    imagePreview.foreach { img =>
+      form.setUploadedImage(img.mainFile.getName)
+    }
+
+    form.setAdditionalUploadedImages(additionalImagePreviews.map(_.mainFile.getName).toArray)
+
+    if (section.isImagepost && imagePreview.isEmpty) {
+      errors.reject(null, "Изображение отсутствует")
+    }
+
+    (imagePreview, additionalImagePreviews)
+  }
+
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
   def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest, errors: BindingResult,
@@ -182,26 +223,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       }
     }
 
-    val session = request.getSession
-
-    var imagePreview: Option[UploadedImagePreview] = None
-
-    postingUser.opt.foreach { implicit user =>
-      if (groupPermissionService.isImagePostingAllowed(section)) {
-        if (groupPermissionService.isTopicPostingAllowed(group)) {
-          val image = imageService.processUploadImage(request)
-          imagePreview = imageService.processUpload(Option(form.getUploadedImage), image, errors)
-
-          imagePreview.foreach { img =>
-            form.setUploadedImage(img.mainFile.getName)
-          }
-        }
-
-        if (section.isImagepost && imagePreview.isEmpty) {
-          errors.reject(null, "Изображение отсутствует")
-        }
-      }
-    }
+    val (imagePreview, additionalImagePreviews) = processUploads(form, errors)(postingUser)
 
     val poll: Option[Poll] = if (section.isPollPostAllowed) {
       Some(AddTopicController.preparePollPreview(form))
@@ -210,8 +232,6 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     val previewMsg: Topic = Topic.fromAddRequest(form, user, request.getRemoteAddr)
-
-    val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true))
 
     val tagNames = TagName.parseAndSanitizeTags(form.getTags)
 
@@ -223,7 +243,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       }
     }
 
-    val preparedTopic = prepareService.prepareTopicPreview(previewMsg, tagNames.map(tagRef), poll, message, imageObject)
+    val preparedTopic = prepareService.prepareTopicPreview(previewMsg, tagNames.map(tagRef), poll, message, imagePreview)
 
     params.put("message", preparedTopic)
 
@@ -243,8 +263,6 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     if (!form.isPreviewMode && !errors.hasErrors) {
-      session.removeAttribute("image")
-
       createNewTopic(request, form, group, params, section, user, message, imagePreview, previewMsg)
     } else {
       new ModelAndView("add", params.asJava)
