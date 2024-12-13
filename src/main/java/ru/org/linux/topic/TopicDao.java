@@ -35,7 +35,6 @@ import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 
@@ -52,9 +51,6 @@ import java.util.Optional;
 
 @Repository
 public class TopicDao {
-  @Autowired
-  private TopicTagService topicTagService; // TODO move to TopicService
-
   @Autowired
   private SectionService sectionService;
 
@@ -202,7 +198,7 @@ public class TopicDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateMessage(EditHistoryRecord editHistoryRecord, Topic oldMsg, Topic msg, User editor,
-                               List<String> newTags, String newText, List<PollVariant> newPollVariants,
+                               String newText, List<PollVariant> newPollVariants,
                                boolean multiselect) {
 
     editHistoryRecord.setMsgid(msg.getId());
@@ -248,17 +244,6 @@ public class TopicDao {
         "UPDATE topics SET url=:url WHERE id=:id",
         Map.of("url", msg.getUrl(), "id", msg.getId())
       );
-    }
-
-    if (newTags != null) {
-      List<String> oldTags = topicTagService.getTags(msg);
-
-      boolean modifiedTags = topicTagService.updateTags(msg.getId(), newTags);
-
-      if (modifiedTags) {
-        editHistoryRecord.setOldtags(TagService.tagsToString(oldTags));
-        modified = true;
-      }
     }
 
     if (oldMsg.isMinor() != msg.isMinor()) {

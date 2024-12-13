@@ -29,7 +29,7 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
-import ru.org.linux.tag.TagName
+import ru.org.linux.tag.{TagName, TagService}
 import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils
 
@@ -127,8 +127,17 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                       editorBonus: Map[Int, Int], imagePreview: Option[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
     val editHistoryRecord = new EditHistoryRecord
 
-    var modified = topicDao.updateMessage(editHistoryRecord, oldMsg, newMsg, user, newTags.map(_.asJava).orNull, newText.text,
-      pollVariants.asJava, multiselect)
+    var modified = topicDao.updateMessage(editHistoryRecord, oldMsg, newMsg, user,newText.text, pollVariants.asJava, multiselect)
+
+    if (newTags.isDefined) {
+      val oldTags = topicTagService.getTags(newMsg)
+      val modifiedTags: Boolean = topicTagService.updateTags(newMsg.getId, newTags.map(_.asJava).orNull)
+
+      if (modifiedTags) {
+        editHistoryRecord.setOldtags(TagService.tagsToString(oldTags))
+        modified = true
+      }
+    }
 
     imagePreview.foreach { imagePreview =>
       replaceImage(oldMsg, imagePreview, editHistoryRecord)

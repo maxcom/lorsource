@@ -239,7 +239,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       val newTags = tagService.getNewTags(tagNames)
 
       if (newTags.nonEmpty) {
-        errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(newTags.asJava) + ")")
+        errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(newTags) + ")")
       }
     }
 

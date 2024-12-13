@@ -29,11 +29,10 @@ import ru.org.linux.util.RichFuture.RichFuture
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import java.util
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, TimeoutException}
 import scala.concurrent.duration.Deadline
+import scala.concurrent.{Future, TimeoutException}
 import scala.jdk.CollectionConverters.*
 
 @Service
@@ -231,5 +230,5 @@ object TagService {
 
   def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.asScala.map(tagRef).asJava
 
-  def tagsToString(tags: util.Collection[String]): String = tags.asScala.mkString(",")
+  def tagsToString(tags: Seq[String]): String = tags.mkString(",")
 }

@@ -306,7 +306,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
           val nonExistingTags = tagService.getNewTags(newTags)
 
           if (nonExistingTags.nonEmpty) {
-            errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags.asJava) + ")")
+            errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags) + ")")
           }
         }
       }

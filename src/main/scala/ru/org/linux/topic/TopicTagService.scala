@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -71,7 +71,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * Получить все теги сообщения по идентификационному номеру сообщения.
    *
    */
-  def getTags(topic: Topic): java.util.List[String] = topicTagDao.getTags(topic.id).map(_.name).asJava
+  def getTags(topic: Topic): Seq[String] = topicTagDao.getTags(topic.id).map(_.name)
 
   private def getTags(msgId: Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name)
 
