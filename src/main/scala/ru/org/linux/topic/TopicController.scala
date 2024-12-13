@@ -42,7 +42,7 @@ import java.util
 import java.util.concurrent.{Callable, TimeUnit}
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
+import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava}
 
 object TopicController {
   private val MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS)
@@ -157,7 +157,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       return new ModelAndView(new RedirectView(topic.getLink))
     }
 
-    val tags = topicTagService.getTagRefs(topic)
+    val tags = topicTagService.getTagRefs(topic).asScala
     val moreLikeThis = moreLikeThisService.searchSimilar(topic, tags)
     val messageText = msgbaseDao.getMessageText(topic.id)
     val plainText = textService.extractPlainText(messageText)

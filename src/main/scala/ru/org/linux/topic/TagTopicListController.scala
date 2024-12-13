@@ -31,7 +31,7 @@ import java.util.concurrent.CompletionStage
 import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 import scala.jdk.OptionConverters.RichOption
 
 @Controller
@@ -122,14 +122,14 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
 
         val (preparedTopics, pageSize) = if (forumMode) {
           (groupListDao.getSectionListTopics(section, currentUserOpt.userOpt.toJava,
-            prof.topics, offset, prof.messages, tagInfo.id), prof.topics)
+            prof.topics, offset, tagInfo.id).asScala.map(prepareService.prepareListItem), prof.topics)
         } else {
           val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None, 20, noTalks = false, tech = false)
 
           (prepareService.prepareTopicsForUser(topics, loadUserpics = false), 20)
         }
 
-        modelAndView.addObject("messages", preparedTopics)
+        modelAndView.addObject("messages", preparedTopics.asJava)
 
         modelAndView.addObject("url", TagTopicListController.tagListUrl(tag))
         modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))

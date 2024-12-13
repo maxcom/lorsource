@@ -165,7 +165,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 
     (Map(
-      "fullNews" -> fullNews,
+      "fullNews" -> fullNews.asJava,
       "briefNews" -> TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false)))
     ) ++ more ++ addNews, newestDate)
   }

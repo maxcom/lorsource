@@ -25,6 +25,8 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
 
+import scala.jdk.CollectionConverters.SeqHasAsJava
+
 @Controller
 class MainPageController(prepareService: TopicPrepareService, topicListService: TopicListService, topicDao: TopicDao,
                          memoriesDao: MemoriesDao, groupPermissionService: GroupPermissionService,
@@ -46,7 +48,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
     val mv = new ModelAndView("index")
 
-    mv.getModel.put("news", prepareService.prepareTopicsForUser(messages, loadUserpics = false))
+    mv.getModel.put("news", prepareService.prepareTopicsForUser(messages, loadUserpics = false).asJava)
 
     val briefNewsByDate = TopicListTools.datePartition(titles)
 

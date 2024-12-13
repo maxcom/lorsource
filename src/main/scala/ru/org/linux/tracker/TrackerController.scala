@@ -21,6 +21,7 @@ import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.group.GroupListDao
+import ru.org.linux.topic.TopicPrepareService
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import java.net.URLEncoder
@@ -28,7 +29,8 @@ import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.{RichOption, RichOptional}
 
 @Controller
-class TrackerController(groupListDao: GroupListDao, userService: UserService, ipBlockDao: IPBlockDao) {
+class TrackerController(groupListDao: GroupListDao, userService: UserService, ipBlockDao: IPBlockDao,
+                        topicPrepareService: TopicPrepareService) {
   @ModelAttribute("filters")
   def getFilter: java.util.List[TrackerFilterEnum] = TrackerFilterEnum.values.toSeq.asJava
 
@@ -68,7 +70,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
               @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int
-             ): ModelAndView = MaybeAuthorized { currentUserOpt =>
+             ): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
     val defaultFilter = currentUserOpt.profile.trackerMode
@@ -80,15 +82,15 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
 
     params.put("defaultFilter", defaultFilter)
 
-    val messages = currentUserOpt.profile.messages
     val topics = currentUserOpt.profile.topics
 
     val user = currentUserOpt.userOpt
     params.put("title", makeTitle(trackerFilter, defaultFilter))
 
-    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user.toJava, topics, offset, messages)
+    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user.toJava, topics, offset).asScala
+      .map(topicPrepareService.prepareListItem)
 
-    params.put("messages", trackerTopics)
+    params.put("messages", trackerTopics.asJava)
 
     if (offset < 300 && trackerTopics.size == topics) {
       params.put("nextLink", buildTrackerUrl(offset + topics, Some(trackerFilter).filter(_ != defaultFilter)))

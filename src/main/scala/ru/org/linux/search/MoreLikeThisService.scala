@@ -71,12 +71,12 @@ class MoreLikeThisService(
   breaker.onOpen { logger.warn("Similar topics circuit breaker is open, lookup disabled") }
   breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
 
-  def searchSimilar(topic: Topic, tags: java.util.List[TagRef]): Future[Result] = {
+  def searchSimilar(topic: Topic, tags: collection.Seq[TagRef]): Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.id))
 
     cachedValue.map(Future.successful).getOrElse {
       breaker.withCircuitBreaker {
-        val searchResult = elastic execute makeQuery(topic, tags.asScala)
+        val searchResult = elastic execute makeQuery(topic, tags)
 
         val result: Future[Result] = searchResult.map(_.result).map(result => if (result.hits.nonEmpty) {
           val half = result.hits.hits.length / 2 + result.hits.hits.length % 2

@@ -193,8 +193,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
       modelAndView.addObject("messages", prepareService.prepareTopics(messages).asJava)
       modelAndView.setViewName("section-rss")
     } else {
-      modelAndView.addObject("messages",
-        prepareService.prepareTopicsForUser(messages, loadUserpics = false))
+      modelAndView.addObject("messages", prepareService.prepareTopicsForUser(messages, loadUserpics = false).asJava)
     }
   }
 

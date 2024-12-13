@@ -15,11 +15,16 @@
 
 package ru.org.linux.group;
 
+import com.google.common.collect.ImmutableList;
+import ru.org.linux.section.Section;
+import ru.org.linux.topic.TopicPermissionService;
+import ru.org.linux.user.User;
+
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
 
-public class TopicsListItem {
-  private final int author; // topic author
+public class PreparedTopicsListItem {
+  private final User author; // topic author
   private final int msgid; // topic id
   private final Timestamp lastmod; // topic lastmod
   private final int stat1; // comment count
@@ -29,23 +34,26 @@ public class TopicsListItem {
   private final int cid; // tracker only!
 
   @Nullable
-  private final Integer lastCommentBy;
+  private final User lastCommentBy;
 
   private final boolean resolved;
   private final int section;
   private final String groupUrlName;
   private final Timestamp postdate; // date of last comment or topic postdate if none
   private final boolean uncommited; // awaits for approve
+  private final int pages; // number of pages
+  private final ImmutableList<String> tags;
   private final boolean deleted;
   private final boolean sticky;
   private final int topicPostscore;
 
-  public TopicsListItem(int author, int msgid, Timestamp lastmod, int stat1,
-                        int groupId, String groupTitle, String title,
-                        int cid, Integer lastCommentBy, boolean resolved,
-                        int section, String groupUrlName,
-                        Timestamp postdate, boolean uncommited, boolean deleted,
-                        boolean sticky, int topicPostscore) {
+  public PreparedTopicsListItem(User author, int msgid, Timestamp lastmod,
+                                int stat1,
+                                int groupId, String groupTitle, String title,
+                                int cid, User lastCommentBy, boolean resolved,
+                                int section, String groupUrlName,
+                                Timestamp postdate, boolean uncommited, int pages, ImmutableList<String> tags, boolean deleted,
+                                boolean sticky, int topicPostscore) {
     this.author = author;
     this.msgid = msgid;
     this.lastmod = lastmod;
@@ -60,9 +68,35 @@ public class TopicsListItem {
     this.groupUrlName = groupUrlName;
     this.postdate = postdate;
     this.uncommited = uncommited;
+    this.pages = pages;
+    this.tags = tags;
     this.deleted = deleted;
     this.sticky = sticky;
     this.topicPostscore = topicPostscore;
+  }
+
+  public String getLastPageUrl() {
+    if (pages > 1) {
+      return getGroupUrl() + msgid + "/page" + (pages - 1) + "?lastmod=" + cid;
+    } else {
+      return getGroupUrl() + msgid + "?lastmod=" + cid;
+    }
+  }
+
+  public String getFirstPageUrl() {
+    if (pages<=1) {
+      return getGroupUrl() + msgid + "?lastmod=" + cid;
+    } else {
+      return getCanonicalUrl();
+    }
+  }
+
+  public String getCanonicalUrl() {
+    return getGroupUrl() + msgid;
+  }
+
+  public String getGroupUrl() {
+    return Section.getSectionLink(section) + groupUrlName + '/';
   }
 
   public int getMsgid() {
@@ -71,6 +105,14 @@ public class TopicsListItem {
 
   public Timestamp getLastmod() {
     return lastmod;
+  }
+
+  public int getCommentCount() {
+    if (topicPostscore != TopicPermissionService.POSTSCORE_HIDE_COMMENTS()) {
+      return stat1;
+    } else {
+      return 0;
+    }
   }
 
   public int getGroupId() {
@@ -85,7 +127,19 @@ public class TopicsListItem {
     return title;
   }
 
-  public int getTopicAuthor() {
+  public int getPages() {
+    return pages;
+  }
+
+  public User getAuthor() {
+    if (lastCommentBy!=null) {
+      return lastCommentBy;
+    } else {
+      return author;
+    }
+  }
+
+  public User getTopicAuthor() {
     return author;
   }
 
@@ -105,8 +159,12 @@ public class TopicsListItem {
     return uncommited;
   }
 
-  public int getCommentId() {
+  public int getCid() {
     return cid;
+  }
+
+  public ImmutableList<String> getTags() {
+    return tags;
   }
 
   public boolean isDeleted() {
@@ -117,20 +175,7 @@ public class TopicsListItem {
     return sticky;
   }
 
-  public int getStat1() {
-    return stat1;
-  }
-
-  @Nullable
-  public Integer getLastCommentBy() {
-    return lastCommentBy;
-  }
-
-  public String getGroupUrlName() {
-    return groupUrlName;
-  }
-
-  public int getTopicPostscore() {
-    return topicPostscore;
+  public boolean isCommentsClosed() {
+    return topicPostscore >= TopicPermissionService.POSTSCORE_MODERATORS_ONLY();
   }
 }

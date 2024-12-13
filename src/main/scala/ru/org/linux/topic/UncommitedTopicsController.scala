@@ -21,7 +21,6 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
-import ru.org.linux.site.Template
 
 import java.util.{Calendar, Date}
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -69,7 +68,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     val topics = prepareService.prepareTopicsForUser(messages, loadUserpics = false)
 
-    modelAndView.addObject("messages", topics)
+    modelAndView.addObject("messages", topics.asJava)
 
     val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = !currentUserOpt.moderator,
       includeAnonymous = includeAnonymous)

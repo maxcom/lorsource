@@ -139,7 +139,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, loadUserpics = false))
+      prepareService.prepareTopicsForUser(messages, loadUserpics = false).asJava)
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
 

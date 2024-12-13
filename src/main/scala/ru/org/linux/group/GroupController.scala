@@ -24,7 +24,7 @@ import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
-import ru.org.linux.topic.{ArchiveDao, TagTopicListController}
+import ru.org.linux.topic.{ArchiveDao, TagTopicListController, TopicPrepareService}
 import ru.org.linux.util.ServletParameterBadValueException
 
 import java.util
@@ -42,7 +42,7 @@ object GroupController {
 @Controller
 class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService: SectionService,
                       prepareService: GroupInfoPrepareService, groupPermissionService: GroupPermissionService,
-                      groupListDao: GroupListDao, tagService: TagService) {
+                      groupListDao: GroupListDao, tagService: TagService, topicPrepareService: TopicPrepareService) {
   @RequestMapping(path = Array("/group.jsp"))
   def topics(@RequestParam("group") groupId: Int,
              @RequestParam(value = "offset", required = false) offsetObject: Integer): View = {
@@ -166,14 +166,14 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       params.put("tagTitle", t.name.capitalize)
     }
 
-    val mainTopics = if (!lastmod) {
+    val mainTopics = (if (!lastmod) {
       groupListDao.getGroupListTopics(group.id, currentUser.userOpt.toJava, currentUser.profile.topics, offset,
-        currentUser.profile.messages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
+        showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
         yearMonth.map(p => Integer.valueOf(p._2)).toJava, tagId)
     } else {
       groupListDao.getGroupTrackerTopics(group.id, currentUser.userOpt.toJava, currentUser.profile.topics, offset,
-        currentUser.profile.messages, tagId)
-    }
+        tagId)
+    }).asScala.map(topicPrepareService.prepareListItem)
 
     yearMonth match {
       case Some((year, month)) =>
@@ -190,11 +190,11 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
 
     if (yearMonth.isEmpty && offset == 0 && !lastmod) {
-      val stickyTopics = groupListDao.getGroupStickyTopics(group, currentUser.profile.messages, tagId)
+      val stickyTopics = groupListDao.getGroupStickyTopics(group, tagId).asScala.map(topicPrepareService.prepareListItem)
 
-      params.put("topicsList", (stickyTopics.asScala.view ++ mainTopics.asScala).toSeq.asJava)
+      params.put("topicsList", (stickyTopics.view ++ mainTopics).toSeq.asJava)
     } else {
-      params.put("topicsList", mainTopics)
+      params.put("topicsList", mainTopics.asJava)
     }
 
     params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group)))
