@@ -20,7 +20,7 @@ import ru.org.linux.edithistory.EditInfoSummary
 import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{GroupDao, GroupPermissionService, PreparedTopicsListItem, TopicsListItem}
 import ru.org.linux.markup.MessageTextService
-import ru.org.linux.poll.{Poll, PollNotFoundException, PollPrepareService, PreparedPoll}
+import ru.org.linux.poll.{Poll, PollPrepareService, PreparedPoll}
 import ru.org.linux.reaction.ReactionService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
@@ -79,7 +79,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    */
   private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
                            text: MessageText, image: Option[Image], warnings: Seq[Warning] = Seq.empty)
-                          (implicit session: AnySession): PreparedTopic = try {
+                          (implicit session: AnySession): PreparedTopic = {
     val group = groupDao.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
     val section = sectionService.getSection(topic.sectionId)
@@ -147,9 +147,6 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull,
       reactionPrepareService.prepare(topic.reactions, ignoreList, session.userOpt, topic, None),
       warningService.prepareWarning(warnings).asJava)
-  } catch {
-    case e: PollNotFoundException =>
-      throw new RuntimeException(e)
   }
 
   /**
