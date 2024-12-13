@@ -23,7 +23,7 @@ import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import ru.org.linux.spring.SiteConfig
 
 import java.io.{PrintWriter, StringWriter}
-import java.util.concurrent.{Executors, ScheduledExecutorService}
+import java.util.concurrent.Executors
 
 @Configuration
 class ExceptionHandlingConfiguration extends StrictLogging {

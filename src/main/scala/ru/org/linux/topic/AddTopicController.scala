@@ -49,7 +49,7 @@ import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
+import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
 object AddTopicController {
