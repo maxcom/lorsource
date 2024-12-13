@@ -38,7 +38,7 @@ class AddRemoveBoxesController(profileDao: ProfileDao) {
     val result = new ModelMap
 
     val form = new EditBoxesRequest()
-    form.setPosition(pos)
+    form.position = pos
 
     result.addAttribute("form", form)
 
@@ -82,7 +82,7 @@ class AddRemoveBoxesController(profileDao: ProfileDao) {
       "add-box"
     } else {
       if (form.position == null) {
-        form.setPosition(0)
+        form.position = 0
       }
 
       val boxlets = currentUser.profile.getBoxlets.asScala.view.filter(DefaultProfile.isBox).to(ArrayBuffer)

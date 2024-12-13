@@ -131,7 +131,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     if (newTags.isDefined) {
       val oldTags = topicTagService.getTags(newMsg)
-      val modifiedTags: Boolean = topicTagService.updateTags(newMsg.getId, newTags.map(_.asJava).orNull)
+      val modifiedTags: Boolean = topicTagService.updateTags(newMsg.id, newTags.map(_.asJava).orNull)
 
       if (modifiedTags) {
         editHistoryRecord.setOldtags(TagService.tagsToString(oldTags))
