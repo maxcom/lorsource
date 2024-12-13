@@ -273,6 +273,6 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val deleted = item.isDeleted
 
     new PreparedTopicsListItem(author, msgid, lastmod, stat1, groupId, groupTitle, title, cid, lastCommentBy, resolved,
-      section, groupUrlName, postdate, uncommited, pages, tags, deleted, sticky, topicPostscore)
+      section, groupUrlName, postdate, uncommited, pages, tags.asJava, deleted, sticky, topicPostscore)
   }
 }

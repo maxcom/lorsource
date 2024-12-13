@@ -22,6 +22,7 @@ import ru.org.linux.user.User;
 
 import javax.annotation.Nullable;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class PreparedTopicsListItem {
   private final User author; // topic author
@@ -42,7 +43,7 @@ public class PreparedTopicsListItem {
   private final Timestamp postdate; // date of last comment or topic postdate if none
   private final boolean uncommited; // awaits for approve
   private final int pages; // number of pages
-  private final ImmutableList<String> tags;
+  private final List<String> tags;
   private final boolean deleted;
   private final boolean sticky;
   private final int topicPostscore;
@@ -52,7 +53,7 @@ public class PreparedTopicsListItem {
                                 int groupId, String groupTitle, String title,
                                 int cid, User lastCommentBy, boolean resolved,
                                 int section, String groupUrlName,
-                                Timestamp postdate, boolean uncommited, int pages, ImmutableList<String> tags, boolean deleted,
+                                Timestamp postdate, boolean uncommited, int pages, List<String> tags, boolean deleted,
                                 boolean sticky, int topicPostscore) {
     this.author = author;
     this.msgid = msgid;
@@ -163,7 +164,7 @@ public class PreparedTopicsListItem {
     return cid;
   }
 
-  public ImmutableList<String> getTags() {
+  public List<String> getTags() {
     return tags;
   }
 

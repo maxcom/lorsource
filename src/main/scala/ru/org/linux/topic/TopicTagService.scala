@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic
 
-import com.google.common.collect.ImmutableList
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
@@ -38,13 +37,13 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * @param tagList новый список тегов.
    * @return true если были произведены изменения
    */
-  def updateTags(msgId: Int, tagList: java.util.List[String]): Boolean = {
+  def updateTags(msgId: Int, tagList: Seq[String]): Boolean = {
     transactional() { _ =>
       logger.debug(s"Обновление списка тегов [${tagList.toString}] для топика msgId=$msgId")
 
       val oldTags = getTags(msgId)
 
-      val newTags = tagList.asScala.filterNot(oldTags.contains)
+      val newTags = tagList.filterNot(oldTags.contains)
 
       for (tag <- newTags) {
         val id = tagService.getOrCreateTag(tag)
@@ -87,10 +86,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
-  def getTagsForTitle(msgId:Int): ImmutableList[String] = {
-    val tags = topicTagDao.getTags(msgId).map(_.name).take(MaxTagsInTitle)
-    ImmutableList.copyOf(tags.asJava)
-  }
+  def getTagsForTitle(msgId: Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name).take(MaxTagsInTitle)
 }
 
 object TopicTagService {

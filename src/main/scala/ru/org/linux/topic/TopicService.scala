@@ -76,7 +76,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     val tags = TagName.parseAndSanitizeTags(form.getTags)
 
-    topicTagService.updateTags(msgid, tags.asJava)
+    topicTagService.updateTags(msgid, tags)
 
     val notified = if (!previewMsg.draft) {
       if (section.isPremoderated) {
@@ -129,9 +129,9 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     var modified = topicDao.updateMessage(editHistoryRecord, oldMsg, newMsg, user,newText.text, pollVariants.asJava, multiselect)
 
-    if (newTags.isDefined) {
+    newTags.foreach { newTags =>
       val oldTags = topicTagService.getTags(newMsg)
-      val modifiedTags: Boolean = topicTagService.updateTags(newMsg.id, newTags.map(_.asJava).orNull)
+      val modifiedTags: Boolean = topicTagService.updateTags(newMsg.id, newTags)
 
       if (modifiedTags) {
         editHistoryRecord.setOldtags(TagService.tagsToString(oldTags))
