@@ -53,8 +53,8 @@ import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
 object AddTopicController {
-  private val MAX_MESSAGE_LENGTH_ANONYMOUS = 8196
-  private val MAX_MESSAGE_LENGTH = 65536
+  private val MaxMessageLengthAnonymous = 8196
+  private val MaxMessageLength = 65536
 
   private def preparePollPreview(form: AddTopicRequest): Poll = {
     val variants = form.getPoll.filterNot(Strings.isNullOrEmpty).map(item => PollVariant(0, item))
@@ -146,38 +146,36 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   }
 
   private def processUploads(form: AddTopicRequest, errors: BindingResult)
-                            (postingUser: AnySession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
+                            (implicit postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
     val section = sectionService.getSection(form.getGroup.sectionId)
 
+    val additionalImagesNonNull = Option(form.getAdditionalImage).getOrElse(Array.empty)
+    val additionalImagesLimit = groupPermissionService.additionalImageLimit(section)
+
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
-      postingUser.opt.map { implicit user =>
-        if (groupPermissionService.isImagePostingAllowed(section) &&
-          groupPermissionService.isTopicPostingAllowed(form.getGroup)) {
-          val main = imageService.processUpload(Option(form.getUploadedImage), form.getImage, errors)
+      if (groupPermissionService.isImagePostingAllowed(section) &&
+        groupPermissionService.isTopicPostingAllowed(form.getGroup)) {
+        val main = imageService.processUpload(Option(form.getUploadedImage), form.getImage, errors)
 
-          val additionalImagesNonNull = Option(form.getAdditionalImage).getOrElse(Array.empty)
+        val additionalImagePreviews =
+          Option(form.getAdditionalUploadedImages)
+            .getOrElse(Array.empty)
+            .view
+            .zipAll(additionalImagesNonNull, null, null)
+            .take(additionalImagesLimit)
+            .flatMap { case (existing, upload) =>
+              imageService.processUpload(Option(existing), upload, errors)
+            }.toVector
 
-          val additionalImagePreviews =
-            Option(form.getAdditionalUploadedImages)
-              .getOrElse(Array.empty)
-              .view
-              .zipAll(additionalImagesNonNull, null, null)
-              .take(groupPermissionService.additionalImageLimit(section))
-              .flatMap { case (existing, upload) =>
-                imageService.processUpload(Option(existing), upload, errors)
-              }.toVector
+        (main, additionalImagePreviews)
+      } else {
+        (None, Seq.empty)
+      }
 
-          (main, additionalImagePreviews)
-        } else {
-          (None, Seq.empty)
-        }
-      }.getOrElse((None, Seq.empty))
+    form.setUploadedImage(imagePreview.map(_.mainFile.getName).orNull)
 
-    imagePreview.foreach { img =>
-      form.setUploadedImage(img.mainFile.getName)
-    }
-
-    form.setAdditionalUploadedImages(additionalImagePreviews.map(_.mainFile.getName).toArray)
+    form.setAdditionalUploadedImages((additionalImagePreviews.map(_.mainFile.getName) ++
+      Vector.fill(additionalImagesLimit - additionalImagePreviews.size)(null)).toArray)
 
     if (section.isImagepost && imagePreview.isEmpty) {
       errors.reject(null, "Изображение отсутствует")
@@ -214,16 +212,21 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), sessionUserOpt.profile.formatMode)
 
     if (!postingUser.authorized) {
-      if (message.text.length > AddTopicController.MAX_MESSAGE_LENGTH_ANONYMOUS) {
+      if (message.text.length > AddTopicController.MaxMessageLengthAnonymous) {
         errors.rejectValue("msg", null, "Слишком большое сообщение")
       }
     } else {
-      if (message.text.length > AddTopicController.MAX_MESSAGE_LENGTH) {
+      if (message.text.length > AddTopicController.MaxMessageLength) {
         errors.rejectValue("msg", null, "Слишком большое сообщение")
       }
     }
 
-    val (imagePreview, additionalImagePreviews) = processUploads(form, errors)(postingUser)
+    val (imagePreview, additionalImagePreviews) = postingUser.opt match {
+      case Some(authorized) =>
+        processUploads(form, errors)(authorized)
+      case None =>
+        (None, Seq.empty)
+    }
 
     val poll: Option[Poll] = if (section.isPollPostAllowed) {
       Some(AddTopicController.preparePollPreview(form))
