@@ -267,7 +267,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     if (!form.isPreviewMode && !errors.hasErrors) {
-      createNewTopic(request, form, group, params, section, user, message, imagePreview, previewMsg)
+      createNewTopic(request, form, group, params, section, user, message, imagePreview, additionalImagePreviews, previewMsg)
     } else {
       new ModelAndView("add", params.asJava)
     }
@@ -276,8 +276,9 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   private def createNewTopic(request: HttpServletRequest, form: AddTopicRequest, group: Group,
                              params: mutable.Map[String, AnyRef], section: Section, user: User, message: MessageText,
-                             scrn: Option[UploadedImagePreview], previewMsg: Topic) = {
-    val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, scrn, previewMsg)
+                             image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
+                             previewMsg: Topic) = {
+    val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, image, additionalImages, previewMsg)
 
     if (!previewMsg.draft) {
       searchQueueSender.updateMessageOnly(msgid)

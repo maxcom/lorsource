@@ -55,10 +55,11 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    val transactionManager: PlatformTransactionManager) extends TransactionManagement with StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
-                 imagePreview: Option[UploadedImagePreview], previewMsg: Topic): (Int, Set[Int]) = transactional() { _ =>
+                 image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
+                 previewMsg: Topic): (Int, Set[Int]) = transactional() { _ =>
     val section = sectionService.getSection(group.sectionId)
 
-    if (section.isImagepost && imagePreview.isEmpty) {
+    if (section.isImagepost && image.isEmpty) {
       throw new ScriptErrorException("scrn is empty?!")
     }
 
@@ -66,8 +67,12 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     msgbaseDao.saveNewMessage(message, msgid)
 
-    imagePreview.foreach { imagePreview =>
-      imageService.saveScreenshot(imagePreview, msgid)
+    image.foreach { imagePreview =>
+      imageService.saveImage(imagePreview, msgid, main = true)
+    }
+
+    additionalImages.foreach { imagePreview =>
+      imageService.saveImage(imagePreview, msgid, main = false)
     }
 
     if (section.isPollPostAllowed) {
@@ -190,7 +195,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
       imageDao.deleteImage(oldImage)
     }
 
-    val id = imageDao.saveImage(oldMsg.id, imagePreview.extension)
+    val id = imageDao.saveImage(oldMsg.id, imagePreview.extension, oldImage.main)
 
     val galleryPath = new File(siteConfig.getUploadPath + "/images")
 

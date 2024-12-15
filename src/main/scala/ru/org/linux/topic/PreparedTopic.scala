@@ -14,7 +14,6 @@
  */
 package ru.org.linux.topic
 
-import ru.org.linux.gallery.Image
 import ru.org.linux.group.Group
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.poll.PreparedPoll

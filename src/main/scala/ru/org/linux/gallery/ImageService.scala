@@ -185,8 +185,8 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  def saveScreenshot(imagePreview: UploadedImagePreview, msgid: Int): Unit = transactional() { _ =>
-    val id = imageDao.saveImage(msgid, imagePreview.extension)
+  def saveImage(imagePreview: UploadedImagePreview, msgid: Int, main: Boolean): Unit = transactional() { _ =>
+    val id = imageDao.saveImage(msgid, imagePreview.extension, main)
 
     imagePreview.moveTo(galleryPath, id.toString)
   }
