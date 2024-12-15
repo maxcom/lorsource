@@ -22,7 +22,6 @@ import org.springframework.stereotype.Repository
 import ru.org.linux.poll.Poll
 
 import java.sql.ResultSet
-import java.util
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
 
@@ -68,10 +67,10 @@ class EditHistoryDao(dataSource: DataSource) {
    * @param objectTypeEnum тип: топик или комментарий
    * @return список изменений топика
    */
-  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): util.List[EditHistoryRecord] = {
+  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): collection.Seq[EditHistoryRecord] = {
     jdbcTemplate.query("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC", (resultSet: ResultSet, _: Int) => {
       parseEditHistoryRecord(resultSet)
-    }, id, objectTypeEnum.toString)
+    }, id, objectTypeEnum.toString).asScala
   }
 
   def getEditRecord(msgid: Int, recordId: Int, objectTypeEnum: EditHistoryObjectTypeEnum): EditHistoryRecord = {
@@ -80,14 +79,14 @@ class EditHistoryDao(dataSource: DataSource) {
     }, msgid, objectTypeEnum.toString, recordId)
   }
 
-  def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): util.List[BriefEditInfo] = {
+  def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): collection.Seq[BriefEditInfo] = {
     jdbcTemplate.query("SELECT editdate, editor FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC",
       (rs: ResultSet, _: Int) =>
-        BriefEditInfo(rs.getTimestamp("editdate"), rs.getInt("editor")), id, objectTypeEnum.toString)
+        BriefEditInfo(rs.getTimestamp("editdate"), rs.getInt("editor")), id, objectTypeEnum.toString).asScala
   }
 
   def insert(record: EditHistoryRecord): Unit = {
-    editInsert.execute(Map(
+    editInsert.execute(Map[String, Any](
       "msgid" -> record.getMsgid,
       "editor" -> record.getEditor,
       "oldmessage" -> record.getOldmessage,

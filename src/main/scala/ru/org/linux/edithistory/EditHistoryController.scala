@@ -24,6 +24,8 @@ import ru.org.linux.group.{GroupDao, GroupPermissionService}
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
 
+import scala.jdk.CollectionConverters.SeqHasAsJava
+
 @Controller
 class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistoryService,
                             commentService: CommentReadService, topicPermissionService: TopicPermissionService,
@@ -48,7 +50,7 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
     val modelAndView = new ModelAndView("history")
 
     modelAndView.getModel.put("message", topic)
-    modelAndView.getModel.put("editHistories", editHistories)
+    modelAndView.getModel.put("editHistories", editHistories.asJava)
     modelAndView.getModel.put("canRestore", groupPermissionService.isEditable(preparedMessage))
 
     modelAndView
@@ -70,7 +72,7 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
     val modelAndView = new ModelAndView("history")
 
     modelAndView.getModel.put("message", topic)
-    modelAndView.getModel.put("editHistories", editHistories)
+    modelAndView.getModel.put("editHistories", editHistories.asJava)
     modelAndView.getModel.put("canRestore", false)
 
     modelAndView

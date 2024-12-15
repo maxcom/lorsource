@@ -43,7 +43,7 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsJava, SetHasAsScala}
+import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsJava}
 
 @Controller
 class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSender, topicService: TopicService,
@@ -115,9 +115,9 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)
 
-    if (!editInfoList.isEmpty) {
-      params.put("editInfo", editInfoList.get(0))
-      val editors = editHistoryService.getEditorUsers(message, editInfoList).asScala
+    if (editInfoList.nonEmpty) {
+      params.put("editInfo", editInfoList.head)
+      val editors = editHistoryService.getEditorUsers(message, editInfoList)
 
       params.put("editors", editors.asJava)
     }
@@ -137,8 +137,8 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)
 
-    if (!editInfoList.isEmpty) {
-      val editors = editHistoryService.getEditorUsers(message, editInfoList).asScala
+    if (editInfoList.nonEmpty) {
+      val editors = editHistoryService.getEditorUsers(message, editInfoList)
 
       form.setEditorBonus(editors.view.map(u => Integer.valueOf(u.getId) -> Integer.valueOf(0)).toMap.asJava)
     }
@@ -215,7 +215,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     val publish = request.getParameter("publish") != null
-    val editInfoList = editHistoryService.getEditInfo(topic.id, EditHistoryObjectTypeEnum.TOPIC).asScala
+    val editInfoList = editHistoryService.getEditInfo(topic.id, EditHistoryObjectTypeEnum.TOPIC)
 
     if (editInfoList.nonEmpty) {
       val editHistoryRecord = editInfoList.head
@@ -334,9 +334,9 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     if (form.getEditorBonus != null) {
-      val editors = editHistoryService.getEditors(topic, editInfoList.asJava)
+      val editors = editHistoryService.getEditors(topic, editInfoList)
 
-      form.getEditorBonus.asScala.keySet.filterNot(editors.contains).foreach { _ =>
+      form.getEditorBonus.asScala.keySet.map(_.toInt).diff(editors).foreach { _ =>
         errors.reject("editorBonus", "некорректный корректор?!")
       }
     }
