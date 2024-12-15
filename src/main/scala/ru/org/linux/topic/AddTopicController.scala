@@ -246,7 +246,8 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       }
     }
 
-    val preparedTopic = prepareService.prepareTopicPreview(previewMsg, tagNames.map(tagRef), poll, message, imagePreview)
+    val preparedTopic = prepareService.prepareTopicPreview(previewMsg, tagNames.map(tagRef), poll, message, imagePreview,
+      additionalImagePreviews)
 
     params.put("message", preparedTopic)
 

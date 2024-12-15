@@ -377,7 +377,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     params.put("newPreparedMessage",
       prepareService.prepareTopicPreview(newMsg, newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
-        newPoll, newText, imagePreview))
+        newPoll, newText, imagePreview, Seq.empty))
 
     new ModelAndView("edit", params.asJava)
   }

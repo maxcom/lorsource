@@ -106,6 +106,11 @@
                preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
   </c:if>
 
+  <c:forEach var="image" items="${preparedMessage.additionalImages}">
+    <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true"
+               preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
+  </c:forEach>
+
     <c:if test="${memoriesInfo!=null}">
       <div class="fav-buttons">
         <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span

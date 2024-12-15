@@ -62,15 +62,6 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  private def prepareException(image: Image): PartialFunction[Throwable, None.type] = {
-    case e: FileNotFoundException =>
-      logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")
-      None
-    case NonFatal(e) =>
-      logger.error(s"Bad image id=${image.id}", e)
-      None
-  }
-
   def prepareGalleryItem(item: GalleryItem): PreparedGalleryItem = {
     PreparedGalleryItem(item, userService.getUserCached(item.getUserid))
   }
@@ -89,9 +80,15 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
       val fullURI = siteConfig.getSecureUrl + image.original
 
       Some(new PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image))
-    } catch prepareException(image)
+    } catch {
+      case e: FileNotFoundException =>
+        logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")
+        None
+      case NonFatal(e) =>
+        logger.error(s"Bad image id=${image.id}", e)
+        None
+    }
   }
-
 
   // java api
   def prepareImageJava(image: Image): Optional[PreparedImage] = prepareImage(image).toJava

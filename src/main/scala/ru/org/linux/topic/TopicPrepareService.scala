@@ -44,18 +44,19 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           warningService: WarningService) {
   def prepareTopic(message: Topic)(implicit session: AnySession): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None,
-      msgbaseDao.getMessageText(message.id), None)
+      msgbaseDao.getMessageText(message.id), image = None)
 
   def prepareTopic(message: Topic, tags: collection.Seq[TagRef], text: MessageText,
                    warnings: Seq[Warning])(implicit session: AnySession): PreparedTopic =
-    prepareTopic(message, tags, minimizeCut = false, None, text, None, warnings)
+    prepareTopic(message, tags, minimizeCut = false, None, text, None, Seq.empty, warnings)
 
   def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
-                          imagePreview: Option[UploadedImagePreview]): PreparedTopic = {
-    val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true))
+                          image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview]): PreparedTopic = {
+    val imageObject = image.map(_.toImage(main = true))
+    val additionalImageObjects = additionalImages.map(_.toImage(main = false))
 
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
-      text, imageObject)(NonAuthorizedSession)
+      text, imageObject, additionalImageObjects)(NonAuthorizedSession)
   }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(implicit session: AnySession): PreparedEditInfoSummary = {
@@ -74,11 +75,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param tags        список тэгов
    * @param minimizeCut сворачивать ли cut
    * @param poll        опрос к топику
-   * @param currentUser        пользователь
    * @return подготовленный топик
    */
   private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
-                           text: MessageText, image: Option[Image], warnings: Seq[Warning] = Seq.empty)
+                           text: MessageText, image: Option[Image], additionalImages: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty)
                           (implicit session: AnySession): PreparedTopic = {
     val group = groupDao.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
@@ -121,6 +121,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       None
     }
 
+    val additionalPreparedImages = additionalImages.flatMap(imageService.prepareImage)
+
     val remark = session.userOpt.flatMap { user =>
       remarkDao.getRemark(user, author)
     }
@@ -146,7 +148,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
       TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull,
       reactionPrepareService.prepare(topic.reactions, ignoreList, session.userOpt, topic, None),
-      warningService.prepareWarning(warnings).asJava)
+      warningService.prepareWarning(warnings).asJava, additionalPreparedImages.asJava)
   }
 
   /**
@@ -165,7 +167,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     messages.map { message =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        textMap(message.id), None)
+        textMap(message.id), image = None)
 
       val topicMenu = getTopicMenu(preparedMessage, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
@@ -188,7 +190,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     messages.view.map { message =>
       prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, textMap(message.id),
-        None)(NonAuthorizedSession)
+        image = None)(NonAuthorizedSession)
     }.toSeq
   }
 
