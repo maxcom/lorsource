@@ -53,7 +53,7 @@ class MoreLikeThisService(
 ) extends StrictLogging {
   import ru.org.linux.search.MoreLikeThisService.*
 
-  type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
+  private type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
 
   private val cache = CacheBuilder
     .newBuilder()
@@ -102,9 +102,9 @@ class MoreLikeThisService(
 
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
-    search(MessageIndex) query {
+    search(MessageIndex).query {
       boolQuery().should(queries*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.id.toString))
-    } fetchSource true sourceInclude("title", "postdate", "section", "group")
+    }.fetchSource(true).sourceInclude("title", "postdate", "section", "group")
   }
 
   def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
@@ -165,9 +165,9 @@ class MoreLikeThisService(
 }
 
 object MoreLikeThisService {
-  val CacheSize = 10000
+  private val CacheSize = 10000
 
-  val StopWords: Seq[String] = {
+  private val StopWords: Seq[String] = {
     val stop = RussianAnalyzer.getDefaultStopSet.asScala.map(arr => new String(arr.asInstanceOf[Array[Char]]))
     val analyzedStream = new RussianAnalyzer(CharArraySet.EMPTY_SET).tokenStream(null, stop.mkString(" "))
 
