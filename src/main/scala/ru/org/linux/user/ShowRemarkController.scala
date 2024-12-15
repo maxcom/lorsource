@@ -53,7 +53,7 @@ class ShowRemarkController(remarkDao: RemarkDao, prepareService: PreparedRemarkS
 
       val remarks = remarkDao.getRemarkList(currentUser.user, offset, sortorder, limit)
 
-      val preparedRemarks = prepareService.prepareRemarkList(remarks)
+      val preparedRemarks = prepareService.prepareRemarks(remarks)
 
       mv.getModel.put("remarks", preparedRemarks)
     } else {

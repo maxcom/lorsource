@@ -12,7 +12,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.user
 
-package ru.org.linux.user;
+import org.springframework.stereotype.Service
 
-public record PreparedRemark(Remark remark, User refUser) {}
+@Service
+class PreparedRemarkService(private val userService: UserService) {
+  def prepareRemarks(list: Seq[Remark]): Seq[PreparedRemark] = {
+    list.map(remark => {
+      val refUser = userService.getUserCached(remark.getRefUserId)
+      new PreparedRemark(remark, refUser)
+    })
+  }
+}

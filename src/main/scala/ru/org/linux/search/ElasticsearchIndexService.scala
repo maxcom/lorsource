@@ -203,7 +203,7 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
         .map(StringEscapeUtils.unescapeHtml4)
 
     indexInto(MessageIndexType) id comment.id.toString fields (
-      Map("section" -> section.getUrlName,
+      Map[String, Any]("section" -> section.getUrlName,
         "topic_author" -> topicAuthor.getNick,
         "topic_id" -> topic.id,
         "author" -> author.getNick,

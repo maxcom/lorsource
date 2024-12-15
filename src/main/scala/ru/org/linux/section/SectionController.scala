@@ -35,7 +35,7 @@ class SectionController(sectionService: SectionService, groupDao: GroupDao) {
 
     val (other, tech) = allGroups.asScala.partition(g => NonTech.contains(g.id))
 
-    new ModelAndView("forum", Map(
+    new ModelAndView("forum", Map[String, Any](
       "section" -> section,
       "tech" -> tech.asJava,
       "other" -> other.asJava

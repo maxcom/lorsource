@@ -118,7 +118,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
-      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, session.userOpt, topic, Some(comment)),
+      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList,topic, Some(comment)),
       warningsAllowed = warningsAllowed, warnings = preparedWarnings)
   }
 

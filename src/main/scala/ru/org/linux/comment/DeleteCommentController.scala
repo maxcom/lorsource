@@ -155,7 +155,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       logger.info("Comment deleted by moderator {}: {}; {}",
         currentUser.user.getNick, message, bigMessage.map(_._2).getOrElse("<none>"))
 
-      new ModelAndView("comment-deleted-by-moderator", (Map(
+      new ModelAndView("comment-deleted-by-moderator", (Map[String, Any](
         "message" -> message,
         "link" -> nextLink,
         "author" -> author,

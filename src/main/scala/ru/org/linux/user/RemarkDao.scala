@@ -102,7 +102,7 @@ class RemarkDao(ds: DataSource) {
    * Получить комментарии пользователя user
    * @param user logged user
    */
-  def getRemarkList(user: User, offset: Int, sortorder: Int, limit: Int): java.util.List[Remark] = {
+  def getRemarkList(user: User, offset: Int, sortorder: Int, limit: Int): Seq[Remark] = {
     val qs = if (sortorder == 1) {
       "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=? ORDER BY remark_text ASC LIMIT ? OFFSET ?"
     } else {
@@ -111,6 +111,6 @@ class RemarkDao(ds: DataSource) {
 
     jdbcTemplate.queryAndMap(qs, user.getId, limit, offset) { (rs, _) =>
       new Remark(rs)
-    }.asJava
+    }
   }
 }
