@@ -33,10 +33,8 @@ import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 import java.io.{File, FileNotFoundException, IOException}
 import java.nio.file.Files
 import java.time.{Duration, Instant}
-import java.util.Optional
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOption
 import scala.util.control.NonFatal
 
 @Service
@@ -90,9 +88,6 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  // java api
-  def prepareImageJava(image: Image): Optional[PreparedImage] = prepareImage(image).toJava
-
   def prepareGalleryItem(items: java.util.List[GalleryItem]): java.util.List[PreparedGalleryItem] =
     items.asScala.map(prepareGalleryItem).asJava
 
@@ -100,7 +95,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems).asJava
 
-  def imageForTopic(topic: Topic): Optional[Image] = Option(imageDao.imageForTopic(topic)).toJava
+  def allImagesForTopic(topic: Topic): Seq[Image] = imageDao.allImagesForTopic(topic)
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])

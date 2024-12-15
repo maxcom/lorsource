@@ -103,10 +103,15 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
   }
 
   @Nullable
-  def imageForTopic(topic: Topic): Image =
+  def imageForTopic(topic: Topic): Option[Image] =
     jdbcTemplate.queryAndMap(
         "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted AND main", topic.id
-    )(ImageDao.imageRowMapper).headOption.orNull
+    )(ImageDao.imageRowMapper).headOption
+
+  def allImagesForTopic(topic: Topic): Seq[Image] =
+    jdbcTemplate.queryAndMap(
+      "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted", topic.id
+    )(ImageDao.imageRowMapper)
 
   def getImage(id: Int): Image =
     jdbcTemplate.queryAndMap(

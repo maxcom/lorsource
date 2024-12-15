@@ -107,21 +107,26 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val url = s"${siteConfig.getSecureUrlWithoutSlash}${topic.getLink}"
     val processedMessage = textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(topic, author), url)
 
-    val preparedImage = if (section.isImagepost || section.isImageAllowed) {
-      val loadedImage = image.orElse {
-        if (topic.id != 0) {
-          imageService.imageForTopic(topic).toScala
-        } else {
-          None
-        }
+    val (preparedImage, additionalPreparedImages) = if (section.isImagepost || section.isImageAllowed) {
+      val images = if (topic.id!=0 && image.isEmpty && additionalImages.isEmpty) {
+        imageService.allImagesForTopic(topic)
+      } else {
+        Seq.empty
       }
 
-      loadedImage.flatMap(imageService.prepareImage)
+      val loadedImage = image.orElse(images.find(_.main))
+
+      val loadedAdditionalImage = if (additionalImages.isEmpty) {
+        images.filterNot(_.main)
+      } else {
+        additionalImages
+      }
+
+      (loadedImage.flatMap(imageService.prepareImage), loadedAdditionalImage.flatMap(imageService.prepareImage))
     } else {
-      None
+      (None, Seq.empty)
     }
 
-    val additionalPreparedImages = additionalImages.flatMap(imageService.prepareImage)
 
     val remark = session.userOpt.flatMap { user =>
       remarkDao.getRemark(user, author)

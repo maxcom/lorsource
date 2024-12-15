@@ -191,18 +191,18 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   private def replaceImage(oldMsg: Topic, imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord): Unit = {
     val oldImage = imageDao.imageForTopic(oldMsg)
 
-    if (oldImage != null) {
+    oldImage.foreach { oldImage =>
       imageDao.deleteImage(oldImage)
     }
 
-    val id = imageDao.saveImage(oldMsg.id, imagePreview.extension, oldImage.main)
+    val id = imageDao.saveImage(oldMsg.id, imagePreview.extension, main = true)
 
     val galleryPath = new File(siteConfig.getUploadPath + "/images")
 
     imagePreview.moveTo(galleryPath, Integer.toString(id))
 
-    if (oldImage != null) {
-      editHistoryRecord.setOldimage(oldImage.id)
+    if (oldImage.isDefined) {
+      editHistoryRecord.setOldimage(oldImage.get.id)
     } else {
       editHistoryRecord.setOldimage(0)
     }

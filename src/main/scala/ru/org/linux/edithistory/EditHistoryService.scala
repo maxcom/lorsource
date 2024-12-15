@@ -47,11 +47,7 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
     var currentMinor = topic.minor
     val maybeImage = imageDao.imageForTopic(topic)
 
-    var currentImage = if (maybeImage != null) {
-      imageService.prepareImageJava(maybeImage).orElse(null)
-    } else {
-      null
-    }
+    var currentImage = maybeImage.flatMap(imageService.prepareImage).orNull
 
     var lastId: Integer = null
 
@@ -87,7 +83,7 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
         if (dto.getOldimage == 0) {
           currentImage = null
         } else {
-          currentImage = imageService.prepareImageJava(imageDao.getImage(dto.getOldimage)).orElse(null)
+          currentImage = imageService.prepareImage(imageDao.getImage(dto.getOldimage)).orNull
         }
       }
 
@@ -190,7 +186,7 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
       }
     }
 
-    if (!editInfoDTOs.isEmpty) {
+    if (editInfoDTOs.nonEmpty) {
       editHistories.addOne(new PreparedEditHistory(
         textService,
         userService.getUserCached(comment.userid),
