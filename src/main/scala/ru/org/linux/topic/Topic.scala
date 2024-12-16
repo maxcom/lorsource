@@ -115,15 +115,15 @@ object Topic {
   }
 
   def fromAddRequest(form: AddTopicRequest, user: User, postIP: String): Topic = {
-    val group = form.getGroup
+    val group = form.group
 
     Topic(
       userAgentId = 0,
       postIP = postIP,
-      groupId = form.getGroup.id,
-      linktext =  if (form.getLinktext != null) StringUtil.escapeHtml(form.getLinktext) else null,
-      url = if (!Strings.isNullOrEmpty(form.getUrl)) URLUtil.fixURL(form.getUrl) else null,
-      title = if (form.getTitle!=null) StringUtil.escapeHtml(form.getTitle) else "",
+      groupId = form.group.id,
+      linktext =  if (form.linktext != null) StringUtil.escapeHtml(form.linktext) else null,
+      url = if (!Strings.isNullOrEmpty(form.url)) URLUtil.fixURL(form.url) else null,
+      title = if (form.title!=null) StringUtil.escapeHtml(form.title) else "",
       sectionId = group.sectionId,
       // Defaults
       id = 0,
@@ -143,15 +143,15 @@ object Topic {
       resolved = false,
       minor = false,
       draft = form.isDraftMode,
-      allowAnonymous = form.isAllowAnonymous,
+      allowAnonymous = form.allowAnonymous,
       reactions = Reactions.empty)
   }
 
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
     val sectionId = group.sectionId
 
-    val minor: Boolean = if (form.getMinor != null && (sectionId == SECTION_NEWS || sectionId == SECTION_ARTICLES)) {
-      form.getMinor
+    val minor: Boolean = if (sectionId == SECTION_NEWS || sectionId == SECTION_ARTICLES) {
+      form.minor
     } else {
       original.minor
     }
@@ -160,9 +160,9 @@ object Topic {
       userAgentId = original.userAgentId,
       postIP = original.postIP,
       groupId = original.groupId,
-      linktext = if (form.getLinktext != null && group.linksAllowed) form.getLinktext else original.linktext,
-      url = if (form.getUrl != null && group.linksAllowed) URLUtil.fixURL(form.getUrl) else original.url,
-      title = if (form.getTitle != null) StringUtil.escapeHtml(form.getTitle) else original.title,
+      linktext = if (form.linktext != null && group.linksAllowed) form.linktext else original.linktext,
+      url = if (form.url != null && group.linksAllowed) URLUtil.fixURL(form.url) else original.url,
+      title = if (form.title != null) StringUtil.escapeHtml(form.title) else original.title,
       resolved = original.resolved,
       sectionId = sectionId,
       id = original.id,

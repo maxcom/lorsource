@@ -57,9 +57,9 @@ object AddTopicController {
   private val MaxMessageLength = 65536
 
   private def preparePollPreview(form: AddTopicRequest): Poll = {
-    val variants = form.getPoll.filterNot(Strings.isNullOrEmpty).map(item => PollVariant(0, item))
+    val variants = form.poll.filterNot(Strings.isNullOrEmpty).map(item => PollVariant(0, item))
 
-    Poll(0, 0, form.isMultiSelect, variants.toVector)
+    Poll(0, 0, form.multiSelect, variants.toVector)
   }
 
   def getAddUrl(section: Section, tag: String): String = {
@@ -98,7 +98,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
-    val group = form.getGroup
+    val group = form.group
 
     if (currentUser.authorized && !permissionService.isTopicPostingAllowed(group)) {
       val errorView = new ModelAndView("errors/good-penguin")
@@ -108,11 +108,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
       errorView
     } else {
-      val section = sectionService.getSection(form.getGroup.sectionId)
+      val section = sectionService.getSection(form.group.sectionId)
 
       form.setAdditionalUploadedImages(new Array[String](permissionService.additionalImageLimit(section)))
 
-      val params = prepareModel(Some(form.getGroup), section)
+      val params = prepareModel(Some(form.group), section)
 
       new ModelAndView("add", params.asJava)
     }
@@ -144,18 +144,18 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   private def processUploads(form: AddTopicRequest, errors: BindingResult)
                             (implicit postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
-    val section = sectionService.getSection(form.getGroup.sectionId)
+    val section = sectionService.getSection(form.group.sectionId)
 
-    val additionalImagesNonNull = Option(form.getAdditionalImage).getOrElse(Array.empty)
+    val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty)
     val additionalImagesLimit = permissionService.additionalImageLimit(section)
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
       if (permissionService.isImagePostingAllowed(section) &&
-        permissionService.isTopicPostingAllowed(form.getGroup)) {
-        val main = imageService.processUpload(Option(form.getUploadedImage), form.getImage, errors)
+        permissionService.isTopicPostingAllowed(form.group)) {
+        val main = imageService.processUpload(Option(form.uploadedImage), form.image, errors)
 
         val additionalImagePreviews =
-          Option(form.getAdditionalUploadedImages)
+          Option(form.additionalUploadedImages)
             .getOrElse(Array.empty)
             .view
             .zipAll(additionalImagesNonNull, null, null)
@@ -186,12 +186,12 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest, errors: BindingResult,
             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = MaybeAuthorized { sessionUserOpt =>
     // не используем implicit, так как есть sessionUser и postingUser
-    val group = form.getGroup
+    val group = form.group
     val section = sectionService.getSection(group.sectionId)
 
     val params = prepareModel(Some(group), section)(sessionUserOpt).to(mutable.HashMap)
 
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.getNick), Option(form.getPassword), errors)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
     user.checkFrozen(errors)
@@ -206,7 +206,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       form.setAllowAnonymous(true)
     }
 
-    val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), sessionUserOpt.profile.formatMode)
+    val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.msg), sessionUserOpt.profile.formatMode)
 
     if (!postingUser.authorized) {
       if (message.text.length > AddTopicController.MaxMessageLengthAnonymous) {
@@ -233,7 +233,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val previewMsg: Topic = Topic.fromAddRequest(form, user, request.getRemoteAddr)
 
-    val tagNames = TagName.parseAndSanitizeTags(form.getTags)
+    val tagNames = TagName.parseAndSanitizeTags(form.tags)
 
     if (!permissionService.canCreateTag(section)(postingUser)) {
       val newTags = tagService.getNewTags(tagNames)

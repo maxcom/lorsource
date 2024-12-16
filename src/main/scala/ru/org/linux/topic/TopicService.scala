@@ -76,10 +76,10 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
 
     if (section.isPollPostAllowed) {
-      pollDao.createPoll(form.getPoll.toSeq.asJava, form.isMultiSelect, msgid)
+      pollDao.createPoll(form.poll.toSeq.asJava, form.multiSelect, msgid)
     }
 
-    val tags = TagName.parseAndSanitizeTags(form.getTags)
+    val tags = TagName.parseAndSanitizeTags(form.tags)
 
     topicTagService.updateTags(msgid, tags)
 

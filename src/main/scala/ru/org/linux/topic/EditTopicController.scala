@@ -152,8 +152,8 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val messageText = msgbaseDao.getMessageText(message.id)
 
-    if (form.getFromHistory != null) {
-      form.setMsg(editHistoryService.getEditHistoryRecord(message, form.getFromHistory).getOldmessage)
+    if (form.fromHistory != null) {
+      form.setMsg(editHistoryService.getEditHistoryRecord(message, form.fromHistory).getOldmessage)
     } else {
       form.setMsg(messageText.text)
     }
@@ -253,8 +253,8 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val oldText = msgbaseDao.getMessageText(topic.id)
 
-    if (form.getMsg != null) {
-      if (!(oldText.text == form.getMsg)) {
+    if (form.msg != null) {
+      if (!(oldText.text == form.msg)) {
         modified = true
       }
     }
@@ -280,7 +280,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val imagePreview: Option[UploadedImagePreview] =
       if (permissionService.isImagePostingAllowed(preparedTopic.section) &&
           permissionService.isTopicPostingAllowed(group)) {
-        imageService.processUpload(Option(form.getUploadedImage), form.getImage, errors)
+        imageService.processUpload(Option(form.uploadedImage), form.image, errors)
     } else {
       None
     }
@@ -294,14 +294,14 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       throw new AccessViolationException("нельзя править это сообщение, только теги")
     }
 
-    if (form.getMinor != null && !permissionService.canCommit(topic)) {
+    if (form.minor != topic.minor && !permissionService.canCommit(topic)) {
       throw new AccessViolationException("вы не можете менять статус новости")
     }
 
     var newTags: Option[Seq[String]] = None
 
-    if (form.getTags != null) {
-      newTags = Some(TagName.parseAndSanitizeTags(form.getTags)).filter(_.nonEmpty)
+    if (form.tags != null) {
+      newTags = Some(TagName.parseAndSanitizeTags(form.tags)).filter(_.nonEmpty)
 
       newTags.foreach { newTags =>
         if (!permissionService.canCreateTag(preparedTopic.section)) {
@@ -323,22 +323,22 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
     }
 
-    val newPoll: Option[Poll] = if (preparedTopic.section.isPollPostAllowed && form.getPoll != null) {
+    val newPoll: Option[Poll] = if (preparedTopic.section.isPollPostAllowed && form.poll != null) {
       Some(buildNewPoll(topic, form))
     } else {
       None
     }
 
-    val newText: MessageText = if (form.getMsg != null) {
-      MessageText.apply(form.getMsg, oldText.markup)
+    val newText: MessageText = if (form.msg != null) {
+      MessageText.apply(form.msg, oldText.markup)
     } else {
       oldText
     }
 
-    if (form.getEditorBonus != null) {
+    if (form.editorBonus != null) {
       val editors = editHistoryService.getEditors(topic, editInfoList)
 
-      form.getEditorBonus.asScala.keySet.map(_.toInt).diff(editors).foreach { _ =>
+      form.editorBonus.asScala.keySet.map(_.toInt).diff(editors).foreach { _ =>
         errors.reject("editorBonus", "некорректный корректор?!")
       }
     }
@@ -348,14 +348,14 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     if (!preview && !errors.hasErrors) {
-      val editorBonus = if (form.getEditorBonus!=null) {
-        form.getEditorBonus.asScala.view.map(p => p._1.toInt -> p._2.toInt).toMap
+      val editorBonus = if (form.editorBonus!=null) {
+        form.editorBonus.asScala.view.map(p => p._1.toInt -> p._2.toInt).toMap
       } else {
         Map.empty[Int, Int]
       }
 
       val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
-        Option[Integer](changeGroupId).map(_.toInt), form.getBonus, newPoll.map(_.variants).orNull, form.isMultiselect,
+        Option[Integer](changeGroupId).map(_.toInt), form.bonus, newPoll.map(_.variants).orNull, form.multiselect,
         editorBonus, imagePreview)
 
       if (changed || commit || publish) {
@@ -388,7 +388,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val poll = pollDao.getPollByTopicId(message.id)
 
     val changed = poll.variants.flatMap { v =>
-      val label = form.getPoll.get(v.id)
+      val label = form.poll.get(v.id)
 
       if (!Strings.isNullOrEmpty(label)) {
         Some(PollVariant(v.id, label))
@@ -397,7 +397,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
     }
 
-    val added = form.getNewPoll.flatMap { label =>
+    val added = form.newPoll.flatMap { label =>
       if (!Strings.isNullOrEmpty(label)) {
         Some(PollVariant(0, label))
       } else {
