@@ -4,7 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -101,22 +101,35 @@
       </c:if>
       <input id="image" type="file" name="image">
     </div>
+
+    <c:if test="${not empty form.additionalUploadedImages}">
+      <div class="control-group">
+        <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
+          <form:hidden path="additionalUploadedImages[${i.index}]"/>
+          <c:if test="${v == null}">
+            <label>Дополнительное изображение #${i.index}:
+          </c:if>
+          <c:if test="${v != null}">
+            <label>Заменить изображение #${i.index}:
+          </c:if>
+          <input type="file" name="additionalImage" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+          </label>
+        </c:forEach>
+      </div>
+    </c:if>
   </c:if>
 
+  <c:if test="${group.pollPostAllowed}">
+    <c:forEach var="v" items="${form.poll}" varStatus="i">
+      <label>Вариант #${i.index}: <form:input path="poll[${v.key}]" size="40"/></label><br>
+    </c:forEach>
 
-    <c:if test="${group.pollPostAllowed}">
-      <c:forEach var="v" items="${form.poll}" varStatus="i">
-            <label>Вариант #${i.index}:
-                <form:input path="poll[${v.key}]" size="40"/></label><br>
-      </c:forEach>
+    <c:forEach var="v" items="${form.newPoll}" varStatus="i">
+      <label>Новый #${i.index}: <form:input path="newPoll[${i.index}]" size="40"/></label><br>
+    </c:forEach>
 
-      <c:forEach var="v" items="${form.newPoll}" varStatus="i">
-            <label>Новый #${i.index}:
-                <form:input path="newPoll[${i.index}]" size="40"/></label><br>
-      </c:forEach>
-
-      <label>Мультивыбор: <form:checkbox path="multiselect" size="40"/></label>
-      <br>
+    <label>Мультивыбор: <form:checkbox path="multiselect" size="40"/></label>
+    <br>
   </c:if>
 
   <label>Разметка:*<br>

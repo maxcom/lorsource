@@ -27,14 +27,13 @@ import ru.org.linux.topic.*
 @RequestMapping(Array("/delete_image"))
 class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topicDao: TopicDao,
                             prepareService: TopicPrepareService, permissionService: GroupPermissionService) {
-  @throws[AccessViolationException]
-  private def checkDelete(topic: PreparedTopic)(implicit user: AuthorizedSession): Unit = {
+  private def checkDelete(topic: PreparedTopic, image: Image)(implicit user: AuthorizedSession): Unit = {
     if (!permissionService.isEditable(topic)) {
       throw new AccessViolationException("Вы не можете редактировать эту тему")
     }
 
-    if (topic.section.isImagepost) {
-      throw new AccessViolationException("В этой теме нельзя удалять изображения")
+    if (topic.section.isImagepost && image.main) {
+      throw new AccessViolationException("Нельзя удалить основное изображение")
     }
   }
 
@@ -45,7 +44,7 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
 
     val preparedTopic = prepareService.prepareTopic(topic)
 
-    checkDelete(preparedTopic)
+    checkDelete(preparedTopic, image)
 
     val mv = new ModelAndView("delete_image")
 
@@ -62,7 +61,7 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
 
     val preparedTopic = prepareService.prepareTopic(topic)
 
-    checkDelete(preparedTopic)
+    checkDelete(preparedTopic, image)
 
     imageService.deleteImage(image)
 

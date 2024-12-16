@@ -23,7 +23,6 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
@@ -132,7 +131,8 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params
   }
 
-  private def initForm(preparedTopic: PreparedTopic, form: EditTopicRequest): Unit = {
+  private def initForm(preparedTopic: PreparedTopic, form: EditTopicRequest)
+                      (implicit session: AuthorizedSession): Unit = {
     val message = preparedTopic.message
 
     val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)
@@ -172,6 +172,9 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       form.setPoll(PollVariant.toMap(poll.getVariants))
       form.setMultiselect(poll.multiSelect)
     }
+
+    form.setAdditionalUploadedImages(new Array[String](Math.max(0, permissionService.additionalImageLimit(preparedTopic.section) -
+      preparedTopic.additionalImages.size())))
   }
 
   @ModelAttribute("ipBlockInfo")
@@ -183,8 +186,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
            @RequestParam(value = "lastEdit", required = false) lastEdit: String,
            @RequestParam(value = "chgrp", required = false) changeGroupId: Integer,
            @Valid @ModelAttribute("form") form: EditTopicRequest, errors: Errors,
-           @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo,
-           @RequestParam(required = false, name = "image") image: MultipartFile): ModelAndView = AuthorizedOnly { implicit currentUser =>
+           @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = messageDao.getById(msgid)
     val preparedTopic = prepareService.prepareTopic(topic)
 
@@ -278,7 +280,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val imagePreview: Option[UploadedImagePreview] =
       if (permissionService.isImagePostingAllowed(preparedTopic.section) &&
           permissionService.isTopicPostingAllowed(group)) {
-        imageService.processUpload(Option(form.getUploadedImage), image, errors)
+        imageService.processUpload(Option(form.getUploadedImage), form.getImage, errors)
     } else {
       None
     }

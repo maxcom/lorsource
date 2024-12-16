@@ -88,9 +88,8 @@ object AddTopicController {
 @Controller
 class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaService, sectionService: SectionService,
                          tagService: TagService, userService: UserService, prepareService: TopicPrepareService,
-                         groupPermissionService: GroupPermissionService,
-                         addTopicRequestValidator: AddTopicRequestValidator, imageService: ImageService,
-                         topicService: TopicService,
+                         permissionService: GroupPermissionService, addTopicRequestValidator: AddTopicRequestValidator,
+                         imageService: ImageService, topicService: TopicService,
                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                          renderService: MarkdownFormatter, groupDao: GroupDao, dupeProtector: FloodProtector,
                          ipBlockDao: IPBlockDao, servletContext: ServletContext) {
@@ -101,19 +100,17 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val group = form.getGroup
 
-    if (currentUser.authorized && !groupPermissionService.isTopicPostingAllowed(group)) {
+    if (currentUser.authorized && !permissionService.isTopicPostingAllowed(group)) {
       val errorView = new ModelAndView("errors/good-penguin")
 
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу")
-      errorView.addObject("msgMessage", groupPermissionService.getPostScoreInfo(group))
+      errorView.addObject("msgMessage", permissionService.getPostScoreInfo(group))
 
       errorView
     } else {
       val section = sectionService.getSection(form.getGroup.sectionId)
 
-      if (form.getAdditionalUploadedImages.isEmpty) {
-        form.setAdditionalUploadedImages(new Array[String](groupPermissionService.additionalImageLimit(section)))
-      }
+      form.setAdditionalUploadedImages(new Array[String](permissionService.additionalImageLimit(section)))
 
       val params = prepareModel(Some(form.getGroup), section)
 
@@ -137,9 +134,9 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     group.foreach { group =>
       params.addOne("group" -> group)
-      params.addOne("postscoreInfo" -> groupPermissionService.getPostScoreInfo(group))
-      params.addOne("showAllowAnonymous" -> Boolean.box(groupPermissionService.enableAllowAnonymousCheckbox(group)))
-      params.addOne("imagepost" -> Boolean.box(groupPermissionService.isImagePostingAllowed(section)))
+      params.addOne("postscoreInfo" -> permissionService.getPostScoreInfo(group))
+      params.addOne("showAllowAnonymous" -> Boolean.box(permissionService.enableAllowAnonymousCheckbox(group)))
+      params.addOne("imagepost" -> Boolean.box(permissionService.isImagePostingAllowed(section)))
     }
 
     params.result()
@@ -150,11 +147,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val section = sectionService.getSection(form.getGroup.sectionId)
 
     val additionalImagesNonNull = Option(form.getAdditionalImage).getOrElse(Array.empty)
-    val additionalImagesLimit = groupPermissionService.additionalImageLimit(section)
+    val additionalImagesLimit = permissionService.additionalImageLimit(section)
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
-      if (groupPermissionService.isImagePostingAllowed(section) &&
-        groupPermissionService.isTopicPostingAllowed(form.getGroup)) {
+      if (permissionService.isImagePostingAllowed(section) &&
+        permissionService.isTopicPostingAllowed(form.getGroup)) {
         val main = imageService.processUpload(Option(form.getUploadedImage), form.getImage, errors)
 
         val additionalImagePreviews =
@@ -201,11 +198,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
-    if (!groupPermissionService.isTopicPostingAllowed(group)(postingUser)) {
+    if (!permissionService.isTopicPostingAllowed(group)(postingUser)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
     }
 
-    if (!groupPermissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
+    if (!permissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
       form.setAllowAnonymous(true)
     }
 
@@ -238,7 +235,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val tagNames = TagName.parseAndSanitizeTags(form.getTags)
 
-    if (!groupPermissionService.canCreateTag(section)(postingUser)) {
+    if (!permissionService.canCreateTag(section)(postingUser)) {
       val newTags = tagService.getNewTags(tagNames)
 
       if (newTags.nonEmpty) {

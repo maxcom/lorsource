@@ -103,7 +103,8 @@
   <div class="msg_body">
   <c:if test="${preparedMessage.image != null}">
     <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
-               preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
+               preparedMessage="${preparedMessage}" showImage="true"
+               enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
   </c:if>
 
   <c:forEach var="image" items="${preparedMessage.additionalImages}">

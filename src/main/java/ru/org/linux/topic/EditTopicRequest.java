@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,6 +14,8 @@
  */
 
 package ru.org.linux.topic;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -33,7 +35,11 @@ public class EditTopicRequest {
 
   private Integer fromHistory;
 
+  private MultipartFile image;
   private String uploadedImage;
+
+  private String[] additionalUploadedImages = new String[] {};
+  private MultipartFile[] additionalImage;
 
   public String getUrl() {
     return url;
@@ -137,5 +143,29 @@ public class EditTopicRequest {
 
   public void setUploadedImage(String uploadedImage) {
     this.uploadedImage = uploadedImage;
+  }
+
+  public MultipartFile getImage() {
+    return image;
+  }
+
+  public void setImage(MultipartFile image) {
+    this.image = image;
+  }
+
+  public String[] getAdditionalUploadedImages() {
+    return additionalUploadedImages;
+  }
+
+  public void setAdditionalUploadedImages(String[] additionalUploadedImages) {
+    this.additionalUploadedImages = additionalUploadedImages;
+  }
+
+  public MultipartFile[] getAdditionalImage() {
+    return additionalImage;
+  }
+
+  public void setAdditionalImage(MultipartFile[] additionalImage) {
+    this.additionalImage = additionalImage;
   }
 }
