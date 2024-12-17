@@ -21,7 +21,8 @@ class PreparedRemarkService(private val userService: UserService) {
   def prepareRemarks(list: Seq[Remark]): Seq[PreparedRemark] = {
     list.map(remark => {
       val refUser = userService.getUserCached(remark.getRefUserId)
-      new PreparedRemark(remark, refUser)
+
+      PreparedRemark(remark, refUser)
     })
   }
 }

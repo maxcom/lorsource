@@ -12,7 +12,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.user
 
-package ru.org.linux.user;
+import scala.beans.BeanProperty
 
-public record PreparedRemark(Remark remark, User refUser) {}
+case class PreparedRemark(@BeanProperty remark: Remark, @BeanProperty refUser: User)
