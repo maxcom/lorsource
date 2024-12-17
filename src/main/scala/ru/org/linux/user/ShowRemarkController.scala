@@ -55,7 +55,7 @@ class ShowRemarkController(remarkDao: RemarkDao, prepareService: PreparedRemarkS
 
       val preparedRemarks = prepareService.prepareRemarks(remarks)
 
-      mv.getModel.put("remarks", preparedRemarks)
+      mv.getModel.put("remarks", preparedRemarks.asJava)
     } else {
       mv.getModel.put("remarks", Seq.empty.asJava)
     }
