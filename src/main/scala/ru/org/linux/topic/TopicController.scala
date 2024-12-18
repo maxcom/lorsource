@@ -205,10 +205,6 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("message", topic)
     params.put("preparedMessage", preparedMessage)
 
-    if (topic.expired) {
-      response.setDateHeader("Expires", System.currentTimeMillis + 30 * 24 * 60 * 60 * 1000L)
-    }
-
     params.put("ogDescription", MessageTextService.trimPlainText(plainText, 250, encodeHtml = true))
     params.put("page", Integer.valueOf(page))
     params.put("group", group)
