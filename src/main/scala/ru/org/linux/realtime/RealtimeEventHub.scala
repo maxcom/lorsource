@@ -37,6 +37,7 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.IgnoreListDao
 
 import java.io.IOException
+import java.nio.channels.ClosedChannelException
 import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration.*
@@ -204,7 +205,12 @@ object RealtimeSessionActor {
             Behaviors.stopped
         }.receiveSignal {
           case (_, PostStop) =>
-            session.close()
+            try {
+              session.close()
+            } catch {
+              case _: ClosedChannelException =>
+            }
+
             Behaviors.same
         }
       }

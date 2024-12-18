@@ -68,8 +68,8 @@ class MoreLikeThisService(
     resetTimeout = 1.minute
   )
 
-  breaker.onOpen { logger.warn("Similar topics circuit breaker is open, lookup disabled") }
-  breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
+  breaker.onOpen { logger.warn("Similar topics lookup disabled") }
+  breaker.onClose { logger.warn("Similar topics lookup enabled") }
 
   def searchSimilar(topic: Topic, tags: collection.Seq[TagRef]): Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.id))
