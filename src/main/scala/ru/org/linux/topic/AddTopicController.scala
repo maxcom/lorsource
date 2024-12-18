@@ -30,7 +30,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
-import ru.org.linux.gallery.{ImageService, UploadedImagePreview}
+import ru.org.linux.gallery.UploadedImagePreview
 import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{Poll, PollVariant}
@@ -89,7 +89,7 @@ object AddTopicController {
 class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaService, sectionService: SectionService,
                          tagService: TagService, userService: UserService, prepareService: TopicPrepareService,
                          permissionService: GroupPermissionService, addTopicRequestValidator: AddTopicRequestValidator,
-                         imageService: ImageService, topicService: TopicService,
+                         topicService: TopicService,
                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                          renderService: MarkdownFormatter, groupDao: GroupDao, dupeProtector: FloodProtector,
                          ipBlockDao: IPBlockDao, servletContext: ServletContext) {
@@ -142,45 +142,6 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     params.result()
   }
 
-  private def processUploads(form: AddTopicRequest, errors: BindingResult)
-                            (implicit postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
-    val section = sectionService.getSection(form.group.sectionId)
-
-    val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty)
-    val additionalImagesLimit = permissionService.additionalImageLimit(section)
-
-    val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
-      if (permissionService.isImagePostingAllowed(section) &&
-        permissionService.isTopicPostingAllowed(form.group)) {
-        val main = imageService.processUpload(Option(form.uploadedImage), form.image, errors)
-
-        val additionalImagePreviews =
-          Option(form.additionalUploadedImages)
-            .getOrElse(Array.empty)
-            .view
-            .zipAll(additionalImagesNonNull, null, null)
-            .take(additionalImagesLimit)
-            .flatMap { case (existing, upload) =>
-              imageService.processUpload(Option(existing), upload, errors)
-            }.toVector
-
-        (main, additionalImagePreviews)
-      } else {
-        (None, Seq.empty)
-      }
-
-    form.setUploadedImage(imagePreview.map(_.mainFile.getName).orNull)
-
-    form.setAdditionalUploadedImages((additionalImagePreviews.map(_.mainFile.getName) ++
-      Vector.fill(additionalImagesLimit - additionalImagePreviews.size)(null)).toArray)
-
-    if (section.isImagepost && imagePreview.isEmpty) {
-      errors.reject(null, "Изображение отсутствует")
-    }
-
-    (imagePreview, additionalImagePreviews)
-  }
-
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
   def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest, errors: BindingResult,
@@ -220,7 +181,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val (imagePreview, additionalImagePreviews) = postingUser.opt match {
       case Some(authorized) =>
-        processUploads(form, errors)(authorized)
+        topicService.processUploads(form, group, errors)(authorized)
       case None =>
         (None, Seq.empty)
     }

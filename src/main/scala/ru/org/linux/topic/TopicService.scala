@@ -20,9 +20,11 @@ import org.joda.time.DateTime
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.validation.BindingResult
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryRecord}
 import ru.org.linux.gallery.{ImageDao, ImageService, UploadedImagePreview}
-import ru.org.linux.group.Group
+import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{PollDao, PollVariant}
 import ru.org.linux.section.{Section, SectionService}
@@ -51,7 +53,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    imageService: ImageService, pollDao: PollDao, userEventService: UserEventService,
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
                    userDao: UserDao, textService: MessageTextService, editHistoryDao: EditHistoryDao,
-                   imageDao: ImageDao, siteConfig: SiteConfig,
+                   imageDao: ImageDao, siteConfig: SiteConfig, permissionService: GroupPermissionService,
                    val transactionManager: PlatformTransactionManager) extends TransactionManagement with StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
@@ -222,5 +224,44 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     for ((key, delta) <- editorBonus) {
       userDao.changeScore(key, delta)
     }
+  }
+
+  def processUploads(form: ImageTopicRequest, group: Group, errors: BindingResult)
+                    (implicit postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
+    val section = sectionService.getSection(group.sectionId)
+
+    val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty)
+    val additionalImagesLimit = permissionService.additionalImageLimit(section)
+
+    val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
+      if (permissionService.isImagePostingAllowed(section) &&
+        permissionService.isTopicPostingAllowed(group)) {
+        val main = imageService.processUpload(Option(form.uploadedImage), form.image, errors)
+
+        val additionalImagePreviews =
+          Option(form.additionalUploadedImages)
+            .getOrElse(Array.empty)
+            .view
+            .zipAll(additionalImagesNonNull, null, null)
+            .take(additionalImagesLimit)
+            .flatMap { case (existing, upload) =>
+              imageService.processUpload(Option(existing), upload, errors)
+            }.toVector
+
+        (main, additionalImagePreviews)
+      } else {
+        (None, Seq.empty)
+      }
+
+    form.uploadedImage = imagePreview.map(_.mainFile.getName).orNull
+
+    form.additionalUploadedImages = (additionalImagePreviews.map(_.mainFile.getName) ++
+      Vector.fill(additionalImagesLimit - additionalImagePreviews.size)(null)).toArray
+
+    if (section.isImagepost && imagePreview.isEmpty) {
+      errors.reject(null, "Изображение отсутствует")
+    }
+
+    (imagePreview, additionalImagePreviews)
   }
 }
