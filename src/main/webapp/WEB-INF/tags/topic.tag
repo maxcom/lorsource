@@ -214,6 +214,13 @@
 </div>
 </footer>
 
+<c:if test="${showMenu and messageMenu.commitable and preparedMessage.section.premoderated and not message.commited}">
+  <nav>
+    <a class="btn btn-primary" href="commit.jsp?msgid=${message.id}">Подтвердить</a>
+    <a class="btn btn-default" href="edit.jsp?msgid=${message.id}">Править</a>
+  </nav>
+</c:if>
+
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
           <ul id="topicMenu">
