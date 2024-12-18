@@ -37,25 +37,26 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.tag.{TagName, TagRef, TagService}
-import ru.org.linux.user.UserErrorException
+import ru.org.linux.user.{User, UserErrorException, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
+import java.beans.PropertyEditorSupport
 import javax.validation.Valid
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsJava}
 
 @Controller
-class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSender, topicService: TopicService,
+class EditTopicController(searchQueueSender: SearchQueueSender, topicService: TopicService,
                           prepareService: TopicPrepareService, groupDao: GroupDao, pollDao: PollDao,
                           permissionService: GroupPermissionService, captcha: CaptchaService, msgbaseDao: MsgbaseDao,
                           editHistoryService: EditHistoryService, imageService: ImageService,
                           editTopicRequestValidator: EditTopicRequestValidator, ipBlockDao: IPBlockDao,
                           @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-                          tagService: TagService) {
+                          tagService: TagService, userService: UserService) {
   @RequestMapping(value = Array("/commit.jsp"), method = Array(RequestMethod.GET))
   def showCommitForm(@RequestParam("msgid") msgid: Int,
                      @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val topic = messageDao.getById(msgid)
+    val topic = topicService.getById(msgid)
 
     if (!permissionService.canCommit(topic)) {
       throw new AccessViolationException("Not authorized")
@@ -82,7 +83,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.GET))
   def showEditForm(@RequestParam("msgid") msgid: Int,
                    @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val message = messageDao.getById(msgid)
+    val message = topicService.getById(msgid)
     val preparedTopic = prepareService.prepareTopic(message)
 
     if (!permissionService.isEditable(preparedTopic) && !permissionService.isTagsEditable(preparedTopic)) {
@@ -140,7 +141,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     if (editInfoList.nonEmpty) {
       val editors = editHistoryService.getEditorUsers(message, editInfoList)
 
-      form.setEditorBonus(editors.view.map(u => Integer.valueOf(u.getId) -> Integer.valueOf(0)).toMap.asJava)
+      form.setEditorBonus(editors.view.map(u => u -> Integer.valueOf(0)).toMap.asJava)
     }
 
     if (preparedTopic.group.linksAllowed) {
@@ -182,12 +183,12 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
   @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.POST))
   @throws[Exception]
-  def edit(request: HttpServletRequest, @RequestParam("msgid") msgid: Int,
-           @RequestParam(value = "lastEdit", required = false) lastEdit: String,
+  def edit(request: HttpServletRequest,
            @RequestParam(value = "chgrp", required = false) changeGroupId: Integer,
            @Valid @ModelAttribute("form") form: EditTopicRequest, errors: Errors,
            @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val topic = messageDao.getById(msgid)
+    import form.topic
+
     val preparedTopic = prepareService.prepareTopic(topic)
 
     val params = prepareModel(preparedTopic)
@@ -217,15 +218,6 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     val publish = request.getParameter("publish") != null
-    val editInfoList = editHistoryService.getEditInfo(topic.id, EditHistoryObjectTypeEnum.TOPIC)
-
-    if (editInfoList.nonEmpty) {
-      val editHistoryRecord = editInfoList.head
-
-      if (lastEdit == null || editHistoryRecord.getEditdate.getTime.toString != lastEdit) {
-        errors.reject(null, "Сообщение было отредактировано независимо")
-      }
-    }
 
     val commit = request.getParameter("commit") != null
 
@@ -235,7 +227,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
 
       if (topic.commited) {
-        throw new BadInputException("сообщение уже подтверждено")
+        errors.reject(null, "Сообщение уже подтверждено")
       }
     }
 
@@ -295,7 +287,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     if (form.minor != topic.minor && !permissionService.canCommit(topic)) {
-      throw new AccessViolationException("вы не можете менять статус новости")
+      errors.reject(null, "вы не можете менять статус новости")
     }
 
     var newTags: Option[Seq[String]] = None
@@ -335,23 +327,15 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       oldText
     }
 
-    if (form.editorBonus != null) {
-      val editors = editHistoryService.getEditors(topic, editInfoList)
-
-      form.editorBonus.asScala.keySet.map(_.toInt).diff(editors).foreach { _ =>
-        errors.reject("editorBonus", "некорректный корректор?!")
-      }
-    }
-
     if (!preview && !errors.hasErrors && ipBlockInfo.isCaptchaRequired) {
       captcha.checkCaptcha(request, errors)
     }
 
     if (!preview && !errors.hasErrors) {
       val editorBonus = if (form.editorBonus!=null) {
-        form.editorBonus.asScala.view.map(p => p._1.toInt -> p._2.toInt).toMap
+        form.editorBonus.asScala.view.mapValues(_.toInt).toMap
       } else {
-        Map.empty[Int, Int]
+        Map.empty[User, Int]
       }
 
       val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
@@ -412,5 +396,11 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   def requestValidator(binder: WebDataBinder): Unit = {
     binder.setValidator(editTopicRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
+    binder.registerCustomEditor(classOf[User], new UserPropertyEditor(userService))
+    binder.registerCustomEditor(classOf[Topic], new PropertyEditorSupport() {
+      override def getAsText: String = if (getValue != null) getValue.asInstanceOf[Topic].id.toString else null
+
+      override def setAsText(text: String): Unit = setValue(topicService.getById(text.toInt))
+    })
   }
 }

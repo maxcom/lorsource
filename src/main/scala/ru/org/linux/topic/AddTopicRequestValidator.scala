@@ -20,12 +20,59 @@ import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
 import org.springframework.validation.Validator
 import ru.org.linux.tag.TagName
+import ru.org.linux.topic.AddTopicRequestValidator.{validateMsg, validateTags, validateTitle, validateUrl}
 import ru.org.linux.util.URLUtil
 
-@Component
 object AddTopicRequestValidator {
   private val MaxTitleLength = 140
   private val MaxUrlLength = 255
+
+  def validateUrl(url: String, linktext: String, errors: Errors): Unit = {
+    if (!Strings.isNullOrEmpty(url)) {
+      if (url.length > AddTopicRequestValidator.MaxUrlLength) {
+        errors.rejectValue("url", null, "Слишком длинный URL")
+      }
+
+      if (!URLUtil.isUrl(url)) {
+        errors.rejectValue("url", null, "Некорректный URL")
+      }
+
+      if (linktext == null || linktext.isEmpty) {
+        errors.rejectValue("linktext", null, "URL указан без текста ссылки")
+      }
+    }
+  }
+
+  def validateTitle(title: String, errors: Errors): Unit = {
+    if (title != null) {
+      if (title.trim.isEmpty) {
+        errors.rejectValue("title", null, "заголовок сообщения не может быть пустым")
+      }
+
+      if (title.length > AddTopicRequestValidator.MaxTitleLength) {
+        errors.rejectValue("title", null, "Слишком большой заголовок")
+      }
+
+      if (title.trim.startsWith("[")) {
+        errors.rejectValue("title", null, "Не добавляйте теги в заголовки, используйте предназначенное для тегов поле ввода")
+      }
+    }
+  }
+
+  def validateMsg(msg: String, errors: Errors): Unit = {
+    if (msg != null) {
+      val error = Verifier.checkCharacterData(msg)
+      if (error != null) {
+        errors.rejectValue("msg", null, error)
+      }
+    }
+  }
+
+  def validateTags(tags: String, errors: Errors): Unit = {
+    if (tags != null) {
+      TagName.parseAndValidateTags(tags, errors, TagName.MaxTagsPerTopic)
+    }
+  }
 }
 
 @Component
@@ -39,43 +86,9 @@ class AddTopicRequestValidator extends Validator {
       errors.rejectValue("group", null, "Группа не задана")
     }
 
-    val title = form.title
-
-    if (title != null) {
-      if (title.trim.isEmpty) {
-        errors.rejectValue("title", null, "заголовок сообщения не может быть пустым")
-      }
-      if (title.length > AddTopicRequestValidator.MaxTitleLength) {
-        errors.rejectValue("title", null, "Слишком большой заголовок")
-      }
-      if (title.trim.startsWith("[")) {
-        errors.rejectValue("title", null, "Не добавляйте теги в заголовки, используйте предназначенное для тегов поле ввода")
-      }
-    }
-
-    if (form.msg != null) {
-      val error = Verifier.checkCharacterData(form.msg)
-      if (error != null) {
-        errors.rejectValue("msg", null, error)
-      }
-    }
-
-    if (!Strings.isNullOrEmpty(form.url)) {
-      if (form.url.length > AddTopicRequestValidator.MaxUrlLength) {
-        errors.rejectValue("url", null, "Слишком длинный URL")
-      }
-
-      if (!URLUtil.isUrl(form.url)) {
-        errors.rejectValue("url", null, "Некорректный URL")
-      }
-
-      if (form.linktext == null || form.linktext.isEmpty) {
-        errors.rejectValue("linktext", null, "URL указан без текста ссылки")
-      }
-    }
-
-    if (form.tags != null) {
-      TagName.parseAndValidateTags(form.tags, errors, TagName.MaxTagsPerTopic)
-    }
+    validateTitle(form.title, errors)
+    validateMsg(form.msg, errors)
+    validateUrl(form.url, form.linktext, errors)
+    validateTags(form.tags, errors)
   }
 }

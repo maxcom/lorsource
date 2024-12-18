@@ -291,7 +291,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
         if (getValue == null) {
           null
         } else {
-          Integer.toString(getValue.asInstanceOf[Group].id)
+          getValue.asInstanceOf[Group].id.toString
         }
       }
     })

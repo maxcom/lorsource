@@ -131,7 +131,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   def updateAndCommit(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]],
                       newText: MessageText, commit: Boolean, changeGroupId: Option[Int], bonus: Int,
                       pollVariants: Seq[PollVariant], multiselect: Boolean,
-                      editorBonus: Map[Int, Int], imagePreview: Option[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
+                      editorBonus: Map[User, Int], imagePreview: Option[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
     val editHistoryRecord = new EditHistoryRecord
 
     var modified = topicDao.updateMessage(editHistoryRecord, oldMsg, newMsg, user,newText.text, pollVariants.asJava, multiselect)
@@ -210,7 +210,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
   }
 
-  private def doCommit(msg: Topic, commiter: User, bonus: Int, editorBonus: Map[Int, Int]): Unit = {
+  private def doCommit(msg: Topic, commiter: User, bonus: Int, editorBonus: Map[User, Int]): Unit = {
     assert(bonus <= 20 && bonus >= 0, "Некорректное значение bonus")
 
     if (msg.draft) {
@@ -222,7 +222,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     userDao.changeScore(msg.authorUserId, bonus)
 
     for ((key, delta) <- editorBonus) {
-      userDao.changeScore(key, delta)
+      userDao.changeScore(key.getId, delta)
     }
   }
 
@@ -264,4 +264,6 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     (imagePreview, additionalImagePreviews)
   }
+
+  def getById(id: Int): Topic = topicDao.getById(id)
 }

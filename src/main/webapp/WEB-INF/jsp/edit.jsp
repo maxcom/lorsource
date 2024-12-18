@@ -208,7 +208,7 @@
     <label>Бонус автору (<lor:user user="${preparedMessage.author}"/>): <form:input path="bonus" size="5" cssClass="number" type="number" min="0" max="20"/> (от 0 до 20; текущий score=${preparedMessage.author.score})</label>
 
     <c:forEach items="${editors}" var="editor">
-      <label>Бонус корректору (<lor:user user="${editor}"/>): <form:input path="editorBonus[${editor.id}]" size="5" cssClass="number" type="number" min="0" max="5"/> (от 0 до 5; текущий score=${editor.score})</label>
+      <label>Бонус корректору (<lor:user user="${editor}"/>): <form:input path="editorBonus[${editor.nick}]" size="5" cssClass="number" type="number" min="0" max="5"/> (от 0 до 5; текущий score=${editor.score})</label>
     </c:forEach>
 
     <div class="form-actions">

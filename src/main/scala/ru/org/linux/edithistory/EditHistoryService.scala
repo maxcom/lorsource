@@ -220,13 +220,9 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
   def insert(editHistoryRecord: EditHistoryRecord): Unit = editHistoryDao.insert(editHistoryRecord)
 
   def getEditorUsers(message: Topic, editInfoList: collection.Seq[EditHistoryRecord]): Set[User] = {
-    val editors = getEditors(message, editInfoList)
+    val editors = editInfoList.view.filter(_.getEditor != message.authorUserId).map(_.getEditor).toSet
 
     userService.getUsersCached(editors).toSet
-  }
-
-  def getEditors(message: Topic, editInfoList: collection.Seq[EditHistoryRecord]): Set[Int] = {
-    editInfoList.view.filter(_.getEditor != message.authorUserId).map(_.getEditor).toSet
   }
 
   def editInfoSummary(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): Option[EditInfoSummary] = {

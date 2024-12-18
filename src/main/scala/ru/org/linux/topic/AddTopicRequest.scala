@@ -58,6 +58,7 @@ class AddTopicRequest(
 }
 
 class EditTopicRequest(
+                        @BeanProperty var msgid: Topic = null,
                         @BeanProperty var url: String = null,
                         @BeanProperty var linktext: String = null,
                         @BeanProperty var title: String = null,
@@ -66,13 +67,17 @@ class EditTopicRequest(
                         @BeanProperty var bonus: Int = 3,
                         @BeanProperty var tags: String = null,
                         @BeanProperty var poll: util.Map[Integer, String] = null,
-                        @BeanProperty var editorBonus: util.Map[Integer, Integer] = null,
+                        @BeanProperty var editorBonus: util.Map[User, Integer] = null,
                         @BeanProperty var newPoll: Array[String] = new Array[String](3),
                         @BooleanBeanProperty var multiselect: Boolean = false,
                         @BeanProperty var fromHistory: Integer = null,
                         @BeanProperty var image: MultipartFile = null,
                         @BeanProperty var uploadedImage: String = null,
                         @BeanProperty var additionalUploadedImages: Array[String] = new Array[String](0),
-                        @BeanProperty var additionalImage: Array[MultipartFile] = null) extends ImageTopicRequest {
+                        @BeanProperty var additionalImage: Array[MultipartFile] = null,
+                        @BeanProperty var lastEdit: String = null
+                      ) extends ImageTopicRequest {
   def this() = this(title = null) // нужен конструктор по умолчанию для spring
+
+  def topic: Topic = msgid
 }
