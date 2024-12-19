@@ -20,7 +20,7 @@ import org.joda.time.DateTime
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.validation.BindingResult
+import org.springframework.validation.Errors
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryRecord}
 import ru.org.linux.gallery.{ImageDao, ImageService, UploadedImagePreview}
@@ -131,7 +131,8 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   def updateAndCommit(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]],
                       newText: MessageText, commit: Boolean, changeGroupId: Option[Int], bonus: Int,
                       pollVariants: Seq[PollVariant], multiselect: Boolean,
-                      editorBonus: Map[User, Int], imagePreview: Option[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
+                      editorBonus: Map[User, Int], imagePreview: Option[UploadedImagePreview],
+                      additionalImages: Seq[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
     val editHistoryRecord = new EditHistoryRecord
 
     var modified = topicDao.updateMessage(editHistoryRecord, oldMsg, newMsg, user,newText.text, pollVariants.asJava, multiselect)
@@ -148,6 +149,12 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     imagePreview.foreach { imagePreview =>
       replaceImage(oldMsg, imagePreview, editHistoryRecord)
+
+      modified = true
+    }
+
+    additionalImages.foreach { imagePreview =>
+      imageService.saveImage(imagePreview, oldMsg.id, main = false)
 
       modified = true
     }
@@ -226,12 +233,13 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
   }
 
-  def processUploads(form: ImageTopicRequest, group: Group, errors: BindingResult)
+  def processUploads(form: ImageTopicRequest, group: Group, errors: Errors, currentAdditionalCount: Int = 0,
+                     hasImage: Boolean = false)
                     (implicit postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
     val section = sectionService.getSection(group.sectionId)
 
     val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty)
-    val additionalImagesLimit = permissionService.additionalImageLimit(section)
+    val additionalImagesLimit = Math.max(0, permissionService.additionalImageLimit(section) - currentAdditionalCount)
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
       if (permissionService.isImagePostingAllowed(section) &&
@@ -258,7 +266,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     form.additionalUploadedImages = (additionalImagePreviews.map(_.mainFile.getName) ++
       Vector.fill(additionalImagesLimit - additionalImagePreviews.size)(null)).toArray
 
-    if (section.isImagepost && imagePreview.isEmpty) {
+    if (section.isImagepost && imagePreview.isEmpty && !hasImage) {
       errors.reject(null, "Изображение отсутствует")
     }
 

@@ -28,7 +28,6 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
-import ru.org.linux.gallery.{ImageService, UploadedImagePreview}
 import ru.org.linux.group.{GroupDao, GroupPermissionService}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
@@ -49,10 +48,9 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsSca
 class EditTopicController(searchQueueSender: SearchQueueSender, topicService: TopicService,
                           prepareService: TopicPrepareService, groupDao: GroupDao, pollDao: PollDao,
                           permissionService: GroupPermissionService, captcha: CaptchaService, msgbaseDao: MsgbaseDao,
-                          editHistoryService: EditHistoryService, imageService: ImageService,
-                          editTopicRequestValidator: EditTopicRequestValidator, ipBlockDao: IPBlockDao,
-                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-                          tagService: TagService, userService: UserService) {
+                          editHistoryService: EditHistoryService, editTopicRequestValidator: EditTopicRequestValidator,
+                          ipBlockDao: IPBlockDao, tagService: TagService, userService: UserService,
+                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]) {
   @RequestMapping(value = Array("/commit.jsp"), method = Array(RequestMethod.GET))
   def showCommitForm(@RequestParam("msgid") msgid: Int,
                      @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
@@ -269,17 +267,12 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       }
     }
 
-    val imagePreview: Option[UploadedImagePreview] =
-      if (permissionService.isImagePostingAllowed(preparedTopic.section) &&
-          permissionService.isTopicPostingAllowed(group)) {
-        imageService.processUpload(Option(form.uploadedImage), form.image, errors)
-    } else {
-      None
-    }
+    val (imagePreview, additionalImagePreviews) =
+      topicService.processUploads(form, group, errors, preparedTopic.additionalImages.size(),
+        hasImage = preparedTopic.image != null)
 
-    imagePreview.foreach { img =>
+    if (imagePreview.isDefined || additionalImagePreviews.nonEmpty) {
       modified = true
-      form.setUploadedImage(img.mainFile.getName)
     }
 
     if (!editable && modified) {
@@ -340,7 +333,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
 
       val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
         Option[Integer](changeGroupId).map(_.toInt), form.bonus, newPoll.map(_.variants).orNull, form.multiselect,
-        editorBonus, imagePreview)
+        editorBonus, imagePreview, additionalImagePreviews)
 
       if (changed || commit || publish) {
         if (!newMsg.draft) {
@@ -363,7 +356,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
 
     params.put("newPreparedMessage",
       prepareService.prepareTopicPreview(newMsg, newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
-        newPoll, newText, imagePreview, Seq.empty))
+        newPoll, newText, imagePreview, additionalImagePreviews))
 
     new ModelAndView("edit", params.asJava)
   }

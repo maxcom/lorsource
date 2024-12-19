@@ -108,19 +108,15 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val processedMessage = textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(topic, author), url)
 
     val (preparedImage, additionalPreparedImages) = if (section.isImagepost || section.isImageAllowed) {
-      val images = if (topic.id!=0 && image.isEmpty && additionalImages.isEmpty) {
+      val currentImages = if (topic.id != 0) {
         imageService.allImagesForTopic(topic)
       } else {
         Seq.empty
       }
 
-      val loadedImage = image.orElse(images.find(_.main))
+      val loadedImage = image.orElse(currentImages.find(_.main))
 
-      val loadedAdditionalImage = if (additionalImages.isEmpty) {
-        images.filterNot(_.main)
-      } else {
-        additionalImages
-      }
+      val loadedAdditionalImage = currentImages.filterNot(_.main) ++ additionalImages
 
       (loadedImage.flatMap(imageService.prepareImage), loadedAdditionalImage.flatMap(imageService.prepareImage))
     } else {

@@ -110,7 +110,7 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
 
   def allImagesForTopic(topic: Topic): Seq[Image] =
     jdbcTemplate.queryAndMap(
-      "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted", topic.id
+      "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted ORDER BY id", topic.id
     )(ImageDao.imageRowMapper)
 
   def getImage(id: Int): Image =
