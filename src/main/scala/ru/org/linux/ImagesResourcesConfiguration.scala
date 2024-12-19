@@ -14,8 +14,8 @@
  */
 package ru.org.linux
 
-import akka.actor.ActorSystem
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.typed.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.web.servlet.config.annotation.{EnableWebMvc, ResourceHandlerRegistry, WebMvcConfigurer}
@@ -68,7 +68,7 @@ class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigu
 
   @Bean
   def advCounterActor(actorSystem: ActorSystem, advCounterDao: AdvCounterDao): ActorRef[AdvCounterActor.Protocol] = {
-    import akka.actor.typed.scaladsl.adapter.*
+    import org.apache.pekko.actor.typed.scaladsl.adapter.*
 
     actorSystem.spawn(AdvCounterActor.behavior(advCounterDao), "AdvCounterActor")
   }

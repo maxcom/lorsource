@@ -14,7 +14,7 @@
  */
 package ru.org.linux.auth
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.{Encoder, Json}
 import io.circe.syntax.*
@@ -30,10 +30,10 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.user.UserDao
 
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Promise
 import scala.concurrent.duration.*
+import scala.jdk.FutureConverters.FutureOps
 import scala.util.{Random, Try}
 
 case class LoginStatus(success: Boolean, username: String)
@@ -148,6 +148,6 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
       p.complete(Try(resp))
     }
 
-    p.future.toJava
+    p.future.asJava
   }
 }

@@ -29,7 +29,7 @@ import ru.org.linux.util.ServletParameterBadValueException
 
 import java.util
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.FutureOps
+import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
@@ -113,15 +113,15 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
 
     if (showDeleted && !("POST" == request.getMethod)) {
-      Future.successful(new ModelAndView(new RedirectView(group.getUrl))).toJava
+      Future.successful(new ModelAndView(new RedirectView(group.getUrl))).asJava
     } else if (!isFirstPage(offset) && offset > GroupController.MaxOffset) {
-      Future.successful(new ModelAndView(new RedirectView(s"${group.getUrl}archive"))).toJava
+      Future.successful(new ModelAndView(new RedirectView(s"${group.getUrl}archive"))).asJava
     } else {
       val tagOpt = Option(tag)
       val tagInfo: Option[TagInfo] = tagOpt.flatMap(v => tagService.getTagInfo(v, skipZero = true))
 
       if (tagOpt.isDefined && tagInfo.isEmpty) {
-        Future.successful(new ModelAndView("errors/code404")).toJava
+        Future.successful(new ModelAndView("errors/code404")).asJava
       } else {
         forum(section, group, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
           showIgnored = showIgnored)
@@ -209,7 +209,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
       } else {
         new ModelAndView("group", params)
       }
-    }.toJava
+    }.asJava
   }
 
   @ExceptionHandler(Array(classOf[GroupNotFoundException]))

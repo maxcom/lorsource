@@ -15,7 +15,7 @@
 
 package ru.org.linux.email
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.RequestDispatcher

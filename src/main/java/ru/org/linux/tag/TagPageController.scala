@@ -33,11 +33,11 @@ import ru.org.linux.user.UserTagService
 import java.time
 import java.time.Instant
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.*
 import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.FutureOps
 
 object TagPageController {
   private val TotalNewsCount = 21
@@ -89,7 +89,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     tagService.getTagInfo(tag, skipZero = !currentUser.moderator) match {
       case None =>
         tagService.getTagBySynonym(tag).map { mainName =>
-          Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).toJava
+          Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).asJava
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
         val (news, newsDate) = getNewsSection(tag)
@@ -131,7 +131,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           related <- safeRelatedF
         } yield {
           new ModelAndView("tag-page", (model + ("counter" -> counter) ++ related).asJava)
-        }).toJava
+        }).asJava
     }
 }
 

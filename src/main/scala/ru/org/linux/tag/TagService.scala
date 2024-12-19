@@ -15,7 +15,7 @@
 
 package ru.org.linux.tag
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import com.typesafe.scalalogging.StrictLogging
@@ -38,7 +38,7 @@ import scala.jdk.CollectionConverters.*
 @Service
 class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSystem,
                  sectionService: SectionService, groupDao: GroupDao) extends StrictLogging {
-  private implicit val akka: ActorSystem = actorSystem
+  private implicit val pekko: ActorSystem = actorSystem
 
   import ru.org.linux.tag.TagService.*
 

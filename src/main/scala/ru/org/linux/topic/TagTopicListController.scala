@@ -28,11 +28,11 @@ import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagSe
 import ru.org.linux.user.UserTagService
 
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 import scala.jdk.OptionConverters.RichOption
+import scala.jdk.FutureConverters.FutureOps
 
 @Controller
 object TagTopicListController {
@@ -159,7 +159,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
         tagService.getTagBySynonym(tag).map { mainName =>
           Future.successful(new ModelAndView(new RedirectView(TagTopicListController.buildTagUri(mainName.name, sectionId, 0), false, false)))
         }.getOrElse(throw new TagNotFoundException())
-    }).toJava
+    }).asJava
   }
 
   @RequestMapping(

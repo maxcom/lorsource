@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,26 +15,26 @@
 
 package ru.org.linux
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.{ActorSystem, Scheduler}
 import org.springframework.context.annotation.{Bean, Configuration}
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
-case class TerminatableAkka(system: ActorSystem) {
+case class TerminatableActorSystem(system: ActorSystem) {
   def close(): Unit = {
     Await.result(system.terminate(), 5.minutes)
   }
 }
 
 @Configuration
-class AkkaConfiguration {
+class PekkoConfiguration {
   @Bean
-  def akka = TerminatableAkka(ActorSystem("lor"))
+  def terminatableActorSystem: TerminatableActorSystem = TerminatableActorSystem(ActorSystem("lor"))
 
   @Bean
-  def actorSystem(akka: TerminatableAkka): ActorSystem = akka.system
+  def actorSystem(pekko: TerminatableActorSystem): ActorSystem = pekko.system
 
   @Bean
-  def scheduler(actorSystem: ActorSystem) = actorSystem.scheduler
+  def scheduler(actorSystem: ActorSystem): Scheduler = actorSystem.scheduler
 }

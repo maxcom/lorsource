@@ -26,7 +26,7 @@
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
     <jetty.version>12.0.13</jetty.version>
-    <akka.version>2.6.21</akka.version>
+    <pekko.version>1.1.2</pekko.version>
     <log4j.version>2.23.1</log4j.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
@@ -39,21 +39,21 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-actor-typed_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-actor-typed_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-slf4j_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-slf4j_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-stream_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-stream_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>

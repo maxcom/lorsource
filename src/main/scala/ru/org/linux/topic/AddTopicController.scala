@@ -14,7 +14,7 @@
  */
 package ru.org.linux.topic
 
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorRef
 import com.google.common.base.Strings
 import jakarta.servlet.ServletContext
 import jakarta.servlet.http.HttpServletRequest

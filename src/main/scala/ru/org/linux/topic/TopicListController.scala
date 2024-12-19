@@ -35,7 +35,7 @@ import ru.org.linux.util.{DateUtil, ServletParameterException}
 
 import java.util.concurrent.CompletionStage
 import javax.annotation.Nullable
-import scala.compat.java8.FutureConverters.*
+import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -173,7 +173,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       modelAndView.addObject("url", section.getNewsViewerLink)
       modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
-    }.toJava
+    }.asJava
   }
 
   private def parseFilter(@Nullable value: String): Option[ForumFilter] = {
@@ -196,7 +196,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
         modelAndView.addObject("url", section.getNewsViewerLink + s"?filter=$filter")
         modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}&filter=$filter")
       }
-    }.toJava
+    }.asJava
   }
 
   @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
@@ -211,7 +211,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     mainTopicsFeedHandler(section, topicListForm, Some(group)).map { modelAndView =>
       modelAndView.addObject("url", group.getUrl)
-    }.toJava
+    }.asJava
   }
 
   @RequestMapping(path = Array("/{section}/archive/{year:\\d{4}}/{month}"))
@@ -224,7 +224,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       mainTopicsFeedHandler(sectionObject, topicListForm, None)
     } else {
       Future.successful(new ModelAndView(new RedirectView(sectionObject.getSectionLink)))
-    }).toJava
+    }).asJava
   }
 
   @RequestMapping(value = Array("/show-topics.jsp"), method = Array(RequestMethod.GET))

@@ -15,7 +15,7 @@
 
 package ru.org.linux.monitoring
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import com.google.common.base.Stopwatch
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}

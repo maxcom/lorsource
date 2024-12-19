@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,12 +19,12 @@ import java.util.Date
 import javax.mail.internet.{AddressException, InternetAddress}
 import javax.mail.{Message, Transport}
 
-import akka.actor.{Actor, ActorLogging, Props, Timers}
+import org.apache.pekko.actor.{Actor, ActorLogging, Props, Timers}
 import ru.org.linux.email.EmailService
-import ru.org.linux.exception.ExceptionMailingActor._
+import ru.org.linux.exception.ExceptionMailingActor.*
 import ru.org.linux.spring.SiteConfig
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.control.NonFatal
 
 class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogging with Timers {
@@ -65,7 +65,7 @@ class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogg
       emailMessage.addRecipient(Message.RecipientType.TO, mail)
       emailMessage.setSubject(subject)
       emailMessage.setSentDate(new Date)
-      emailMessage.setText(text.toString, "UTF-8")
+      emailMessage.setText(text, "UTF-8")
       Transport.send(emailMessage)
 
       log.info(s"Sent crash report to $adminEmailAddress")
@@ -83,11 +83,11 @@ class ExceptionMailingActor(siteConfig: SiteConfig) extends Actor with ActorLogg
 }
 
 object ExceptionMailingActor {
-  case class Report(ex: Class[_ <: Throwable], msg: String)
+  case class Report(ex: Class[? <: Throwable], msg: String)
   case object Reset
 
   val ResetAt: FiniteDuration = 5 minutes
   val MaxMessages = 5
 
-  def props(siteConfig: SiteConfig) = Props(new ExceptionMailingActor(siteConfig))
+  def props(siteConfig: SiteConfig): Props = Props(new ExceptionMailingActor(siteConfig))
 }

@@ -16,8 +16,8 @@
 package ru.org.linux.search
 
 import java.util.concurrent.TimeUnit
-import akka.actor.Scheduler
-import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
+import org.apache.pekko.actor.Scheduler
+import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.ElasticClient

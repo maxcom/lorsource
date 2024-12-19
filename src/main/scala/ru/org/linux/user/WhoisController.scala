@@ -33,7 +33,7 @@ import ru.org.linux.util.bbcode.LorCodeService
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.FutureOps
+import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*
 
@@ -138,7 +138,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       mv.getModel.put("userStat", userStat)
 
       mv
-    }.toJava
+    }.asJava
   }
 
   @RequestMapping(path = Array("/whois.jsp"))
@@ -178,6 +178,6 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
 
-    userStatisticsService.getYearStats(user, timezone).map(_.asJson).toJava
+    userStatisticsService.getYearStats(user, timezone).map(_.asJson).asJava
   }
 }

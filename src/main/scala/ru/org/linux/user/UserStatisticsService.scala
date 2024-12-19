@@ -15,7 +15,7 @@
 
 package ru.org.linux.user
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import cats.implicits.*
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl.*
@@ -41,7 +41,7 @@ import scala.util.Try
 @Service
 class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sectionService: SectionService,
                             elastic: ElasticClient, actorSystem: ActorSystem) extends StrictLogging {
-  private implicit val akka: ActorSystem = actorSystem
+  private implicit val pekko: ActorSystem = actorSystem
 
   def getStats(user: User): Future[UserStats] = {
     val deadline = ElasticTimeout.fromNow

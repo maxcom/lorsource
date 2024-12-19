@@ -14,7 +14,7 @@
  */
 package ru.org.linux.reaction
 
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorRef
 import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scala.transaction.support.TransactionManagement

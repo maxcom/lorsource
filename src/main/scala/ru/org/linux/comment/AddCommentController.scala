@@ -15,7 +15,7 @@
 
 package ru.org.linux.comment
 
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorRef
 import io.circe.generic.semiauto.*
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}

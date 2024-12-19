@@ -15,7 +15,7 @@
 
 package ru.org.linux.exception
 
-import akka.actor.{ActorRef, ActorSystem}
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.scheduling.TaskScheduler
