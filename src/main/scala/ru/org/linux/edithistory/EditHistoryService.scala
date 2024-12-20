@@ -14,6 +14,7 @@
  */
 package ru.org.linux.edithistory
 
+import cats.data.Chain
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.Comment
 import ru.org.linux.gallery.{ImageDao, ImageService}
@@ -35,7 +36,7 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
                               url: String, linktext: String, tags: util.List[TagRef],
                               minor: Boolean, image: PreparedImage, lastId: Integer,
                               poll: Poll, first: Boolean) {
-    def apply(dto: EditHistoryRecord): TopicEditHistoryState = {
+    def next(dto: EditHistoryRecord): TopicEditHistoryState = {
       val image = if (dto.getOldimage != null) {
         if (dto.getOldimage == 0) {
           null
@@ -159,7 +160,7 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
   }
 
   private case class CommentEditHistoryState(message: String, markup: MarkupType, title: String, first: Boolean) {
-    def apply(dto: EditHistoryRecord): CommentEditHistoryState = {
+    def next(dto: EditHistoryRecord): CommentEditHistoryState = {
       val message = if (dto.getOldmessage != null) {
         dto.getOldmessage
       } else {
@@ -234,43 +235,33 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
   def prepareEditInfo(topic: Topic): Seq[PreparedEditHistory] = {
     val editInfoDTOs = editHistoryDao.getEditInfo(topic.id, EditHistoryObjectTypeEnum.TOPIC)
 
-    val editHistories = Vector.newBuilder[PreparedEditHistory]
-    editHistories.sizeHint(editInfoDTOs.size)
-
-    var current = TopicEditHistoryState.fromTopic(topic)
-
-    for (dto <- editInfoDTOs) {
-      editHistories.addOne(current.build(dto))
-
-      current = current.apply(dto)
-    }
-
     if (editInfoDTOs.nonEmpty) {
-      editHistories.addOne(current.buildLast(topic))
-    }
+      val initial = (TopicEditHistoryState.fromTopic(topic), Chain.empty[PreparedEditHistory])
 
-    editHistories.result()
+      val (current, editHistories) = editInfoDTOs.foldLeft(initial) { case ((current, editHistories), dto) =>
+        (current.next(dto), editHistories :+ current.build(dto))
+      }
+
+      (editHistories :+ current.buildLast(topic)).toVector
+    } else {
+      Vector.empty
+    }
   }
 
   def prepareEditInfo(comment: Comment): Seq[PreparedEditHistory] = {
     val editInfoDTOs = editHistoryDao.getEditInfo(comment.id, EditHistoryObjectTypeEnum.COMMENT)
 
-    val editHistories = Vector.newBuilder[PreparedEditHistory]
-    editHistories.sizeHint(editInfoDTOs.size)
-
-    var current = CommentEditHistoryState.fromComment(comment)
-
-    for (dto <- editInfoDTOs) {
-      editHistories.addOne(current.build(dto))
-
-      current = current.apply(dto)
-    }
-
     if (editInfoDTOs.nonEmpty) {
-      editHistories.addOne(current.buildLast(comment))
-    }
+      val initial = (CommentEditHistoryState.fromComment(comment), Chain.empty[PreparedEditHistory])
 
-    editHistories.result()
+      val (current, editHistories) = editInfoDTOs.foldLeft(initial) { case ((current, editHistories), dto) =>
+        (current.next(dto), editHistories :+ current.build(dto))
+      }
+
+      (editHistories :+ current.buildLast(comment)).toVector
+    } else {
+      Vector.empty
+    }
   }
 
   def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): collection.Seq[EditHistoryRecord] =
