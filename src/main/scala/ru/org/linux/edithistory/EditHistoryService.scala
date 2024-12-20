@@ -16,7 +16,6 @@ package ru.org.linux.edithistory
 
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.Comment
-import ru.org.linux.edithistory.EditHistoryService.EditHistoryState
 import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.poll.{Poll, PollDao, PollNotFoundException}
@@ -27,17 +26,208 @@ import ru.org.linux.user.{User, UserService}
 
 import java.util
 
-object EditHistoryService {
-  class EditHistoryState(var message: String, val markup: MarkupType, var title: String,
-                         var url: String, var linktext: String, var tags: util.List[TagRef],
-                         var minor: Boolean, var image: PreparedImage, var lastId: Integer,
-                         var poll: Poll)
-}
-
 @Service
 class EditHistoryService(topicTagService: TopicTagService, userService: UserService, textService: MessageTextService,
                          msgbaseDao: MsgbaseDao, editHistoryDao: EditHistoryDao, imageDao: ImageDao,
                          imageService: ImageService, pollDao: PollDao) {
+
+  private case class TopicEditHistoryState(message: String, markup: MarkupType, title: String,
+                              url: String, linktext: String, tags: util.List[TagRef],
+                              minor: Boolean, image: PreparedImage, lastId: Integer,
+                              poll: Poll, first: Boolean) {
+    def apply(dto: EditHistoryRecord): TopicEditHistoryState = {
+      val image = if (dto.getOldimage != null) {
+        if (dto.getOldimage == 0) {
+          null
+        } else {
+          imageService.prepareImage(imageDao.getImage(dto.getOldimage)).orNull
+        }
+      } else {
+        this.image
+      }
+
+      val (message, lastId) = if (dto.getOldmessage != null) {
+        (dto.getOldmessage, Integer.valueOf(dto.getId))
+      } else {
+        (this.message, this.lastId)
+      }
+
+      val title = if (dto.getOldtitle != null) {
+        dto.getOldtitle
+      } else {
+        this.title
+      }
+
+      val url = if (dto.getOldurl != null) {
+        dto.getOldurl
+      } else {
+        this.url
+      }
+
+      val linktext = if (dto.getOldlinktext != null) {
+        dto.getOldlinktext
+      } else {
+        this.linktext
+      }
+
+      val tags = if (dto.getOldtags != null) {
+        TagService.namesToRefs(TagName.parseAndSanitizeTagsJava(dto.getOldtags))
+      } else {
+        this.tags
+      }
+
+      val minor = if (dto.getOldminor != null) {
+        dto.getOldminor.booleanValue()
+      } else {
+        this.minor
+      }
+
+      val poll = if (dto.getOldPoll != null) {
+        dto.getOldPoll
+      } else {
+        this.poll
+      }
+
+      this.copy(image = image, message = message, lastId = lastId, title = title, url = url, linktext = linktext,
+        tags = tags, minor = minor, poll = poll, first = false)
+    }
+
+    def build(dto: EditHistoryRecord): PreparedEditHistory = {
+      new PreparedEditHistory(
+        textService,
+        userService.getUserCached(dto.getEditor),
+        dto.getEditdate,
+        if (dto.getOldmessage != null) this.message else null,
+        if (dto.getOldtitle != null) this.title else null,
+        if (dto.getOldurl != null) this.url else null,
+        if (dto.getOldlinktext != null) this.linktext else null,
+        if (dto.getOldtags != null) this.tags else null,
+        this.first,
+        false,
+        if (dto.getOldminor != null) this.minor else null,
+        if (dto.getOldimage != null && this.image != null) this.image else null,
+        this.image == null && dto.getOldimage != null,
+        this.markup,
+        if (dto.getOldPoll != null) this.poll else null,
+        this.lastId)
+    }
+
+    def buildLast(topic: Topic): PreparedEditHistory = {
+      new PreparedEditHistory(
+        textService,
+        userService.getUserCached(topic.authorUserId),
+        topic.postdate,
+        this.message,
+        this.title,
+        this.url,
+        this.linktext,
+        if (!tags.isEmpty) this.tags else null,
+        false,
+        true,
+        null,
+        this.image,
+        false,
+        this.markup,
+        this.poll,
+        this.lastId)
+    }
+  }
+
+  private object TopicEditHistoryState {
+    def fromTopic(topic: Topic): TopicEditHistoryState = {
+      val messageText: MessageText = msgbaseDao.getMessageText(topic.id)
+      val maybeImage = imageDao.imageForTopic(topic)
+
+      new TopicEditHistoryState(
+        message = messageText.text,
+        markup = messageText.markup,
+        title = topic.title,
+        url = topic.url,
+        linktext = topic.linktext,
+        tags = topicTagService.getTagRefs(topic),
+        minor = topic.minor,
+        image = maybeImage.flatMap(imageService.prepareImage).orNull,
+        lastId = null,
+        poll = try {
+          pollDao.getPollByTopicId(topic.id)
+        } catch {
+          case _: PollNotFoundException =>
+            null
+        },
+        first = true)
+    }
+  }
+
+  private case class CommentEditHistoryState(message: String, markup: MarkupType, title: String, first: Boolean) {
+    def apply(dto: EditHistoryRecord): CommentEditHistoryState = {
+      val message = if (dto.getOldmessage != null) {
+        dto.getOldmessage
+      } else {
+        this.message
+      }
+
+      val title = if (dto.getOldtitle != null) {
+        dto.getOldtitle
+      } else {
+        this.title
+      }
+
+      this.copy(first = false, message = message, title = title)
+    }
+
+    def build(dto: EditHistoryRecord): PreparedEditHistory = {
+      new PreparedEditHistory(
+        textService,
+        userService.getUserCached(dto.getEditor),
+        dto.getEditdate,
+        if (dto.getOldmessage != null) this.message else null,
+        if (dto.getOldtitle != null) this.title else null,
+        null,
+        null,
+        null,
+        this.first,
+        false,
+        null,
+        null,
+        false,
+        this.markup,
+        null,
+        null)
+    }
+
+    def buildLast(comment: Comment): PreparedEditHistory = {
+      new PreparedEditHistory(
+        textService,
+        userService.getUserCached(comment.userid),
+        comment.postdate,
+        this.message,
+        this.title,
+        null,
+        null,
+        null,
+        false,
+        true,
+        null,
+        null,
+        false,
+        this.markup,
+        null,
+        null)
+    }
+  }
+
+  private object CommentEditHistoryState {
+    def fromComment(comment: Comment): CommentEditHistoryState = {
+      val messageText = msgbaseDao.getMessageText(comment.id)
+
+      new CommentEditHistoryState(
+        markup = messageText.markup,
+        message = messageText.text,
+        title = comment.title,
+        first = true)
+    }
+  }
+
   /**
    * Получить историю изменений топика
    */
@@ -47,89 +237,16 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
     val editHistories = Vector.newBuilder[PreparedEditHistory]
     editHistories.sizeHint(editInfoDTOs.size)
 
-    val current = stateFromTopic(topic)
+    var current = TopicEditHistoryState.fromTopic(topic)
 
-    for (i <- editInfoDTOs.indices) {
-      val dto = editInfoDTOs(i)
+    for (dto <- editInfoDTOs) {
+      editHistories.addOne(current.build(dto))
 
-      editHistories.addOne(new PreparedEditHistory(
-        textService,
-        userService.getUserCached(dto.getEditor),
-        dto.getEditdate,
-        if (dto.getOldmessage != null) current.message else null,
-        if (dto.getOldtitle != null) current.title else null,
-        if (dto.getOldurl != null) current.url else null,
-        if (dto.getOldlinktext != null) current.linktext else null,
-        if (dto.getOldtags != null) current.tags else null,
-        i == 0,
-        false,
-        if (dto.getOldminor != null) current.minor else null,
-        if (dto.getOldimage != null && current.image != null) current.image else null,
-        current.image == null && dto.getOldimage != null,
-        current.markup,
-        if (dto.getOldPoll != null) current.poll else null,
-        current.lastId))
-
-      if (dto.getOldimage != null) {
-        if (dto.getOldimage == 0) {
-          current.image = null
-        } else {
-          current.image = imageService.prepareImage(imageDao.getImage(dto.getOldimage)).orNull
-        }
-      }
-
-      if (dto.getOldmessage != null) {
-        current.message = dto.getOldmessage
-        current.lastId = dto.getId
-      }
-
-      if (dto.getOldtitle != null) {
-        current.title = dto.getOldtitle
-      }
-
-      if (dto.getOldurl != null) {
-        current.url = dto.getOldurl
-      }
-
-      if (dto.getOldlinktext != null) {
-        current.linktext = dto.getOldlinktext
-      }
-
-      if (dto.getOldtags != null) {
-        current.tags = TagService.namesToRefs(TagName.parseAndSanitizeTagsJava(dto.getOldtags))
-      }
-
-      if (dto.getOldminor != null) {
-        current.minor = dto.getOldminor
-      }
-
-      if (dto.getOldPoll != null) {
-        current.poll = dto.getOldPoll
-      }
+      current = current.apply(dto)
     }
 
     if (editInfoDTOs.nonEmpty) {
-      if (current.tags.isEmpty) {
-        current.tags = null
-      }
-
-      editHistories.addOne(new PreparedEditHistory(
-        textService,
-        userService.getUserCached(topic.authorUserId),
-        topic.postdate,
-        current.message,
-        current.title,
-        current.url,
-        current.linktext,
-        current.tags,
-        false,
-        true,
-        null,
-        current.image,
-        false,
-        current.markup,
-        current.poll,
-        current.lastId))
+      editHistories.addOne(current.buildLast(topic))
     }
 
     editHistories.result()
@@ -141,56 +258,16 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
     val editHistories = Vector.newBuilder[PreparedEditHistory]
     editHistories.sizeHint(editInfoDTOs.size)
 
-    val current = stateFromComment(comment)
+    var current = CommentEditHistoryState.fromComment(comment)
 
-    for (i <- editInfoDTOs.indices) {
-      val dto = editInfoDTOs(i)
+    for (dto <- editInfoDTOs) {
+      editHistories.addOne(current.build(dto))
 
-      editHistories.addOne(new PreparedEditHistory(
-        textService,
-        userService.getUserCached(dto.getEditor),
-        dto.getEditdate,
-        if (dto.getOldmessage != null) current.message else null,
-        if (dto.getOldtitle != null) current.title else null,
-        null,
-        null,
-        null,
-        i == 0,
-        false,
-        null,
-        null,
-        false,
-        current.markup,
-        null,
-        null))
-
-      if (dto.getOldmessage != null) {
-        current.message = dto.getOldmessage
-      }
-
-      if (dto.getOldtitle != null) {
-        current.title = dto.getOldtitle
-      }
+      current = current.apply(dto)
     }
 
     if (editInfoDTOs.nonEmpty) {
-      editHistories.addOne(new PreparedEditHistory(
-        textService,
-        userService.getUserCached(comment.userid),
-        comment.postdate,
-        current.message,
-        current.title,
-        null,
-        null,
-        null,
-        false,
-        true,
-        null,
-        null,
-        false,
-        current.markup,
-        null,
-        null))
+      editHistories.addOne(current.buildLast(comment))
     }
 
     editHistories.result()
@@ -220,42 +297,4 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
 
   def getEditHistoryRecord(topic: Topic, recordId: Int): EditHistoryRecord =
     editHistoryDao.getEditRecord(topic.id, recordId, EditHistoryObjectTypeEnum.TOPIC)
-
-  private def stateFromTopic(topic: Topic): EditHistoryState = {
-    val messageText: MessageText = msgbaseDao.getMessageText(topic.id)
-    val maybeImage = imageDao.imageForTopic(topic)
-
-    new EditHistoryState(
-      message = messageText.text,
-      markup = messageText.markup,
-      title = topic.title,
-      url = topic.url,
-      linktext = topic.linktext,
-      tags = topicTagService.getTagRefs(topic),
-      minor = topic.minor,
-      image = maybeImage.flatMap(imageService.prepareImage).orNull,
-      lastId = null,
-      poll = try {
-        pollDao.getPollByTopicId(topic.id)
-      } catch {
-        case _: PollNotFoundException =>
-          null
-      })
-  }
-
-  private def stateFromComment(comment: Comment): EditHistoryState = {
-    val messageText = msgbaseDao.getMessageText(comment.id)
-
-    new EditHistoryState(
-      markup = messageText.markup,
-      message = messageText.text,
-      title = comment.title,
-      url = null,
-      linktext = null,
-      tags = null,
-      minor = false,
-      image = null,
-      lastId = null,
-      poll = null)
-  }
 }
