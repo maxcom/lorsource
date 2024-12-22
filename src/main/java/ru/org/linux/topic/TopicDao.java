@@ -24,13 +24,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
-import ru.org.linux.edithistory.EditHistoryRecord;
 import ru.org.linux.group.Group;
-import ru.org.linux.poll.Poll;
-import ru.org.linux.poll.PollDao;
-import ru.org.linux.poll.PollNotFoundException;
-import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
@@ -56,9 +50,6 @@ public class TopicDao {
 
   @Autowired
   private MsgbaseDao msgbaseDao; // TODO move to TopicService
-
-  @Autowired
-  private PollDao pollDao; // TODO move to TopicService
 
   /**
    * Запрос получения полной информации о топике
@@ -196,83 +187,30 @@ public class TopicDao {
     return msgid;
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean updateMessage(EditHistoryRecord editHistoryRecord, Topic oldMsg, Topic msg, User editor,
-                               String newText, List<PollVariant> newPollVariants,
-                               boolean multiselect) {
+  public void updateTitle(int msgid, String title) {
+    namedJdbcTemplate.update(
+            "UPDATE topics SET title=:title WHERE id=:id",
+            Map.of("title", title, "id", msgid)
+    );
+  }
 
-    editHistoryRecord.setMsgid(msg.getId());
-    editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
-    editHistoryRecord.setEditor(editor.getId());
+  public void updateLinktext(int msgid, String linktext) {
+    namedJdbcTemplate.update(
+            "UPDATE topics SET linktext=:linktext WHERE id=:id",
+            Map.of("linktext", linktext, "id", msgid)
+    );
+  }
 
-    boolean modified = false;
+  public void updateUrl(int msgid, String url) {
+    namedJdbcTemplate.update(
+            "UPDATE topics SET url=:url WHERE id=:id",
+            Map.of("url", url, "id", msgid)
+    );
+  }
 
-    String oldText = msgbaseDao.getMessageText(msg.getId()).text();
-
-    if (!oldText.equals(newText)) {
-      editHistoryRecord.setOldmessage(oldText);
-      modified = true;
-
-      msgbaseDao.updateMessage(msg.getId(), newText);
-    }
-
-    if (!oldMsg.getTitle().equals(msg.getTitle())) {
-      modified = true;
-      editHistoryRecord.setOldtitle(oldMsg.getTitle());
-
-      namedJdbcTemplate.update(
-        "UPDATE topics SET title=:title WHERE id=:id",
-        Map.of("title", msg.getTitle(), "id", msg.getId())
-      );
-    }
-
-    if (!equalStrings(oldMsg.getLinktext(), msg.getLinktext())) {
-      modified = true;
-      editHistoryRecord.setOldlinktext(oldMsg.getLinktext());
-
-      namedJdbcTemplate.update(
-        "UPDATE topics SET linktext=:linktext WHERE id=:id",
-        Map.of("linktext", msg.getLinktext(), "id", msg.getId())
-      );
-    }
-
-    if (!equalStrings(oldMsg.getUrl(), msg.getUrl())) {
-      modified = true;
-      editHistoryRecord.setOldurl(oldMsg.getUrl());
-
-      namedJdbcTemplate.update(
-        "UPDATE topics SET url=:url WHERE id=:id",
-        Map.of("url", msg.getUrl(), "id", msg.getId())
-      );
-    }
-
-    if (oldMsg.isMinor() != msg.isMinor()) {
-      namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
-              Map.of("minor", msg.isMinor(), "id", msg.getId()));
-
-      editHistoryRecord.setOldminor(oldMsg.isMinor());
-
-      modified = true;
-    }
-
-    try {
-      if (newPollVariants!=null) {
-        Poll oldPoll = pollDao.getPollByTopicId(oldMsg.getId());
-
-        if (pollDao.updatePoll(oldPoll, newPollVariants, multiselect)) {
-          editHistoryRecord.setOldPoll(oldPoll);
-          modified = true;
-        }
-      }
-    } catch (PollNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-
-    if (modified) {
-      updateLastmod(msg.getId(), false);
-    }
-
-    return modified;
+  public void setMinor(int msgid, boolean minor) {
+    namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
+            Map.of("minor", minor, "id", msgid));
   }
 
   public static boolean equalStrings(String s1, String s2) {

@@ -38,6 +38,7 @@ import ru.org.linux.user.*
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
+import java.time.Instant
 import scala.collection.mutable
 import scala.jdk.OptionConverters.RichOption
 
@@ -325,25 +326,14 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    */
   private def addEditHistoryItem(editor: User, original: Comment, originalMessageText: String, comment: Comment,
                                  messageText: String): Unit = {
-    val editHistoryRecord = new EditHistoryRecord
+    val editHistoryRecord = EditHistoryRecord(
+      msgid = original.id,
+      objectType = EditHistoryObjectTypeEnum.COMMENT,
+      editor = editor.getId,
+      oldtitle = Some(original.title).filterNot(_ == comment.title),
+      oldmessage = Some(originalMessageText).filterNot(_ == messageText))
 
-    editHistoryRecord.setMsgid(original.id)
-    editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.COMMENT)
-    editHistoryRecord.setEditor(editor.getId)
-
-    var modified = false
-
-    if (!(original.title == comment.title)) {
-      editHistoryRecord.setOldtitle(original.title)
-      modified = true
-    }
-
-    if (!(originalMessageText == messageText)) {
-      editHistoryRecord.setOldmessage(originalMessageText)
-      modified = true
-    }
-
-    if (modified) {
+    if (editHistoryRecord.oldtitle.isDefined || editHistoryRecord.oldmessage.isDefined) {
       editHistoryService.insert(editHistoryRecord)
     }
   }

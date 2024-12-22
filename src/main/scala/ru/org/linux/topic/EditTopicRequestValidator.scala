@@ -55,7 +55,7 @@ class EditTopicRequestValidator(editHistoryService: EditHistoryService) extends 
     if (editInfoList.nonEmpty) {
       val editHistoryRecord = editInfoList.head
 
-      if (form.lastEdit == null || editHistoryRecord.getEditdate.getTime.toString != form.lastEdit) {
+      if (form.lastEdit == null || editHistoryRecord.editdate.toEpochMilli != form.lastEdit) {
         errors.reject(null, "Сообщение было отредактировано независимо")
       }
     }

@@ -152,7 +152,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
     val messageText = msgbaseDao.getMessageText(message.id)
 
     if (form.fromHistory != null) {
-      form.setMsg(editHistoryService.getEditHistoryRecord(message, form.fromHistory).getOldmessage)
+      form.setMsg(editHistoryService.getEditHistoryRecord(message, form.fromHistory).oldmessage.orNull)
     } else {
       form.setMsg(messageText.text)
     }
@@ -332,7 +332,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       }
 
       val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
-        Option[Integer](changeGroupId).map(_.toInt), form.bonus, newPoll.map(_.variants).orNull, form.multiselect,
+        Option[Integer](changeGroupId).map(_.toInt), form.bonus, newPoll.map(_.variants), form.multiselect,
         editorBonus, imagePreview, additionalImagePreviews)
 
       if (changed || commit || publish) {

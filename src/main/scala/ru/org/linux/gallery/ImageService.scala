@@ -48,11 +48,11 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   def deleteImage(image: Image)(implicit session: AuthorizedSession): Unit = {
     transactional() { _ =>
-      val info = new EditHistoryRecord
-      info.setEditor(session.user.getId)
-      info.setMsgid(image.topicId)
-      info.setOldimage(image.id)
-      info.setObjectType(EditHistoryObjectTypeEnum.TOPIC)
+      val info = EditHistoryRecord(
+        editor = session.user.getId,
+        msgid = image.topicId,
+        oldimage = Some(image.id),
+        objectType = EditHistoryObjectTypeEnum.TOPIC)
 
       imageDao.deleteImage(image)
       editHistoryDao.insert(info)

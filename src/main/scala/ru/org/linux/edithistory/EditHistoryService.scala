@@ -21,11 +21,13 @@ import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.poll.{Poll, PollDao, PollNotFoundException}
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
-import ru.org.linux.tag.{TagName, TagRef, TagService}
+import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.topic.{PreparedImage, Topic, TopicTagService}
 import ru.org.linux.user.{User, UserService}
 
+import java.sql.Timestamp
 import java.util
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Service
 class EditHistoryService(topicTagService: TopicTagService, userService: UserService, textService: MessageTextService,
@@ -37,57 +39,24 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
                               minor: Boolean, image: PreparedImage, lastId: Integer,
                               poll: Poll, first: Boolean) {
     def next(dto: EditHistoryRecord): TopicEditHistoryState = {
-      val image = if (dto.getOldimage != null) {
-        if (dto.getOldimage == 0) {
+      val image = dto.oldimage.map { oldimage =>
+        if (oldimage == 0) {
           null
         } else {
-          imageService.prepareImage(imageDao.getImage(dto.getOldimage)).orNull
+          imageService.prepareImage(imageDao.getImage(oldimage)).orNull
         }
-      } else {
-        this.image
-      }
+      }.getOrElse(this.image)
 
-      val (message, lastId) = if (dto.getOldmessage != null) {
-        (dto.getOldmessage, Integer.valueOf(dto.getId))
-      } else {
-        (this.message, this.lastId)
-      }
+      val (message, lastId) = dto.oldmessage.map { oldmessage =>
+        (oldmessage, Integer.valueOf(dto.id))
+      }.getOrElse((this.message, this.lastId))
 
-      val title = if (dto.getOldtitle != null) {
-        dto.getOldtitle
-      } else {
-        this.title
-      }
-
-      val url = if (dto.getOldurl != null) {
-        dto.getOldurl
-      } else {
-        this.url
-      }
-
-      val linktext = if (dto.getOldlinktext != null) {
-        dto.getOldlinktext
-      } else {
-        this.linktext
-      }
-
-      val tags = if (dto.getOldtags != null) {
-        TagService.namesToRefs(TagName.parseAndSanitizeTagsJava(dto.getOldtags))
-      } else {
-        this.tags
-      }
-
-      val minor = if (dto.getOldminor != null) {
-        dto.getOldminor.booleanValue()
-      } else {
-        this.minor
-      }
-
-      val poll = if (dto.getOldPoll != null) {
-        dto.getOldPoll
-      } else {
-        this.poll
-      }
+      val title = dto.oldtitle.getOrElse(this.title)
+      val url = dto.oldurl.getOrElse(this.url)
+      val linktext = dto.oldlinktext.getOrElse(this.linktext)
+      val tags = dto.oldtags.map(_.map(TagService.tagRef).asJava).getOrElse(this.tags)
+      val minor = dto.oldminor.getOrElse(this.minor)
+      val poll = dto.oldPoll.getOrElse(this.poll)
 
       this.copy(image = image, message = message, lastId = lastId, title = title, url = url, linktext = linktext,
         tags = tags, minor = minor, poll = poll, first = false)
@@ -96,20 +65,20 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
     def build(dto: EditHistoryRecord): PreparedEditHistory = {
       new PreparedEditHistory(
         textService,
-        userService.getUserCached(dto.getEditor),
-        dto.getEditdate,
-        if (dto.getOldmessage != null) this.message else null,
-        if (dto.getOldtitle != null) this.title else null,
-        if (dto.getOldurl != null) this.url else null,
-        if (dto.getOldlinktext != null) this.linktext else null,
-        if (dto.getOldtags != null) this.tags else null,
+        userService.getUserCached(dto.editor),
+        new Timestamp(dto.editdate.toEpochMilli),
+        if (dto.oldmessage.isDefined) this.message else null,
+        if (dto.oldtitle.isDefined) this.title else null,
+        if (dto.oldurl.isDefined) this.url else null,
+        if (dto.oldlinktext.isDefined) this.linktext else null,
+        if (dto.oldtags.isDefined) this.tags else null,
         this.first,
         false,
-        if (dto.getOldminor != null) this.minor else null,
-        if (dto.getOldimage != null && this.image != null) this.image else null,
-        this.image == null && dto.getOldimage != null,
+        if (dto.oldminor.isDefined) this.minor else null,
+        if (dto.oldimage.isDefined && this.image != null) this.image else null,
+        this.image == null && dto.oldimage.isDefined,
         this.markup,
-        if (dto.getOldPoll != null) this.poll else null,
+        if (dto.oldPoll.isDefined) this.poll else null,
         this.lastId)
     }
 
@@ -161,17 +130,8 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
 
   private case class CommentEditHistoryState(message: String, markup: MarkupType, title: String, first: Boolean) {
     def next(dto: EditHistoryRecord): CommentEditHistoryState = {
-      val message = if (dto.getOldmessage != null) {
-        dto.getOldmessage
-      } else {
-        this.message
-      }
-
-      val title = if (dto.getOldtitle != null) {
-        dto.getOldtitle
-      } else {
-        this.title
-      }
+      val message = dto.oldmessage.getOrElse(this.message)
+      val title = dto.oldtitle.getOrElse(this.title)
 
       this.copy(first = false, message = message, title = title)
     }
@@ -179,10 +139,10 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
     def build(dto: EditHistoryRecord): PreparedEditHistory = {
       new PreparedEditHistory(
         textService,
-        userService.getUserCached(dto.getEditor),
-        dto.getEditdate,
-        if (dto.getOldmessage != null) this.message else null,
-        if (dto.getOldtitle != null) this.title else null,
+        userService.getUserCached(dto.editor),
+        new Timestamp(dto.editdate.toEpochMilli),
+        if (dto.oldmessage.isDefined) this.message else null,
+        if (dto.oldtitle.isDefined) this.title else null,
         null,
         null,
         null,
@@ -275,7 +235,7 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
   def insert(editHistoryRecord: EditHistoryRecord): Unit = editHistoryDao.insert(editHistoryRecord)
 
   def getEditorUsers(message: Topic, editInfoList: collection.Seq[EditHistoryRecord]): Set[User] = {
-    val editors = editInfoList.view.filter(_.getEditor != message.authorUserId).map(_.getEditor).toSet
+    val editors = editInfoList.view.map(_.editor).filterNot(_ == message.authorUserId).toSet
 
     userService.getUsersCached(editors).toSet
   }

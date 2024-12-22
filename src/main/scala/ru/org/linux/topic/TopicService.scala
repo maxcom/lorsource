@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
 import ru.org.linux.auth.AuthorizedSession
-import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryRecord}
+import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.gallery.{ImageDao, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
@@ -31,7 +31,7 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
-import ru.org.linux.tag.{TagName, TagService}
+import ru.org.linux.tag.TagName
 import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils
 
@@ -128,27 +128,66 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     userRefIds ++ tagUsers
   }
 
-  def updateAndCommit(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]],
-                      newText: MessageText, commit: Boolean, changeGroupId: Option[Int], bonus: Int,
-                      pollVariants: Seq[PollVariant], multiselect: Boolean,
-                      editorBonus: Map[User, Int], imagePreview: Option[UploadedImagePreview],
-                      additionalImages: Seq[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
-    val editHistoryRecord = new EditHistoryRecord
+  private def modifyTopic(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]], newText: MessageText,
+                                    pollVariants: Option[Seq[PollVariant]], multiselect: Boolean,
+                                    imagePreview: Option[UploadedImagePreview],
+                                    additionalImages: Seq[UploadedImagePreview]): Boolean = {
+    var editHistoryRecord = EditHistoryRecord(
+      msgid = oldMsg.id,
+      editor = user.getId,
+      objectType = EditHistoryObjectTypeEnum.TOPIC)
 
-    var modified = topicDao.updateMessage(editHistoryRecord, oldMsg, newMsg, user,newText.text, pollVariants.asJava, multiselect)
+    val oldText = msgbaseDao.getMessageText(oldMsg.id).text
+
+    var modified = false
+
+    if (!(oldText == newText.text)) {
+      msgbaseDao.updateMessage(oldMsg.id, newText.text)
+
+      editHistoryRecord = editHistoryRecord.copy(oldmessage = Some(oldText))
+      modified = true
+    }
+
+    if (!(oldMsg.title == newMsg.title)) {
+      topicDao.updateTitle(oldMsg.id, newMsg.title)
+
+      editHistoryRecord = editHistoryRecord.copy(oldtitle = Some(oldMsg.title))
+      modified = true
+    }
+
+    if (!TopicDao.equalStrings(oldMsg.linktext, newMsg.linktext)) {
+      topicDao.updateLinktext(oldMsg.id, newMsg.linktext)
+
+      editHistoryRecord = editHistoryRecord.copy(oldlinktext = Some(oldMsg.linktext))
+      modified = true
+    }
+
+    if (!TopicDao.equalStrings(oldMsg.url, newMsg.url)) {
+      topicDao.updateUrl(oldMsg.id, newMsg.url)
+
+      editHistoryRecord = editHistoryRecord.copy(oldurl = Some(oldMsg.url))
+      modified = true
+    }
+
+    if (oldMsg.minor != newMsg.minor) {
+      topicDao.setMinor(oldMsg.id, newMsg.minor)
+
+      editHistoryRecord = editHistoryRecord.copy(oldminor = Some(oldMsg.minor))
+      modified = true
+    }
 
     newTags.foreach { newTags =>
       val oldTags = topicTagService.getTags(newMsg)
-      val modifiedTags: Boolean = topicTagService.updateTags(newMsg.id, newTags)
+      val modifiedTags = topicTagService.updateTags(newMsg.id, newTags)
 
       if (modifiedTags) {
-        editHistoryRecord.setOldtags(TagService.tagsToString(oldTags))
+        editHistoryRecord = editHistoryRecord.copy(oldtags = Some(oldTags))
         modified = true
       }
     }
 
     imagePreview.foreach { imagePreview =>
-      replaceImage(oldMsg, imagePreview, editHistoryRecord)
+      editHistoryRecord = replaceImage(oldMsg, imagePreview, editHistoryRecord)
 
       modified = true
     }
@@ -159,22 +198,39 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
       modified = true
     }
 
+    pollVariants.foreach { newPollVariants =>
+      val oldPoll = pollDao.getPollByTopicId(oldMsg.id)
+
+      if (pollDao.updatePoll(oldPoll, newPollVariants.asJava, multiselect)) {
+        editHistoryRecord = editHistoryRecord.copy(oldPoll = Some(oldPoll))
+        modified = true
+      }
+    }
+
     if (modified) {
+      topicDao.updateLastmod(oldMsg.id, false)
       editHistoryDao.insert(editHistoryRecord)
     }
+
+    modified
+  }
+
+  def updateAndCommit(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]],
+                      newText: MessageText, commit: Boolean, changeGroupId: Option[Int], bonus: Int,
+                      pollVariants: Option[Seq[PollVariant]], multiselect: Boolean,
+                      editorBonus: Map[User, Int], imagePreview: Option[UploadedImagePreview],
+                      additionalImages: Seq[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
+    val modified = modifyTopic(newMsg = newMsg, oldMsg = oldMsg, user = user, newTags = newTags, newText = newText,
+      pollVariants = pollVariants, multiselect = multiselect, imagePreview = imagePreview,
+      additionalImages = additionalImages)
 
     val notified = if (!newMsg.draft && !newMsg.expired) {
       val section = sectionService.getSection(oldMsg.sectionId)
 
       if (newTags.isDefined && TopicService.sendTagEventsNeeded(section, oldMsg, commit)) {
         sendEvents(newText, oldMsg.id, newTags.get, oldMsg.authorUserId)
-      } else {
-        sendEvents(newText, oldMsg.id, Seq.empty, oldMsg.authorUserId)
-      }
-    } else {
-      Set.empty[Int]
-    }
-
+      } else sendEvents(newText, oldMsg.id, Seq.empty, oldMsg.authorUserId)
+    } else Set.empty[Int]
 
     if (oldMsg.draft && !newMsg.draft) {
       topicDao.publish(newMsg)
@@ -197,7 +253,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     (modified, notified)
   }
 
-  private def replaceImage(oldMsg: Topic, imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord): Unit = {
+  private def replaceImage(oldMsg: Topic, imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord): EditHistoryRecord = {
     val oldImage = imageDao.imageForTopic(oldMsg)
 
     oldImage.foreach { oldImage =>
@@ -211,9 +267,9 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     imagePreview.moveTo(galleryPath, Integer.toString(id))
 
     if (oldImage.isDefined) {
-      editHistoryRecord.setOldimage(oldImage.get.id)
+      editHistoryRecord.copy(oldimage = Some(oldImage.get.id))
     } else {
-      editHistoryRecord.setOldimage(0)
+      editHistoryRecord.copy(oldimage = Some(0))
     }
   }
 

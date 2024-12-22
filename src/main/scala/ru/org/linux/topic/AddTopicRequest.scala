@@ -75,7 +75,7 @@ class EditTopicRequest(
                         @BeanProperty var uploadedImage: String = null,
                         @BeanProperty var additionalUploadedImages: Array[String] = new Array[String](0),
                         @BeanProperty var additionalImage: Array[MultipartFile] = null,
-                        @BeanProperty var lastEdit: String = null
+                        @BeanProperty var lastEdit: Integer = null
                       ) extends ImageTopicRequest {
   def this() = this(title = null) // нужен конструктор по умолчанию для spring
 
