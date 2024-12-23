@@ -929,6 +929,7 @@
             <configuration>
               <stopKey>foo</stopKey>
               <stopPort>9999</stopPort>
+              <stopWait>10</stopWait>
 
               <webAppConfig>
                 <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>

@@ -132,7 +132,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.topicId, msgid)
       realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions)
 
-      new ModelAndView(new RedirectView(add.getTopic.getLink + "?cid=" + msgid))
+      new ModelAndView(new RedirectView(add.getTopic.getLink + "?cid=" + msgid, false, false))
     }
   }
 

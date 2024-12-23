@@ -21,7 +21,8 @@ import org.specs2.runner.JUnitRunner
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import ru.org.linux.test.WebHelper
-import ru.org.linux.topic.AddTopicControllerWebTest.{TestPassword, TestUser}
+import ru.org.linux.test.WebHelper.{TestPassword, TestUser}
+import ru.org.linux.topic.AddTopicControllerWebTest.{TestGroup, TestTitle}
 import sttp.client3.*
 import sttp.model.StatusCode
 
@@ -30,8 +31,6 @@ import scala.jdk.CollectionConverters.*
 object AddTopicControllerWebTest {
   private val TestGroup = 4068
   private val TestGroupNews = 2
-  private val TestUser = "Shaman007"
-  private val TestPassword = "passwd"
   private val TestTitle = "Test Title"
 }
 
@@ -69,29 +68,8 @@ class AddTopicControllerWebTest extends Specification {
       doc.select("input[name=csrf]").asScala must not be empty
     }
 
-    "perform post" in {
-      val auth = WebHelper.doLogin(AddTopicControllerWebTest.TestUser, AddTopicControllerWebTest.TestPassword)
-
-      val response = basicRequest
-        .body(Map(
-          "section" -> Section.SECTION_FORUM.toString,
-          "group" -> AddTopicControllerWebTest.TestGroup.toString,
-          "csrf" -> "csrf",
-          "title" -> AddTopicControllerWebTest.TestTitle))
-        .cookie(WebHelper.AuthCookie, auth)
-        .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
-        .post(WebHelper.MainUrl.addPath("add.jsp"))
-        .send(WebHelper.backend)
-
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
-
-      doc.select("#messageForm").asScala must be empty
-
-      response.code must be equalTo StatusCode.Ok
-
-      val finalDoc = Jsoup.parse(response.body.merge, response.request.uri.toString())
-
-      finalDoc.select("h1[itemprop=headline] a").text must be equalTo AddTopicControllerWebTest.TestTitle
+    "perform post" in WebHelper.Authorized() { auth =>
+      WebHelper.createTopic(auth, TestGroup, TestTitle) must beRight
     }
 
     "post news without auth" in {

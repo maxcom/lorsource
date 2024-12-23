@@ -114,7 +114,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
     val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)
 
     if (editInfoList.nonEmpty) {
-      params.put("editInfo", editInfoList.head)
+      params.put("lastEdit", Long.box(editInfoList.head.editdate.toEpochMilli))
       val editors = editHistoryService.getEditorUsers(message, editInfoList)
 
       params.put("editors", editors.asJava)

@@ -109,7 +109,7 @@ class EditHistoryDao(dataSource: DataSource) {
       "object_type" -> record.objectType,
       "oldminor" -> record.oldminor.orNull,
       "oldimage" -> record.oldimage.orNull,
-      "oldpoll" -> Option(record.oldPoll).map(_.asJson).orNull
+      "oldpoll" -> record.oldPoll.map(_.asJson).orNull
     ).asJava)
   }
 }

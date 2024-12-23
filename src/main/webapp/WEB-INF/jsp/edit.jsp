@@ -23,7 +23,6 @@
 <%--@elvariable id="newPreparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
-<%--@elvariable id="editInfo" type="ru.org.linux.topic.EditInfoDto"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
@@ -78,8 +77,8 @@
   <form:errors cssClass="error" path="*" element="div"/>
 
   <input type="hidden" name="msgid" value="${message.id}">
-  <c:if test="${editInfo!=null}">
-    <input type="hidden" name="lastEdit" value="${editInfo.editdate.time}">
+  <c:if test="${lastEdit!=null}">
+    <input type="hidden" name="lastEdit" value="${lastEdit}">
   </c:if>
 
   <c:if test="${topicMenu.topicEditable}">
