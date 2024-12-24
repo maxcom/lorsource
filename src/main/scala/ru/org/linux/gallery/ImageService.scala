@@ -48,11 +48,21 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   def deleteImage(image: Image)(implicit session: AuthorizedSession): Unit = {
     transactional() { _ =>
-      val info = EditHistoryRecord(
-        editor = session.user.getId,
-        msgid = image.topicId,
-        oldimage = Some(image.id),
-        objectType = EditHistoryObjectTypeEnum.TOPIC)
+      val info = if (image.main) {
+        EditHistoryRecord(
+          editor = session.user.getId,
+          msgid = image.topicId,
+          oldimage = Some(image.id),
+          objectType = EditHistoryObjectTypeEnum.TOPIC)
+      } else {
+        val oldImages = imageDao.allImagesForTopic(image.topicId).filterNot(_.main)
+
+        EditHistoryRecord(
+          editor = session.user.getId,
+          msgid = image.topicId,
+          oldaddimages = Some(oldImages.map(_.id)),
+          objectType = EditHistoryObjectTypeEnum.TOPIC)
+      }
 
       imageDao.deleteImage(image)
       editHistoryDao.insert(info)
@@ -95,7 +105,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems).asJava
 
-  def allImagesForTopic(topic: Topic): Seq[Image] = imageDao.allImagesForTopic(topic)
+  def allImagesForTopic(topic: Topic): Seq[Image] = imageDao.allImagesForTopic(topic.id)
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])

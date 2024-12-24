@@ -40,7 +40,8 @@ case class EditHistoryRecord(
   oldurl: Option[String] = None,
   oldminor: Option[Boolean] = None,
   oldimage: Option[Int] = None,
-  oldPoll: Option[Poll] = None)
+  oldPoll: Option[Poll] = None,
+  oldaddimages: Option[Seq[Int]] = None)
 
 @Repository
 class EditHistoryDao(dataSource: DataSource) {
@@ -49,7 +50,7 @@ class EditHistoryDao(dataSource: DataSource) {
     new SimpleJdbcInsert(dataSource)
       .withTableName("edit_info")
       .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl",
-        "object_type", "oldminor", "oldimage", "oldpoll")
+        "object_type", "oldminor", "oldimage", "oldpoll", "oldaddimages")
 
   private def parseEditHistoryRecord(resultSet: ResultSet) = {
     EditHistoryRecord(
@@ -75,7 +76,10 @@ class EditHistoryDao(dataSource: DataSource) {
       },
       oldPoll = Option(resultSet.getString("oldpoll")).map { json =>
         parse(json).toTry.flatMap(_.as[Poll].toTry).get
-      })
+      },
+      oldaddimages = Option(resultSet.getArray("oldaddimages"))
+        .map(_.getArray.asInstanceOf[Array[Integer]].toSeq.map(_.toInt))
+    )
   }
 
   /**
@@ -109,7 +113,8 @@ class EditHistoryDao(dataSource: DataSource) {
       "object_type" -> record.objectType,
       "oldminor" -> record.oldminor.orNull,
       "oldimage" -> record.oldimage.orNull,
-      "oldpoll" -> record.oldPoll.map(_.asJson).orNull
+      "oldpoll" -> record.oldPoll.map(_.asJson).orNull,
+      "oldaddimages" -> record.oldaddimages.map(_.toArray).orNull
     ).asJava)
   }
 }

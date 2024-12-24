@@ -37,7 +37,7 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
   private case class TopicEditHistoryState(message: String, markup: MarkupType, title: String,
                               url: String, linktext: String, tags: util.List[TagRef],
                               minor: Boolean, image: PreparedImage, lastId: Integer,
-                              poll: Poll, first: Boolean) {
+                              poll: Poll, first: Boolean, additionalImages: Seq[PreparedImage]) {
     def next(dto: EditHistoryRecord): TopicEditHistoryState = {
       val image = dto.oldimage.map { oldimage =>
         if (oldimage == 0) {
@@ -46,6 +46,10 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
           imageService.prepareImage(imageDao.getImage(oldimage)).orNull
         }
       }.getOrElse(this.image)
+
+      val additionalImages = dto.oldaddimages.map { additionalImages =>
+        additionalImages.map(imageDao.getImage).flatMap(imageService.prepareImage)
+      }.getOrElse(this.additionalImages)
 
       val (message, lastId) = dto.oldmessage.map { oldmessage =>
         (oldmessage, Integer.valueOf(dto.id))
@@ -59,10 +63,24 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
       val poll = dto.oldPoll.getOrElse(this.poll)
 
       this.copy(image = image, message = message, lastId = lastId, title = title, url = url, linktext = linktext,
-        tags = tags, minor = minor, poll = poll, first = false)
+        tags = tags, minor = minor, poll = poll, first = false, additionalImages = additionalImages)
     }
 
     def build(dto: EditHistoryRecord): PreparedEditHistory = {
+      val imageDeleted = this.image == null && dto.oldimage.isDefined
+
+      val addedImages = if (dto.oldaddimages.isDefined) {
+        this.additionalImages.filterNot(img => dto.oldaddimages.get.contains(img.getImage.id)).asJava
+      } else {
+        null
+      }
+
+      val removedImages = if (dto.oldaddimages.isDefined) {
+        dto.oldaddimages.get.filterNot(this.additionalImages.map(_.getImage.id).contains).map(imageDao.getImage).flatMap(imageService.prepareImage).asJava
+      } else {
+        null
+      }
+
       new PreparedEditHistory(
         textService,
         userService.getUserCached(dto.editor),
@@ -76,10 +94,12 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
         false,
         if (dto.oldminor.isDefined) this.minor else null,
         if (dto.oldimage.isDefined && this.image != null) this.image else null,
-        this.image == null && dto.oldimage.isDefined,
+        imageDeleted,
         this.markup,
         if (dto.oldPoll.isDefined) this.poll else null,
-        this.lastId)
+        this.lastId,
+        addedImages,
+        removedImages)
     }
 
     def buildLast(topic: Topic): PreparedEditHistory = {
@@ -99,14 +119,17 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
         false,
         this.markup,
         this.poll,
-        this.lastId)
+        this.lastId,
+        this.additionalImages.asJava,
+        null)
     }
   }
 
   private object TopicEditHistoryState {
     def fromTopic(topic: Topic): TopicEditHistoryState = {
       val messageText: MessageText = msgbaseDao.getMessageText(topic.id)
-      val maybeImage = imageDao.imageForTopic(topic)
+      val images = imageService.allImagesForTopic(topic)
+      val maybeImage = images.find(_.main)
 
       new TopicEditHistoryState(
         message = messageText.text,
@@ -124,7 +147,8 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
           case _: PollNotFoundException =>
             null
         },
-        first = true)
+        first = true,
+        additionalImages = images.filterNot(_.main).flatMap(imageService.prepareImage))
     }
   }
 
@@ -153,6 +177,8 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
         false,
         this.markup,
         null,
+        null,
+        null,
         null)
     }
 
@@ -172,6 +198,8 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
         null,
         false,
         this.markup,
+        null,
+        null,
         null,
         null)
     }

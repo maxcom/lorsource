@@ -23,7 +23,7 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
-import ru.org.linux.gallery.{ImageDao, ImageService, UploadedImagePreview}
+import ru.org.linux.gallery.{Image, ImageDao, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{PollDao, PollVariant}
@@ -138,6 +138,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
       objectType = EditHistoryObjectTypeEnum.TOPIC)
 
     val oldText = msgbaseDao.getMessageText(oldMsg.id).text
+    val oldImages = imageService.allImagesForTopic(oldMsg)
 
     var modified = false
 
@@ -187,13 +188,14 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
 
     imagePreview.foreach { imagePreview =>
-      editHistoryRecord = replaceImage(oldMsg, imagePreview, editHistoryRecord)
+      editHistoryRecord = replaceImage(oldMsg, oldImages.find(_.main), imagePreview, editHistoryRecord)
 
       modified = true
     }
 
     additionalImages.foreach { imagePreview =>
       imageService.saveImage(imagePreview, oldMsg.id, main = false)
+      editHistoryRecord = editHistoryRecord.copy(oldaddimages = Some(oldImages.filterNot(_.main).map(_.id)))
 
       modified = true
     }
@@ -253,9 +255,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     (modified, notified)
   }
 
-  private def replaceImage(oldMsg: Topic, imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord): EditHistoryRecord = {
-    val oldImage = imageDao.imageForTopic(oldMsg)
-
+  private def replaceImage(oldMsg: Topic, oldImage: Option[Image], imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord): EditHistoryRecord = {
     oldImage.foreach { oldImage =>
       imageDao.deleteImage(oldImage)
     }

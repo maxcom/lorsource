@@ -20,9 +20,7 @@ import org.springframework.stereotype.Repository
 import ru.org.linux.gallery.ImageDao.galleryItemRowMapper
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
-import ru.org.linux.topic.Topic
 
-import javax.annotation.Nullable
 import javax.sql.DataSource
 import java.sql.ResultSet
 import scala.jdk.CollectionConverters.MapHasAsJava
@@ -102,15 +100,9 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
     jdbcTemplate.queryAndMap(sql, tagId, countItems)(galleryItemRowMapper(gallery))
   }
 
-  @Nullable
-  def imageForTopic(topic: Topic): Option[Image] =
+  def allImagesForTopic(topicId: Int): Seq[Image] =
     jdbcTemplate.queryAndMap(
-        "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted AND main", topic.id
-    )(ImageDao.imageRowMapper).headOption
-
-  def allImagesForTopic(topic: Topic): Seq[Image] =
-    jdbcTemplate.queryAndMap(
-      "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted ORDER BY id", topic.id
+      "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted ORDER BY id", topicId
     )(ImageDao.imageRowMapper)
 
   def getImage(id: Int): Image =
