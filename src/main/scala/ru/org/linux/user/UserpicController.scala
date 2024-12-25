@@ -73,10 +73,13 @@ class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: U
         var photoname: String = null
         var photofile: File = null
 
-        do {
+        var done: Boolean = false
+
+        while (!done) {
           photoname = s"${currentUser.user.getId}:${random.nextInt}.$extension"
           photofile = new File(siteConfig.getUploadPath + "/photos", photoname)
-        } while (photofile.exists)
+          done = !photofile.exists()
+        }
 
         Files.move(uploadedFile, photofile.toPath)
         photofile.setReadable(true, false)
