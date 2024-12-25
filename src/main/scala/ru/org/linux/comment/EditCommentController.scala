@@ -27,7 +27,7 @@ import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
-import ru.org.linux.topic.{TopicLinkBuilder, TopicPermissionService}
+import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.user.IgnoreListDao
 import ru.org.linux.util.ServletParameterException
 
@@ -134,7 +134,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       searchQueueSender.updateComment(commentRequest.getOriginal.id)
 
-      val returnUrl = TopicLinkBuilder.baseLink(commentRequest.getTopic).comment(commentRequest.getOriginal.id).build()
+      val returnUrl = commentRequest.getTopic.getLink + "?cid=" +commentRequest.getOriginal.id
 
       new ModelAndView(new RedirectView(returnUrl, false, false))
     }
