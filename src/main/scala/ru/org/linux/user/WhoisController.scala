@@ -127,8 +127,10 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     if (viewByOwner || currentUserOpt.moderator) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user))
 
-      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator)
-      if (!logItems.isEmpty) mv.addObject("userlog", userLogPrepareService.prepare(logItems))
+      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator).asScala
+      if (logItems.nonEmpty) {
+        mv.addObject("userlog", userLogPrepareService.prepare(logItems).asJava)
+      }
 
       mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))
       mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user))
