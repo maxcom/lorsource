@@ -27,10 +27,10 @@ import DefaultProfile.*
 object Profile {
   val DEFAULT: Profile = apply(new ProfileHashtable(DefaultProfile.getDefaultProfile, util.Map.of), null)
 
-  def fixFormat(mode: String): String = if (MarkupType.AllFormIds.contains(mode)) {
-    mode
+  def fixFormat(mode: String): MarkupType = if (MarkupType.AllFormIds.contains(mode)) {
+    MarkupType.ofFormId(mode)
   } else {
-    DefaultProfile.getDefaultProfile.get("format.mode").asInstanceOf[String]
+    MarkupType.ofFormId(DefaultProfile.getDefaultProfile.get("format.mode").asInstanceOf[String])
   }
 
   def fixStyle(style: String): String = {
@@ -62,7 +62,7 @@ object Profile {
   }
 }
 
-case class Profile(style: String, formatMode: String, @BeanProperty messages: Int, @BeanProperty topics: Int,
+case class Profile(style: String, formatMode: MarkupType, @BeanProperty messages: Int, @BeanProperty topics: Int,
                    @BooleanBeanProperty showPhotos: Boolean, @BooleanBeanProperty hideAdsense: Boolean,
                    @BooleanBeanProperty showGalleryOnMain: Boolean, @BeanProperty avatarMode: String,
                    @BooleanBeanProperty oldTracker: Boolean, @BeanProperty trackerMode: TrackerFilterEnum,

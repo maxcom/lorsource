@@ -110,7 +110,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
-    val msg = commentService.getCommentBody(commentRequest, user, errors, originalMessageText.markup.formId)
+    val msg = commentService.getCommentBody(commentRequest, user, errors, originalMessageText.markup)
 
     if (commentRequest.getTopic != null) {
       val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)

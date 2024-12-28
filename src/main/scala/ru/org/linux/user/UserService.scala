@@ -347,10 +347,10 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     val mode = profile.formatMode
 
-    val modeFixed = if (UserPermissionService.allowedFormats(user).map(_.formId).contains(mode)) {
+    val modeFixed = if (UserPermissionService.allowedFormats(user).contains(mode)) {
       mode
     } else {
-      MarkupType.Lorcode.formId
+      MarkupType.ofFormId(DefaultProfile.getDefaultProfile.get("format.mode").asInstanceOf[String])
     }
 
     val boxletsFixed = profile.boxes.filter(DefaultProfile.isBox)

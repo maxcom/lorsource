@@ -168,7 +168,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       form.setAllowAnonymous(true)
     }
 
-    val message = MessageText(Strings.nullToEmpty(form.msg), ofFormId(sessionUserOpt.profile.formatMode))
+    val message = MessageText(Strings.nullToEmpty(form.msg), sessionUserOpt.profile.formatMode)
 
     if (!postingUser.authorized) {
       if (message.text.length > AddTopicController.MaxMessageLengthAnonymous) {

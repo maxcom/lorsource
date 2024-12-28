@@ -47,7 +47,7 @@ public final class Template {
 
   /* used in jsp */
   public String getFormatMode() {
-    return userProfile.formatMode();
+    return userProfile.formatMode().formId();
   }
 
   /* used in jsp */

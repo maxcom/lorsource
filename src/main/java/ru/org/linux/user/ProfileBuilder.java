@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import ru.org.linux.markup.MarkupType;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.tracker.TrackerFilterEnum;
 import ru.org.linux.util.ProfileHashtable;
@@ -29,7 +30,7 @@ import static ru.org.linux.site.DefaultProfile.*;
 
 public class ProfileBuilder {
   private String style;
-  private String formatMode;
+  private MarkupType formatMode;
   private int messages;
   private int topics;
   private boolean showPhotos;
@@ -62,7 +63,7 @@ public class ProfileBuilder {
     ProfileHashtable p = new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>());
 
     p.setString(STYLE_PROPERTY, style);
-    p.setString(FORMAT_MODE_PROPERTY, formatMode);
+    p.setString(FORMAT_MODE_PROPERTY, formatMode.formId());
     p.setInt(MESSAGES_PROPERTY, messages);
     p.setInt(TOPICS_PROPERTY, topics);
     p.setBoolean(PHOTOS_PROPERTY, showPhotos);

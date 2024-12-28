@@ -18,15 +18,12 @@ package ru.org.linux.markup
 import com.google.common.base.Strings
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.markup.MarkupType.*
 import ru.org.linux.spring.dao.MessageText
-import ru.org.linux.user.{User, UserPermissionService}
+import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.bbcode.LorCodeService
 import ru.org.linux.util.markdown.MarkdownFormatter
-
-import scala.collection.immutable.ListMap
 
 @Service
 class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
@@ -184,16 +181,6 @@ object MessageTextService {
       StringUtil.escapeForceHtml(cut)
     } else {
       cut
-    }
-  }
-
-  def postingModeSelector(user: Option[AuthorizedSession], defaultMarkup: String): Map[String, String] = {
-    val modes = UserPermissionService.allowedFormats(user.map(_.user).orNull).filter(f => !f.deprecated || f.formId == defaultMarkup)
-
-    if (modes.size > 1) {
-      ListMap(modes.toSeq.sortBy(_.order).map(m => m.formId -> m.title) *)
-    } else {
-      Map.empty[String, String]
     }
   }
 }

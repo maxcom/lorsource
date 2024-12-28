@@ -28,7 +28,7 @@ import ru.org.linux.edithistory.EditHistoryObjectTypeEnum
 import ru.org.linux.edithistory.EditHistoryRecord
 import ru.org.linux.edithistory.EditHistoryService
 import ru.org.linux.markup.MarkupType.ofFormId
-import ru.org.linux.markup.MessageTextService
+import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.spring.dao.MsgbaseDao
@@ -151,8 +151,8 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * @param errors         обработчик ошибок ввода для формы
    * @return текст комментария
    */
-  def getCommentBody(commentRequest: CommentRequest, user: User, errors: Errors, mode: String): MessageText = {
-    val messageText = MessageText(commentRequest.getMsg, ofFormId(mode))
+  def getCommentBody(commentRequest: CommentRequest, user: User, errors: Errors, mode: MarkupType): MessageText = {
+    val messageText = MessageText(commentRequest.getMsg, mode)
 
     val maxLength = if (user.isAnonymous) 4096 else 8192
 

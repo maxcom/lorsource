@@ -105,7 +105,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(postingUser)
     }
 
-    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.ofFormId(sessionUserOpt.profile.formatMode)))) {
+    if (textService.isEmpty(MessageText.apply(add.getMsg, sessionUserOpt.profile.formatMode))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 

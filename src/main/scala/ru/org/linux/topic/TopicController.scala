@@ -275,7 +275,6 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
     params.put("ipBlockInfo", ipBlockInfo)
-    params.put("modes", MessageTextService.postingModeSelector(session.opt, session.profile.formatMode).asJava)
 
     val add = new CommentRequest
     params.put("add", add)
