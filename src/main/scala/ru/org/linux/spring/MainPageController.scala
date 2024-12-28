@@ -66,13 +66,34 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
       mv.getModel.put("uncommited", Int.box(uncommited))
 
+      val uncommitedGallery = if (uncommited > 0) {
+        topicDao.getUncommitedCount(Section.SECTION_GALLERY)
+      } else {
+        0
+      }
+
       val uncommitedNews = if (uncommited > 0) {
         topicDao.getUncommitedCount(Section.SECTION_NEWS)
       } else {
         0
       }
 
+      val uncommitedPolls = if (uncommited > 0) {
+        topicDao.getUncommitedCount(Section.SECTION_POLLS)
+      } else {
+        0
+      }
+
+      val uncommitedArticles = if (uncommited > 0) {
+        topicDao.getUncommitedCount(Section.SECTION_ARTICLES)
+      } else {
+        0
+      }
+
+      mv.getModel.put("uncommitedGallery", Int.box(uncommitedGallery))
       mv.getModel.put("uncommitedNews", Int.box(uncommitedNews))
+      mv.getModel.put("uncommitedPolls", Int.box(uncommitedPolls))
+      mv.getModel.put("uncommitedArticles", Int.box(uncommitedArticles))
     }
 
     mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
