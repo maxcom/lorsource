@@ -101,35 +101,22 @@
   </script>
 
   <c:if test="${template.moderatorSession or template.correctorSession}">
-<div class="nav"   style="border-bottom: none">
+<div class="nav" style="border-bottom: none">
   <c:if test="${uncommited > 0}">
     [<a href="view-all.jsp">Неподтверждённых</a>: ${uncommited},
       в том числе 
     <c:if test="${uncommitedGallery > 0}">
       <a href="view-all.jsp?section=3">изображений</a>:&nbsp;${uncommitedGallery};
     </c:if>
-    <c:if test="${uncommitedGallery == 0}">
-      изображений нет;
-    </c:if>
     <c:if test="${uncommitedNews > 0}">
       <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews};
-    </c:if>
-    <c:if test="${uncommitedNews == 0}">
-      новостей нет;
     </c:if>
     <c:if test="${uncommitedPolls > 0}">
       <a href="view-all.jsp?section=5">опросов</a>:&nbsp;${uncommitedPolls};
     </c:if>
-    <c:if test="${uncommitedPolls == 0}">
-      опросов нет;
-    </c:if>
     <c:if test="${uncommitedArticles > 0}">
       <a href="view-all.jsp?section=6">статей</a>:&nbsp;${uncommitedArticles};
-    </c:if>
-    <c:if test="${uncommitedArticles == 0}">
-      статей нет
-    </c:if>
-    ]
+    </c:if>]
   </c:if>
 </div>
 </c:if>
