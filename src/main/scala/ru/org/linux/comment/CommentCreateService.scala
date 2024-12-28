@@ -27,6 +27,7 @@ import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum
 import ru.org.linux.edithistory.EditHistoryRecord
 import ru.org.linux.edithistory.EditHistoryService
+import ru.org.linux.markup.MarkupType.ofFormId
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.spring.dao.MessageText
@@ -151,12 +152,11 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * @return текст комментария
    */
   def getCommentBody(commentRequest: CommentRequest, user: User, errors: Errors, mode: String): MessageText = {
-    val messageText = MessageTextService.processPostingText(commentRequest.getMsg, mode)
-    val commentBody = messageText.text
+    val messageText = MessageText(commentRequest.getMsg, ofFormId(mode))
 
     val maxLength = if (user.isAnonymous) 4096 else 8192
 
-    if (commentBody.length > maxLength) {
+    if (messageText.text.length > maxLength) {
       errors.rejectValue("msg", null, "Слишком большое сообщение")
     }
 

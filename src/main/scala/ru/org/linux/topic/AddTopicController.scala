@@ -32,6 +32,7 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
 import ru.org.linux.gallery.UploadedImagePreview
 import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
+import ru.org.linux.markup.MarkupType.ofFormId
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
@@ -167,7 +168,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       form.setAllowAnonymous(true)
     }
 
-    val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.msg), sessionUserOpt.profile.formatMode)
+    val message = MessageText(Strings.nullToEmpty(form.msg), ofFormId(sessionUserOpt.profile.formatMode))
 
     if (!postingUser.authorized) {
       if (message.text.length > AddTopicController.MaxMessageLengthAnonymous) {

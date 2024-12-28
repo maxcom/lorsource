@@ -119,7 +119,8 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     val userinfo = userDao.getUserInfo(user)
 
     if (!Strings.isNullOrEmpty(userinfo)) {
-      mv.getModel.put("userInfoText", lorCodeService.parseComment(userinfo, !topicPermissionService.followAuthorLinks(user)))
+      mv.getModel.put("userInfoText",
+        lorCodeService.parseComment(userinfo, !topicPermissionService.followAuthorLinks(user), LorCodeService.Plain))
     }
 
     mv.addObject("favoriteTags", userTagService.favoritesGet(user))

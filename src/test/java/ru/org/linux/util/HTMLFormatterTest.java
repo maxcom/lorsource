@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,6 +24,7 @@ import ru.org.linux.comment.CommentDao;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.markup.MarkupType;
+import ru.org.linux.markup.MarkupType$;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.MessageText;
@@ -37,6 +38,8 @@ import ru.org.linux.util.markdown.FlexmarkMarkdownFormatter;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static ru.org.linux.util.bbcode.LorCodeService.prepareLorcode;
+import static ru.org.linux.util.bbcode.LorCodeService.prepareUlb;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeFooter;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.citeHeader;
 
@@ -324,11 +327,11 @@ public class HTMLFormatterTest {
 
     for(int i = 0; i<text.length; i++){
       String entry = text[i];
-      assertEquals(bb_tex[i], MessageTextService.prepareLorcode(entry));
-      assertEquals(html_tex[i], lorCodeService.parseComment(MessageTextService.prepareLorcode(entry), false));
+      assertEquals(bb_tex[i], prepareLorcode(entry));
+      assertEquals(html_tex[i], lorCodeService.parseComment(entry, false, LorCodeService.Lorcode$.MODULE$));
 
-      assertEquals(bb[i], MessageTextService.prepareUlb(entry));
-      assertEquals(html[i], lorCodeService.parseComment(MessageTextService.prepareUlb(entry), false));
+      assertEquals(bb[i], prepareUlb(entry));
+      assertEquals(html[i], lorCodeService.parseComment(entry, false, LorCodeService.Ulb$.MODULE$));
     }
   }
 
@@ -336,11 +339,11 @@ public class HTMLFormatterTest {
   public void inCodeEscape() {
     assertEquals(
         "<div class=\"code\"><pre class=\"no-highlight\"><code>&amp;#9618;</code></pre></div>",
-        lorCodeService.parseTopic("[code]&#9618;[/code]", false)
+        lorCodeService.parseTopic("[code]&#9618;[/code]", false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<p>&#9618;</p>",
-        lorCodeService.parseTopic("&#9618;", false)
+        lorCodeService.parseTopic("&#9618;", false, LorCodeService.Plain$.MODULE$)
     );
   }
 
@@ -350,49 +353,42 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][*]two[br][*]three[br][/list]",
-        MessageTextService.prepareUlb(a)
-    );
-    assertEquals(
-        "[list]\n[*]one\n[*]two\n[*]three\n[/list]",
-        MessageTextService.processPostingText(a, "lorcode").text()
+        prepareUlb(a)
     );
 
     // toLorCodeFormatter.format(a)
-    String b = MessageTextService.prepareUlb(a);
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Ulb$.MODULE$)
     );
 
-    // toLorCodeTexFormatter.format(a)
-    b = MessageTextService.processPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one\n</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Plain$.MODULE$)
     );
   }
 
@@ -401,49 +397,43 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][br][*]two[br][*]three[br][/list]",
-        MessageTextService.prepareUlb(a)
-    );
-    assertEquals(
-        "[list]\n[*]one\n\n[*]two\n[*]three\n[/list]",
-            MessageTextService.processPostingText(a, "lorcode").text()
+        prepareUlb(a)
     );
 
     // toLorCodeFormatter.format(a, true)
-    String b = MessageTextService.prepareUlb(a);
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Ulb$.MODULE$)
     );
 
     // toLorCodeTexFormatter.format(a)
-    b = MessageTextService.processPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one</li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Plain$.MODULE$)
     );
   }
 
@@ -452,49 +442,43 @@ public class HTMLFormatterTest {
     String a = "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]";
     assertEquals(
         "[list][br][*]one[br][br]crap[br][*]two[br][*]three[br][/list]",
-            MessageTextService.prepareUlb(a)
-    );
-    assertEquals(
-        "[list]\n[*]one\n\ncrap\n[*]two\n[*]three\n[/list]",
-            MessageTextService.processPostingText(a, "lorcode").text()
+            prepareUlb(a)
     );
 
     // toLorCodeFormatter.format(a)
-    String b = MessageTextService.prepareUlb(a);
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Ulb$.MODULE$)
     );
     assertEquals(
         "<p><br></p><ul><li>one<br><br>crap<br></li><li>two<br></li><li>three<br></li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Ulb$.MODULE$)
     );
 
     // toLorCodeTexFormatter.format(a)
-    b = MessageTextService.processPostingText(a, "lorcode").text();
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseComment(b, false)
+        lorCodeService.parseComment(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "<ul><li>one<p>crap\n</p></li><li>two\n</li><li>three\n</li></ul>",
-        lorCodeService.parseTopic(b, false)
+        lorCodeService.parseTopic(a, false, LorCodeService.Plain$.MODULE$)
     );
   }
 
@@ -502,36 +486,36 @@ public class HTMLFormatterTest {
   public void testOg() {
     assertEquals(
         "hello",
-        lorCodeService.extractPlainTextFromLorcode("hello")
+        lorCodeService.extractPlain("hello", LorCodeService.Plain$.MODULE$)
     );
 
     assertEquals(
         "one crap two three",
-        lorCodeService.extractPlainTextFromLorcode("""
+        lorCodeService.extractPlain("""
                 [list]
                 [*]one
 
                 crap
                 [*]two
                 [*]three
-                [/list]""")
+                [/list]""", LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "due ««one» teo «neo»» wuf?\nok",
-        lorCodeService.extractPlainTextFromLorcode("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok")
+        lorCodeService.extractPlain("due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok", LorCodeService.Plain$.MODULE$)
     );
     assertEquals(
         "&amp;#9618;",
-            MessageTextService.trimPlainText(lorCodeService.extractPlainTextFromLorcode("[code]&#9618;[/code]"), 250, true)
+            MessageTextService.trimPlainText(lorCodeService.extractPlain("[code]&#9618;[/code]", LorCodeService.Plain$.MODULE$), 250, true)
     );
     String txt = "many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]many many [b]texxt [/b]";
     assertEquals(
         "many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  texxt many many  t...",
-            MessageTextService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true)
+            MessageTextService.trimPlainText(lorCodeService.extractPlain(txt, LorCodeService.Plain$.MODULE$), 250, true)
     );
     assertEquals(
         250+3,
-        MessageTextService.trimPlainText(lorCodeService.extractPlainTextFromLorcode(txt), 250, true).length()
+        MessageTextService.trimPlainText(lorCodeService.extractPlain(txt, LorCodeService.Plain$.MODULE$), 250, true).length()
     );
   }
 
@@ -550,7 +534,7 @@ public class HTMLFormatterTest {
   public void testMDash() {
     assertEquals(
         "<ul><li><a href=\"http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html\">PMake&nbsp;&mdash; A Tutorial</a></li></ul>",
-        lorCodeService.parseComment("[list][*][url=http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html]PMake -- A Tutorial[/url][/list]", false)
+        lorCodeService.parseComment("[list][*][url=http://www.freebsd.org/doc/en_US.ISO8859-1/books/pmake/index.html]PMake -- A Tutorial[/url][/list]", false, LorCodeService.Plain$.MODULE$)
     );
   }
 
@@ -558,7 +542,7 @@ public class HTMLFormatterTest {
   public void testInCodeQuotes() {
     assertEquals(
         "<p>Smth about &#171;quotes&#187;? Look here: <div class=\"code\"><pre class=\"no-highlight\"><code>I love to eat &quot;white&quot; icecream</code></pre></div></p>",
-        lorCodeService.parseComment("Smth about \"quotes\"? Look here: [code]I love to eat \"white\" icecream[/code]", false)
+        lorCodeService.parseComment("Smth about \"quotes\"? Look here: [code]I love to eat \"white\" icecream[/code]", false, LorCodeService.Plain$.MODULE$)
     );
   }
 
@@ -566,18 +550,18 @@ public class HTMLFormatterTest {
   public void testLocalBuffer() {
     assertEquals(
         "<p>This is simple &#171;local <u>buffer</u>&#187; test </p>",
-        lorCodeService.parseComment("This is simple \"local [u]buffer[/u]\" test ", false)
+        lorCodeService.parseComment("This is simple \"local [u]buffer[/u]\" test ", false, LorCodeService.Plain$.MODULE$)
     );
   }
 
   @Test
   public void testUrlQuotes() {
     assertEquals("<p><a href=\"https://www.linux.org.ru/search.jsp?q=&quot;100%25&quot;\">www.linux.org.ru/search.jsp?q=&quot;100%&quot;</a></p>",
-        lorCodeService.parseComment("www.linux.org.ru/search.jsp?q=\"100%\"", false));
+        lorCodeService.parseComment("www.linux.org.ru/search.jsp?q=\"100%\"", false, LorCodeService.Plain$.MODULE$));
     assertEquals("<p><a href=\"http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;\">http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;</a></p>",
-        lorCodeService.parseComment("http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;", false));
+        lorCodeService.parseComment("http://www.olo.org.ru/search.jsp?q=&quot;privet&quot;", false, LorCodeService.Plain$.MODULE$));
     assertEquals("<p><a href=\"http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82%22&amp;oldQ=&amp;range=ALL&amp;interval=ALL&amp;user=&amp;_usertopic=on&amp;csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D\">http://127.0.0.1:8080/search.jsp?q=&quot;тест-тост&quot;&amp;oldQ=&amp;range=ALL&amp;in...</a></p>",
-        lorCodeService.parseComment("http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82%22&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on&csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D", false));
+        lorCodeService.parseComment("http://127.0.0.1:8080/search.jsp?q=%22%D1%82%D0%B5%D1%81%D1%82-%D1%82%D0%BE%D1%81%D1%82%22&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on&csrf=TccXeqgBc10MvJ786lZFQQ%3D%3D", false, LorCodeService.Plain$.MODULE$));
   }
 
   @Test
@@ -593,9 +577,9 @@ public class HTMLFormatterTest {
   @Test
   public void testQuotes() {
     assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
-        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с \"-\". Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false));
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с \"-\". Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, LorCodeService.Plain$.MODULE$));
     assertEquals("<p>--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;</p>",
-        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false));
+        lorCodeService.parseComment("--new-file (-N) и --undirectional-new-file позволяют сравнивать с &quot;-&quot;. Если стандартный ввод закрыт, то это воспринимается как несуществующий файл;", false, LorCodeService.Plain$.MODULE$));
 
   }
 
@@ -603,8 +587,6 @@ public class HTMLFormatterTest {
   public void encodeLorUrl() {
     assertEquals(
             "<p><a href=\"https://www.linux.org.ru/forum/linux%3C%3E-org-ru/\">www.linux.org.ru/forum/linux&lt;&gt;-org-ru/</a></p>",
-            lorCodeService.parseComment("www.linux.org.ru/forum/linux%3C%3E-org-ru/", false));
+            lorCodeService.parseComment("www.linux.org.ru/forum/linux%3C%3E-org-ru/", false, LorCodeService.Plain$.MODULE$));
   }
-
-
 }

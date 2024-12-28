@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,20 +15,22 @@
 
 package ru.org.linux.group;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 @Service
 public class GroupInfoPrepareService {
-  @Autowired
-  private LorCodeService lorCodeService;
+  private final LorCodeService lorCodeService;
+
+  public GroupInfoPrepareService(LorCodeService lorCodeService) {
+    this.lorCodeService = lorCodeService;
+  }
 
   public PreparedGroupInfo prepareGroupInfo(Group group) {
     String longInfo;
 
     if (group.getLongInfo()!=null) {
-      longInfo = lorCodeService.parseComment(group.getLongInfo(), false);
+      longInfo = lorCodeService.parseComment(group.getLongInfo(), false, LorCodeService.Plain$.MODULE$);
     } else {
       longInfo = null;
     }
