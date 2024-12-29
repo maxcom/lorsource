@@ -19,7 +19,7 @@ import ru.org.linux.user.User
 import scala.beans.BeanProperty
 
 object Image {
-  val MaxFileSize: Int = 8 * 1024 * 1024
+  val MaxFileSize: Int = 8 * 1024 * 1024 // sync with multipart-config in web.xml
   val MinDimension = 400
   val MaxDimension = 5120
 
