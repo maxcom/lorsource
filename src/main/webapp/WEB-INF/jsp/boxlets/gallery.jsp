@@ -3,7 +3,7 @@
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -26,10 +26,11 @@
       <div align="center">
         <c:url var="url" value="${item.item.link}"/>
         <a href="${url}">
-          <img    sizes="(min-width: 60em) 24vw, 100vw"
-                  srcset="${item.item.image.srcset}"
-                  src="${item.item.image.medium}"
-                  alt="Скриншот: <l:title>${item.item.title}</l:title>">
+          <img sizes="(min-width: 60em) 24vw, 100vw"
+               srcset="${item.item.image.srcset}"
+               src="${item.item.image.medium}"
+               alt="<l:title>${item.item.title}</l:title>"
+               loading="lazy">
         </a>
       </div>
       <a href="${url}">${item.item.title}</a> от ${item.user.nick} (${item.item.stat})
