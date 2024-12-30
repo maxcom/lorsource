@@ -170,6 +170,10 @@
     <label>Мини: <form:checkbox path="minor"/></label>
   </c:if>
 
+  <c:if test="${group.premoderated and not topicMenu.commitable}">
+    <form:hidden path="minor"/>
+  </c:if>
+
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 
   <div class="form-actions">
