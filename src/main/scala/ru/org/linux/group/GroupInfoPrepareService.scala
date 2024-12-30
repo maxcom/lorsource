@@ -12,29 +12,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.group
 
-package ru.org.linux.group;
-
-import org.springframework.stereotype.Service;
-import ru.org.linux.util.bbcode.LorCodeService;
+import org.springframework.stereotype.Service
+import ru.org.linux.util.bbcode.LorCodeService
 
 @Service
-public class GroupInfoPrepareService {
-  private final LorCodeService lorCodeService;
-
-  public GroupInfoPrepareService(LorCodeService lorCodeService) {
-    this.lorCodeService = lorCodeService;
-  }
-
-  public PreparedGroupInfo prepareGroupInfo(Group group) {
-    String longInfo;
-
-    if (group.getLongInfo()!=null) {
-      longInfo = lorCodeService.parseComment(group.getLongInfo(), false, LorCodeService.Plain$.MODULE$);
+class GroupInfoPrepareService(lorCodeService: LorCodeService) {
+  def prepareGroupInfo(group: Group): PreparedGroupInfo = {
+    val longInfo = if (group.getLongInfo != null) {
+      lorCodeService.parseComment(group.getLongInfo, nofollow = false, LorCodeService.Plain)
     } else {
-      longInfo = null;
+      null
     }
 
-    return new PreparedGroupInfo(group, longInfo);
+    new PreparedGroupInfo(group, longInfo)
   }
 }
