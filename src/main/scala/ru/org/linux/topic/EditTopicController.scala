@@ -139,41 +139,41 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
     if (editInfoList.nonEmpty) {
       val editors = editHistoryService.getEditorUsers(message, editInfoList)
 
-      form.setEditorBonus(editors.view.map(u => u -> Integer.valueOf(0)).toMap.asJava)
+      form.editorBonus=editors.view.map(u => u -> Integer.valueOf(0)).toMap.asJava
     }
 
     if (preparedTopic.group.linksAllowed) {
-      form.setLinktext(message.linktext)
-      form.setUrl(message.url)
+      form.linktext=message.linktext
+      form.url=message.url
     }
 
-    form.setTitle(StringEscapeUtils.unescapeHtml4(message.title))
+    form.title=StringEscapeUtils.unescapeHtml4(message.title)
 
     val messageText = msgbaseDao.getMessageText(message.id)
 
     if (form.fromHistory != null) {
-      form.setMsg(editHistoryService.getEditHistoryRecord(message, form.fromHistory).oldmessage.orNull)
+      form.msg=editHistoryService.getEditHistoryRecord(message, form.fromHistory).oldmessage.orNull
     } else {
-      form.setMsg(messageText.text)
+      form.msg=messageText.text
     }
 
     if (message.sectionId == Section.SECTION_NEWS || message.sectionId == Section.SECTION_ARTICLES) {
-      form.setMinor(message.minor)
+      form.minor=message.minor
     }
 
     if (!preparedTopic.tags.isEmpty) {
-      form.setTags(TagRef.names(preparedTopic.tags))
+      form.tags=TagRef.names(preparedTopic.tags)
     }
 
     if (preparedTopic.section.isPollPostAllowed) {
       val poll = pollDao.getPollByTopicId(message.id)
 
-      form.setPoll(PollVariant.toMap(poll.getVariants))
-      form.setMultiselect(poll.multiSelect)
+      form.poll=PollVariant.toMap(poll.getVariants)
+      form.multiselect=poll.multiSelect
     }
 
-    form.setAdditionalUploadedImages(new Array[String](Math.max(0, permissionService.additionalImageLimit(preparedTopic.section) -
-      preparedTopic.additionalImages.size())))
+    form.additionalUploadedImages=new Array[String](Math.max(0, permissionService.additionalImageLimit(preparedTopic.section) -
+      preparedTopic.additionalImages.size()))
   }
 
   @ModelAttribute("ipBlockInfo")

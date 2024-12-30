@@ -111,7 +111,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     } else {
       val section = sectionService.getSection(form.group.sectionId)
 
-      form.setAdditionalUploadedImages(new Array[String](permissionService.additionalImageLimit(section)))
+      form.additionalUploadedImages=new Array[String](permissionService.additionalImageLimit(section))
 
       val params = prepareModel(Some(form.group), section)
 
@@ -165,7 +165,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     if (!permissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
-      form.setAllowAnonymous(true)
+      form.allowAnonymous=true
     }
 
     val message = MessageText(Strings.nullToEmpty(form.msg), sessionUserOpt.profile.formatMode)
