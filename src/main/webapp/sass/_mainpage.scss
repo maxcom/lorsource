@@ -44,7 +44,7 @@
   @include respond-to(desktops) {
     @include column(3);
 
-    font-size: 0.8em;
+    font-size: 0.875em;
     display: block;
 
     .boxlet {
