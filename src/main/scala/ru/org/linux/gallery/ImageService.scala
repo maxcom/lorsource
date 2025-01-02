@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -74,7 +74,9 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     PreparedGalleryItem(item, userService.getUserCached(item.getUserid))
   }
 
-  def prepareImage(image: Image): Option[PreparedImage] = {
+  def prepareImage(image: Image): Option[PreparedImage] = prepareImage(image, lazyLoad = false)
+
+  def prepareImage(image: Image, lazyLoad: Boolean): Option[PreparedImage] = {
     Preconditions.checkNotNull(image)
 
     val htmlPath = siteConfig.getUploadPath
@@ -87,7 +89,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
       val medURI = siteConfig.getSecureUrl + mediumName
       val fullURI = siteConfig.getSecureUrl + image.original
 
-      Some(new PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image))
+      Some(PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image, lazyLoad))
     } catch {
       case e: FileNotFoundException =>
         logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")

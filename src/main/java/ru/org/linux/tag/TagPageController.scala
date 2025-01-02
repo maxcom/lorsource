@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -104,11 +104,11 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
         val synonyms = tagService.getSynonymsFor(tagInfo.id)
 
-        val model = Map(
+        val model = Map[String, AnyRef](
           "tag" -> tag,
           "title" -> WordUtils.capitalize(tag),
-          "favsCount" -> userTagService.countFavs(tagInfo.id),
-          "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
+          "favsCount" -> Int.box(userTagService.countFavs(tagInfo.id)),
+          "ignoreCount" -> Int.box(userTagService.countIgnore(tagInfo.id)),
           "showAdsense" -> Boolean.box(!currentUser.authorized || !currentUser.profile.hideAdsense),
           "showDelete" -> Boolean.box(currentUser.moderator),
           "synonyms" -> synonyms.asJava,
@@ -146,7 +146,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       (Seq.empty, newsTopics.take(TagPageController.TotalNewsCount-1))
     }
 
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, loadUserpics = false)
+    val fullNews = prepareService.prepareTopics(fullNewsTopics, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 
@@ -164,7 +164,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    (Map(
+    (Map[String, AnyRef](
       "fullNews" -> fullNews.asJava,
       "briefNews" -> TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false)))
     ) ++ more ++ addNews, newestDate)
@@ -186,9 +186,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    Map(
-      "gallery" -> list
-    ) ++ add ++ more
+    Map[String, AnyRef]("gallery" -> list) ++ add ++ more
   }
 
   private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode)(implicit currentUser: AnySession) = {
@@ -217,7 +215,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = forumTopics.headOption.map(t => Instant.ofEpochMilli(t.getEffectiveDate.getMillis))
 
-    (Map(
+    (Map[String, AnyRef](
       forumSection.getUrlName -> TopicListTools.split(
         topicByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = true)))
     ) ++ more ++ add, newestDate)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -44,11 +44,11 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                           warningService: WarningService) {
   def prepareTopic(message: Topic)(implicit session: AnySession): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None,
-      msgbaseDao.getMessageText(message.id), image = None)
+      msgbaseDao.getMessageText(message.id), image = None, imageLazyLoad = false)
 
   def prepareTopic(message: Topic, tags: collection.Seq[TagRef], text: MessageText,
                    warnings: Seq[Warning])(implicit session: AnySession): PreparedTopic =
-    prepareTopic(message, tags, minimizeCut = false, None, text, None, Seq.empty, warnings)
+    prepareTopic(message, tags, minimizeCut = false, None, text, None, Seq.empty, warnings, imageLazyLoad = false)
 
   def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
                           image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview]): PreparedTopic = {
@@ -56,7 +56,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val additionalImageObjects = additionalImages.map(_.toImage(main = false))
 
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
-      text, imageObject, additionalImageObjects)(NonAuthorizedSession)
+      text, imageObject, additionalImageObjects, imageLazyLoad = false)(NonAuthorizedSession)
   }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(implicit session: AnySession): PreparedEditInfoSummary = {
@@ -78,7 +78,8 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @return подготовленный топик
    */
   private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
-                           text: MessageText, image: Option[Image], additionalImages: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty)
+                           text: MessageText, image: Option[Image], additionalImages: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty,
+                           imageLazyLoad: Boolean)
                           (implicit session: AnySession): PreparedTopic = {
     val group = groupDao.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
@@ -118,11 +119,10 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
       val loadedAdditionalImage = currentImages.filterNot(_.main) ++ additionalImages
 
-      (loadedImage.flatMap(imageService.prepareImage), loadedAdditionalImage.flatMap(imageService.prepareImage))
+      (loadedImage.flatMap(imageService.prepareImage(_, imageLazyLoad)), loadedAdditionalImage.flatMap(imageService.prepareImage))
     } else {
       (None, Seq.empty)
     }
-
 
     val remark = session.userOpt.flatMap { user =>
       remarkDao.getRemark(user, author)
@@ -161,14 +161,14 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopicsForUser(messages: collection.Seq[Topic], loadUserpics: Boolean)
-                          (implicit user: AnySession): collection.Seq[PersonalizedPreparedTopic] = {
+  def prepareTopics(messages: collection.Seq[Topic], loadUserpics: Boolean)
+                   (implicit user: AnySession): collection.Seq[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
-    messages.map { message =>
+    messages.zipWithIndex.map { case (message, idx) =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        textMap(message.id), image = None)
+        textMap(message.id), image = None, imageLazyLoad = idx >= 3)
 
       val topicMenu = getTopicMenu(preparedMessage, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
@@ -179,19 +179,18 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     msgbaseDao.getMessageText(messages.map(_.id))
 
   /**
-   * Подготовка ленты топиков, используется в TopicListController например
-   * сообщения рендерятся со свернутым cut
+   * Подготовка ленты топиков для RSS
    *
    * @param messages список топиков
    * @return список подготовленных топиков
    */
-  def prepareTopics(messages: collection.Seq[Topic]): Seq[PreparedTopic] = {
+  def prepareTopicForRSS(messages: collection.Seq[Topic]): Seq[PreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.view.map { message =>
       prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, textMap(message.id),
-        image = None)(NonAuthorizedSession)
+        image = None, imageLazyLoad = false)(NonAuthorizedSession)
     }.toSeq
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -126,7 +126,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
         } else {
           val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None, 20, noTalks = false, tech = false)
 
-          (prepareService.prepareTopicsForUser(topics, loadUserpics = false), 20)
+          (prepareService.prepareTopics(topics, loadUserpics = false), 20)
         }
 
         modelAndView.addObject("messages", preparedTopics.asJava)

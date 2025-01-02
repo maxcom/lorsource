@@ -3,7 +3,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -38,6 +38,7 @@
               alt="<l:title>${title}</l:title>"
               srcset="${image.srcset}"
               sizes="100vw" style="position: absolute"
+              "${image.loadingCode}"
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
     <c:if test="${preparedMessage.section.imagepost || image.fullInfo.width >= 1920 || image.fullInfo.height >= 1080}">

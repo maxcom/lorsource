@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -70,13 +70,13 @@ class EditHistoryService(topicTagService: TopicTagService, userService: UserServ
       val imageDeleted = this.image == null && dto.oldimage.isDefined
 
       val addedImages = if (dto.oldaddimages.isDefined) {
-        this.additionalImages.filterNot(img => dto.oldaddimages.get.contains(img.getImage.id)).asJava
+        this.additionalImages.filterNot(img => dto.oldaddimages.get.contains(img.image.id)).asJava
       } else {
         null
       }
 
       val removedImages = if (dto.oldaddimages.isDefined) {
-        dto.oldaddimages.get.filterNot(this.additionalImages.map(_.getImage.id).contains).map(imageDao.getImage).flatMap(imageService.prepareImage).asJava
+        dto.oldaddimages.get.filterNot(this.additionalImages.map(_.image.id).contains).map(imageDao.getImage).flatMap(imageService.prepareImage).asJava
       } else {
         null
       }

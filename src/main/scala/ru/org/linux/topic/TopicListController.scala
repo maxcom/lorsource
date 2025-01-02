@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -139,7 +139,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, loadUserpics = false).asJava)
+      prepareService.prepareTopics(messages, loadUserpics = false).asJava)
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
 
@@ -282,7 +282,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     if (lastModified.exists(webRequest.checkNotModified)) {
       null
     } else {
-      modelAndView.addObject("messages", prepareService.prepareTopics(messages.toSeq).asJava)
+      modelAndView.addObject("messages", prepareService.prepareTopicForRSS(messages.toSeq).asJava)
 
       modelAndView
     }
