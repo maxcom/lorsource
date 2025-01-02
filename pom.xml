@@ -599,6 +599,7 @@
           <excludes>
             <exclude>**/jquery-ui-*/**/*.js</exclude>
             <exclude>**/highlight.min.js</exclude>
+            <exclude>**/lor.js</exclude>
           </excludes>
           <aggregations>
             <aggregation>
@@ -700,6 +701,31 @@
             </aggregation>
           </aggregations>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.blutorange</groupId>
+        <artifactId>closure-compiler-maven-plugin</artifactId>
+        <version>2.31.0</version>
+        <executions>
+          <execution>
+            <id>default-minify</id>
+            <configuration>
+              <encoding>UTF-8</encoding>
+              <includes>
+                <include>lor.js</include>
+              </includes>
+              <skipMerge>true</skipMerge>
+              <logLevel>all</logLevel>
+              <closureLanguageOut>ECMASCRIPT_2016</closureLanguageOut>
+              <outputFilename>#{path}/#{basename}.#{extension}</outputFilename>
+            </configuration>
+            <goals>
+              <goal>minify</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
