@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,22 +24,15 @@ import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import ru.org.linux.auth.*
 import ru.org.linux.csrf.CSRFProtectionService
-import ru.org.linux.edithistory.EditHistoryObjectTypeEnum
-import ru.org.linux.edithistory.EditHistoryRecord
-import ru.org.linux.edithistory.EditHistoryService
-import ru.org.linux.markup.MarkupType.ofFormId
+import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, EditHistoryService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.spring.dao.MessageText
-import ru.org.linux.spring.dao.MsgbaseDao
-import ru.org.linux.topic.Topic
-import ru.org.linux.topic.TopicDao
-import ru.org.linux.topic.TopicPermissionService
+import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
+import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.*
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
-import java.time.Instant
 import scala.collection.mutable
 import scala.jdk.OptionConverters.RichOption
 
