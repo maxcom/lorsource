@@ -38,7 +38,7 @@
               alt="<l:title>${title}</l:title>"
               srcset="${image.srcset}"
               sizes="100vw" style="position: absolute"
-              "${image.loadingCode}"
+              ${image.loadingCode}
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">
     <c:if test="${preparedMessage.section.imagepost || image.fullInfo.width >= 1920 || image.fullInfo.height >= 1080}">
