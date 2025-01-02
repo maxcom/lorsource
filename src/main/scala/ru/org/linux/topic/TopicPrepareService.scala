@@ -168,7 +168,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     messages.zipWithIndex.map { case (message, idx) =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        textMap(message.id), image = None, imageLazyLoad = idx >= 3)
+        textMap(message.id), image = None, imageLazyLoad = idx >= 2)
 
       val topicMenu = getTopicMenu(preparedMessage, loadUserpics)
       new PersonalizedPreparedTopic(preparedMessage, topicMenu)
