@@ -798,18 +798,22 @@ pre code .container:before, pre code .container:after {
 }
 
 img.medium-image {
-  width: 100%;
+  width: auto;
   max-width: 100%;
+  max-height: 90vh;
   height: auto;
   image-orientation: none;
-}
-
-figure.medium-image {
-  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .medium-image-container {
   margin: 1em auto;
+  max-height: 90vh;
+}
+
+figure.medium-image {
+  width: 100%;
 }
 
 .slider-parent {
