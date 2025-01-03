@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,6 +23,7 @@
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="showImageDelete" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="imageSlider" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="briefEditInfo" required="false" type="ru.org.linux.topic.PreparedEditInfoSummary" %>
 <%@ attribute name="reactionList" required="false" type="ru.org.linux.reaction.PreparedReactionList" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -101,23 +102,58 @@
   <div class="msg-container">
 
   <div class="msg_body">
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
-               preparedMessage="${preparedMessage}" showImage="true"
-               enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
-  </c:if>
+    <c:if test="${empty preparedMessage.additionalImages or not imageSlider}">
+      <c:if test="${preparedMessage.image != null}">
+        <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
+                   preparedMessage="${preparedMessage}" showImage="true"
+                   enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
+      </c:if>
+    </c:if>
 
-  <c:forEach var="image" items="${preparedMessage.additionalImages}">
-    <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true"
-               preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
-  </c:forEach>
+    <c:if test="${not empty preparedMessage.additionalImages}">
+      <c:if test="${imageSlider}">
+        <div class="slider-parent">
+          <div class="swiffy-slider slider-indicators-round slider-indicators-outside">
+            <div class="slider-container">
+              <c:if test="${preparedMessage.image != null}">
+                <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
+                           preparedMessage="${preparedMessage}" showImage="true"
+                           enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
+              </c:if>
+
+              <c:forEach var="image" items="${preparedMessage.additionalImages}">
+                <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true"
+                           preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
+              </c:forEach>
+            </div>
+
+            <button type="button" class="slider-nav"></button>
+            <button type="button" class="slider-nav slider-nav-next"></button>
+
+            <div class="slider-indicators">
+              <button class="active"></button>
+              <c:forEach var="image" items="${preparedMessage.additionalImages}">
+                <button></button>
+              </c:forEach>
+            </div>
+          </div>
+        </div>
+      </c:if>
+
+      <c:if test="${not imageSlider}">
+        <c:forEach var="image" items="${preparedMessage.additionalImages}">
+          <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true"
+                     preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
+        </c:forEach>
+      </c:if>
+    </c:if>
 
     <c:if test="${memoriesInfo!=null}">
       <div class="fav-buttons">
         <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span
-          id="favs_count">${memoriesInfo.favsCount()}</span><br>
+           id="favs_count">${memoriesInfo.favsCount()}</span><br>
         <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span
-          id="memories_count">${memoriesInfo.watchCount()}</span>
+           id="memories_count">${memoriesInfo.watchCount()}</span>
       </div>
     </c:if>
 

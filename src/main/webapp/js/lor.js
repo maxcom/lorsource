@@ -521,6 +521,10 @@ $(document).ready(function() {
 
   initCodeSpoilers();
   initReactionsUI();
+
+  $script.ready('plugins', function () {
+    window.swiffyslider.init();
+  });
 });
 
 function fixTimezone(serverTz) {

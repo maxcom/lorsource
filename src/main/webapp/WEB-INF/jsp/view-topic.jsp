@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -196,7 +196,7 @@
         preparedMessage="${preparedMessage}" 
         message="${message}"
         briefEditInfo="${editInfo}"
-        showMenu="true" enableSchema="true"/>
+        showMenu="true" enableSchema="true" imageSlider="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
 

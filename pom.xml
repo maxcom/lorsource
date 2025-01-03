@@ -31,6 +31,7 @@
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
+    <swiffy-slider.version>1.6.0</swiffy-slider.version>
     <circe.version>0.14.7</circe.version>
     <twemoji.version>14.0.2</twemoji.version>
     <sttp.version>3.10.1</sttp.version>
@@ -632,6 +633,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji/${twemoji.version}/dist/twemoji.min.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/js/swiffy-slider.min.js</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -642,6 +644,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -653,6 +656,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/auto.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -670,6 +674,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -679,6 +684,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -688,6 +694,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -697,6 +704,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
           </aggregations>
@@ -886,6 +894,11 @@
                   <groupId>org.webjars.npm</groupId>
                   <artifactId>twemoji</artifactId>
                   <version>${twemoji.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>swiffy-slider</artifactId>
+                  <version>${swiffy-slider.version}</version>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>
