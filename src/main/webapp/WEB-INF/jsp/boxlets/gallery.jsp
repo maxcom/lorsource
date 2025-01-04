@@ -26,7 +26,7 @@
         <div style="position: relative; padding-bottom: ${ 100.0 * item.mediumInfo.height / item.mediumInfo.width }%; margin: 0">
           <c:url var="url" value="${item.item.link}"/>
           <a href="${url}" style="position: absolute">
-            <img sizes="(min-width: 60em) 24vw, 100vw"
+            <img sizes="(min-width: 70em) 24vw, (min-width: 47em) 50vw, 100vw"
                  srcset="${item.item.image.srcset}"
                  src="${item.item.image.medium}"
                  alt="<l:title>${item.item.title}</l:title>"

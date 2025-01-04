@@ -22,7 +22,9 @@
 <%@ attribute name="showImage" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="showInfo" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableEdit" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="sizes" required="false" type="java.lang.String" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
+<c:set var="sizesValue" value="${(empty sizes) ? '100vw' : sizes}" />
 <c:if test="${showImage!=null and showImage and image!=null}">
   <div class="medium-image-container" style="max-width: <%= Math.min(image.getFullInfo().getWidth(), Image.MaxScaledSize()) %>px">
   <figure class="medium-image" <%-- padding продублирован Pale Moon и других для браузеров, не умеющих min() --%>
@@ -37,7 +39,7 @@
               src="${image.mediumName}"
               alt="<l:title>${title}</l:title>"
               srcset="${image.srcset}"
-              sizes="100vw" style="position: absolute"
+              sizes="${sizesValue}" style="position: absolute"
               ${image.loadingCode}
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">

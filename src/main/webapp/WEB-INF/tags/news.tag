@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -89,7 +89,8 @@
   </c:if>
 
   <c:if test="${preparedMessage.image != null}">
-    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showImage="true"/>
+    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" sizes="(min-width: 47em) 40vw, 100vw"
+    preparedMessage="${preparedMessage}" showImage="true"/>
   </c:if>
 
 <c:set var="group" value="${preparedMessage.group}"/>
