@@ -25,8 +25,8 @@
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <c:if test="${showImage!=null and showImage and image!=null}">
   <div class="medium-image-container" style="max-width: <%= Math.min(image.getFullInfo().getWidth(), Image.MaxScaledSize()) %>px">
-  <figure class="medium-image"
-    style="position: relative; padding-bottom: min(${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%, 90vh); margin: 0"
+  <figure class="medium-image" <%-- padding продублирован Pale Moon и других для браузеров, не умеющих min() --%>
+    style="position: relative; padding-bottom: ${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%; padding-bottom: min(${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%, 90vh); margin: 0"
   <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
     <c:if test="${preparedMessage.section.imagepost || image.fullInfo.width >= 1920 || image.fullInfo.height >= 1080}">
       <a href="${image.fullName}" itemprop="contentURL">
