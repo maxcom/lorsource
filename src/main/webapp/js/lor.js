@@ -523,6 +523,10 @@ $(document).ready(function() {
   initReactionsUI();
 
   $script.ready('plugins', function () {
+    if (window.matchMedia("(min-width: 70em)").matches) {
+      $(".swiffy-slider").addClass("slider-nav-outside-expand")
+    }
+
     window.swiffyslider.init();
   });
 });
