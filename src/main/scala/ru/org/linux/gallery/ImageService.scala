@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
+import ru.org.linux.topic.{PreparedGalleryItem, PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.BadImageException
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
@@ -45,6 +45,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   private val previewPath = new File(siteConfig.getUploadPath + "/gallery/preview")
   private val galleryPath = new File(siteConfig.getUploadPath + "/images")
+  private val htmlPath = siteConfig.getUploadPath
 
   def deleteImage(image: Image)(implicit session: AuthorizedSession): Unit = {
     transactional() { _ =>
@@ -71,15 +72,13 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   }
 
   def prepareGalleryItem(item: GalleryItem): PreparedGalleryItem = {
-    PreparedGalleryItem(item, userService.getUserCached(item.getUserid))
+    PreparedGalleryItem(item, userService.getUserCached(item.getUserid), new ImageInfo(htmlPath + item.getImage.getMedium))
   }
 
   def prepareImage(image: Image): Option[PreparedImage] = prepareImage(image, lazyLoad = false)
 
   def prepareImage(image: Image, lazyLoad: Boolean): Option[PreparedImage] = {
     Preconditions.checkNotNull(image)
-
-    val htmlPath = siteConfig.getUploadPath
 
     val mediumName = image.getMedium
 
@@ -101,7 +100,15 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   }
 
   def prepareGalleryItem(items: java.util.List[GalleryItem]): java.util.List[PreparedGalleryItem] =
-    items.asScala.map(prepareGalleryItem).asJava
+    items.asScala.flatMap { img =>
+      try {
+        Some(prepareGalleryItem(img))
+      } catch {
+        case NonFatal(ex) =>
+          logger.warn("Failed to get info for {}", img.getImage.getMedium, ex)
+          None
+      }
+    }.asJava
 
   def getGalleryItems(countItems: Int, tagId: Int): Seq[GalleryItem] = imageDao.getGalleryItems(countItems, tagId)
 

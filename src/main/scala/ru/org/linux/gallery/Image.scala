@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,8 +13,6 @@
  *    limitations under the License.
  */
 package ru.org.linux.gallery
-
-import ru.org.linux.user.User
 
 import scala.beans.BeanProperty
 
@@ -60,4 +58,3 @@ case class Image(@BeanProperty id: Int, @BeanProperty topicId: Int, @BeanPropert
   def getSrcsetUpTo(width: Int): String = Image.srcset(original, id, width)
 }
 
-case class PreparedGalleryItem(@BeanProperty item: GalleryItem, @BeanProperty user: User)

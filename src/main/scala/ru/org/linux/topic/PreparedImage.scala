@@ -14,7 +14,8 @@
  */
 package ru.org.linux.topic
 
-import ru.org.linux.gallery.Image
+import ru.org.linux.gallery.{GalleryItem, Image}
+import ru.org.linux.user.User
 import ru.org.linux.util.image.ImageInfo
 
 import scala.beans.BeanProperty
@@ -32,3 +33,6 @@ case class PreparedImage(@BeanProperty mediumName: String, @BeanProperty mediumI
 
   def getLoadingCode: String = if (lazyLoad) "loading=\"lazy\"" else ""
 }
+
+case class PreparedGalleryItem(@BeanProperty item: GalleryItem, @BeanProperty user: User,
+                               @BeanProperty mediumInfo: ImageInfo)
