@@ -524,8 +524,10 @@ $(document).ready(function() {
 
   $script.ready('plugins', function () {
     if (window.matchMedia("(min-width: 70em)").matches) {
-      $(".swiffy-slider").addClass("slider-nav-outside-expand")
+      $(".swiffy-slider").addClass("slider-nav-outside-expand");
     }
+
+    $(".slider-indicators a").attr('href', 'javascript:;');
 
     window.swiffyslider.init();
   });

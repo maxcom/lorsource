@@ -117,11 +117,9 @@
         <div class="slider-parent">
           <div class="swiffy-slider slider-indicators-round slider-indicators-outside">
             <div class="slider-container">
-              <c:if test="${preparedMessage.image != null}">
-                <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
-                           preparedMessage="${preparedMessage}" showImage="true" sizes="${sizes}"
-                           enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
-              </c:if>
+              <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
+                         preparedMessage="${preparedMessage}" showImage="true" sizes="${sizes}"
+                         enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
 
               <c:forEach var="image" items="${preparedMessage.additionalImages}">
                 <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true"
@@ -134,9 +132,9 @@
             <button type="button" class="slider-nav slider-nav-next"></button>
 
             <div class="slider-indicators">
-              <button class="active"></button>
+              <a href="${preparedMessage.image.fullName}" class="active"></a>
               <c:forEach var="image" items="${preparedMessage.additionalImages}">
-                <button></button>
+                <a href="${image.fullName}"></a>
               </c:forEach>
             </div>
           </div>
