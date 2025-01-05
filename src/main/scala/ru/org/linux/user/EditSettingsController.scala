@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -54,7 +54,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
     params.put("topicsValues", (DefaultProfile.TOPICS_VALUES.asScala + currentUser.profile.topics).toSeq.sorted.asJava)
     params.put("messagesValues", (DefaultProfile.COMMENTS_VALUES.asScala + currentUser.profile.messages).toSeq.sorted.asJava)
 
-    params.put("format_mode", currentUser.profile.formatMode)
+    params.put("format_mode", currentUser.profile.formatMode.formId)
 
     params.put("formatModes",
       UserPermissionService.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
