@@ -818,6 +818,8 @@ figure.medium-image {
 
 .slider-parent {
   margin: 1em auto;
+
+  --slider-parent-width: 100%;
 }
 
 @include respond-to(desktops) {
@@ -826,7 +828,7 @@ figure.medium-image {
   }
 
   .slider-parent {
-    width: 80%;
+    --slider-parent-width: 80%;
   }
 }
 
