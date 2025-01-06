@@ -23,12 +23,15 @@
 <%@ attribute name="showInfo" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableEdit" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="sizes" required="false" type="java.lang.String" %>
+<%@ attribute name="heightLimit" required="false" type="java.lang.String" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <c:set var="sizesValue" value="${(empty sizes) ? '100vw' : sizes}" />
+<c:set var="heightLimitValue" value="${(empty heightLimit) ? '90vh' : heightLimit}" />
+
 <c:if test="${showImage!=null and showImage and image!=null}">
-  <div class="medium-image-container" style="max-width: <%= Math.min(image.getFullInfo().getWidth(), Image.MaxScaledSize()) %>px">
+  <div class="medium-image-container" style="max-width: <%= Math.min(image.getFullInfo().getWidth(), Image.MaxScaledSize()) %>px; max-height: ${heightLimitValue}">
   <figure class="medium-image" <%-- padding продублирован Pale Moon и других для браузеров, не умеющих min() --%>
-    style="position: relative; padding-bottom: ${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%; padding-bottom: min(${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%, 90vh); margin: 0"
+    style="position: relative; padding-bottom: ${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%; padding-bottom: min(${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%, ${heightLimitValue}); margin: 0"
   <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
     <c:if test="${preparedMessage.section.imagepost || image.fullInfo.width >= 1920 || image.fullInfo.height >= 1080}">
       <a href="${image.fullName}" itemprop="contentURL">
@@ -39,7 +42,7 @@
               src="${image.mediumName}"
               alt="<l:title>${title}</l:title>"
               srcset="${image.srcset}"
-              sizes="${sizesValue}" style="position: absolute"
+              sizes="${sizesValue}" style="position: absolute; max-height: ${heightLimitValue}"
               ${image.loadingCode}
               ${image.mediumInfo.code}>
       <meta itemprop="caption" content="${preparedMessage.message.title}">

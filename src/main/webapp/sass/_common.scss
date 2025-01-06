@@ -800,7 +800,6 @@ pre code .container:before, pre code .container:after {
 img.medium-image {
   width: auto;
   max-width: 100%;
-  max-height: 90vh;
   height: auto;
   image-orientation: none;
   left: 50%;
@@ -809,7 +808,6 @@ img.medium-image {
 
 .medium-image-container {
   margin: 1em auto;
-  max-height: 90vh;
 }
 
 figure.medium-image {

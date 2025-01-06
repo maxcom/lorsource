@@ -90,7 +90,7 @@
 
   <c:if test="${preparedMessage.image != null}">
     <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" sizes="(min-width: 47em) 40vw, 100vw"
-    preparedMessage="${preparedMessage}" showImage="true"/>
+    preparedMessage="${preparedMessage}" showImage="true" heightLimit="50vh"/>
   </c:if>
 
 <c:set var="group" value="${preparedMessage.group}"/>
