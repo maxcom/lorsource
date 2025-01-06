@@ -114,46 +114,8 @@
 
     <c:if test="${not empty preparedMessage.additionalImages}">
       <c:if test="${imageSlider}">
-        <div class="slider-parent" style="width: var(--slider-parent-width); width: min(var(--slider-parent-width), calc(90vh * ${preparedMessage.image.mediumInfo.width} / ${preparedMessage.image.mediumInfo.height}))">
-          <div class="swiffy-slider slider-indicators-round slider-indicators-outside slider-item-ratio slider-item-ratio-contain"
-               style="--swiffy-slider-item-ratio: ${preparedMessage.image.mediumInfo.width}/${preparedMessage.image.mediumInfo.height}">
-            <div class="slider-container">
-              <a href="${preparedMessage.image.fullName}">
-                <img
-                  src="${preparedMessage.image.mediumName}"
-                  alt="<l:title>${preparedMessage.message.title}</l:title>"
-                  srcset="${preparedMessage.image.srcset}"
-                  sizes="${sizes}"
-                  style="max-width: 100%; height: auto"
-                  ${preparedMessage.image.loadingCode}
-                  ${preparedMessage.image.mediumInfo.code}>
-              </a>
-
-              <c:forEach var="image" items="${preparedMessage.additionalImages}">
-                <a href="${image.fullName}">
-                  <img
-                    src="${image.mediumName}"
-                    alt="<l:title>${preparedMessage.message.title}</l:title>"
-                    srcset="${image.srcset}"
-                    sizes="${sizes}"
-                    style="max-width: 100%; height: auto; max-height: 100%; top: 50%; transform: translateY(-50%)"
-                    ${image.loadingCode}
-                    ${image.mediumInfo.code}>
-                </a>
-              </c:forEach>
-            </div>
-
-            <button type="button" class="slider-nav"></button>
-            <button type="button" class="slider-nav slider-nav-next"></button>
-
-            <div class="slider-indicators">
-              <a href="${preparedMessage.image.fullName}" class="active"></a>
-              <c:forEach var="image" items="${preparedMessage.additionalImages}">
-                <a href="${image.fullName}"></a>
-              </c:forEach>
-            </div>
-          </div>
-        </div>
+        <lor:imageslider main="${preparedMessage.image}" title="${preparedMessage.message.title}"
+                         additional="${preparedMessage.additionalImages}"/>
       </c:if>
 
       <c:if test="${not imageSlider}">
