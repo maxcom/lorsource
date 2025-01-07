@@ -18,10 +18,14 @@
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="main" required="true" type="ru.org.linux.topic.PreparedImage" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
+<%@ attribute name="classes" required="false" type="java.lang.String" %>
 <%@ attribute name="additional" required="true" type="java.util.List<ru.org.linux.topic.PreparedImage>" %>
-<div class="slider-parent" style="width: var(--slider-parent-width); width: min(var(--slider-parent-width), calc(90vh * ${main.mediumInfo.width} / ${main.mediumInfo.height}))">
-  <div class="swiffy-slider slider-indicators-round slider-indicators-outside slider-item-ratio slider-item-ratio-contain"
-       style="--swiffy-slider-item-ratio: ${main.mediumInfo.width}/${main.mediumInfo.height}">
+<%@ attribute name="heightLimit" required="false" type="java.lang.String" %>
+<c:set var="heightLimitValue" value="${(empty heightLimit) ? '90vh' : heightLimit}" />
+<%-- width продублирован Pale Moon и других для браузеров, не умеющих min() --%>
+<div class="slider-parent" style="width: var(--image-width); width: min(var(--image-width), calc(${heightLimitValue} * ${main.mediumInfo.width} / ${main.mediumInfo.height}))">
+  <div class="swiffy-slider slider-indicators-round ${classes} slider-item-ratio slider-item-ratio-contain"
+       style="--swiffy-slider-item-ratio: ${main.mediumInfo.width}/${main.mediumInfo.height}" data-slider-nav-autoplay-interval="5000">
     <div class="slider-container">
       <a href="${main.fullName}">
         <img

@@ -115,7 +115,7 @@
     <c:if test="${not empty preparedMessage.additionalImages}">
       <c:if test="${imageSlider}">
         <lor:imageslider main="${preparedMessage.image}" title="${preparedMessage.message.title}"
-                         additional="${preparedMessage.additionalImages}"/>
+                         classes="slider-indicators-outside slider-nav-autoplay" additional="${preparedMessage.additionalImages}"/>
       </c:if>
 
       <c:if test="${not imageSlider}">
@@ -164,10 +164,6 @@
             out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
           %>
         </p>
-      </c:if>
-
-      <c:if test="${preparedMessage.image != null}">
-        <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
       </c:if>
     </div>
 <footer>

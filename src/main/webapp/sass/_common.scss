@@ -817,7 +817,7 @@ figure.medium-image {
 .slider-parent {
   margin: 1em auto;
 
-  --slider-parent-width: 100%;
+  --image-width: 100%;
 }
 
 @include respond-to(desktops) {
@@ -826,14 +826,21 @@ figure.medium-image {
   }
 
   .slider-parent {
-    --slider-parent-width: 80%;
+    --image-width: 80%;
   }
 }
 
 @include respond-to(tablet-and-desktops) {
   .news .medium-image-container {
     margin-left: 1em;
-    width: 40%;
+    --image-width: 40%;
+    float: right;
+    text-align: left;
+  }
+
+  .news .slider-parent {
+    --image-width: 40%;
+    margin-left: 1em;
     float: right;
     text-align: left;
   }
