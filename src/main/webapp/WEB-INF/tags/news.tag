@@ -94,7 +94,8 @@
 </c:if>
 <c:if test="${not empty preparedMessage.additionalImages}">
   <lor:imageslider main="${preparedMessage.image}" title="${preparedMessage.message.title}"
-                   classes="slider-nav-autohide" additional="${preparedMessage.additionalImages}" heightLimit="50vh"/>
+                   classes="slider-nav-autohide slider-indicators-sm" additional="${preparedMessage.additionalImages}"
+                   heightLimit="50vh"/>
 </c:if>
 
 
