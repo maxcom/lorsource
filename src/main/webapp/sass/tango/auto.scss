@@ -1,3 +1,18 @@
+/*
+ * Copyright 1998-2025 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 $heatmap_max: #73d216;
 $heatmap_scale: 1.5;
 
@@ -35,6 +50,13 @@ $heatmap_scale: 1.5;
         --heatmap-q2: #{adjust-color($heatmap_max, $lightness: -5%*$heatmap_scale)};
         --heatmap-q1: #{$heatmap_max};
 
+        .swiffy-slider {
+            --swiffy-slider-nav-light: #2e3436;
+        }
+
+        .msg_body .swiffy-slider .slider-indicators>* {
+            filter: invert(1);
+        }
 /*
 
 Atom One Light by Daniel Gamage
