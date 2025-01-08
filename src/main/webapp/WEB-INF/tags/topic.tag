@@ -115,7 +115,8 @@
     <c:if test="${not empty preparedMessage.additionalImages}">
       <c:if test="${imageSlider}">
         <lor:imageslider main="${preparedMessage.image}" title="${preparedMessage.message.title}"
-                         classes="slider-indicators-outside slider-nav-autoplay" additional="${preparedMessage.additionalImages}"/>
+                         classes="slider-indicators-outside slider-nav-autoplay slider-indicators-sm"
+                         additional="${preparedMessage.additionalImages}"/>
       </c:if>
 
       <c:if test="${not imageSlider}">
