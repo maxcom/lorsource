@@ -25,7 +25,7 @@
 <%-- width продублирован Pale Moon и других для браузеров, не умеющих min() --%>
 <div class="slider-parent" style="width: var(--image-width); width: min(var(--image-width), calc(${heightLimitValue} * ${main.mediumInfo.width} / ${main.mediumInfo.height}))">
   <div class="swiffy-slider slider-indicators-round ${classes} slider-item-ratio slider-item-ratio-contain"
-       style="--swiffy-slider-item-ratio: ${main.fullInfo.width}/${main.fullInfo.height}" data-slider-nav-autoplay-interval="5000">
+       style="--swiffy-slider-item-ratio: ${main.fullInfo.width}/${main.fullInfo.height}">
     <div class="slider-container">
       <a href="${main.fullName}">
         <img
