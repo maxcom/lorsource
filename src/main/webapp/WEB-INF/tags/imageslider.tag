@@ -22,8 +22,7 @@
 <%@ attribute name="additional" required="true" type="java.util.List<ru.org.linux.topic.PreparedImage>" %>
 <%@ attribute name="heightLimit" required="false" type="java.lang.String" %>
 <c:set var="heightLimitValue" value="${(empty heightLimit) ? '90vh' : heightLimit}" />
-<%-- width продублирован Pale Moon и других для браузеров, не умеющих min() --%>
-<div class="slider-parent" style="width: var(--image-width); width: min(var(--image-width), calc(${heightLimitValue} * ${main.mediumInfo.width} / ${main.mediumInfo.height}))">
+<div class="slider-parent" style="width: min(var(--image-width), calc(${heightLimitValue} * ${main.mediumInfo.width} / ${main.mediumInfo.height}))">
   <div class="swiffy-slider slider-indicators-round ${classes} slider-item-ratio slider-item-ratio-contain"
        style="--swiffy-slider-item-ratio: ${main.fullInfo.width}/${main.fullInfo.height}">
     <div class="slider-container">

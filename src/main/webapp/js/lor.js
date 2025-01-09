@@ -522,6 +522,18 @@ $(document).ready(function() {
   initCodeSpoilers();
   initReactionsUI();
 
+  // fix images on Pale Moon
+  $('.medium-image-container').each(function() {
+    if ($(this).width() == 0) {
+        $(this).css('width', 'var(--image-width)')
+    }
+  });
+  $('.slider-parent').each(function() {
+    if ($(this).height() <= 48) {
+        $(this).css('width', 'var(--image-width)')
+    }
+  });
+
   $script.ready('plugins', function () {
     if (window.matchMedia("(min-width: 70em)").matches) {
       $(".msg_body .swiffy-slider").addClass("slider-nav-outside-expand").addClass("slider-nav-visible");

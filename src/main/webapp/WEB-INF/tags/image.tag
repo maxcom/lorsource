@@ -28,7 +28,6 @@
 <c:set var="heightLimitValue" value="${(empty heightLimit) ? '90vh' : heightLimit}" />
 
 <c:if test="${showImage!=null and showImage and image!=null}">
-  <%-- width продублирован Pale Moon и других для браузеров, не умеющих min() --%>
   <div class="medium-image-container" style="max-width: <%= Math.min(image.getFullInfo().getWidth(), Image.MaxScaledSize()) %>px; max-height: ${heightLimitValue};
     width: var(--image-width); width: min(var(--image-width), calc(${heightLimitValue} * ${image.mediumInfo.width} / ${image.mediumInfo.height}))">
   <figure class="medium-image" <%-- padding продублирован Pale Moon и других для браузеров, не умеющих min() --%>
