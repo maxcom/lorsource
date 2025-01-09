@@ -277,10 +277,10 @@ $script.ready('lorjs', function () {
     var ads = [
         {
             type: 'rimg',
-            img320: '/adv/habr 320x100.png',
-            img730: '/adv/hadr 730x90.png',
-            img980: '/adv/habr 980x120.png',
-            href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=bf2024'
+            img320: '/adv/MD-2817-01-320x100 (2).png',
+            img730: '/adv/MD-2817-01-730x90 (2).png',
+            img980: '/adv/MD-2817-01-980x120 (2).png',
+            href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_09012025'
         }
     ];
 

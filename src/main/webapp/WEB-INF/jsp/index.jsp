@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -89,10 +89,10 @@
         var ads = [
             {
                 type: 'rimg',
-                img320: '/adv/habr 320x100.png',
-                img730: '/adv/hadr 730x90.png',
-                img980: '/adv/habr 980x120.png',
-                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=bf2024'
+                img320: '/adv/MD-2817-01-320x100 (2).png',
+                img730: '/adv/MD-2817-01-730x90 (2).png',
+                img980: '/adv/MD-2817-01-980x120 (2).png',
+                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=dedicated_09012025'
             }
         ];
 
