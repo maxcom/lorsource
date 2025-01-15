@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -103,7 +103,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     val url = Option(form.getUrl).filter(_.nonEmpty).map(URLUtil.fixURL).orNull
     val name = Option(form.getName).filter(_.nonEmpty).map(StringUtil.escapeHtml).orNull
     val town = Option(form.getTown).filter(_.nonEmpty).map(StringUtil.escapeHtml).orNull
-    val info = Option(form.getInfo).filter(_.nonEmpty).map(StringUtil.escapeHtml).orNull
+    val info = Option(form.getInfo).filter(_.nonEmpty).orNull
 
     ipBlockDao.checkBlockIP(request.getRemoteAddr, errors, currentUser.user)
 
