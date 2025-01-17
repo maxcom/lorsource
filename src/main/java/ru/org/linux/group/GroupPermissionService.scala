@@ -123,7 +123,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
     if (isImagePostingAllowed(section) &&
         section.getId == Section.SECTION_GALLERY &&
-        currentUser.userOpt.exists(_.getScore >= 500)) {
+        currentUser.userOpt.exists(_.getScore >= 400)) {
       3
     } else {
       0
