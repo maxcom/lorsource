@@ -202,6 +202,8 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |
          |Ваш ник ${user.getNick}, код подтверждения: $resetCode
          |
+         |Если это были не вы, то просто игнорируйте это письмо.
+         |
          |Удачи!""".stripMargin)
 
     Transport.send(msg)
