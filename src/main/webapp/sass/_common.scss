@@ -816,13 +816,16 @@ figure.medium-image {
 
 .slider-parent {
   margin: 1em auto;
+  --image-width: 100%;
+}
 
+.medium-image-container {
   --image-width: 100%;
 }
 
 @include respond-to(desktops) {
   .medium-image-container {
-    width: 80%;
+    --image-width: 80%;
   }
 
   .slider-parent {

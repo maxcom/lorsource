@@ -29,7 +29,7 @@
 
 <c:if test="${showImage!=null and showImage and image!=null}">
   <div class="medium-image-container" style="max-width: <%= Math.min(image.getFullInfo().getWidth(), Image.MaxScaledSize()) %>px; max-height: ${heightLimitValue};
-    width: var(--image-width); width: min(var(--image-width), calc(${heightLimitValue} * ${image.mediumInfo.width} / ${image.mediumInfo.height}))">
+    width: min(var(--image-width), calc(${heightLimitValue} * ${image.mediumInfo.width} / ${image.mediumInfo.height}))">
   <figure class="medium-image" <%-- padding продублирован Pale Moon и других для браузеров, не умеющих min() --%>
     style="position: relative; padding-bottom: ${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%; padding-bottom: min(${ 100.0 * image.mediumInfo.height / image.mediumInfo.width }%, ${heightLimitValue}); margin: 0"
   <c:if test="${enableSchema}">itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject"</c:if>>
