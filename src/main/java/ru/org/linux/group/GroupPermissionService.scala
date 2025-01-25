@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -123,7 +123,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
     if (isImagePostingAllowed(section) &&
         section.getId == Section.SECTION_GALLERY &&
-        currentUser.userOpt.exists(_.getScore >= 400)) {
+        currentUser.userOpt.exists(_.getScore >= 300)) {
       3
     } else {
       0
