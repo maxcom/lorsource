@@ -58,6 +58,6 @@ $code_background: $main_background;
     --swiffy-slider-nav-light: #333;
 }
 
-.msg_body .swiffy-slider .slider-indicators>* {
+.swiffy-slider .slider-indicators>* {
     filter: invert(1);
 }
