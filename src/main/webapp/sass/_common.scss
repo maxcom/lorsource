@@ -475,12 +475,12 @@ textarea.error {
 }
 
 #whois_userpic {
-  float: right;
   text-align: center;
 
   .userpic {
-    float: none;
     display: inline-block;
+    float: none;
+    width: 100%;
   }
 
   form {
@@ -489,6 +489,14 @@ textarea.error {
 
   span {
     display: block;
+  }
+
+  @include respond-to(tablet-and-desktops) {
+    float: right;
+
+    .userpic {
+      width: auto;
+    }
   }
 }
 
