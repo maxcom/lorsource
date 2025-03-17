@@ -260,7 +260,7 @@ class EditRegisterControllerWebTest {
 
     assertEquals(StatusCode.Ok, cr2.code)
 
-    assertEquals("Для изменения регистрации нужен ваш пароль", doc2.select(".error").text)
+    assertEquals("Для изменения регистрации нужен ваш пароль", doc2.select(".error").text.trim)
     assertEquals("/people/JB/edit", doc2.getElementById("editRegForm").attr("action"))
   }
 
