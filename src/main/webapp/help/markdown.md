@@ -190,6 +190,7 @@ git pull && sbt compile
 Поддерживаются следующие языки:
 
 * ABNF
+* Ada
 * ASM-ARM
 * ASM-AVR
 * ASM-MIPS

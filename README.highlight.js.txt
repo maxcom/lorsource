@@ -1,5 +1,6 @@
-Подсветка кода от https://highlightjs.org/.
+Подсветка кода от https://highlightjs.org.
 
-Версия 11.10.0
+Версия Highlight.js v11.11.1 (git: 85b20421a2).
 
-Сборка через build-hljs
+
+Сборка через build-hljs.

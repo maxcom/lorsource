@@ -63,6 +63,7 @@ public class CodeTag extends Tag {
   public static final ImmutableMap<String, String> langHash =
           ImmutableMap.<String, String>builder().
                   put("abnf", "language-abnf")
+                  .put("ada", "language-ada")
                   .put("asm", "language-x86asm")
                   .put("asm-arm", "language-armasm")
                   .put("asm-avr", "language-avrasm")
