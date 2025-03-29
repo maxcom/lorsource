@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,7 +32,7 @@ object DateFormats {
   val Rfc822: DateTimeFormatter = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.US)
   val DateLong: DateTimeFormatter = DateTimeFormat.longDate().withLocale(RussianLocale);
 
-  def getDefault(tz: DateTimeZone): DateTimeFormatter = Default.withZone(tz)
+  def getDefault(tz: DateTimeZone): Rus = new Rus(Default, tz)
   def dateLong(tz: DateTimeZone): DateTimeFormatter = DateLong.withZone(tz)
 
   private def short(tz: DateTimeZone): DateTimeFormatter = Short.withZone(tz)
