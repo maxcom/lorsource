@@ -204,9 +204,11 @@ public class User implements Serializable {
     if (score < 0) {
       score = 0;
     }
+/*
     if (score >= 600) {
       score = 599;
     }
+*/
 
     return (int) Math.floor(score / 100.0);
   }
@@ -218,9 +220,11 @@ public class User implements Serializable {
     if (maxScore < score) {
       maxScore = score;
     }
+/*
     if (maxScore >= 600) {
       maxScore = 599;
     }
+*/
 
     int stars = getGreenStars(score);
     return (int) Math.floor(maxScore / 100.0) - stars;
