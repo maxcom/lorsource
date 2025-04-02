@@ -38,6 +38,7 @@ import ru.org.linux.user.{IgnoreListDao, MemoriesDao, User}
 import ru.org.linux.warning.WarningService
 
 import java.time.Instant
+import java.time.temporal.{ChronoUnit, TemporalAmount}
 import java.util
 import java.util.concurrent.{Callable, TimeUnit}
 import scala.collection.mutable
@@ -209,6 +210,11 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("page", Integer.valueOf(page))
     params.put("group", group)
     params.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
+
+    if (topic.expireDate !=null && !topic.expired &&
+        topic.expireDate.toInstant.isBefore(Instant.now().plus(14, ChronoUnit.DAYS))) {
+      params.put("expireDate", topic.expireDate)
+    }
 
     if (!session.authorized && topic.expired) {
       val etag = TopicController.getEtag(topic)

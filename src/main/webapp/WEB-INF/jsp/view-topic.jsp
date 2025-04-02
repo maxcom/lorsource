@@ -345,6 +345,12 @@ $script.ready('lorjs', function () {
   </div>
 </c:if>
 
+<c:if test="${expireDate != null}">
+  <div class="infoblock">
+    Тема будет перемещена в архив <lor:date date="${expireDate}"/>.
+  </div>
+</c:if>
+
 <c:if test="${fn:length(commentsPrepared) > 0}">
   <c:if test="${ not empty bufInfo }">
     <div class="nav">

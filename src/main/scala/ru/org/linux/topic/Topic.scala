@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -43,7 +43,7 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
                  @BooleanBeanProperty notop: Boolean, @BeanProperty userAgentId: Int, @BeanProperty postIP: String,
                  @BooleanBeanProperty resolved: Boolean, @BooleanBeanProperty minor: Boolean,
                  @BooleanBeanProperty draft: Boolean, @BooleanBeanProperty allowAnonymous: Boolean,
-                 reactions: Reactions) {
+                 reactions: Reactions, @Nullable expireDate: Timestamp) {
   def getTitleUnescaped: String = StringEscapeUtils.unescapeHtml4(title)
 
   def getPageCount(messages: Int): Int = Math.ceil(commentCount / messages.toDouble).toInt
@@ -85,17 +85,19 @@ object Topic {
       rs.getInt("postscore")
     }
 
+    val sticky = rs.getBoolean("sticky")
+
     Topic(
       id = rs.getInt("msgid"),
       postscore = postscore,
-      sticky = rs.getBoolean("sticky"),
+      sticky = sticky,
       linktext = rs.getString("linktext"),
       url = rs.getString("url"),
       title = StringUtil.makeTitle(rs.getString("title")),
       authorUserId = rs.getInt("userid"),
       groupId = rs.getInt("guid"),
       deleted = rs.getBoolean("deleted"),
-      expired = !rs.getBoolean("sticky") && rs.getBoolean("expired"),
+      expired = !sticky && rs.getBoolean("expired"),
       commitby = rs.getInt("commitby"),
       postdate = rs.getTimestamp("postdate"),
       commitDate = rs.getTimestamp("commitdate"),
@@ -111,7 +113,8 @@ object Topic {
       minor = rs.getBoolean("minor"),
       draft = rs.getBoolean("draft"),
       allowAnonymous = rs.getBoolean("allow_anonymous"),
-      reactions = ReactionDao.parse(rs.getString("reactions")))
+      reactions = ReactionDao.parse(rs.getString("reactions")),
+      expireDate = if (!sticky) rs.getTimestamp("expire_date") else null)
   }
 
   def fromAddRequest(form: AddTopicRequest, user: User, postIP: String): Topic = {
@@ -144,7 +147,8 @@ object Topic {
       minor = false,
       draft = form.isDraftMode,
       allowAnonymous = form.allowAnonymous,
-      reactions = Reactions.empty)
+      reactions = Reactions.empty,
+      expireDate = null)
   }
 
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
@@ -182,6 +186,7 @@ object Topic {
       draft = if (publish) false else original.draft,
       minor = minor,
       allowAnonymous = original.allowAnonymous,
-      reactions = original.reactions)
+      reactions = original.reactions,
+      expireDate = original.expireDate)
   }
 }

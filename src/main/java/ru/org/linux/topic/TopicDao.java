@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -60,7 +60,8 @@ public class TopicDao {
         "urlname, section, topics.sticky, topics.postip, " +
         "COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
-        "topics.resolved, minor, draft, allow_anonymous, topics.reactions " +
+        "topics.resolved, minor, draft, allow_anonymous, topics.reactions, " +
+        "COALESCE(commitdate, topics.postdate) + sections.expire as expire_date " +
         "FROM topics " +
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +
