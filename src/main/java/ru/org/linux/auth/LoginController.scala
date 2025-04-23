@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,12 +14,12 @@
  */
 package ru.org.linux.auth
 
-import org.apache.pekko.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
-import io.circe.{Encoder, Json}
 import io.circe.syntax.*
+import io.circe.{Encoder, Json}
 import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
-import org.springframework.security.authentication.{AccountStatusException, AuthenticationManager, BadCredentialsException, LockedException, UsernamePasswordAuthenticationToken}
+import org.apache.pekko.actor.ActorSystem
+import org.springframework.security.authentication.*
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.{UserDetailsService, UsernameNotFoundException}
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
@@ -68,6 +68,14 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
         }
       }
     } catch {
+      case e: LockedException =>
+        logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
+
+        request.setAttribute("enableAjaxLogin", false)
+
+        delayResponse {
+          new ModelAndView(new RedirectView(s"/people/$username/profile"))
+        }
       case e@(_: AccountStatusException | _: BadCredentialsException | _: UsernameNotFoundException) =>
         logger.warn("Login of " + username + " failed; remote IP: " + request.getRemoteAddr + "; " + e.toString)
 
