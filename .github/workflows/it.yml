@@ -20,7 +20,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - name: Initialize database	
         env:
           PGHOST: postgres
@@ -39,7 +39,7 @@ jobs:
           psql -c 'create extension fuzzystrmatch;' -U postgres lor
           PGPASSWORD=maxcom psql -f sql/demo.db -U maxcom lor
       - name: Set up JDK 21
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '21'
           distribution: 'adopt'
