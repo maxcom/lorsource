@@ -17,7 +17,7 @@ package ru.org.linux.telegram
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.org.linux.telegram.TelegramPostsDao.RequiredActiveUsers
+import ru.org.linux.telegram.TelegramPostsDao.{MaxWarnings, RequiredActiveUsers}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 
 import javax.sql.DataSource
@@ -49,6 +49,7 @@ class TelegramPostsDao(ds: DataSource) {
         |where topics.id in (
         |  select topic from comments join users on comments.userid=users.id join topics on (comments.topic=topics.id)
         |    where comments.postdate>CURRENT_TIMESTAMP-'5 hour'::interval and score>=100 and topics.groupid!=4068
+        |      and topics.open_warnings <= $MaxWarnings
         |      and topics.id not in (select topic_id from telegram_posts) and not topics.deleted AND not comments.deleted
         |      and not notop and not draft and topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
         |    group by topic
@@ -73,4 +74,5 @@ class TelegramPostsDao(ds: DataSource) {
 
 object TelegramPostsDao {
   val RequiredActiveUsers = 15
+  val MaxWarnings = 2
 }
