@@ -31,6 +31,7 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.warning.RuleWarning;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -452,7 +453,8 @@ public class TopicDao {
 
   public void recalcWarningsCount(int topicId) {
     jdbcTemplate.update("""
-            update topics set open_warnings = (select count(*) from message_warnings mw where mw.topic = topics.id
-             and mw.comment is null and mw.closed_by is null) where topics.id=?""", topicId);
+            update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
+             and mw.comment is null and mw.closed_by is null and mw.warning_type=?) where topics.id=?""",
+            RuleWarning.id(), topicId);
   }
 }

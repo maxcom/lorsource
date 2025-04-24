@@ -30,4 +30,11 @@
         and mw.comment is null and mw.closed_by is null)
     </sql>
   </changeSet>
+
+  <changeSet id="2025042403" author="Maxim Valyanskiy">
+    <sql>
+      update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
+      and mw.comment is null and mw.closed_by is null and mw.warning_type='rule')
+    </sql>
+  </changeSet>
 </databaseChangeLog>
