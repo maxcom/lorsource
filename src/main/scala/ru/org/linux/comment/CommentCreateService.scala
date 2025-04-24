@@ -299,7 +299,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
     }
 
     /* Обновление времени последнего изменения топика для того, чтобы данные в кеше автоматически обновились  */
-    topicDao.updateLastmod(oldComment.topicId, false)
+    topicDao.updateLastmod(oldComment.topicId)
 
     addEditHistoryItem(editor, oldComment, originalMessageText.text, newComment, commentBody)
 

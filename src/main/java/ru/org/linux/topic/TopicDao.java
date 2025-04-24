@@ -94,12 +94,8 @@ public class TopicDao {
    *
    * @param topicId идентификационный номер топика
    */
-  public void updateLastmod(int topicId, boolean bump) {
-    if (bump) {
-      jdbcTemplate.update("UPDATE topics SET lastmod=now() WHERE id=?", topicId);
-    } else {
-      jdbcTemplate.update("UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=?", topicId);
-    }
+  public void updateLastmod(int topicId) {
+    jdbcTemplate.update("UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=?", topicId);
   }
 
   /**
@@ -452,5 +448,11 @@ public class TopicDao {
     );
 
     return !res.isEmpty();
+  }
+
+  public void recalcWarningsCount(int topicId) {
+    jdbcTemplate.update("""
+            update topics set open_warnings = (select count(*) from message_warnings mw where mw.topic = topics.id
+             and mw.comment is null and mw.closed_by is null) where topics.id=?""", topicId);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -126,11 +126,11 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
    * Блокировка и массивное удаление всех топиков и комментариев пользователя со всеми ответами на комментарии
    *
    * @param user      пользователь для экзекуции
-   * @param moderator экзекутор-модератор
-   * @param reason    прична блокировки
+   * @param currentUser экзекутор-модератор
+   * @param reason    причина блокировки
    * @return список удаленных комментариев
    */
-  def deleteAllAndBlock(user: User,reason: String)
+  def deleteAllAndBlock(user: User, reason: String)
                        (implicit currentUser: AuthorizedSession): DeleteCommentResult = transactional() { _ =>
     assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
 
@@ -154,7 +154,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
     commentDao.undeleteComment(comment)
     deleteInfoDao.delete(comment.id)
-    topicDao.updateLastmod(comment.topicId, false)
+    topicDao.updateLastmod(comment.topicId)
   }
 
   def undeleteTopic(topic: Topic)

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.comment.Comment
-import ru.org.linux.topic.Topic
+import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserEventService, UserService}
 
 import java.util.Date
@@ -31,7 +31,7 @@ object WarningService {
 
 @Service
 class WarningService(warningDao: WarningDao, eventService: UserEventService, userService: UserService,
-                     val transactionManager: PlatformTransactionManager) extends TransactionManagement {
+                     topicDao: TopicDao, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   def postWarning(topic: Topic, comment: Option[Comment], author: User, message: String,
                   warningType: WarningType): Unit = transactional() { _ =>
     val notifyList = warningType match {
@@ -45,6 +45,11 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
       message = message, warningType = warningType)
 
     eventService.addWarningEvent(author, notifyList, topic, comment, s"[${warningType.name}] $message", warningId = id)
+
+    if (comment.isEmpty) {
+      topicDao.updateLastmod(topic.id)
+      topicDao.recalcWarningsCount(topic.id)
+    }
   }
 
   def lastWarningsCount(user: AuthorizedSession): Int = warningDao.lastWarningsCount(user.user.getId)
@@ -68,5 +73,12 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
 
   def get(id: Int): Warning = warningDao.get(id)
 
-  def clear(warning: Warning, by: AuthorizedSession): Unit = warningDao.clear(warning.id, by.user.getId)
+  def clear(warning: Warning, by: AuthorizedSession): Unit = {
+    warningDao.clear(warning.id, by.user.getId)
+
+    if (warning.commentId.isEmpty) {
+      topicDao.updateLastmod(warning.topicId)
+      topicDao.recalcWarningsCount(warning.topicId)
+    }
+  }
 }

@@ -67,7 +67,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
       imageDao.deleteImage(image)
       editHistoryDao.insert(info)
-      topicDao.updateLastmod(image.topicId, false)
+      topicDao.updateLastmod(image.topicId)
     }
   }
 

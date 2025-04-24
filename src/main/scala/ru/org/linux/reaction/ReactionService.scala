@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -165,7 +165,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     val r = transactional() { _ =>
       val newCount = reactionDao.setCommentReaction(comment, user, reaction, set)
 
-      topicDao.updateLastmod(comment.topicId, false)
+      topicDao.updateLastmod(comment.topicId)
 
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(comment.userid)
@@ -190,7 +190,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     val r = transactional() { _ =>
       val newCount = reactionDao.setTopicReaction(topic, user, reaction, set)
 
-      topicDao.updateLastmod(topic.id, false)
+      topicDao.updateLastmod(topic.id)
 
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(topic.authorUserId)
