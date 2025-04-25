@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,6 +27,12 @@ import java.util.Date
 
 object WarningService {
   val MaxWarningsPerHour = 5
+
+  // максимальное число открытых warning'ов типа 'rule' для top10 и постинга в tg
+  val TopMaxWarnings = 2
+
+  // максимальное число открытых warning'ов типа 'rule' для неавторизованных просмотров
+  val PublicMaxWarnings = 3
 }
 
 @Service
