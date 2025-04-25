@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.group;
 
-import com.google.common.collect.ImmutableList;
 import ru.org.linux.section.Section;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
@@ -25,14 +24,13 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public class PreparedTopicsListItem {
-  private final User author; // topic author
-  private final int msgid; // topic id
-  private final Timestamp lastmod; // topic lastmod
+  private final User topicAuthor; // topic author
+  private final int topicId; // topic id
   private final int stat1; // comment count
   private final int groupId;
   private final String groupTitle;
   private final String title;
-  private final int cid; // tracker only!
+  private final int lastCommentId; // or 0
 
   @Nullable
   private final User lastCommentBy;
@@ -48,21 +46,17 @@ public class PreparedTopicsListItem {
   private final boolean sticky;
   private final int topicPostscore;
 
-  public PreparedTopicsListItem(User author, int msgid, Timestamp lastmod,
-                                int stat1,
-                                int groupId, String groupTitle, String title,
-                                int cid, User lastCommentBy, boolean resolved,
-                                int section, String groupUrlName,
+  public PreparedTopicsListItem(User topicAuthor, int topicId, int stat1, int groupId, String groupTitle, String title,
+                                int lastCommentId, User lastCommentBy, boolean resolved, int section, String groupUrlName,
                                 Timestamp postdate, boolean uncommited, int pages, List<String> tags, boolean deleted,
                                 boolean sticky, int topicPostscore) {
-    this.author = author;
-    this.msgid = msgid;
-    this.lastmod = lastmod;
+    this.topicAuthor = topicAuthor;
+    this.topicId = topicId;
     this.stat1 = stat1;
     this.groupId = groupId;
     this.groupTitle = groupTitle;
     this.title = title;
-    this.cid = cid;
+    this.lastCommentId = lastCommentId;
     this.lastCommentBy = lastCommentBy;
     this.resolved = resolved;
     this.section = section;
@@ -78,34 +72,30 @@ public class PreparedTopicsListItem {
 
   public String getLastPageUrl() {
     if (pages > 1) {
-      return getGroupUrl() + msgid + "/page" + (pages - 1) + "?lastmod=" + cid;
+      return getGroupUrl() + topicId + "/page" + (pages - 1) + "?lastmod=" + lastCommentId;
     } else {
-      return getGroupUrl() + msgid + "?lastmod=" + cid;
+      return getGroupUrl() + topicId + "?lastmod=" + lastCommentId;
     }
   }
 
   public String getFirstPageUrl() {
     if (pages<=1) {
-      return getGroupUrl() + msgid + "?lastmod=" + cid;
+      return getGroupUrl() + topicId + "?lastmod=" + lastCommentId;
     } else {
       return getCanonicalUrl();
     }
   }
 
   public String getCanonicalUrl() {
-    return getGroupUrl() + msgid;
+    return getGroupUrl() + topicId;
   }
 
   public String getGroupUrl() {
     return Section.getSectionLink(section) + groupUrlName + '/';
   }
 
-  public int getMsgid() {
-    return msgid;
-  }
-
-  public Timestamp getLastmod() {
-    return lastmod;
+  public int getTopicId() {
+    return topicId;
   }
 
   public int getCommentCount() {
@@ -136,12 +126,12 @@ public class PreparedTopicsListItem {
     if (lastCommentBy!=null) {
       return lastCommentBy;
     } else {
-      return author;
+      return topicAuthor;
     }
   }
 
   public User getTopicAuthor() {
-    return author;
+    return topicAuthor;
   }
 
   public boolean isResolved() {
@@ -158,10 +148,6 @@ public class PreparedTopicsListItem {
 
   public boolean isUncommited() {
     return uncommited;
-  }
-
-  public int getCid() {
-    return cid;
   }
 
   public List<String> getTags() {

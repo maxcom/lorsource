@@ -241,22 +241,14 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
   def prepareListItem(item: TopicsListItem)(implicit session: AnySession): PreparedTopicsListItem = {
     val author = userService.getUserCached(item.getTopicAuthor)
-    val msgid = item.getMsgid
-    val lastmod = item.getLastmod
-    val stat1 = item.getStat1
+    val msgid = item.getTopicId
+    val stat1 = item.getCommentCount
     val groupId = item.getGroupId
     val groupTitle = item.getGroupTitle
     val title = StringUtil.makeTitle(item.getTitle)
-    val cid = item.getCommentId
+    val lastCommentId = item.getLastCommentId.orElse(0)
 
-    val lastCommentBy: User = {
-      val id = item.getLastCommentBy
-      if (id != null) {
-        userService.getUserCached(id)
-      } else {
-        null
-      }
-    }
+    val lastCommentBy = item.getLastCommentBy.toScala.map(id => userService.getUserCached(id))
 
     val resolved = item.isResolved
     val section = item.getSection
@@ -271,7 +263,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val topicPostscore = item.getTopicPostscore
     val deleted = item.isDeleted
 
-    new PreparedTopicsListItem(author, msgid, lastmod, stat1, groupId, groupTitle, title, cid, lastCommentBy, resolved,
-      section, groupUrlName, postdate, uncommited, pages, tags.asJava, deleted, sticky, topicPostscore)
+    new PreparedTopicsListItem(author, msgid, stat1, groupId, groupTitle, title, lastCommentId, lastCommentBy.orNull,
+      resolved, section, groupUrlName, postdate, uncommited, pages, tags.asJava, deleted, sticky, topicPostscore)
   }
 }

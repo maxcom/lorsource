@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,45 +15,38 @@
 
 package ru.org.linux.group;
 
-import javax.annotation.Nullable;
 import java.sql.Timestamp;
+import java.util.Optional;
 
 public class TopicsListItem {
-  private final int author; // topic author
-  private final int msgid; // topic id
-  private final Timestamp lastmod; // topic lastmod
-  private final int stat1; // comment count
+  private final int topicAuthor;
+  private final int topicId;
+  private final int commentCount;
   private final int groupId;
   private final String groupTitle;
   private final String title;
-  private final int cid; // tracker only!
-
-  @Nullable
-  private final Integer lastCommentBy;
-
+  private final Optional<Integer> lastCommentId;
+  private final Optional<Integer> lastCommentBy;
   private final boolean resolved;
   private final int section;
   private final String groupUrlName;
-  private final Timestamp postdate; // date of last comment or topic postdate if none
-  private final boolean uncommited; // awaits for approve
+  private final Timestamp postdate;
+  private final boolean uncommited;
   private final boolean deleted;
   private final boolean sticky;
   private final int topicPostscore;
 
-  public TopicsListItem(int author, int msgid, Timestamp lastmod, int stat1,
-                        int groupId, String groupTitle, String title,
-                        int cid, Integer lastCommentBy, boolean resolved,
-                        int section, String groupUrlName,
-                        Timestamp postdate, boolean uncommited, boolean deleted,
+  public TopicsListItem(int topicAuthor, int topicId, int commentCount, int groupId, String groupTitle, String title,
+                        Optional<Integer> lastCommentId, Optional<Integer> lastCommentBy, boolean resolved,
+                        int section, String groupUrlName, Timestamp postdate, boolean uncommited, boolean deleted,
                         boolean sticky, int topicPostscore) {
-    this.author = author;
-    this.msgid = msgid;
-    this.lastmod = lastmod;
-    this.stat1 = stat1;
+    this.topicAuthor = topicAuthor;
+    this.topicId = topicId;
+    this.commentCount = commentCount;
     this.groupId = groupId;
     this.groupTitle = groupTitle;
     this.title = title;
-    this.cid = cid;
+    this.lastCommentId = lastCommentId;
     this.lastCommentBy = lastCommentBy;
     this.resolved = resolved;
     this.section = section;
@@ -65,12 +58,8 @@ public class TopicsListItem {
     this.topicPostscore = topicPostscore;
   }
 
-  public int getMsgid() {
-    return msgid;
-  }
-
-  public Timestamp getLastmod() {
-    return lastmod;
+  public int getTopicId() {
+    return topicId;
   }
 
   public int getGroupId() {
@@ -86,7 +75,7 @@ public class TopicsListItem {
   }
 
   public int getTopicAuthor() {
-    return author;
+    return topicAuthor;
   }
 
   public boolean isResolved() {
@@ -105,8 +94,8 @@ public class TopicsListItem {
     return uncommited;
   }
 
-  public int getCommentId() {
-    return cid;
+  public Optional<Integer> getLastCommentId() {
+    return lastCommentId;
   }
 
   public boolean isDeleted() {
@@ -117,12 +106,11 @@ public class TopicsListItem {
     return sticky;
   }
 
-  public int getStat1() {
-    return stat1;
+  public int getCommentCount() {
+    return commentCount;
   }
 
-  @Nullable
-  public Integer getLastCommentBy() {
+  public Optional<Integer> getLastCommentBy() {
     return lastCommentBy;
   }
 

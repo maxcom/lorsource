@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -177,7 +177,7 @@
     <c:if test="${topic.deleted}">
       <c:choose>
         <c:when test="${template.moderatorSession}">
-          <a href="/undelete?msgid=${topic.msgid}"><img src="/img/del.png" alt="[X]" width="15" height="15"></a>
+          <a href="/undelete?msgid=${topic.topicId}"><img src="/img/del.png" alt="[X]" width="15" height="15"></a>
         </c:when>
         <c:otherwise>
           <img src="/img/del.png" alt="[X]" width="15" height="15">
@@ -211,7 +211,7 @@
 
     <c:if test="${topic.pages>1}">
       (стр.
-      <c:forEach var="i" begin="1" end="${topic.pages-1}"><c:out value=" "/><c:if test="${i==(topic.pages-1) and firstPage and year==null}"><a href="${group.url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage or year!=null}"><a href="${group.url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
+      <c:forEach var="i" begin="1" end="${topic.pages-1}"><c:out value=" "/><c:if test="${i==(topic.pages-1) and firstPage and year==null}"><a href="${group.url}${topic.topicId}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage or year!=null}"><a href="${group.url}${topic.topicId}/page${i}">${i+1}</a></c:if></c:forEach>)
     </c:if>
     (<lor:user user="${topic.topicAuthor}"/>)
   </td>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -51,7 +51,7 @@ public class GroupListDao {
         "%s" + // innerSortLimit
       ") SELECT * FROM (SELECT DISTINCT ON(id) * FROM (SELECT " +
         "t.userid as author, " +
-        "t.id, lastmod, " +
+        "t.id, " +
         "t.stat1 AS stat1, " +
         "gid, " +
         "gtitle, " +
@@ -78,7 +78,7 @@ public class GroupListDao {
      "UNION ALL " +
        "SELECT " +
           "t.userid as author, " +
-          "t.id, lastmod,  " +
+          "t.id, " +
           "t.stat1 AS stat1, " +
           "gid, " +
           "gtitle, " +
@@ -243,21 +243,29 @@ public class GroupListDao {
     return jdbcTemplate.query(query, parameter, (resultSet, rowNum) -> {
       int author = resultSet.getInt("author");
       int msgid = resultSet.getInt("id");
-      Timestamp lastmod = resultSet.getTimestamp("lastmod");
       int stat1 = resultSet.getInt("stat1");
       int groupId = resultSet.getInt("gid");
       String groupTitle = resultSet.getString("gtitle");
       String title = StringUtil.makeTitle(resultSet.getString("title"));
-      int cid = resultSet.getInt("cid");
+      Optional<Integer> cid;
 
-      Integer lastCommentBy;
+      {
+        var cidValue = resultSet.getInt("cid");
+        if (cidValue != 0) {
+          cid = Optional.of(cidValue);
+        } else {
+          cid = Optional.empty();
+        }
+      }
+
+      Optional<Integer> lastCommentBy;
       {
         int id = resultSet.getInt("last_comment_by");
 
         if (id != 0) {
-          lastCommentBy = id;
+          lastCommentBy = Optional.of(id);
         } else {
-          lastCommentBy = null;
+          lastCommentBy = Optional.empty();
         }
       }
 
@@ -272,7 +280,7 @@ public class GroupListDao {
               ? TopicPermissionService.POSTSCORE_UNRESTRICTED()
               : resultSet.getInt("topic_postscore");
 
-      return new TopicsListItem(author, msgid, lastmod, stat1,
+      return new TopicsListItem(author, msgid, stat1,
               groupId, groupTitle, title, cid, lastCommentBy, resolved,
               section, groupUrlName, postdate, uncommited, resultSet.getBoolean("deleted"),
               sticky, topicPostscore);
