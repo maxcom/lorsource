@@ -63,7 +63,7 @@ class TelegramPostsDao(ds: DataSource) {
   def topicToDelete: Option[Int] = {
     jdbcTemplate.queryAndMap(s"""
       |select telegram_id from telegram_posts join topics on topic_id = topics.id where
-      |  telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and " +
+      |  telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and
       |  (topics.deleted or topics.notop or topics.open_warnings > $PublicMaxWarnings or
       |  topics.postscore is not distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS})
       |""".stripMargin) { (rs, _) => rs.getInt("telegram_id") }.headOption
