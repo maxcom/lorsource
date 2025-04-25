@@ -165,4 +165,8 @@ public class PreparedTopicsListItem {
   public boolean isCommentsClosed() {
     return topicPostscore >= TopicPermissionService.POSTSCORE_MODERATORS_ONLY();
   }
+
+  public int getLastCommentId() {
+    return lastCommentId;
+  }
 }
