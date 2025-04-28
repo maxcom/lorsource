@@ -240,30 +240,29 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   }
 
   def prepareListItem(item: TopicsListItem)(implicit session: AnySession): PreparedTopicsListItem = {
-    val author = userService.getUserCached(item.getTopicAuthor)
-    val msgid = item.getTopicId
-    val stat1 = item.getCommentCount
-    val groupId = item.getGroupId
-    val groupTitle = item.getGroupTitle
-    val title = StringUtil.makeTitle(item.getTitle)
-    val lastCommentId = item.getLastCommentId.orElse(0)
+    val author = userService.getUserCached(item.topicAuthor)
+    val msgid = item.topicId
+    val stat1 = item.commentCount
+    val groupTitle = item.groupTitle
+    val title = StringUtil.makeTitle(item.title)
+    val lastCommentId = item.lastCommentId.orElse(0)
 
-    val lastCommentBy = item.getLastCommentBy.toScala.map(id => userService.getUserCached(id))
+    val lastCommentBy = item.lastCommentBy.toScala.map(id => userService.getUserCached(id))
 
-    val resolved = item.isResolved
-    val section = item.getSection
-    val groupUrlName = item.getGroupUrlName
-    val postdate = item.getPostdate
-    val sticky = item.isSticky
-    val uncommited = item.isUncommited
+    val resolved = item.resolved
+    val section = item.section
+    val groupUrlName = item.groupUrlName
+    val postdate = item.postdate
+    val sticky = item.sticky
+    val uncommited = item.uncommited
     val pages = Topic.pageCount(stat1, session.profile.messages)
 
     val tags = topicTagService.getTagsForTitle(msgid)
 
-    val topicPostscore = item.getTopicPostscore
-    val deleted = item.isDeleted
+    val topicPostscore = item.topicPostscore
+    val deleted = item.deleted
 
-    new PreparedTopicsListItem(author, msgid, stat1, groupId, groupTitle, title, lastCommentId, lastCommentBy.orNull,
+    PreparedTopicsListItem(author, msgid, stat1, groupTitle, title, lastCommentId, lastCommentBy.orNull,
       resolved, section, groupUrlName, postdate, uncommited, pages, tags.asJava, deleted, sticky, topicPostscore)
   }
 }

@@ -39,7 +39,7 @@ public class GroupListDao {
 
   private static final String queryTrackerMain =
       "WITH topics AS (" +
-        "SELECT topics.*, groups.id as gid, sections.moderate as smod, groups.title AS gtitle, urlname, section FROM topics " +
+        "SELECT topics.*, sections.moderate as smod, groups.title AS gtitle, urlname, section FROM topics " +
         "JOIN groups ON topics.groupid=groups.id JOIN sections ON sections.id = groups.section " +
         "WHERE not draft" +
         "%s" + // deleted
@@ -53,7 +53,6 @@ public class GroupListDao {
         "t.userid as author, " +
         "t.id, " +
         "t.stat1 AS stat1, " +
-        "gid, " +
         "gtitle, " +
         "t.title AS title, " +
         "comments.id as cid, " +
@@ -80,7 +79,6 @@ public class GroupListDao {
           "t.userid as author, " +
           "t.id, " +
           "t.stat1 AS stat1, " +
-          "gid, " +
           "gtitle, " +
           "t.title AS title, " +
           "0, " + /*cid*/
@@ -244,7 +242,6 @@ public class GroupListDao {
       int author = resultSet.getInt("author");
       int msgid = resultSet.getInt("id");
       int stat1 = resultSet.getInt("stat1");
-      int groupId = resultSet.getInt("gid");
       String groupTitle = resultSet.getString("gtitle");
       String title = StringUtil.makeTitle(resultSet.getString("title"));
       Optional<Integer> cid;
@@ -280,8 +277,7 @@ public class GroupListDao {
               ? TopicPermissionService.POSTSCORE_UNRESTRICTED()
               : resultSet.getInt("topic_postscore");
 
-      return new TopicsListItem(author, msgid, stat1,
-              groupId, groupTitle, title, cid, lastCommentBy, resolved,
+      return new TopicsListItem(author, msgid, stat1, groupTitle, title, cid, lastCommentBy, resolved,
               section, groupUrlName, postdate, uncommited, resultSet.getBoolean("deleted"),
               sticky, topicPostscore);
     });
