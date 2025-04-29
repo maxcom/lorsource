@@ -12,13 +12,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.group
 
-package ru.org.linux.group;
+import java.sql.Timestamp
 
-import java.sql.Timestamp;
-import java.util.Optional;
-
-public record TopicsListItem(int topicAuthor, int topicId, int commentCount, String groupTitle, String title,
-                             Optional<Integer> lastCommentId, Optional<Integer> lastCommentBy, boolean resolved,
-                             int section, String groupUrlName, Timestamp postdate, boolean uncommited, boolean deleted,
-                             boolean sticky, int topicPostscore) {}
+case class TopicsListItem(topicAuthor: Int, topicId: Int, commentCount: Int, groupTitle: String, title: String,
+                          lastCommentId: Option[Int], lastCommentBy: Option[Int], resolved: Boolean,
+                          section: Int, groupUrlName: String, postdate: Timestamp, uncommited: Boolean,
+                          deleted: Boolean, sticky: Boolean, topicPostscore: Int)

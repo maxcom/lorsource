@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,8 +20,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
 import ru.org.linux.topic.{ArchiveDao, TagTopicListController, TopicPrepareService}
@@ -29,13 +29,12 @@ import ru.org.linux.util.ServletParameterBadValueException
 
 import java.util
 import java.util.concurrent.CompletionStage
-import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
-import scala.jdk.OptionConverters.RichOption
+import scala.jdk.FutureConverters.FutureOps
 
-object GroupController {
+private object GroupController {
   private val MaxOffset = 300
 }
 
@@ -159,7 +158,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     params.put("section", section)
     params.put("groupInfo", prepareService.prepareGroupInfo(group))
 
-    val tagId = tagInfo.map(_.id).map(Integer.valueOf).toJava
+    val tagId = tagInfo.map(_.id)
 
     tagInfo.foreach { t =>
       params.put("tag", TagService.tagRef(t, 0))
@@ -167,13 +166,10 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
 
     val mainTopics = (if (!lastmod) {
-      groupListDao.getGroupListTopics(group.id, currentUser.userOpt.toJava, currentUser.profile.topics, offset,
-        showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
-        yearMonth.map(p => Integer.valueOf(p._2)).toJava, tagId)
+      groupListDao.getGroupListTopics(group.id, offset, showIgnored, showDeleted, yearMonth, tagId)
     } else {
-      groupListDao.getGroupTrackerTopics(group.id, currentUser.userOpt.toJava, currentUser.profile.topics, offset,
-        tagId)
-    }).asScala.map(topicPrepareService.prepareListItem)
+      groupListDao.getGroupTrackerTopics(group.id, offset, tagId)
+    }).map(topicPrepareService.prepareListItem)
 
     yearMonth match {
       case Some((year, month)) =>
@@ -190,7 +186,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
 
     if (yearMonth.isEmpty && offset == 0 && !lastmod) {
-      val stickyTopics = groupListDao.getGroupStickyTopics(group, tagId).asScala.map(topicPrepareService.prepareListItem)
+      val stickyTopics = groupListDao.getGroupStickyTopics(group, tagId).map(topicPrepareService.prepareListItem)
 
       params.put("topicsList", (stickyTopics.view ++ mainTopics).toSeq.asJava)
     } else {

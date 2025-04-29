@@ -245,9 +245,9 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val stat1 = item.commentCount
     val groupTitle = item.groupTitle
     val title = StringUtil.makeTitle(item.title)
-    val lastCommentId = item.lastCommentId.orElse(0)
+    val lastCommentId = item.lastCommentId.getOrElse(0)
 
-    val lastCommentBy = item.lastCommentBy.toScala.map(id => userService.getUserCached(id))
+    val lastCommentBy = item.lastCommentBy.map(id => userService.getUserCached(id))
 
     val resolved = item.resolved
     val section = item.section

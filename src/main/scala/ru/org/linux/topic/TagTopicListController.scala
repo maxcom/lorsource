@@ -30,8 +30,7 @@ import ru.org.linux.user.UserTagService
 import java.util.concurrent.CompletionStage
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
-import scala.jdk.OptionConverters.RichOption
+import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.FutureConverters.FutureOps
 
 @Controller
@@ -118,11 +117,10 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           }
         }
 
-        val prof = currentUserOpt.profile
 
         val (preparedTopics, pageSize) = if (forumMode) {
-          (groupListDao.getSectionListTopics(section, currentUserOpt.userOpt.toJava,
-            prof.topics, offset, tagInfo.id).asScala.map(prepareService.prepareListItem), prof.topics)
+          (groupListDao.getSectionListTopics(section, offset, tagInfo.id).map(prepareService.prepareListItem),
+            currentUserOpt.profile.topics)
         } else {
           val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None, 20, noTalks = false, tech = false)
 
