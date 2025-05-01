@@ -19,7 +19,7 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.telegram.TelegramPostsDao.RequiredActiveUsers
 import ru.org.linux.topic.{Topic, TopicPermissionService}
-import ru.org.linux.warning.WarningService.{PublicMaxWarnings, TopMaxWarnings}
+import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
@@ -50,7 +50,7 @@ class TelegramPostsDao(ds: DataSource) {
         |where topics.id in (
         |  select topic from comments join users on comments.userid=users.id join topics on (comments.topic=topics.id)
         |    where comments.postdate>CURRENT_TIMESTAMP-'5 hour'::interval and score>=100 and topics.groupid!=4068
-        |      and topics.open_warnings <= $TopMaxWarnings
+        |      and topics.open_warnings <= $TopicMaxWarnings
         |      and topics.id not in (select topic_id from telegram_posts) and not topics.deleted AND not comments.deleted
         |      and not notop and not draft and topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
         |    group by topic
@@ -64,7 +64,7 @@ class TelegramPostsDao(ds: DataSource) {
     jdbcTemplate.queryAndMap(s"""
       |select telegram_id from telegram_posts join topics on topic_id = topics.id where
       |  telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and
-      |  (topics.deleted or topics.notop or topics.open_warnings > $PublicMaxWarnings or
+      |  (topics.deleted or topics.notop or topics.open_warnings > $TopicMaxWarnings or
       |  topics.postscore is not distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS})
       |""".stripMargin) { (rs, _) => rs.getInt("telegram_id") }.headOption
   }

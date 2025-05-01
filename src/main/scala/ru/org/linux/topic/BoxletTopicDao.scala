@@ -17,7 +17,7 @@ package ru.org.linux.topic
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.warning.WarningService.TopMaxWarnings
+import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
 import java.sql.{ResultSet, Timestamp}
 import javax.sql.DataSource
@@ -36,7 +36,7 @@ class BoxletTopicDao(sectionService: SectionService, dataSource: DataSource) {
          |select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c
          |from topics join groups on groups.id = topics.groupid
          |where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and
-         |not deleted and not notop and topics.open_warnings <= $TopMaxWarnings and
+         |not deleted and not notop and topics.open_warnings <= $TopicMaxWarnings and
          |topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
          |order by c desc, msgid limit 10""".stripMargin
 

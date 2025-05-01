@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import ru.org.linux.topic.TopicDao;
 
 import javax.sql.DataSource;
 
@@ -34,11 +35,13 @@ public class StatUpdater {
   private final SimpleJdbcCall statUpdate;
   private final SimpleJdbcCall statUpdate2;
   private final SimpleJdbcCall statMonthly;
+  private final TopicDao topicDao;
 
-  public StatUpdater(DataSource dataSource) {
+  public StatUpdater(DataSource dataSource, TopicDao topicDao) {
     statUpdate = new SimpleJdbcCall(dataSource).withFunctionName("stat_update");
     statUpdate2 = new SimpleJdbcCall(dataSource).withFunctionName("stat_update2");
     statMonthly = new SimpleJdbcCall(dataSource).withFunctionName("update_monthly_stats");
+    this.topicDao = topicDao;
   }
 
   @Scheduled(fixedDelay=TEN_MINS, initialDelay = FIVE_MINS)
@@ -47,6 +50,7 @@ public class StatUpdater {
 
     statUpdate.execute();
     statMonthly.execute();
+    topicDao.recalcAllWarningsCount();
   }
 
   @Scheduled(fixedDelay=HOUR, initialDelay = FIVE_MINS)
