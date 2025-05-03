@@ -43,7 +43,7 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
                  @BooleanBeanProperty notop: Boolean, @BeanProperty userAgentId: Int, @BeanProperty postIP: String,
                  @BooleanBeanProperty resolved: Boolean, @BooleanBeanProperty minor: Boolean,
                  @BooleanBeanProperty draft: Boolean, @BooleanBeanProperty allowAnonymous: Boolean,
-                 reactions: Reactions, @Nullable expireDate: Timestamp) {
+                 reactions: Reactions, @Nullable expireDate: Timestamp, openWarnings: Int) {
   def getTitleUnescaped: String = StringEscapeUtils.unescapeHtml4(title)
 
   def getPageCount(messages: Int): Int = Math.ceil(commentCount / messages.toDouble).toInt
@@ -114,7 +114,8 @@ object Topic {
       draft = rs.getBoolean("draft"),
       allowAnonymous = rs.getBoolean("allow_anonymous"),
       reactions = ReactionDao.parse(rs.getString("reactions")),
-      expireDate = if (!sticky) rs.getTimestamp("expire_date") else null)
+      expireDate = if (!sticky) rs.getTimestamp("expire_date") else null,
+      openWarnings = rs.getInt("open_warnings"))
   }
 
   def fromAddRequest(form: AddTopicRequest, user: User, postIP: String): Topic = {
@@ -148,7 +149,8 @@ object Topic {
       draft = form.isDraftMode,
       allowAnonymous = form.allowAnonymous,
       reactions = Reactions.empty,
-      expireDate = null)
+      expireDate = null,
+      openWarnings = 0)
   }
 
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
@@ -187,6 +189,7 @@ object Topic {
       minor = minor,
       allowAnonymous = original.allowAnonymous,
       reactions = original.reactions,
-      expireDate = original.expireDate)
+      expireDate = original.expireDate,
+      openWarnings = original.openWarnings)
   }
 }

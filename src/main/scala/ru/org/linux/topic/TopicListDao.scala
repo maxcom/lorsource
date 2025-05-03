@@ -180,7 +180,8 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
         | topics.linktext, ua_id, urlname, section, topics.sticky, topics.postip,
         | COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
         | commitdate, topics.stat1, postscore, topics.moderate, notop, topics.resolved, minor, draft, allow_anonymous,
-        | topics.reactions, COALESCE(commitdate, postdate) + sections.expire as expire_date
+        | topics.reactions, COALESCE(commitdate, postdate) + sections.expire as expire_date,
+        | topics.open_warnings
         |FROM topics
         | INNER JOIN groups ON (groups.id=topics.groupid)
         | INNER JOIN sections ON (sections.id=groups.section) """.stripMargin)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,6 +28,7 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED}
 import ru.org.linux.user.{User, UserPermissionService, UserService}
+import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -217,9 +218,16 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
   }
 
+  private def getOpenWarningsPostscore(topic: Topic): Int =
+    if (topic.openWarnings > TopicMaxWarnings) {
+      100
+    } else {
+      POSTSCORE_UNRESTRICTED
+    }
+
   def getPostscore(group: Group, topic: Topic): Int = Seq(topic.postscore, group.commentsRestriction,
     Section.getCommentPostscore(topic.sectionId), TopicPermissionService.getCommentCountRestriction(topic),
-    getAllowAnonymousPostscore(topic), getScoreLossPostscore(topic)).max
+    getAllowAnonymousPostscore(topic), getScoreLossPostscore(topic), getOpenWarningsPostscore(topic)).max
 
   def getPostscore(topic: Topic): Int = {
     val group = groupDao.getGroup(topic.groupId)
