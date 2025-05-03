@@ -125,9 +125,9 @@ public class QuoteTag extends Tag {
       }
       ret.append("<p><cite>");
       if (formatter != null) {
-        ret.append(formatter.simpleFormat(node.getParameter().replaceFirst("^\n", "").replaceAll("\"", "")));
+        ret.append(formatter.simpleFormat(node.getParameter().replaceAll("\"", "")));
       } else {
-        ret.append(Parser.escape(node.getParameter().replaceFirst("^\n", "").replaceAll("\"", "")));
+        ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
       }
       ret.append("</cite></p>");
       ret.append(node.renderChildrenXHtml());
