@@ -28,7 +28,7 @@ import java.util.Date
 object WarningService {
   val MaxWarningsPerHour = 5
 
-  // число открытых warning'ов типа 'rule' для топика, при привышении которого включаются ограничения
+  // число открытых warning'ов типа 'rule' для топика, при превышении которого включаются ограничения
   val TopicMaxWarnings = 2
 }
 

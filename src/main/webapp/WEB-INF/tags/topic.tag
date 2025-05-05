@@ -15,6 +15,7 @@
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
+<%@ tag import="ru.org.linux.warning.WarningService" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -274,7 +275,8 @@
         </div>
       </c:if>
 
-    <lor:warnings warnings="${preparedMessage.warnings}"/>
+    <lor:warnings warnings="${preparedMessage.warnings}"
+                  hidden="${preparedMessage.message.openWarnings > WarningService.TopicMaxWarnings()}"/>
 
     <lor:reactions reactions="${preparedMessage.reactions}" reactionList="${reactionList}" topic="${message}"/>
   </div>

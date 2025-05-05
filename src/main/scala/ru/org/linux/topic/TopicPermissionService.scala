@@ -118,8 +118,6 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     if (!session.moderator) {
       val currentUser = session.userOpt.orNull
 
-      val unauthorized = currentUser == null || currentUser.isAnonymous
-
       if (showDeleted && !allowViewDeletedComments(message)) {
         throw new MessageNotFoundException(message.id, "вы не можете смотреть удаленные комментарии")
       }
@@ -131,7 +129,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
           throw new MessageNotFoundException(message.id, "нельзя посмотреть устаревшие удаленные сообщения")
         }
 
-        if (unauthorized) {
+        if (!session.authorized) {
           throw new MessageNotFoundException(message.id, "Сообщение удалено")
         }
 
@@ -165,6 +163,10 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         if (!viewByAuthor) {
           throw new MessageNotFoundException(message.id, "Нельзя посмотреть чужой черновик")
         }
+      }
+
+      if (!session.authorized && message.openWarnings > TopicMaxWarnings) {
+        throw new MessageNotFoundException(message.id, "Сообщение скрыто")
       }
 
       val viewByCorrector = currentUser != null && currentUser.canCorrect
