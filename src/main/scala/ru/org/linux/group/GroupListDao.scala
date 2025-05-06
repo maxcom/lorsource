@@ -16,12 +16,13 @@ package ru.org.linux.group
 
 import org.springframework.jdbc.core.namedparam.{MapSqlParameterSource, NamedParameterJdbcTemplate}
 import org.springframework.stereotype.Repository
-import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
+import ru.org.linux.auth.AnySession
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.tracker.TrackerFilterEnum
 import ru.org.linux.util.StringUtil
+import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
 import java.sql.ResultSet
 import javax.sql.DataSource
@@ -36,6 +37,7 @@ object GroupListDao {
       "%s" + // queryPartTagIgnored
       "%s" + // noUncommited
       "%s" + // partFilter
+      "%s" + // noHidden
       "%s" + // innerSortLimit
     ") SELECT * FROM (SELECT DISTINCT ON(id) * FROM (SELECT " +
       "t.userid as author, " +
@@ -102,15 +104,14 @@ class GroupListDao(ds: DataSource) {
   private val jdbcTemplate = new NamedParameterJdbcTemplate(ds)
 
   def getGroupTrackerTopics(groupid: Int, offset: Int, tagId: Option[Int])
-                           (implicit currentUser: AnySession): collection.Seq[TopicsListItem] = {
+                           (implicit session: AnySession): collection.Seq[TopicsListItem] = {
     val dateFilter = ">CURRENT_TIMESTAMP-'6 month'::interval "
     val partFilter = s" AND topics.groupid = $groupid "
     val tagFilter = tagId.map(t => s" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=$t) ").getOrElse("")
 
     load(
       partFilter = partFilter + tagFilter + " AND lastmod" + dateFilter,
-      currentUserOpt = currentUser,
-      topics = currentUser.profile.topics,
+      topics = session.profile.topics,
       offset = offset,
       orderColumn = "comment_postdate",
       commentInterval = "AND comments.postdate" + dateFilter,
@@ -121,7 +122,7 @@ class GroupListDao(ds: DataSource) {
 
   def getGroupListTopics(groupid: Int, offset: Int, showIgnored: Boolean, showDeleted: Boolean,
                          yearMonth: Option[(Int, Int)], tagId: Option[Int])
-                        (implicit currentUser: AnySession): collection.Seq[TopicsListItem] = {
+                        (implicit session: AnySession): collection.Seq[TopicsListItem] = {
     val dateInterval: String = yearMonth.map { v =>
       val (year, month) = v
 
@@ -133,8 +134,7 @@ class GroupListDao(ds: DataSource) {
 
     load(
       partFilter = partFilter + tagFilter,
-      currentUserOpt = currentUser,
-      topics = currentUser.profile.topics,
+      topics = session.profile.topics,
       offset = offset,
       orderColumn = "topic_postdate",
       commentInterval = "",
@@ -144,14 +144,13 @@ class GroupListDao(ds: DataSource) {
   }
 
   def getSectionListTopics(section: Section, offset: Int, tagId: Int)
-                          (implicit currentUser: AnySession): collection.Seq[TopicsListItem] = {
+                          (implicit session: AnySession): collection.Seq[TopicsListItem] = {
     val partFilter = s" AND section = ${section.getId}"
     val tagFilter = s" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=$tagId) "
 
     load(
       partFilter = partFilter + tagFilter,
-      currentUserOpt = currentUser,
-      topics = currentUser.profile.topics,
+      topics = session.profile.topics,
       offset = offset,
       orderColumn = "topic_postdate",
       commentInterval = "",
@@ -160,13 +159,13 @@ class GroupListDao(ds: DataSource) {
       showDeleted = false)
   }
 
-  def getGroupStickyTopics(group: Group, tagId: Option[Int]): collection.Seq[TopicsListItem] = {
+  def getGroupStickyTopics(group: Group, tagId: Option[Int])
+                          (implicit session: AnySession): collection.Seq[TopicsListItem] = {
     val partFilter = s" AND topics.groupid = ${group.id} AND topics.sticky "
     val tagFilter = tagId.map(t => s" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=$t) ").getOrElse("")
 
     load(
       partFilter = partFilter + tagFilter,
-      currentUserOpt = NonAuthorizedSession,
       topics = 100,
       offset = 0,
       orderColumn = "topic_postdate",
@@ -177,7 +176,7 @@ class GroupListDao(ds: DataSource) {
   }
 
   def getTrackerTopics(filter: TrackerFilterEnum, offset: Int)
-                      (implicit currentUser: AnySession): collection.Seq[TopicsListItem] = {
+                      (implicit session: AnySession): collection.Seq[TopicsListItem] = {
     val partFilter = filter match {
       case TrackerFilterEnum.NOTALKS =>
         " AND not topics.groupid = 8404 "
@@ -192,8 +191,7 @@ class GroupListDao(ds: DataSource) {
 
     load(
       partFilter = partFilter + " AND lastmod" + dateFilter,
-      currentUserOpt = currentUser,
-      topics = currentUser.profile.topics,
+      topics = session.profile.topics,
       offset = offset,
       orderColumn = "comment_postdate",
       commentInterval = "AND comments.postdate" + dateFilter,
@@ -202,9 +200,9 @@ class GroupListDao(ds: DataSource) {
       showDeleted = false)
   }
 
-  private def load(partFilter: String, currentUserOpt: AnySession, topics: Int, offset: Int, orderColumn: String,
+  private def load(partFilter: String, topics: Int, offset: Int, orderColumn: String,
                    commentInterval: String, topicInterval: String, showIgnored: Boolean,
-                   showDeleted: Boolean): collection.Seq[TopicsListItem] = {
+                   showDeleted: Boolean)(implicit session: AnySession): collection.Seq[TopicsListItem] = {
     // если сортируем по топику, то можно заранее отобрать нужные топики,
     // до получения даты последнего комментария
     val (innerSortLimit, outerSortLimit) = if (orderColumn == "topic_postdate") {
@@ -220,26 +218,30 @@ class GroupListDao(ds: DataSource) {
     var commentIgnored: String = null
     var tagIgnored: String = null
 
-    if (currentUserOpt.authorized && !showIgnored) {
+    if (session.authorized && !showIgnored) {
       commentIgnored = GroupListDao.QueryPartCommentIgnored
       partIgnored = GroupListDao.QueryPartIgnored
       tagIgnored = GroupListDao.QueryPartTagIgnored
 
-      parameter.addValue("userid", currentUserOpt.userOpt.get.getId)
+      parameter.addValue("userid", session.userOpt.get.getId)
     } else {
       partIgnored = ""
       commentIgnored = ""
       tagIgnored = ""
     }
 
-    val showUncommited = currentUserOpt.moderator || currentUserOpt.corrector
+    val noHidden = if (session.authorized) "" else s" AND topics.open_warnings <= $TopicMaxWarnings "
+
+    val showUncommited = session.moderator || session.corrector
 
     val partUncommited = if (showUncommited) "" else GroupListDao.NoUncommited
 
     val partDeleted = if (showDeleted) "" else " AND NOT deleted "
 
     val query: String = String.format( // topics CTE
-      GroupListDao.QueryTrackerMain, partDeleted, partIgnored, "", tagIgnored, partUncommited, partFilter, innerSortLimit, // comments part
+      GroupListDao.QueryTrackerMain, partDeleted, partIgnored, "", tagIgnored, partUncommited, partFilter, noHidden,
+      innerSortLimit,
+      // comments part
       commentIgnored, "", commentInterval, // topics part
       if (topicInterval.isEmpty) "" else "WHERE " + topicInterval, // order
       outerSortLimit)
