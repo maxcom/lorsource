@@ -20,7 +20,8 @@ label {
 
 input[type="search"] {
     -webkit-appearance: none;
-    width: 80%;
+    width: 75%;
+    max-width: 50em;
 }
 
 input[type="checkbox"] {
