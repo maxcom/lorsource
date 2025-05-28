@@ -36,7 +36,7 @@ import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils
 
 import java.io.File
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object TopicService {
   private def sendTagEventsNeeded(section: Section, oldMsg: Topic, commit: Boolean): Boolean = {
@@ -330,4 +330,10 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   }
 
   def getById(id: Int): Topic = topicDao.getById(id)
+
+  def getUncommitedCounts: Seq[(Section, Int)] = {
+    topicDao.getUncommitedCounts.asScala.view.map { p =>
+      sectionService.getSection(p._1) -> p._2.toInt
+    }.toVector
+  }
 }

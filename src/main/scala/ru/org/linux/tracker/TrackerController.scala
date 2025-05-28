@@ -21,7 +21,7 @@ import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.group.GroupListDao
-import ru.org.linux.topic.TopicPrepareService
+import ru.org.linux.topic.{TopicPrepareService, TopicService}
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import java.net.URLEncoder
@@ -30,7 +30,7 @@ import scala.jdk.OptionConverters.RichOptional
 
 @Controller
 class TrackerController(groupListDao: GroupListDao, userService: UserService, ipBlockDao: IPBlockDao,
-                        topicPrepareService: TopicPrepareService) {
+                        topicPrepareService: TopicPrepareService, topicService: TopicService) {
   @ModelAttribute("filters")
   def getFilter: java.util.List[TrackerFilterEnum] = TrackerFilterEnum.values.toSeq.asJava
 
@@ -70,10 +70,10 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
               @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int
-             ): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
+             ): ModelAndView = MaybeAuthorized { implicit session =>
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
-    val defaultFilter = currentUserOpt.profile.trackerMode
+    val defaultFilter = session.profile.trackerMode
     val trackerFilter = TrackerFilterEnum.getByValue(filterAction).orElse(defaultFilter)
 
     val params = new java.util.HashMap[String, AnyRef]
@@ -82,7 +82,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
 
     params.put("defaultFilter", defaultFilter)
 
-    val topics = currentUserOpt.profile.topics
+    val topics = session.profile.topics
 
     params.put("title", makeTitle(trackerFilter, defaultFilter))
 
@@ -99,7 +99,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
       params.put("prevLink", buildTrackerUrl(offset - topics, Some(trackerFilter).filter(_ != defaultFilter)))
     }
 
-    if (currentUserOpt.moderator) {
+    if (session.moderator) {
       params.put("newUsers", userService.getNewUsers)
       params.put("frozenUsers", userService.getFrozenUsers.asJava)
       params.put("unFrozenUsers", userService.getUnFrozenUsers.asJava)
@@ -117,6 +117,12 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
       params.put("recentUserpics", Seq.empty.asJava)
       params.put("blockedIps", Seq.empty.asJava)
       params.put("unBlockedIps", Seq.empty.asJava)
+    }
+
+    if (session.moderator || session.corrector) {
+      val uncommitedCounts = topicService.getUncommitedCounts
+
+      params.put("uncommitedCounts", uncommitedCounts.asJava)
     }
 
     new ModelAndView("tracker-new", params)

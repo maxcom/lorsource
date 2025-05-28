@@ -21,7 +21,6 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="news" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
-<%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 <%--@elvariable id="hasDrafts" type="java.lang.Boolean"--%>
 <%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.BriefTopicRef>>>>"--%>
@@ -107,31 +106,22 @@
     });
   </script>
 
-  <c:if test="${template.moderatorSession or template.correctorSession}">
-<div class="nav" style="border-bottom: none">
-  <c:if test="${uncommited > 0}">
-    [<a href="view-all.jsp">Неподтверждённых</a>: ${uncommited},
-      в том числе 
-    <c:if test="${uncommitedGallery > 0}">
-      <a href="view-all.jsp?section=3">изображений</a>:&nbsp;${uncommitedGallery};
+<c:if test="${(template.moderatorSession or template.correctorSession) and (uncommited > 0)}">
+<nav>
+    <c:if test="${uncommitedCounts.size() > 1}">
+      <a class="btn btn-default" href="view-all.jsp">Неподтверждённых: ${uncommited}</a>
     </c:if>
-    <c:if test="${uncommitedNews > 0}">
-      <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews};
-    </c:if>
-    <c:if test="${uncommitedPolls > 0}">
-      <a href="view-all.jsp?section=5">опросов</a>:&nbsp;${uncommitedPolls};
-    </c:if>
-    <c:if test="${uncommitedArticles > 0}">
-      <a href="view-all.jsp?section=6">статей</a>:&nbsp;${uncommitedArticles};
-    </c:if>]
-  </c:if>
-</div>
+
+    <c:forEach var="item" items="${uncommitedCounts}">
+      <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">Неподтверждённые ${item._1().name.toLowerCase()}: ${item._2()}</a>
+    </c:forEach>
+</nav>
 </c:if>
 
-    <c:forEach var="msg" items="${news}">
-      <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}"
-                   multiPortal="${template.prof.showGalleryOnMain}" moderateMode="false"/>
-    </c:forEach>
+<c:forEach var="msg" items="${news}">
+  <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}"
+               multiPortal="${template.prof.showGalleryOnMain}" moderateMode="false"/>
+</c:forEach>
 
 <c:if test="${not empty briefNews}">
 <section>

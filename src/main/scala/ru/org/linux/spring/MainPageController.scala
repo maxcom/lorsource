@@ -25,12 +25,12 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
 
-import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 @Controller
 class MainPageController(prepareService: TopicPrepareService, topicListService: TopicListService, topicDao: TopicDao,
                          memoriesDao: MemoriesDao, groupPermissionService: GroupPermissionService,
-                         sectionService: SectionService) {
+                         sectionService: SectionService, topicService: TopicService) {
   @RequestMapping(path = Array("/", "/index.jsp"))
   def mainPage(response: HttpServletResponse): ModelAndView = MaybeAuthorized { implicit session =>
     response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
@@ -62,38 +62,11 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
     }
 
     if (session.moderator || session.corrector) {
-      val uncommited = topicDao.getUncommitedCount
+      val uncommitedCounts = topicService.getUncommitedCounts
+      val uncommited = uncommitedCounts.map(_._2).sum
 
       mv.getModel.put("uncommited", Int.box(uncommited))
-
-      val uncommitedGallery = if (uncommited > 0) {
-        topicDao.getUncommitedCount(Section.SECTION_GALLERY)
-      } else {
-        0
-      }
-
-      val uncommitedNews = if (uncommited > 0) {
-        topicDao.getUncommitedCount(Section.SECTION_NEWS)
-      } else {
-        0
-      }
-
-      val uncommitedPolls = if (uncommited > 0) {
-        topicDao.getUncommitedCount(Section.SECTION_POLLS)
-      } else {
-        0
-      }
-
-      val uncommitedArticles = if (uncommited > 0) {
-        topicDao.getUncommitedCount(Section.SECTION_ARTICLES)
-      } else {
-        0
-      }
-
-      mv.getModel.put("uncommitedGallery", Int.box(uncommitedGallery))
-      mv.getModel.put("uncommitedNews", Int.box(uncommitedNews))
-      mv.getModel.put("uncommitedPolls", Int.box(uncommitedPolls))
-      mv.getModel.put("uncommitedArticles", Int.box(uncommitedArticles))
+      mv.getModel.put("uncommitedCounts", uncommitedCounts.asJava)
     }
 
     mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))

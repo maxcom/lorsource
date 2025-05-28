@@ -32,6 +32,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.warning.RuleWarning;
+import scala.Tuple2;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -427,18 +428,13 @@ public class TopicDao {
     );
   }
 
-  public int getUncommitedCount() {
-    return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and not draft and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
-            Integer.class
-    );
-  }
-
-  public int getUncommitedCount(int section) {
-    return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not draft and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
-            Integer.class,
-            section
+  public List<Tuple2<Integer, Integer>> getUncommitedCounts() {
+    return jdbcTemplate.query(
+            "select section, count(*) from topics,groups,sections where section=sections.id AND " +
+                    "sections.moderate and not draft and topics.groupid=groups.id and not deleted and " +
+                    "not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " +
+                    "group by section order by section",
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("section"), rs.getInt("count"))
     );
   }
 

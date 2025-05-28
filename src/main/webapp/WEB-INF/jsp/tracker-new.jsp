@@ -1,7 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -51,6 +51,12 @@
   <c:if test="${template.moderatorSession}">
     <a class="btn btn-default" href="/sameip.jsp?score=-9999">anonymous</a>
     <a class="btn btn-default" href="/sameip.jsp?score=46">score <= 45</a>
+  </c:if>
+
+  <c:if test="${(template.moderatorSession or template.correctorSession) and (not empty uncommitedCounts)}">
+      <c:forEach var="item" items="${uncommitedCounts}">
+        <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">неподтв. ${item._1().name.toLowerCase()}: ${item._2()}</a>
+      </c:forEach>
   </c:if>
 </nav>
 
