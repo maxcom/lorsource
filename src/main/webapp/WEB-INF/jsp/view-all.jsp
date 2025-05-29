@@ -55,19 +55,6 @@
       <a href="view-all.jsp?section=${item._1().id}" class="btn btn-default">${item._1().name}: ${item._2()}</a>
     </c:if>
   </c:forEach>
-</nav>
-
-<nav>
-  <c:forEach items="${sections}" var="item">
-    <c:if test="${item.premoderated}">
-      <c:if test="${section!=null && item.id == section.id}">
-        <a href="view-all.jsp?section=${item.id}" class="btn btn-selected">${item.name}</a>
-      </c:if>
-      <c:if test="${item.id != section.id}">
-        <a href="view-all.jsp?section=${item.id}" class="btn btn-default">${item.name}</a>
-      </c:if>
-    </c:if>
-  </c:forEach>
 
   <c:if test="${not empty addlink}">
     <a class="btn btn-primary" href="${addlink}">Добавить</a>
