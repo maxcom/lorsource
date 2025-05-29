@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -40,13 +40,24 @@
 
 <nav>
   <c:if test="${section!=null}">
-    <a class="btn btn-default" href="view-all.jsp">Все</a>
+    <a class="btn btn-default" href="view-all.jsp">Все: ${uncommited}</a>
   </c:if>
 
   <c:if test="${section==null}">
-    <a class="btn btn-selected" href="view-all.jsp">Все</a>
+    <a class="btn btn-selected" href="view-all.jsp">Все: ${uncommited}</a>
   </c:if>
 
+  <c:forEach var="item" items="${uncommitedCounts}">
+    <c:if test="${section!=null && item._1().id == section.id}">
+      <a href="view-all.jsp?section=${item._1().id}" class="btn btn-selected">${item._1().name}: ${item._2()}</a>
+    </c:if>
+    <c:if test="${item._1().id != section.id}">
+      <a href="view-all.jsp?section=${item._1().id}" class="btn btn-default">${item._1().name}: ${item._2()}</a>
+    </c:if>
+  </c:forEach>
+</nav>
+
+<nav>
   <c:forEach items="${sections}" var="item">
     <c:if test="${item.premoderated}">
       <c:if test="${section!=null && item.id == section.id}">

@@ -28,9 +28,10 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 @Controller
 @RequestMapping(value = Array("/view-all.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
 class UncommitedTopicsController(sectionService: SectionService, topicListService: TopicListService,
-                                 prepareService: TopicPrepareService, groupPermissionService: GroupPermissionService) {
+                                 prepareService: TopicPrepareService, groupPermissionService: GroupPermissionService,
+                                 topicService: TopicService) {
   @RequestMapping
-  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
+  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val modelAndView = new ModelAndView("view-all")
 
     val section: Option[Section] = if (sectionId != 0) {
@@ -62,7 +63,7 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
     calendar.setTime(new Date)
     calendar.add(Calendar.MONTH, -3)
 
-    val includeAnonymous = currentUserOpt.moderator || currentUserOpt.corrector
+    val includeAnonymous = session.moderator || session.corrector
 
     val messages = topicListService.getUncommitedTopic(section, calendar.getTime, includeAnonymous)
 
@@ -70,11 +71,23 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     modelAndView.addObject("messages", topics.asJava)
 
-    val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = !currentUserOpt.moderator,
+    val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = !session.moderator,
       includeAnonymous = includeAnonymous)
 
     modelAndView.addObject("deletedTopics", deleted.asJava)
-    modelAndView.addObject("sections", sectionService.sections.asJava)
+
+    val uncommitedCounts = topicService.getUncommitedCounts
+
+    val uncommitedWithSelection = if (section.isDefined && uncommitedCounts.forall(_._1 != section.get)) {
+      uncommitedCounts :+ (section.get -> 0)
+    } else {
+      uncommitedCounts
+    }
+
+    val uncommited = uncommitedCounts.map(_._2).sum
+
+    modelAndView.getModel.put("uncommited", Int.box(uncommited))
+    modelAndView.getModel.put("uncommitedCounts", uncommitedWithSelection.asJava)
 
     modelAndView
   }
