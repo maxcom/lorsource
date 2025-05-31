@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,10 +16,9 @@ package ru.org.linux.topic
 
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AnySession
+import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
 import ru.org.linux.group.Group
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.tag.TagNotFoundException
 import ru.org.linux.tag.TagService
 import ru.org.linux.topic.TopicListDto.CommitMode
 import ru.org.linux.user.User
@@ -64,9 +63,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
    * @param offset  смещение в результатах выборки
    * @param yearMonth год, месяц
    * @return список топиков
-   * @throws TagNotFoundException
    */
-  @throws[TagNotFoundException]
   def getTopicsFeed(section: Section, group: Option[Group], tag: Option[String], offset: Int, yearMonth: Option[(Int, Int)],
                     count: Int, noTalks: Boolean, tech: Boolean)(implicit currentUser: AnySession): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
@@ -112,19 +109,8 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       }
     }
 
-    topicListDao.getTopics(topicListDto, currentUser.userOpt)
+    topicListDao.getTopics(topicListDto, currentUser)
   }
-
-  /**
-   * Получение списка топиков пользователя.
-   *
-   * @param user       объект пользователя
-   * @param offset     смещение в результатах выборки
-   * @param isFavorite true если нужно выбрать избранные сообщения пользователя
-   * @return список топиков пользователя
-   */
-  def getUserTopicsFeed(user: User, offset: Int, isFavorite: Boolean, watches: Boolean): collection.Seq[Topic] =
-    getUserTopicsFeed(user, None, None, offset, isFavorite, watches)
 
   /**
    * Получение списка топиков пользователя.
@@ -135,7 +121,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
    * @param favorites true если нужно выбрать избранные сообщения пользователя
    * @return список топиков пользователя
    */
-  def getUserTopicsFeed(user: User, section: Option[Section], group: Option[Group], offset: Int,
+  def getUserTopicsFeed(user: User, section: Option[Section] = None, offset: Int,
                         favorites: Boolean, watches: Boolean): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
@@ -150,11 +136,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       topicListDto.setSection(section.getId)
     }
 
-    group.foreach { group =>
-      topicListDto.setGroup(group.id)
-    }
-
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
   /**
@@ -173,7 +155,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setUserId(user.getId)
     topicListDto.setShowDraft(true)
 
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
   /**
@@ -207,7 +189,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       topicListDto.setCommitMode(CommitMode.POSTMODERATED_ONLY)
     }
 
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
   def getUncommitedTopic(section: Option[Section], fromDate: Date, includeAnonymous: Boolean): collection.Seq[Topic] = {
@@ -223,7 +205,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setFromDate(fromDate)
     topicListDto.setIncludeAnonymous(includeAnonymous)
 
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
   def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): Seq[DeletedTopic] =
@@ -250,11 +232,11 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       topicListDto.setSection(Section.SECTION_NEWS)
     }
 
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
   def getTopics(topicListDto: TopicListDto)(implicit currentUser: AnySession): collection.Seq[Topic] =
-    topicListDao.getTopics(topicListDto, currentUser.userOpt)
+    topicListDao.getTopics(topicListDto, currentUser)
 
   def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] =
     topicListDao.getDeletedUserTopics(user, topics)

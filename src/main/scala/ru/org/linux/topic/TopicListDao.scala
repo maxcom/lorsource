@@ -18,6 +18,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.auth.AnySession
 import ru.org.linux.section.SectionController
 import ru.org.linux.topic.TopicListDto.CommitMode.{COMMITED_ONLY, POSTMODERATED_ONLY, UNCOMMITED_ONLY}
 import ru.org.linux.topic.TopicListDto.{DateLimitType, MiniNewsMode}
@@ -163,10 +164,10 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
   private val jdbcTemplate: JdbcTemplate = new JdbcTemplate(ds)
   private val namedJdbcTemplate: NamedParameterJdbcTemplate = new NamedParameterJdbcTemplate(ds)
 
-  def getTopics(topicListDto: TopicListDto, currentUser: Option[User]): collection.Seq[Topic] = {
+  def getTopics(topicListDto: TopicListDto, currentUser: AnySession): collection.Seq[Topic] = {
     val params = new mutable.HashMap[String, AnyRef]
 
-    currentUser.map { currentUser =>
+    currentUser.userOpt.map { currentUser =>
       params.put("userid", Integer.valueOf(currentUser.getId))
     }
 

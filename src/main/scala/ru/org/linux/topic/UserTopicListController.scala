@@ -47,7 +47,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
-    val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = false)
+    val messages = topicListService.getUserTopicsFeed(user = user, offset = offset, favorites = true, watches = false)
     prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
@@ -114,7 +114,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
-    val messages = topicListService.getUserTopicsFeed(user, section, None, offset, favorites = false, watches = false)
+    val messages = topicListService.getUserTopicsFeed(user = user, section = section, offset = offset, favorites = false, watches = false)
 
     if (messages.nonEmpty) {
       val rss = "rss" == output
@@ -180,7 +180,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
 
-    val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = true)
+    val messages = topicListService.getUserTopicsFeed(user = user, offset = offset, favorites = true, watches = true)
     prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 

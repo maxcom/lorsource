@@ -25,7 +25,7 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
 
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller
 class MainPageController(prepareService: TopicPrepareService, topicListService: TopicListService, topicDao: TopicDao,
