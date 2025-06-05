@@ -85,22 +85,22 @@
   </div>
   <script type="text/javascript">
     $script.ready('lorjs', function () {
-        var ads = [
-            {
-                type: 'rimg',
-                img320: '/adv/SelectOS_320-100-02.jpg',
-                img730: '/adv/SelectOS_730-90-02.jpg',
-                img980: '/adv/SelectOS_980-120-02.jpg',
-                href: 'https://slc.tl/3igzf'
-            },
-            {
-                type: 'rimg',
-                img320: '/adv/320x100.jpg',
-                img730: '/adv/730x90.jpg',
-                img980: '/adv/980x120.jpg',
-                href: 'https://slc.tl/vej6u'
-            }
-        ];
+      var ads = [
+        {
+          type: 'rimg',
+          img320: '/adv/SelectOS_320-100-02.jpg',
+          img730: '/adv/SelectOS_730-90-02.jpg',
+          img980: '/adv/SelectOS_980-120-02.jpg',
+          href: 'https://slc.tl/3igzf'
+        },
+        {
+          type: 'rimg',
+          img320: '/adv/320-100 SelectOS_VM_cashback.jpg',
+          img730: '/adv/730-90 SelectOS_VM_cashback.jpg',
+          img980: '/adv/980-120 SelectOS_VM_cashback.jpg',
+          href: 'https://slc.tl/9mwn3'
+        }
+      ];
 
       init_interpage_adv(ads);
     });
