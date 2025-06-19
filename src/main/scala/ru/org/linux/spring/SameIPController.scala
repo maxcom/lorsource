@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -38,7 +38,14 @@ object SameIPController {
 class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAgentDao: UserAgentDao, sameIpService: SameIpService) {
   @ModelAttribute("masks")
   def masks: util.List[(String, String)] =
-    Seq("32" -> "Только IP", "24" -> "Сеть /24", "16" -> "Сеть /16", "0" -> "Любой IP").asJava
+    Seq(
+      "32" -> "Только IP",
+      "24" -> "Сеть /24",
+      "23" -> "Сеть /23",
+      "22" -> "Сеть /22",
+      "21" -> "Сеть /21",
+      "16" -> "Сеть /16",
+      "0" -> "Любой IP").asJava
 
   @ModelAttribute("scores")
   def scores: util.List[(String, String)] =
