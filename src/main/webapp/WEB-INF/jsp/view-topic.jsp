@@ -281,6 +281,13 @@ $script.ready('lorjs', function () {
       img730: '/adv/SelectOS_730-90-02.jpg',
       img980: '/adv/SelectOS_980-120-02.jpg',
       href: 'https://slc.tl/3igzf'
+    },
+    {
+      type: 'rimg',
+      img320: '/adv/MD-4752_320x100.jpg',
+      img730: '/adv/MD-4752_730x90.jpg',
+      img980: '/adv/MD-4752_980x120.jpg',
+      href: 'https://selectel.ru/services/dedicated/?tab=configuratorGpu&c=109%3A1&simpleRamMode=true&utm_source=linux.org&utm_medium=cpc&utm_campaign=gpu_one'
     }
   ];
 
