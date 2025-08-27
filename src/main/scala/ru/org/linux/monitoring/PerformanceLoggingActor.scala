@@ -15,9 +15,9 @@
 
 package ru.org.linux.monitoring
 
-import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Timers}
-import akka.pattern.PipeToSupport
+import org.apache.pekko.actor.Status.Failure
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Timers}
+import org.apache.pekko.pattern.PipeToSupport
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.handlers.index.CreateIndexTemplateResponse
@@ -124,7 +124,7 @@ object PerformanceLoggingActor {
 
   private case object Initialize
 
-  def props(elastic: ElasticClient) = Props(new PerformanceLoggingActor(elastic))
+  def props(elastic: ElasticClient): Props = Props(new PerformanceLoggingActor(elastic))
 }
 
 case class Metric(name: String, start: DateTime, controllerTime: Long, viewTime: Long)

@@ -181,6 +181,18 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     recalcEventCount(Seq(userId))
   }
 
+  def dropBannedUserEvents(): Int = transactional() { _ =>
+    val count = jdbcTemplate.update(
+      "DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval AND user_events.userid IN " +
+        "(SELECT id FROM users WHERE users.blocked and lastlogin < CURRENT_TIMESTAMP-'2 year'::interval)")
+
+    jdbcTemplate.update(
+      "UPDATE users SET unread_events = (SELECT count(*) FROM user_events WHERE unread AND userid=users.id) " +
+        "WHERE unread_events != 0 AND users.blocked and lastlogin < CURRENT_TIMESTAMP-'2 year'::interval")
+
+    count
+  }
+
   /**
    * Получить список уведомлений для пользователя.
    *

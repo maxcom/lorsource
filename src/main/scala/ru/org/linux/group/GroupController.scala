@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,30 +20,28 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.section.{Section, SectionController, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
-import ru.org.linux.topic.{ArchiveDao, TagTopicListController}
+import ru.org.linux.topic.{ArchiveDao, TagTopicListController, TopicPrepareService}
 import ru.org.linux.util.ServletParameterBadValueException
 
 import java.util
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
-import scala.jdk.OptionConverters.RichOption
+import scala.jdk.FutureConverters.FutureOps
 
-object GroupController {
+private object GroupController {
   private val MaxOffset = 300
 }
 
 @Controller
 class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService: SectionService,
                       prepareService: GroupInfoPrepareService, groupPermissionService: GroupPermissionService,
-                      groupListDao: GroupListDao, tagService: TagService) {
+                      groupListDao: GroupListDao, tagService: TagService, topicPrepareService: TopicPrepareService) {
   @RequestMapping(path = Array("/group.jsp"))
   def topics(@RequestParam("group") groupId: Int,
              @RequestParam(value = "offset", required = false) offsetObject: Integer): View = {
@@ -114,15 +112,15 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     }
 
     if (showDeleted && !("POST" == request.getMethod)) {
-      Future.successful(new ModelAndView(new RedirectView(group.getUrl))).toJava
+      Future.successful(new ModelAndView(new RedirectView(group.getUrl))).asJava
     } else if (!isFirstPage(offset) && offset > GroupController.MaxOffset) {
-      Future.successful(new ModelAndView(new RedirectView(s"${group.getUrl}archive"))).toJava
+      Future.successful(new ModelAndView(new RedirectView(s"${group.getUrl}archive"))).asJava
     } else {
       val tagOpt = Option(tag)
       val tagInfo: Option[TagInfo] = tagOpt.flatMap(v => tagService.getTagInfo(v, skipZero = true))
 
       if (tagOpt.isDefined && tagInfo.isEmpty) {
-        Future.successful(new ModelAndView("errors/code404")).toJava
+        Future.successful(new ModelAndView("errors/code404")).asJava
       } else {
         forum(section, group, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
           showIgnored = showIgnored)
@@ -150,10 +148,8 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     params.put("firstPage", Boolean.box(firstPage))
     params.put("offset", Integer.valueOf(offset))
 
-    val tmpl = Template.getTemplate
-
-    params.put("prevPage", Integer.valueOf(offset - tmpl.getProf.getTopics))
-    params.put("nextPage", Integer.valueOf(offset + tmpl.getProf.getTopics))
+    params.put("prevPage", Integer.valueOf(offset - currentUser.profile.topics))
+    params.put("nextPage", Integer.valueOf(offset + currentUser.profile.topics))
     params.put("lastmod", Boolean.box(lastmod))
 
     params.put("showIgnored", Boolean.box(showIgnored))
@@ -162,21 +158,18 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
     params.put("section", section)
     params.put("groupInfo", prepareService.prepareGroupInfo(group))
 
-    val tagId = tagInfo.map(_.id).map(Integer.valueOf).toJava
+    val tagId = tagInfo.map(_.id)
 
     tagInfo.foreach { t =>
       params.put("tag", TagService.tagRef(t, 0))
       params.put("tagTitle", t.name.capitalize)
     }
 
-    val mainTopics = if (!lastmod) {
-      groupListDao.getGroupListTopics(group.id, currentUser.userOpt.toJava, tmpl.getProf.getTopics, offset,
-        tmpl.getProf.getMessages, showIgnored, showDeleted, yearMonth.map(p => Integer.valueOf(p._1)).toJava,
-        yearMonth.map(p => Integer.valueOf(p._2)).toJava, tagId)
+    val mainTopics = (if (!lastmod) {
+      groupListDao.getGroupListTopics(group.id, offset, showIgnored, showDeleted, yearMonth, tagId)
     } else {
-      groupListDao.getGroupTrackerTopics(group.id, currentUser.userOpt.toJava, tmpl.getProf.getTopics, offset,
-        tmpl.getProf.getMessages, tagId)
-    }
+      groupListDao.getGroupTrackerTopics(group.id, offset, tagId)
+    }).map(topicPrepareService.prepareListItem)
 
     yearMonth match {
       case Some((year, month)) =>
@@ -185,19 +178,19 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
         params.put("url", s"${group.getUrl}$year/$month/")
 
         params.put("hasNext",
-          Boolean.box(offset + tmpl.getProf.getTopics < archiveDao.getArchiveCount(group.id, year, month)))
+          Boolean.box(offset + currentUser.profile.topics < archiveDao.getArchiveCount(group.id, year, month)))
       case None =>
         params.put("url", group.getUrl)
         params.put("hasNext",
-          Boolean.box(offset < GroupController.MaxOffset && mainTopics.size == tmpl.getProf.getTopics))
+          Boolean.box(offset < GroupController.MaxOffset && mainTopics.size == currentUser.profile.topics))
     }
 
     if (yearMonth.isEmpty && offset == 0 && !lastmod) {
-      val stickyTopics = groupListDao.getGroupStickyTopics(group, tmpl.getProf.getMessages, tagId)
+      val stickyTopics = groupListDao.getGroupStickyTopics(group, tagId).map(topicPrepareService.prepareListItem)
 
-      params.put("topicsList", (stickyTopics.asScala.view ++ mainTopics.asScala).toSeq.asJava)
+      params.put("topicsList", (stickyTopics.view ++ mainTopics).toSeq.asJava)
     } else {
-      params.put("topicsList", mainTopics)
+      params.put("topicsList", mainTopics.asJava)
     }
 
     params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group)))
@@ -207,12 +200,12 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
         params.put("activeTags", activeTags.asJava)
       }
 
-      if (!tmpl.getProf.isOldTracker) {
+      if (!currentUser.profile.oldTracker) {
         new ModelAndView("group-new", params)
       } else {
         new ModelAndView("group", params)
       }
-    }.toJava
+    }.asJava
   }
 
   @ExceptionHandler(Array(classOf[GroupNotFoundException]))

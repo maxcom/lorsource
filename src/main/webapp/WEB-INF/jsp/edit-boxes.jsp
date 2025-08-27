@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2016 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -29,27 +29,25 @@
       <h3>Левая колонка</h3>
 
       <div class=column>
-        <lor:boxlets var="boxes">
-          <c:forEach items="${boxes}" var="box" varStatus="status">
-            <div class="boxlet">
-              <c:import url="/${box}.boxlet"/>
-              <c:url var="add_url" value="/add-box.jsp">
-                <c:param name="pos" value="${status.index}"/>
-              </c:url>
+        <c:forEach items="${template.prof.boxlets}" var="box" varStatus="status">
+          <div class="boxlet">
+            <c:import url="/${box}.boxlet"/>
+            <c:url var="add_url" value="/add-box.jsp">
+              <c:param name="pos" value="${status.index}"/>
+            </c:url>
 
-              <c:url var="remove_url" value="/remove-box.jsp">
-                <c:param name="pos" value="${status.index}"/>
-              </c:url>
-              <p/>
-              <strong>Меню редактирования:</strong>
-              <br>
-              * <a href="${add_url}">добавить сюда</a>
-              <br>
-              * <a href="${remove_url}">удалить</a>
-              <br>
-            </div>
-          </c:forEach>
-        </lor:boxlets>
+            <c:url var="remove_url" value="/remove-box.jsp">
+              <c:param name="pos" value="${status.index}"/>
+            </c:url>
+            <p/>
+            <strong>Меню редактирования:</strong>
+            <br>
+            * <a href="${add_url}">добавить сюда</a>
+            <br>
+            * <a href="${remove_url}">удалить</a>
+            <br>
+          </div>
+        </c:forEach>
         <c:url var="add_url" value="/add-box.jsp"/>
         [<a href="${add_url}">Добавить</a>]
       </div>

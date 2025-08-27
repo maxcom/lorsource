@@ -14,9 +14,9 @@
  */
 package ru.org.linux.adv
 
-import akka.actor.typed.SupervisorStrategy
-import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
+import org.apache.pekko.actor.typed.SupervisorStrategy
+import org.apache.pekko.actor.typed.Behavior
+import org.apache.pekko.actor.typed.scaladsl.Behaviors
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt

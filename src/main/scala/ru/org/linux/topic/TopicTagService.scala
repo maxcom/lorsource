@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic
 
-import com.google.common.collect.ImmutableList
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
@@ -38,13 +37,13 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * @param tagList новый список тегов.
    * @return true если были произведены изменения
    */
-  def updateTags(msgId: Int, tagList: java.util.List[String]): Boolean = {
+  def updateTags(msgId: Int, tagList: Seq[String]): Boolean = {
     transactional() { _ =>
       logger.debug(s"Обновление списка тегов [${tagList.toString}] для топика msgId=$msgId")
 
       val oldTags = getTags(msgId)
 
-      val newTags = tagList.asScala.filterNot(oldTags.contains)
+      val newTags = tagList.filterNot(oldTags.contains)
 
       for (tag <- newTags) {
         val id = tagService.getOrCreateTag(tag)
@@ -71,7 +70,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * Получить все теги сообщения по идентификационному номеру сообщения.
    *
    */
-  def getTags(topic: Topic): java.util.List[String] = topicTagDao.getTags(topic.id).map(_.name).asJava
+  def getTags(topic: Topic): Seq[String] = topicTagDao.getTags(topic.id).map(_.name)
 
   private def getTags(msgId: Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name)
 
@@ -87,10 +86,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * @param msgId идентификационный номер сообщения
    * @return все теги сообщения
    */
-  def getTagsForTitle(msgId:Int): ImmutableList[String] = {
-    val tags = topicTagDao.getTags(msgId).map(_.name).take(MaxTagsInTitle)
-    ImmutableList.copyOf(tags.asJava)
-  }
+  def getTagsForTitle(msgId: Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name).take(MaxTagsInTitle)
 }
 
 object TopicTagService {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,18 +20,21 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.comment.Comment
-import ru.org.linux.topic.Topic
+import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserEventService, UserService}
 
 import java.util.Date
 
 object WarningService {
   val MaxWarningsPerHour = 5
+
+  // число открытых warning'ов типа 'rule' для топика, при превышении которого включаются ограничения
+  val TopicMaxWarnings = 2
 }
 
 @Service
 class WarningService(warningDao: WarningDao, eventService: UserEventService, userService: UserService,
-                     val transactionManager: PlatformTransactionManager) extends TransactionManagement {
+                     topicDao: TopicDao, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   def postWarning(topic: Topic, comment: Option[Comment], author: User, message: String,
                   warningType: WarningType): Unit = transactional() { _ =>
     val notifyList = warningType match {
@@ -45,6 +48,11 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
       message = message, warningType = warningType)
 
     eventService.addWarningEvent(author, notifyList, topic, comment, s"[${warningType.name}] $message", warningId = id)
+
+    if (comment.isEmpty) {
+      topicDao.updateLastmod(topic.id)
+      topicDao.recalcWarningsCount(topic.id)
+    }
   }
 
   def lastWarningsCount(user: AuthorizedSession): Int = warningDao.lastWarningsCount(user.user.getId)
@@ -68,5 +76,12 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
 
   def get(id: Int): Warning = warningDao.get(id)
 
-  def clear(warning: Warning, by: AuthorizedSession): Unit = warningDao.clear(warning.id, by.user.getId)
+  def clear(warning: Warning, by: AuthorizedSession): Unit = {
+    warningDao.clear(warning.id, by.user.getId)
+
+    if (warning.commentId.isEmpty) {
+      topicDao.updateLastmod(warning.topicId)
+      topicDao.recalcWarningsCount(warning.topicId)
+    }
+  }
 }

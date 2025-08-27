@@ -15,7 +15,7 @@
 
 package ru.org.linux.tag
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import com.typesafe.scalalogging.StrictLogging
@@ -29,17 +29,16 @@ import ru.org.linux.util.RichFuture.RichFuture
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import java.util
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, TimeoutException}
 import scala.concurrent.duration.Deadline
+import scala.concurrent.{Future, TimeoutException}
 import scala.jdk.CollectionConverters.*
 
 @Service
 class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSystem,
                  sectionService: SectionService, groupDao: GroupDao) extends StrictLogging {
-  private implicit val akka: ActorSystem = actorSystem
+  private implicit val pekko: ActorSystem = actorSystem
 
   import ru.org.linux.tag.TagService.*
 
@@ -231,5 +230,5 @@ object TagService {
 
   def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.asScala.map(tagRef).asJava
 
-  def tagsToString(tags: util.Collection[String]): String = tags.asScala.mkString(",")
+  def tagsToString(tags: Seq[String]): String = tags.mkString(",")
 }

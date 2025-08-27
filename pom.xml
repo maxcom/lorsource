@@ -15,45 +15,46 @@
     <java.version>21</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>6.1.14</dependency.spring.version>
-    <spring.security.version>6.3.4</spring.security.version>
-    <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
+    <dependency.spring.version>6.1.20</dependency.spring.version>
+    <spring.security.version>6.3.9</spring.security.version>
+    <jdbc.postgresql.version>42.7.7</jdbc.postgresql.version>
     <elastic4s.version>7.17.4</elastic4s.version>
-    <scala.version>2.13.15</scala.version>
+    <scala.version>2.13.16</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>6.1.4</activemq.version>
+    <activemq.version>6.1.6</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
     <jetty.version>12.0.13</jetty.version>
-    <akka.version>2.6.21</akka.version>
+    <pekko.version>1.1.3</pekko.version>
     <log4j.version>2.23.1</log4j.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
-    <circe.version>0.14.7</circe.version>
+    <swiffy-slider.version>1.6.0</swiffy-slider.version>
+    <circe.version>0.14.13</circe.version>
     <twemoji.version>14.0.2</twemoji.version>
-    <sttp.version>3.10.1</sttp.version>
+    <sttp.version>3.10.3</sttp.version>
     <flexmark.version>0.42.14</flexmark.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-actor-typed_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-actor-typed_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-slf4j_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-slf4j_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-stream_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-stream_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>
@@ -71,7 +72,7 @@
     <dependency>
       <groupId>org.scala-lang.modules</groupId>
       <artifactId>scala-collection-contrib_${scala.suffix}</artifactId>
-      <version>0.3.0</version>
+      <version>0.4.0</version>
     </dependency>
 
     <dependency>
@@ -83,21 +84,21 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>4.20.5</version>
+      <version>4.21.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>4.20.5</version>
+      <version>4.21.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.12.0</version>
+      <version>1.13.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -113,12 +114,12 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.17.0</version>
+      <version>2.18.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.3.1-jre</version>
+      <version>33.4.0-jre</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -270,7 +271,7 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>3.1.8</version>
+      <version>3.2.0</version>
     </dependency>
 
     <dependency>
@@ -287,7 +288,7 @@
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
-      <version>6.1.0</version>
+      <version>6.2.1</version>
     </dependency>
 
     <dependency>
@@ -312,7 +313,7 @@
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.13.0</version>
+      <version>2.13.1</version>
     </dependency>
 
     <dependency>
@@ -379,7 +380,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.18.1</version>
+      <version>1.19.1</version>
     </dependency>
 
     <dependency>
@@ -466,7 +467,7 @@
     <dependency>
       <groupId>org.opensearch</groupId>
       <artifactId>opensearch-testcontainers</artifactId>
-      <version>2.0.1</version>
+      <version>2.1.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -476,7 +477,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>4.8.1</version>
+        <version>4.9.2</version>
         <configuration>
           <args>
             <arg>-deprecation</arg>
@@ -599,6 +600,7 @@
           <excludes>
             <exclude>**/jquery-ui-*/**/*.js</exclude>
             <exclude>**/highlight.min.js</exclude>
+            <exclude>**/lor.js</exclude>
           </excludes>
           <aggregations>
             <aggregation>
@@ -631,6 +633,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji/${twemoji.version}/dist/twemoji.min.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/js/swiffy-slider.min.js</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -641,6 +644,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -652,6 +656,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/auto.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -669,6 +674,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -678,6 +684,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -687,6 +694,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -696,10 +704,36 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
           </aggregations>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.blutorange</groupId>
+        <artifactId>closure-compiler-maven-plugin</artifactId>
+        <version>2.31.0</version>
+        <executions>
+          <execution>
+            <id>default-minify</id>
+            <configuration>
+              <encoding>UTF-8</encoding>
+              <includes>
+                <include>lor.js</include>
+              </includes>
+              <skipMerge>true</skipMerge>
+              <logLevel>all</logLevel>
+              <closureLanguageOut>ECMASCRIPT_2016</closureLanguageOut>
+              <outputFilename>#{path}/#{basename}.#{extension}</outputFilename>
+            </configuration>
+            <goals>
+              <goal>minify</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -861,6 +895,11 @@
                   <artifactId>twemoji</artifactId>
                   <version>${twemoji.version}</version>
                 </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>swiffy-slider</artifactId>
+                  <version>${swiffy-slider.version}</version>
+                </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>
             </configuration>
@@ -888,7 +927,6 @@
             <configuration>
               <propertyFile>sql/liquibase.config</propertyFile>
               <verbose>true</verbose>
-              <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
             </configuration>
             <executions>
               <execution>
@@ -929,6 +967,7 @@
             <configuration>
               <stopKey>foo</stopKey>
               <stopPort>9999</stopPort>
+              <stopWait>10</stopWait>
 
               <webAppConfig>
                 <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>

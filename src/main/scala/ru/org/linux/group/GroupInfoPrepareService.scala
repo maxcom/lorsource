@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,27 +12,20 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.group
 
-package ru.org.linux.group;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import ru.org.linux.util.bbcode.LorCodeService;
+import org.springframework.stereotype.Service
+import ru.org.linux.util.bbcode.LorCodeService
 
 @Service
-public class GroupInfoPrepareService {
-  @Autowired
-  private LorCodeService lorCodeService;
-
-  public PreparedGroupInfo prepareGroupInfo(Group group) {
-    String longInfo;
-
-    if (group.getLongInfo()!=null) {
-      longInfo = lorCodeService.parseComment(group.getLongInfo(), false);
+class GroupInfoPrepareService(lorCodeService: LorCodeService) {
+  def prepareGroupInfo(group: Group): PreparedGroupInfo = {
+    val longInfo = if (group.longInfo != null) {
+      lorCodeService.parseComment(group.longInfo, nofollow = false, LorCodeService.Plain)
     } else {
-      longInfo = null;
+      null
     }
 
-    return new PreparedGroupInfo(group, longInfo);
+    new PreparedGroupInfo(group, longInfo)
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,6 @@ import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.section.{SectionNotFoundException, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.user.*
 
 import scala.jdk.CollectionConverters.*
@@ -48,7 +47,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
-    val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = false)
+    val messages = topicListService.getUserTopicsFeed(user = user, offset = offset, favorites = true, watches = false)
     prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
@@ -115,7 +114,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
-    val messages = topicListService.getUserTopicsFeed(user, section, None, offset, favorites = false, watches = false)
+    val messages = topicListService.getUserTopicsFeed(user = user, section = section, offset = offset, favorites = false, watches = false)
 
     if (messages.nonEmpty) {
       val rss = "rss" == output
@@ -145,17 +144,15 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
 
   @RequestMapping(value = Array("deleted-topics"), method = Array(RequestMethod.GET))
   def showDeletedTopics(@PathVariable nick: String): ModelAndView = AuthorizedOnly { currentUser =>
-    val tmpl = Template.getTemplate
-
     val user = userService.getUserCached(nick)
 
     if (!currentUser.moderator && !(user == currentUser.user)) {
       throw new AccessViolationException("Вы не можете смотреть удаленные темы другого пользователя")
     }
 
-    val topics = topicListService.getDeletedUserTopics(user, tmpl.getProf.getTopics)
+    val topics = topicListService.getDeletedUserTopics(user, currentUser.profile.topics)
 
-    val params = Map(
+    val params = Map[String, AnyRef](
       "topics" -> topics.asJava,
       "user" -> user
     )
@@ -183,7 +180,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
 
-    val messages = topicListService.getUserTopicsFeed(user, offset, isFavorite = true, watches = true)
+    val messages = topicListService.getUserTopicsFeed(user = user, offset = offset, favorites = true, watches = true)
     prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
     modelAndView.setViewName("user-topics")
 
@@ -193,12 +190,10 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic])
                                         (implicit currentUser: AnySession): Unit = {
     if (rss) {
-      modelAndView.addObject("messages", prepareService.prepareTopics(messages).asJava)
+      modelAndView.addObject("messages", prepareService.prepareTopicForRSS(messages).asJava)
       modelAndView.setViewName("section-rss")
     } else {
-      val tmpl = Template.getTemplate
-      modelAndView.addObject("messages",
-        prepareService.prepareTopicsForUser(messages, tmpl.getProf, loadUserpics = false))
+      modelAndView.addObject("messages", prepareService.prepareTopics(messages, loadUserpics = false).asJava)
     }
   }
 

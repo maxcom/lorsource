@@ -16,8 +16,8 @@
 package ru.org.linux.search
 
 import java.util.concurrent.TimeUnit
-import akka.actor.Scheduler
-import akka.pattern.{CircuitBreaker, CircuitBreakerOpenException}
+import org.apache.pekko.actor.Scheduler
+import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.ElasticClient
@@ -53,7 +53,7 @@ class MoreLikeThisService(
 ) extends StrictLogging {
   import ru.org.linux.search.MoreLikeThisService.*
 
-  type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
+  private type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
 
   private val cache = CacheBuilder
     .newBuilder()
@@ -68,15 +68,15 @@ class MoreLikeThisService(
     resetTimeout = 1.minute
   )
 
-  breaker.onOpen { logger.warn("Similar topics circuit breaker is open, lookup disabled") }
-  breaker.onClose { logger.warn("Similar topics circuit breaker is close, lookup enabled") }
+  breaker.onOpen { logger.warn("Similar topics lookup disabled") }
+  breaker.onClose { logger.warn("Similar topics lookup enabled") }
 
-  def searchSimilar(topic: Topic, tags: java.util.List[TagRef]): Future[Result] = {
+  def searchSimilar(topic: Topic, tags: collection.Seq[TagRef]): Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.id))
 
     cachedValue.map(Future.successful).getOrElse {
       breaker.withCircuitBreaker {
-        val searchResult = elastic execute makeQuery(topic, tags.asScala)
+        val searchResult = elastic execute makeQuery(topic, tags)
 
         val result: Future[Result] = searchResult.map(_.result).map(result => if (result.hits.nonEmpty) {
           val half = result.hits.hits.length / 2 + result.hits.hits.length % 2
@@ -102,9 +102,9 @@ class MoreLikeThisService(
 
     val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
 
-    search(MessageIndex) query {
+    search(MessageIndex).query {
       boolQuery().should(queries*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.id.toString))
-    } fetchSource true sourceInclude("title", "postdate", "section", "group")
+    }.fetchSource(true).sourceInclude("title", "postdate", "section", "group")
   }
 
   def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
@@ -165,9 +165,9 @@ class MoreLikeThisService(
 }
 
 object MoreLikeThisService {
-  val CacheSize = 10000
+  private val CacheSize = 10000
 
-  val StopWords: Seq[String] = {
+  private val StopWords: Seq[String] = {
     val stop = RussianAnalyzer.getDefaultStopSet.asScala.map(arr => new String(arr.asInstanceOf[Array[Char]]))
     val analyzedStream = new RussianAnalyzer(CharArraySet.EMPTY_SET).tokenStream(null, stop.mkString(" "))
 

@@ -48,7 +48,7 @@ class GroupModificationController(groupDao: GroupDao, prepareService: GroupInfoP
     if (preview != null) {
       group = group.updated(title, info, longInfo)
 
-      return new ModelAndView("groupmod", Map(
+      return new ModelAndView("groupmod", Map[String, Any](
         "group" -> group,
         "groupInfo" -> prepareService.prepareGroupInfo(group),
         "preview" -> true

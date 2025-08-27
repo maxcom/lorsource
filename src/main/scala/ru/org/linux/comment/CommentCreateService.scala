@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,16 +24,11 @@ import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import ru.org.linux.auth.*
 import ru.org.linux.csrf.CSRFProtectionService
-import ru.org.linux.edithistory.EditHistoryObjectTypeEnum
-import ru.org.linux.edithistory.EditHistoryRecord
-import ru.org.linux.edithistory.EditHistoryService
-import ru.org.linux.markup.MessageTextService
+import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, EditHistoryService}
+import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.spring.dao.MessageText
-import ru.org.linux.spring.dao.MsgbaseDao
-import ru.org.linux.topic.Topic
-import ru.org.linux.topic.TopicDao
-import ru.org.linux.topic.TopicPermissionService
+import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
+import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.*
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
@@ -149,13 +144,12 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * @param errors         обработчик ошибок ввода для формы
    * @return текст комментария
    */
-  def getCommentBody(commentRequest: CommentRequest, user: User, errors: Errors, mode: String): MessageText = {
-    val messageText = MessageTextService.processPostingText(commentRequest.getMsg, mode)
-    val commentBody = messageText.text
+  def getCommentBody(commentRequest: CommentRequest, user: User, errors: Errors, mode: MarkupType): MessageText = {
+    val messageText = MessageText(commentRequest.getMsg, mode)
 
     val maxLength = if (user.isAnonymous) 4096 else 8192
 
-    if (commentBody.length > maxLength) {
+    if (messageText.text.length > maxLength) {
       errors.rejectValue("msg", null, "Слишком большое сообщение")
     }
 
@@ -187,11 +181,11 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   }
 
   @throws[UserNotFoundException]
-  def prepareReplyto(add: CommentRequest, currentUser: AnySession, profile: Profile, topic: Topic): Map[String, AnyRef] = {
+  def prepareReplyto(add: CommentRequest, topic: Topic)(implicit currentUser: AnySession): Map[String, AnyRef] = {
     if (add.getReplyto != null) {
       val ignoreList = currentUser.opt.map(user => ignoreListDao.get(user.user.getId)).getOrElse(Set.empty)
 
-      val preparedComment = commentPrepareService.prepareCommentOnly(add.getReplyto, currentUser, profile, topic, ignoreList)
+      val preparedComment = commentPrepareService.prepareCommentOnly(add.getReplyto, topic, ignoreList)
 
       Map("onComment" -> preparedComment)
     } else {
@@ -305,7 +299,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
     }
 
     /* Обновление времени последнего изменения топика для того, чтобы данные в кеше автоматически обновились  */
-    topicDao.updateLastmod(oldComment.topicId, false)
+    topicDao.updateLastmod(oldComment.topicId)
 
     addEditHistoryItem(editor, oldComment, originalMessageText.text, newComment, commentBody)
 
@@ -325,25 +319,14 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    */
   private def addEditHistoryItem(editor: User, original: Comment, originalMessageText: String, comment: Comment,
                                  messageText: String): Unit = {
-    val editHistoryRecord = new EditHistoryRecord
+    val editHistoryRecord = EditHistoryRecord(
+      msgid = original.id,
+      objectType = EditHistoryObjectTypeEnum.COMMENT,
+      editor = editor.getId,
+      oldtitle = Some(original.title).filterNot(_ == comment.title),
+      oldmessage = Some(originalMessageText).filterNot(_ == messageText))
 
-    editHistoryRecord.setMsgid(original.id)
-    editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.COMMENT)
-    editHistoryRecord.setEditor(editor.getId)
-
-    var modified = false
-
-    if (!(original.title == comment.title)) {
-      editHistoryRecord.setOldtitle(original.title)
-      modified = true
-    }
-
-    if (!(originalMessageText == messageText)) {
-      editHistoryRecord.setOldmessage(originalMessageText)
-      modified = true
-    }
-
-    if (modified) {
+    if (editHistoryRecord.oldtitle.isDefined || editHistoryRecord.oldmessage.isDefined) {
       editHistoryService.insert(editHistoryRecord)
     }
   }

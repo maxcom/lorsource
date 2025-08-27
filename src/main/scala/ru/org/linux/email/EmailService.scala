@@ -15,7 +15,7 @@
 
 package ru.org.linux.email
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.RequestDispatcher
@@ -201,6 +201,8 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |Для сброса вашего пароля перейдите по ссылке https://www.linux.org.ru/reset-password
          |
          |Ваш ник ${user.getNick}, код подтверждения: $resetCode
+         |
+         |Если это были не вы, то просто игнорируйте это письмо.
          |
          |Удачи!""".stripMargin)
 

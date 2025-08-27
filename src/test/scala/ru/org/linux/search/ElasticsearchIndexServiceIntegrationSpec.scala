@@ -25,13 +25,13 @@ import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 import org.testcontainers.utility.DockerImageName
-import ru.org.linux.AkkaConfiguration
+import ru.org.linux.PekkoConfiguration
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
 import ru.org.linux.spring.SiteConfig
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
-  classOf[AkkaConfiguration]))
+  classOf[PekkoConfiguration]))
 class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 

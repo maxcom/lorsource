@@ -17,28 +17,22 @@ package ru.org.linux.poll;
 
 import com.google.common.collect.ImmutableList;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.boxlets.AbstractBoxlet;
 import ru.org.linux.topic.Topic;
-import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.TopicService;
 
 @Controller
 public class PollBoxlet extends AbstractBoxlet {
-  private PollDao pollDao;
-  private TopicDao messageDao;
+  private final PollDao pollDao;
+  private final TopicService topicService;
 
-  @Autowired
-  public void setPollDao(PollDao pollDao) {
+  public PollBoxlet(PollDao pollDao, TopicService topicService) {
     this.pollDao = pollDao;
-  }
-
-  @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
+    this.topicService = topicService;
   }
 
   @Override
@@ -49,7 +43,7 @@ public class PollBoxlet extends AbstractBoxlet {
 
     boolean userVoted = results.stream().anyMatch(PollVariantResult::isUserVoted);
 
-    Topic msg = messageDao.getById(poll.getTopic());
+    Topic msg = topicService.getById(poll.getTopic());
     int count = pollDao.getVotersCount(poll.getId());
     int countUsers = pollDao.getCountUsers(poll);
 
@@ -64,6 +58,5 @@ public class PollBoxlet extends AbstractBoxlet {
     result.addObject("votedVariants", results);
 
     return result;
-
   }
 }

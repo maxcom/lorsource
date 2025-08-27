@@ -20,15 +20,19 @@ import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.filter.GenericFilterBean
+import ru.org.linux.auth.CommonContextFilter.{BadTimezones, Russian}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
 
 import java.util.Locale
 
-class CommonContextFilter extends GenericFilterBean with InitializingBean {
-  final private val russian = new Locale("ru")
+object CommonContextFilter {
+  private val Russian = Locale.forLanguageTag("ru")
+  private val BadTimezones: Set[String] = Set("Factory", "Etc/Unknown")
+}
 
+class CommonContextFilter extends GenericFilterBean with InitializingBean {
   override def doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain): Unit = {
     val ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext)
     val request = req.asInstanceOf[HttpServletRequest]
@@ -36,7 +40,7 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     val currentUser = AuthUtil.getCurrentUser
 
     val cookies = getCookies(request)
-    val timezoneName = cookies.get("tz")
+    val timezoneName = cookies.get("tz").filter(_.nonEmpty).filterNot(BadTimezones.contains)
 
     val timezone = (try {
       timezoneName.map(DateTimeZone.forID)
@@ -54,7 +58,7 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     request.setAttribute("enableAjaxLogin", currentUser==null)
 
     request.setCharacterEncoding("utf-8")
-    res.setLocale(russian)
+    res.setLocale(Russian)
 
     csrfManipulation(request, response)
 

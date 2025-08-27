@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,23 +17,24 @@ package ru.org.linux.gallery
 
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
-import org.springframework.web.multipart.MultipartRequest
+import org.springframework.web.multipart.MultipartFile
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.topic.{PreparedImage, Topic, TopicDao}
+import ru.org.linux.topic.{PreparedGalleryItem, PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.BadImageException
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 
 import java.io.{File, FileNotFoundException, IOException}
-import java.util.Optional
+import java.nio.file.Files
+import java.time.{Duration, Instant}
+import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOption
 import scala.util.control.NonFatal
 
 @Service
@@ -44,38 +45,40 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   private val previewPath = new File(siteConfig.getUploadPath + "/gallery/preview")
   private val galleryPath = new File(siteConfig.getUploadPath + "/images")
+  private val htmlPath = siteConfig.getUploadPath
 
-  def deleteImage(editor: User, image: Image):Unit = {
+  def deleteImage(image: Image)(implicit session: AuthorizedSession): Unit = {
     transactional() { _ =>
-      val info = new EditHistoryRecord
-      info.setEditor(editor.getId)
-      info.setMsgid(image.topicId)
-      info.setOldimage(image.id)
-      info.setObjectType(EditHistoryObjectTypeEnum.TOPIC)
+      val info = if (image.main) {
+        EditHistoryRecord(
+          editor = session.user.getId,
+          msgid = image.topicId,
+          oldimage = Some(image.id),
+          objectType = EditHistoryObjectTypeEnum.TOPIC)
+      } else {
+        val oldImages = imageDao.allImagesForTopic(image.topicId).filterNot(_.main)
+
+        EditHistoryRecord(
+          editor = session.user.getId,
+          msgid = image.topicId,
+          oldaddimages = Some(oldImages.map(_.id)),
+          objectType = EditHistoryObjectTypeEnum.TOPIC)
+      }
 
       imageDao.deleteImage(image)
       editHistoryDao.insert(info)
-      topicDao.updateLastmod(image.topicId, false)
+      topicDao.updateLastmod(image.topicId)
     }
   }
 
-  private def prepareException(image: Image):PartialFunction[Throwable, None.type] = {
-    case e: FileNotFoundException =>
-      logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")
-      None
-    case NonFatal(e) =>
-      logger.error(s"Bad image id=${image.id}", e)
-      None
-  }
-
   def prepareGalleryItem(item: GalleryItem): PreparedGalleryItem = {
-    PreparedGalleryItem(item, userService.getUserCached(item.getUserid))
+    PreparedGalleryItem(item, userService.getUserCached(item.getUserid), new ImageInfo(htmlPath + item.getImage.getMedium))
   }
 
-  def prepareImage(image: Image): Option[PreparedImage] = {
-    Preconditions.checkNotNull(image)
+  def prepareImage(image: Image): Option[PreparedImage] = prepareImage(image, lazyLoad = false)
 
-    val htmlPath = siteConfig.getUploadPath
+  def prepareImage(image: Image, lazyLoad: Boolean): Option[PreparedImage] = {
+    Preconditions.checkNotNull(image)
 
     val mediumName = image.getMedium
 
@@ -85,22 +88,33 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
       val medURI = siteConfig.getSecureUrl + mediumName
       val fullURI = siteConfig.getSecureUrl + image.original
 
-      Some(new PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image))
-    } catch prepareException(image)
+      Some(PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image, lazyLoad))
+    } catch {
+      case e: FileNotFoundException =>
+        logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")
+        None
+      case NonFatal(e) =>
+        logger.error(s"Bad image id=${image.id}", e)
+        None
+    }
   }
 
-
-  // java api
-  def prepareImageJava(image: Image): Optional[PreparedImage] = prepareImage(image).toJava
-
   def prepareGalleryItem(items: java.util.List[GalleryItem]): java.util.List[PreparedGalleryItem] =
-    items.asScala.map(prepareGalleryItem).asJava
+    items.asScala.flatMap { img =>
+      try {
+        Some(prepareGalleryItem(img))
+      } catch {
+        case NonFatal(ex) =>
+          logger.warn("Failed to get info for {}", img.getImage.getMedium, ex)
+          None
+      }
+    }.asJava
 
   def getGalleryItems(countItems: Int, tagId: Int): Seq[GalleryItem] = imageDao.getGalleryItems(countItems, tagId)
 
   def getGalleryItems(countItems: Int): java.util.List[GalleryItem] = imageDao.getGalleryItems(countItems).asJava
 
-  def imageForTopic(topic: Topic): Optional[Image] = Option(imageDao.imageForTopic(topic)).toJava
+  def allImagesForTopic(topic: Topic): Seq[Image] = imageDao.allImagesForTopic(topic.id)
 
   @throws(classOf[IOException])
   @throws(classOf[BadImageException])
@@ -148,31 +162,27 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   private def uploadedImagePrefix(user: User) = s"preview-${user.getId}-"
 
-  def processUploadImage(request: HttpServletRequest): Option[File] = {
-    request match {
-      case multipartRequest: MultipartRequest =>
-        val multipartFile = multipartRequest.getFile("image")
+  private def saveToTempFile(@Nullable imageUpload: MultipartFile): Option[File] = {
+    if (imageUpload != null && !imageUpload.isEmpty) {
+      val uploadedFile = File.createTempFile("lor-image-", "")
+      logger.debug(s"Transferring upload to: $uploadedFile")
+      imageUpload.transferTo(uploadedFile.toPath)
 
-        if (multipartFile != null && !multipartFile.isEmpty) {
-          val uploadedFile = File.createTempFile("lor-image-", "")
-          logger.debug(s"Transferring upload to: $uploadedFile")
-          multipartFile.transferTo(uploadedFile.toPath)
-
-          Some(uploadedFile)
-        } else {
-          None
-        }
-      case _ =>
-        None
+      Some(uploadedFile)
+    } else {
+      None
     }
   }
 
-  def processUpload(currentUser: User, uploadedImage: Option[String], image: Option[File], errors: Errors): Option[UploadedImagePreview] = {
+  def processUpload(uploadedImage: Option[String], imageUpload: MultipartFile, errors: Errors)
+                   (implicit currentUser: AuthorizedSession): Option[UploadedImagePreview] = {
+    val image = saveToTempFile(imageUpload)
+
     image match {
       case Some(image) =>
         try {
-          createImagePreview(currentUser, image, errors).map { previewImage =>
-            logger.info("SCREEN: " + image.getAbsolutePath + "\nINFO: SCREEN: " + image)
+          createImagePreview(currentUser.user, image, errors).map { previewImage =>
+            logger.info(s"Created image preview: $image -> ${previewImage.mainFile}")
 
             previewImage
           }
@@ -183,15 +193,30 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
         }
       case None =>
         uploadedImage
-          .filter(_.startsWith(uploadedImagePrefix(currentUser)))
+          .filter(_.startsWith(uploadedImagePrefix(currentUser.user)))
           .map(f => UploadedImagePreview.reuse(previewPath, f))
           .filter(_.mainFile.exists)
     }
   }
 
-  def saveScreenshot(imagePreview: UploadedImagePreview, msgid: Int): Unit = transactional() { _ =>
-    val id = imageDao.saveImage(msgid, imagePreview.extension)
+  def saveImage(imagePreview: UploadedImagePreview, msgid: Int, main: Boolean): Unit = transactional() { _ =>
+    val id = imageDao.saveImage(msgid, imagePreview.extension, main)
 
     imagePreview.moveTo(galleryPath, id.toString)
+  }
+
+  def cleanOldPreviews(age: Duration): Unit = {
+    if (previewPath.exists()) {
+      val deadline = Instant.now.minus(age)
+
+      Files.newDirectoryStream(previewPath.toPath)
+        .asScala
+        .filter(p => p.toFile.isFile && Files.getLastModifiedTime(p).toInstant.isBefore(deadline))
+        .foreach { p =>
+          logger.info(s"Delete old preview $p (last modified ${Files.getLastModifiedTime(p)})")
+
+          p.toFile.delete()
+        }
+    }
   }
 }

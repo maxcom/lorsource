@@ -15,12 +15,8 @@
 
 package ru.org.linux.user;
 
-import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
-import org.jasypt.util.password.BasicPasswordEncryptor;
-import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.validation.Errors;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.auth.BadPasswordException;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
@@ -95,44 +91,6 @@ public class User implements Serializable {
 
   public String getPassword() {
     return password;
-  }
-
-  public void checkPassword(String password) throws BadPasswordException {
-    if (blocked) {
-      throw new BadPasswordException(nick);
-    }
-
-    if (password==null) {
-      throw new BadPasswordException(nick);
-    }
-
-    if (anonymous && password.isEmpty()) {
-      return;
-    }
-
-    if (!matchPassword(password)) {
-      throw new BadPasswordException(nick);
-    }
-  }
-
-  public boolean matchPassword(String password) {
-    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
-
-    try {
-      return encryptor.checkPassword(password, this.password);
-    } catch (EncryptionOperationNotPossibleException ex) {
-      return false;
-    }
-  }
-
-  public void checkBlocked() throws AccessViolationException {
-    if (blocked) {
-      throw new AccessViolationException("Пользователь заблокирован");
-    }
-
-    if (!activated) {
-      throw new AccessViolationException("Пользователь не активирован");
-    }
   }
 
   public void checkBlocked(Errors errors) {

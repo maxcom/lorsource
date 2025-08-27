@@ -130,11 +130,14 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.GET))
   def moveToForumForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
-    val section = sectionService.getSection(Section.SECTION_FORUM)
+    val sections = Seq(sectionService.getSection(Section.SECTION_FORUM),
+      sectionService.getSection(Section.SECTION_ARTICLES))
+
+    val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
 
     new ModelAndView("mtn", Map (
       "message" -> topic,
-      "groups" -> groupDao.getGroups(section).asScala.map(g => g.id -> g.title).asJava,
+      "groups" -> groups.map(g => g.id -> s"${sectionService.getSection(g.sectionId).getTitle}: ${g.title}").asJava,
       "author" -> userService.getUserCached(topic.authorUserId)
     ).asJava)
   }
@@ -143,7 +146,6 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   @throws[Exception]
   def movePremoderatedForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
-
     val currentSection = sectionService.getSection(topic.sectionId)
 
     val sections = if (currentSection.isPremoderated && !currentSection.isPollPostAllowed) {
@@ -162,14 +164,14 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   @RequestMapping(value = Array("/uncommit.jsp"), method = Array(RequestMethod.GET))
-  def uncommitForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { currentUser =>
+  def uncommitForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { implicit currentUser =>
     val message = messageDao.getById(msgid)
 
     checkUncommitable(message)
 
     new ModelAndView("uncommit", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, currentUser.user)
+      "preparedMessage" -> prepareService.prepareTopic(message)
     ).asJava)
   }
 

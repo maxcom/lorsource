@@ -20,11 +20,28 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import ru.org.linux.poll.Poll
+import ru.org.linux.tag.{TagName, TagService}
 
 import java.sql.ResultSet
-import java.util
+import java.time.Instant
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
+
+case class EditHistoryRecord(
+  id: Int = 0,
+  msgid: Int,
+  editor: Int,
+  objectType: EditHistoryObjectTypeEnum,
+  editdate: Instant = Instant.now,
+  oldmessage: Option[String] = None,
+  oldtitle: Option[String] = None,
+  oldtags: Option[Seq[String]] = None,
+  oldlinktext: Option[String] = None,
+  oldurl: Option[String] = None,
+  oldminor: Option[Boolean] = None,
+  oldimage: Option[Int] = None,
+  oldPoll: Option[Poll] = None,
+  oldaddimages: Option[Seq[Int]] = None)
 
 @Repository
 class EditHistoryDao(dataSource: DataSource) {
@@ -33,32 +50,36 @@ class EditHistoryDao(dataSource: DataSource) {
     new SimpleJdbcInsert(dataSource)
       .withTableName("edit_info")
       .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl",
-        "object_type", "oldminor", "oldimage", "oldpoll")
+        "object_type", "oldminor", "oldimage", "oldpoll", "oldaddimages")
 
   private def parseEditHistoryRecord(resultSet: ResultSet) = {
-    val editHistoryRecord = new EditHistoryRecord
-    editHistoryRecord.setId(resultSet.getInt("id"))
-    editHistoryRecord.setMsgid(resultSet.getInt("msgid"))
-    editHistoryRecord.setEditor(resultSet.getInt("editor"))
-    editHistoryRecord.setOldmessage(resultSet.getString("oldmessage"))
-    editHistoryRecord.setEditdate(resultSet.getTimestamp("editdate"))
-    editHistoryRecord.setOldtitle(resultSet.getString("oldtitle"))
-    editHistoryRecord.setOldtags(resultSet.getString("oldtags"))
-    editHistoryRecord.setObjectType(resultSet.getString("object_type"))
-    editHistoryRecord.setOldurl(resultSet.getString("oldurl"))
-    editHistoryRecord.setOldlinktext(resultSet.getString("oldlinktext"))
+    EditHistoryRecord(
+      id = resultSet.getInt("id"),
+      msgid = resultSet.getInt("msgid"),
+      editor = resultSet.getInt("editor"),
+      editdate = resultSet.getTimestamp("editdate").toInstant,
+      oldmessage = Option(resultSet.getString("oldmessage")),
+      oldtitle = Option(resultSet.getString("oldtitle")),
+      oldtags = Option(resultSet.getString("oldtags")).map(TagName.parseAndSanitizeTags),
+      objectType = EditHistoryObjectTypeEnum.valueOf(resultSet.getString("object_type")),
+      oldurl = Option(resultSet.getString("oldurl")),
+      oldlinktext = Option(resultSet.getString("oldlinktext")),
+      oldimage = {
+        val oldimage=resultSet.getInt("oldimage")
 
-    editHistoryRecord.setOldimage(resultSet.getInt("oldimage"))
-    if (resultSet.wasNull) editHistoryRecord.setOldimage(null)
+        if (resultSet.wasNull) None else Some(oldimage)
+      },
+      oldminor = {
+        val oldminor=resultSet.getBoolean("oldminor")
 
-    editHistoryRecord.setOldminor(resultSet.getBoolean("oldminor"))
-    if (resultSet.wasNull) editHistoryRecord.setOldminor(null)
-
-    Option(resultSet.getString("oldpoll")).map { json =>
-      parse(json).toTry.flatMap(_.as[Poll].toTry).get
-    }.foreach(editHistoryRecord.setOldPoll)
-
-    editHistoryRecord
+        if (resultSet.wasNull) None else Some(oldminor)
+      },
+      oldPoll = Option(resultSet.getString("oldpoll")).map { json =>
+        parse(json).toTry.flatMap(_.as[Poll].toTry).get
+      },
+      oldaddimages = Option(resultSet.getArray("oldaddimages"))
+        .map(_.getArray.asInstanceOf[Array[Integer]].toSeq.map(_.toInt))
+    )
   }
 
   /**
@@ -68,37 +89,32 @@ class EditHistoryDao(dataSource: DataSource) {
    * @param objectTypeEnum тип: топик или комментарий
    * @return список изменений топика
    */
-  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): util.List[EditHistoryRecord] = {
-    jdbcTemplate.query("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC", (resultSet: ResultSet, _: Int) => {
-      parseEditHistoryRecord(resultSet)
-    }, id, objectTypeEnum.toString)
-  }
+  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): collection.Seq[EditHistoryRecord] =
+    jdbcTemplate.query("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC",
+      (resultSet, _: Int) => parseEditHistoryRecord(resultSet), id, objectTypeEnum.toString).asScala
 
-  def getEditRecord(msgid: Int, recordId: Int, objectTypeEnum: EditHistoryObjectTypeEnum): EditHistoryRecord = {
-    jdbcTemplate.queryForObject("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type AND id=?", (resultSet: ResultSet, _: Int) => {
-      parseEditHistoryRecord(resultSet)
-    }, msgid, objectTypeEnum.toString, recordId)
-  }
+  def getEditRecord(msgid: Int, recordId: Int, objectTypeEnum: EditHistoryObjectTypeEnum): EditHistoryRecord =
+    jdbcTemplate.queryForObject("SELECT * FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type AND id=?",
+      (resultSet, _: Int) => parseEditHistoryRecord(resultSet), msgid, objectTypeEnum.toString, recordId)
 
-  def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): util.List[BriefEditInfo] = {
+  def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): collection.Seq[BriefEditInfo] =
     jdbcTemplate.query("SELECT editdate, editor FROM edit_info WHERE msgid=? AND object_type = ?::edit_event_type ORDER BY id DESC",
-      (rs: ResultSet, _: Int) =>
-        BriefEditInfo(rs.getTimestamp("editdate"), rs.getInt("editor")), id, objectTypeEnum.toString)
-  }
+      (rs: ResultSet, _: Int) => BriefEditInfo(rs.getTimestamp("editdate"), rs.getInt("editor")), id, objectTypeEnum.toString).asScala
 
   def insert(record: EditHistoryRecord): Unit = {
-    editInsert.execute(Map(
-      "msgid" -> record.getMsgid,
-      "editor" -> record.getEditor,
-      "oldmessage" -> record.getOldmessage,
-      "oldtitle" -> record.getOldtitle,
-      "oldtags" -> record.getOldtags,
-      "oldlinktext" -> record.getOldlinktext,
-      "oldurl" -> record.getOldurl,
-      "object_type" -> record.getObjectType,
-      "oldminor" -> record.getOldminor,
-      "oldimage" -> record.getOldimage,
-      "oldpoll" -> Option(record.getOldPoll).map(_.asJson).orNull
+    editInsert.execute(Map[String, Any](
+      "msgid" -> record.msgid,
+      "editor" -> record.editor,
+      "oldmessage" -> record.oldmessage.orNull,
+      "oldtitle" -> record.oldtitle.orNull,
+      "oldtags" -> record.oldtags.map(TagService.tagsToString).orNull,
+      "oldlinktext" -> record.oldlinktext.orNull,
+      "oldurl" -> record.oldurl.orNull,
+      "object_type" -> record.objectType,
+      "oldminor" -> record.oldminor.orNull,
+      "oldimage" -> record.oldimage.orNull,
+      "oldpoll" -> record.oldPoll.map(_.asJson).orNull,
+      "oldaddimages" -> record.oldaddimages.map(_.toArray).orNull
     ).asJava)
   }
 }

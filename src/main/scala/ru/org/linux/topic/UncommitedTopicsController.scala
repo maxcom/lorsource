@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,6 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
-import ru.org.linux.site.Template
 
 import java.util.{Calendar, Date}
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -29,9 +28,10 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 @Controller
 @RequestMapping(value = Array("/view-all.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
 class UncommitedTopicsController(sectionService: SectionService, topicListService: TopicListService,
-                                 prepareService: TopicPrepareService, groupPermissionService: GroupPermissionService) {
+                                 prepareService: TopicPrepareService, groupPermissionService: GroupPermissionService,
+                                 topicService: TopicService) {
   @RequestMapping
-  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
+  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val modelAndView = new ModelAndView("view-all")
 
     val section: Option[Section] = if (sectionId != 0) {
@@ -63,21 +63,31 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
     calendar.setTime(new Date)
     calendar.add(Calendar.MONTH, -3)
 
-    val includeAnonymous = currentUserOpt.moderator || currentUserOpt.corrector
+    val includeAnonymous = session.moderator || session.corrector
 
     val messages = topicListService.getUncommitedTopic(section, calendar.getTime, includeAnonymous)
 
-    val tmpl = Template.getTemplate
+    val topics = prepareService.prepareTopics(messages, loadUserpics = false)
 
-    val topics = prepareService.prepareTopicsForUser(messages, tmpl.getProf, loadUserpics = false)
+    modelAndView.addObject("messages", topics.asJava)
 
-    modelAndView.addObject("messages", topics)
-
-    val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = !currentUserOpt.moderator,
+    val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = !session.moderator,
       includeAnonymous = includeAnonymous)
 
     modelAndView.addObject("deletedTopics", deleted.asJava)
-    modelAndView.addObject("sections", sectionService.sections.asJava)
+
+    val uncommitedCounts = topicService.getUncommitedCounts
+
+    val uncommitedWithSelection = if (section.isDefined && uncommitedCounts.forall(_._1 != section.get)) {
+      uncommitedCounts :+ (section.get -> 0)
+    } else {
+      uncommitedCounts
+    }
+
+    val uncommited = uncommitedCounts.map(_._2).sum
+
+    modelAndView.getModel.put("uncommited", Int.box(uncommited))
+    modelAndView.getModel.put("uncommitedCounts", uncommitedWithSelection.asJava)
 
     modelAndView
   }

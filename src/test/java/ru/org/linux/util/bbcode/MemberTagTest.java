@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,8 +23,6 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.user.UserService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
-
-import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -77,30 +75,30 @@ public class MemberTagTest {
   @Test
   public void testExtraLines() {
     //user
-    assertEquals(lorCodeService.parseComment("[user]splinter[/user]", false),
-            lorCodeService.parseComment("\n\n[user]\n\nsplinter\n\n[/user]\n\n", false));
+    assertEquals(lorCodeService.parseComment("[user]splinter[/user]", false, LorCodeService.Plain$.MODULE$),
+            lorCodeService.parseComment("\n\n[user]\n\nsplinter\n\n[/user]\n\n", false, LorCodeService.Plain$.MODULE$));
   }
 
   @Test
   public void splinterTest1() { // http://www.linux.org.ru/forum/linux-org-ru/6448266
     assertEquals("<p><a href=\"http://www.fishing.org/\">http://www.fishing.org/</a> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/splinter/profile\">splinter</a></span></p>",
-            lorCodeService.parseComment("[url=http://www.fishing.org/][user]splinter[/user][/url]", false));
+            lorCodeService.parseComment("[url=http://www.fishing.org/][user]splinter[/user][/url]", false, LorCodeService.Plain$.MODULE$));
   }
 
   @Test
   public void userTest() {
     assertEquals("<p> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>",
-            lorCodeService.parseComment("[user]maxcom[/user]", false));
+            lorCodeService.parseComment("[user]maxcom[/user]", false, LorCodeService.Plain$.MODULE$));
     assertEquals("<p> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/isden/profile\">isden</a></s></span></p>",
-            lorCodeService.parseComment("[user]isden[/user]", false));
+            lorCodeService.parseComment("[user]isden[/user]", false, LorCodeService.Plain$.MODULE$));
     assertEquals("<p> <s>hizel</s></p>",
-            lorCodeService.parseComment("[user]hizel[/user]", false));
+            lorCodeService.parseComment("[user]hizel[/user]", false, LorCodeService.Plain$.MODULE$));
   }
 
   @Test
   public void parserResultTest() {
     String msg = "[user]hizel[/user][user]JB[/user][user]maxcom[/user]";
-    Set<User> replier = lorCodeService.getReplierFromMessage(msg);
+    var replier = lorCodeService.getMentions(msg);
 
     assertTrue(replier.contains(maxcom));
     assertTrue(replier.contains(JB));
@@ -110,17 +108,17 @@ public class MemberTagTest {
   @Test
   public void userTest2() {
     assertEquals("<p> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>",
-            lorCodeService.parseComment("[user]maxcom[/USER]", false));
+            lorCodeService.parseComment("[user]maxcom[/USER]", false, LorCodeService.Plain$.MODULE$));
     assertEquals("<p> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/isden/profile\">isden</a></s></span></p>",
-            lorCodeService.parseComment("[USER]isden[/USER]", false));
+            lorCodeService.parseComment("[USER]isden[/USER]", false, LorCodeService.Plain$.MODULE$));
     assertEquals("<p> <s>hizel</s></p>",
-            lorCodeService.parseComment("[user]hizel[/USER]", false));
+            lorCodeService.parseComment("[user]hizel[/USER]", false, LorCodeService.Plain$.MODULE$));
   }
 
   @Test
   public void parserResultTest2() {
     String msg = "[user]hizel[/user][USER]JB[/user][user]maxcom[/USER]";
-    Set<User> replier = lorCodeService.getReplierFromMessage(msg);
+    var replier = lorCodeService.getMentions(msg);
 
     assertTrue(replier.contains(maxcom));
     assertTrue(replier.contains(JB));

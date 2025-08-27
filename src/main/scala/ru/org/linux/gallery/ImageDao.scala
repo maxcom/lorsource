@@ -20,9 +20,7 @@ import org.springframework.stereotype.Repository
 import ru.org.linux.gallery.ImageDao.galleryItemRowMapper
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
-import ru.org.linux.topic.Topic
 
-import javax.annotation.Nullable
 import javax.sql.DataSource
 import java.sql.ResultSet
 import scala.jdk.CollectionConverters.MapHasAsJava
@@ -62,7 +60,7 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
   private val jdbcTemplate = new JdbcTemplate(dataSource)
 
   private val jdbcInsert = new SimpleJdbcInsert(dataSource).withTableName("images")
-    .usingColumns("topic", "extension").usingGeneratedKeyColumns("id")
+    .usingColumns("topic", "extension", "main").usingGeneratedKeyColumns("id")
 
   /**
    * Возвращает последние объекты галереи.
@@ -102,19 +100,18 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
     jdbcTemplate.queryAndMap(sql, tagId, countItems)(galleryItemRowMapper(gallery))
   }
 
-  @Nullable
-  def imageForTopic(topic: Topic): Image =
+  def allImagesForTopic(topicId: Int): Seq[Image] =
     jdbcTemplate.queryAndMap(
-        "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted AND main", topic.id
-    )(ImageDao.imageRowMapper).headOption.orNull
+      "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted ORDER BY id", topicId
+    )(ImageDao.imageRowMapper)
 
   def getImage(id: Int): Image =
     jdbcTemplate.queryAndMap(
       "SELECT id, topic, extension, deleted, main FROM images WHERE id=?", id
     )(ImageDao.imageRowMapper).headOption.getOrElse(throw new RuntimeException("Image not found: " + id))
 
-  def saveImage(topicId: Int, extension: String): Int = {
-    val dataMap: Map[String, Any] = Map("topic" -> topicId, "extension" -> extension)
+  def saveImage(topicId: Int, extension: String, main: Boolean): Int = {
+    val dataMap: Map[String, Any] = Map("topic" -> topicId, "extension" -> extension, "main" -> main)
 
     jdbcInsert.executeAndReturnKey(dataMap.asJava).intValue
   }

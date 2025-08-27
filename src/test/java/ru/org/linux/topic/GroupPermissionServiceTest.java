@@ -20,6 +20,7 @@ import ru.org.linux.auth.AuthorizedSession;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
+import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
 import java.sql.ResultSet;
@@ -32,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 public class GroupPermissionServiceTest {
   private AuthorizedSession sessionOf(User user) {
-    return AuthorizedSession.apply(user, user.isCorrector(), user.isModerator(), user.isAdministrator());
+    return AuthorizedSession.apply(user, user.isCorrector(), user.isModerator(), user.isAdministrator(), Profile.DEFAULT());
   }
 
   /**

@@ -15,12 +15,12 @@
 
 package ru.org.linux.realtime
 
-import akka.Done
-import akka.actor.ActorSystem
-import akka.actor.typed.scaladsl.AskPattern.Askable
-import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.*
-import akka.util.Timeout
+import org.apache.pekko.Done
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.typed.scaladsl.AskPattern.Askable
+import org.apache.pekko.actor.typed.scaladsl.Behaviors
+import org.apache.pekko.actor.typed.*
+import org.apache.pekko.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -37,6 +37,7 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.IgnoreListDao
 
 import java.io.IOException
+import java.nio.channels.ClosedChannelException
 import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration.*
@@ -204,7 +205,12 @@ object RealtimeSessionActor {
             Behaviors.stopped
         }.receiveSignal {
           case (_, PostStop) =>
-            session.close()
+            try {
+              session.close()
+            } catch {
+              case _: ClosedChannelException =>
+            }
+
             Behaviors.same
         }
       }
@@ -219,7 +225,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef[Protoco
 
   private implicit val Timeout: Timeout = 30.seconds
 
-  import akka.actor.typed.scaladsl.adapter.*
+  import org.apache.pekko.actor.typed.scaladsl.adapter.*
 
   private implicit val scheduler: Scheduler = actorSystem.toTyped.scheduler
 
@@ -288,7 +294,7 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef[Protoco
 class RealtimeConfigurationBeans(actorSystem: ActorSystem) {
   @Bean(Array("realtimeHubWS"))
   def hub(ignoreListDao: IgnoreListDao): ActorRef[Protocol] = {
-    import akka.actor.typed.scaladsl.adapter.*
+    import org.apache.pekko.actor.typed.scaladsl.adapter.*
 
     actorSystem.spawn(RealtimeEventHub.behavior(ignoreListDao), "realtimeHubWS")
   }

@@ -21,12 +21,12 @@ import org.specs2.specification.Scope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
-import ru.org.linux.AkkaConfiguration
+import ru.org.linux.PekkoConfiguration
 
 import scala.concurrent.duration.*
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
-  classOf[AkkaConfiguration]))
+  classOf[PekkoConfiguration]))
 @DirtiesContext
 class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)

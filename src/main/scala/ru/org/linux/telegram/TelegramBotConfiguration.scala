@@ -15,7 +15,7 @@
 
 package ru.org.linux.telegram
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import org.apache.pekko.actor.{ActorRef, ActorSystem, Props}
 import org.springframework.context.annotation.{Bean, Configuration}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicTagDao

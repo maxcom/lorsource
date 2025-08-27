@@ -26,7 +26,7 @@ import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.common.DeleteReasons
 import ru.org.linux.group.{Group, GroupDao}
-import ru.org.linux.site.{MessageNotFoundException, Template}
+import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
 import ru.org.linux.warning.WarningService.MaxWarningsPerHour
@@ -55,7 +55,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
 
     val types = warningTypes(request, group)
 
-    prepareView(request, currentUser, mv, types)
+    prepareView(request, mv, types)
 
     mv
   }
@@ -72,16 +72,13 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     }
   }
 
-  private def prepareView(request: PostWarningRequest, currentUser: AuthorizedSession, mv: ModelAndView,
-                          types: Seq[WarningType]): Unit = {
+  private def prepareView(request: PostWarningRequest, mv: ModelAndView, types: Seq[WarningType])
+                         (implicit currentUser: AuthorizedSession): Unit = {
     if (request.comment == null) {
-      val preparedTopic = topicPrepareService.prepareTopic(request.topic, currentUser.user)
+      val preparedTopic = topicPrepareService.prepareTopic(request.topic)
       mv.addObject("preparedTopic", preparedTopic)
     } else {
-      val tmpl = Template.getTemplate
-
-      val preparedComment = commentPrepareService.prepareCommentOnly(request.comment, currentUser, tmpl.getProf,
-        request.topic, Set.empty)
+      val preparedComment = commentPrepareService.prepareCommentOnly(request.comment, request.topic, Set.empty)
 
       mv.addObject("preparedComment", preparedComment)
     }
@@ -130,7 +127,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     if (errors.hasErrors) {
       val mv = new ModelAndView("post-warning")
 
-      prepareView(request, currentUser, mv, types)
+      prepareView(request, mv, types)
 
       mv
     } else {

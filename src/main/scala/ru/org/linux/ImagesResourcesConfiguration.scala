@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,8 +14,8 @@
  */
 package ru.org.linux
 
-import akka.actor.ActorSystem
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.typed.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.web.servlet.config.annotation.{EnableWebMvc, ResourceHandlerRegistry, WebMvcConfigurer}
@@ -25,7 +25,7 @@ import ru.org.linux.auth.{GalleryPermissionInterceptor, UserpicPermissionInterce
 import ru.org.linux.gallery.ImageDao
 import ru.org.linux.group.GroupDao
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.topic.{TopicDao, TopicPermissionService}
+import ru.org.linux.topic.{TopicPermissionService, TopicService}
 import ru.org.linux.user.UserService
 
 import java.io.File
@@ -52,9 +52,9 @@ class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigu
   }
 
   @Bean
-  def galleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
+  def galleryPermissionInterceptor(imageDao: ImageDao, topicService: TopicService, groupDao: GroupDao,
                                    topicPermissionService: TopicPermissionService, userService: UserService) = {
-    val interceptor = new GalleryPermissionInterceptor(imageDao, topicDao, groupDao, topicPermissionService, userService)
+    val interceptor = new GalleryPermissionInterceptor(imageDao, topicService, groupDao, topicPermissionService, userService)
 
     new MappedInterceptor(Array("/images/**", "/gallery/**"), interceptor)
   }
@@ -68,7 +68,7 @@ class ImagesResourcesConfiguration(siteConfig: SiteConfig) extends WebMvcConfigu
 
   @Bean
   def advCounterActor(actorSystem: ActorSystem, advCounterDao: AdvCounterDao): ActorRef[AdvCounterActor.Protocol] = {
-    import akka.actor.typed.scaladsl.adapter.*
+    import org.apache.pekko.actor.typed.scaladsl.adapter.*
 
     actorSystem.spawn(AdvCounterActor.behavior(advCounterDao), "AdvCounterActor")
   }

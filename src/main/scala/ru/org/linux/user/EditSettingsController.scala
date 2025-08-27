@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,8 +22,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.markup.MarkupPermissions
-import ru.org.linux.site.{BadInputException, DefaultProfile, Template, Theme}
+import ru.org.linux.site.{BadInputException, DefaultProfile, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
 
 import java.util
@@ -31,10 +30,9 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 @RequestMapping (path = Array ("/people/{nick}/settings") )
-class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userService: UserService) {
+class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermissionService: UserPermissionService) {
   @RequestMapping(method = Array(RequestMethod.GET))
-  def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { currentUser =>
-    val tmpl = Template.getTemplate
+  def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
     if (!(currentUser.user.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
@@ -53,17 +51,17 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
 
     params.put("trackerModes", TrackerFilterEnum.values.filter(_.isCanBeDefault))
 
-    params.put("topicsValues", (DefaultProfile.TOPICS_VALUES.asScala + tmpl.getProf.getTopics).toSeq.sorted.asJava)
-    params.put("messagesValues", (DefaultProfile.COMMENTS_VALUES.asScala + tmpl.getProf.getMessages).toSeq.sorted.asJava)
+    params.put("topicsValues", (DefaultProfile.TOPICS_VALUES.asScala + currentUser.profile.topics).toSeq.sorted.asJava)
+    params.put("messagesValues", (DefaultProfile.COMMENTS_VALUES.asScala + currentUser.profile.messages).toSeq.sorted.asJava)
 
-    params.put("format_mode", tmpl.getFormatMode)
+    params.put("format_mode", currentUser.profile.formatMode.formId)
 
     params.put("formatModes",
-      MarkupPermissions.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
+      UserPermissionService.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
 
     params.put("avatarsList", DefaultProfile.getAvatars)
 
-    params.put("canLoadUserpic", Boolean.box(userService.canLoadUserpic(currentUser.user)))
+    params.put("canLoadUserpic", Boolean.box(userPermissionService.canLoadUserpic))
 
     new ModelAndView("edit-profile", params)
   }
@@ -74,44 +72,45 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userServi
                      @RequestParam("format_mode") formatMode: String,
                      @PathVariable nick: String
                  ): ModelAndView = AuthorizedOnly { currentUser =>
-    val tmpl = Template.getTemplate
     if (!(currentUser.user.getNick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
-    if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == tmpl.getProf.getTopics)) {
+    if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == currentUser.profile.topics)) {
       throw new BadInputException("некорректное число тем")
     }
-    if (!(DefaultProfile.COMMENTS_VALUES.contains(messages) || messages == tmpl.getProf.getMessages)) {
+    if (!(DefaultProfile.COMMENTS_VALUES.contains(messages) || messages == currentUser.profile.messages)) {
       throw new BadInputException("некорректное число комментариев")
     }
     if (!DefaultProfile.isStyle(request.getParameter("style"))) {
       throw new BadInputException("неправльное название темы")
     }
 
-    if (!MarkupPermissions.allowedFormats(currentUser.user).map(_.formId).contains(formatMode)) {
+    if (!UserPermissionService.allowedFormats(currentUser.user).map(_.formId).contains(formatMode)) {
       throw new BadInputException("некорректный режим форматирования")
     }
 
-    tmpl.getProf.setTopics(topics)
-    tmpl.getProf.setMessages(messages)
-    tmpl.getProf.setShowPhotos("on" == request.getParameter("photos"))
-    tmpl.getProf.setHideAdsense("on" == request.getParameter("hideAdsense"))
-    tmpl.getProf.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
-    tmpl.getProf.setFormatMode(formatMode)
-    tmpl.getProf.setStyle(request.getParameter("style"))
+    val builder = new ProfileBuilder(currentUser.profile)
+
+    builder.setTopics(topics)
+    builder.setMessages(messages)
+    builder.setShowPhotos("on" == request.getParameter("photos"))
+    builder.setHideAdsense("on" == request.getParameter("hideAdsense"))
+    builder.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
+    builder.setFormatMode(formatMode)
+    builder.setStyle(request.getParameter("style"))
     userDao.setStyle(currentUser.user, request.getParameter("style"))
-    tmpl.getProf.setOldTracker("on" == request.getParameter("oldTracker"))
-    tmpl.getProf.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
+    builder.setOldTracker("on" == request.getParameter("oldTracker"))
+    builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
 
     val avatar = request.getParameter("avatar")
     if (!DefaultProfile.getAvatars.contains(avatar)) {
       throw new BadInputException("invalid avatar value")
     }
 
-    tmpl.getProf.setAvatarMode(avatar)
-    tmpl.getProf.setReactionNotification("on" == request.getParameter("reactionNotification"))
+    builder.setAvatarMode(avatar)
+    builder.setReactionNotification("on" == request.getParameter("reactionNotification"))
 
-    profileDao.writeProfile(currentUser.user, tmpl.getProf)
+    profileDao.writeProfile(currentUser.user, builder)
 
     new ModelAndView(new RedirectView("/people/" + nick + "/profile"))
   }

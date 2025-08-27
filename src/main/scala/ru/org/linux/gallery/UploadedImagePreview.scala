@@ -61,6 +61,8 @@ class UploadedImagePreview(val mainFile: File) {
       }
     }
   }
+
+  def toImage(main: Boolean): Image = Image(0, 0, s"gallery/preview/${mainFile.getName}", deleted = false, main = main)
 }
 
 object UploadedImagePreview {

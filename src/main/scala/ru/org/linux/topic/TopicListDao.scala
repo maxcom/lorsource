@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,6 +18,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.auth.AnySession
 import ru.org.linux.section.SectionController
 import ru.org.linux.topic.TopicListDto.CommitMode.{COMMITED_ONLY, POSTMODERATED_ONLY, UNCOMMITED_ONLY}
 import ru.org.linux.topic.TopicListDto.{DateLimitType, MiniNewsMode}
@@ -163,10 +164,10 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
   private val jdbcTemplate: JdbcTemplate = new JdbcTemplate(ds)
   private val namedJdbcTemplate: NamedParameterJdbcTemplate = new NamedParameterJdbcTemplate(ds)
 
-  def getTopics(topicListDto: TopicListDto, currentUser: Option[User]): collection.Seq[Topic] = {
+  def getTopics(topicListDto: TopicListDto, currentUser: AnySession): collection.Seq[Topic] = {
     val params = new mutable.HashMap[String, AnyRef]
 
-    currentUser.map { currentUser =>
+    currentUser.userOpt.map { currentUser =>
       params.put("userid", Integer.valueOf(currentUser.getId))
     }
 
@@ -180,7 +181,8 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
         | topics.linktext, ua_id, urlname, section, topics.sticky, topics.postip,
         | COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
         | commitdate, topics.stat1, postscore, topics.moderate, notop, topics.resolved, minor, draft, allow_anonymous,
-        | topics.reactions
+        | topics.reactions, COALESCE(commitdate, postdate) + sections.expire as expire_date,
+        | topics.open_warnings
         |FROM topics
         | INNER JOIN groups ON (groups.id=topics.groupid)
         | INNER JOIN sections ON (sections.id=groups.section) """.stripMargin)

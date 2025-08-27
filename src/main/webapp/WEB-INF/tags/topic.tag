@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
+<%@ tag import="ru.org.linux.warning.WarningService" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -23,6 +24,7 @@
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="showImageDelete" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="imageSlider" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="briefEditInfo" required="false" type="ru.org.linux.topic.PreparedEditInfoSummary" %>
 <%@ attribute name="reactionList" required="false" type="ru.org.linux.reaction.PreparedReactionList" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -101,17 +103,37 @@
   <div class="msg-container">
 
   <div class="msg_body">
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
-               preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
-  </c:if>
+    <c:set var="sizes" value="(min-width: 70em) 80vw, 100vw" />
+
+    <c:if test="${empty preparedMessage.additionalImages or not imageSlider}">
+      <c:if test="${preparedMessage.image != null}">
+        <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
+                   preparedMessage="${preparedMessage}" showImage="true" sizes="${sizes}"
+                   enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
+      </c:if>
+    </c:if>
+
+    <c:if test="${not empty preparedMessage.additionalImages}">
+      <c:if test="${imageSlider}">
+        <lor:imageslider main="${preparedMessage.image}" title="${preparedMessage.message.title}"
+                         classes="slider-indicators-outside slider-indicators-sm"
+                         additional="${preparedMessage.additionalImages}"/>
+      </c:if>
+
+      <c:if test="${not imageSlider}">
+        <c:forEach var="image" items="${preparedMessage.additionalImages}">
+          <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true"
+                     preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
+        </c:forEach>
+      </c:if>
+    </c:if>
 
     <c:if test="${memoriesInfo!=null}">
       <div class="fav-buttons">
         <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span
-          id="favs_count">${memoriesInfo.favsCount()}</span><br>
+           id="favs_count">${memoriesInfo.favsCount()}</span><br>
         <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span
-          id="memories_count">${memoriesInfo.watchCount()}</span>
+           id="memories_count">${memoriesInfo.watchCount()}</span>
       </div>
     </c:if>
 
@@ -144,10 +166,6 @@
             out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
           %>
         </p>
-      </c:if>
-
-      <c:if test="${preparedMessage.image != null}">
-        <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
       </c:if>
     </div>
 <footer>
@@ -208,6 +226,13 @@
 </div>
 </footer>
 
+<c:if test="${showMenu and messageMenu.commitable and preparedMessage.section.premoderated and not message.commited}">
+  <nav>
+    <a class="btn btn-primary" href="commit.jsp?msgid=${message.id}">Подтвердить</a>
+    <a class="btn btn-default" href="edit.jsp?msgid=${message.id}">Править</a>
+  </nav>
+</c:if>
+
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
           <ul id="topicMenu">
@@ -250,7 +275,8 @@
         </div>
       </c:if>
 
-    <lor:warnings warnings="${preparedMessage.warnings}"/>
+    <lor:warnings warnings="${preparedMessage.warnings}"
+                  hidden="${preparedMessage.message.openWarnings > WarningService.TopicMaxWarnings()}"/>
 
     <lor:reactions reactions="${preparedMessage.reactions}" reactionList="${reactionList}" topic="${message}"/>
   </div>

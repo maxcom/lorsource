@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,10 +28,10 @@ $container_margin: 0;
 
 @mixin respond-to($media) {
   @if $media == widedesktop {
-    @media only screen and (min-width: 90em) { @content; }
+    @media only screen and (min-width: 100em) { @content; }
   }
   @else if $media == desktops {
-    @media only screen and (min-width: 65em) { @content; }
+    @media only screen and (min-width: 70em) { @content; }
   }
   @else if $media == tablet-and-desktops {
     @media only screen and (min-width: 47em) { @content; }
@@ -50,7 +50,7 @@ html {
 }
 
 body {
-   max-width: 89em;
+   max-width: 85em;
    margin: auto;
    line-height: 1.4;
 }
@@ -475,12 +475,12 @@ textarea.error {
 }
 
 #whois_userpic {
-  float: right;
   text-align: center;
 
   .userpic {
-    float: none;
     display: inline-block;
+    float: none;
+    width: 100%;
   }
 
   form {
@@ -489,6 +489,14 @@ textarea.error {
 
   span {
     display: block;
+  }
+
+  @include respond-to(tablet-and-desktops) {
+    float: right;
+
+    .userpic {
+      width: auto;
+    }
   }
 }
 
@@ -798,37 +806,59 @@ pre code .container:before, pre code .container:after {
 }
 
 img.medium-image {
-  width: 100%;
+  width: auto;
   max-width: 100%;
   height: auto;
   image-orientation: none;
-}
-
-figure.medium-image {
-  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .medium-image-container {
   margin: 1em auto;
 }
 
+figure.medium-image {
+  width: 100%;
+}
+
+.slider-parent {
+  margin: 1em auto;
+  --image-width: 100%;
+}
+
+.medium-image-container {
+  --image-width: 100%;
+}
+
 @include respond-to(desktops) {
   .medium-image-container {
-    width: 80%;
+    --image-width: 80%;
   }
 
+  .slider-parent {
+    --image-width: 80%;
+  }
+}
+
+@include respond-to(tablet-and-desktops) {
   .news .medium-image-container {
     margin-left: 1em;
-    width: 40%;
+    --image-width: 40%;
+    float: right;
+    text-align: left;
+  }
+
+  .news .slider-parent {
+    --image-width: 40%;
+    margin: 0 0 0 1em;
     float: right;
     text-align: left;
   }
 }
 
-@media screen and (min-width: 768px) {
-  #cal-heatmap {
-    min-height: 100px;
-  }
+#cal-heatmap {
+  min-height: 100px;
 }
 
 @media (prefers-color-scheme: dark) {

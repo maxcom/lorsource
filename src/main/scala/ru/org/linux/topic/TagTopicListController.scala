@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,16 +24,14 @@ import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{GroupListDao, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
 import ru.org.linux.user.UserTagService
 
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
-import scala.jdk.OptionConverters.RichOption
+import scala.jdk.FutureConverters.FutureOps
 
 @Controller
 object TagTopicListController {
@@ -119,19 +117,17 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           }
         }
 
-        val prof = Template.getTemplate.getProf
 
         val (preparedTopics, pageSize) = if (forumMode) {
-          (groupListDao.getSectionListTopics(section, currentUserOpt.userOpt.toJava,
-            prof.getTopics, offset, prof.getMessages, tagInfo.id), prof.getTopics)
+          (groupListDao.getSectionListTopics(section, offset, tagInfo.id).map(prepareService.prepareListItem),
+            currentUserOpt.profile.topics)
         } else {
-          val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
-            20, currentUserOpt.userOpt, noTalks = false, tech = false)
+          val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None, 20, noTalks = false, tech = false)
 
-          (prepareService.prepareTopicsForUser(topics, prof, loadUserpics = false), 20)
+          (prepareService.prepareTopics(topics, loadUserpics = false), 20)
         }
 
-        modelAndView.addObject("messages", preparedTopics)
+        modelAndView.addObject("messages", preparedTopics.asJava)
 
         modelAndView.addObject("url", TagTopicListController.tagListUrl(tag))
         modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
@@ -161,7 +157,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
         tagService.getTagBySynonym(tag).map { mainName =>
           Future.successful(new ModelAndView(new RedirectView(TagTopicListController.buildTagUri(mainName.name, sectionId, 0), false, false)))
         }.getOrElse(throw new TagNotFoundException())
-    }).toJava
+    }).asJava
   }
 
   @RequestMapping(

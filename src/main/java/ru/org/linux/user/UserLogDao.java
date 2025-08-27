@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -46,7 +46,7 @@ public class UserLogDao {
   public static final String OPTION_OLD_TOWN = "old_town";
   public static final String OPTION_OLD_URL = "old_url";
   public static final String OPTION_IP = "ip";
-  public static final String OPTION_USET_AGENT = "user_agent";
+  public static final String OPTION_USER_AGENT = "user_agent";
   public static final String OPTION_INVITED_BY = "invited_by";
   public static final String OPTION_ACCEPT_LANGUAGE = "accept_lang";
 
@@ -319,7 +319,7 @@ public class UserLogDao {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
     builder.put(OPTION_IP, ip);
-    builder.put(OPTION_USET_AGENT, Integer.toString(userAgent));
+    builder.put(OPTION_USER_AGENT, Integer.toString(userAgent));
     language.ifPresent(lang -> builder.put(OPTION_ACCEPT_LANGUAGE, lang));
     invitedBy.ifPresent(user -> builder.put(OPTION_INVITED_BY, user.toString()));
 

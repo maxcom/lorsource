@@ -14,7 +14,7 @@
  */
 package ru.org.linux.adv
 
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.web.servlet.{HandlerInterceptor, ModelAndView}
@@ -25,7 +25,7 @@ class AdvCounterInterceptor(advCounterActor: ActorRef[AdvCounterActor.Protocol])
     if (response.getStatus < 400 && response.getStatus >= 200) {
       val path = request.getRequestURI
 
-      logger.debug(s"Adv counter: ${path}")
+      logger.debug(s"Adv counter: $path")
 
       advCounterActor ! AdvCounterActor.Count(path)
     }

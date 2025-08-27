@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -59,7 +59,7 @@ $script.ready('plugins', function() {
   <tr>
     <td>Уведомлять о реакциях</td>
     <td><input type="checkbox" name="reactionNotification"
-               <c:if test="${template.prof.reactionNotificationEnabled}">checked</c:if> ></td>
+               <c:if test="${template.prof.reactionNotification}">checked</c:if> ></td>
   </tr>
   <tr><td colspan=2><hr></td></tr>
 
@@ -150,7 +150,7 @@ $script.ready('plugins', function() {
 
   <tr><td colspan=2><hr></td></tr>
 <tr>
-  <td valign=top>Форматирование по умолчанию</td>
+  <td valign=top>Разметка текста</td>
   <td>
     <c:forEach var="s" items="${formatModes}">
       <c:if test="${s.key == format_mode}">

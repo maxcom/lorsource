@@ -92,10 +92,9 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       0
     }
 
-    val user = currentUser.user
+    deleteService.deleteTopic(topic, reason, effectiveBonus)
 
-    deleteService.deleteTopic(topic, user, reason, effectiveBonus)
-    logger.info(s"Удалено сообщение $msgid пользователем ${user.getNick} по причине `$reason'")
+    logger.info(s"Удалено сообщение $msgid пользователем ${currentUser.user.getNick} по причине `$reason'")
 
     searchQueueSender.updateMessage(msgid, true)
 
@@ -109,7 +108,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
     new ModelAndView("undelete", Map(
       "message" -> topic,
-      "preparedMessage" -> prepareService.prepareTopic(topic, currentUser.user)
+      "preparedMessage" -> prepareService.prepareTopic(topic)
     ).asJava)
   }
 

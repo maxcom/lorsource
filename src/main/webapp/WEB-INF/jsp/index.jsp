@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -21,11 +21,9 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="news" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
-<%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 <%--@elvariable id="hasDrafts" type="java.lang.Boolean"--%>
 <%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.BriefTopicRef>>>>"--%>
-<% Template tmpl = Template.getTemplate(); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>LINUX.ORG.RU — Русская информация об ОС Linux</title>
@@ -82,46 +80,49 @@
   </div>
 </c:if>
 --%>
-
+<%--
   <div style="text-align: center; margin-top: 0.5em; height: 125px" id="interpage">
   </div>
   <script type="text/javascript">
     $script.ready('lorjs', function () {
-        var ads = [
-            {
-                type: 'rimg',
-                img320: '/adv/habr 320x100.png',
-                img730: '/adv/hadr 730x90.png',
-                img980: '/adv/habr 980x120.png',
-                href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=bf2024'
-            }
-        ];
+      var ads = [
+        {
+          type: 'rimg',
+          img320: '/adv/SelectOS_320-100-02.jpg',
+          img730: '/adv/SelectOS_730-90-02.jpg',
+          img980: '/adv/SelectOS_980-120-02.jpg',
+          href: 'https://slc.tl/3igzf'
+        },
+        {
+          type: 'rimg',
+          img320: '/adv/MD-4752_320x100.jpg',
+          img730: '/adv/MD-4752_730x90.jpg',
+          img980: '/adv/MD-4752_980x120.jpg',
+          href: 'https://selectel.ru/services/dedicated/?tab=configuratorGpu&c=109%3A1&simpleRamMode=true&utm_source=linux.org&utm_medium=cpc&utm_campaign=gpu_one'
+        }
+      ];
 
       init_interpage_adv(ads);
     });
   </script>
+--%>
 
-  <c:if test="${template.moderatorSession or template.correctorSession}">
-<div class="nav"   style="border-bottom: none">
-  <c:if test="${uncommited > 0}">
-    [<a href="view-all.jsp">Неподтверждённых</a>: ${uncommited},
-    <c:if test="${uncommitedNews > 0}">
-      в том числе <a href="view-all.jsp?section=1">новостей</a>:&nbsp;${uncommitedNews}]
+<c:if test="${(template.moderatorSession or template.correctorSession) and (uncommited > 0)}">
+<nav>
+    <c:if test="${uncommitedCounts.size() > 1}">
+      <a class="btn btn-default" href="view-all.jsp">Неподтверждённых: ${uncommited}</a>
     </c:if>
-    <c:if test="${uncommitedNews == 0}">
-      новостей нет]
-    </c:if>
-  </c:if>
-</div>
+
+    <c:forEach var="item" items="${uncommitedCounts}">
+      <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">Неподтверждённые ${item._1().name.toLowerCase()}: ${item._2()}</a>
+    </c:forEach>
+</nav>
 </c:if>
 
-<%
-  boolean multiPortal = tmpl.getProf().isShowGalleryOnMain();
-%>
-    <c:forEach var="msg" items="${news}">
-      <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}"
-                   multiPortal="<%= multiPortal %>" moderateMode="false"/>
-    </c:forEach>
+<c:forEach var="msg" items="${news}">
+  <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}"
+               multiPortal="${template.prof.showGalleryOnMain}" moderateMode="false"/>
+</c:forEach>
 
 <c:if test="${not empty briefNews}">
 <section>
@@ -204,19 +205,19 @@
 
   <% out.flush(); %>
 
-  <div align="center" style="margin-bottom: 0.5em">
-    <a href="http://qrator.net/" rel="nofollow" target="_blank">
-      <img src="/adv/qrator-box.png" width="250" style="max-width: 100%; height: auto" alt="Protected by Qrator">
-    </a>
+  <div align="center" class="boxlet">
+    <div class="boxlet_content" style="padding-top: 1em">
+      <a href="http://qrator.net/" rel="nofollow" target="_blank">
+        <img src="/adv/qrator-box.png" width="250" style="max-width: 100%; height: auto" alt="Protected by Qrator">
+      </a>
+    </div>
   </div>
 
-  <lor:boxlets var="boxes">
-      <c:forEach var="boxlet" items="${boxes}">
-        <div class="boxlet">
-            <c:import url="/${boxlet}.boxlet"/>
-        </div>
-      </c:forEach>
-  </lor:boxlets>
+  <c:forEach var="boxlet" items="${template.prof.boxlets}">
+    <div class="boxlet">
+        <c:import url="/${boxlet}.boxlet"/>
+    </div>
+  </c:forEach>
 </aside>
 </div>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,12 +14,13 @@
  */
 package ru.org.linux.reaction
 
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorRef
 import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.auth.AnySession
 import ru.org.linux.comment.Comment
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.reaction.PreparedReactions.allZeros
@@ -139,8 +140,8 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     }.toSeq.sortBy(_.date.getOrElse(epoch)))
   }
 
-  def prepare(reactions: Reactions, ignoreList: Set[Int], currentUser: Option[User],
-              topic: Topic, comment: Option[Comment]): PreparedReactions = {
+  def prepare(reactions: Reactions, ignoreList: Set[Int], topic: Topic, comment: Option[Comment])
+             (implicit session: AnySession): PreparedReactions = {
     PreparedReactions(allZeros ++
       reactions.reactions
         .groupMap(_._2)(_._1)
@@ -150,22 +151,22 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
 
           val filteredUserIds = userIdsSet -- ignoreList
           val users = userService.getUsersCached(filteredUserIds)
-          val clicked = currentUser.map(_.getId).exists(userIdsSet.contains)
+          val clicked = session.userOpt.map(_.getId).exists(userIdsSet.contains)
 
           r -> PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava,
             hasMore = users.sizeIs > 3, clicked = clicked, DefinedReactions.getOrElse(r, r))
-        }, allowInteract = allowInteract(currentUser, topic, comment))
+        }, allowInteract = allowInteract(session.userOpt, topic, comment))
   }
 
   private def isNotificationsEnabledFor(userId: Int): Boolean =
-    profileDao.readProfile(userId).isReactionNotificationEnabled
+    profileDao.readProfile(userId).reactionNotification
 
   def setCommentReaction(topic: Topic, comment: Comment, user: User, reaction: String,
                          set: Boolean): Int = {
     val r = transactional() { _ =>
       val newCount = reactionDao.setCommentReaction(comment, user, reaction, set)
 
-      topicDao.updateLastmod(comment.topicId, false)
+      topicDao.updateLastmod(comment.topicId)
 
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(comment.userid)
@@ -190,7 +191,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     val r = transactional() { _ =>
       val newCount = reactionDao.setTopicReaction(topic, user, reaction, set)
 
-      topicDao.updateLastmod(topic.id, false)
+      topicDao.updateLastmod(topic.id)
 
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(topic.authorUserId)

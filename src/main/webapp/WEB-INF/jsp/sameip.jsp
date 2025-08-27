@@ -3,7 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -222,7 +222,7 @@
       <input type="text" name="reason" maxlength="254" size="40" value=""><br>
       за последний(ие) <select name="time">
       <option value="hour">1 час</option>
-      <option value="day">1 день</option>
+      <option selected value="day">1 день</option>
       <option value="3day">3 дня</option>
       <option value="5day">5 дней</option>
       </select>
@@ -235,11 +235,11 @@
         <option value="month">блокировать на 1 месяц</option>
         <option value="3month">блокировать на 3 месяца</option>
         <option value="6month">блокировать на 6 месяцев</option>
-        <option value="unlim">блокировать постоянно</option>
+        <option selected value="unlim">блокировать постоянно</option>
       </select>
-      <label style="display: none" ><input checked type="radio" name="ban_mode" value="anonymous_and_captcha">только anonymous, требовать captcha у зарегистрированных</label>
-      <label style="display: none"><input type="radio" name="ban_mode" value="anonymous_only">только anonymous</label>
-      <label style="display: none"><input type="radio" name="ban_mode" value="all">всех</label>
+      <label><input type="radio" name="ban_mode" value="anonymous_and_captcha">только anonymous, требовать captcha у зарегистрированных</label>
+      <label><input checked type="radio" name="ban_mode" value="anonymous_only">только anonymous</label>
+      <label><input type="radio" name="ban_mode" value="all">всех</label>
       </c:if>
       <p>
         <button type="submit" name="del" class="btn btn-danger">del from ip</button>

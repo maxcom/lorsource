@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -79,18 +79,25 @@
   <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
 </h1>
 
-  <c:if test="${multiPortal}">
-    <div class="group">
-        ${preparedMessage.section.title} — ${preparedMessage.group.title}
-      <c:if test="${not message.commited and preparedMessage.section.premoderated}">
-        <span>(не подтверждено)</span>
-      </c:if>
-    </div>
+<c:if test="${multiPortal}">
+<div class="group">
+    ${preparedMessage.section.title} — ${preparedMessage.group.title}
+  <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+    <span>(не подтверждено)</span>
   </c:if>
+</div>
+</c:if>
 
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showImage="true"/>
-  </c:if>
+<c:if test="${empty preparedMessage.additionalImages and preparedMessage.image != null}">
+  <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" sizes="(min-width: 47em) 40vw, 100vw"
+             preparedMessage="${preparedMessage}" showImage="true" heightLimit="50vh"/>
+</c:if>
+<c:if test="${not empty preparedMessage.additionalImages}">
+  <lor:imageslider main="${preparedMessage.image}" title="${preparedMessage.message.title}"
+                   classes="slider-nav-autohide slider-indicators-sm slider-indicators-outside" additional="${preparedMessage.additionalImages}"
+                   heightLimit="50vh"/>
+</c:if>
+
 
 <c:set var="group" value="${preparedMessage.group}"/>
 
@@ -143,9 +150,6 @@
     }
   }
 %>
-</c:if>
-<c:if test="${preparedMessage.image != null}">
-  <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
 </c:if>
 
   <c:if test="${preparedMessage.section.pollPostAllowed}">

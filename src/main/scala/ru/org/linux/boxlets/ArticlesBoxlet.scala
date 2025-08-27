@@ -18,8 +18,8 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.topic.BoxletTopicDao
 
 import scala.jdk.CollectionConverters.*
@@ -27,9 +27,8 @@ import scala.jdk.CollectionConverters.*
 @Controller
 class ArticlesBoxlet(topTenDao: BoxletTopicDao, sectionService: SectionService) extends AbstractBoxlet {
   @RequestMapping(path = Array("/articles.boxlet"))
-  override protected def getData(request: HttpServletRequest): ModelAndView = {
-    val profile = Template.getTemplate.getProf
-    val list = topTenDao.articles(profile.getMessages)
+  override protected def getData(request: HttpServletRequest): ModelAndView = AuthUtil.MaybeAuthorized { session =>
+    val list = topTenDao.articles(session.profile.messages)
 
     new ModelAndView(
       "boxlets/topiclist",

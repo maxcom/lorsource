@@ -40,10 +40,11 @@ object UserpicController {
 }
 
 @Controller
-class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: UserService) extends StrictLogging {
+class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: UserService,
+                        userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/addphoto.jsp"), method = Array(RequestMethod.GET))
-  def showForm: ModelAndView = AuthorizedOnly { currentUser =>
-    if (userService.canLoadUserpic(currentUser.user)) {
+  def showForm: ModelAndView = AuthorizedOnly { implicit currentUser =>
+    if (userPermissionService.canLoadUserpic) {
       new ModelAndView("addphoto")
     } else {
       new ModelAndView("errors/code403")
@@ -51,8 +52,9 @@ class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: U
   }
 
   @RequestMapping(value = Array("/addphoto.jsp"), method = Array(RequestMethod.POST))
-  def addPhoto(@RequestParam("file") file: MultipartFile, response: HttpServletResponse): ModelAndView = AuthorizedOnly { currentUser =>
-    if (!userService.canLoadUserpic(currentUser.user)) {
+  def addPhoto(@RequestParam("file") file: MultipartFile,
+               response: HttpServletResponse): ModelAndView = AuthorizedOnly { implicit currentUser =>
+    if (!userPermissionService.canLoadUserpic) {
       throw new AccessViolationException("Forbidden")
     }
 
@@ -71,13 +73,16 @@ class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: U
         var photoname: String = null
         var photofile: File = null
 
-        do {
+        var done: Boolean = false
+
+        while (!done) {
           photoname = s"${currentUser.user.getId}:${random.nextInt}.$extension"
           photofile = new File(siteConfig.getUploadPath + "/photos", photoname)
-        } while (photofile.exists)
+          done = !photofile.exists()
+        }
 
         Files.move(uploadedFile, photofile.toPath)
-        photofile.setReadable(true, true)
+        photofile.setReadable(true, false)
 
         userDao.setPhoto(currentUser.user, photoname)
 

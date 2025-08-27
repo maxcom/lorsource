@@ -36,7 +36,7 @@ public class CSRFHandlerInterceptor implements HandlerInterceptor {
       //CSRFProtectionService.checkCSRF(request);
 
       if ((handler instanceof HandlerMethod) && (((HandlerMethod) handler).getMethodAnnotation(CSRFNoAuto.class)!=null)) {
-        logger.debug("Auto CSRF disabled for "+((HandlerMethod) handler).getBeanType().getName());
+        logger.debug("Auto CSRF disabled for {}", ((HandlerMethod) handler).getBeanType().getName());
         return true;
       }
 
@@ -44,9 +44,9 @@ public class CSRFHandlerInterceptor implements HandlerInterceptor {
 
       if (Strings.isNullOrEmpty(csrfInput)) {
         if ((handler instanceof HandlerMethod)) {
-          logger.warn("Missing CSRF field for " + request.getRequestURI()+ ' ' +((HandlerMethod) handler).getBeanType().getName()+ '.' +((HandlerMethod) handler).getMethod().getName());
+          logger.warn("Missing CSRF field for {} {}.{}", request.getRequestURI(), ((HandlerMethod) handler).getBeanType().getName(), ((HandlerMethod) handler).getMethod().getName());
         } else {
-          logger.warn("Missing CSRF field for " + request.getRequestURI()+" handler="+handler.getClass().toString()+" ip="+request.getRemoteAddr());
+          logger.warn("Missing CSRF field for {} handler={} ip={}", request.getRequestURI(), handler.getClass(), request.getRemoteAddr());
         }
       }
 

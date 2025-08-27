@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 package ru.org.linux.topic;
 
-import akka.actor.typed.ActorRef;
+import org.apache.pekko.actor.typed.ActorRef;
 import com.sksamuel.elastic4s.ElasticClient;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
@@ -26,7 +26,6 @@ import ru.org.linux.comment.CommentReadService;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.email.EmailService;
 import ru.org.linux.exception.ExceptionResolver;
-import ru.org.linux.group.GroupDao;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.realtime.RealtimeEventHub;
 import ru.org.linux.realtime.RealtimeWebsocketHandler;
@@ -79,10 +78,10 @@ public class TopicIntegrationTestConfiguration {
                                          EditHistoryService editHistoryService, MemoriesDao memoriesDao,
                                          TopicPermissionService permissionService, MoreLikeThisService moreLikeThisService,
                                          TopicTagService topicTagService, MsgbaseDao msgbaseDao, MessageTextService textService,
-                                         GroupDao groupDao, WarningService warningService) {
+                                         WarningService warningService) {
     return new TopicController(sectionService, messageDao, prepareService, topicPrepareService, commentService,
             ignoreListDao, ipBlockDao, editHistoryService, memoriesDao,  permissionService,
-            moreLikeThisService, topicTagService, msgbaseDao, textService, groupDao, warningService);
+            moreLikeThisService, topicTagService, msgbaseDao, textService, warningService);
   }
 
   @Bean

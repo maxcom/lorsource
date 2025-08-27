@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,7 +25,6 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.tag.TagPageController.isRecent
 import ru.org.linux.topic.*
 import ru.org.linux.topic.TopicListDto.CommitMode
@@ -34,11 +33,11 @@ import ru.org.linux.user.UserTagService
 import java.time
 import java.time.Instant
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.*
 import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.FutureOps
 
 object TagPageController {
   private val TotalNewsCount = 21
@@ -90,7 +89,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     tagService.getTagInfo(tag, skipZero = !currentUser.moderator) match {
       case None =>
         tagService.getTagBySynonym(tag).map { mainName =>
-          Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).toJava
+          Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).asJava
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
         val (news, newsDate) = getNewsSection(tag)
@@ -103,16 +102,14 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
         val sections = news ++ gallery ++ forum ++ polls ++ articles
 
-        val tmpl = Template.getTemplate
-
         val synonyms = tagService.getSynonymsFor(tagInfo.id)
 
-        val model = Map(
+        val model = Map[String, AnyRef](
           "tag" -> tag,
           "title" -> WordUtils.capitalize(tag),
-          "favsCount" -> userTagService.countFavs(tagInfo.id),
-          "ignoreCount" -> userTagService.countIgnore(tagInfo.id),
-          "showAdsense" -> Boolean.box(!currentUser.authorized || !tmpl.getProf.isHideAdsense),
+          "favsCount" -> Int.box(userTagService.countFavs(tagInfo.id)),
+          "ignoreCount" -> Int.box(userTagService.countIgnore(tagInfo.id)),
+          "showAdsense" -> Boolean.box(!currentUser.authorized || !currentUser.profile.hideAdsense),
           "showDelete" -> Boolean.box(currentUser.moderator),
           "synonyms" -> synonyms.asJava,
           "newsFirst" -> Boolean.box(newsFirst)
@@ -134,14 +131,14 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           related <- safeRelatedF
         } yield {
           new ModelAndView("tag-page", (model + ("counter" -> counter) ++ related).asJava)
-        }).toJava
+        }).asJava
     }
 }
 
-  private def getNewsSection(tag: String)(implicit  currentUser: AnySession) = {
+  private def getNewsSection(tag: String)(implicit currentUser: AnySession) = {
     val newsSection = sectionService.getSection(Section.SECTION_NEWS)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
-      TagPageController.TotalNewsCount, currentUser.userOpt, noTalks = false, tech = false)
+      TagPageController.TotalNewsCount, noTalks = false, tech = false)
 
     val (fullNewsTopics, briefNewsTopics) = if (newsTopics.headOption.map(_.commitDate.toInstant).exists(isRecent)) {
       newsTopics.splitAt(1)
@@ -149,8 +146,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       (Seq.empty, newsTopics.take(TagPageController.TotalNewsCount-1))
     }
 
-    val tmpl = Template.getTemplate
-    val fullNews = prepareService.prepareTopicsForUser(fullNewsTopics, tmpl.getProf, loadUserpics = false)
+    val fullNews = prepareService.prepareTopics(fullNewsTopics, loadUserpics = false)
 
     val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
 
@@ -168,8 +164,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    (Map(
-      "fullNews" -> fullNews,
+    (Map[String, AnyRef](
+      "fullNews" -> fullNews.asJava,
       "briefNews" -> TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false)))
     ) ++ more ++ addNews, newestDate)
   }
@@ -190,9 +186,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    Map(
-      "gallery" -> list
-    ) ++ add ++ more
+    Map[String, AnyRef]("gallery" -> list) ++ add ++ more
   }
 
   private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode)(implicit currentUser: AnySession) = {
@@ -204,7 +198,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
-    val forumTopics = topicListService.getTopics(topicListDto, currentUser.userOpt)
+    val forumTopics = topicListService.getTopics(topicListDto)
     val topicByDate = TopicListTools.datePartition(forumTopics)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {
@@ -221,7 +215,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = forumTopics.headOption.map(t => Instant.ofEpochMilli(t.getEffectiveDate.getMillis))
 
-    (Map(
+    (Map[String, AnyRef](
       forumSection.getUrlName -> TopicListTools.split(
         topicByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = true)))
     ) ++ more ++ add, newestDate)

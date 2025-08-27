@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,11 +17,10 @@ package ru.org.linux.group
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, AuthorizedSession}
-import ru.org.linux.markup.MarkupPermissions
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
-import ru.org.linux.user.User
+import ru.org.linux.user.{User, UserPermissionService}
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -122,9 +121,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
-    if (isImagePostingAllowed(section) &&
-        section.getId == Section.SECTION_GALLERY &&
-        currentUser.administrator) {
+    if (isImagePostingAllowed(section) && section.getId == Section.SECTION_GALLERY) {
       3
     } else {
       0
@@ -205,7 +202,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       true
     } else if (message.expired && !message.draft) {
       false
-    } else if (!MarkupPermissions.allowedFormatsJava(by).contains(topic.markupType)) {
+    } else if (!UserPermissionService.allowedFormatsJava(by).contains(topic.markupType)) {
       false
     } else if (by.isModerator) {
       true

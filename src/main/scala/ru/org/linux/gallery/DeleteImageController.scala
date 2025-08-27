@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,14 +27,13 @@ import ru.org.linux.topic.*
 @RequestMapping(Array("/delete_image"))
 class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topicDao: TopicDao,
                             prepareService: TopicPrepareService, permissionService: GroupPermissionService) {
-  @throws[AccessViolationException]
-  private def checkDelete(topic: PreparedTopic)(implicit user: AuthorizedSession): Unit = {
+  private def checkDelete(topic: PreparedTopic, image: Image)(implicit user: AuthorizedSession): Unit = {
     if (!permissionService.isEditable(topic)) {
       throw new AccessViolationException("Вы не можете редактировать эту тему")
     }
 
-    if (topic.section.isImagepost) {
-      throw new AccessViolationException("В этой теме нельзя удалять изображения")
+    if (topic.section.isImagepost && image.main) {
+      throw new AccessViolationException("Нельзя удалить основное изображение")
     }
   }
 
@@ -43,13 +42,13 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
     val image = imageDao.getImage(id)
     val topic = topicDao.getById(image.topicId)
 
-    val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
+    val preparedTopic = prepareService.prepareTopic(topic)
 
-    checkDelete(preparedTopic)
+    checkDelete(preparedTopic, image)
 
     val mv = new ModelAndView("delete_image")
 
-    mv.addObject("image", image)
+    mv.addObject("image", imageService.prepareImage(image).get)
     mv.addObject("preparedTopic", preparedTopic)
 
     mv
@@ -60,11 +59,11 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
     val image = imageDao.getImage(id)
     val topic = topicDao.getById(image.topicId)
 
-    val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
+    val preparedTopic = prepareService.prepareTopic(topic)
 
-    checkDelete(preparedTopic)
+    checkDelete(preparedTopic, image)
 
-    imageService.deleteImage(currentUser.user, image)
+    imageService.deleteImage(image)
 
     new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build)
   }

@@ -23,10 +23,10 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.gallery.{Image, ImageDao}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
+import ru.org.linux.topic.{Topic, TopicPermissionService, TopicService}
 import ru.org.linux.user.UserService
 
-class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
+class GalleryPermissionInterceptor(imageDao: ImageDao, topicService: TopicService, groupDao: GroupDao,
                                    topicPermissionService: TopicPermissionService, userService: UserService)
   extends HandlerInterceptor with StrictLogging {
 
@@ -45,7 +45,7 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
         case ImagesPattern(id) =>
           try {
             val image = imageDao.getImage(id.toInt)
-            val topic = topicDao.getById(image.topicId)
+            val topic = topicService.getById(image.topicId)
 
             (visible(topic, image), 403)
           } catch {

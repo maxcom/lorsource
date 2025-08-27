@@ -47,7 +47,7 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
   @RequestMapping(value = Array("/delip.jsp"), method = Array(RequestMethod.POST))
   def delIp(@RequestParam("reason") reason: String, @RequestParam("ip") ip: String, @RequestParam("time") time: String,
             @RequestParam(value = "ban_time", required = false) banTime: String,
-            @RequestParam(value = "ban_mode", required = false) banMode: String): ModelAndView = ModeratorOnly { currentUser =>
+            @RequestParam(value = "ban_mode", required = false) banMode: String): ModelAndView = ModeratorOnly { implicit currentUser =>
     val params = new mutable.HashMap[String, AnyRef]
 
     val delFrom = time match {
@@ -94,7 +94,7 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
       ipBlockDao.blockIP(ip, moderator.getId, reason, banTo.orNull, allowPosting, captchaRequired)
     }
 
-    val deleteResult = commentDeleteService.deleteByIPAddress(ip, ts, moderator, reason)
+    val deleteResult = commentDeleteService.deleteByIPAddress(ip, ts, reason)
 
     params.put("topics", Int.box(deleteResult.getDeletedTopicIds.size))
     params.put("comments", Int.box(deleteResult.getDeletedCommentIds.size))

@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -14,6 +14,7 @@
   --%>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="warnings" required="true" type="java.util.List<ru.org.linux.warning.PreparedWarning>" %>
+<%@ attribute name="hidden" required="true" type="java.lang.Boolean" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
@@ -38,6 +39,12 @@
         </c:if>
       </div>
     </c:forEach>
+
+    <c:if test="${hidden && template.moderatorSession}">
+      <div style="margin-bottom: 0.5em">
+        ⚠️ Превышено число предупреждений. Сообщение скрыто для неавторизованных посетителей.
+      </div>
+    </c:if>
   </div>
 </c:if>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,6 +19,7 @@ import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.telegram.TelegramPostsDao.RequiredActiveUsers
 import ru.org.linux.topic.{Topic, TopicPermissionService}
+import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
@@ -43,26 +44,30 @@ class TelegramPostsDao(ds: DataSource) {
         |  urlname, section, topics.sticky, topics.postip,
         |  COALESCE(commitdate, topics.postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, topics.deleted, lastmod, commitby,
         |  commitdate, topics.stat1, postscore, topics.moderate, notop,
-        |  topics.resolved, minor, draft, allow_anonymous, topics.reactions
+        |  topics.resolved, minor, draft, allow_anonymous, topics.reactions,
+        |  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date,
+        |  open_warnings
         |from topics join groups ON (groups.id=topics.groupid) join sections on (sections.id=groups.section)
         |where topics.id in (
         |  select topic from comments join users on comments.userid=users.id join topics on (comments.topic=topics.id)
         |    where comments.postdate>CURRENT_TIMESTAMP-'5 hour'::interval and score>=100 and topics.groupid!=4068
+        |      and topics.open_warnings <= $TopicMaxWarnings
         |      and topics.id not in (select topic_id from telegram_posts) and not topics.deleted AND not comments.deleted
         |      and not notop and not draft and topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
         |    group by topic
-        |    having count (distinct comments.userid)>=${RequiredActiveUsers}
+        |    having count (distinct comments.userid)>=$RequiredActiveUsers
         |    order by count(distinct comments.userid) desc
         |    limit 1)
         |""".stripMargin) { (resultSet, _) => Topic.fromResultSet(resultSet) }.headOption
   }
 
   def topicToDelete: Option[Int] = {
-    jdbcTemplate.queryAndMap("select telegram_id from telegram_posts join topics on topic_id = topics.id where " +
-      s"telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and " +
-      s"(topics.deleted or topics.notop or topics.postscore is not distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS})") { (rs, _) =>
-      rs.getInt("telegram_id")
-    }.headOption
+    jdbcTemplate.queryAndMap(s"""
+      |select telegram_id from telegram_posts join topics on topic_id = topics.id where
+      |  telegram_posts.postdate>CURRENT_TIMESTAMP-'47 hours'::interval and
+      |  (topics.deleted or topics.notop or topics.open_warnings > $TopicMaxWarnings or
+      |  topics.postscore is not distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS})
+      |""".stripMargin) { (rs, _) => rs.getInt("telegram_id") }.headOption
   }
 
   def storeDeletion(post: Int): Int = {

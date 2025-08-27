@@ -15,8 +15,8 @@
 
 package ru.org.linux.telegram
 
-import akka.actor.{Actor, ActorLogging, Status, Timers}
-import akka.pattern.PipeToSupport
+import org.apache.pekko.actor.{Actor, ActorLogging, Status, Timers}
+import org.apache.pekko.pattern.PipeToSupport
 import io.circe.parser.*
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.telegram.TelegramBotActor.Check

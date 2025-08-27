@@ -17,7 +17,7 @@ package ru.org.linux.auth
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.Errors
-import ru.org.linux.user.{Profile, User, UserDao}
+import ru.org.linux.user.{Profile, User, UserDao, UserService}
 
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -33,12 +33,13 @@ sealed trait AnySession {
   // TODO это используется как признак наличия аутентификации
   def userOpt: Option[User]
 
-  // TODO deprecate
   def opt: Option[AuthorizedSession]
+
+  def profile: Profile
 }
 
 case class AuthorizedSession(user: User, corrector: Boolean, moderator: Boolean,
-                             administrator: Boolean) extends AnySession {
+                             administrator: Boolean, profile: Profile) extends AnySession {
   override def userOpt: Some[User] = Some(user)
   override def opt: Option[AuthorizedSession] = Some(this)
   override def authorized: Boolean = true
@@ -51,6 +52,7 @@ case object NonAuthorizedSession extends AnySession {
   override def administrator: Boolean = false
   override def opt: Option[AuthorizedSession] = None
   override def authorized: Boolean = false
+  override def profile: Profile = Profile.DEFAULT
 }
 
 object AuthUtil {
@@ -80,7 +82,7 @@ object AuthUtil {
 
   def isCorrectorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_CORRECTOR")
 
-  def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
+  private def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
 
   private def hasAuthority(authName: String): Boolean = {
     val authentication = SecurityContextHolder.getContext.getAuthentication
@@ -126,7 +128,7 @@ object AuthUtil {
 
   def getProfile: Profile = {
     if (!isSessionAuthorized) {
-      Profile.createDefault
+      Profile.DEFAULT
     } else {
       val principal = SecurityContextHolder.getContext.getAuthentication.getPrincipal
 
@@ -134,7 +136,7 @@ object AuthUtil {
         case details: UserDetailsImpl =>
           details.getProfile
         case _ =>
-          Profile.createDefault
+          Profile.DEFAULT
       }
     }
   }
@@ -145,7 +147,8 @@ object AuthUtil {
         user = getCurrentUser,
         corrector = isCorrectorSession,
         moderator = isModeratorSession,
-        administrator = isAdministratorSession)
+        administrator = isAdministratorSession,
+        profile = getProfile)
 
       f(currentUser)
     } else {
@@ -162,7 +165,8 @@ object AuthUtil {
       user = getCurrentUser,
       corrector = isCorrectorSession,
       moderator = isModeratorSession,
-      administrator = isAdministratorSession)
+      administrator = isAdministratorSession,
+      profile = getProfile)
 
     f(currentUser)
   }
@@ -201,17 +205,14 @@ object AuthUtil {
         case Some(formUser) if formUser.isAnonymous =>
           NonAuthorizedSession
         case Some(formUser) =>
-          try {
-            formUser.checkPassword(formPassword.orNull)
-
-            formUser.checkBlocked(errors)
-            formUser.checkFrozen(errors)
-
-            AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false)
-          } catch {
-            case e: BadPasswordException =>
-              errors.rejectValue("password", null, e.getMessage)
-              NonAuthorizedSession
+          if (formUser.isBlocked || !formUser.isActivated) {
+            errors.rejectValue("user", null, s"Пользователь \"${formUser.getNick}\" заблокирован или не активирован")
+            NonAuthorizedSession
+          } else if (!(formUser.isAnonymous && formPassword.get.isEmpty) && !UserService.matchPassword(formUser, formPassword.get)) {
+            errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.getNick}\" задан неверно!")
+            NonAuthorizedSession
+          } else {
+            AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false, profile = Profile.DEFAULT)
           }
       }
     }

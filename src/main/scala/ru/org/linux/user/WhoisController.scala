@@ -25,15 +25,15 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.site.Template
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.util.bbcode.LorCodeService
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletionStage
-import scala.compat.java8.FutureConverters.FutureOps
+import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*
 
@@ -42,7 +42,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
                       lorCodeService: LorCodeService, userTagService: UserTagService,
                       topicPermissionService: TopicPermissionService, userService: UserService, userLogDao: UserLogDao,
                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
-                      topicDao: TopicDao) extends StrictLogging {
+                      topicDao: TopicDao, userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def getInfoNew(@PathVariable nick: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
@@ -62,9 +62,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     mv.getModel.put("user", user)
     mv.getModel.put("userInfo", userDao.getUserInfoClass(user))
 
-    val tmpl = Template.getTemplate
-
-    mv.getModel.put("userpic", userService.getUserpic(user, tmpl.getProf.getAvatarMode, misteryMan = true))
+    mv.getModel.put("userpic", userService.getUserpic(user, currentUserOpt.profile.avatarMode, misteryMan = true))
 
     if (user.isBlocked) {
       mv.getModel.put("banInfo", userDao.getBanInfoClass(user))
@@ -97,7 +95,6 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     mv.getModel.put("moderatorOrCurrentUser", viewByOwner || currentUserOpt.moderator)
     mv.getModel.put("viewByOwner", viewByOwner)
-    mv.getModel.put("canInvite", viewByOwner && userService.canInvite(user))
 
     currentUserOpt.userOpt.foreach { currentUser =>
       if (!viewByOwner) {
@@ -112,14 +109,18 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     }
 
     if (viewByOwner) {
-      mv.getModel.put("hasRemarks", remarkDao.hasRemarks(user))
-      mv.getModel.put("canLoadUserpic", userService.canLoadUserpic(user))
+      currentUserOpt.opt.foreach { implicit authorized =>
+        mv.getModel.put("hasRemarks", remarkDao.hasRemarks(user))
+        mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
+        mv.getModel.put("canInvite", userPermissionService.canInvite)
+      }
     }
 
     val userinfo = userDao.getUserInfo(user)
 
     if (!Strings.isNullOrEmpty(userinfo)) {
-      mv.getModel.put("userInfoText", lorCodeService.parseComment(userinfo, !topicPermissionService.followAuthorLinks(user)))
+      mv.getModel.put("userInfoText",
+        lorCodeService.parseComment(userinfo, !topicPermissionService.followAuthorLinks(user), LorCodeService.Plain))
     }
 
     mv.addObject("favoriteTags", userTagService.favoritesGet(user))
@@ -127,8 +128,10 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     if (viewByOwner || currentUserOpt.moderator) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user))
 
-      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator)
-      if (!logItems.isEmpty) mv.addObject("userlog", userLogPrepareService.prepare(logItems))
+      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator).asScala
+      if (logItems.nonEmpty) {
+        mv.addObject("userlog", userLogPrepareService.prepare(logItems).asJava)
+      }
 
       mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))
       mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user))
@@ -138,7 +141,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       mv.getModel.put("userStat", userStat)
 
       mv
-    }.toJava
+    }.asJava
   }
 
   @RequestMapping(path = Array("/whois.jsp"))
@@ -172,12 +175,12 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
   def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[Json] = MaybeAuthorized { currentUser =>
     val user = userService.getUser(nick)
 
-    if (!currentUser.moderator) {
-      user.checkBlocked()
+    if (!currentUser.moderator && user.isBlocked) {
+      throw new AccessViolationException("Пользователь заблокирован")
     }
 
     val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
 
-    userStatisticsService.getYearStats(user, timezone).map(_.asJson).toJava
+    userStatisticsService.getYearStats(user, timezone).map(_.asJson).asJava
   }
 }

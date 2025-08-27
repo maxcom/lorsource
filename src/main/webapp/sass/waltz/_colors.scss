@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -53,3 +53,11 @@ $heatmap_scale: -1.5;
 $tracker_tag_color: $table_border_color;
 
 $code_background: $main_background;
+
+#bd .swiffy-slider {
+    --swiffy-slider-nav-light: #333;
+}
+
+.swiffy-slider .slider-indicators>* {
+    filter: invert(1);
+}

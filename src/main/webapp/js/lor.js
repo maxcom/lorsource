@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -66,46 +66,43 @@ function initStarPopovers() {
 
 function init_interpage_adv(ads) {
     $(function() {
-        var ad = ads[Math.floor(Math.random() * ads.length)];
+      const img = $('<img>');
+      const anchor = $('<a>');
+      const ad = ads[Math.floor(Math.random() * ads.length)];
 
-        if (ad.type==='img') {
-            var anchor = $('<a>');
-            anchor.attr('href', ad.href);
-            anchor.attr('target', '_blank');
-
-            var img = $('<img>');
-            img.attr('src', ad.src);
-            if ('width' in ad) {
-                img.attr('width', ad.width);
-            } else {
-                img.attr('width', 728);
-            }
-
-            if ('height' in ad) {
-                img.attr('height', ad.height);
-            } else {
-                img.attr('height', 90);
-            }
-
-            anchor.append(img);
-            $('#interpage').append(anchor);
-        }
-
-      if (ad.type === 'rimg') {
-        var anchor = $('<a>');
+      if (ad.type === 'img') {
         anchor.attr('href', ad.href);
         anchor.attr('target', '_blank');
 
-        var img = $('<img>');
+        img.attr('src', ad.src);
+        if ('width' in ad) {
+          img.attr('width', ad.width);
+        } else {
+          img.attr('width', 728);
+        }
 
-        var interpage = $('#interpage')
+        if ('height' in ad) {
+          img.attr('height', ad.height);
+        } else {
+          img.attr('height', 90);
+        }
+
+        anchor.append(img);
+        $('#interpage').append(anchor);
+      }
+
+      if (ad.type === 'rimg') {
+        anchor.attr('href', ad.href);
+        anchor.attr('target', '_blank');
+
+        const interpage = $('#interpage');
 
         if (interpage.width() > 1024) {
-          // img.attr('width', 728);
+          img.attr('width', 980);
           img.attr('height', 120);
           img.attr('src', ad.img980);
-        } else if (interpage.width() > 768) {
-          // img.attr('width', 728);
+        } else if (interpage.width() > 750) {
+          img.attr('width', 730);
           img.attr('height', 90);
           img.attr('src', ad.img730);
           img.attr('style', "margin-top: 15px");
@@ -117,7 +114,7 @@ function init_interpage_adv(ads) {
         }
 
         anchor.append(img);
-        $('#interpage').append(anchor);
+        interpage.append(anchor);
       }
     });
 }
@@ -524,6 +521,28 @@ $(document).ready(function() {
 
   initCodeSpoilers();
   initReactionsUI();
+
+  // fix images on Pale Moon
+  $('.medium-image-container').each(function() {
+    if ($(this).width() == 0) {
+        $(this).css('width', 'var(--image-width)')
+    }
+  });
+  $('.slider-parent').each(function() {
+    if ($(this).height() <= 48) {
+        $(this).css('width', 'var(--image-width)')
+    }
+  });
+
+  $script.ready('plugins', function () {
+    if (window.matchMedia("(min-width: 70em)").matches) {
+      $(".msg_body .swiffy-slider").addClass("slider-nav-outside-expand").addClass("slider-nav-visible");
+    }
+
+    $(".slider-indicators a").attr('href', 'javascript:;');
+
+    window.swiffyslider.init();
+  });
 });
 
 function fixTimezone(serverTz) {

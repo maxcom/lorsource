@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,11 +14,11 @@
  */
 package ru.org.linux.topic
 
-import akka.actor.typed.ActorRef
 import com.google.common.base.Strings
 import jakarta.servlet.ServletContext
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.io.IOUtils
+import org.apache.pekko.actor.typed.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
@@ -30,14 +30,12 @@ import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
-import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
+import ru.org.linux.gallery.UploadedImagePreview
 import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
-import ru.org.linux.markup.MessageTextService
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
@@ -50,17 +48,17 @@ import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
+import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
 object AddTopicController {
-  private val MAX_MESSAGE_LENGTH_ANONYMOUS = 8196
-  private val MAX_MESSAGE_LENGTH = 65536
+  private val MaxMessageLengthAnonymous = 8196
+  private val MaxMessageLength = 65536
 
   private def preparePollPreview(form: AddTopicRequest): Poll = {
-    val variants = form.getPoll.filterNot(Strings.isNullOrEmpty).map(item => PollVariant(0, item))
+    val variants = form.poll.filterNot(Strings.isNullOrEmpty).map(item => PollVariant(0, item))
 
-    Poll(0, 0, form.isMultiSelect, variants.toVector)
+    Poll(0, 0, form.multiSelect, variants.toVector)
   }
 
   def getAddUrl(section: Section, tag: String): String = {
@@ -89,8 +87,7 @@ object AddTopicController {
 @Controller
 class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaService, sectionService: SectionService,
                          tagService: TagService, userService: UserService, prepareService: TopicPrepareService,
-                         groupPermissionService: GroupPermissionService,
-                         addTopicRequestValidator: AddTopicRequestValidator, imageService: ImageService,
+                         permissionService: GroupPermissionService, addTopicRequestValidator: AddTopicRequestValidator,
                          topicService: TopicService,
                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                          renderService: MarkdownFormatter, groupDao: GroupDao, dupeProtector: FloodProtector,
@@ -100,23 +97,21 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
-    val group = form.getGroup
+    val group = form.group
 
-    if (currentUser.authorized && !groupPermissionService.isTopicPostingAllowed(group)) {
+    if (currentUser.authorized && !permissionService.isTopicPostingAllowed(group)) {
       val errorView = new ModelAndView("errors/good-penguin")
 
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу")
-      errorView.addObject("msgMessage", groupPermissionService.getPostScoreInfo(group))
+      errorView.addObject("msgMessage", permissionService.getPostScoreInfo(group))
 
       errorView
     } else {
-      val section = sectionService.getSection(form.getGroup.sectionId)
+      val section = sectionService.getSection(form.group.sectionId)
 
-      if (form.getAdditionalUploadedImages.isEmpty) {
-        form.setAdditionalUploadedImages(new Array[String](groupPermissionService.additionalImageLimit(section)))
-      }
+      form.additionalUploadedImages=new Array[String](permissionService.additionalImageLimit(section))
 
-      val params = prepareModel(Some(form.getGroup), section)
+      val params = prepareModel(Some(form.group), section)
 
       new ModelAndView("add", params.asJava)
     }
@@ -138,9 +133,9 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     group.foreach { group =>
       params.addOne("group" -> group)
-      params.addOne("postscoreInfo" -> groupPermissionService.getPostScoreInfo(group))
-      params.addOne("showAllowAnonymous" -> Boolean.box(groupPermissionService.enableAllowAnonymousCheckbox(group)))
-      params.addOne("imagepost" -> Boolean.box(groupPermissionService.isImagePostingAllowed(section)))
+      params.addOne("postscoreInfo" -> permissionService.getPostScoreInfo(group))
+      params.addOne("showAllowAnonymous" -> Boolean.box(permissionService.enableAllowAnonymousCheckbox(group)))
+      params.addOne("imagepost" -> Boolean.box(permissionService.isImagePostingAllowed(section)))
     }
 
     params.result()
@@ -151,54 +146,43 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest, errors: BindingResult,
             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = MaybeAuthorized { sessionUserOpt =>
     // не используем implicit, так как есть sessionUser и postingUser
-    val group = form.getGroup
+    val group = form.group
     val section = sectionService.getSection(group.sectionId)
 
     val params = prepareModel(Some(group), section)(sessionUserOpt).to(mutable.HashMap)
 
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.getNick), Option(form.getPassword), errors)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)
+    val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
+
+    user.checkFrozen(errors)
 
     IPBlockDao.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
-    if (!groupPermissionService.isTopicPostingAllowed(group)(postingUser)) {
+    if (!permissionService.isTopicPostingAllowed(group)(postingUser)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
     }
 
-    val tmpl = Template.getTemplate
-
-    if (!groupPermissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
-      form.setAllowAnonymous(true)
+    if (!permissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
+      form.allowAnonymous=true
     }
 
-    val message = MessageTextService.processPostingText(Strings.nullToEmpty(form.getMsg), tmpl.getFormatMode)
+    val message = MessageText(Strings.nullToEmpty(form.msg), sessionUserOpt.profile.formatMode)
 
     if (!postingUser.authorized) {
-      if (message.text.length > AddTopicController.MAX_MESSAGE_LENGTH_ANONYMOUS) {
+      if (message.text.length > AddTopicController.MaxMessageLengthAnonymous) {
         errors.rejectValue("msg", null, "Слишком большое сообщение")
       }
     } else {
-      if (message.text.length > AddTopicController.MAX_MESSAGE_LENGTH) {
+      if (message.text.length > AddTopicController.MaxMessageLength) {
         errors.rejectValue("msg", null, "Слишком большое сообщение")
       }
     }
 
-    val session = request.getSession
-
-    var imagePreview: Option[UploadedImagePreview] = None
-
-    if (groupPermissionService.isImagePostingAllowed(section)(postingUser)) {
-      if (groupPermissionService.isTopicPostingAllowed(group)(postingUser)) {
-        val image = imageService.processUploadImage(request)
-        imagePreview = imageService.processUpload(postingUser.userOpt.orNull, Option(form.getUploadedImage), image, errors)
-
-        imagePreview.foreach { img =>
-          form.setUploadedImage(img.mainFile.getName)
-        }
-      }
-
-      if (section.isImagepost && imagePreview.isEmpty) {
-        errors.reject(null, "Изображение отсутствует")
-      }
+    val (imagePreview, additionalImagePreviews) = postingUser.opt match {
+      case Some(authorized) =>
+        topicService.processUploads(form, group, errors)(authorized)
+      case None =>
+        (None, Seq.empty)
     }
 
     val poll: Option[Poll] = if (section.isPollPostAllowed) {
@@ -207,25 +191,24 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       None
     }
 
-    val previewMsg: Topic = Topic.fromAddRequest(form, postingUser.userOpt.getOrElse(userService.getAnonymous), request.getRemoteAddr)
+    val previewMsg: Topic = Topic.fromAddRequest(form, user, request.getRemoteAddr)
 
-    val imageObject = imagePreview.map(i => Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true))
+    val tagNames = TagName.parseAndSanitizeTags(form.tags)
 
-    val tagNames = TagName.parseAndSanitizeTags(form.getTags)
-
-    if (!groupPermissionService.canCreateTag(section)(postingUser)) {
+    if (!permissionService.canCreateTag(section)(postingUser)) {
       val newTags = tagService.getNewTags(tagNames)
 
       if (newTags.nonEmpty) {
-        errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(newTags.asJava) + ")")
+        errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(newTags) + ")")
       }
     }
 
-    val preparedTopic = prepareService.prepareTopicPreview(previewMsg, tagNames.map(tagRef), poll, message, imageObject)
+    val preparedTopic = prepareService.prepareTopicPreview(previewMsg, tagNames.map(tagRef), poll, message, imagePreview,
+      additionalImagePreviews)
 
     params.put("message", preparedTopic)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, tmpl.getProf, loadUserpics = true)(sessionUserOpt)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)(sessionUserOpt)
     params.put("topicMenu", topicMenu)
 
     if (!form.isPreviewMode && !errors.hasErrors) {
@@ -241,9 +224,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     if (!form.isPreviewMode && !errors.hasErrors) {
-      session.removeAttribute("image")
-
-      createNewTopic(request, form, group, params, section, postingUser.userOpt.orNull, message, imagePreview, previewMsg)
+      createNewTopic(request, form, group, params, section, user, message, imagePreview, additionalImagePreviews, previewMsg)
     } else {
       new ModelAndView("add", params.asJava)
     }
@@ -252,8 +233,9 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   private def createNewTopic(request: HttpServletRequest, form: AddTopicRequest, group: Group,
                              params: mutable.Map[String, AnyRef], section: Section, user: User, message: MessageText,
-                             scrn: Option[UploadedImagePreview], previewMsg: Topic) = {
-    val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, scrn, previewMsg)
+                             image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
+                             previewMsg: Topic) = {
+    val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, image, additionalImages, previewMsg)
 
     if (!previewMsg.draft) {
       searchQueueSender.updateMessageOnly(msgid)
@@ -308,7 +290,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
         if (getValue == null) {
           null
         } else {
-          Integer.toString(getValue.asInstanceOf[Group].id)
+          getValue.asInstanceOf[Group].id.toString
         }
       }
     })

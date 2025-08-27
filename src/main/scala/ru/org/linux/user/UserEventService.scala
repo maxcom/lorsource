@@ -106,8 +106,14 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     val oldEventsList = userEventDao.getUserIdListByOldEvents(maxEventsPerUser)
 
     oldEventsList.asScala.foreach { userId =>
-      logger.info(s"Cleaning up messages for userid=$userId")
+      logger.info(s"Cleaning up events for userid=$userId")
       userEventDao.cleanupOldEvents(userId, maxEventsPerUser)
+    }
+
+    val deleted = userEventDao.dropBannedUserEvents()
+
+    if (deleted != 0) {
+      logger.info(s"Deleted $deleted abandoned events")
     }
   }
 

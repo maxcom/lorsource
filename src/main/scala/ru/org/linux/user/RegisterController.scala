@@ -47,7 +47,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
                          @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
                          siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao,
-                         resourceLoader: ResourceLoader) extends StrictLogging {
+                         resourceLoader: ResourceLoader,
+                         userPermissionService: UserPermissionService) extends StrictLogging {
   private val registerRequestValidator = new RegisterRequestValidator(resourceLoader)
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
@@ -66,7 +67,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       }
       new ModelAndView("register", "invite", invite)
     } else {
-      if (userService.canRegister(request.getRemoteAddr)) {
+      if (userPermissionService.canRegister(request.getRemoteAddr)) {
         new ModelAndView("register", "permit", makePermit)
       } else {
         new ModelAndView("no-register")
@@ -178,7 +179,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
                   @RequestParam activation: String, @RequestParam nick: String,
                   @RequestParam passwd: String): ModelAndView = {
     try {
-      val details = userDetailsService.loadUserByUsername(nick).asInstanceOf[UserDetailsImpl]
+      val details = userDetailsService.loadUserByUsername(nick)
 
       if (!details.getUser.isActivated) {
         val token = new UsernamePasswordAuthenticationToken(nick, passwd)
@@ -192,7 +193,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         if (regcode.equalsIgnoreCase(activation)) {
           userDao.activateUser(userDetails.getUser)
 
-          val updatedDetails = userDetailsService.loadUserByUsername(nick).asInstanceOf[UserDetailsImpl]
+          val updatedDetails = userDetailsService.loadUserByUsername(nick)
           token.setDetails(updatedDetails)
           val updatedAuth = authenticationManager.authenticate(token)
 
@@ -262,8 +263,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.GET))
-  def createInviteForm(): ModelAndView = AuthorizedOnly { currentUser =>
-    if (!userService.canInvite(currentUser.user)) {
+  def createInviteForm(): ModelAndView = AuthorizedOnly { implicit currentUser =>
+    if (!userPermissionService.canInvite) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
     }
 
@@ -271,8 +272,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.POST))
-  def createInvite(@RequestParam email: String): ModelAndView = AuthorizedOnly { currentUser =>
-    if (!userService.canInvite(currentUser.user)) {
+  def createInvite(@RequestParam email: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
+    if (!userPermissionService.canInvite) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
     }
 

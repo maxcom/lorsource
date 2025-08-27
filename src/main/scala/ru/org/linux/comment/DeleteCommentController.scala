@@ -24,7 +24,7 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.common.DeleteReasons
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.site.{BadParameterException, ScriptErrorException, Template}
+import ru.org.linux.site.{BadParameterException, ScriptErrorException}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, UserErrorException, UserService}
@@ -45,8 +45,6 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
   @RequestMapping(value = Array("/delete_comment.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val tmpl = Template.getTemplate
-
     val comment = commentService.getById(msgid)
     if (comment.deleted) {
       throw new UserErrorException("комментарий уже удален")
@@ -72,8 +70,8 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       "msgid" -> msgid,
       "comments" -> comments,
       "topic" -> topic,
-      "commentsPrepared" -> prepareService.prepareCommentList(comments, list, topic, Set.empty[Int],
-        currentUser, tmpl.getProf, ignoreList, filterShow = false).asJava
+      "commentsPrepared" ->
+        prepareService.prepareCommentList(comments, list, topic, Set.empty[Int], ignoreList, filterShow = false).asJava
     ).asJava)
   }
 
@@ -113,16 +111,16 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       }
 
       if (deleteReplys) {
-        commentDeleteService.deleteCommentWithReplys(topic, comment, reason, user, effectiveBonus)
+        commentDeleteService.deleteCommentWithReplys(topic, comment, reason, effectiveBonus)
       } else {
-        if (commentDeleteService.deleteComment(comment, reason, user, effectiveBonus, checkForReply = false)) {
+        if (commentDeleteService.deleteComment(comment, reason, effectiveBonus, checkForReply = false)) {
           Seq(msgid)
         } else {
           Seq.empty
         }
       }
     } else {
-      if (commentDeleteService.deleteComment(comment, reason, user, 0, checkForReply = true)) {
+      if (commentDeleteService.deleteComment(comment, reason, 0, checkForReply = true)) {
         Seq(msgid)
       } else {
         Seq.empty
@@ -157,7 +155,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       logger.info("Comment deleted by moderator {}: {}; {}",
         currentUser.user.getNick, message, bigMessage.map(_._2).getOrElse("<none>"))
 
-      new ModelAndView("comment-deleted-by-moderator", (Map(
+      new ModelAndView("comment-deleted-by-moderator", (Map[String, Any](
         "message" -> message,
         "link" -> nextLink,
         "author" -> author,
@@ -186,8 +184,6 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
   @RequestMapping(value = Array("/undelete_comment"), method = Array(RequestMethod.GET))
   def showUndeleteForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val tmpl = Template.getTemplate
-
     val comment = commentService.getById(msgid)
 
     val topic = topicDao.getById(comment.topicId)
@@ -201,7 +197,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
     new ModelAndView("undelete_comment", Map[String, Any](
-      "comment" -> prepareService.prepareCommentOnly(comment, currentUser, tmpl.getProf, topic, ignoreList),
+      "comment" -> prepareService.prepareCommentOnly(comment, topic, ignoreList),
       "topic" -> topic
     ).asJava)
   }

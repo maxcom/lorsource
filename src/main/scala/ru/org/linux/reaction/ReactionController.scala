@@ -26,7 +26,6 @@ import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.reaction.ReactionController.ReactionsLimit
-import ru.org.linux.site.Template
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.{IgnoreListDao, UserService}
 
@@ -43,11 +42,11 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
                          reactionService: ReactionService, reactionsDao: ReactionDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
-  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = MaybeAuthorized { currentUserOpt =>
+  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val comment = commentDao.getById(commentId)
     val topic = topicDao.getById(comment.topicId)
 
-    currentUserOpt.opt match {
+    session.opt match {
       case None =>
         new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
       case Some(currentUser) =>
@@ -58,12 +57,10 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
         val ignoreList = ignoreListDao.get(currentUser.user.getId)
         val reactionLog = reactionsDao.getLogByComment(comment)
 
-        val tmpl = Template.getTemplate
-
         new ModelAndView("reaction-comment", Map[String, Any](
           "topic" -> topic,
           "preparedComment" ->
-            commentPrepareService.prepareCommentOnly(comment, currentUser, tmpl.getProf, topic, ignoreList),
+            commentPrepareService.prepareCommentOnly(comment, topic, ignoreList),
           "reactionList" -> reactionService.prepareReactionList(comment.reactions, reactionLog, ignoreList)
         ).asJava)
     }
@@ -136,7 +133,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
         new ModelAndView("reaction-topic", Map(
           "topic" -> topic,
-          "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user),
+          "preparedTopic" -> topicPrepareService.prepareTopic(topic),
           "reactionList" -> reactionService.prepareReactionList(topic.reactions, reactionLog, ignoreList)
         ).asJava)
     }

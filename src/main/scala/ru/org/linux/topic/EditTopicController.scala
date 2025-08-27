@@ -14,7 +14,7 @@
  */
 package ru.org.linux.topic
 
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorRef
 import com.google.common.base.Strings
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.text.StringEscapeUtils
@@ -27,47 +27,34 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.edithistory.EditHistoryObjectTypeEnum
-import ru.org.linux.edithistory.EditHistoryService
-import ru.org.linux.gallery.Image
-import ru.org.linux.gallery.ImageService
-import ru.org.linux.gallery.UploadedImagePreview
-import ru.org.linux.group.GroupDao
-import ru.org.linux.group.GroupPermissionService
-import ru.org.linux.poll.Poll
-import ru.org.linux.poll.PollDao
-import ru.org.linux.poll.PollVariant
+import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
+import ru.org.linux.group.{GroupDao, GroupPermissionService}
+import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
-import ru.org.linux.site.Template
-import ru.org.linux.spring.dao.MessageText
-import ru.org.linux.spring.dao.MsgbaseDao
-import ru.org.linux.tag.TagName
-import ru.org.linux.tag.TagRef
-import ru.org.linux.tag.TagService
-import ru.org.linux.user.Profile
-import ru.org.linux.user.UserErrorException
+import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
+import ru.org.linux.tag.{TagName, TagRef, TagService}
+import ru.org.linux.user.{User, UserErrorException, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
+import java.beans.PropertyEditorSupport
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsJava, SetHasAsScala}
+import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsJava}
 
 @Controller
-class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSender, topicService: TopicService,
+class EditTopicController(searchQueueSender: SearchQueueSender, topicService: TopicService,
                           prepareService: TopicPrepareService, groupDao: GroupDao, pollDao: PollDao,
                           permissionService: GroupPermissionService, captcha: CaptchaService, msgbaseDao: MsgbaseDao,
-                          editHistoryService: EditHistoryService, imageService: ImageService,
-                          editTopicRequestValidator: EditTopicRequestValidator, ipBlockDao: IPBlockDao,
-                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-                          tagService: TagService) {
+                          editHistoryService: EditHistoryService, editTopicRequestValidator: EditTopicRequestValidator,
+                          ipBlockDao: IPBlockDao, tagService: TagService, userService: UserService,
+                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]) {
   @RequestMapping(value = Array("/commit.jsp"), method = Array(RequestMethod.GET))
   def showCommitForm(@RequestParam("msgid") msgid: Int,
                      @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val tmpl = Template.getTemplate
-    val topic = messageDao.getById(msgid)
+    val topic = topicService.getById(msgid)
 
     if (!permissionService.canCommit(topic)) {
       throw new AccessViolationException("Not authorized")
@@ -77,14 +64,14 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       throw new UserErrorException("Сообщение уже подтверждено")
     }
 
-    val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
+    val preparedTopic = prepareService.prepareTopic(topic)
 
     if (!preparedTopic.section.isPremoderated) {
       throw new UserErrorException("Раздел не премодерируемый")
     }
 
     initForm(preparedTopic, form)
-    val mv = new ModelAndView("edit", prepareModel(preparedTopic, tmpl.getProf).asJava)
+    val mv = new ModelAndView("edit", prepareModel(preparedTopic).asJava)
 
     mv.getModel.put("commit", true)
 
@@ -94,21 +81,18 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.GET))
   def showEditForm(@RequestParam("msgid") msgid: Int,
                    @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val message = messageDao.getById(msgid)
-    val user = currentUser.user
-    val preparedTopic = prepareService.prepareTopic(message, user)
+    val message = topicService.getById(msgid)
+    val preparedTopic = prepareService.prepareTopic(message)
 
     if (!permissionService.isEditable(preparedTopic) && !permissionService.isTagsEditable(preparedTopic)) {
       throw new AccessViolationException("это сообщение нельзя править")
     }
 
-    val tmpl = Template.getTemplate
-
     initForm(preparedTopic, form)
-    new ModelAndView("edit", prepareModel(preparedTopic, tmpl.getProf).asJava)
+    new ModelAndView("edit", prepareModel(preparedTopic).asJava)
   }
 
-  private def prepareModel(preparedTopic: PreparedTopic, profile: Profile)
+  private def prepareModel(preparedTopic: PreparedTopic)
                           (implicit currentUser: AuthorizedSession): mutable.HashMap[String, AnyRef] = {
     val params = mutable.HashMap[String, AnyRef]()
 
@@ -123,15 +107,15 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params.put("groups", groupDao.getGroups(preparedTopic.section))
     params.put("newMsg", message)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, profile, loadUserpics = true)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)
 
     params.put("topicMenu", topicMenu)
 
     val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)
 
-    if (!editInfoList.isEmpty) {
-      params.put("editInfo", editInfoList.get(0))
-      val editors = editHistoryService.getEditorUsers(message, editInfoList).asScala
+    if (editInfoList.nonEmpty) {
+      params.put("lastEdit", Long.box(editInfoList.head.editdate.toEpochMilli))
+      val editors = editHistoryService.getEditorUsers(message, editInfoList)
 
       params.put("editors", editors.asJava)
     }
@@ -146,46 +130,50 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     params
   }
 
-  private def initForm(preparedTopic: PreparedTopic, form: EditTopicRequest): Unit = {
+  private def initForm(preparedTopic: PreparedTopic, form: EditTopicRequest)
+                      (implicit session: AuthorizedSession): Unit = {
     val message = preparedTopic.message
 
     val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)
 
-    if (!editInfoList.isEmpty) {
-      val editors = editHistoryService.getEditorUsers(message, editInfoList).asScala
+    if (editInfoList.nonEmpty) {
+      val editors = editHistoryService.getEditorUsers(message, editInfoList)
 
-      form.setEditorBonus(editors.view.map(u => Integer.valueOf(u.getId) -> Integer.valueOf(0)).toMap.asJava)
+      form.editorBonus=editors.view.map(u => u -> Integer.valueOf(0)).toMap.asJava
     }
 
     if (preparedTopic.group.linksAllowed) {
-      form.setLinktext(message.linktext)
-      form.setUrl(message.url)
+      form.linktext=message.linktext
+      form.url=message.url
     }
 
-    form.setTitle(StringEscapeUtils.unescapeHtml4(message.title))
+    form.title=StringEscapeUtils.unescapeHtml4(message.title)
 
     val messageText = msgbaseDao.getMessageText(message.id)
 
-    if (form.getFromHistory != null) {
-      form.setMsg(editHistoryService.getEditHistoryRecord(message, form.getFromHistory).getOldmessage)
+    if (form.fromHistory != null) {
+      form.msg=editHistoryService.getEditHistoryRecord(message, form.fromHistory).oldmessage.orNull
     } else {
-      form.setMsg(messageText.text)
+      form.msg=messageText.text
     }
 
     if (message.sectionId == Section.SECTION_NEWS || message.sectionId == Section.SECTION_ARTICLES) {
-      form.setMinor(message.minor)
+      form.minor=message.minor
     }
 
     if (!preparedTopic.tags.isEmpty) {
-      form.setTags(TagRef.names(preparedTopic.tags))
+      form.tags=TagRef.names(preparedTopic.tags)
     }
 
     if (preparedTopic.section.isPollPostAllowed) {
       val poll = pollDao.getPollByTopicId(message.id)
 
-      form.setPoll(PollVariant.toMap(poll.getVariants))
-      form.setMultiselect(poll.multiSelect)
+      form.poll=PollVariant.toMap(poll.getVariants)
+      form.multiselect=poll.multiSelect
     }
+
+    form.additionalUploadedImages=new Array[String](Math.max(0, permissionService.additionalImageLimit(preparedTopic.section) -
+      preparedTopic.additionalImages.size()))
   }
 
   @ModelAttribute("ipBlockInfo")
@@ -193,17 +181,15 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
   @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.POST))
   @throws[Exception]
-  def edit(request: HttpServletRequest, @RequestParam("msgid") msgid: Int,
-           @RequestParam(value = "lastEdit", required = false) lastEdit: String,
+  def edit(request: HttpServletRequest,
            @RequestParam(value = "chgrp", required = false) changeGroupId: Integer,
            @Valid @ModelAttribute("form") form: EditTopicRequest, errors: Errors,
            @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val tmpl = Template.getTemplate
+    import form.topic
 
-    val topic = messageDao.getById(msgid)
-    val preparedTopic = prepareService.prepareTopic(topic, currentUser.user)
+    val preparedTopic = prepareService.prepareTopic(topic)
 
-    val params = prepareModel(preparedTopic, tmpl.getProf)
+    val params = prepareModel(preparedTopic)
 
     val group = preparedTopic.group
     val user = currentUser.user
@@ -230,15 +216,6 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     val publish = request.getParameter("publish") != null
-    val editInfoList = editHistoryService.getEditInfo(topic.id, EditHistoryObjectTypeEnum.TOPIC).asScala
-
-    if (editInfoList.nonEmpty) {
-      val editHistoryRecord = editInfoList.head
-
-      if (lastEdit == null || editHistoryRecord.getEditdate.getTime.toString != lastEdit) {
-        errors.reject(null, "Сообщение было отредактировано независимо")
-      }
-    }
 
     val commit = request.getParameter("commit") != null
 
@@ -248,7 +225,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
 
       if (topic.commited) {
-        throw new BadInputException("сообщение уже подтверждено")
+        errors.reject(null, "Сообщение уже подтверждено")
       }
     }
 
@@ -266,8 +243,8 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     val oldText = msgbaseDao.getMessageText(topic.id)
 
-    if (form.getMsg != null) {
-      if (!(oldText.text == form.getMsg)) {
+    if (form.msg != null) {
+      if (!(oldText.text == form.msg)) {
         modified = true
       }
     }
@@ -290,40 +267,33 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
     }
 
-    val imagePreview: Option[UploadedImagePreview] =
-      if (permissionService.isImagePostingAllowed(preparedTopic.section) && permissionService.isTopicPostingAllowed(group)) {
-        val image = imageService.processUploadImage(request)
-        val preview = imageService.processUpload(user, Option(form.getUploadedImage), image, errors)
+    val (imagePreview, additionalImagePreviews) =
+      topicService.processUploads(form, group, errors, preparedTopic.additionalImages.size(),
+        hasImage = preparedTopic.image != null)
 
-        preview.foreach { img =>
-          modified = true
-          form.setUploadedImage(img.mainFile.getName)
-        }
-
-        preview
-    } else {
-      None
+    if (imagePreview.isDefined || additionalImagePreviews.nonEmpty) {
+      modified = true
     }
 
     if (!editable && modified) {
       throw new AccessViolationException("нельзя править это сообщение, только теги")
     }
 
-    if (form.getMinor != null && !permissionService.canCommit(topic)) {
-      throw new AccessViolationException("вы не можете менять статус новости")
+    if (form.minor != topic.minor && !permissionService.canCommit(topic)) {
+      errors.reject(null, "вы не можете менять статус новости")
     }
 
     var newTags: Option[Seq[String]] = None
 
-    if (form.getTags != null) {
-      newTags = Some(TagName.parseAndSanitizeTags(form.getTags)).filter(_.nonEmpty)
+    if (form.tags != null) {
+      newTags = Some(TagName.parseAndSanitizeTags(form.tags)).filter(_.nonEmpty)
 
       newTags.foreach { newTags =>
         if (!permissionService.canCreateTag(preparedTopic.section)) {
           val nonExistingTags = tagService.getNewTags(newTags)
 
           if (nonExistingTags.nonEmpty) {
-            errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags.asJava) + ")")
+            errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags) + ")")
           }
         }
       }
@@ -338,24 +308,16 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
     }
 
-    val newPoll: Option[Poll] = if (preparedTopic.section.isPollPostAllowed && form.getPoll != null) {
+    val newPoll: Option[Poll] = if (preparedTopic.section.isPollPostAllowed && form.poll != null) {
       Some(buildNewPoll(topic, form))
     } else {
       None
     }
 
-    val newText: MessageText = if (form.getMsg != null) {
-      MessageText.apply(form.getMsg, oldText.markup)
+    val newText: MessageText = if (form.msg != null) {
+      MessageText.apply(form.msg, oldText.markup)
     } else {
       oldText
-    }
-
-    if (form.getEditorBonus != null) {
-      val editors = editHistoryService.getEditors(topic, editInfoList.asJava)
-
-      form.getEditorBonus.asScala.keySet.filterNot(editors.contains).foreach { _ =>
-        errors.reject("editorBonus", "некорректный корректор?!")
-      }
     }
 
     if (!preview && !errors.hasErrors && ipBlockInfo.isCaptchaRequired) {
@@ -363,15 +325,15 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     }
 
     if (!preview && !errors.hasErrors) {
-      val editorBonus = if (form.getEditorBonus!=null) {
-        form.getEditorBonus.asScala.view.map(p => p._1.toInt -> p._2.toInt).toMap
+      val editorBonus = if (form.editorBonus!=null) {
+        form.editorBonus.asScala.view.mapValues(_.toInt).toMap
       } else {
-        Map.empty[Int, Int]
+        Map.empty[User, Int]
       }
 
       val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
-        Option[Integer](changeGroupId).map(_.toInt), form.getBonus, newPoll.map(_.variants).orNull, form.isMultiselect,
-        editorBonus, imagePreview)
+        Option[Integer](changeGroupId).map(_.toInt), form.bonus, newPoll.map(_.variants), form.multiselect,
+        editorBonus, imagePreview, additionalImagePreviews)
 
       if (changed || commit || publish) {
         if (!newMsg.draft) {
@@ -392,13 +354,9 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
 
     params.put("newMsg", newMsg)
 
-    val imageObject: Option[Image] = imagePreview.map { i =>
-      new Image(0, 0, "gallery/preview/" + i.mainFile.getName, deleted = false, main = true)
-    }
-
     params.put("newPreparedMessage",
       prepareService.prepareTopicPreview(newMsg, newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
-        newPoll, newText, imageObject))
+        newPoll, newText, imagePreview, additionalImagePreviews))
 
     new ModelAndView("edit", params.asJava)
   }
@@ -407,7 +365,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
     val poll = pollDao.getPollByTopicId(message.id)
 
     val changed = poll.variants.flatMap { v =>
-      val label = form.getPoll.get(v.id)
+      val label = form.poll.get(v.id)
 
       if (!Strings.isNullOrEmpty(label)) {
         Some(PollVariant(v.id, label))
@@ -416,7 +374,7 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
       }
     }
 
-    val added = form.getNewPoll.flatMap { label =>
+    val added = form.newPoll.flatMap { label =>
       if (!Strings.isNullOrEmpty(label)) {
         Some(PollVariant(0, label))
       } else {
@@ -431,5 +389,11 @@ class EditTopicController(messageDao: TopicDao, searchQueueSender: SearchQueueSe
   def requestValidator(binder: WebDataBinder): Unit = {
     binder.setValidator(editTopicRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
+    binder.registerCustomEditor(classOf[User], new UserPropertyEditor(userService))
+    binder.registerCustomEditor(classOf[Topic], new PropertyEditorSupport() {
+      override def getAsText: String = if (getValue != null) getValue.asInstanceOf[Topic].id.toString else null
+
+      override def setAsText(text: String): Unit = setValue(topicService.getById(text.toInt))
+    })
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,22 +12,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.user
 
-package ru.org.linux.user;
+import scala.beans.BeanProperty
 
-public class PreparedRemark {
-  private final Remark remark;
-  private final User refUser;
-
-  public PreparedRemark(Remark remark,User refUser) {
-    this.remark = remark;
-    this.refUser = refUser;
-  }
-
-  public Remark getRemark() {
-    return remark;
-  }
-  public User getRefUser() {
-    return refUser;
-  }
-}
+case class PreparedRemark(@BeanProperty remark: Remark, @BeanProperty refUser: User)

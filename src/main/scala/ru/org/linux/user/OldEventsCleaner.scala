@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,28 +13,20 @@
  *    limitations under the License.
  */
 
-package ru.org.linux
+package ru.org.linux.user
 
-import akka.actor.ActorSystem
-import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
+import ru.org.linux.user.OldEventsCleaner.MaxEventsPerUser
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
-case class TerminatableAkka(system: ActorSystem) {
-  def close(): Unit = {
-    Await.result(system.terminate(), 5.minutes)
+@Component
+class OldEventsCleaner(userEventService: UserEventService) {
+  @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 5 * 60 * 1000)
+  def cleanEvents(): Unit = {
+    userEventService.cleanupOldEvents(MaxEventsPerUser)
   }
 }
 
-@Configuration
-class AkkaConfiguration {
-  @Bean
-  def akka = TerminatableAkka(ActorSystem("lor"))
-
-  @Bean
-  def actorSystem(akka: TerminatableAkka): ActorSystem = akka.system
-
-  @Bean
-  def scheduler(actorSystem: ActorSystem) = actorSystem.scheduler
+object OldEventsCleaner {
+  val MaxEventsPerUser = 4000
 }

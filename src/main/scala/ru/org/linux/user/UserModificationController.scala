@@ -125,7 +125,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
    */
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=block-n-delete-comments"))
   def blockAndMassiveDeleteCommentUser(@RequestParam("id") user: User,
-                                       @RequestParam(value = "reason", required = false) reason: String): ModelAndView = ModeratorOnly { moderator =>
+                                       @RequestParam(value = "reason", required = false) reason: String): ModelAndView = ModeratorOnly { implicit moderator =>
     if (!userService.isBlockable(user = user, by = moderator.user)) {
       throw new AccessViolationException(s"Пользователя ${user.getNick} нельзя заблокировать")
     }
@@ -134,7 +134,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new UserErrorException("Пользователь уже блокирован")
     }
 
-    val deleteResult = commentService.deleteAllAndBlock(user, moderator.user, reason)
+    val deleteResult = commentService.deleteAllAndBlock(user, reason)
 
     logger.info(s"User ${user.getNick} blocked by ${moderator.user.getNick}")
 

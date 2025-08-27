@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,11 +15,11 @@
 
 package ru.org.linux.comment
 
-import akka.actor.typed.ActorRef
 import io.circe.generic.semiauto.*
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}
 import jakarta.servlet.http.HttpServletRequest
+import org.apache.pekko.actor.typed.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
@@ -30,10 +30,9 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.{AccessViolationException, AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
-import ru.org.linux.markup.{MarkupType, MessageTextService}
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.UserService
@@ -60,13 +59,11 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     if (add.getTopic == null)
       throw new ServletParameterException("тема не задана")
 
-    val tmpl = Template.getTemplate
-
     topicPermissionService.checkCommentsAllowed(add.getTopic, errors)
 
     val postscore = topicPermissionService.getPostscore(add.getTopic)
 
-    new ModelAndView("add_comment", (commentService.prepareReplyto(add, currentUser, tmpl.getProf, add.getTopic) + (
+    new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic) + (
       "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
     )).asJava)
   }
@@ -76,7 +73,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     */
   @RequestMapping(path = Array("/comment-message.jsp"))
   def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
-    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic, currentUser.userOpt.orNull)
+    val preparedTopic = topicPrepareService.prepareTopic(add.getTopic)
 
     if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic))
       throw new AccessViolationException("Это сообщение нельзя комментировать")
@@ -108,13 +105,11 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(postingUser)
     }
 
-    val tmpl = Template.getTemplate
-
-    if (textService.isEmpty(MessageText.apply(add.getMsg, MarkupType.ofFormId(tmpl.getFormatMode)))) {
+    if (textService.isEmpty(MessageText.apply(add.getMsg, sessionUserOpt.profile.formatMode))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
-    val msg = commentService.getCommentBody(add, user, errors, tmpl.getFormatMode)
+    val msg = commentService.getCommentBody(add, user, errors, sessionUserOpt.profile.formatMode)
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {
       val info = if (add.getTopic != null) {
@@ -128,7 +123,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 
       add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
 
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, sessionUserOpt, tmpl.getProf, add.getTopic) ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic)(sessionUserOpt) ++ info).asJava)
     } else {
       val (msgid, mentions) = commentService.create(user, comment, msg, remoteAddress = request.getRemoteAddr,
         xForwardedFor = Option(request.getHeader("X-Forwarded-For")), userAgent = Option(request.getHeader("user-agent")))
@@ -137,7 +132,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       realtimeHubWS ! RealtimeEventHub.NewComment(comment.topicId, msgid)
       realtimeHubWS ! RealtimeEventHub.RefreshEvents(mentions)
 
-      new ModelAndView(new RedirectView(add.getTopic.getLink + "?cid=" + msgid))
+      new ModelAndView(new RedirectView(add.getTopic.getLink + "?cid=" + msgid, false, false))
     }
   }
 
@@ -152,9 +147,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
       sessionAuthorized = sessionUserOpt.authorized)
 
-    val tmpl = Template.getTemplate
-
-    val msg = commentService.getCommentBody(add, user, errors, tmpl.getFormatMode)
+    val msg = commentService.getCommentBody(add, user, errors, sessionUserOpt.profile.formatMode)
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {

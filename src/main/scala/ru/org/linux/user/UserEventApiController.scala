@@ -14,7 +14,7 @@
  */
 package ru.org.linux.user
 
-import akka.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorRef
 import io.circe.Json
 import io.circe.syntax.*
 import jakarta.servlet.http.HttpServletResponse

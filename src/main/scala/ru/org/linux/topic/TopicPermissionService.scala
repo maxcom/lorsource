@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,13 +21,14 @@ import org.springframework.validation.{Errors, MapBindingResult}
 import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
-import ru.org.linux.markup.{MarkupPermissions, MarkupType}
+import ru.org.linux.markup.MarkupType
 import ru.org.linux.section.Section
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED}
-import ru.org.linux.user.{User, UserService}
+import ru.org.linux.user.{User, UserPermissionService, UserService}
+import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -117,8 +118,6 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     if (!session.moderator) {
       val currentUser = session.userOpt.orNull
 
-      val unauthorized = currentUser == null || currentUser.isAnonymous
-
       if (showDeleted && !allowViewDeletedComments(message)) {
         throw new MessageNotFoundException(message.id, "вы не можете смотреть удаленные комментарии")
       }
@@ -130,7 +129,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
           throw new MessageNotFoundException(message.id, "нельзя посмотреть устаревшие удаленные сообщения")
         }
 
-        if (unauthorized) {
+        if (!session.authorized) {
           throw new MessageNotFoundException(message.id, "Сообщение удалено")
         }
 
@@ -164,6 +163,10 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         if (!viewByAuthor) {
           throw new MessageNotFoundException(message.id, "Нельзя посмотреть чужой черновик")
         }
+      }
+
+      if (!session.authorized && message.openWarnings > TopicMaxWarnings) {
+        throw new MessageNotFoundException(message.id, "Сообщение скрыто")
       }
 
       val viewByCorrector = currentUser != null && currentUser.canCorrect
@@ -217,9 +220,16 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
   }
 
+  private def getOpenWarningsPostscore(topic: Topic): Int =
+    if (topic.openWarnings > TopicMaxWarnings) {
+      100
+    } else {
+      POSTSCORE_UNRESTRICTED
+    }
+
   def getPostscore(group: Group, topic: Topic): Int = Seq(topic.postscore, group.commentsRestriction,
     Section.getCommentPostscore(topic.sectionId), TopicPermissionService.getCommentCountRestriction(topic),
-    getAllowAnonymousPostscore(topic), getScoreLossPostscore(topic)).max
+    getAllowAnonymousPostscore(topic), getScoreLossPostscore(topic), getOpenWarningsPostscore(topic)).max
 
   def getPostscore(topic: Topic): Int = {
     val group = groupDao.getGroup(topic.groupId)
@@ -353,7 +363,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         errors.reject(null, "У вас недостаточно прав для редактирования этого комментария")
       }
 
-      if (!MarkupPermissions.allowedFormatsJava(currentUser).contains(markup)) {
+      if (!UserPermissionService.allowedFormatsJava(currentUser).contains(markup)) {
         errors.reject(null, "Вы не можете редактировать тексты данного формата")
       }
     } else {
@@ -448,7 +458,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
   def canPostWarning(topic: Topic, comment: Option[Comment])(implicit currentUserOpt: AnySession): Boolean = {
     !topic.deleted && !topic.expired && comment.forall(!_.deleted) && currentUserOpt.opt.exists { user =>
-      user.user.getScore >= 200 && !user.user.isFrozen
+      user.user.getScore >= 50 && !user.user.isFrozen
     }
   }
 }

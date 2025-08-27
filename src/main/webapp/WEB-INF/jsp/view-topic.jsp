@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -196,7 +196,7 @@
         preparedMessage="${preparedMessage}" 
         message="${message}"
         briefEditInfo="${editInfo}"
-        showMenu="true" enableSchema="true"/>
+        showMenu="true" enableSchema="true" imageSlider="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
 
@@ -269,24 +269,32 @@
   <p>
 </c:if>
 --%>
-
+<%--
 <div style="text-align: center; margin-top: 0.5em; height: 125px; margin-bottom: 0.5em" id="interpage">
 </div>
 <script type="text/javascript">
 $script.ready('lorjs', function () {
-    var ads = [
-        {
-            type: 'rimg',
-            img320: '/adv/habr 320x100.png',
-            img730: '/adv/hadr 730x90.png',
-            img980: '/adv/habr 980x120.png',
-            href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linux.org.ru&utm_medium=banner&utm_campaign=bf2024'
-        }
-    ];
+  var ads = [
+    {
+      type: 'rimg',
+      img320: '/adv/SelectOS_320-100-02.jpg',
+      img730: '/adv/SelectOS_730-90-02.jpg',
+      img980: '/adv/SelectOS_980-120-02.jpg',
+      href: 'https://slc.tl/3igzf'
+    },
+    {
+      type: 'rimg',
+      img320: '/adv/MD-4752_320x100.jpg',
+      img730: '/adv/MD-4752_730x90.jpg',
+      img980: '/adv/MD-4752_980x120.jpg',
+      href: 'https://selectel.ru/services/dedicated/?tab=configuratorGpu&c=109%3A1&simpleRamMode=true&utm_source=linux.org&utm_medium=cpc&utm_campaign=gpu_one'
+    }
+  ];
 
   init_interpage_adv(ads);
 });
 </script>
+--%>
 
 <c:if test="${threadMode}">
   <div class=nav>
@@ -335,6 +343,12 @@ $script.ready('lorjs', function () {
         ${preparedMessage.postscoreInfo}
       </c:otherwise>
     </c:choose>
+  </div>
+</c:if>
+
+<c:if test="${expireDate != null}">
+  <div class="infoblock">
+    Тема будет перемещена в архив <lor:date date="${expireDate}"/>.
   </div>
 </c:if>
 
