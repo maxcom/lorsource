@@ -17,6 +17,7 @@ package ru.org.linux.group
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, AuthorizedSession}
+import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_GALLERY, SECTION_NEWS}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
@@ -123,15 +124,13 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
     if (isImagePostingAllowed(section)) {
       section.getId match {
-        case Section.SECTION_ARTICLES =>
-      	  9
-        case Section.SECTION_GALLERY =>
+        case SECTION_ARTICLES | SECTION_GALLERY | SECTION_NEWS =>
       	  3
-        case Section.SECTION_NEWS =>
-      	  9
-    	case _ =>
-	  0
+    	  case _ =>
+      	  0
       }
+    } else {
+      0
     }
   }
 
@@ -227,7 +226,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
-    } else if (by.getId == author.getId && message.commited && section.getId == Section.SECTION_ARTICLES) {
+    } else if (by.getId == author.getId && message.commited && section.getId == SECTION_ARTICLES) {
       val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
@@ -271,7 +270,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
-    } else if (by.getId == author.getId && message.commited && section.getId == Section.SECTION_ARTICLES) {
+    } else if (by.getId == author.getId && message.commited && section.getId == SECTION_ARTICLES) {
       val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
