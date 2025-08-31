@@ -121,10 +121,17 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
-    if (isImagePostingAllowed(section) && section.getId == Section.SECTION_GALLERY) {
-      3
-    } else {
-      0
+    if (isImagePostingAllowed(section)) {
+      section.getId match {
+        case Section.SECTION_ARTICLES =>
+      	  9
+        case Section.SECTION_GALLERY =>
+      	  3
+        case Section.SECTION_NEWS =>
+      	  9
+    	case _ =>
+	  0
+      }
     }
   }
 
