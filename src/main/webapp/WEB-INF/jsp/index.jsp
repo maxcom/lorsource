@@ -80,7 +80,6 @@
   </div>
 </c:if>
 --%>
-<%--
   <div style="text-align: center; margin-top: 0.5em; height: 125px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -88,24 +87,16 @@
       var ads = [
         {
           type: 'rimg',
-          img320: '/adv/SelectOS_320-100-02.jpg',
-          img730: '/adv/SelectOS_730-90-02.jpg',
-          img980: '/adv/SelectOS_980-120-02.jpg',
-          href: 'https://slc.tl/3igzf'
-        },
-        {
-          type: 'rimg',
-          img320: '/adv/MD-4752_320x100.jpg',
-          img730: '/adv/MD-4752_730x90.jpg',
-          img980: '/adv/MD-4752_980x120.jpg',
-          href: 'https://selectel.ru/services/dedicated/?tab=configuratorGpu&c=109%3A1&simpleRamMode=true&utm_source=linux.org&utm_medium=cpc&utm_campaign=gpu_one'
+          img320: '/adv/photo_2025-09-08_22-46-59.jpg',
+          img730: '/adv/photo_2025-09-08_22-47-03.jpg',
+          img980: '/adv/photo_2025-09-08_22-47-06.jpg',
+          href: 'https://slc.tl/h24ik'
         }
       ];
 
       init_interpage_adv(ads);
     });
   </script>
---%>
 
 <c:if test="${(template.moderatorSession or template.correctorSession) and (uncommited > 0)}">
 <nav>
