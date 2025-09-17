@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,8 +17,6 @@ package ru.org.linux.auth;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.validation.Errors;
-import ru.org.linux.user.User;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
@@ -44,16 +42,6 @@ public class IPBlockDao {
       return new IPBlockInfo(addr);
     } else {
       return list.getFirst();
-    }
-  }
-
-  public void checkBlockIP(String addr, Errors errors, @Nullable User user) {
-    checkBlockIP(getBlockInfo(addr), errors, user);
-  }
-
-  public static void checkBlockIP(IPBlockInfo block, Errors errors, @Nullable User user) {
-    if (block.isBlocked() && (user == null || user.isAnonymousScore() || !block.isAllowRegistredPosting())) {
-      errors.reject(null, "Постинг заблокирован: " + block.getReason());
     }
   }
 

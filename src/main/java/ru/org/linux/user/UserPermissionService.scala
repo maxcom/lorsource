@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,13 +15,15 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.{AuthorizedSession, IPBlockDao}
+import org.springframework.validation.Errors
+import ru.org.linux.auth.{AuthorizedSession, IPBlockDao, IPBlockInfo}
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.markup.MarkupType.{Html, Lorcode, LorcodeUlb, Markdown}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.user.UserPermissionService.*
 
 import java.time.Duration
+import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.SetHasAsJava
 
 object UserPermissionService {
@@ -43,6 +45,12 @@ object UserPermissionService {
   }
 
   def allowedFormatsJava(user: User): java.util.Set[MarkupType] = allowedFormats(user).asJava
+
+  def checkBlockIP(block: IPBlockInfo, errors: Errors, @Nullable user: User): Unit = {
+    if (block.isBlocked && (user == null || user.isAnonymousScore || !block.isAllowRegistredPosting)) {
+      errors.reject(null, "Постинг заблокирован: " + block.getReason)
+    }
+  }
 }
 
 @Service
@@ -91,4 +99,3 @@ class UserPermissionService(userLogDao: UserLogDao, userInvitesDao: UserInvitesD
   def canResetPasswordByCode(user: User): Boolean =
     !user.isBlocked && user.isActivated && !user.isAnonymous && !user.isAdministrator
 }
-

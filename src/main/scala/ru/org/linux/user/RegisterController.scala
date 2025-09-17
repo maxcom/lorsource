@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,6 @@ import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.jasypt.util.text.AES256TextEncryptor
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.core.io.ResourceLoader
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -47,9 +46,9 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
                          @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
                          siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao,
-                         resourceLoader: ResourceLoader,
+                         emailDomainsBlockDao: EmailDomainsBlockDao,
                          userPermissionService: UserPermissionService) extends StrictLogging {
-  private val registerRequestValidator = new RegisterRequestValidator(resourceLoader)
+  private val registerRequestValidator = new RegisterRequestValidator(emailDomainsBlockDao)
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,

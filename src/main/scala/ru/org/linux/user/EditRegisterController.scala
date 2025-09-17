@@ -18,7 +18,6 @@ import com.google.common.base.Strings
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.core.io.ResourceLoader
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -44,10 +43,10 @@ import javax.validation.Valid
 @RequestMapping(Array("/people/{nick}/edit"))
 class EditRegisterController(rememberMeServices: RememberMeServices, authenticationManager: AuthenticationManager,
                              userDetailsService: UserDetailsServiceImpl, ipBlockDao: IPBlockDao, userDao: UserDao,
-                             userService: UserService, emailService: EmailService, resourceLoader: ResourceLoader,
+                             userService: UserService, emailService: EmailService, emailDomainsBlockDao: EmailDomainsBlockDao,
                              userPermissionService: UserPermissionService)
     extends StrictLogging {
-  private val validator = new EditRegisterRequestValidator(resourceLoader)
+  private val validator = new EditRegisterRequestValidator(emailDomainsBlockDao)
 
   @RequestMapping(method = Array(RequestMethod.GET))
   def show(@ModelAttribute("form") form: EditRegisterRequest, @PathVariable("nick") nick: String,
@@ -105,7 +104,8 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     val town = Option(form.getTown).filter(_.nonEmpty).map(StringUtil.escapeHtml).orNull
     val info = Option(form.getInfo).filter(_.nonEmpty).orNull
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr, errors, currentUser.user)
+    val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
+    UserPermissionService.checkBlockIP(ipBlockInfo, errors, currentUser.user)
 
     val user = currentUser.user
 

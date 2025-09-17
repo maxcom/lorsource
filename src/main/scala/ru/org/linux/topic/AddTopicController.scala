@@ -39,7 +39,7 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
-import ru.org.linux.user.{User, UserPropertyEditor, UserService}
+import ru.org.linux.user.{User, UserPermissionService, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.markdown.MarkdownFormatter
 
@@ -156,7 +156,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     user.checkFrozen(errors)
 
-    IPBlockDao.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
+    UserPermissionService.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
     if (!permissionService.isTopicPostingAllowed(group)(postingUser)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")

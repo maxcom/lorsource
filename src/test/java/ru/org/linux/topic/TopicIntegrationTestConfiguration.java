@@ -20,7 +20,7 @@ import com.sksamuel.elastic4s.ElasticClient;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.TorBlockUpdater;
+import ru.org.linux.auth.BlackListUpdater;
 import ru.org.linux.comment.CommentPrepareService;
 import ru.org.linux.comment.CommentReadService;
 import ru.org.linux.edithistory.EditHistoryService;
@@ -64,7 +64,7 @@ import static org.mockito.Mockito.mock;
                                 EmailService.class,
                                 ExceptionResolver.class,
                                 RealtimeWebsocketHandler.class,
-                                TorBlockUpdater.class
+                                BlackListUpdater.class
                         }
                 )
         }

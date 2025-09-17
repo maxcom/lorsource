@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,7 +36,7 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.tag.{TagName, TagRef, TagService}
-import ru.org.linux.user.{User, UserErrorException, UserPropertyEditor, UserService}
+import ru.org.linux.user.{User, UserErrorException, UserPermissionService, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
@@ -194,7 +194,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
     val group = preparedTopic.group
     val user = currentUser.user
 
-    IPBlockDao.checkBlockIP(ipBlockInfo, errors, user)
+    UserPermissionService.checkBlockIP(ipBlockInfo, errors, user)
 
     val tagsEditable = permissionService.isTagsEditable(preparedTopic)
     val editable = permissionService.isEditable(preparedTopic)

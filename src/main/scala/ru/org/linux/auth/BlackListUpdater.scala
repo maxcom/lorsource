@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,12 +17,14 @@ package ru.org.linux.auth
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import ru.org.linux.user.EmailDomainsBlockDao
 import sttp.client3.*
 
 import java.time.OffsetDateTime
 
 @Component
-class TorBlockUpdater(httpClient: SttpBackend[Identity, Any], dao: IPBlockDao) extends StrictLogging {
+class BlackListUpdater(httpClient: SttpBackend[Identity, Any], dao: IPBlockDao,
+                       emailDomainsBlockDao: EmailDomainsBlockDao) extends StrictLogging {
   @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 30 * 60 * 1000)
   def updateTor(): Unit = {
     val response = basicRequest
@@ -38,6 +40,22 @@ class TorBlockUpdater(httpClient: SttpBackend[Identity, Any], dao: IPBlockDao) e
         }
       case Left(error) =>
         logger.warn(s"Can't update TOR exit node list: $error")
+    }
+  }
+
+  @Scheduled(fixedDelay = 4 * 60 * 60 * 1000, initialDelay = 60 * 1000)
+  def updateEmails(): Unit = {
+    val response = basicRequest
+      .get(uri"https://disposable.github.io/disposable-email-domains/domains_mx.txt")
+      .send(httpClient)
+
+    response.body match {
+      case Right(body) =>
+        logger.debug("Updating disposable email domains list")
+
+        emailDomainsBlockDao.blockDomains(body.linesIterator.toVector, OffsetDateTime.now().plusDays(7))
+      case Left(error) =>
+        logger.warn(s"Can't update disposable email domains list: $error")
     }
   }
 }
