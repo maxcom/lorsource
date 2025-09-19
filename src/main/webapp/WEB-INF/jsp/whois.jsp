@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -240,8 +240,27 @@
             по причине: <c:out escapeXml="true" value="${banInfo.reason}"/>
     </c:if>
 </div>
+<c:if test="${template.moderatorSession}">
+    <b>Score:</b> ${user.score}${' '}MaxScore: ${user.maxScore}
+    <c:if test="${recentScoreLoss > 0}">
+      RecentScoreLoss: ${recentScoreLoss}
+    </c:if>
+</c:if>
+<c:if test="${viewByOwner and not template.moderatorSession}">
+    <b>Score:</b> ${user.score}
+</c:if>
 <c:if test="${moderatorOrCurrentUser}">
   <div>
+    <c:if test="${template.moderatorSession and user.score<50 and not user.anonymous}">
+      <form action="/usermod.jsp" method="POST" style="display: inline">
+        <lor:csrf/>
+        <input type="hidden" name="id" value="${user.id}">
+        <input type='hidden' name='action' value='score50'>
+        <button type="submit" class="btn btn-small btn-default">Установить score=50</button>
+      </form>
+    </c:if>
+    <br>
+
     <c:if test="${not empty user.email}">
       <b>Email:</b> <a
             href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
@@ -273,17 +292,6 @@
         </c:forEach>
       <br>
     </c:if>
-
-    <b>Score:</b> ${user.score}
-    <c:if test="${template.moderatorSession and user.score<50 and not user.anonymous}">
-      <form action="/usermod.jsp" method="POST" style="display: inline">
-        <lor:csrf/>
-        <input type="hidden" name="id" value="${user.id}">
-        <input type='hidden' name='action' value='score50'>
-        <button type="submit" class="btn btn-small btn-default">Установить score=50</button>
-      </form>
-    </c:if>
-    <br>
 
     <c:if test="${not viewByOwner && template.moderatorSession}">
       <b>Игнорируется:</b> ${userStat.ignoreCount}<br>

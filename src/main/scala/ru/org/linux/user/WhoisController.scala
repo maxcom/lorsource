@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.util.bbcode.LorCodeService
 
@@ -42,7 +43,8 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
                       lorCodeService: LorCodeService, userTagService: UserTagService,
                       topicPermissionService: TopicPermissionService, userService: UserService, userLogDao: UserLogDao,
                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
-                      topicDao: TopicDao, userPermissionService: UserPermissionService) extends StrictLogging {
+                      topicDao: TopicDao, userPermissionService: UserPermissionService,
+                      deleteInfoDao: DeleteInfoDao) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def getInfoNew(@PathVariable nick: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
@@ -84,6 +86,8 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       val othersWithSameEmail = userDao.getAllByEmail(user.getEmail).asScala.filter(_.getId != user.getId)
 
       mv.getModel.put("otherUsers", othersWithSameEmail.asJava)
+
+      mv.getModel.put("recentScoreLoss", deleteInfoDao.getRecentScoreLoss(user))
     }
 
     if (!user.isAnonymous) {
