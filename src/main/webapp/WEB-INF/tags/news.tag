@@ -88,13 +88,14 @@
 </div>
 </c:if>
 
-<c:if test="${empty preparedMessage.additionalImages and preparedMessage.image != null}">
-  <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" sizes="(min-width: 47em) 40vw, 100vw"
+<c:if test="${fn:length(preparedMessage.allImages) == 1}">
+  <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.allImages[0]}" sizes="(min-width: 47em) 40vw, 100vw"
              preparedMessage="${preparedMessage}" showImage="true" heightLimit="50vh"/>
 </c:if>
-<c:if test="${not empty preparedMessage.additionalImages}">
-  <lor:imageslider main="${preparedMessage.image}" title="${preparedMessage.message.title}"
-                   classes="slider-nav-autohide slider-indicators-sm slider-indicators-outside" additional="${preparedMessage.additionalImages}"
+<c:if test="${fn:length(preparedMessage.allImages) > 1}">
+  <lor:imageslider title="${preparedMessage.message.title}"
+                   classes="slider-nav-autohide slider-indicators-sm slider-indicators-outside"
+                   images="${preparedMessage.allImages}"
                    heightLimit="50vh"/>
 </c:if>
 

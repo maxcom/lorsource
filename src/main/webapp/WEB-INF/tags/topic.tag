@@ -105,23 +105,21 @@
   <div class="msg_body">
     <c:set var="sizes" value="(min-width: 70em) 80vw, 100vw" />
 
-    <c:if test="${empty preparedMessage.additionalImages or not imageSlider}">
-      <c:if test="${preparedMessage.image != null}">
-        <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
-                   preparedMessage="${preparedMessage}" showImage="true" sizes="${sizes}"
-                   enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
-      </c:if>
+    <c:if test="${fn:length(preparedMessage.allImages) == 1}">
+      <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.allImages[0]}" enableSchema="true"
+                 preparedMessage="${preparedMessage}" showImage="true" sizes="${sizes}"
+                 enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
     </c:if>
 
-    <c:if test="${not empty preparedMessage.additionalImages}">
+    <c:if test="${fn:length(preparedMessage.allImages) > 1}">
       <c:if test="${imageSlider}">
-        <lor:imageslider main="${preparedMessage.image}" title="${preparedMessage.message.title}"
+        <lor:imageslider title="${preparedMessage.message.title}"
                          classes="slider-indicators-outside slider-indicators-sm"
-                         additional="${preparedMessage.additionalImages}"/>
+                         images="${preparedMessage.allImages}"/>
       </c:if>
 
       <c:if test="${not imageSlider}">
-        <c:forEach var="image" items="${preparedMessage.additionalImages}">
+        <c:forEach var="image" items="${preparedMessage.allImages}">
           <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true"
                      preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
         </c:forEach>
