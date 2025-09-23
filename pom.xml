@@ -33,7 +33,7 @@
     <js-cookie.version>3.0.1</js-cookie.version>
     <swiffy-slider.version>1.6.0</swiffy-slider.version>
     <circe.version>0.14.13</circe.version>
-    <twemoji.version>14.0.2</twemoji.version>
+    <twemoji.version>16.0.1</twemoji.version>
     <sttp.version>3.11.0</sttp.version>
     <flexmark.version>0.42.14</flexmark.version>
   </properties>
@@ -422,7 +422,7 @@
 
     <dependency>
       <groupId>org.webjars.npm</groupId>
-      <artifactId>twemoji</artifactId>
+      <artifactId>twemoji__api</artifactId>
       <version>${twemoji.version}</version>
 
       <exclusions>
@@ -632,7 +632,7 @@
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji/${twemoji.version}/dist/twemoji.min.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji__api/${twemoji.version}/dist/twemoji.min.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/js/swiffy-slider.min.js</include>
               </includes>
             </aggregation>
@@ -892,7 +892,7 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.webjars.npm</groupId>
-                  <artifactId>twemoji</artifactId>
+                  <artifactId>twemoji__api</artifactId>
                   <version>${twemoji.version}</version>
                 </artifactItem>
                 <artifactItem>

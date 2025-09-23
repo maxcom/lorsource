@@ -430,7 +430,7 @@ $(document).ready(function() {
 
   function initReactionsUI() {
     $script.ready('plugins', function() {
-      twemoji.parse(document.body, { 'base': 'https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/' });
+      twemoji.parse(document.body);
 
       $(".reaction-anonymous").enable();
       $(".reaction-anonymous").click(function (event) {
