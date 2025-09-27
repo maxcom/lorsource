@@ -44,9 +44,13 @@
     <button type="button" class="slider-nav slider-nav-next"></button>
 
     <div class="slider-indicators">
-      <a href="${main.fullName}" class="active"></a>
-      <c:forEach var="image" items="${additional}">
-        <a href="${image.fullName}"></a>
+      <c:forEach var="image" items="${images}" varStatus="loop">
+        <c:if test="${loop.index == 0}">
+          <a href="${image.fullName}" class="active"></a>
+        </c:if>
+        <c:if test="${loop.index != 0}">
+          <a href="${image.fullName}"></a>
+        </c:if>
       </c:forEach>
     </div>
   </div>
