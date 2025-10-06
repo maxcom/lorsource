@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.net.InternetDomainName;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.validation.Errors;
@@ -50,8 +51,9 @@ public class RegisterRequestValidator implements Validator {
 
   public boolean isGoodDomainEmail(InternetAddress email) {
     String domain = email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase();
+    String topDomain = InternetDomainName.from(domain).topPrivateDomain().toString();
 
-    return !emailDomainsBlockDao.isBlocked(domain);
+    return !emailDomainsBlockDao.isBlocked(domain) && !emailDomainsBlockDao.isBlocked(topDomain);
   }
 
   @Override
