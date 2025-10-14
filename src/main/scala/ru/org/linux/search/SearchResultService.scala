@@ -94,7 +94,10 @@ class SearchResultsService(userService: UserService, sectionService: SectionServ
       StringUtil.escapeHtml(doc.sourceAsMap("message").asInstanceOf[String].take(SearchViewer.MessageFragment))
     }
 
-    Jsoup.clean(html, siteConfig.getSecureUrl, Safelist.basic().addAttributes("em", "class").addTags("pre"))
+    Jsoup.clean(
+      html,
+      siteConfig.getSecureUrl,
+      Safelist.basic().addAttributes("em", "class").addTags("pre", "code").addAttributes("code", "class"))
   }
 
   private def getUrl(doc: SearchHit): String = {
