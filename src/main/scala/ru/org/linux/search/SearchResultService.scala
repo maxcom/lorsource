@@ -91,7 +91,7 @@ class SearchResultsService(userService: UserService, sectionService: SectionServ
 
   private def getMessage(doc: SearchHit): String = {
     val html = doc.highlight.get("message").flatMap(_.headOption) getOrElse {
-      StringUtil.escapeHtml(doc.sourceAsMap("message").asInstanceOf[String].take(SearchViewer.MessageFragment))
+      doc.sourceAsMap("message").asInstanceOf[String].take(SearchViewer.MessageFragment)
     }
 
     Jsoup.clean(
