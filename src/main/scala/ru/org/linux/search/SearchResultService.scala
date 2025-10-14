@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,10 +19,13 @@ import com.sksamuel.elastic4s.requests.searches.SearchHit
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.{Aggregations, FilterAggregationResult}
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.{TermBucket, Terms}
 import com.typesafe.scalalogging.StrictLogging
+import org.jsoup.Jsoup
+import org.jsoup.safety.Safelist
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupDao
 import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.StringUtil
@@ -43,9 +46,8 @@ case class SearchItem (
   @BeanProperty tags: java.util.List[TagRef])
 
 @Service
-class SearchResultsService(
-  userService: UserService, sectionService: SectionService, groupDao: GroupDao
-) extends StrictLogging {
+class SearchResultsService(userService: UserService, sectionService: SectionService, groupDao: GroupDao,
+                           siteConfig: SiteConfig) extends StrictLogging {
   def prepareAll(docs: Iterable[SearchHit]): Iterable[SearchItem] = docs.map(prepare)
 
   def prepare(doc: SearchHit):SearchItem = {
@@ -56,13 +58,13 @@ class SearchResultsService(
     val comment = doc.sourceAsMap("is_comment").asInstanceOf[Boolean]
 
     val tags = if (comment) {
-      Seq()
+      Seq.empty
     } else {
       if (doc.sourceAsMap.contains("tag")) {
         doc.sourceAsMap("tag").asInstanceOf[Seq[String]].map(
           tag => TagService.tagRef(tag))
       } else {
-        Seq()
+        Seq.empty
       }
     }
 
@@ -88,9 +90,11 @@ class SearchResultsService(
   }
 
   private def getMessage(doc: SearchHit): String = {
-    doc.highlight.get("message").flatMap(_.headOption) getOrElse {
+    val html = doc.highlight.get("message").flatMap(_.headOption) getOrElse {
       StringUtil.escapeHtml(doc.sourceAsMap("message").asInstanceOf[String].take(SearchViewer.MessageFragment))
     }
+
+    Jsoup.clean(html, siteConfig.getSecureUrl, Safelist.basic().addAttributes("em", "class").addTags("pre"))
   }
 
   private def getUrl(doc: SearchHit): String = {

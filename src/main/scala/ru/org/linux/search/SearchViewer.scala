@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -101,7 +101,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
           ),
           sigTermsAggregation("tags") field "tag" minDocCount 30
         ).highlighting(
-          highlightOptions() encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
+          highlightOptions() preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
           highlight("title") numberOfFragments 0,
           highlight("topicTitle") numberOfFragments 0,
           highlight("message") numberOfFragments 1 fragmentSize MessageFragment highlighterType "fvh"
@@ -123,7 +123,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
 object SearchViewer {
   val SearchRows = 25
-  val MessageFragment = 1000
+  val MessageFragment = 16384 // 0 not supported here!
   private val TopicBoost = 3
   private val RecentBoost = 2
   private val SearchTimeout: FiniteDuration = 1.minute
