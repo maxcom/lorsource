@@ -24,6 +24,7 @@ import org.jsoup.safety.Safelist
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupDao
+import ru.org.linux.search.SearchResultsService.TextSafelist
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.{TagRef, TagService}
@@ -94,10 +95,7 @@ class SearchResultsService(userService: UserService, sectionService: SectionServ
       doc.sourceAsMap("message").asInstanceOf[String].take(SearchViewer.MessageFragment)
     }
 
-    Jsoup.clean(
-      html,
-      siteConfig.getSecureUrl,
-      Safelist.basic().addAttributes("em", "class").addTags("pre", "code").addAttributes("code", "class"))
+    Jsoup.clean(html, siteConfig.getSecureUrl, TextSafelist)
   }
 
   private def getUrl(doc: SearchHit): String = {
@@ -178,6 +176,8 @@ object SearchResultsService {
   def postdate(doc: SearchHit): Instant = Instant.parse(doc.sourceAsMap("postdate").asInstanceOf[String])
   def section(doc: SearchHit): String = doc.sourceAsMap("section").asInstanceOf[String]
   def group(doc: SearchHit): String = doc.sourceAsMap("group").asInstanceOf[String]
+
+  private val TextSafelist: Safelist = Safelist.relaxed().addAttributes(":all", "class")
 }
 
 case class FacetItem(@BeanProperty key:String, @BeanProperty label:String)
