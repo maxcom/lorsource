@@ -236,6 +236,10 @@ public class User implements Serializable {
       out.append("<span class=\"stars\">");
     }
 
+    if (isFrozen()) {
+      out.append("❄");
+    }
+
     out.append("★".repeat(Math.max(0, stars)));
 
     out.append("☆".repeat(Math.max(0, greyStars)));
