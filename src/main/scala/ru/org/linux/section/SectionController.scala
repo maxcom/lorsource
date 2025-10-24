@@ -27,15 +27,15 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 class SectionController(sectionService: SectionService, groupDao: GroupDao) {
-  @RequestMapping(Array("/forum"))
+  @RequestMapping(path = Array("/forum"))
   def forum(): ModelAndView = {
     val section = sectionService.getSection(SECTION_FORUM)
 
     val allGroups = groupDao.getGroups(section)
 
-    val (other, tech) = allGroups.asScala.partition(g => NonTech.contains(g.getId))
+    val (other, tech) = allGroups.asScala.partition(g => NonTech.contains(g.id))
 
-    new ModelAndView("forum", Map(
+    new ModelAndView("forum", Map[String, Any](
       "section" -> section,
       "tech" -> tech.asJava,
       "other" -> other.asJava
@@ -54,5 +54,5 @@ object SectionController {
   val NonTech: Set[Int] = Set(8404, 4068, 9326, 19405)
 
   def groupsSorted(groups: collection.Seq[Group]): collection.Seq[Group] =
-    groups.sortBy(g => (SectionController.NonTech.contains(g.getId), g.getId))
+    groups.sortBy(g => (SectionController.NonTech.contains(g.id), g.id))
 }

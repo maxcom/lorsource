@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,8 +24,6 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
 
-import scala.jdk.CollectionConverters.*
-
 @Controller
 class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging {
   @RequestMapping(value = Array("/vote.jsp"), method = Array(RequestMethod.POST))
@@ -40,7 +38,7 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
     }
 
     if (msg.expired) {
-      throw new BadVoteException("Опрос завернен")
+      throw new BadVoteException("Опрос завершен")
     }
 
     if (votes == null || votes.length == 0) {
@@ -61,26 +59,4 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging
     new ModelAndView(new RedirectView(msg.getLink))
   }
 
-  @RequestMapping(value = Array("/vote-vote.jsp"), method = Array(RequestMethod.GET))
-  @throws[Exception]
-  def showForm(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { _ =>
-    val msg = topicDao.getById(msgid)
-    val poll = pollDao.getPollByTopicId(msgid)
-
-    if (msg.expired) {
-      throw new BadVoteException("Опрос завершен")
-    }
-
-    new ModelAndView("vote-vote", Map(
-      "message" -> msg,
-      "poll" -> poll
-    ).asJava)
-  }
-
-  @RequestMapping(Array("/view-vote.jsp"))
-  @throws[Exception]
-  def viewVote(@RequestParam("vote") voteid: Int): ModelAndView = {
-    val poll = pollDao.getPoll(voteid)
-    new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.topic))
-  }
 }

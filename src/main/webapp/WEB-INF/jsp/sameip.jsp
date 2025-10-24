@@ -3,7 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -35,72 +35,83 @@
   <c:out value="${userAgent}" escapeXml="true"/>
 </c:if>
 
-<c:if test="${ip != null}">
   <form action="sameip.jsp">
     <c:if test="${ua != null}">
       <input type="hidden" name="ua" value="${ua}">
     </c:if>
     <div class="control-group">
-      <label class="control-label" for="ip-field">Адрес: </label>
       <div class="controls">
-        <input class="input-lg" name="ip" type="search" size="17" maxlength="17" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+">
+        <c:if test="${ip != null}">
+          <input class="input-lg" name="ip" type="search" size="17" maxlength="17" value="${ip}" id="ip-field" pattern="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+">
+          <select name="mask" class="btn btn-default" onchange="this.form.submit()">
+            <c:forEach items="${masks}" var="v">
+              <c:if test="${v._1() == mask}">
+                <option value="${v._1()}" selected>${v._2()}</option>
+              </c:if>
+              <c:if test="${v._1() != mask}">
+                <option value="${v._1()}">${v._2()}</option>
+              </c:if>
+            </c:forEach>
+          </select>
+        </c:if>
 
-        <c:forEach items="${masks}" var="v">
-          <c:if test="${v._1() == mask}">
-            <button name="mask" value="${v._1()}" type="submit" class="btn btn-selected">${v._2()}</button>
-          </c:if>
-          <c:if test="${v._1() != mask}">
-            <button name="mask" value="${v._1()}" type="submit" class="btn btn-default">${v._2()}</button>
-          </c:if>
-        </c:forEach>
+        <select name="score" class="btn btn-default" onchange="this.form.submit()">
+          <c:forEach items="${scores}" var="v">
+            <c:if test="${v._1() == score}">
+              <option value="${v._1()}" type="submit" selected>${v._2()}</option>
+            </c:if>
+            <c:if test="${v._1() != score}">
+              <option value="${v._1()}" type="submit">${v._2()}</option>
+            </c:if>
+          </c:forEach>
+        </select>
       </div>
     </div>
   </form>
 
-  <c:if test="${!hasMask}">
-    <div>
-      <strong>Текущий статус: </strong>
+<c:if test="${ip != null and !hasMask}">
+  <div>
+    <strong>Текущий статус: </strong>
 
-      <c:if test="${blockInfo == null}">
-        адрес не заблокирован
+    <c:if test="${blockInfo == null}">
+      адрес не заблокирован
+    </c:if>
+
+    <c:if test="${blockInfo != null}">
+      адрес заблокирован
+
+      <c:if test="${blockModerator == null}">
+        автоматически
       </c:if>
 
-      <c:if test="${blockInfo != null}">
-        адрес заблокирован
+      <c:if test="${blockModerator != null}">
+        модератором <lor:user user="${blockModerator}"/>
+      </c:if>
 
-        <c:if test="${blockModerator == null}">
-          автоматически
+      <c:out value=" "/> <lor:date date="${blockInfo.originalDate}"/>
+
+      <c:if test="${blockInfo.banDate != null}">
+        до <lor:date date="${blockInfo.banDate}"/>
+        <c:if test="${not blockInfo.blocked}">
+          (блокировка истекла)
         </c:if>
+      </c:if>
 
-        <c:if test="${blockModerator != null}">
-          модератором <lor:user user="${blockModerator}"/>
-        </c:if>
+      <c:if test="${blockInfo.banDate == null}">
+        постоянно
+      </c:if>
 
-        <c:out value=" "/> <lor:date date="${blockInfo.originalDate}"/>
-
-        <c:if test="${blockInfo.banDate != null}">
-          до <lor:date date="${blockInfo.banDate}"/>
-          <c:if test="${not blockInfo.blocked}">
-            (блокировка истекла)
+      <br>
+      <c:if test="${allowPosting}">
+        Зарегистрированным можно постить
+          <c:if test="${captchaRequired}">
+            с вводом каптчи
           </c:if>
-        </c:if>
-
-        <c:if test="${blockInfo.banDate == null}">
-          постоянно
-        </c:if>
-
         <br>
-        <c:if test="${allowPosting}">
-          Зарегистрированным можно постить
-            <c:if test="${captchaRequired}">
-              с вводом каптчи
-            </c:if>
-          <br>
-        </c:if>
-        <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
       </c:if>
-    </div>
-  </c:if>
+      <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
+    </c:if>
+  </div>
 
   <div>
     <strong>Местоположение ${ip} (<a href="https://ipwhois.io" target="_blank">ipwhois.io</a>)</strong>: <span id="geolookup">...</span>
@@ -123,7 +134,6 @@
           });
       })
   </script>
-
 </c:if>
 
 <c:if test="${not empty newUsers}">
@@ -156,86 +166,99 @@
 
 </c:if>
 
-<h2>Темы за 3 дня
-  <c:if test="${hasMoreTopics}">(показаны первые ${rowsLimit})</c:if>
-</h2>
-
-<div class=forum>
-<table width="100%" class="message-table">
-<thead>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th></tr>
-<tbody>
-<c:forEach items="${topics}" var="topic">
-<tr>
-  <td>
-    ${topic.ptitle}
-  </td>
-  <td>
-    ${topic.gtitle}
-  </td>
-  <td>
-    <c:if test="${topic.deleted}">
-      <s>
-    </c:if>
-    <a href="view-message.jsp?msgid=${topic.id}" rev=contents><l:title>${topic.title}</l:title></a>
-    <c:if test="${topic.deleted}">
-      </s>
-    </c:if>
-  </td>
-  <td>
-    <lor:date date="${topic.postdate}"/>
-  </td>
-</tr>
-</c:forEach>
-</table>
-</div>
-
-<h2>Комментарии за 3 дня
+<h2>Сообщения за 5 дней
   <c:if test="${hasMoreComments}">(показаны первые ${rowsLimit})</c:if>
 </h2>
 
 <div class=comments>
 <c:forEach items="${comments}" var="comment">
-<a href="jump-message.jsp?msgid=${comment.comment.msgid}&amp;cid=${comment.comment.commentId}" class="comments-item">
+<a href="${comment.link}" class="comments-item">
   <div class="comments-group"><p>
-    <span class="group-label">${comment.comment.gtitle}</span><br class="hideon-phone hideon-tablet">
+    <span class="group-label">${comment.groupTitle}</span><br class="hideon-phone hideon-tablet">
     <lor:user user="${comment.author}"/>
   </p>
   </div>
   <div class="comments-title">
     <div class="text-preview-box">
       <div class="text-preview">
-        <l:title>${comment.comment.title}</l:title>
+        <c:if test="${comment.comment}"><i class="icon-comment"></i></c:if>
+        <l:title>${comment.title}</l:title>
       </div>
     </div>
   </div>
   <div class="comments-text">
     <div class="text-preview-box">
       <div class="text-preview">
-        <c:if test="${comment.comment.deleted}">
+        <c:if test="${comment.deleted}">
         <s>
           </c:if>
           <c:out value="${comment.textPreview}"/>
-          <c:if test="${comment.comment.deleted}">
+          <c:if test="${comment.deleted}">
         </s>
         </c:if>
       </div>
     </div>
-    <c:if test="${comment.comment.deleted}">
+    <c:if test="${comment.deleted}">
       <img src="/img/del.png" alt="[X]" width="15" height="15">
-      Удалено по причине: <c:out escapeXml="true" value="${comment.comment.reason}"/>
+      Удалено по причине: <c:out escapeXml="true" value="${comment.reason}"/>
     </c:if>
   </div>
   <div class="comments-date">
     <p>
-      <lor:dateinterval date="${comment.comment.postdate}" compact="true"/>
+      <lor:dateinterval date="${comment.postdate}" compact="true"/>
     </p>
   </div>
 </a>
 </c:forEach>
 </div>
 
-<h2>Пользователи за год (по комментариям)
+  <c:if test="${ip != null and !hasMask and empty score and not empty comments}">
+  <fieldset>
+    <legend>Удалить темы и сообщения с IP</legend>
+    <form method="post" action="delip.jsp">
+      <lor:csrf/>
+      <input type="hidden" name="ip" value="${ip}">
+      по причине: <br>
+      <input type="text" name="reason" maxlength="254" size="40" value=""><br>
+      за последний(ие) <select name="time">
+      <option value="hour">1 час</option>
+      <option selected value="day">1 день</option>
+      <option value="3day">3 дня</option>
+      <option value="5day">5 дней</option>
+      </select>
+      <c:if test="${blockInfo == null || not blockInfo.blocked}">
+      и
+      <select name="ban_time" onchange="banTimeChange(this);">
+        <option value="remove">не блокировать</option>
+        <option value="hour">блокировать на 1 час</option>
+        <option value="day">блокировать на 1 день</option>
+        <option value="month">блокировать на 1 месяц</option>
+        <option value="3month">блокировать на 3 месяца</option>
+        <option value="6month">блокировать на 6 месяцев</option>
+        <option selected value="unlim">блокировать постоянно</option>
+      </select>
+      <label><input type="radio" name="ban_mode" value="anonymous_and_captcha">только anonymous, требовать captcha у зарегистрированных</label>
+      <label><input checked type="radio" name="ban_mode" value="anonymous_only">только anonymous</label>
+      <label><input type="radio" name="ban_mode" value="all">всех</label>
+      </c:if>
+      <p>
+        <button type="submit" name="del" class="btn btn-danger">del from ip</button>
+
+      <script type="text/javascript">
+        function banTimeChange(object) {
+          if ($(object).val() == "remove") {
+            $(object).parent().find("input[name=ban_mode]").parent().hide();
+          } else {
+            $(object).parent().find("input[name=ban_mode]").parent().show();
+          }
+        }
+      </script>
+    </form>
+  </fieldset>
+  </c:if>
+
+<c:if test="${not empty users}">
+<h2>Пользователи за год (по топикам и комментариям)
   <c:if test="${hasMoreUsers}">(показаны первые ${rowsLimit})</c:if>
 </h2>
 <div class=forum>
@@ -264,10 +287,9 @@
 </c:forEach>
 </table>
 </div>
+</c:if>
 
-<c:if test="${ip != null}">
-
-<c:if test="${!hasMask}">
+<c:if test="${ip != null and !hasMask}">
   <h2>Управление</h2>
 
   <fieldset>
@@ -332,23 +354,5 @@
         </script>
     </form>
   </fieldset>
-
-  <fieldset>
-    <legend>Удалить темы и сообщения с IP</legend>
-    <form method="post" action="delip.jsp">
-      <lor:csrf/>
-      <input type="hidden" name="ip" value="${ip}">
-      по причине: <br>
-      <input type="text" name="reason" maxlength="254" size="40" value=""><br>
-      за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
-      <option value="hour">1 час</option>
-      <option value="day">1 день</option>
-      <option value="3day">3 дня</option>
-    </select>
-      <p>
-        <button type="submit" name="del" class="btn btn-danger">del from ip</button>
-    </form>
-  </fieldset>
-</c:if>
 </c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

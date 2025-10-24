@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,35 +24,21 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.edithistory.EditHistoryDao;
-import ru.org.linux.edithistory.EditHistoryObjectTypeEnum;
-import ru.org.linux.edithistory.EditHistoryRecord;
-import ru.org.linux.gallery.Image;
-import ru.org.linux.gallery.ImageDao;
-import ru.org.linux.gallery.UploadedImagePreview;
 import ru.org.linux.group.Group;
-import ru.org.linux.group.GroupDao;
-import ru.org.linux.poll.Poll;
-import ru.org.linux.poll.PollDao;
-import ru.org.linux.poll.PollNotFoundException;
-import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.warning.RuleWarning;
+import scala.Tuple2;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -63,31 +48,10 @@ import java.util.Optional;
 @Repository
 public class TopicDao {
   @Autowired
-  private GroupDao groupDao;
-
-  @Autowired
-  private TopicTagService topicTagService; // TODO move to TopicService
-
-  @Autowired
   private SectionService sectionService;
 
   @Autowired
   private MsgbaseDao msgbaseDao; // TODO move to TopicService
-
-  @Autowired
-  private DeleteInfoDao deleteInfoDao; // TODO move to TopicService
-
-  @Autowired
-  private EditHistoryDao editHistoryDao; // TODO move to TopicService
-
-  @Autowired
-  private ImageDao imageDao; // TODO move to TopicService
-
-  @Autowired
-  private PollDao pollDao; // TODO move to TopicService
-
-  @Autowired
-  private SiteConfig siteConfig;
 
   /**
    * Запрос получения полной информации о топике
@@ -98,7 +62,9 @@ public class TopicDao {
         "urlname, section, topics.sticky, topics.postip, " +
         "COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
-        "topics.resolved, minor, draft, allow_anonymous, topics.reactions " +
+        "topics.resolved, minor, draft, allow_anonymous, topics.reactions, " +
+        "COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, " +
+        "topics.open_warnings " +
         "FROM topics " +
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +
@@ -131,12 +97,8 @@ public class TopicDao {
    *
    * @param topicId идентификационный номер топика
    */
-  public void updateLastmod(int topicId, boolean bump) {
-    if (bump) {
-      jdbcTemplate.update("UPDATE topics SET lastmod=now() WHERE id=?", topicId);
-    } else {
-      jdbcTemplate.update("UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=?", topicId);
-    }
+  public void updateLastmod(int topicId) {
+    jdbcTemplate.update("UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=?", topicId);
   }
 
   /**
@@ -158,21 +120,12 @@ public class TopicDao {
   }
 
   /**
-   * Получить group message
-   * @param message message
-   * @return group
-   */
-  public Group getGroup(Topic message) {
-    return groupDao.getGroup(message.getGroupId());
-  }
-
-  /**
    * Получить список топиков за месяц
    * @param year год
    * @param month месяц
    * @return список топиков
    */
-  public List<Integer> getMessageForMonth(int year, int month){
+  public List<Integer> getMessageForMonth(int year, int month) {
     Calendar calendar = Calendar.getInstance();
     calendar.set(year, month, 1);
     Timestamp ts_start = new Timestamp(calendar.getTimeInMillis());
@@ -185,16 +138,8 @@ public class TopicDao {
     return jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=? AND NOT deleted", msgid)>0;
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void undelete(Topic message) {
-    DeleteInfo deleteInfo = deleteInfoDao.getDeleteInfo(message.getId(), true);
-
-    if (deleteInfo!=null && deleteInfo.getBonus()!=0) {
-      userDao.changeScore(message.getAuthorUserId(), -deleteInfo.getBonus());
-    }
-
     jdbcTemplate.update("UPDATE topics SET deleted='f' WHERE id=?", message.getId());
-    jdbcTemplate.update("DELETE FROM del_info WHERE msgid=?", message.getId());
   }
 
   private int allocateMsgid() {
@@ -242,118 +187,30 @@ public class TopicDao {
     return msgid;
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText,
-                               UploadedImagePreview imagePreview, List<PollVariant> newPollVariants,
-                               boolean multiselect) throws IOException {
-    EditHistoryRecord editHistoryRecord = new EditHistoryRecord();
+  public void updateTitle(int msgid, String title) {
+    namedJdbcTemplate.update(
+            "UPDATE topics SET title=:title WHERE id=:id",
+            Map.of("title", title, "id", msgid)
+    );
+  }
 
-    editHistoryRecord.setMsgid(msg.getId());
-    editHistoryRecord.setObjectType(EditHistoryObjectTypeEnum.TOPIC);
-    editHistoryRecord.setEditor(editor.getId());
+  public void updateLinktext(int msgid, String linktext) {
+    namedJdbcTemplate.update(
+            "UPDATE topics SET linktext=:linktext WHERE id=:id",
+            Map.of("linktext", linktext, "id", msgid)
+    );
+  }
 
-    boolean modified = false;
+  public void updateUrl(int msgid, String url) {
+    namedJdbcTemplate.update(
+            "UPDATE topics SET url=:url WHERE id=:id",
+            Map.of("url", url, "id", msgid)
+    );
+  }
 
-    String oldText = msgbaseDao.getMessageText(msg.getId()).text();
-
-    if (!oldText.equals(newText)) {
-      editHistoryRecord.setOldmessage(oldText);
-      modified = true;
-
-      msgbaseDao.updateMessage(msg.getId(), newText);
-    }
-
-    if (!oldMsg.getTitle().equals(msg.getTitle())) {
-      modified = true;
-      editHistoryRecord.setOldtitle(oldMsg.getTitle());
-
-      namedJdbcTemplate.update(
-        "UPDATE topics SET title=:title WHERE id=:id",
-        ImmutableMap.of("title", msg.getTitle(), "id", msg.getId())
-      );
-    }
-
-    if (!equalStrings(oldMsg.getLinktext(), msg.getLinktext())) {
-      modified = true;
-      editHistoryRecord.setOldlinktext(oldMsg.getLinktext());
-
-      namedJdbcTemplate.update(
-        "UPDATE topics SET linktext=:linktext WHERE id=:id",
-        ImmutableMap.of("linktext", msg.getLinktext(), "id", msg.getId())
-      );
-    }
-
-    if (!equalStrings(oldMsg.getUrl(), msg.getUrl())) {
-      modified = true;
-      editHistoryRecord.setOldurl(oldMsg.getUrl());
-
-      namedJdbcTemplate.update(
-        "UPDATE topics SET url=:url WHERE id=:id",
-        ImmutableMap.of("url", msg.getUrl(), "id", msg.getId())
-      );
-    }
-
-    if (newTags != null) {
-      List<String> oldTags = topicTagService.getTags(msg);
-
-      boolean modifiedTags = topicTagService.updateTags(msg.getId(), newTags);
-
-      if (modifiedTags) {
-        editHistoryRecord.setOldtags(TagService.tagsToString(oldTags));
-        modified = true;
-      }
-    }
-
-    if (oldMsg.isMinor() != msg.isMinor()) {
-      namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
-              ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
-
-      editHistoryRecord.setOldminor(oldMsg.isMinor());
-
-      modified = true;
-    }
-
-    if (imagePreview!=null) {
-      Image oldImage = imageDao.imageForTopic(msg);
-
-      if (oldImage!=null) {
-        imageDao.deleteImage(oldImage);
-      }
-
-      int id = imageDao.saveImage(msg.getId(), imagePreview.extension());
-
-      File galleryPath = new File(siteConfig.getUploadPath() + "/images");
-
-      imagePreview.moveTo(galleryPath, Integer.toString(id));
-
-      if (oldImage!=null) {
-        editHistoryRecord.setOldimage(oldImage.getId());
-      } else {
-        editHistoryRecord.setOldimage(0);
-      }
-
-      modified = true;
-    }
-
-    try {
-      if (newPollVariants!=null) {
-        Poll oldPoll = pollDao.getPollByTopicId(oldMsg.getId());
-
-        if (pollDao.updatePoll(oldPoll, newPollVariants, multiselect)) {
-          editHistoryRecord.setOldPoll(oldPoll);
-          modified = true;
-        }
-      }
-    } catch (PollNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-
-    if (modified) {
-      editHistoryDao.insert(editHistoryRecord);
-      updateLastmod(msg.getId(), false);
-    }
-
-    return modified;
+  public void setMinor(int msgid, boolean minor) {
+    namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
+            Map.of("minor", minor, "id", msgid));
   }
 
   public static boolean equalStrings(String s1, String s2) {
@@ -439,11 +296,11 @@ public class TopicDao {
     }
 
     try {
-      if (res.isEmpty() || res.get(0)==null) {
+      if (res.isEmpty() || res.getFirst()==null) {
         return null;
       }
 
-      int prevMsgid = res.get(0);
+      int prevMsgid = res.getFirst();
 
       return getById(prevMsgid);
     } catch (MessageNotFoundException e) {
@@ -506,11 +363,11 @@ public class TopicDao {
     }
 
     try {
-      if (res.isEmpty() || res.get(0)==null) {
+      if (res.isEmpty() || res.getFirst()==null) {
         return null;
       }
 
-      int nextMsgid = res.get(0);
+      int nextMsgid = res.getFirst();
 
       return getById(nextMsgid);
     } catch (MessageNotFoundException e) {
@@ -571,22 +428,13 @@ public class TopicDao {
     );
   }
 
-  public List<Integer> getAllByUser(User user) {
-    return jdbcTemplate.queryForList("SELECT id FROM topics WHERE userid=? AND not deleted", Integer.class, user.getId());
-  }
-
-  public int getUncommitedCount() {
-    return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and not draft and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
-            Integer.class
-    );
-  }
-
-  public int getUncommitedCount(int section) {
-    return jdbcTemplate.queryForObject(
-            "select count(*) from topics,groups where section=? AND topics.groupid=groups.id and not deleted and not draft and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)",
-            Integer.class,
-            section
+  public List<Tuple2<Integer, Integer>> getUncommitedCounts() {
+    return jdbcTemplate.query(
+            "select section, count(*) from topics,groups,sections where section=sections.id AND " +
+                    "sections.moderate and not draft and topics.groupid=groups.id and not deleted and " +
+                    "not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " +
+                    "group by section order by section",
+            (rs, rowNum) -> Tuple2.apply(rs.getInt("section"), rs.getInt("count"))
     );
   }
 
@@ -598,5 +446,23 @@ public class TopicDao {
     );
 
     return !res.isEmpty();
+  }
+
+  public void recalcWarningsCount(int topicId) {
+    jdbcTemplate.update("""
+            update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
+             and mw.comment is null and mw.closed_by is null and mw.warning_type=? and
+             mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
+             mw.author in (select id from users where score>100)) where topics.id=?""",
+            RuleWarning.id(), topicId);
+  }
+
+  public void recalcAllWarningsCount() {
+    jdbcTemplate.update("""
+            update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
+             and mw.comment is null and mw.closed_by is null and mw.warning_type=? and
+             mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
+             mw.author in (select id from users where score>100)) where open_warnings > 0""",
+            RuleWarning.id());
   }
 }

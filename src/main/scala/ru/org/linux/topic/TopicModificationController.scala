@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,15 +27,15 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.MsgbaseDao
-import ru.org.linux.user.{UserDao, UserErrorException}
+import ru.org.linux.user.{UserErrorException, UserService}
 
-import scala.compat.java8.OptionConverters.*
 import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.RichOption
 
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
                                   sectionService: SectionService, groupDao: GroupDao,
-                                  userDao: UserDao, searchQueueSender: SearchQueueSender,
+                                  userService: UserService, searchQueueSender: SearchQueueSender,
                                   msgbaseDao: MsgbaseDao, textService: MessageTextService) extends StrictLogging {
 
   @RequestMapping(value = Array("/setpostscore.jsp"), method = Array(RequestMethod.GET))
@@ -105,8 +105,8 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     val newGrp = groupDao.getGroup(newgr)
 
-    if (msg.groupId != newGrp.getId) {
-      val moveInfo = if (!newGrp.isLinksAllowed) {
+    if (msg.groupId != newGrp.id) {
+      val moveInfo = if (!newGrp.linksAllowed) {
         val moveFrom = msg.groupUrl
         val linktext = msg.linktext
         val url = msg.url
@@ -118,8 +118,8 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
         None
       }
 
-      messageDao.moveTopic(msg, newGrp, moveInfo.asJava)
-      logger.info(s"topic ${msg.id} moved by ${currentUser.user.getNick} from news/forum ${msg.groupUrl} to forum ${newGrp.getTitle}")
+      messageDao.moveTopic(msg, newGrp, moveInfo.toJava)
+      logger.info(s"topic ${msg.id} moved by ${currentUser.user.getNick} from news/forum ${msg.groupUrl} to forum ${newGrp.title}")
     }
 
     searchQueueSender.updateMessage(msg.id, true)
@@ -128,39 +128,50 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.GET))
-  def moveTopicFormForum(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
+  def moveToForumForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
-    val section = sectionService.getSection(Section.SECTION_FORUM)
+    val sections = Seq(sectionService.getSection(Section.SECTION_FORUM),
+      sectionService.getSection(Section.SECTION_ARTICLES))
+
+    val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
 
     new ModelAndView("mtn", Map (
       "message" -> topic,
-      "groups" -> groupDao.getGroups(section),
-      "author" -> userDao.getUserCached(topic.authorUserId)
+      "groups" -> groups.map(g => g.id -> s"${sectionService.getSection(g.sectionId).getTitle}: ${g.title}").asJava,
+      "author" -> userService.getUserCached(topic.authorUserId)
     ).asJava)
   }
 
   @RequestMapping(value = Array("/mtn.jsp"), method = Array(RequestMethod.GET))
   @throws[Exception]
-  def moveTopicForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
+  def movePremoderatedForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
-    val section = sectionService.getSection(topic.sectionId)
+    val currentSection = sectionService.getSection(topic.sectionId)
+
+    val sections = if (currentSection.isPremoderated && !currentSection.isPollPostAllowed) {
+      sectionService.sections.filter(s => s.isPremoderated && !s.isPollPostAllowed)
+    } else {
+      Seq(currentSection)
+    }
+
+    val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
 
     new ModelAndView("mtn", Map(
       "message" -> topic,
-      "groups" -> groupDao.getGroups(section),
-      "author" -> userDao.getUserCached(topic.authorUserId)
+      "groups" -> groups.map(g => g.id -> s"${sectionService.getSection(g.sectionId).getTitle}: ${g.title}").asJava,
+      "author" -> userService.getUserCached(topic.authorUserId)
     ).asJava)
   }
 
   @RequestMapping(value = Array("/uncommit.jsp"), method = Array(RequestMethod.GET))
-  def uncommitForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { currentUser =>
+  def uncommitForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { implicit currentUser =>
     val message = messageDao.getById(msgid)
 
     checkUncommitable(message)
 
     new ModelAndView("uncommit", Map(
       "message" -> message,
-      "preparedMessage" -> prepareService.prepareTopic(message, currentUser.user)
+      "preparedMessage" -> prepareService.prepareTopic(message)
     ).asJava)
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,11 +24,21 @@ import ru.org.linux.tracker.TrackerFilterEnum;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.function.Predicate;
-
-import static ru.org.linux.user.Profile.*;
 
 public final class DefaultProfile {
+  public static String STYLE_PROPERTY = "style";
+  public static String FORMAT_MODE_PROPERTY = "format.mode";
+  public static String MESSAGES_PROPERTY = "messages";
+  public static String TOPICS_PROPERTY = "topics";
+  public static String HIDE_ADSENSE_PROPERTY = "hideAdsense";
+  public static String PHOTOS_PROPERTY = "photos";
+  public static String MAIN_GALLERY_PROPERTY = "mainGallery";
+  public static String AVATAR_PROPERTY = "avatar";
+  public static String BOXES_MAIN2_PROPERTY = "main2";
+  public static String TRACKER_MODE = "trackerMode";
+  public static String OLD_TRACKER = "oldTracker";
+  public static String REACTION_NOTIFICATION_PROPERTY = "reactionNotification";
+
   private static final ImmutableMap<String, String> BOX_LEGEND = new ImmutableMap.Builder<String,String>()
       .put("poll", "Текущий опрос")
       .put("articles", "Новые статьи")
@@ -71,7 +81,6 @@ public final class DefaultProfile {
     builder.put(TOPICS_PROPERTY, 30);
     builder.put(MESSAGES_PROPERTY, 50);
     builder.put(PHOTOS_PROPERTY, Boolean.TRUE);
-    builder.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
     builder.put(AVATAR_PROPERTY, "empty");
     builder.put(HIDE_ADSENSE_PROPERTY, true);
     builder.put(MAIN_GALLERY_PROPERTY, false);
@@ -82,19 +91,14 @@ public final class DefaultProfile {
     builder.put("DebugMode", Boolean.FALSE);
 
     // main page settings
-    ImmutableList<String> boxes = ImmutableList.of("poll", "articles", "top10", "gallery", "tagcloud");
 
-    builder.put(BOXES_MAIN2_PROPERTY, boxes);
+    builder.put(BOXES_MAIN2_PROPERTY, ImmutableList.of("poll", "articles", "top10", "gallery", "tagcloud"));
 
     return builder.build();
   }
 
   public static final ImmutableSet<Integer> TOPICS_VALUES = ImmutableSet.of(30, 50, 100, 200, 300, 500);
   public static final ImmutableSet<Integer> COMMENTS_VALUES = ImmutableSet.of(25, 50, 100, 200, 300, 500);
-
-  public static Predicate<String> boxPredicate() {
-    return DefaultProfile::isBox;
-  }
 
   public static boolean isStyle(String style) {
     return THEMES.containsKey(style);
@@ -117,6 +121,6 @@ public final class DefaultProfile {
 
   @Nonnull
   public static Theme getDefaultTheme() {
-    return Theme.THEMES.get(0);
+    return Theme.THEMES.getFirst();
   }
 }

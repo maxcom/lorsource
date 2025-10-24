@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,40 +14,34 @@
  */
 package ru.org.linux.tracker
 
-import com.google.common.collect.ImmutableList
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestParam}
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.group.GroupListDao
-import ru.org.linux.site.Template
+import ru.org.linux.topic.{TopicPrepareService, TopicService}
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import java.net.URLEncoder
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.{RichOption, RichOptional}
+import scala.jdk.OptionConverters.RichOptional
 
 @Controller
-class TrackerController(groupListDao: GroupListDao, userService: UserService) {
+class TrackerController(groupListDao: GroupListDao, userService: UserService, ipBlockDao: IPBlockDao,
+                        topicPrepareService: TopicPrepareService, topicService: TopicService) {
   @ModelAttribute("filters")
-  def getFilter: java.util.List[TrackerFilterEnum] = AuthorizedOpt { currentUserOpt =>
-    if (currentUserOpt.exists(_.moderator)) {
-      TrackerFilterEnum.values.toSeq.asJava
-    } else {
-      TrackerFilterEnum.values.toSeq.filterNot(_.isModeratorOnly).asJava
-    }
-  }
+  def getFilter: java.util.List[TrackerFilterEnum] = TrackerFilterEnum.values.toSeq.asJava
 
-  @RequestMapping(Array("/tracker.jsp"))
+  @RequestMapping(path = Array("/tracker.jsp"))
   @throws[Exception]
-  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = AuthorizedOpt { currentUserOpt =>
-    val tmpl = Template.getTemplate
-    val defaultFilter = tmpl.getProf.getTrackerMode
+  def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = MaybeAuthorized { session =>
+    val defaultFilter = session.profile.trackerMode
     val redirectView = new RedirectView("/tracker/")
 
     redirectView.setExposeModelAttributes(false)
-    val filter = TrackerFilterEnum.getByValue(filterAction, currentUserOpt.exists(_.moderator)).toScala
+    val filter = TrackerFilterEnum.getByValue(filterAction).toScala
 
     if (!filter.contains(defaultFilter)) {
       redirectView.setUrl("/tracker/?filter=" + URLEncoder.encode(filterAction, "UTF-8"))
@@ -62,62 +56,75 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService) {
     else
       "Последние сообщения"
 
-  @RequestMapping(Array("/tracker"))
+  private def buildTrackerUrl(offset: Int, filter: Option[TrackerFilterEnum]): String = {
+    val additionalQuery = filter.map("filter=" + _.getValue)
+
+    if (offset > 0) {
+      s"/tracker/?offset=$offset${additionalQuery.map("&amp;" + _).getOrElse("")}"
+    } else {
+      s"/tracker/${additionalQuery.map("?" + _).getOrElse("")}"
+    }
+  }
+
+  @RequestMapping(path = Array("/tracker"))
   @throws[Exception]
   def tracker(@RequestParam(value = "filter", required = false) filterAction: String,
               @RequestParam(value = "offset", required = false, defaultValue = "0") offset: Int
-             ): ModelAndView = AuthorizedOpt { currentUserOpt =>
+             ): ModelAndView = MaybeAuthorized { implicit session =>
     if (offset < 0 || offset > 300) throw new UserErrorException("Некорректное значение offset")
 
-    val tmpl = Template.getTemplate
-    val defaultFilter = tmpl.getProf.getTrackerMode
-    val trackerFilter = TrackerFilterEnum.getByValue(filterAction, currentUserOpt.exists(_.moderator)).orElse(defaultFilter)
+    val defaultFilter = session.profile.trackerMode
+    val trackerFilter = TrackerFilterEnum.getByValue(filterAction).orElse(defaultFilter)
 
     val params = new java.util.HashMap[String, AnyRef]
 
-    params.put("offset", Integer.valueOf(offset))
     params.put("filter", trackerFilter.getValue)
-
-    if (trackerFilter != defaultFilter) {
-      params.put("addition_query", "&amp;filter=" + trackerFilter.getValue)
-    } else {
-      params.put("addition_query", "")
-    }
 
     params.put("defaultFilter", defaultFilter)
 
-    val messages = tmpl.getProf.getMessages
-    val topics = tmpl.getProf.getTopics
+    val topics = session.profile.topics
 
-    params.put("topics", Integer.valueOf(topics))
-
-    val user = currentUserOpt.map(_.user)
     params.put("title", makeTitle(trackerFilter, defaultFilter))
 
-    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, user.toJava, topics, offset, messages).asScala
+    val trackerTopics = groupListDao.getTrackerTopics(trackerFilter, offset)
+      .map(topicPrepareService.prepareListItem)
 
-    params.put("msgs", trackerTopics.asJava)
+    params.put("messages", trackerTopics.asJava)
 
-    if (currentUserOpt.exists(_.moderator)) {
+    if (offset < 300 && trackerTopics.size == topics) {
+      params.put("nextLink", buildTrackerUrl(offset + topics, Some(trackerFilter).filter(_ != defaultFilter)))
+    }
+
+    if (offset >= topics) {
+      params.put("prevLink", buildTrackerUrl(offset - topics, Some(trackerFilter).filter(_ != defaultFilter)))
+    }
+
+    if (session.moderator) {
       params.put("newUsers", userService.getNewUsers)
-      params.put("frozenUsers", userService.getFrozenUsers)
-      params.put("unFrozenUsers", userService.getUnFrozenUsers)
-      params.put("blockedUsers", userService.getRecentlyBlocked)
-      params.put("unBlockedUsers", userService.getRecentlyUnBlocked)
-      params.put("recentUserpics", userService.getRecentUserpics)
+      params.put("frozenUsers", userService.getFrozenUsers.asJava)
+      params.put("unFrozenUsers", userService.getUnFrozenUsers.asJava)
+      params.put("blockedUsers", userService.getRecentlyBlocked.asJava)
+      params.put("unBlockedUsers", userService.getRecentlyUnBlocked.asJava)
+      params.put("recentUserpics", userService.getRecentUserpics.asJava)
+      params.put("blockedIps", ipBlockDao.getRecentlyBlocked)
+      params.put("unBlockedIps", ipBlockDao.getRecentlyUnBlocked)
     } else {
-      params.put("newUsers", ImmutableList.of())
-      params.put("frozenUsers", ImmutableList.of())
-      params.put("unFrozenUsers", ImmutableList.of())
-      params.put("blockedUsers", ImmutableList.of())
-      params.put("unBlockedUsers", ImmutableList.of())
-      params.put("recentUserpics", ImmutableList.of())
+      params.put("newUsers", Seq.empty.asJava)
+      params.put("frozenUsers", Seq.empty.asJava)
+      params.put("unFrozenUsers", Seq.empty.asJava)
+      params.put("blockedUsers", Seq.empty.asJava)
+      params.put("unBlockedUsers", Seq.empty.asJava)
+      params.put("recentUserpics", Seq.empty.asJava)
+      params.put("blockedIps", Seq.empty.asJava)
+      params.put("unBlockedIps", Seq.empty.asJava)
     }
 
-    if (!tmpl.getProf.isOldTracker) {
-      new ModelAndView("tracker-new", params)
-    } else {
-      new ModelAndView("tracker", params)
+    if (session.moderator || session.corrector) {
+      val uncommitedCounts = topicService.getUncommitedCounts
+
+      params.put("uncommitedCounts", uncommitedCounts.asJava)
     }
+
+    new ModelAndView("tracker-new", params)
   }
 }

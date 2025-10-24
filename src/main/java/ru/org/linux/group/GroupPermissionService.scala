@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,11 +16,12 @@ package ru.org.linux.group
 
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
-import ru.org.linux.markup.MarkupPermissions
+import ru.org.linux.auth.{AnySession, AuthorizedSession}
+import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_GALLERY, SECTION_NEWS}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
-import ru.org.linux.user.User
+import ru.org.linux.user.{User, UserPermissionService}
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -57,11 +58,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isUndeletable(topic: Topic, user: User): Boolean = {
-    if (!topic.deleted || !user.isModerator) {
+  def isUndeletable(topic: Topic)(implicit user: AnySession): Boolean = {
+    if (!topic.deleted || !user.moderator) {
       false
     } else {
-      if (user.isAdministrator) {
+      if (user.administrator) {
         true
       } else if (!topic.expired) {
         true
@@ -75,25 +76,29 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   private def effectivePostscore(group: Group) = {
-    val section = sectionService.getSection(group.getSectionId)
+    val section = sectionService.getSection(group.sectionId)
 
-    Math.max(group.getTopicRestriction, section.getTopicsRestriction)
+    Math.max(group.topicRestriction, section.getTopicsRestriction)
   }
 
-  def enableAllowAnonymousCheckbox(group: Group, @Nullable currentUser: User): Boolean = {
-    currentUser!=null && !group.isPremoderated &&
-      Math.max(group.getCommentsRestriction,
-        Section.getCommentPostscore(group.getSectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
+  def enableAllowAnonymousCheckbox(group: Group)(implicit currentUser: AnySession): Boolean = {
+    currentUser.authorized && !group.premoderated &&
+      Math.max(group.commentsRestriction,
+        Section.getCommentPostscore(group.sectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
   }
 
-  def isTopicPostingAllowed(group: Group, @Nullable currentUser: User): Boolean = {
-    val restriction = effectivePostscore(group)
+  def isTopicPostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean =
+    isTopicPostingAllowed(section.getTopicsRestriction, currentUser.userOpt.orNull)
 
-    if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
+  def isTopicPostingAllowed(group: Group)(implicit currentUser: AnySession): Boolean =
+    isTopicPostingAllowed(effectivePostscore(group), currentUser.userOpt.orNull)
+
+  private def isTopicPostingAllowed(restriction: Int, @Nullable currentUser: User): Boolean = {
+    if (currentUser!=null && (currentUser.isBlocked || currentUser.isFrozen)) {
+      false
+    } else if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
       true
     } else if (currentUser == null || currentUser.isAnonymous) {
-      false
-    } else if (currentUser.isBlocked) {
       false
     } else if (restriction == TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
       currentUser.isModerator
@@ -105,13 +110,27 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isImagePostingAllowed(section: Section, @Nullable currentUser: User): Boolean = {
+  def isImagePostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean = {
     if (section.isImagepost) {
       true
-    } else if (currentUser != null && (currentUser.isModerator || currentUser.canCorrect || currentUser.getScore >= 50)) {
+    } else if (currentUser.authorized &&
+        (currentUser.moderator || currentUser.corrector || currentUser.userOpt.exists(_.getScore >= 50))) {
       section.isImageAllowed
     } else {
       false
+    }
+  }
+
+  def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
+    if (isImagePostingAllowed(section)) {
+      section.getId match {
+        case SECTION_ARTICLES | SECTION_GALLERY | SECTION_NEWS =>
+      	  3
+    	  case _ =>
+      	  0
+      }
+    } else {
+      0
     }
   }
 
@@ -132,16 +151,16 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isDeletable(topic: Topic, user: User): Boolean = {
-    if (user.isAdministrator) {
+  def isDeletable(topic: Topic)(implicit user: AuthorizedSession): Boolean = {
+    if (user.administrator) {
       true
     } else {
       val section = sectionService.getSection(topic.sectionId)
 
-      val deletableByUser = isDeletableByUser(topic, user, section)
+      val deletableByUser = isDeletableByUser(topic, user.user, section)
 
-      if (!deletableByUser && user.isModerator) {
-        isDeletableByModerator(topic, user, section)
+      if (!deletableByUser && user.moderator) {
+        isDeletableByModerator(topic, user.user, section)
       } else {
         deletableByUser
       }
@@ -172,10 +191,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * Можно ли редактировать сообщения полностью
     *
     * @param topic тема
-    * @param by    редактор
     * @return true если можно, false если нет
     */
-  def isEditable(topic: PreparedTopic, @Nullable by: User): Boolean = {
+  def isEditable(topic: PreparedTopic)(implicit session: AnySession): Boolean = {
+    val by = session.userOpt.orNull
+
     val message = topic.message
     val section = topic.section
     val author = topic.author
@@ -188,7 +208,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       true
     } else if (message.expired && !message.draft) {
       false
-    } else if (!MarkupPermissions.allowedFormatsJava(by).contains(topic.markupType)) {
+    } else if (!UserPermissionService.allowedFormatsJava(by).contains(topic.markupType)) {
       false
     } else if (by.isModerator) {
       true
@@ -206,7 +226,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
-    } else if (by.getId == author.getId && message.commited && section.getId == Section.SECTION_ARTICLES) {
+    } else if (by.getId == author.getId && message.commited && section.getId == SECTION_ARTICLES) {
       val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
@@ -219,10 +239,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * Можно ли редактировать теги сообщения
     *
     * @param topic тема
-    * @param by    редактор
     * @return true если можно, false если нет
     */
-  def isTagsEditable(topic: PreparedTopic, @Nullable by: User): Boolean = {
+  def isTagsEditable(topic: PreparedTopic)(implicit session: AnySession): Boolean = {
+    val by = session.userOpt.orNull
+
     val message = topic.message
     val section = topic.section
     val author = topic.author
@@ -249,7 +270,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
-    } else if (by.getId == author.getId && message.commited && section.getId == Section.SECTION_ARTICLES) {
+    } else if (by.getId == author.getId && message.commited && section.getId == SECTION_ARTICLES) {
       val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
@@ -258,7 +279,9 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def canCreateTag(section: Section, user: User): Boolean = {
+  def canCreateTag(section: Section)(implicit session: AnySession): Boolean = {
+    val user = session.userOpt.orNull
+
     if (section.isPremoderated && user!=null && !user.isAnonymous) {
       true
     } else {
@@ -266,6 +289,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def canCommit(user: User, topic: Topic): Boolean =
-    user!=null && (user.isModerator || (user.canCorrect && topic.authorUserId != user.getId))
+  def canCommit(topic: Topic)(implicit session: AnySession): Boolean =
+    session.userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.getId))
 }

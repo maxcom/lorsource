@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import ru.org.linux.group.Group
 import ru.org.linux.reaction.{ReactionDao, Reactions}
 import ru.org.linux.section.Section
 import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_NEWS}
+import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
 import ru.org.linux.util.{StringUtil, URLUtil}
 
@@ -42,7 +43,7 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
                  @BooleanBeanProperty notop: Boolean, @BeanProperty userAgentId: Int, @BeanProperty postIP: String,
                  @BooleanBeanProperty resolved: Boolean, @BooleanBeanProperty minor: Boolean,
                  @BooleanBeanProperty draft: Boolean, @BooleanBeanProperty allowAnonymous: Boolean,
-                 reactions: Reactions) {
+                 reactions: Reactions, @Nullable expireDate: Timestamp, @BeanProperty openWarnings: Int) {
   def getTitleUnescaped: String = StringEscapeUtils.unescapeHtml4(title)
 
   def getPageCount(messages: Int): Int = Math.ceil(commentCount / messages.toDouble).toInt
@@ -69,6 +70,8 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
     }
   }
 
+  def isCommentsHidden: Boolean = postscore == POSTSCORE_HIDE_COMMENTS
+
   def withId(id: Int): Topic = copy(id = id)
 }
 
@@ -82,17 +85,19 @@ object Topic {
       rs.getInt("postscore")
     }
 
+    val sticky = rs.getBoolean("sticky")
+
     Topic(
       id = rs.getInt("msgid"),
       postscore = postscore,
-      sticky = rs.getBoolean("sticky"),
+      sticky = sticky,
       linktext = rs.getString("linktext"),
       url = rs.getString("url"),
       title = StringUtil.makeTitle(rs.getString("title")),
       authorUserId = rs.getInt("userid"),
       groupId = rs.getInt("guid"),
       deleted = rs.getBoolean("deleted"),
-      expired = !rs.getBoolean("sticky") && rs.getBoolean("expired"),
+      expired = !sticky && rs.getBoolean("expired"),
       commitby = rs.getInt("commitby"),
       postdate = rs.getTimestamp("postdate"),
       commitDate = rs.getTimestamp("commitdate"),
@@ -108,20 +113,22 @@ object Topic {
       minor = rs.getBoolean("minor"),
       draft = rs.getBoolean("draft"),
       allowAnonymous = rs.getBoolean("allow_anonymous"),
-      reactions = ReactionDao.parse(rs.getString("reactions")))
+      reactions = ReactionDao.parse(rs.getString("reactions")),
+      expireDate = if (!sticky) rs.getTimestamp("expire_date") else null,
+      openWarnings = rs.getInt("open_warnings"))
   }
 
   def fromAddRequest(form: AddTopicRequest, user: User, postIP: String): Topic = {
-    val group = form.getGroup
+    val group = form.group
 
     Topic(
       userAgentId = 0,
       postIP = postIP,
-      groupId = form.getGroup.getId,
-      linktext =  if (form.getLinktext != null) StringUtil.escapeHtml(form.getLinktext) else null,
-      url = if (!Strings.isNullOrEmpty(form.getUrl)) URLUtil.fixURL(form.getUrl) else null,
-      title = if (form.getTitle!=null) StringUtil.escapeHtml(form.getTitle) else "",
-      sectionId = group.getSectionId,
+      groupId = form.group.id,
+      linktext =  if (form.linktext != null) StringUtil.escapeHtml(form.linktext) else null,
+      url = if (!Strings.isNullOrEmpty(form.url)) URLUtil.fixURL(form.url) else null,
+      title = if (form.title!=null) StringUtil.escapeHtml(form.title) else "",
+      sectionId = group.sectionId,
       // Defaults
       id = 0,
       postscore = 0,
@@ -131,7 +138,7 @@ object Topic {
       commitby = 0,
       postdate = Timestamp.from(Instant.now()),
       commitDate = null,
-      groupUrl = group.getUrlName,
+      groupUrl = group.urlName,
       lastModified = Timestamp.from(Instant.now()),
       commentCount = 0,
       commited = false,
@@ -140,15 +147,17 @@ object Topic {
       resolved = false,
       minor = false,
       draft = form.isDraftMode,
-      allowAnonymous = form.isAllowAnonymous,
-      reactions = Reactions.empty)
+      allowAnonymous = form.allowAnonymous,
+      reactions = Reactions.empty,
+      expireDate = null,
+      openWarnings = 0)
   }
 
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
-    val sectionId = group.getSectionId
+    val sectionId = group.sectionId
 
-    val minor: Boolean = if (form.getMinor != null && (sectionId == SECTION_NEWS || sectionId == SECTION_ARTICLES)) {
-      form.getMinor
+    val minor: Boolean = if (sectionId == SECTION_NEWS || sectionId == SECTION_ARTICLES) {
+      form.minor
     } else {
       original.minor
     }
@@ -157,9 +166,9 @@ object Topic {
       userAgentId = original.userAgentId,
       postIP = original.postIP,
       groupId = original.groupId,
-      linktext = if (form.getLinktext != null && group.isLinksAllowed) form.getLinktext else original.linktext,
-      url = if (form.getUrl != null && group.isLinksAllowed) URLUtil.fixURL(form.getUrl) else original.url,
-      title = if (form.getTitle != null) StringUtil.escapeHtml(form.getTitle) else original.title,
+      linktext = if (form.linktext != null && group.linksAllowed) form.linktext else original.linktext,
+      url = if (form.url != null && group.linksAllowed) URLUtil.fixURL(form.url) else original.url,
+      title = if (form.title != null) StringUtil.escapeHtml(form.title) else original.title,
       resolved = original.resolved,
       sectionId = sectionId,
       id = original.id,
@@ -179,6 +188,8 @@ object Topic {
       draft = if (publish) false else original.draft,
       minor = minor,
       allowAnonymous = original.allowAnonymous,
-      reactions = original.reactions)
+      reactions = original.reactions,
+      expireDate = original.expireDate,
+      openWarnings = original.openWarnings)
   }
 }

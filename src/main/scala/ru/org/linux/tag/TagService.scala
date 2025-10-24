@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 package ru.org.linux.tag
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import com.typesafe.scalalogging.StrictLogging
@@ -29,23 +29,22 @@ import ru.org.linux.util.RichFuture.RichFuture
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
-import java.util
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, TimeoutException}
 import scala.concurrent.duration.Deadline
+import scala.concurrent.{Future, TimeoutException}
 import scala.jdk.CollectionConverters.*
 
 @Service
 class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSystem,
                  sectionService: SectionService, groupDao: GroupDao) extends StrictLogging {
-  private implicit val akka: ActorSystem = actorSystem
+  private implicit val pekko: ActorSystem = actorSystem
 
   import ru.org.linux.tag.TagService.*
 
   private val sectionForum: Section = sectionService.getSection(Section.SECTION_FORUM)
   private val NonTechNames: Seq[String] =
-    groupDao.getGroups(sectionForum).asScala.filter(g => SectionController.NonTech.contains(g.getId)).map(_.getUrlName).toSeq
+    groupDao.getGroups(sectionForum).asScala.filter(g => SectionController.NonTech.contains(g.id)).map(_.urlName).toSeq
 
   /**
    * Получение идентификационного номера тега по названию.
@@ -59,42 +58,57 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
 
   def getTagIdOpt(tag: String): Option[Int] = tagDao.getTagId(tag)
 
+  def getTagIdOptWithSynonym(tag: String): Option[Int] = tagDao.getTagId(tag).orElse(tagDao.getTagSynonymId(tag))
+
   /**
    * Получение идентификационного номера тега по названию, либо создание нового тега.
    *
    * @param tagName название тега
    * @return идентификационный номер тега
    */
-  def getOrCreateTag(tagName: String): Int = {
-    tagDao.getTagId(tagName).orElse(tagDao.getTagSynonymId(tagName)).getOrElse(tagDao.createTag(tagName))
-  }
+  def getOrCreateTag(tagName: String): Int = getTagIdOptWithSynonym(tagName).getOrElse(tagDao.createTag(tagName))
 
-  def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] =
-    tagDao.getTagId(tag, skipZero).map(tagDao.getTagInfo)
+  def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] = {
+    if (TagName.isGoodTag(tag)) {
+      tagDao.getTagId(tag, skipZero).map(tagDao.getTagInfo)
+    } else {
+      None
+    }
+  }
 
   def getTagBySynonym(tagName: String): Option[TagRef] =
     tagDao.getTagSynonymId(tagName).map(tagDao.getTagInfo).map(i => tagRef(i, threshold = 0))
 
-  def countTagTopics(tag: String): Future[Long] = {
-    Future.successful(elastic) flatMap {
+  def countTagTopics(tag: String, section: Option[Section], deadline: Deadline): Future[Option[Long]] = {
+    val sectionFilter = section.map(s => termQuery("section", s.getUrlName))
+
+    Future.successful(elastic).flatMap {
       _ execute {
         count(MessageIndex).query(
           boolQuery().filter(
-            termQuery("is_comment", "false"),
+            Seq(termQuery("is_comment", "false"),
             termQuery("tag", tag),
-            termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")))
+            termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")) ++ sectionFilter))
       }
-    } map {
-      _.result.count
-    }
+    }.map { r =>
+      Some(r.result.count)
+    }.withTimeout(deadline.timeLeft)
+      .recover {
+        case ex: TimeoutException =>
+          logger.warn(s"Tag topics count timed out (${ex.getMessage})")
+          None
+        case ex =>
+          logger.warn("Unable to count tag topics", ex)
+          None
+      }
   }
 
-  def getNewTags(tags: util.List[String]): util.List[String] =
-    tags.asScala.filterNot { tag =>
+  def getNewTags(tags: Seq[String]): Seq[String] =
+    tags.filterNot { tag =>
       tagDao.getTagId(tag, skipZero = true).isDefined || tagDao.getTagSynonymId(tag).isDefined
-    }.asJava
+    }
 
-  def getRelatedTags(tag: String): Future[Seq[TagRef]] = Future.successful(elastic).flatMap {
+  def getRelatedTags(tag: String, deadline: Deadline): Future[Seq[TagRef]] = Future.successful(elastic).flatMap {
     _ execute {
       search(MessageIndex) size 0 query
         boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs (
@@ -107,13 +121,14 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
     } yield {
       tagRef(bucket.key)
     }).sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
-  }
+  }.withTimeout(deadline.timeLeft)
 
-  def getActiveTopTags(section: Section, group: Option[Group], filter: Option[ForumFilter], deadline: Deadline): Future[Seq[TagRef]] = {
-    if (group.exists(g => g.getId == 4068)) {
+  def getActiveTopTags(section: Section, group: Option[Group], filter: Option[ForumFilter],
+                       deadline: Deadline): Future[Seq[TagRef]] = {
+    if (group.exists(g => g.id == 4068)) {
       Future.successful(Seq.empty)
     } else {
-      val groupFilter = group.map(g => termQuery("group", g.getUrlName))
+      val groupFilter = group.map(g => termQuery("group", g.urlName))
 
       val additionalFilter = filter.collect {
         case ForumFilter.Tech =>
@@ -128,7 +143,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
       val filters = Seq(
         termQuery("is_comment", "false"),
         termQuery("section", section.getUrlName),
-        rangeQuery("postdate").gte("now/d-1y")
+        rangeQuery("postdate").gte(ElasticDate(LocalDate.now().atStartOfDay().minus(1, ChronoUnit.YEARS).toLocalDate))
       ) ++ groupFilter ++ additionalFilter
 
       Future.successful(elastic).flatMap {
@@ -147,7 +162,7 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
         (for {
           bucket <- r.result.aggregations.significantTerms("active").buckets
         } yield {
-          tagRef(bucket.key)
+          tagRef(bucket.key, section)
         }).sorted
       }.withTimeout(deadline.timeLeft).recover {
         case ex: TimeoutException =>
@@ -206,7 +221,14 @@ object TagService {
       None
     })
 
+  def tagRef(name: String, section: Section): TagRef = TagRef(name,
+    if (TagName.isGoodTag(name)) {
+      Some(TagTopicListController.tagListUrl(name, section))
+    } else {
+      None
+    })
+
   def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.asScala.map(tagRef).asJava
 
-  def tagsToString(tags: util.Collection[String]): String = tags.asScala.mkString(",")
+  def tagsToString(tags: Seq[String]): String = tags.mkString(",")
 }

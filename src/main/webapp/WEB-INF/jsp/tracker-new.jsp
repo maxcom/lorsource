@@ -1,7 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -16,7 +16,7 @@
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
 <%--@elvariable id="frozenUsers" type="java.util.List<scala.Tuple2<ru.org.linux.user.User, java.lang.Boolean>>"--%>
-<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
@@ -47,78 +47,43 @@
         <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
       </c:if>
   </c:forEach>
+
+  <c:if test="${template.moderatorSession}">
+    <a class="btn btn-default" href="/sameip.jsp?score=-9999">anonymous</a>
+    <a class="btn btn-default" href="/sameip.jsp?score=46">score <= 45</a>
+  </c:if>
+
+  <c:if test="${(template.moderatorSession or template.correctorSession) and (not empty uncommitedCounts)}">
+      <c:forEach var="item" items="${uncommitedCounts}">
+        <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">неподтв. ${item._1().name.toLowerCase()}: ${item._2()}</a>
+      </c:forEach>
+  </c:if>
 </nav>
 
-<div class=tracker>
-    <c:forEach var="msg" items="${msgs}">
-      <a href="${msg.lastPageUrl}" class="tracker-item">
-        <div class="tracker-src">
-          <p>
-          <span class="group-label">${msg.groupTitle}</span>
-            <c:if test="${msg.uncommited}">(не подтверждено)</c:if><br class="hideon-phone hideon-tablet">
-          <c:if test="${msg.topicAuthor != null}"><lor:user user="${msg.topicAuthor}"/></c:if>
-          </p>
-        </div>
+<c:if test="${template.prof.oldTracker}">
+  <lor:tracker-topics messages="${messages}"/>
+</c:if>
 
-        <div class="tracker-count">
-          <p>
-          <c:choose>
-            <c:when test="${msg.commentCount==0}">
-              -
-            </c:when>
-            <c:otherwise>
-              <i class="icon-comment"></i> ${msg.commentCount}
-            </c:otherwise>
-          </c:choose>
-          </p>
-        </div>
-
-        <div class="tracker-title">
-          <p>
-            <c:if test="${msg.commentsClosed and not msg.deleted}">
-              &#128274;
-            </c:if>
-            <c:if test="${msg.resolved}">
-              <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
-            </c:if>
-
-            <l:title>${msg.title}</l:title>
-          </p>
-        </div>
-
-        <div class="tracker-tags">
-          <p>
-          <c:forEach var="tag" items="${msg.tags}">
-            <span class="tag">${tag}</span>
-          </c:forEach>
-          </p>
-        </div>
-
-        <div class="tracker-last">
-          <p>
-          <lor:user user="${msg.author}"/>, <lor:dateinterval date="${msg.postdate}" compact="true"/>
-          </p>
-        </div>
-      </a>
-    </c:forEach>
-</div>
+<c:if test="${not template.prof.oldTracker}">
+  <lor:tracker-topics-new messages="${messages}"/>
+</c:if>
 
 <div class="nav">
   <div style="display: table; width: 100%">
     <div style="display: table-cell; text-align: left">
-      <c:if test="${offset>0}">
-        <a href="/tracker/?offset=${offset-topics}${addition_query}">← предыдущие</a>
+      <c:if test="${not empty prevLink}">
+        <a href="${prevLink}" rel="prev">← предыдущие</a>
       </c:if>
     </div>
     <div style="display: table-cell; text-align: right">
-      <c:if test="${offset+topics<300 and fn:length(msgs)==topics}">
-        <a href="/tracker/?offset=${offset+topics}${addition_query}">следующие →</a>
+      <c:if test="${not empty nextLink}">
+        <a href="${nextLink}" rel="next">следующие →</a>
       </c:if>
     </div>
   </div>
 </div>
 
-<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers || not empty recentUserpics}">
+<c:if test="${not empty newUsers || not empty frozenUsers || not empty blockedUsers || not empty unFrozenUsers || not empty unBlockedUsers || not empty recentUserpics || not empty blockedIps || not empty unBlockedIps}">
   <h2>Пользователи</h2>
   <p>
     Новые пользователи за последние 3 дня:
@@ -154,6 +119,20 @@
       <lor:user user="${user}" link="true"/><c:out value=" "/>
     </c:forEach>
     (всего ${fn:length(unBlockedUsers)})
+  </p>
+  <p>
+    Заблокированные IP за последние 3 дня:
+    <c:forEach items="${blockedIps}" var="ip">
+      <a href="/sameip.jsp?ip=${ip}">${ip}</a>
+    </c:forEach>
+    (всего ${fn:length(blockedIps)})
+  </p>
+  <p>
+    Разблокированные IP за последние 3 дня:
+    <c:forEach items="${unBlockedIps}" var="ip">
+      <a href="/sameip.jsp?ip=${ip}">${ip}</a>
+    </c:forEach>
+    (всего ${fn:length(unBlockedIps)})
   </p>
 
   <div class="userpic-list">

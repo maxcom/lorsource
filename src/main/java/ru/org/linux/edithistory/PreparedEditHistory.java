@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2021 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,7 +27,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
-import java.util.SortedMap;
 
 public class PreparedEditHistory {
   private final boolean original;
@@ -44,6 +43,8 @@ public class PreparedEditHistory {
   private final boolean imageDeleted;
   private final Poll poll;
   private final Integer restoreFrom;
+  private final List<PreparedImage> addedImages;
+  private final List<PreparedImage> removedImages;
 
   public PreparedEditHistory(
           MessageTextService lorCodeService,
@@ -61,13 +62,15 @@ public class PreparedEditHistory {
           Boolean imageDeleted,
           MarkupType markup,
           Poll poll,
-          Integer restoreFrom) {
+          Integer restoreFrom, List<PreparedImage> addedImages, List<PreparedImage> removedImages) {
     this.original = original;
 
     this.editor = editor;
     this.image = image;
     this.imageDeleted = imageDeleted;
     this.poll = poll;
+    this.addedImages = addedImages;
+    this.removedImages = removedImages;
 
     if (message!=null) {
       this.restoreFrom = restoreFrom;
@@ -141,5 +144,13 @@ public class PreparedEditHistory {
 
   public Integer getRestoreFrom() {
     return restoreFrom;
+  }
+
+  public List<PreparedImage> getAddedImages() {
+    return addedImages;
+  }
+
+  public List<PreparedImage> getRemovedImages() {
+    return removedImages;
   }
 }

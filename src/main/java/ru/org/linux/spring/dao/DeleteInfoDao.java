@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -84,11 +84,15 @@ public class DeleteInfoDao {
     if (list.isEmpty()) {
       return null;
     } else {
-      return list.get(0);
+      return list.getFirst();
     }
   }
 
-  public void insert(int msgid, User deleter, String reason, int scoreBonus) {
+  public void insert(InsertDeleteInfo info) {
+    insert(info.msgid(), info.deleteUser, info.reason, info.bonus);
+  }
+
+  private void insert(int msgid, User deleter, String reason, int scoreBonus) {
     Preconditions.checkArgument(scoreBonus <= 0, "Score bonus on delete must be non-positive");
 
     jdbcTemplate.update(INSERT_DELETE_INFO, msgid, deleter.getId(), reason, scoreBonus);
@@ -96,7 +100,7 @@ public class DeleteInfoDao {
 
   public int getRecentScoreLoss(User user) {
     return Math.abs(jdbcTemplate.queryForObject(
-            "select COALESCE(sum(bonus), 0) from del_info where deldate>CURRENT_TIMESTAMP-'2 week'::interval and " +
+            "select COALESCE(sum(bonus), 0) from del_info where deldate>CURRENT_TIMESTAMP-'3 days'::interval and " +
                     "msgid in (select id from comments where comments.userid = ? union all select id from topics where topics.userid = ?)",
             Integer.class, user.getId(), user.getId()));
   }
@@ -106,15 +110,18 @@ public class DeleteInfoDao {
       return;
     }
 
+    deleteInfos.forEach(info ->
+            Preconditions.checkArgument(info.bonus <= 0, "Score bonus on delete must be non-positive"));
+
     jdbcTemplate.batchUpdate(INSERT_DELETE_INFO, new BatchPreparedStatementSetter() {
       @Override
       public void setValues(PreparedStatement ps, int i) throws SQLException {
         InsertDeleteInfo info = deleteInfos.get(i);
 
-        ps.setInt(1, info.getMsgid());
-        ps.setInt(2, info.getDeleteUser());
-        ps.setString(3, info.getReason());
-        ps.setInt(4, info.getBonus());
+        ps.setInt(1, info.msgid());
+        ps.setInt(2, info.deleteUser().getId());
+        ps.setString(3, info.reason());
+        ps.setInt(4, info.bonus());
       }
 
       @Override
@@ -128,35 +135,21 @@ public class DeleteInfoDao {
     jdbcTemplate.update("DELETE FROM del_info WHERE msgid=?", msgid);
   }
 
-  public static class InsertDeleteInfo {
-    private final int msgid;
-    private final String reason;
-    private final int bonus;
-    private final int deleteUser;
-
-    public InsertDeleteInfo(int msgid, @Nonnull String reason, int bonus, int deleteUser) {
-      Preconditions.checkArgument(bonus <= 0, "Score bonus on delete must be non-positive");
-
-      this.msgid = msgid;
-      this.reason = reason;
-      this.bonus = bonus;
-      this.deleteUser = deleteUser;
-    }
-
-    public int getMsgid() {
-      return msgid;
-    }
-
-    public String getReason() {
-      return reason;
-    }
-
-    public int getBonus() {
-      return bonus;
-    }
-
-    public int getDeleteUser() {
-      return deleteUser;
-    }
+  public int scoreLoss(int msgid) {
+    return jdbcTemplate.queryForObject("select COALESCE((select sum(-bonus) as total_bonus from del_info " +
+            "join comments on comments.id = del_info.msgid where bonus is not null and " +
+            "comments.userid!=2 and topic = ? " +
+            "group by topic), 0)", Integer.class, msgid);
   }
+
+  public record InsertDeleteInfo(int msgid, String reason, int bonus, User deleteUser) {
+      public InsertDeleteInfo(int msgid, @Nonnull String reason, int bonus, User deleteUser) {
+        Preconditions.checkArgument(bonus <= 0, "Score bonus on delete must be non-positive");
+
+        this.msgid = msgid;
+        this.reason = reason;
+        this.bonus = bonus;
+        this.deleteUser = deleteUser;
+      }
+    }
 }

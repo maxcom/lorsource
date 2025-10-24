@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,20 +18,15 @@ package ru.org.linux.markup
 import com.google.common.base.Strings
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
-import ru.org.linux.markup.MarkupType._
+import ru.org.linux.markup.MarkupType.*
 import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.bbcode.LorCodeService
-import ru.org.linux.util.formatter.ToLorCodeTexFormatter
 import ru.org.linux.util.markdown.MarkdownFormatter
-
-import scala.jdk.CollectionConverters._
-import scala.collection.immutable.ListMap
 
 @Service
 class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: MarkdownFormatter) {
-  import MessageTextService._
 
   /**
     * Получить html представление текста комментария
@@ -42,9 +37,9 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
   def renderCommentText(text: MessageText, nofollow: Boolean): String = {
     text.markup match {
       case Lorcode =>
-        lorCodeService.parseComment(prepareLorcode(text.text), nofollow)
+        lorCodeService.parseComment(text.text, nofollow, LorCodeService.Lorcode)
       case LorcodeUlb =>
-        lorCodeService.parseComment(prepareUlb(text.text), nofollow)
+        lorCodeService.parseComment(text.text, nofollow, LorCodeService.Ulb)
       case Html =>
         "<p>" + text.text + "</p>"
       case Markdown =>
@@ -61,9 +56,9 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
   def renderTextRSS(text: MessageText): String = {
     text.markup match {
       case Lorcode =>
-        lorCodeService.parseCommentRSS(prepareLorcode(text.text))
+        lorCodeService.parseCommentRSS(text.text, LorCodeService.Lorcode)
       case LorcodeUlb =>
-        lorCodeService.parseCommentRSS(prepareUlb(text.text))
+        lorCodeService.parseCommentRSS(text.text, LorCodeService.Ulb)
       case Html =>
         "<p>" + text.text + "</p>"
       case Markdown =>
@@ -76,15 +71,15 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
     text.markup match {
       case Lorcode =>
         if (minimizeCut) {
-          lorCodeService.parseTopicWithMinimizedCut(prepareLorcode(text.text), canonicalUrl, nofollow)
+          lorCodeService.parseTopicWithMinimizedCut(text.text, canonicalUrl, nofollow, LorCodeService.Lorcode)
         } else {
-          lorCodeService.parseTopic(prepareLorcode(text.text), nofollow)
+          lorCodeService.parseTopic(text.text, nofollow, LorCodeService.Lorcode)
         }
       case LorcodeUlb =>
         if (minimizeCut) {
-          lorCodeService.parseTopicWithMinimizedCut(prepareUlb(text.text), canonicalUrl, nofollow)
+          lorCodeService.parseTopicWithMinimizedCut(text.text, canonicalUrl, nofollow, LorCodeService.Ulb)
         } else {
-          lorCodeService.parseTopic(prepareUlb(text.text), nofollow)
+          lorCodeService.parseTopic(text.text, nofollow, LorCodeService.Ulb)
         }
       case Html =>
         "<p>" + text.text
@@ -100,32 +95,30 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
   def extractPlainText(text: MessageText): String = {
     text.markup match {
       case Lorcode =>
-        lorCodeService.extractPlainTextFromLorcode(prepareLorcode(text.text))
+        lorCodeService.extractPlain(text.text, LorCodeService.Lorcode)
       case LorcodeUlb =>
-        lorCodeService.extractPlainTextFromLorcode(prepareUlb(text.text))
+        lorCodeService.extractPlain(text.text, LorCodeService.Ulb)
       case Html =>
         Jsoup.parse(text.text).text
       case Markdown =>
-        Jsoup.parse(markdownFormatter.renderToHtml(text.text, nofollow = false)).text()
+        markdownFormatter.renderToText(text.text)
     }
   }
 
-  def mentions(text: MessageText): java.util.Set[User] = {
+  def mentions(text: MessageText): collection.Set[User] = {
     text.markup match {
-      case Lorcode =>
-        lorCodeService.getReplierFromMessage(prepareLorcode(text.text))
-      case LorcodeUlb =>
-        lorCodeService.getReplierFromMessage(prepareUlb(text.text))
+      case Lorcode | LorcodeUlb =>
+        lorCodeService.getMentions(text.text)
       case Html =>
-        Set.empty[User].asJava
+        Set.empty[User]
       case Markdown =>
-        markdownFormatter.mentions(text.text).asJava
+        markdownFormatter.mentions(text.text)
     }
   }
 
   def isEmpty(text: MessageText): Boolean = extractPlainText(text).trim.isEmpty
 
-  // TODO надо бы извести эту логику; для moveBy/moveFrom если история; url/linktext лучше просто показывать всегда
+  // TODO надо бы извести эту логику; для moveBy/moveFrom есть история; url/linktext лучше просто показывать всегда
   def moveInfo(markup: MarkupType, url: String, linktext: String, moveBy: User, moveFrom: String): String = {
     /* if url is not null, update the topic text */
     val link = if (!Strings.isNullOrEmpty(url)) {
@@ -169,17 +162,6 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 }
 
 object MessageTextService {
-  def processPostingText(message: String, mode: String): MessageText = {
-    mode match {
-      case LorcodeUlb.formId =>
-        MessageText.apply(message, MarkupType.LorcodeUlb)
-      case Lorcode.formId =>
-        MessageText.apply(message, MarkupType.Lorcode)
-      case Markdown.formId =>
-        MessageText.apply(message, MarkupType.Markdown)
-    }
-  }
-
   /**
     * Обрезать чистый текст до заданого размера
     *
@@ -201,33 +183,4 @@ object MessageTextService {
       cut
     }
   }
-
-  // TODO move to LorCodeService
-  // раньше это делалось при постинге, теперь будем делать при рендеринге
-  def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")
-  def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
-
-  def postingModeSelector(user: User, defaultMarkup: String): java.util.Map[String, String] = {
-    val modes = MarkupPermissions.allowedFormats(user).filter(f => !f.deprecated || f.formId == defaultMarkup)
-
-    (if (modes.size > 1) {
-      ListMap(modes.toSeq.sortBy(_.order).map(m => m.formId -> m.title): _*)
-    } else {
-      Map.empty[String, String]
-    }).asJava
-  }
-}
-
-object MarkupPermissions {
-  def allowedFormats(user: User): Set[MarkupType] = {
-    if (user==null) { // anonymous
-      Set(Lorcode, Markdown)
-    } else if (user.isAdministrator) {
-      Set(Lorcode, LorcodeUlb, Markdown, Html)
-    } else {
-      Set(Lorcode, LorcodeUlb, Markdown)
-    }
-  }
-
-  def allowedFormatsJava(user: User): java.util.Set[MarkupType] = allowedFormats(user).asJava
 }

@@ -144,7 +144,7 @@
 
 ### Вложенные списки
 
-Вложенные списки создаются при помощи отсупа в 4 пробела. Тип вложенного списка может отличаться от списка верхнего уровня. Пример:
+Вложенные списки создаются при помощи отступа в 4 пробела. Тип вложенного списка может отличаться от списка верхнего уровня. Пример:
 ```
 1. 1 Пункт
 2. А тут вложенность:
@@ -186,6 +186,67 @@ git pull && sbt compile
 git pull && sbt compile 
 ```
 `````
+
+Поддерживаются следующие языки:
+
+* ABNF
+* Ada
+* ASM-ARM
+* ASM-AVR
+* ASM-MIPS
+* ASM-X86 (`asm`)
+* AWK
+* Bash, Shell
+* Basic (`bas`)
+* BNF
+* Brainfuck
+* C
+* C# (`c#`, `cs`)
+* C++ (`c++`, `cpp`, `cxx`, `cc`)
+* Clojure
+* CMake
+* CoffeeScript
+* CSS
+* D
+* Diff (`patch`, `diff`)
+* EBNF
+* Erlang
+* F# (`f#`, `fs`)
+* Fortran
+* Go
+* Haskell
+* HTML, XML
+* Ini
+* Java
+* JavaScript (`js`, `javascript`)
+* JSON
+* Julia (`jl`)
+* Lisp
+* LLVM
+* Lua
+* Makefile
+* Markdown (`md`)
+* Nim
+* Nix
+* OCaml
+* Objective C (`objc`, `objectivec`)
+* Pascal, Delphi (`pas`)
+* Perl
+* PHP
+* Python (`py`)
+* Ruby (`rb`)
+* Rust (`rs`)
+* Scala
+* Scheme
+* Smalltalk
+* SQL
+* TCL
+* TypeScript (`ts`)
+* TeX
+* Vala
+* Vim
+* WASM
+* YAML
 
 ## Спойлер (cut) в ленте
 

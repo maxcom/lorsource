@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,14 +20,11 @@ import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -111,12 +108,9 @@ public class UserTagDao {
         "user_tags.user_id=:user_id AND tags_values.id=user_tags.tag_id AND user_tags.is_favorite=:is_favorite " +
         "ORDER BY value",
       parameters,
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet rs) throws SQLException {
-          tags.add(rs.getString("value"));
-        }
-      }
+            rs -> {
+              tags.add(rs.getString("value"));
+            }
     );
 
     return tags.build();
@@ -129,7 +123,7 @@ public class UserTagDao {
    * @param tags   список фаворитных тегов
    * @return список ID пользователей
    */
-  public List<Integer> getUserIdListByTags(int userId, List<String> tags) {
+  public List<Integer> getUserIdListByTags(int userId, List<Integer> tags) {
     if (tags.isEmpty()) {
       return ImmutableList.of();
     }
@@ -139,12 +133,12 @@ public class UserTagDao {
     parameters.addValue("user_id", userId);
 
     return jdbcTemplate.queryForList(
-      "select distinct user_id from user_tags where tag_id in (select id from tags_values where value in ( :values )) "
+      "select distinct user_id from user_tags where tag_id in (:values) "
         + "AND is_favorite = true "
         + "AND user_id not in (" +
               "select userid from ignore_list where ignored=:user_id union " +
               "select :user_id union " +
-              "select user_id from user_tags where tag_id in (select id from tags_values where value in ( :values )) and is_favorite = false)",
+              "select user_id from user_tags where tag_id in (:values) and is_favorite = false)",
       parameters,
       Integer.class
     );

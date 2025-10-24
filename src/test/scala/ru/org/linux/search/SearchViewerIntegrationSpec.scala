@@ -21,10 +21,10 @@ import org.specs2.specification.Scope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
-import ru.org.linux.AkkaConfiguration
+import ru.org.linux.PekkoConfiguration
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
-  classOf[AkkaConfiguration]))
+  classOf[PekkoConfiguration]))
 @DirtiesContext
 class SearchViewerIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
@@ -40,12 +40,12 @@ class SearchViewerIntegrationSpec extends SpecificationWithJUnit {
 
     indexService.createIndexIfNeeded()
 
-    override def after = elastic execute { deleteIndex("*") } await
+    override def after: Unit = elastic execute { deleteIndex("*") } await
   }
 
   "SearchViewer" should {
     "make valid default search" in new IndexFixture {
-      val response = new SearchViewer(new SearchRequest(), elastic).performSearch
+      val response = new SearchViewer(new SearchRequest(), elastic).performSearch(null)
 
       response.totalHits must be equalTo 0
     }

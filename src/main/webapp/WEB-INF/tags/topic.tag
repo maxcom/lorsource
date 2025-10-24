@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
+<%@ tag import="ru.org.linux.warning.WarningService" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -23,6 +24,7 @@
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="showImageDelete" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="imageSlider" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="briefEditInfo" required="false" type="ru.org.linux.topic.PreparedEditInfoSummary" %>
 <%@ attribute name="reactionList" required="false" type="ru.org.linux.reaction.PreparedReactionList" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -60,6 +62,7 @@
         <span>(не подтверждено)</span>
       </c:if>
     </span>
+    <c:if test="${showMenu}">
       &emsp;
       <c:if test="${messageMenu.commitable}">
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
@@ -83,6 +86,7 @@
           [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
         </c:if>
       </c:if>
+      </c:if>
     </span>
     </div>
 
@@ -99,34 +103,57 @@
   <div class="msg-container">
 
   <div class="msg_body">
-  <c:if test="${preparedMessage.image != null}">
-    <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" enableSchema="true"
-               preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
-  </c:if>
+    <c:set var="sizes" value="(min-width: 70em) 80vw, 100vw" />
+
+    <c:if test="${fn:length(preparedMessage.allImages) == 1}">
+      <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.allImages[0]}" enableSchema="true"
+                 preparedMessage="${preparedMessage}" showImage="true" sizes="${sizes}"
+                 enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
+    </c:if>
+
+    <c:if test="${fn:length(preparedMessage.allImages) > 1}">
+      <c:if test="${imageSlider}">
+        <lor:imageslider title="${preparedMessage.message.title}"
+                         classes="slider-indicators-outside slider-indicators-sm"
+                         images="${preparedMessage.allImages}"/>
+      </c:if>
+
+      <c:if test="${not imageSlider}">
+        <c:forEach var="image" items="${preparedMessage.allImages}">
+          <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true"
+                     preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
+        </c:forEach>
+      </c:if>
+    </c:if>
 
     <c:if test="${memoriesInfo!=null}">
       <div class="fav-buttons">
         <a id="favs_button" href="#"><i class="icon-star"></i></a><br><span
-          id="favs_count">${memoriesInfo.favsCount()}</span><br>
+           id="favs_count">${memoriesInfo.favsCount()}</span><br>
         <a id="memories_button" href="#"><i class="icon-eye"></i></a><br><span
-          id="memories_count">${memoriesInfo.watchCount()}</span>
+           id="memories_count">${memoriesInfo.watchCount()}</span>
       </div>
     </c:if>
 
     <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
       ${preparedMessage.processedMessage}
-
       <c:if test="${preparedMessage.section.pollPostAllowed}">
         <c:choose>
           <c:when test="${not message.commited}">
             <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
           </c:when>
           <c:otherwise>
-            <lor:poll poll="${preparedMessage.poll}"/>
-
-            <c:if test="${not preparedMessage.message.expired}">
-              <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
-            </c:if>
+            <c:choose>
+              <c:when test="${param.results == 'true' or preparedMessage.poll.userVoted or preparedMessage.message.expired}">
+                <lor:poll poll="${preparedMessage.poll}"/>
+              </c:when>
+              <c:otherwise>
+                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${currentUser!=null}"/>
+                <c:if test="${not param.results == 'true'}">
+                  <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
+                </c:if>
+              </c:otherwise>
+            </c:choose>
           </c:otherwise>
         </c:choose>
       </c:if>
@@ -138,10 +165,6 @@
           %>
         </p>
       </c:if>
-
-        <c:if test="${preparedMessage.image != null}">
-          <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.image}" preparedMessage="${preparedMessage}" showInfo="true"/>
-        </c:if>
     </div>
 <footer>
 
@@ -185,7 +208,12 @@
     <br>
     Последнее исправление: ${briefEditInfo.lastEditor()}<c:out value=" "/><lor:date
           date="${briefEditInfo.lastEditDate()}"/>
-    (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount()}</a>)
+    <c:if test="${briefEditInfo.showHistory}">
+        (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount()}</a>)
+    </c:if>
+    <c:if test="${not briefEditInfo.showHistory}">
+        (всего исправлений: ${briefEditInfo.editCount()})
+    </c:if>
   </c:if>
   <c:if test="${preparedMessage.userAgent!=null}">
     <br>
@@ -196,40 +224,57 @@
 </div>
 </footer>
 
+<c:if test="${showMenu and messageMenu.commitable and preparedMessage.section.premoderated and not message.commited}">
+  <nav>
+    <a class="btn btn-primary" href="commit.jsp?msgid=${message.id}">Подтвердить</a>
+    <a class="btn btn-default" href="edit.jsp?msgid=${message.id}">Править</a>
+  </nav>
+</c:if>
+
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
           <ul id="topicMenu">
-          <c:if test="${not message.expired}">
-            <c:if test="${messageMenu.commentsAllowed}">
-              <li><a href="comment-message.jsp?topic=${message.id}">Ответить<span class="hideon-phone"> на это сообщение</span></a></li>
+            <c:if test="${not message.expired}">
+              <c:if test="${messageMenu.commentsAllowed}">
+                <li><a href="comment-message.jsp?topic=${message.id}">Ответить<span class="hideon-phone"> на это сообщение</span></a></li>
+              </c:if>
             </c:if>
-        </c:if>
 
-        <c:if test="${preparedMessage.reactions.emptyMap and preparedMessage.reactions.allowInteract}">
-          <li><a class="reaction-show" href="/reactions?topic=${message.id}">Реакции</a></li>
-        </c:if>
+            <c:if test="${preparedMessage.reactions.emptyMap and preparedMessage.reactions.allowInteract}">
+              <li><a class="reaction-show" href="/reactions?topic=${message.id}">Реакции</a></li>
+            </c:if>
 
-        <c:if test="${messageMenu.editable}">
-            <li><a href="edit.jsp?msgid=${message.id}">Править</a></li>
-        </c:if>
-        <c:if test="${messageMenu.deletable}">
-          <li><a href="delete.jsp?msgid=${message.id}">Удалить</a></li>
-        </c:if>
-        <c:if test="${messageMenu.resolvable}">
-            <c:if test="${message.resolved}">
-                <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешённую</a></li>
+            <c:if test="${messageMenu.editable}">
+                <li><a href="edit.jsp?msgid=${message.id}">Править</a></li>
             </c:if>
-            <c:if test="${not message.resolved}">
-                <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решённую</a></li>
+
+            <c:if test="${messageMenu.deletable}">
+              <li><a href="delete.jsp?msgid=${message.id}">Удалить</a></li>
             </c:if>
-        </c:if>
+
+            <c:if test="${messageMenu.resolvable}">
+                <c:if test="${message.resolved}">
+                    <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешённую</a></li>
+                </c:if>
+                <c:if test="${not message.resolved}">
+                    <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решённую</a></li>
+                </c:if>
+            </c:if>
+
+            <c:if test="${messageMenu.warningsAllowed}">
+              <li><a href="/post-warning?topic=${message.id}">Уведомить модераторов</a></li>
+            </c:if>
+
             <li><a href="${message.link}">Ссылка</a></li>
           </ul>
-        <c:if test="${template.sessionAuthorized and not message.expired}">
-          <br>${preparedMessage.postscoreInfo}
-        </c:if>
+          <c:if test="${template.sessionAuthorized and not message.expired}">
+            <br>${preparedMessage.postscoreInfo}
+          </c:if>
         </div>
       </c:if>
+
+    <lor:warnings warnings="${preparedMessage.warnings}"
+                  hidden="${preparedMessage.message.openWarnings > WarningService.TopicMaxWarnings()}"/>
 
     <lor:reactions reactions="${preparedMessage.reactions}" reactionList="${reactionList}" topic="${message}"/>
   </div>

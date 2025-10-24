@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,12 +15,8 @@
 
 package ru.org.linux.user;
 
-import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
-import org.jasypt.util.password.BasicPasswordEncryptor;
-import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.validation.Errors;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.auth.BadPasswordException;
 import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nullable;
@@ -97,44 +93,6 @@ public class User implements Serializable {
     return password;
   }
 
-  public void checkPassword(String password) throws BadPasswordException {
-    if (blocked) {
-      throw new BadPasswordException(nick);
-    }
-
-    if (password==null) {
-      throw new BadPasswordException(nick);
-    }
-
-    if (anonymous && password.isEmpty()) {
-      return;
-    }
-
-    if (!matchPassword(password)) {
-      throw new BadPasswordException(nick);
-    }
-  }
-
-  public boolean matchPassword(String password) {
-    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
-
-    try {
-      return encryptor.checkPassword(password, this.password);
-    } catch (EncryptionOperationNotPossibleException ex) {
-      return false;
-    }
-  }
-
-  public void checkBlocked() throws AccessViolationException {
-    if (blocked) {
-      throw new AccessViolationException("Пользователь заблокирован");
-    }
-
-    if (!activated) {
-      throw new AccessViolationException("Пользователь не активирован");
-    }
-  }
-
   public void checkBlocked(Errors errors) {
     if (blocked) {
       errors.reject(null, "Пользователь заблокирован");
@@ -145,24 +103,9 @@ public class User implements Serializable {
     }
   }
 
-  public void checkFrozen() throws AccessViolationException {
-    if (isFrozen()) {
-      throw new AccessViolationException("Пользователь временно заморожен");
-    }
-  }
-
   public void checkFrozen(Errors errors) {
     if (isFrozen()) {
       errors.reject(null, "Пользователь временно заморожен");
-    }
-  }
-
-  public void checkCommit() throws AccessViolationException {
-    if (anonymous || blocked) {
-      throw new AccessViolationException("Commit access denied for anonymous user");
-    }
-    if (!canmod) {
-      throw new AccessViolationException("Commit access denied for user " + nick + " (" + id + ") ");
     }
   }
 
@@ -181,6 +124,7 @@ public class User implements Serializable {
     return frozenBy;
   }
 
+  @Nullable
   public Timestamp getFrozenUntil() {
     return frozenUntil;
   }
@@ -316,20 +260,11 @@ public class User implements Serializable {
 
     if (maxScore>=100 && text.isEmpty()) {
       return getStars(score, maxScore, true);
-    } else if (maxScore>=100 && !text.isEmpty()) {
+    } else if (maxScore>=100) {
       return text + " " + getStars(score, maxScore, true);
     } else {
       return text;
     }
-  }
-
-  // возможность блокировки и разблокировки
-  public boolean isBlockable() {
-    if (id==ANONYMOUS_ID) {
-      return false;
-    }
-
-    return !canmod;
   }
 
   public boolean isActivated() {
@@ -345,6 +280,7 @@ public class User implements Serializable {
     return anonymous || blocked || score<ANONYMOUS_LEVEL_SCORE;
   }
 
+  @Nullable
   public String getEmail() {
     return email;
   }

@@ -20,14 +20,13 @@ import org.springframework.stereotype.Service
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
-import ru.org.linux.user.UserDao
 
 import java.util
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters.*
 
 @Service
-class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
+class CommentReadService(commentDao: CommentDao) {
   private val cache: Cache[Int, CommentList] =
     CacheBuilder.newBuilder.maximumSize(10000).build[Int, CommentList]
 
@@ -85,11 +84,6 @@ class CommentReadService(commentDao: CommentDao, userDao: UserDao) {
       Set.empty[Int]
     } else {
       val hideSet = new util.HashSet[Integer]
-
-      /* hide anonymous */
-      if ((filterChain & CommentFilter.FILTER_ANONYMOUS) > 0) {
-        comments.root.hideAnonymous(userDao, hideSet)
-      }
 
       /* hide ignored */
       if ((filterChain & CommentFilter.FILTER_IGNORED) > 0 && ignoreList.nonEmpty) {

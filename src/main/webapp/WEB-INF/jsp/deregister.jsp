@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2018 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -44,11 +44,6 @@
     <label>Заблокировать мой аккаунт
       <form:checkbox path="acceptBlock" value="true" required="required" cssErrorClass="error"/>
     </label>
-<%--
-    <label>Передать все сообщения специальному пользователю
-      <form:checkbox path="acceptMoveToDeleted" value="true" required="required" cssErrorClass="error"/>
-    </label>
---%>
     <label>Согласен с невозможностью восстановления
       <form:checkbox path="acceptOneway" value="true" required="required" cssErrorClass="error"/>
     </label>

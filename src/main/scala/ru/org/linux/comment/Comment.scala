@@ -47,12 +47,12 @@ object Comment {
       reactions = ReactionDao.parse(rs.getString("reactions")))
   }
 
-  def buildNew(replyto: Integer, topic: Int, msgid: Int, userid: Int, postIP: String): Comment = {
+  def buildNew(replyto: Option[Int], topic: Int, msgid: Int, userid: Int, postIP: String): Comment = {
     Comment(
       id = msgid,
       title = "",
       topicId = topic,
-      replyTo = if (replyto != null) replyto else 0,
+      replyTo = replyto.getOrElse(0),
       editCount = 0,
       editDate = null,
       editorId = 0,

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,34 +16,33 @@
 package ru.org.linux.search
 
 import com.sksamuel.elastic4s.ElasticDsl.*
-import com.sksamuel.elastic4s.requests.analyzers.*
+import com.sksamuel.elastic4s.analysis.{Analysis, CustomAnalyzer, LengthTokenFilter, MappingCharFilter, SnowballTokenFilter, StandardTokenizer}
 import com.sksamuel.elastic4s.requests.bulk.{BulkCompatibleRequest, BulkRequest}
 import com.sksamuel.elastic4s.requests.indexes.IndexRequest
 import com.sksamuel.elastic4s.requests.mappings.{MappingDefinition, TermVector}
 import com.sksamuel.elastic4s.{ElasticClient, Index}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.StringEscapeUtils
-import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.section.SectionService
+import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicTagService}
-import ru.org.linux.user.UserDao
+import ru.org.linux.user.UserService
 
-import scala.collection.Seq as MSeq
 import scala.jdk.CollectionConverters.*
 
 object ElasticsearchIndexService {
   val MessageIndex = "messages"
 
-  val MessageIndexType: Index = Index(MessageIndex)
+  private val MessageIndexType: Index = Index(MessageIndex)
 
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
 
-  val Mapping: MappingDefinition = properties(
+  private val Mapping: MappingDefinition = properties(
     keywordField("group"),
     keywordField("section"),
     booleanField("is_comment"),
@@ -54,42 +53,78 @@ object ElasticsearchIndexService {
     longField("topic_id"),
     textField("topic_title").index(false),
     textField("title").analyzer("text_analyzer"),
-    textField("message").analyzer("text_analyzer").termVector(TermVector.WithPositionsOffsets),
+    textField("message").analyzer("text_analyzer").termVector(TermVector.WithPositionsOffsets).fields {
+      textField("raw").termVector(TermVector.WithPositionsOffsets).analyzer("exact_analyzer")
+    },
     booleanField("topic_awaits_commit"))
 
-  val Analyzers: Seq[CustomAnalyzerDefinition] = Seq(
-    CustomAnalyzerDefinition(
-      "text_analyzer",
-      tokenizer = StandardTokenizer("text_tokenizer"),
-      filters = Seq(
-        LengthTokenFilter("m_long_word").max(100),
-        LowercaseTokenFilter,
-        MappingCharFilter("m_ee", "ё" -> "е", "Ё" -> "Е"),
-        SnowballTokenFilter("m_my_snow_ru", "Russian"),
-        SnowballTokenFilter("m_my_snow_en", "English")))
+  private val Analyzers = Analysis(
+    analyzers = List(
+      CustomAnalyzer(
+        name = "text_analyzer",
+        tokenizer = "text_tokenizer",
+        tokenFilters = List("m_long_word", "lowercase", "m_my_snow_ru", "m_my_snow_en"),
+        charFilters = List("html_strip", "m_ee")),
+      CustomAnalyzer(
+        name = "exact_analyzer",
+        tokenizer = "text_tokenizer",
+        tokenFilters = List("m_long_word", "lowercase"),
+        charFilters = List("html_strip", "m_ee"))),
+    tokenizers = List(
+      StandardTokenizer("text_tokenizer")
+    ),
+    tokenFilters = List(
+      LengthTokenFilter("m_long_word").max(100),
+      SnowballTokenFilter("m_my_snow_ru", "Russian"),
+      SnowballTokenFilter("m_my_snow_en", "English")
+    ),
+    charFilters = List(
+      MappingCharFilter("m_ee", Map("ё" -> "е", "Ё" -> "Е"))
+    )
   )
 }
 
 @Service
-class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupDao, userDao: UserDao,
+class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupDao, userService: UserService,
                                 topicTagService: TopicTagService, messageTextService: MessageTextService,
                                 msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentReadService,
-                                elastic: ElasticClient, topicPermissionService: TopicPermissionService) extends StrictLogging {
+                                elastic: ElasticClient, topicPermissionService: TopicPermissionService,
+                                siteConfig: SiteConfig) extends StrictLogging {
   import ElasticsearchIndexService.*
 
-  private def reindexComments(topic: Topic, comments: Seq[Comment]): MSeq[BulkCompatibleRequest] = {
-    for (comment <- comments) yield {
+  private def reindexComments(topic: Topic, comments: Seq[Comment]): Seq[BulkCompatibleRequest] = {
+    comments.map { comment =>
       if (comment.deleted) {
         deleteById(MessageIndexType, comment.id.toString)
       } else {
-        val message = messageTextService.extractPlainText(msgbaseDao.getMessageText(comment.id))
         val group = groupDao.getGroup(topic.groupId)
-        indexOfComment(topic, comment, message, group)
+
+        indexOfComment(topic, comment, group)
       }
     }
   }
 
-  def reindexMessage(msgid: Int, withComments: Boolean):Unit = {
+  def reindexComments(comments: Seq[Int]): Unit = {
+    if (comments.contains(0)) {
+      logger.warn("Skipping MSGID=0!!!")
+    }
+
+    val requests = comments.filterNot(_ == 0).map { msgid =>
+      val comment = commentService.getById(msgid)
+      lazy val topic = topicDao.getById(comment.topicId)
+      lazy val group = groupDao.getGroup(topic.groupId)
+
+      if (comment.deleted || !topicPermissionService.isTopicSearchable(topic, group)) {
+        deleteById(MessageIndexType, comment.id.toString)
+      } else {
+        indexOfComment(topic, comment, group)
+      }
+    }
+
+    executeBulk(bulk(requests))
+  }
+
+  def reindexMessage(msgid: Int, withComments: Boolean): Unit = {
     val topic = topicDao.getById(msgid)
     val group = groupDao.getGroup(topic.groupId)
 
@@ -124,31 +159,6 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
     }
   }
 
-  def reindexComments(comments: MSeq[Int]): Unit = {
-    if (comments.contains(0)) {
-      logger.warn("Skipping MSGID=0!!!")
-    }
-
-    val requests = for (msgid <- comments if msgid != 0) yield {
-      val comment = commentService.getById(msgid)
-      val topic = topicDao.getById(comment.topicId)
-      val group = groupDao.getGroup(topic.groupId)
-
-      if (!topicPermissionService.isTopicSearchable(topic, group) || comment.deleted) {
-        deleteById(MessageIndexType, comment.id.toString)
-      } else {
-        val message = messageTextService.extractPlainText(msgbaseDao.getMessageText(comment.id))
-        indexOfComment(topic, comment, message, group)
-      }
-    }
-
-    executeBulk(bulk(requests))
-  }
-
-  def reindexComments(comments: java.util.List[java.lang.Integer]): Unit = {
-    reindexComments(comments.asScala.map(x => x.toInt))
-  }
-
   def createIndexIfNeeded(): Unit = {
     val indexExistsResult = elastic execute {
       indexExists(MessageIndex)
@@ -172,10 +182,13 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
     }
   }
 
-  private def indexOfComment(topic: Topic, comment: Comment, message: String, group: Group): IndexRequest = {
+  private def indexOfComment(topic: Topic, comment: Comment, group: Group): IndexRequest = {
     val section = sectionService.getSection(topic.sectionId)
-    val author = userDao.getUserCached(comment.userid)
-    val topicAuthor = userDao.getUserCached(topic.authorUserId)
+    val author = userService.getUserCached(comment.userid)
+    val topicAuthor = userService.getUserCached(topic.authorUserId)
+
+    val html = messageTextService.renderCommentText(msgbaseDao.getMessageText(comment.id),
+      nofollow = !topicPermissionService.followAuthorLinks(author))
 
     val topicTitle = topic.getTitleUnescaped
 
@@ -189,15 +202,15 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
         .map(StringEscapeUtils.unescapeHtml4)
 
     indexInto(MessageIndexType) id comment.id.toString fields (
-      Map("section" -> section.getUrlName,
+      Map[String, Any]("section" -> section.getUrlName,
         "topic_author" -> topicAuthor.getNick,
         "topic_id" -> topic.id,
         "author" -> author.getNick,
-        "group" -> group.getUrlName,
+        "group" -> group.urlName,
         "topic_title" -> topicTitle,
         COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
-        "message" -> message,
-        "postdate" -> new DateTime(comment.postdate),
+        "message" -> html,
+        "postdate" -> comment.postdate.toInstant,
         "tag" -> topicTagService.getTags(topic),
         "is_comment" -> true) ++ title.map("title" -> _)
       )
@@ -211,18 +224,26 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
 
   private def indexOfTopic(topic: Topic, group: Group): IndexRequest = {
     val section = sectionService.getSection(topic.sectionId)
-    val author = userDao.getUserCached(topic.authorUserId)
+    val author = userService.getUserCached(topic.authorUserId)
 
-    indexInto(MessageIndexType) id topic.id.toString fields(
+    val url = s"${siteConfig.getSecureUrlWithoutSlash}${topic.getLink}"
+
+    val html = messageTextService.renderTopic(
+      msgbaseDao.getMessageText(topic.id),
+      minimizeCut = false,
+      nofollow = !topicPermissionService.followInTopic(topic, author),
+      canonicalUrl = url)
+
+    indexInto(MessageIndexType).id(topic.id.toString).fields(
       "section" -> section.getUrlName,
       "topic_author" -> author.getNick,
       "topic_id" -> topic.id,
       "author" -> author.getNick,
-      "group" -> group.getUrlName,
+      "group" -> group.urlName,
       "title" -> topic.getTitleUnescaped,
       "topic_title" -> topic.getTitleUnescaped,
-      "message" -> messageTextService.extractPlainText(msgbaseDao.getMessageText(topic.id)),
-      "postdate" -> new DateTime(topic.postdate),
+      "message" -> html,
+      "postdate" -> topic.postdate.toInstant,
       "tag" -> topicTagService.getTags(topic),
       COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
       "is_comment" -> false)

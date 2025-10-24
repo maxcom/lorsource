@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,27 +14,28 @@
  */
 package ru.org.linux.boxlets
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.site.Template
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.topic.BoxletTopicDao
 
-import javax.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters.*
 
 @Controller
 class TopTenBoxlet(topTenDao: BoxletTopicDao) extends AbstractBoxlet {
-  @RequestMapping(Array("/top10.boxlet"))
-  override protected def getData(request: HttpServletRequest): ModelAndView = {
-    val profile = Template.getTemplate.getProf
-    val list = topTenDao.top10(profile.getMessages)
+  @RequestMapping(path = Array("/top10.boxlet"))
+  override protected def getData(request: HttpServletRequest): ModelAndView = MaybeAuthorized { session =>
+    val profile = session.profile
+    val list = topTenDao.top10(profile.messages)
 
     new ModelAndView(
       "boxlets/topiclist",
       Map(
         "messages" -> list.asJava,
         "name" -> "Top 10",
+        "link" -> null,
         "title" -> "Наиболее обсуждаемые темы этого месяца").asJava)
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 package ru.org.linux.user
 
 import java.sql.Timestamp
-import scala.beans.BeanProperty
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 /**
  * Элемент списка уведомлений
@@ -24,7 +24,7 @@ case class UserEvent(@BeanProperty cid: Int, commentAuthor: Int, groupId: Int,
                      @BeanProperty subj: String, @BeanProperty topicId: Int,
                      @BeanProperty eventType: UserEventFilterEnum, @BeanProperty eventMessage: String,
                      @BeanProperty eventDate: Timestamp, @BeanProperty unread: Boolean, topicAuthor: Int, id: Int,
-                     originUserId: Int, @BeanProperty reaction: String) {
+                     originUserId: Int, @BeanProperty reaction: String, @BooleanBeanProperty closedWarning: Boolean) {
   def isComment: Boolean = cid > 0
 }
 

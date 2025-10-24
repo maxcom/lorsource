@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,6 +17,7 @@ package ru.org.linux.comment
 import com.google.common.base.Strings
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
+import ru.org.linux.auth.AnySession
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.reaction.{PreparedReactions, ReactionService}
@@ -24,8 +25,8 @@ import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.user.*
+import ru.org.linux.warning.{Warning, WarningService}
 
-import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
@@ -33,12 +34,13 @@ import scala.jdk.OptionConverters.*
 class CommentPrepareService(textService: MessageTextService, msgbaseDao: MsgbaseDao,
                             topicPermissionService: TopicPermissionService, userService: UserService,
                             deleteInfoDao: DeleteInfoDao, userAgentDao: UserAgentDao, remarkDao: RemarkDao,
-                            groupDao: GroupDao, reactionPrepareService: ReactionService) {
+                            groupDao: GroupDao, reactionPrepareService: ReactionService,
+                            warningService: WarningService) {
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
-                             comments: Option[CommentList], profile: Profile, topic: Topic,
-                             hideSet: Set[Int], samePageComments: Set[Int], currentUser: Option[User],
-                             group: Group, ignoreList: Set[Int], filterShow: Boolean) = {
+                             comments: Option[CommentList], topic: Topic, hideSet: Set[Int], samePageComments: Set[Int],
+                             group: Group, ignoreList: Set[Int], filterShow: Boolean, warnings: Seq[Warning])
+                            (implicit session: AnySession) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
     val (answerLink, answerSamepage, answerCount, replyInfo, hasAnswers) = if (comments.isDefined) {
@@ -86,8 +88,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       (None, false, 0, None, false)
     }
 
-    val userpic: Option[Userpic] = if (profile.isShowPhotos) {
-      Some(userService.getUserpic(author, profile.getAvatarMode, misteryMan = false))
+    val userpic: Option[Userpic] = if (session.profile.showPhotos) {
+      Some(userService.getUserpic(author, session.profile.avatarMode, misteryMan = false))
     } else {
       None
     }
@@ -96,24 +98,28 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val apiDeleteInfo = deleteInfo.map(i => new ApiDeleteInfo(userService.getUserCached(i.userid).getNick, i.getReason))
     val editSummary = loadEditSummary(comment)
 
-    val (postIP, userAgent) = if (currentUser != null && currentUser.exists(_.isModerator)) {
+    val (postIP, userAgent) = if (session != null && session.moderator) {
       (Option(comment.postIP), userAgentDao.getUserAgentById(comment.userAgentId).toScala)
     } else {
       (None, None)
     }
 
-    val undeletable = topicPermissionService.isUndeletable(topic, comment, currentUser.orNull, deleteInfo.toJava)
-    val deletable = topicPermissionService.isCommentDeletableNow(comment, currentUser.orNull, topic, hasAnswers)
-    val editable = topicPermissionService.isCommentEditableNow(comment, currentUser.orNull, hasAnswers, topic, messageText.markup)
+    val undeletable = topicPermissionService.isUndeletable(topic, comment, deleteInfo)(session)
+    val deletable = topicPermissionService.isCommentDeletableNow(comment, topic, hasAnswers)(session)
+    val editable = topicPermissionService.isCommentEditableNow(comment, hasAnswers, topic, messageText.markup)(session)
+    val warningsAllowed = topicPermissionService.canPostWarning(topic, Some(comment))(session)
 
-    val authorReadonly = !topicPermissionService.isCommentsAllowed(group, topic, author, true)
+    val authorReadonly = !topicPermissionService.isCommentsAllowedByUser(group, topic, Some(author), ignoreFrozen = true)
+
+    val preparedWarnings = warningService.prepareWarning(warnings)
 
     PreparedComment(comment = comment, author = author, processedMessage = processedMessage, reply = replyInfo,
       deletable = deletable, editable = editable, remark = remark, userpic = userpic, deleteInfo = apiDeleteInfo,
       editSummary = editSummary, postIP = postIP, userAgent = userAgent, undeletable = undeletable,
       answerCount = answerCount, answerLink = answerLink, answerSamepage = answerSamepage,
       authorReadonly = authorReadonly,
-      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList, currentUser, topic, Some(comment)))
+      reactions = reactionPrepareService.prepare(comment.reactions, ignoreList,topic, Some(comment)),
+      warningsAllowed = warningsAllowed, warnings = preparedWarnings)
   }
 
   private def loadDeleteInfo(comment: Comment) = {
@@ -132,21 +138,17 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  private def prepareRSSComment(messageText: MessageText, comment: Comment) = {
-    val author = userService.getUserCached(comment.userid)
-    val processedMessage = textService.renderTextRSS(messageText)
-    new PreparedRSSComment(comment, author, processedMessage)
-  }
+  def prepareCommentOnly(comment: Comment, topic: Topic, ignoreList: Set[Int])
+                        (implicit currentUser: AnySession): PreparedComment = {
+    assert(comment.topicId == topic.id)
 
-  def prepareCommentOnly(comment: Comment, @Nullable currentUser: User, profile: Profile,
-                         topic: Topic, ignoreList: java.util.Set[Integer]): PreparedComment = {
     val messageText = msgbaseDao.getMessageText(comment.id)
     val author = userService.getUserCached(comment.userid)
     val group = groupDao.getGroup(topic.groupId)
 
     prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
-      profile = profile, topic = topic, hideSet = Set.empty, samePageComments = Set.empty, currentUser = Option(currentUser),
-      group = group, ignoreList = ignoreList.asScala.map(_.toInt).toSet, filterShow = false)
+      topic = topic, hideSet = Set.empty, samePageComments = Set.empty, group = group,
+      ignoreList = ignoreList, filterShow = false, warnings = Seq.empty)
   }
 
   /**
@@ -164,58 +166,45 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     PreparedComment(comment = comment, author = author, reply = None, editable = false, remark = None,
       userpic = None, deleteInfo = None, editSummary = None, postIP = None, userAgent = None, undeletable = false,
       answerCount = 0, answerLink = None, answerSamepage = false, authorReadonly = false,
-      processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.emptyDisabled)
-  }
-
-  def prepareCommentListRSS(list: Seq[Comment]): Seq[PreparedRSSComment] = {
-    list.map { comment =>
-      val messageText = msgbaseDao.getMessageText(comment.id)
-      prepareRSSComment(messageText, comment)
-    }
+      processedMessage = processedMessage, deletable = false, reactions = PreparedReactions.emptyDisabled,
+      warningsAllowed = false, warnings = Seq.empty)
   }
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],
-                         currentUser: Option[User], profile: Profile, ignoreList: Set[Int],
-                         filterShow: Boolean): Seq[PreparedComment] = {
+                         ignoreList: Set[Int], filterShow: Boolean)
+                        (implicit currentUser: AnySession): Seq[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty
     } else {
-      val texts = msgbaseDao.getMessageText(list.map(c => Integer.valueOf(c.id)).asJava)
+      val texts = msgbaseDao.getMessageText(list.map(_.id))
       val users = userService.getUsersCachedMap(list.map(_.userid))
       val group = groupDao.getGroup(topic.groupId)
 
-      val remarks = currentUser.map { user =>
-        remarkDao.getRemarks(user, users.values)
+      val allWarnings: Map[Int, Seq[Warning]] = if (!topic.expired && currentUser.moderator) {
+        warningService.load(list)
+      } else {
+        Map.empty
+      }
+
+      val remarks = currentUser.opt.map { user =>
+        remarkDao.getRemarks(user.user, users.values)
       }.getOrElse(Map.empty[Int, Remark])
 
       val samePageComments = list.map(_.id).toSet
 
       list.map { comment =>
-        val text = texts.get(comment.id)
+        val text = texts(comment.id)
         val author = users(comment.userid)
         val remark = remarks.get(author.getId)
+        val warnings = allWarnings.getOrElse(comment.id, Seq.empty)
 
-        prepareComment(text, author, remark.map(_.getText), comment, Option(comments), profile, topic, hideSet,
-          samePageComments, currentUser, group, ignoreList, filterShow)
+        prepareComment(text, author, remark.map(_.getText), comment, Option(comments), topic, hideSet,
+          samePageComments, group, ignoreList, filterShow, warnings)
       }
     }
   }
 
-  def prepareCommentsList(comments: java.util.List[CommentsListItem]): java.util.List[PreparedCommentsListItem] = {
-    val users = userService.getUsersCachedMap(comments.asScala.map(_.authorId))
-
-    val texts = msgbaseDao.getMessageText(comments.asScala.map(c => Integer.valueOf(c.commentId)).asJava).asScala
-
-    comments.asScala.map { comment =>
-      val author = users(comment.authorId)
-      val plainText = textService.extractPlainText(texts(comment.commentId))
-      val textPreview = MessageTextService.trimPlainText(plainText, 250, encodeHtml = false)
-
-      PreparedCommentsListItem(comment, author, textPreview)
-    }.asJava
-  }
-
-  def buildDateJumpSet(comments: collection.Seq[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {
+  def buildDateJumpSet(comments: Seq[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {
     val commentDates = comments.view.map { c =>
       c.id -> new DateTime(c.postdate)
     }

@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2021 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -52,11 +52,22 @@
 <form:select path="range" items="${ranges}"/>
 </div>
 
-<div class="control-group">
-<label>За:
-  <form:select path="interval" items="${intervals}"/>
-</label>
-</div>
+<c:choose>
+ <c:when test="${query.dateSelected}">
+    <div class="control-group">
+    <label>на дату</label>
+    <form:input id="selectedDt" path="dt" type="hidden" />
+    <input id="selectDt" class="input" type="text" readonly="true"/>
+    </div>
+ </c:when>
+ <c:otherwise>
+    <div class="control-group">
+    <label>За:
+    <form:select path="interval" items="${intervals}"/>
+    </label>
+    </div>
+ </c:otherwise>
+</c:choose>
 
 <div class="control-group">
   <label>Пользователь: <form:input path="user" type="text" size="20"/></label>
@@ -125,7 +136,7 @@
           </c:if>
 
           <div class=sign>
-            <lor:sign postdate="${item.postdate.toDate()}" shortMode="false" user="${item.user}"/>
+            <lor:sign postdate="${item.postdate}" shortMode="false" user="${item.user}"/>
           </div>
 
           <c:if test="${param.debug}"><div>Rank: ${item.score}</div></c:if>
@@ -156,5 +167,16 @@
   </p>
 </c:if>
 </form:form>
+
+<script type="text/javascript">
+    $script.ready(["jquery"], function() {
+        var selectedDate = document.getElementById('selectedDt');
+        if (selectedDate) {
+            d  = moment(selectedDate.value,'x').format('DD.MM.YYYY');
+            console.log("selected: ",selectedDate,"d:",d);
+            document.getElementById('selectDt').value=d;
+        }
+    });
+</script>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

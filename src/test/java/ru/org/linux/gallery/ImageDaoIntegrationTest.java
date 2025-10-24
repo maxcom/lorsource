@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,8 +21,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -41,7 +39,7 @@ public class ImageDaoIntegrationTest {
    */
   @Test
   public void getGalleryItemsTest() {
-    List<GalleryItem> galleryDtoList = imageDao.getGalleryItems(3);
+    var galleryDtoList = imageDao.getGalleryItems(3);
     assertEquals(3, galleryDtoList.size());
   }
 }

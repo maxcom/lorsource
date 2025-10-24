@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,12 +18,12 @@ package ru.org.linux.tag
 import org.springframework.validation.Errors
 import ru.org.linux.user.UserErrorException
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object TagName {
   val MaxTagsPerTopic = 5
-  val MinTagLength = 1
-  val MaxTagLength = 32
+  private val MinTagLength = 1
+  private val MaxTagLength = 32
 
   private val tagRE = """(?i)([\p{L}\d-](?:[.\p{L}\d \+-]*[\p{L}\d\+-])?)""".r.pattern
 
@@ -84,6 +84,9 @@ object TagName {
    * @param tags список тегов через запятую
    * @return список тегов
    */
-  def parseAndSanitizeTags(tags:String): java.util.List[String] =
-    parseTags(tags).filter(isGoodTag).toVector.asJava
+  def parseAndSanitizeTagsJava(tags:String): java.util.List[String] =
+    parseAndSanitizeTags(tags).asJava
+
+  def parseAndSanitizeTags(tags: String): Seq[String] =
+    parseTags(tags).filter(isGoodTag).toVector
 }

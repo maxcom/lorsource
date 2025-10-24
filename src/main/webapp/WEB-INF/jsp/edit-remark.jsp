@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -26,14 +26,16 @@
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Комментарий ${currentUser.nick} о пользователе ${nick}</h1>
+<h1>Комментарий о пользователе ${nick}</h1>
 
 <form method=POST id="remarkForm" action="/people/${nick}/remark">
 <lor:csrf/>
 
 <textarea autofocus id="text" name="text" cols="60" rows="4" maxlength="255"><c:out value="${remark.text}" escapeXml="true"/></textarea>
-<br>
-<input type=submit value="Установить">
+
+<div class="form-actions">
+  <input type=submit class="btn btn-primary" value="Установить">
+</div>
 </form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

@@ -21,12 +21,12 @@ import org.specs2.specification.Scope
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
-import ru.org.linux.AkkaConfiguration
+import ru.org.linux.PekkoConfiguration
 
 import scala.concurrent.duration.*
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
-  classOf[AkkaConfiguration]))
+  classOf[PekkoConfiguration]))
 @DirtiesContext
 class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
@@ -49,12 +49,12 @@ class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
       refreshIndex("*")
     } await
 
-    override def after = elastic execute { deleteIndex("*") } await
+    override def after: Unit = elastic execute { deleteIndex("*") } await
   }
 
   "SearchResultsService" should {
     "prepare some results" in new IndexFixture {
-      val response = new SearchViewer(new SearchRequest(), elastic).performSearch
+      val response = new SearchViewer(new SearchRequest(), elastic).performSearch(null)
 
       val prepared = response.hits.hits.map(service.prepare)
 

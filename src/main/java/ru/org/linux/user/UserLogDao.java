@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -38,13 +39,14 @@ public class UserLogDao {
   public static final String OPTION_NEW_USERPIC = "new_userpic";
   public static final String OPTION_BONUS = "bonus";
   public static final String OPTION_REASON = "reason";
+  public static final String OPTION_EMAIL = "email";
   public static final String OPTION_OLD_EMAIL = "old_email";
   public static final String OPTION_NEW_EMAIL = "new_email";
   public static final String OPTION_OLD_INFO = "old_info";
   public static final String OPTION_OLD_TOWN = "old_town";
   public static final String OPTION_OLD_URL = "old_url";
   public static final String OPTION_IP = "ip";
-  public static final String OPTION_USET_AGENT = "user_agent";
+  public static final String OPTION_USER_AGENT = "user_agent";
   public static final String OPTION_INVITED_BY = "invited_by";
   public static final String OPTION_ACCEPT_LANGUAGE = "accept_lang";
 
@@ -212,6 +214,17 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
+  public void logSentPasswordReset(User resetFor, @Nullable User resetBy, String email) {
+    jdbcTemplate.update(
+            "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
+            resetFor.getId(),
+            resetBy!=null?resetBy.getId():resetFor.getId(),
+            UserLogAction.SENT_PASSWORD_RESET.toString(),
+            ImmutableMap.of(OPTION_EMAIL, email)
+    );
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public void logResetPassword(@Nonnull User user, @Nonnull User moderator) {
     jdbcTemplate.update(
             "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
@@ -284,6 +297,15 @@ public class UserLogDao {
             OffsetDateTime.now().minus(duration));
   }
 
+  public boolean hasRecentSelfEvent(User user, Duration duration, UserLogAction action) {
+    return jdbcTemplate.queryForObject(
+            "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid=action_userid)",
+            Boolean.class,
+            user.getId(),
+            action.toString(),
+            OffsetDateTime.now().minus(duration));
+  }
+
   public List<Integer> getRecentlyHasEvent(UserLogAction action) {
     return jdbcTemplate.queryForList(
             "SELECT userid FROM user_log WHERE action=?::user_log_action AND action_date>CURRENT_TIMESTAMP - interval '3 days' ORDER BY action_date",
@@ -297,7 +319,7 @@ public class UserLogDao {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
     builder.put(OPTION_IP, ip);
-    builder.put(OPTION_USET_AGENT, Integer.toString(userAgent));
+    builder.put(OPTION_USER_AGENT, Integer.toString(userAgent));
     language.ifPresent(lang -> builder.put(OPTION_ACCEPT_LANGUAGE, lang));
     invitedBy.ifPresent(user -> builder.put(OPTION_INVITED_BY, user.toString()));
 

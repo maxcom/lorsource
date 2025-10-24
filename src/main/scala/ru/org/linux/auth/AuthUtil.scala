@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,12 +16,44 @@ package ru.org.linux.auth
 
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
-import ru.org.linux.user.{Profile, User, UserDao}
+import org.springframework.validation.Errors
+import ru.org.linux.user.{Profile, User, UserDao, UserService}
 
 import javax.annotation.Nullable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-case class CurrentUser(user: User, corrector: Boolean, moderator: Boolean)
+sealed trait AnySession {
+  def authorized: Boolean
+  def corrector: Boolean
+  def moderator: Boolean
+  def administrator: Boolean
+
+  // TODO minimize usages
+  // TODO тут можно возвращать userService.getAnonymous для анонимуса, но надо убрать все места, где
+  // TODO это используется как признак наличия аутентификации
+  def userOpt: Option[User]
+
+  def opt: Option[AuthorizedSession]
+
+  def profile: Profile
+}
+
+case class AuthorizedSession(user: User, corrector: Boolean, moderator: Boolean,
+                             administrator: Boolean, profile: Profile) extends AnySession {
+  override def userOpt: Some[User] = Some(user)
+  override def opt: Option[AuthorizedSession] = Some(this)
+  override def authorized: Boolean = true
+}
+
+case object NonAuthorizedSession extends AnySession {
+  override def userOpt: None.type = None
+  override def corrector: Boolean = false
+  override def moderator: Boolean = false
+  override def administrator: Boolean = false
+  override def opt: Option[AuthorizedSession] = None
+  override def authorized: Boolean = false
+  override def profile: Profile = Profile.DEFAULT
+}
 
 object AuthUtil {
   def updateLastLogin(authentication: Authentication, userDao: UserDao): Unit = {
@@ -49,6 +81,8 @@ object AuthUtil {
   def isModeratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_MODERATOR")
 
   def isCorrectorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_CORRECTOR")
+
+  private def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
 
   private def hasAuthority(authName: String): Boolean = {
     val authentication = SecurityContextHolder.getContext.getAuthentication
@@ -94,7 +128,7 @@ object AuthUtil {
 
   def getProfile: Profile = {
     if (!isSessionAuthorized) {
-      Profile.createDefault
+      Profile.DEFAULT
     } else {
       val principal = SecurityContextHolder.getContext.getAuthentication.getPrincipal
 
@@ -102,32 +136,42 @@ object AuthUtil {
         case details: UserDetailsImpl =>
           details.getProfile
         case _ =>
-          Profile.createDefault
+          Profile.DEFAULT
       }
     }
   }
 
-  def AuthorizedOpt[T](f: Option[CurrentUser] => T): T = {
+  def MaybeAuthorized[T](f: AnySession => T): T = {
     if (isSessionAuthorized) {
-      val currentUser = CurrentUser(getCurrentUser, isCorrectorSession, isModeratorSession)
+      val currentUser = AuthorizedSession(
+        user = getCurrentUser,
+        corrector = isCorrectorSession,
+        moderator = isModeratorSession,
+        administrator = isAdministratorSession,
+        profile = getProfile)
 
-      f(Some(currentUser))
+      f(currentUser)
     } else {
-      f(None)
+      f(NonAuthorizedSession)
     }
   }
 
-  def AuthorizedOnly[T](f: CurrentUser => T): T = {
+  def AuthorizedOnly[T](f: AuthorizedSession => T): T = {
     if (!isSessionAuthorized) {
       throw new AccessViolationException("Not authorized")
     }
 
-    val currentUser = CurrentUser(getCurrentUser, isCorrectorSession, isModeratorSession)
+    val currentUser = AuthorizedSession(
+      user = getCurrentUser,
+      corrector = isCorrectorSession,
+      moderator = isModeratorSession,
+      administrator = isAdministratorSession,
+      profile = getProfile)
 
     f(currentUser)
   }
 
-  def ModeratorOnly[T](f: CurrentUser => T): T = {
+  def ModeratorOnly[T](f: AuthorizedSession => T): T = {
     if (!isModeratorSession) {
       throw new AccessViolationException("Not moderator")
     }
@@ -135,11 +179,42 @@ object AuthUtil {
     AuthorizedOnly(f)
   }
 
-  def CorrectorOrModerator[T](f: CurrentUser => T): T = {
+  def CorrectorOrModerator[T](f: AuthorizedSession => T): T = {
     if (!(isCorrectorSession || isModeratorSession)) {
       throw new AccessViolationException("Not corrector or moderator")
     }
 
     AuthorizedOnly(f)
+  }
+
+  def AdministratorOnly[T](f: AuthorizedSession => T): T = {
+    if (!isAdministratorSession) {
+      throw new AccessViolationException("Not administrator")
+    }
+
+    AuthorizedOnly(f)
+  }
+
+  def postingUser(session: AnySession, formUser: Option[User], formPassword: Option[String], errors: Errors): AnySession = {
+    if (session.authorized) {
+      session
+    } else {
+      formUser match {
+        case None =>
+          NonAuthorizedSession
+        case Some(formUser) if formUser.isAnonymous =>
+          NonAuthorizedSession
+        case Some(formUser) =>
+          if (formUser.isBlocked || !formUser.isActivated) {
+            errors.rejectValue("user", null, s"Пользователь \"${formUser.getNick}\" заблокирован или не активирован")
+            NonAuthorizedSession
+          } else if (!(formUser.isAnonymous && formPassword.get.isEmpty) && !UserService.matchPassword(formUser, formPassword.get)) {
+            errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.getNick}\" задан неверно!")
+            NonAuthorizedSession
+          } else {
+            AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false, profile = Profile.DEFAULT)
+          }
+      }
+    }
   }
 }

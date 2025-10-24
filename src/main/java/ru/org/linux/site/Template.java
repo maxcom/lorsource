@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,13 +16,12 @@
 package ru.org.linux.site;
 
 import ru.org.linux.auth.AuthUtil;
-import ru.org.linux.markup.MarkupPermissions;
-import ru.org.linux.markup.MarkupType;
 import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
-import javax.annotation.Nonnull;
-
+/*
+  Current session helpers for JSP. Do not use in Scala/Java code.
+ */
 public final class Template {
   private final Profile userProfile;
 
@@ -30,11 +29,12 @@ public final class Template {
     userProfile = AuthUtil.getProfile();
   }
 
-  @Deprecated
+  /* used in jsp */
   public String getStyle() {
     return getTheme().getId();
   }
 
+  /* used in jsp */
   public Theme getTheme() {
     User user = AuthUtil.getCurrentUser();
 
@@ -45,33 +45,32 @@ public final class Template {
     }
   }
 
+  /* used in jsp */
   public String getFormatMode() {
-    String mode = userProfile.getFormatMode();
-
-    if (MarkupPermissions.allowedFormatsJava(AuthUtil.getCurrentUser()).stream().map(MarkupType::formId).anyMatch(s -> s.equals(mode))) {
-      return mode;
-    } else {
-      return MarkupType.Lorcode$.MODULE$.formId();
-    }
+    return userProfile.formatMode().formId();
   }
 
-  @Nonnull
+  /* used in jsp */
   public Profile getProf() {
     return userProfile;
   }
 
+  /* used in jsp */
   public boolean isSessionAuthorized() {
     return AuthUtil.isSessionAuthorized();
   }
 
+  /* used in jsp */
   public boolean isModeratorSession() {
     return AuthUtil.isModeratorSession();
   }
 
+  /* used in jsp */
   public boolean isCorrectorSession() {
     return AuthUtil.isCorrectorSession();
   }
 
+  /* used in jsp */
   public static Template getTemplate() {
     return new Template();
   }

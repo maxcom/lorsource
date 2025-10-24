@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,16 +14,14 @@
  */
 package ru.org.linux.gallery
 
-import ru.org.linux.user.User
-
 import scala.beans.BeanProperty
 
 object Image {
-  val MaxFileSize = 5 * 1024 * 1024
+  val MaxFileSize: Int = 8 * 1024 * 1024 // sync with multipart-config in web.xml
   val MinDimension = 400
   val MaxDimension = 5120
 
-  val Sizes: Seq[Int] = Seq(500, 1000, 1500) // default size first
+  val Sizes: Seq[Int] = Seq(500, 1000, 1500, 2000) // default size first
   val MaxScaledSize: Int = Sizes.max
 
   private val GalleryName = "(gallery/[^.]+)(?:\\.\\w+)".r
@@ -53,16 +51,10 @@ object Image {
 
 }
 
-case class Image(
-  @BeanProperty id: Int,
-  @BeanProperty topicId: Int,
-  @BeanProperty original: String
-) {
+case class Image(@BeanProperty id: Int, @BeanProperty topicId: Int, @BeanProperty original: String, deleted: Boolean,
+                 main: Boolean) {
   def getMedium: String = Image.main(original, id)
   def getSrcset: String = Image.srcset(original, id)
   def getSrcsetUpTo(width: Int): String = Image.srcset(original, id, width)
 }
 
-case class PreparedGalleryItem(
-  @BeanProperty item: GalleryItem,
-  @BeanProperty user: User)

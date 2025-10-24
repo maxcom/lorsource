@@ -17,7 +17,5 @@ package ru.org.linux.comment;
 
 public class CommentFilter {
   public static final int FILTER_NONE = 0;
-  public static final int FILTER_ANONYMOUS = 1;
   public static final int FILTER_IGNORED = 2;
-
 }

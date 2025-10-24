@@ -186,7 +186,9 @@
 
       <div class="tag-page-buttons">
         <div>
-          <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
+          <c:if test="${not empty addNews}">
+            <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
+          </c:if>
           <c:if test="${not empty moreNews}">
             <a href="${moreNews}" class="btn btn-default">Все новости</a>
           </c:if>

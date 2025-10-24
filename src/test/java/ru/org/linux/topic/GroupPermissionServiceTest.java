@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,9 +16,11 @@
 package ru.org.linux.topic;
 
 import org.junit.Test;
+import ru.org.linux.auth.AuthorizedSession;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
+import ru.org.linux.user.Profile;
 import ru.org.linux.user.User;
 
 import java.sql.ResultSet;
@@ -30,6 +32,10 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class GroupPermissionServiceTest {
+  private AuthorizedSession sessionOf(User user) {
+    return AuthorizedSession.apply(user, user.isCorrector(), user.isModerator(), user.isAdministrator(), Profile.DEFAULT());
+  }
+
   /**
    * Проверка, что пользователь МОЖЕТ удалить топик, автором которого он является,
    * и прошло меньше часа с момента постинга
@@ -74,7 +80,7 @@ public class GroupPermissionServiceTest {
 
     GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
-    assertTrue(permissionService.isDeletable(message, user));
+    assertTrue(permissionService.isDeletable(message, sessionOf(user)));
   }
   /**
    * Проверка, что пользователь НЕ МОЖЕТ удалить топик, автором которого он является,
@@ -119,7 +125,7 @@ public class GroupPermissionServiceTest {
 
     GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
-    assertFalse(permissionService.isDeletable(message, user));
+    assertFalse(permissionService.isDeletable(message, sessionOf(user)));
   }
 
   /**
@@ -165,7 +171,7 @@ public class GroupPermissionServiceTest {
 
     GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
-    assertFalse(permissionService.isDeletable(message, user));
+    assertFalse(permissionService.isDeletable(message, sessionOf(user)));
   }
 
   /**
@@ -211,7 +217,7 @@ public class GroupPermissionServiceTest {
 
     GroupPermissionService permissionService = new GroupPermissionService(sectionService, null);
 
-    assertFalse(permissionService.isDeletable(message, user));
+    assertFalse(permissionService.isDeletable(message, sessionOf(user)));
   }
 
   /**
@@ -338,22 +344,22 @@ public class GroupPermissionServiceTest {
     assertEquals(0, (new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()));
     assertEquals(0, (new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()));
     
-    // нельзя удалять старые подтвержденные топики в премодерируемом разделе
-    assertFalse(permissionService.isDeletable(messageModerateOld, user));
-    // можно удалять старые подтвержденные топики в непремодерируемом разделе
+    // нельзя удалять старые подтверждённые топики в премодерируемом разделе
+    assertFalse(permissionService.isDeletable(messageModerateOld, sessionOf(user)));
+    // можно удалять старые подтверждённые топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateOld, user));
-    // можно удалять старые не подтвержденные топики в премодерируемом разделе
-    assertTrue(permissionService.isDeletable(messageNotModerateOld, user));
-    // можно удалять старые не подтвержденные топики в непремодерируемом разделе
+    // можно удалять старые не подтверждённые топики в премодерируемом разделе
+    assertTrue(permissionService.isDeletable(messageNotModerateOld, sessionOf(user)));
+    // можно удалять старые не подтверждённые топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateOld, user));
 
-    // можно удалять новые подтвержденные топики в премодерируемом разделе
-    assertTrue(permissionService.isDeletable(messageModerateNew, user));
-    // можно удалять новые подтвержденные топики в непремодерируемом разделе
+    // можно удалять новые подтверждённые топики в премодерируемом разделе
+    assertTrue(permissionService.isDeletable(messageModerateNew, sessionOf(user)));
+    // можно удалять новые подтверждённые топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateNew, user));
-    // можно удалять новые не подтвержденные топики в премодерируемом разделе
-    assertTrue(permissionService.isDeletable(messageNotModerateNew, user));
-    // можно удалять новые не подтвержденные топики в непремодерируемом разделе
+    // можно удалять новые не подтверждённые топики в премодерируемом разделе
+    assertTrue(permissionService.isDeletable(messageNotModerateNew, sessionOf(user)));
+    // можно удалять новые не подтверждённые топики в непремодерируемом разделе
 //    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateNew, user));
   }
 }

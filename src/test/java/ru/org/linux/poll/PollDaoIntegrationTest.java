@@ -40,8 +40,7 @@ public class PollDaoIntegrationTest {
   private PollDao pollDao;
 
   @Test
-  public void voteGetCurrentPollTest()
-      throws Exception {
+  public void voteGetCurrentPollTest() {
     int currentPollId = pollDao.getMostRecentPollId();
     Poll poll = pollDao.getMostRecentPoll();
     assertEquals(currentPollId, poll.getId());
@@ -49,8 +48,7 @@ public class PollDaoIntegrationTest {
 
   @Test
   @Transactional
-  public void voteCreateAndRunningPollTest()
-      throws Exception {
+  public void voteCreateAndRunningPollTest() {
     List <String> pollList = new ArrayList<>();
     pollList.add("Case 1");
     pollList.add("Case 2");
@@ -60,17 +58,17 @@ public class PollDaoIntegrationTest {
     Poll poll = pollDao.getPollByTopicId(TEST_TOPIC_ID);
 
       /* Проверяем правильность сохранения вариантов голосования */
-    ImmutableList<PollVariantResult> pollVariants = pollDao.getPollVariants(poll);
+    ImmutableList<PollVariantResult> pollVariants = pollDao.getPollResults(poll);
     assertEquals(3, pollVariants.size());
 
       /* Проверяем изменения по вариантам голосования */
     pollDao.addNewVariant(poll, "Case 4");
-    pollVariants = pollDao.getPollVariants(poll);
+    pollVariants = pollDao.getPollResults(poll);
     assertEquals(4, pollVariants.size());
 
     PollVariantResult next = pollVariants.iterator().next();
     pollDao.removeVariant(new PollVariant(next.getId(), next.getLabel()));
-    pollVariants = pollDao.getPollVariants(poll);
+    pollVariants = pollDao.getPollResults(poll);
     assertEquals(3, pollVariants.size());
   }
 }

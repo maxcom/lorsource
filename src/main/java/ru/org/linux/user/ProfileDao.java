@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Repository;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.util.ProfileHashtable;
 
-import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.PreparedStatement;
@@ -38,7 +37,6 @@ public class ProfileDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
-  @Nonnull
   public Profile readProfile(int userId) {
     List<Profile> profiles = jdbcTemplate.query(
             "SELECT settings, main FROM user_settings WHERE id=?",
@@ -46,12 +44,12 @@ public class ProfileDao {
               Array boxes = resultSet.getArray("main");
 
               if (boxes != null) {
-                return new Profile(
+                return Profile.apply(
                         new ProfileHashtable(DefaultProfile.getDefaultProfile(), (Map<String, String>) resultSet.getObject("settings")),
                         Arrays.asList((String[]) boxes.getArray())
                 );
               } else {
-                return new Profile(
+                return Profile.apply(
                         new ProfileHashtable(DefaultProfile.getDefaultProfile(), (Map<String, String>) resultSet.getObject("settings")),
                         null
                 );
@@ -61,9 +59,9 @@ public class ProfileDao {
     );
 
     if (profiles.isEmpty()) {
-      return new Profile(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
+      return Profile.apply(new ProfileHashtable(DefaultProfile.getDefaultProfile(), new HashMap<>()), null);
     } else {
-      return profiles.get(0);
+      return profiles.getFirst();
     }
   }
 
@@ -71,7 +69,7 @@ public class ProfileDao {
     jdbcTemplate.update("DELETE FROM user_settings WHERE id=?", user.getId());
   }
 
-  public void writeProfile(User user, Profile profile) {
+  public void writeProfile(User user, ProfileBuilder profile) {
     String[] boxlets = null;
 
     List<String> customBoxlets = profile.getCustomBoxlets();

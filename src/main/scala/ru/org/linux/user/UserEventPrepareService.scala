@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -72,7 +72,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
 
     val reactions = if (event.eventType == UserEventFilterEnum.REACTION) {
       originAuthor.map { u =>
-        Seq(ReactionListItem(u, event.reaction))
+        Seq(ReactionListItem(u, event.reaction, None))
       }.getOrElse(Seq.empty)
     } else {
       Seq.empty
@@ -83,7 +83,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
       messageText = text,
       author = originAuthor.orElse(commentAuthor).getOrElse(topicAuthor),
       bonus = loadBonus(event),
-      section = sectionService.getSection(group.getSectionId),
+      section = sectionService.getSection(group.sectionId),
       group = group,
       tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
       lastId = event.id,
@@ -130,7 +130,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
             messageText = None,
             author = originAuthor.orElse(commentAuthor).getOrElse(topicAuthor),
             bonus = loadBonus(event),
-            section = sectionService.getSection(group.getSectionId),
+            section = sectionService.getSection(group.sectionId),
             group = group,
             tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
             lastId = event.id,

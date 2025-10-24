@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,10 +26,10 @@ import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.ReactionDao
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEvent.NoReaction
+import ru.org.linux.user.UserEventFilterEnum.DELETED
 import ru.org.linux.util.StringUtil
 
 import java.util
-import java.util.Optional
 import javax.sql.DataSource
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
@@ -40,10 +40,12 @@ object UserEventDao {
     """
       |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
       |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions
+      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
+      |  message_warnings.closed_by is not null as closed_warning
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
+      |  LEFT JOIN message_warnings ON (message_warnings.id=warning_id)
       |WHERE user_events.userid = ? %s
       |ORDER BY id DESC LIMIT ? OFFSET ?
       |""".stripMargin
@@ -52,7 +54,8 @@ object UserEventDao {
     """
       |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
       |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions
+      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
+      |  false as closed_warning
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
@@ -66,7 +69,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
   private val insert = {
     val insert = new SimpleJdbcInsert(ds)
     insert.setTableName("user_events")
-    insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message")
+    insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message", "origin_user", "warning_id")
   }
 
   private val insertTopicUsersNotified = {
@@ -86,20 +89,23 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param isPrivate приватное ли уведомление
    * @param topicId   идентификационный номер топика (null если нет)
    * @param commentId идентификационный номер комментария (null если нет)
-   * @param message   дополнительное сообщение уведомления (null если нет)
+   * @param message     дополнительное сообщение уведомления (null если нет)
    */
   def addEvent(eventType: String, userId: Int, isPrivate: Boolean, topicId: Option[Int],
-               commentId: Option[Int], message: Option[String]): Unit = {
+               commentId: Option[Int], message: Option[String], originUser: Option[Int] = None,
+               warningId: Option[Int] = None): Unit = {
     val params = mutable.Map("userid" -> userId, "type" -> eventType, "private" -> isPrivate)
 
     topicId.foreach(v => params.put("message_id", v))
     commentId.foreach(v => params.put("comment_id", v))
     message.foreach(v => params.put("message", v))
+    originUser.foreach(v => params.put("origin_user", v))
+    warningId.foreach(v => params.put("warning_id", v))
 
     insert.execute(params.asJava)
   }
 
-  def insertTopicNotification(topicId: Int, userIds: Iterable[Integer]): Unit = {
+  def insertTopicNotification(topicId: Int, userIds: Iterable[Int]): Unit = {
     val batch = userIds.view.map(userId => Map("topic" -> topicId, "userid" -> userId).asJava).toSeq
 
     insertTopicUsersNotified.executeBatch(batch*)
@@ -140,11 +146,11 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     recalcEventCount(Seq(userId))
   }
 
-  def recalcEventCount(userids: collection.Seq[Integer]): Unit = {
+  def recalcEventCount(userids: collection.Seq[Int]): Unit = {
     if (userids.nonEmpty) {
       namedJdbcTemplate.update("UPDATE users SET unread_events = " +
         "(SELECT count(*) FROM user_events WHERE unread AND userid=users.id) WHERE users.id IN (:list)",
-        ImmutableMap.of("list", userids.asJavaCollection))
+        ImmutableMap.of("list", userids.map(Integer.valueOf).asJavaCollection))
     }
   }
 
@@ -166,11 +172,26 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param userId           идентификационный номер пользователя
    * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
    */
-  def cleanupOldEvents(userId: Int, maxEventsPerUser: Int): Unit =
+  def cleanupOldEvents(userId: Int, maxEventsPerUser: Int): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "DELETE FROM user_events WHERE user_events.id IN " +
         "(SELECT id FROM user_events WHERE userid=? ORDER BY event_date DESC OFFSET ?)",
       userId, maxEventsPerUser)
+
+    recalcEventCount(Seq(userId))
+  }
+
+  def dropBannedUserEvents(): Int = transactional() { _ =>
+    val count = jdbcTemplate.update(
+      "DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval AND user_events.userid IN " +
+        "(SELECT id FROM users WHERE users.blocked and lastlogin < CURRENT_TIMESTAMP-'2 year'::interval)")
+
+    jdbcTemplate.update(
+      "UPDATE users SET unread_events = (SELECT count(*) FROM user_events WHERE unread AND userid=users.id) " +
+        "WHERE unread_events != 0 AND users.blocked and lastlogin < CURRENT_TIMESTAMP-'2 year'::interval")
+
+    count
+  }
 
   /**
    * Получить список уведомлений для пользователя.
@@ -224,57 +245,57 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
 
       UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread,
         resultSet.getInt("tAuthor"), resultSet.getInt("id"),
-        originUser, reaction)
+        originUser, reaction, resultSet.getBoolean("closed_warning"))
     }
   }
 
-  def deleteTopicEvents(topics: collection.Seq[Integer]): collection.Seq[Integer] = {
+  def deleteTopicEvents(topics: Seq[Int]): collection.Seq[Int] = {
     transactional() { _ =>
       if (topics.isEmpty) {
         Seq.empty
       } else {
         val affectedUsers = namedJdbcTemplate.queryForList(
-          "SELECT DISTINCT (userid) FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION')",
+          "SELECT DISTINCT (userid) FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')",
           ImmutableMap.of("list", topics.asJava), classOf[Integer])
 
         namedJdbcTemplate.update(
-          "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION')",
+          "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')",
           ImmutableMap.of("list", topics.asJava))
 
-        affectedUsers.asScala
+        affectedUsers.asScala.map(i => i)
       }
     }
   }
 
-  def deleteCommentEvents(comments: collection.Seq[Integer]): collection.Seq[Integer] = {
+  def deleteCommentEvents(comments: Seq[Int]): collection.Seq[Int] = {
     transactional() { _ =>
       if (comments.isEmpty) {
         Seq.empty
       } else {
         val affectedUsers = namedJdbcTemplate.queryForList(
-          "SELECT DISTINCT (userid) FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION')",
-          ImmutableMap.of("list", comments.asJava), classOf[Integer])
+          "SELECT DISTINCT (userid) FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')",
+          Map("list" -> comments.map(Integer.valueOf).asJava).asJava, classOf[Integer])
 
-        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION')",
-          ImmutableMap.of("list", comments.asJava))
+        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')",
+          Map("list" -> comments.asJava).asJava)
 
-        affectedUsers.asScala
+        affectedUsers.asScala.map(i => i)
       }
     }
   }
 
-  def insertCommentWatchNotification(comment: Comment, parentComment: Optional[Comment], commentId: Int): collection.Seq[Integer] = {
+  def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment], commentId: Int): collection.Seq[Int] =
     transactional(propagation = Propagation.MANDATORY) { _ =>
       val params = new util.HashMap[String, Integer]
       params.put("topic", comment.topicId)
       params.put("id", commentId)
       params.put("userid", comment.userid)
 
-      val userIds = (if (parentComment.isPresent) {
+      val userIds = (if (parentComment.isDefined) {
         params.put("parent_author", parentComment.get.userid)
-        namedJdbcTemplate.queryForList("SELECT memories.userid " + "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " + "AND memories.userid != :parent_author " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors(:id))) AND watch", params, classOf[Integer])
+        namedJdbcTemplate.queryForList("SELECT memories.userid FROM memories WHERE memories.topic = :topic AND :userid != memories.userid AND memories.userid != :parent_author " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors(:id))) AND watch", params, classOf[Integer])
       } else {
-        namedJdbcTemplate.queryForList("SELECT memories.userid " + "FROM memories WHERE memories.topic = :topic AND :userid != memories.userid " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=:userid) AND watch", params, classOf[Integer])
+        namedJdbcTemplate.queryForList("SELECT memories.userid FROM memories WHERE memories.topic = :topic AND :userid != memories.userid AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=:userid) AND watch", params, classOf[Integer])
       }).asScala
 
       if (userIds.nonEmpty) {
@@ -290,12 +311,29 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
         insert.executeBatch(batch*)
       }
 
-      userIds
+      userIds.map(i => i)
+    }
+
+  def getEventTypes(userId: Int): Seq[UserEventFilterEnum] = {
+    jdbcTemplate.queryAndMap("select distinct(type) from user_events where userid=?", userId) { (rs, _) =>
+      UserEventFilterEnum.valueOfByType(rs.getString("type"))
     }
   }
 
-  def recentReactionCount(origin: User): Int = {
-    jdbcTemplate.queryForObject[Int]("SELECT count(*) FROM user_events WHERE type='REACTION' " +
-      "AND origin_user=? AND event_date > CURRENT_TIMESTAMP - '10 minutes'::interval", origin.getId).getOrElse(0)
+  def insertTopicMassDeleteNotifications(topicsIds: Seq[Int], reason: String, deletedBy: Int): Unit = {
+    namedJdbcTemplate.update(s"""
+        insert into user_events (userid, type, private, message_id, message)
+          (select topics.userid, '${DELETED.getType}', true, topics.id, :message from topics where topics.id in (:topics)
+            and topics.userid != :deletedBy and topics.userid != ${User.ANONYMOUS_ID})
+      """, Map("message" -> reason, "topics" -> topicsIds.map(Integer.valueOf).asJava, "deletedBy" -> deletedBy).asJava)
+  }
+
+  def insertCommentMassDeleteNotifications(commentIds: Seq[Int], reason: String, deletedBy: Int): Unit = {
+    namedJdbcTemplate.update(s"""
+        insert into user_events (userid, type, private, message_id, comment_id, message)
+          (select comments.userid, '${DELETED.getType}', true, comments.topic, comments.id,
+            :message from comments where comments.id in (:comments)
+            and comments.userid != :deletedBy and comments.userid != ${User.ANONYMOUS_ID})
+      """, Map("message" -> reason, "comments" -> commentIds.map(Integer.valueOf).asJava, "deletedBy" -> deletedBy).asJava)
   }
 }

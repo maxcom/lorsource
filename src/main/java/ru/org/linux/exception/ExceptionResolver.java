@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,6 +14,8 @@
  */
 package ru.org.linux.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +23,11 @@ import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import ru.org.linux.auth.AuthUtil;
 import ru.org.linux.email.EmailService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.StringUtil;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Класс. предназначенный для перехвата исключений приложения.
@@ -105,7 +105,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
       exceptionType = ExceptionType.SCRIPT_ERROR;
     } else {
       logger.warn("Unexcepted exception caught", exception);
-      String infoMessage = emailService.sendExceptionReport(request, exception);
+      String infoMessage = emailService.sendExceptionReport(request, exception, AuthUtil.getCurrentUser());
       modelAndView.addObject("infoMessage", infoMessage);
     }
     modelAndView.addObject("exceptionType", exceptionType.name());

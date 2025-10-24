@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,22 +17,28 @@
   position: relative;
   max-height: 80vh;
   overflow-y: auto;
-}
 
-.code.spoiled {
-  overflow-y: hidden;
-}
+  &.spoiled {
+    overflow-y: hidden;
+  }
 
-.code.unspoiled {
-  max-height: none;
-}
+  &.unspoiled {
+    max-height: none;
+  }
 
-.code .spoiler-open {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: linear-gradient(rgba(255,255,255,0.5), #fff);
-  display: table-cell;
-  text-align: center;
-  color: #000;
+  .spoiler-open {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 5em;
+    background: linear-gradient(transparent, $code_background);
+    display: table-cell;
+    text-align: center;
+  }
+
+  .spoiler-button {
+    position: absolute;
+    bottom: 1em;
+    transform: translate(-50%, 0);
+  }
 }

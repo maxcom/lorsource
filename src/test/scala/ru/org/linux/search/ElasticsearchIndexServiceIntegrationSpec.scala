@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,12 +25,13 @@ import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 import org.testcontainers.utility.DockerImageName
-import ru.org.linux.AkkaConfiguration
+import ru.org.linux.PekkoConfiguration
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
+import ru.org.linux.spring.SiteConfig
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
-  classOf[AkkaConfiguration]))
+  classOf[PekkoConfiguration]))
 class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
@@ -57,15 +58,15 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   basePackages = Array("ru.org.linux"),
   lazyInit = true,
   useDefaultFilters = false,
+  excludeFilters = Array(
+    new ComponentScan.Filter(`type` = FilterType.ASSIGNABLE_TYPE, value = Array(classOf[SiteConfig]))
+  ),
   includeFilters = Array(
-    new ComponentScan.Filter(
-      `type` = FilterType.ANNOTATION,
-      value = Array(classOf[Service], classOf[Repository])))
-)
+    new ComponentScan.Filter(`type` = FilterType.ANNOTATION, value = Array(classOf[Service], classOf[Repository]))))
 class SearchIntegrationTestConfiguration {
   @Bean(destroyMethod="close")
   def elasticClient: ElasticClient = {
-    val container = new OpensearchContainer(DockerImageName.parse("opensearchproject/opensearch:2.9.0"))
+    val container = new OpensearchContainer(DockerImageName.parse("opensearchproject/opensearch:2.11.0"))
     container.start()
 
     val host = container.getHttpHostAddress

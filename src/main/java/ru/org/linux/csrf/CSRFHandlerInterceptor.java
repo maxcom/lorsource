@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,14 +15,13 @@
 package ru.org.linux.csrf;
 
 import com.google.common.base.Strings;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import ru.org.linux.auth.AccessViolationException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class CSRFHandlerInterceptor implements HandlerInterceptor {
   private static final Logger logger = LoggerFactory.getLogger(CSRFHandlerInterceptor.class);
@@ -37,7 +36,7 @@ public class CSRFHandlerInterceptor implements HandlerInterceptor {
       //CSRFProtectionService.checkCSRF(request);
 
       if ((handler instanceof HandlerMethod) && (((HandlerMethod) handler).getMethodAnnotation(CSRFNoAuto.class)!=null)) {
-        logger.debug("Auto CSRF disabled for "+((HandlerMethod) handler).getBeanType().getName());
+        logger.debug("Auto CSRF disabled for {}", ((HandlerMethod) handler).getBeanType().getName());
         return true;
       }
 
@@ -45,9 +44,9 @@ public class CSRFHandlerInterceptor implements HandlerInterceptor {
 
       if (Strings.isNullOrEmpty(csrfInput)) {
         if ((handler instanceof HandlerMethod)) {
-          logger.warn("Missing CSRF field for " + request.getRequestURI()+ ' ' +((HandlerMethod) handler).getBeanType().getName()+ '.' +((HandlerMethod) handler).getMethod().getName());
+          logger.warn("Missing CSRF field for {} {}.{}", request.getRequestURI(), ((HandlerMethod) handler).getBeanType().getName(), ((HandlerMethod) handler).getMethod().getName());
         } else {
-          logger.warn("Missing CSRF field for " + request.getRequestURI()+" handler="+handler.getClass().toString()+" ip="+request.getRemoteAddr());
+          logger.warn("Missing CSRF field for {} handler={} ip={}", request.getRequestURI(), handler.getClass(), request.getRemoteAddr());
         }
       }
 

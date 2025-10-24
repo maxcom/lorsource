@@ -4,7 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,7 +23,6 @@
 <%--@elvariable id="newPreparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
-<%--@elvariable id="editInfo" type="ru.org.linux.topic.EditInfoDto"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
@@ -66,7 +65,7 @@
 </c:if>
 
 <c:if test="${newPreparedMessage!=null}">
-  <h2>Ваше сообщение</h2>
+<h2>Ваше сообщение</h2>
 <div class=messages>
   <lor:topic messageMenu="${topicMenu}" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false"/>
 </div>
@@ -78,8 +77,8 @@
   <form:errors cssClass="error" path="*" element="div"/>
 
   <input type="hidden" name="msgid" value="${message.id}">
-  <c:if test="${editInfo!=null}">
-    <input type="hidden" name="lastEdit" value="${editInfo.editdate.time}">
+  <c:if test="${lastEdit!=null}">
+    <input type="hidden" name="lastEdit" value="${lastEdit}">
   </c:if>
 
   <c:if test="${topicMenu.topicEditable}">
@@ -90,6 +89,8 @@
   </div>
 
   <c:if test="${imagepost}">
+    <form:hidden path="uploadedImage"/>
+
     <div class="control-group">
       <c:if test="${preparedMessage.image!=null}">
         <label for="image">Заменить изображение:</label>
@@ -99,22 +100,35 @@
       </c:if>
       <input id="image" type="file" name="image">
     </div>
+
+    <c:if test="${not empty form.additionalUploadedImages}">
+      <div class="control-group">
+        <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
+          <form:hidden path="additionalUploadedImages[${i.index}]"/>
+          <c:if test="${v == null}">
+            <label>Дополнительное изображение:
+          </c:if>
+          <c:if test="${v != null}">
+            <label>Заменить изображение:
+          </c:if>
+          <input type="file" name="additionalImage" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+          </label>
+        </c:forEach>
+      </div>
+    </c:if>
   </c:if>
 
+  <c:if test="${group.pollPostAllowed}">
+    <c:forEach var="v" items="${form.poll}" varStatus="i">
+      <label>Вариант #${i.index}: <form:input path="poll[${v.key}]" size="40"/></label><br>
+    </c:forEach>
 
-    <c:if test="${group.pollPostAllowed}">
-      <c:forEach var="v" items="${form.poll}" varStatus="i">
-            <label>Вариант #${i.index}:
-                <form:input path="poll[${v.key}]" size="40"/></label><br>
-      </c:forEach>
+    <c:forEach var="v" items="${form.newPoll}" varStatus="i">
+      <label>Новый #${i.index}: <form:input path="newPoll[${i.index}]" size="40"/></label><br>
+    </c:forEach>
 
-      <c:forEach var="v" items="${form.newPoll}" varStatus="i">
-            <label>Новый #${i.index}:
-                <form:input path="newPoll[${i.index}]" size="40"/></label><br>
-      </c:forEach>
-
-      <label>Мультивыбор: <form:checkbox path="multiselect" size="40"/></label>
-      <br>
+    <label>Мультивыбор: <form:checkbox path="multiselect" size="40"/></label>
+    <br>
   </c:if>
 
   <label>Разметка:*<br>
@@ -156,6 +170,10 @@
     <label>Мини: <form:checkbox path="minor"/></label>
   </c:if>
 
+  <c:if test="${group.premoderated and not topicMenu.commitable}">
+    <form:hidden path="minor"/>
+  </c:if>
+
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 
   <div class="form-actions">
@@ -193,7 +211,7 @@
     <label>Бонус автору (<lor:user user="${preparedMessage.author}"/>): <form:input path="bonus" size="5" cssClass="number" type="number" min="0" max="20"/> (от 0 до 20; текущий score=${preparedMessage.author.score})</label>
 
     <c:forEach items="${editors}" var="editor">
-      <label>Бонус корректору (<lor:user user="${editor}"/>): <form:input path="editorBonus[${editor.id}]" size="5" cssClass="number" type="number" min="0" max="5"/> (от 0 до 5; текущий score=${editor.score})</label>
+      <label>Бонус корректору (<lor:user user="${editor}"/>): <form:input path="editorBonus[${editor.nick}]" size="5" cssClass="number" type="number" min="0" max="5"/> (от 0 до 5; текущий score=${editor.score})</label>
     </c:forEach>
 
     <div class="form-actions">

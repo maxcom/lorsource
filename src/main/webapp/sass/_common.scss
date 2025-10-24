@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,10 +28,10 @@ $container_margin: 0;
 
 @mixin respond-to($media) {
   @if $media == widedesktop {
-    @media only screen and (min-width: 90em) { @content; }
+    @media only screen and (min-width: 100em) { @content; }
   }
   @else if $media == desktops {
-    @media only screen and (min-width: 60em) { @content; }
+    @media only screen and (min-width: 70em) { @content; }
   }
   @else if $media == tablet-and-desktops {
     @media only screen and (min-width: 47em) { @content; }
@@ -50,7 +50,7 @@ html {
 }
 
 body {
-   max-width: 89em;
+   max-width: 85em;
    margin: auto;
    line-height: 1.4;
 }
@@ -258,6 +258,7 @@ table.nav {
   li {
     display: inline;
     margin-left: 0 !important;
+    text-wrap: nowrap;
   }
 
   li:after {
@@ -474,12 +475,12 @@ textarea.error {
 }
 
 #whois_userpic {
-  float: right;
   text-align: center;
 
   .userpic {
-    float: none;
     display: inline-block;
+    float: none;
+    width: 100%;
   }
 
   form {
@@ -488,6 +489,14 @@ textarea.error {
 
   span {
     display: block;
+  }
+
+  @include respond-to(tablet-and-desktops) {
+    float: right;
+
+    .userpic {
+      width: auto;
+    }
   }
 }
 
@@ -526,6 +535,14 @@ h1 {
     font-weight: bold;
     margin-top: 0;
   }
+}
+
+.msg_body .infoblock {
+  border: 1px solid;
+}
+
+.msg_body .infoblock:after {
+  display: none; /* undo clearfix */
 }
 
 .infoblock-small {
@@ -577,6 +594,7 @@ table.poll td {
     background-repeat: repeat-x;
     background-color: transparent !important;
     background-image: url("/tango/img/votes.png") !important;
+    background-size: 18px;
     display: block;
     height: 19px;
   }
@@ -745,13 +763,12 @@ a img { border: none; }
 #bd .btn {
   display: inline-block;
   text-align: center;
-  padding: 6px 12px;
+  padding: 0.3em 0.6em;
   vertical-align: middle;
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
   line-height: 1.4;
-  margin-top: 0;
 }
 
 #bd .btn-small {
@@ -789,36 +806,59 @@ pre code .container:before, pre code .container:after {
 }
 
 img.medium-image {
-  width: 100%;
+  width: auto;
   max-width: 100%;
   height: auto;
-}
-
-figure.medium-image {
-  width: 100%;
+  image-orientation: none;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .medium-image-container {
   margin: 1em auto;
 }
 
+figure.medium-image {
+  width: 100%;
+}
+
+.slider-parent {
+  margin: 1em auto;
+  --image-width: 100%;
+}
+
+.medium-image-container {
+  --image-width: 100%;
+}
+
 @include respond-to(desktops) {
   .medium-image-container {
-    width: 80%;
+    --image-width: 80%;
   }
 
+  .slider-parent {
+    --image-width: 80%;
+  }
+}
+
+@include respond-to(tablet-and-desktops) {
   .news .medium-image-container {
     margin-left: 1em;
-    width: 40%;
+    --image-width: 40%;
+    float: right;
+    text-align: left;
+  }
+
+  .news .slider-parent {
+    --image-width: 40%;
+    margin: 0 0 0 1em;
     float: right;
     text-align: left;
   }
 }
 
-@media screen and (min-width: 768px) {
-  #cal-heatmap {
-    min-height: 100px;
-  }
+#cal-heatmap {
+  min-height: 100px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -838,9 +878,27 @@ figure.medium-image {
   float: none;
 }
 
+.group-label, .user-tag {
+  border-radius: 3px;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+
+.poll-selected {
+  border-radius: 3px;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  margin-right:0.5em !important;
+}
+
+.user-tag, .poll-selected {
+  vertical-align: text-top;
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";
 
-@import "spoilers";
 @import "reactions";

@@ -3,7 +3,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -64,7 +64,21 @@
         </c:if>
 
         <c:if test="${editHistory.imageDeleted}">
-          <p>Изображение удалено</p>
+          <p>Основное изображение удалено</p>
+        </c:if>
+
+        <c:if test="${not empty editHistory.addedImages}">
+          Добавлены дополнительные изображения:
+          <c:forEach var="image" items="${editHistory.addedImages}">
+            <lor:image title="additional image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
+          </c:forEach>
+        </c:if>
+
+        <c:if test="${not empty editHistory.removedImages}">
+          Удалены дополнительные изображения:
+          <c:forEach var="image" items="${editHistory.removedImages}">
+            <lor:image title="additional image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
+          </c:forEach>
         </c:if>
 
       ${editHistory.message}

@@ -1,0 +1,120 @@
+<!--
+  ~ Copyright 1998-2024 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="2024102603" author="Maxim Valyanskiy">
+    <createTable tableName="message_warnings">
+      <column name="id" type="serial">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="topic" type="int">
+        <constraints nullable="false" references="topics(id)" foreignKeyName="message_warnings_topic_fkey"/>
+      </column>
+      <column name="comment" type="int">
+        <constraints nullable="true" references="comments(id)" foreignKeyName="message_warnings_comment_fkey"/>
+      </column>
+      <column name="postdate" type="timestamptz" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="author" type="int">
+        <constraints nullable="false" references="users(id)" foreignKeyName="message_warnings_author_fkey"/>
+      </column>
+      <column name="message" type="text">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex tableName="message_warnings" indexName="message_warnings_topic_idx">
+      <column name="topic"/>
+    </createIndex>
+
+    <createIndex tableName="message_warnings" indexName="message_warnings_comment_idx">
+      <column name="comment"/>
+    </createIndex>
+
+    <createIndex tableName="message_warnings" indexName="message_warnings_author_idx">
+      <column name="author"/>
+    </createIndex>
+
+    <sql>
+      alter type event_type add value if not exists 'WARNING'
+    </sql>
+
+    <sql>
+      grant insert, select on message_warnings to linuxweb
+    </sql>
+  </changeSet>
+
+  <changeSet id="2024110101" author="Maxim Valyanskiy">
+    <sql>
+      create type warning_type as enum ('rule', 'tag', 'spelling');
+    </sql>
+
+    <addColumn tableName="message_warnings">
+      <column name="warning_type" type="warning_type" defaultValue="rule">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2024110102" author="Maxim Valyanskiy">
+    <createIndex tableName="message_warnings" indexName="message_warnings_postdate_idx">
+      <column name="postdate"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="2024110201" author="Maxim Valyanskiy">
+    <addColumn tableName="message_warnings">
+      <column name="closed_by" type="int">
+        <constraints nullable="true" references="users(id)" foreignKeyName="message_warnings_closed_by_fkey"/>
+      </column>
+      <column name="closed_when" type="timestamptz"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="2024110202" author="Maxim Valyanskiy">
+    <createIndex tableName="message_warnings" indexName="message_warnings_closed_by_idx">
+      <column name="closed_by"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="2024110203" author="Maxim Valyanskiy">
+    <sql>
+      grant update on message_warnings to linuxweb
+    </sql>
+  </changeSet>
+
+  <changeSet id="2024110501" author="Maxim Valyanskiy">
+    <addColumn tableName="user_events">
+      <column name="warning_id" type="int">
+        <constraints nullable="true" references="message_warnings(id)" foreignKeyName="user_events_warning_id_fkey"/>
+      </column>
+    </addColumn>
+
+    <createIndex tableName="user_events" indexName="user_events_warning_id_idx">
+      <column name="warning_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="2024110601" author="Maxim Valyanskiy">
+    <sql>
+      alter type warning_type add value if not exists 'group'
+    </sql>
+  </changeSet>
+</databaseChangeLog>

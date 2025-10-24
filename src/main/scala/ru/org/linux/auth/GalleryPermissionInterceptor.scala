@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,37 +16,38 @@
 package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.web.servlet.HandlerInterceptor
-import ru.org.linux.gallery.ImageDao
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.gallery.{Image, ImageDao}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
-import ru.org.linux.user.{User, UserDao}
+import ru.org.linux.topic.{Topic, TopicPermissionService, TopicService}
+import ru.org.linux.user.UserService
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
-class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, groupDao: GroupDao,
-                                   topicPermissionService: TopicPermissionService, userDao: UserDao)
+class GalleryPermissionInterceptor(imageDao: ImageDao, topicService: TopicService, groupDao: GroupDao,
+                                   topicPermissionService: TopicPermissionService, userService: UserService)
   extends HandlerInterceptor with StrictLogging {
 
   import GalleryPermissionInterceptor.*
 
-  override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: scala.Any): Boolean = {
+  override def preHandle(request: HttpServletRequest, response: HttpServletResponse,
+                         handler: scala.Any): Boolean = MaybeAuthorized { implicit session =>
     val uri = request.getRequestURI.drop(1)
 
     val (continue, code) = if (uri.startsWith("gallery/preview/")) {
-      (AuthUtil.isSessionAuthorized, 403)
+      (session.authorized, 403)
     } else if (uri.startsWith("images/")) {
       logger.debug(s"Checking ${request.getRequestURI}")
 
       uri match {
         case ImagesPattern(id) =>
-
           try {
-            val topic = topicDao.getById(imageDao.getImage(id.toInt).topicId)
+            val image = imageDao.getImage(id.toInt)
+            val topic = topicService.getById(image.topicId)
 
-            (visible(AuthUtil.getCurrentUser, topic), 403)
+            (visible(topic, image), 403)
           } catch {
             case _: EmptyResultDataAccessException =>
               (false, 404)
@@ -66,12 +67,16 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicDao: TopicDao, group
     continue
   }
 
-  private def visible(currentUser: User, topic: Topic): Boolean = {
+  private def visible(topic: Topic, image: Image)(implicit session: AnySession): Boolean = {
     try {
-      topicPermissionService.checkView(groupDao.getGroup(topic.groupId), topic, currentUser,
-        userDao.getUserCached(topic.authorUserId), false)
+      topicPermissionService.checkView(groupDao.getGroup(topic.groupId), topic,
+        userService.getUserCached(topic.authorUserId), showDeleted = false)
 
-      true
+      if (image.deleted) {
+        topicPermissionService.canViewHistory(topic)
+      } else {
+        true
+      }
     } catch {
       case ex: MessageNotFoundException =>
         logger.info(s"topic ${topic.id} non-visible: ${ex.getMessage}")

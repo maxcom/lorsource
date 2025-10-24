@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -39,57 +39,66 @@
 
 <title>Информация о пользователе ${user.nick}</title>
 
-<c:if test="${user.id!=2}">
-    <script type="text/javascript">
-        $script(['/webjars/d3/d3.min.js'], 'd3');
+<script type="text/javascript">
+    $script(['/webjars/d3/d3.min.js'], 'd3');
 
-        $script.ready('d3', function () {
-            $script('/webjars/cal-heatmap/cal-heatmap.js', 'heatmap');
+    $script.ready('d3', function () {
+        $script('/webjars/cal-heatmap/cal-heatmap.js', 'heatmap');
+    });
+
+    $script.ready(['heatmap', 'jquery', 'plugins'], function () {
+        $(function () {
+            moment.locale("ru");
+
+            var size = 8;
+
+            if (window.matchMedia("(min-width: 1024px)").matches) {
+                size = 10;
+            }
+
+            var cal = new CalHeatMap();
+            var params = {
+                 data: "/people/${user.nick}/profile?year-stats",
+                 domain: "month",
+                 subDomain: "day",
+                 domainDynamicDimension: false,
+                 displayLegend: false,
+                 legend: [8, 32, 64, 128],
+                 cellSize: size,
+                 tooltip: true,
+                 domainLabelFormat: function (date) {
+                     return moment(date).format("MMMM");
+                 },
+                 subDomainDateFormat: function (date) {
+                     return moment(date).format("LL");
+                 },
+                 subDomainTitleFormat: {
+                     empty: "{date}",
+                     filled: "{date}<br>сообщений: {count}"
+                 },
+                 onClick: function (date, count) {
+                     if (count > 0) {
+                         window.location.href = '/search.jsp?dt=' + date.getTime() + '&user=${user.nick}';
+                     }
+                 }
+            };
+
+            if (window.matchMedia("(min-width: 768px)").matches) {
+                params['range'] = 12;
+                params['start'] = new Date("<%= DateTime.now().minusMonths(11).toString() %>")
+            } else {
+                params['range'] = 6;
+                params['start'] = new Date("<%= DateTime.now().minusMonths(5).toString() %>")
+            }
+
+            cal.init(params);
         });
+    });
 
-        $script.ready(['heatmap', 'jquery', 'plugins'], function () {
-            $(function () {
-                if (window.matchMedia("(min-width: 768px)").matches) {
-                    moment.locale("ru");
-
-                    var size = 8;
-
-                    if (window.matchMedia("(min-width: 1024px)").matches) {
-                        size = 10;
-                    }
-
-                    var cal = new CalHeatMap();
-                    cal.init({
-                        data: "/people/${user.nick}/profile?year-stats",
-                        domain: "month",
-                        subDomain: "day",
-                        range: 12,
-                        domainDynamicDimension: false,
-                        displayLegend: false,
-                        legend: [8, 32, 64, 128],
-                        cellSize: size,
-                        start: new Date("<%= DateTime.now().minusMonths(11).toString() %>"),
-                        tooltip: true,
-                        domainLabelFormat: function (date) {
-                            return moment(date).format("MMMM");
-                        },
-                        subDomainDateFormat: function (date) {
-                            return moment(date).format("LL");
-                        },
-                        subDomainTitleFormat: {
-                            empty: "{date}",
-                            filled: "{date}<br>сообщений: {count}"
-                        }
-                    });
-                }
-            });
-        });
-
-        function change (dest, source) {
-            dest.value = source.options[source.selectedIndex].value;
-        }
-    </script>
-</c:if>
+    function change(dest, source) {
+        dest.value = source.options[source.selectedIndex].value;
+    }
+</script>
 
 <c:if test="${userInfo.url != null}">
     <c:if test="${user.score >= 100 && not user.blocked && user.activated}">
@@ -101,7 +110,7 @@
 <jsp:include page="header.jsp"/>
 
 <c:if test="${viewByOwner}">
-    <div style="margin-bottom: 1em">
+    <nav>
         <a href="/people/${user.nick}/edit" class="btn btn-default">Редактировать профиль</a>
         <a href="/people/${user.nick}/settings" class="btn btn-default">Настройки</a>
 
@@ -118,7 +127,7 @@
             <lor:csrf/>
             <button type="submit" class="btn btn-danger">Выйти со всех устройств</button>
         </form>
-    </div>
+    </nav>
 </c:if>
 
 <c:if test="${not viewByOwner}">
@@ -231,8 +240,27 @@
             по причине: <c:out escapeXml="true" value="${banInfo.reason}"/>
     </c:if>
 </div>
+<c:if test="${template.moderatorSession}">
+    <b>Score:</b> ${user.score}${' '}MaxScore: ${user.maxScore}
+    <c:if test="${recentScoreLoss > 0}">
+      RecentScoreLoss: ${recentScoreLoss}
+    </c:if>
+</c:if>
+<c:if test="${viewByOwner and not template.moderatorSession}">
+    <b>Score:</b> ${user.score}
+</c:if>
 <c:if test="${moderatorOrCurrentUser}">
   <div>
+    <c:if test="${template.moderatorSession and user.score<50 and not user.anonymous}">
+      <form action="/usermod.jsp" method="POST" style="display: inline">
+        <lor:csrf/>
+        <input type="hidden" name="id" value="${user.id}">
+        <input type='hidden' name='action' value='score50'>
+        <button type="submit" class="btn btn-small btn-default">Установить score=50</button>
+      </form>
+    </c:if>
+    <br>
+
     <c:if test="${not empty user.email}">
       <b>Email:</b> <a
             href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
@@ -244,7 +272,7 @@
       </form>
     </c:if>
 
-    <c:if test="${template.moderatorSession}">
+    <c:if test="${template.moderatorSession and not user.anonymous}">
         <a href="/people/${user.nick}/profile?reset-password" class="btn btn-small btn-danger">Сбросить пароль</a>
     </c:if>
 
@@ -264,17 +292,6 @@
         </c:forEach>
       <br>
     </c:if>
-
-    <b>Score:</b> ${user.score}
-    <c:if test="${template.moderatorSession and user.score<50}">
-      <form action="/usermod.jsp" method="POST" style="display: inline">
-        <lor:csrf/>
-        <input type="hidden" name="id" value="${user.id}">
-        <input type='hidden' name='action' value='score50'>
-        <button type="submit" class="btn btn-small btn-default">Установить score=50</button>
-      </form>
-    </c:if>
-    <br>
 
     <c:if test="${not viewByOwner && template.moderatorSession}">
       <b>Игнорируется:</b> ${userStat.ignoreCount}<br>
@@ -328,7 +345,7 @@
 </c:if>
 
 <!-- ability to freeze a user temporary -->
-<c:if test="${(template.moderatorSession and user.blockable) or currentUser.administrator}">
+<c:if test="${freezable}">
     <br />
     <div style="border: 1px dotted; padding: 1em;">
         <span>Заморозить, разморозить, изменить время заморозки.</span>
@@ -449,7 +466,7 @@
     </div>
 </c:if>
 
-<c:if test="${(template.moderatorSession and user.blockable) or currentUser.administrator}">
+<c:if test="${blockable}">
     <br>
 
     <div style="border: 1px dotted; padding: 1em;">
@@ -479,12 +496,14 @@
 
 <p>
 
+<c:if test="${not user.anonymous and not empty userInfoText}">
 <form name='f_remove_userinfo' method='post' action='usermod.jsp'>
     <lor:csrf/>
     <input type='hidden' name='id' value='${user.id}'>
     <input type='hidden' name='action' value='remove_userinfo'>
     <button type='submit' class="btn btn-danger">Удалить текст</button>
 </form>
+</c:if>
 
 <p>
 
@@ -541,8 +560,9 @@
 </c:if>
 <p>
 
-    <c:if test="${user.id!=2}">
-    <c:if test="${not empty userStat.topicsBySection}">
+<c:if test="${not user.anonymous || template.moderatorSession}">
+
+<c:if test="${not empty userStat.topicsBySection}">
 
 <div class="forum">
     <table class="message-table" style="width: auto">
@@ -566,7 +586,14 @@
 <ul>
     <c:if test="${not empty userStat.topicsBySection || moderatorOrCurrentUser}">
         <li>
-            <a href="/people/${user.nick}/">Темы</a>
+            <c:choose>
+                <c:when test="${not empty userStat.topicsBySection}">
+                    <a href="/people/${user.nick}/">Темы</a>
+                </c:when>
+                <c:otherwise>
+                    Темы
+                </c:otherwise>
+            </c:choose>
             <c:if test="${moderatorOrCurrentUser}">
                 (<a href="/people/${user.nick}/deleted-topics">удаленные</a>)
             </c:if>
@@ -575,9 +602,16 @@
 
     <c:if test="${userStat.commentCount>0 || template.moderatorSession}">
         <li>
-          <a href="search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE">Комментарии</a>
+          <c:choose>
+              <c:when test="${userStat.commentCount>0}">
+                  <a href="search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE">Комментарии</a>
+              </c:when>
+              <c:otherwise>
+                  Комментарии
+              </c:otherwise>
+          </c:choose>
 
-          <c:if test="${template.moderatorSession}">
+            <c:if test="${template.moderatorSession}">
             (<a href="/people/${user.nick}/deleted-comments">удаленные</a>)
           </c:if>
         </li>
@@ -601,6 +635,11 @@
     <c:if test="${hasDrafts}">
         <li>
             <a href="/people/${user.nick}/drafts">Черновики</a>
+        </li>
+    </c:if>
+    <c:if test="${moderatorOrCurrentUser}">
+        <li>
+            <a href="/people/${user.nick}/reactions">Реакции</a>
         </li>
     </c:if>
 </ul>

@@ -1,7 +1,7 @@
 <%@ tag import="com.google.common.base.Strings" trimDirectiveWhitespaces="true" %><%@ tag
         pageEncoding="UTF-8"
 %><%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -24,7 +24,7 @@
 --%><c:if test="${user.blocked}"><s></c:if><%--
 --%><c:if test="${bold!=null && bold}"><b></c:if><%--
 --%><c:choose><%--
---%><c:when test="${link!=null and link and not user.anonymous}"><%--
+--%><c:when test="${link!=null and link and (not user.anonymous || template.sessionAuthorized)}"><%--
 --%><a <%= Strings.isNullOrEmpty(rel)?"":"rel=\""+rel+ '"' %> <%= Strings.isNullOrEmpty(itemprop)?"":"itemprop=\""+itemprop+ '"' %> href="/people/${user.nick}/profile">${user.nick}</a><%--
 --%></c:when><%--
 --%><c:otherwise><%--

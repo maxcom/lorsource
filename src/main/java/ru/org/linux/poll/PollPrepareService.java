@@ -41,34 +41,35 @@ public class PollPrepareService {
    * @throws PollNotFoundException может не существовать опроса для этого топика
    */
   public PreparedPoll preparePoll(Topic topic, User user) throws PollNotFoundException {
+    // используется для работы userVoted
     Poll poll = pollDao.getPollByTopicId(topic.getId());
 
     return new PreparedPoll(
             poll,
             pollDao.getCountUsers(poll),
-            pollDao.getPollVariants(poll, Poll.OrderVotes(), user)
+            pollDao.getPollResults(poll, Poll.OrderVotes(), user)
     );
   }
 
   public PreparedPoll preparePollPreview(Poll newPoll) {
-    final Map<Integer,PollVariantResult> currentMap;
+      final Map<Integer, PollVariantResult> currentMap;
 
-    if (newPoll.getId()>0) {
-      currentMap = Maps.uniqueIndex(pollDao.getPollVariants(newPoll), PollVariantResult::getId);
-    } else {
-      currentMap = ImmutableSortedMap.of();
-    }
-
-    List<PollVariantResult> variants = newPoll.getVariants().stream().map(input -> {
-      PollVariantResult pollVariant = currentMap.get(input.getId());
-
-      if (pollVariant != null) {
-        return new PollVariantResult(input.getId(), input.getLabel(), pollVariant.getVotes(), pollVariant.getUserVoted());
+      if (newPoll.getId() > 0) {
+        currentMap = Maps.uniqueIndex(pollDao.getPollResults(newPoll), PollVariantResult::getId);
       } else {
-        return new PollVariantResult(input.getId(), input.getLabel(), 0, false);
+        currentMap = ImmutableSortedMap.of();
       }
-    }).collect(Collectors.toList());
 
-    return new PreparedPoll(newPoll, 0, variants);
+      List<PollVariantResult> variants = newPoll.getVariants().stream().map(input -> {
+        PollVariantResult pollVariant = currentMap.get(input.getId());
+
+        if (pollVariant != null) {
+          return new PollVariantResult(input.getId(), input.getLabel(), pollVariant.getVotes(), pollVariant.isUserVoted());
+        } else {
+          return new PollVariantResult(input.getId(), input.getLabel(), 0, false);
+        }
+      }).collect(Collectors.toList());
+
+      return new PreparedPoll(newPoll, 0, variants);
   }
 }

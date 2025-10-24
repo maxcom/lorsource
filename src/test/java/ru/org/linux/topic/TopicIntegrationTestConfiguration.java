@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,28 +15,28 @@
 
 package ru.org.linux.topic;
 
-import akka.actor.ActorRef;
+import org.apache.pekko.actor.typed.ActorRef;
 import com.sksamuel.elastic4s.ElasticClient;
 import org.springframework.context.annotation.*;
 import org.springframework.stereotype.Controller;
 import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.TorBlockUpdater;
+import ru.org.linux.auth.BlackListUpdater;
 import ru.org.linux.comment.CommentPrepareService;
 import ru.org.linux.comment.CommentReadService;
 import ru.org.linux.edithistory.EditHistoryService;
 import ru.org.linux.email.EmailService;
 import ru.org.linux.exception.ExceptionResolver;
-import ru.org.linux.group.GroupDao;
 import ru.org.linux.markup.MessageTextService;
+import ru.org.linux.realtime.RealtimeEventHub;
 import ru.org.linux.realtime.RealtimeWebsocketHandler;
 import ru.org.linux.search.MoreLikeThisService;
 import ru.org.linux.search.SearchQueueListener;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.SectionService;
-import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.MemoriesDao;
+import ru.org.linux.warning.WarningService;
 import sttp.client3.SttpBackend;
 
 import java.io.FileInputStream;
@@ -64,7 +64,7 @@ import static org.mockito.Mockito.mock;
                                 EmailService.class,
                                 ExceptionResolver.class,
                                 RealtimeWebsocketHandler.class,
-                                TorBlockUpdater.class
+                                BlackListUpdater.class
                         }
                 )
         }
@@ -74,14 +74,14 @@ public class TopicIntegrationTestConfiguration {
   @Bean
   public TopicController topicController(SectionService sectionService, TopicDao messageDao, CommentPrepareService prepareService,
                                          TopicPrepareService topicPrepareService, CommentReadService commentService,
-                                         IgnoreListDao ignoreListDao, SiteConfig siteConfig, IPBlockDao ipBlockDao,
+                                         IgnoreListDao ignoreListDao, IPBlockDao ipBlockDao,
                                          EditHistoryService editHistoryService, MemoriesDao memoriesDao,
                                          TopicPermissionService permissionService, MoreLikeThisService moreLikeThisService,
                                          TopicTagService topicTagService, MsgbaseDao msgbaseDao, MessageTextService textService,
-                                         GroupDao groupDao) {
+                                         WarningService warningService) {
     return new TopicController(sectionService, messageDao, prepareService, topicPrepareService, commentService,
-            ignoreListDao, siteConfig, ipBlockDao, editHistoryService, memoriesDao,  permissionService,
-            moreLikeThisService, topicTagService, msgbaseDao, textService, groupDao);
+            ignoreListDao, ipBlockDao, editHistoryService, memoriesDao,  permissionService,
+            moreLikeThisService, topicTagService, msgbaseDao, textService, warningService);
   }
 
   @Bean
@@ -112,7 +112,7 @@ public class TopicIntegrationTestConfiguration {
   }
 
   @Bean("realtimeHubWS")
-  public ActorRef realtimeHub() {
+  public ActorRef<RealtimeEventHub.Protocol> realtimeHub() {
     return mock(ActorRef.class);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,9 +22,11 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.DeleteInfo
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user.{Remark, User}
+import ru.org.linux.warning.PreparedWarning
 
 import javax.annotation.Nullable
 import scala.beans.BeanProperty
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 case class PreparedTopic(@BeanProperty message: Topic, @BeanProperty author: User,
                          @Nullable @BeanProperty deleteInfo: DeleteInfo, @Nullable @BeanProperty deleteUser: User,
@@ -34,6 +36,15 @@ case class PreparedTopic(@BeanProperty message: Topic, @BeanProperty author: Use
                          @BeanProperty markupType: MarkupType, @Nullable @BeanProperty image: PreparedImage,
                          @BeanProperty postscoreInfo: String, @Nullable @BeanProperty remark: Remark,
                          @BeanProperty showRegisterInvite: Boolean, @Nullable @BeanProperty userAgent: String,
-                         @BeanProperty reactions: PreparedReactions) {
+                         @BeanProperty reactions: PreparedReactions,
+                         @BeanProperty warnings: java.util.List[PreparedWarning],
+                         additionalImages: java.util.List[PreparedImage]) {
   def getId: Int = message.id
+
+  // used in jsp
+  val getAllImages: java.util.List[PreparedImage] = if (image!=null) {
+    (image +: additionalImages.asScala).asJava
+  } else {
+    additionalImages
+  }
 }

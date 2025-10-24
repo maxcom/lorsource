@@ -1,112 +1,106 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
 
-/*
-  IR_Black style (c) Vasily Mikhailitchenko <vaskas@programica.ru>
+Atom One Dark by Daniel Gamage
+Original One Dark Syntax theme from https://github.com/atom/one-dark-syntax
+
+base:    #282c34
+mono-1:  #abb2bf
+mono-2:  #818896
+mono-3:  #5c6370
+hue-1:   #56b6c2
+hue-2:   #61aeee
+hue-3:   #c678dd
+hue-4:   #98c379
+hue-5:   #e06c75
+hue-5-2: #be5046
+hue-6:   #d19a66
+hue-6-2: #e6c07b
+
 */
 
-pre code {
-    color: #f8f8f8;
+:root {
+  --syntax-mono-1: #abb2bf;
+  --syntax-mono-3: #5c6370;
+  --syntax-hue-1: #56b6c2;
+  --syntax-hue-2: #61aeee;
+  --syntax-hue-3: #c678dd;
+  --syntax-hue-4: #98c379;
+  --syntax-hue-5: #e06c75;
+  --syntax-hue-6: #d19a66;
+  --syntax-hue-6-2: #e6c07b;
 }
 
-pre {
-//    background: #000;
+.hljs {
+  color: var(--syntax-mono-1);
+  /* background: #282c34; */
 }
 
-pre .shebang, pre .comment, pre .template_comment, pre .javadoc, pre .diff .header,
-pre .pragma {
-    color: #7c7c7c;
+.hljs-comment,
+.hljs-quote {
+  color: var(--syntax-mono-3);
+  font-style: italic;
 }
 
-pre .keyword, pre .tag, pre .ruby .function .keyword {
-    color: #96CBFE;
+.hljs-doctag,
+.hljs-keyword,
+.hljs-formula {
+  color: var(--syntax-hue-3);
 }
 
-pre .function .keyword, pre .sub .keyword, pre .method, pre .list .title, pre .addition {
-    color: #FFFFB6;
+.hljs-section,
+.hljs-name,
+.hljs-selector-tag,
+.hljs-deletion,
+.hljs-subst {
+  color: var(--syntax-hue-5);
 }
 
-pre .title,
-pre .localvars,
-pre .chunk,
-pre .decorator,
-pre .built_in,
-pre .identifier,
-pre .vhdl .literal,
-pre .id {
-  color: #268bd2;
+.hljs-literal {
+  color: var(--syntax-hue-1);
 }
 
-pre .haskell .type {
-    color: #aac;
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string {
+  color: var(--syntax-hue-4);
 }
 
-pre .haskell .preprocessor {
-    color: #caa;
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-type,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-number {
+  color: var(--syntax-hue-6);
 }
 
-pre .string, pre .attribute .value, pre .cdata, pre .filter .argument, pre .attr_selector, pre .apache .cbracket, pre .date {
-    color: #A8FF60;
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-meta,
+.hljs-selector-id,
+.hljs-title {
+  color: var(--syntax-hue-2);
 }
 
-pre .subst {
-    color: #DAEFA3;
+.hljs-built_in,
+.hljs-title.class_,
+.hljs-class .hljs-title {
+  color: var(--syntax-hue-6-2);
 }
 
-pre .regexp {
-    color: #E9C062;
+.hljs-emphasis {
+  font-style: italic;
 }
 
-pre .function .title, pre .sub .identifier, pre .pi, pre .decorator, pre .ini .title {
-    color: #FFFFB6;
+.hljs-strong {
+  font-weight: bold;
 }
 
-pre .class .title, pre .smalltalk .class, pre .javadoctag, pre .phpdoc {
-    color: #FFFFB6;
-}
-
-pre .haskell .class .title {
-    color: #FFF;
-}
-
-pre .preprocessor,
-pre .preprocessor .keyword,
-pre .symbol, pre .number, pre .variable, pre .vbscript, pre .literal {
-    color: #C6C5FE;
-}
-
-pre .css .keyword {
-    color: #96CBFE;
-}
-
-pre .css .rule .keyword, pre .css .id {
-    color: #FFFFB6;
-}
-
-pre .css .class {
-    color: #FFF;
-}
-
-pre .hexcolor {
-    color: #C6C5FE;
-}
-
-pre .number {
-    color:#FF73FD;
-}
-
-pre .deletion {
-  color: #dc322f;
+.hljs-link {
+  text-decoration: underline;
 }

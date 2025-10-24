@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -19,13 +19,13 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Возврат в неподтвержденные</title>
+<title>Возврат в неподтверждённые</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Возврат в неподтвержденные</h1>
-Вы можете отменить подтверждение и вернуть топик в список неподтвержденных.
+<h1>Возврат в неподтверждённые</h1>
+Вы можете отменить подтверждение и вернуть топик в список неподтверждённых.
 <div class=messages>
-  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
+  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" imageSlider="true"/>
 </div>
 <form method=POST action="uncommit.jsp">
   <lor:csrf/>

@@ -42,6 +42,6 @@ public class GroupDaoIntegrationTest {
     assertEquals(16, groupDtoList.size());
 
     Group groupDto = groupDao.getGroup(sectionDto, "general");
-    assertEquals("General", groupDto.getTitle());
+    assertEquals("General", groupDto.title());
   }
 }

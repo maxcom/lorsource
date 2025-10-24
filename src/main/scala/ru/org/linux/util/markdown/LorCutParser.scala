@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,24 +19,24 @@ import java.util
 import java.util.regex.Pattern
 
 import com.vladsch.flexmark.parser.InlineParser
-import com.vladsch.flexmark.parser.block._
+import com.vladsch.flexmark.parser.block.*
 import com.vladsch.flexmark.util.ast.{Block, BlockContent}
 import com.vladsch.flexmark.util.options.DataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequence
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object LorCutParser {
   private val CutStart = Pattern.compile(">>>(\\s*$)")
   private val CutEnd = Pattern.compile("<<<(\\s*$)")
 
   class Factory extends CustomBlockParserFactory {
-    override def getAfterDependents: util.Set[Class[_ <: CustomBlockParserFactory]] = null
+    override def getAfterDependents: util.Set[Class[? <: CustomBlockParserFactory]] = null
 
-    override def getBeforeDependents: util.Set[Class[_ <: CustomBlockParserFactory]] = null
+    override def getBeforeDependents: util.Set[Class[? <: CustomBlockParserFactory]] = null
 
     override def affectsGlobalScope = false
 
-    override def create(options: DataHolder) = new LorCutParser.BlockFactory(options)
+    override def create(options: DataHolder): BlockFactory = new LorCutParser.BlockFactory(options)
   }
 
   class BlockFactory(options: DataHolder) extends AbstractBlockParserFactory(options) {

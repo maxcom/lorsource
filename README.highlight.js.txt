@@ -1,38 +1,6 @@
-Подсветка кода от http://softwaremaniacs.org/soft/highlight/.
+Подсветка кода от https://highlightjs.org.
 
-Версия 7.5
+Версия Highlight.js v11.11.1 (git: 85b20421a2).
 
-Собрано с поддержкой следующих языков:
 
-* Bash
-* C#
-* C++
-* Clojure
-* CMake
-* CoffeeScript
-* CSS
-* D
-* Delphi
-* Diff
-* Erlang
-* F#
-* Fortran
-* Go
-* Haskell
-* HTML, XML
-* Ini
-* Java
-* Javascript
-* Lisp
-* Lua
-* Objective C
-* Perl
-* PHP
-* Python
-* Ruby
-* Rust
-* Scala
-* Smalltalk
-* SQL
-* TeX
-* Vala
+Сборка через build-hljs.

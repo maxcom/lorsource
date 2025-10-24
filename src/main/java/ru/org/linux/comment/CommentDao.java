@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,11 +15,8 @@
 
 package ru.org.linux.comment;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +24,6 @@ import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
@@ -39,8 +35,6 @@ import java.util.Date;
 
 @Repository
 public class CommentDao {
-  private static final Logger logger = LoggerFactory.getLogger(CommentDao.class);
-
   private static final String queryCommentById = "SELECT " +
     "postdate, topic, userid, comments.id as msgid, comments.title, " +
     "deleted, replyto, edit_count, edit_date, editor_id, " +
@@ -72,11 +66,9 @@ public class CommentDao {
   private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=? AND not deleted";
 
   private final JdbcTemplate jdbcTemplate;
-  private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
   public CommentDao(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
-    namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
   /**
@@ -116,21 +108,12 @@ public class CommentDao {
      *
      *
    * @param msgid      идентификационнай номер комментария
-   * @param reason     причина удаления
-   * @param user       пользователь, удаляющий комментарий
    * @return true если комментарий был удалён, иначе false
      */
-  public boolean deleteComment(int msgid, String reason, User user) {
+  public boolean deleteComment(int msgid) {
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
-    if (deleteCount > 0) {
-      logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
-
-      return true;
-    } else {
-      logger.info("Пропускаем удаление уже удаленного " + msgid);
-      return false;
-    }
+    return deleteCount > 0;
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
@@ -173,10 +156,6 @@ public class CommentDao {
             Integer.class,
             user.getId()
     );
-  }
-
-  public List<Integer> getAllByUser(User user) {
-    return jdbcTemplate.queryForList("SELECT id FROM comments WHERE userid=? AND not deleted", Integer.class, user.getId());
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
@@ -285,43 +264,5 @@ public class CommentDao {
                             rs.getBoolean("topic_deleted")),
             userId
     );
-  }
-
-  public List<CommentsListItem> getCommentsByUAIP(@Nullable String ip, @Nullable Integer userAgent, int limit) {
-    String ipQuery = ip!=null?"AND comments.postip <<= :ip::inet ":"";
-    String userAgentQuery = userAgent!=null?"AND comments.ua_id=:userAgent ":"";
-
-    Map<String, Object> params = new HashMap<>();
-
-    params.put("ip", ip);
-    params.put("userAgent", userAgent);
-    params.put("limit", limit);
-
-    return namedJdbcTemplate.query(
-            "SELECT groups.title as gtitle, topics.title, topics.id as msgid, " +
-                  "comments.id as cid, comments.postdate, comments.deleted, del_info.deldate, del_info.reason, " +
-                  "del_info.bonus, comments.userid, topics.deleted topic_deleted " +
-                "FROM groups JOIN topics ON groups.id=topics.groupid " +
-                  "JOIN comments ON comments.topic=topics.id " +
-                  "LEFT JOIN del_info ON del_info.msgid=comments.id " +
-                "WHERE comments.postdate>CURRENT_TIMESTAMP-'3 days'::interval " +
-                  ipQuery +
-                  userAgentQuery +
-                "ORDER BY postdate DESC LIMIT :limit",
-            params,
-            (rs, rowNum) ->
-                    new CommentsListItem(
-                            rs.getString("gtitle"),
-                            rs.getInt("msgid"),
-                            StringUtil.makeTitle(rs.getString("title")),
-                            rs.getString("reason"),
-                            rs.getTimestamp("deldate"),
-                            rs.getInt("bonus"),
-                            rs.getInt("cid"),
-                            rs.getBoolean("deleted"),
-                            rs.getTimestamp("postdate"),
-                            rs.getInt("userid"),
-                            rs.getBoolean("topic_deleted"))
-            );
   }
 }

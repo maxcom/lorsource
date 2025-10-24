@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,14 +21,13 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, AuthorizedOpt}
-import ru.org.linux.auth.{AccessViolationException, CurrentUser}
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
+import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.reaction.ReactionController.ReactionsLimit
-import ru.org.linux.site.Template
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
-import ru.org.linux.user.{IgnoreListDao, UserEventDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, UserService}
 
 import scala.jdk.CollectionConverters.*
 
@@ -37,47 +36,47 @@ object ReactionController {
 }
 
 @Controller
-@RequestMapping(Array("/reactions"))
+@RequestMapping(path = Array("/reactions"))
 class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionService: TopicPermissionService,
                          groupDao: GroupDao, userService: UserService, commentPrepareService: CommentPrepareService,
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
-                         reactionService: ReactionService, userEventDao: UserEventDao) {
+                         reactionService: ReactionService, reactionsDao: ReactionDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
-  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def commentReaction(@RequestParam("comment") commentId: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val comment = commentDao.getById(commentId)
     val topic = topicDao.getById(comment.topicId)
 
-    currentUserOpt match {
+    session.opt match {
       case None =>
         new ModelAndView(new RedirectView(topic.getLink + "?cid=" + comment.id))
       case Some(currentUser) =>
-        if (comment.deleted || topic.deleted || topic.postscore == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+        if (comment.deleted || topic.deleted || topic.isCommentsHidden) {
           throw new AccessViolationException("Сообщение не доступно")
         }
 
         val ignoreList = ignoreListDao.get(currentUser.user.getId)
-
-        val tmpl = Template.getTemplate
+        val reactionLog = reactionsDao.getLogByComment(comment)
 
         new ModelAndView("reaction-comment", Map[String, Any](
           "topic" -> topic,
           "preparedComment" ->
-            commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf, topic,
-              ignoreList.map(Integer.valueOf).asJava),
-          "reactionList" -> reactionService.prepareReactionList(comment.reactions, ignoreList)
+            commentPrepareService.prepareCommentOnly(comment, topic, ignoreList),
+          "reactionList" -> reactionService.prepareReactionList(comment.reactions, reactionLog, ignoreList)
         ).asJava)
     }
   }
 
   private def doSetCommentReaction(topic: Topic, comment: Comment, reactionAction: String,
-                                   currentUser: CurrentUser): Int = {
+                                   currentUser: AuthorizedSession): Int = {
     val Array(reaction, action) = reactionAction.split("-", 2)
 
     if (!reactionService.allowInteract(Some(currentUser.user), topic, Some(comment))) {
       throw new AccessViolationException("Сообщение не доступно")
     }
 
-    if (userEventDao.recentReactionCount(currentUser.user) > ReactionsLimit) {
+    val set = action == "true"
+
+    if (set && reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
       throw new ReactionRateLimitException
     }
 
@@ -85,7 +84,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("unsupported reaction")
     }
 
-    reactionService.setCommentReaction(topic, comment, currentUser.user, reaction, action == "true")
+    reactionService.setCommentReaction(topic, comment, currentUser.user, reaction, set)
   }
 
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.POST))
@@ -113,40 +112,43 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
 
   @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.GET))
-  def topicReaction(@RequestParam("topic") topicId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def topicReaction(@RequestParam("topic") topicId: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
     val topic = topicDao.getById(topicId)
 
-    currentUserOpt match {
+    currentUserOpt.opt match {
       case None =>
         new ModelAndView(new RedirectView(topic.getLink))
       case Some(currentUser) =>
         val group = groupDao.getGroup(topic.groupId)
         val topicAuthor = userService.getUserCached(topic.authorUserId)
 
-        permissionService.checkView(group, topic, currentUser.user, topicAuthor, false)
+        permissionService.checkView(group, topic, topicAuthor, showDeleted = false)
 
         if (topic.deleted) {
           throw new AccessViolationException("Сообщение не доступно")
         }
 
         val ignoreList = ignoreListDao.get(currentUser.user.getId)
+        val reactionLog = reactionsDao.getLogByTopic(topic)
 
         new ModelAndView("reaction-topic", Map(
           "topic" -> topic,
-          "preparedTopic" -> topicPrepareService.prepareTopic(topic, currentUser.user),
-          "reactionList" -> reactionService.prepareReactionList(topic.reactions, ignoreList)
+          "preparedTopic" -> topicPrepareService.prepareTopic(topic),
+          "reactionList" -> reactionService.prepareReactionList(topic.reactions, reactionLog, ignoreList)
         ).asJava)
     }
   }
 
-  private def doSetTopicReaction(topic: Topic, reactionAction: String, currentUser: CurrentUser): Int = {
+  private def doSetTopicReaction(topic: Topic, reactionAction: String, currentUser: AuthorizedSession): Int = {
     val Array(reaction, action) = reactionAction.split("-", 2)
 
     if (!reactionService.allowInteract(Some(currentUser.user), topic, None)) {
       throw new AccessViolationException("Сообщение не доступно")
     }
 
-    if (userEventDao.recentReactionCount(currentUser.user) > ReactionsLimit) {
+    val set = action == "true"
+
+    if (set && reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
       throw new ReactionRateLimitException
     }
 
@@ -154,7 +156,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       throw new AccessViolationException("unsupported reaction")
     }
 
-    reactionService.setTopicReaction(topic, currentUser.user, reaction, action == "true")
+    reactionService.setTopicReaction(topic, currentUser.user, reaction, set)
   }
 
   @RequestMapping(params = Array("!comment"), method = Array(RequestMethod.POST))

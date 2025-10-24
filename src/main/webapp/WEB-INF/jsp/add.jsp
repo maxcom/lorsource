@@ -3,7 +3,7 @@
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
 <%@ page import="ru.org.linux.gallery.Image" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -20,7 +20,6 @@
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>
 <%--@elvariable id="form" type="ru.org.linux.topic.AddTopicRequest"--%>
 <%--@elvariable id="postscoreInfo" type="java.lang.String"--%>
@@ -130,10 +129,33 @@
   </div>
 
   <c:if test="${imagepost}">
+    <form:hidden path="uploadedImage"/>
     <div class="control-group">
-      <label for="image">Изображение:</label>
-      <input id="image" type="file" name="image">
+      <c:if test="${form.uploadedImage == null}">
+        <label>Изображение:
+      </c:if>
+      <c:if test="${form.uploadedImage != null}">
+        <label>Заменить изображение:
+      </c:if>
+      <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" >
+      </label>
     </div>
+
+    <c:if test="${not empty form.additionalUploadedImages}">
+      <div class="control-group">
+        <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
+          <form:hidden path="additionalUploadedImages[${i.index}]"/>
+          <c:if test="${v == null}">
+            <label>Дополнительное изображение #${i.index}:
+          </c:if>
+          <c:if test="${v != null}">
+            <label>Заменить изображение #${i.index}:
+          </c:if>
+          <input type="file" name="additionalImage" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+          </label>
+        </c:forEach>
+      </div>
+    </c:if>
   </c:if>
 
   <c:if test="${section.pollPostAllowed}">
@@ -148,16 +170,51 @@
       </p>
   </c:if>
 
-<c:if test="${not empty modes}">
-<label>Разметка:*<br>
-<form:select path="mode" items="${modes}"/></label><br>
-</c:if>
-
 <div class="control-group">
   <label for="form_msg">Сообщение</label>
     <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
-    <div class="help-block"><b>Внимание:</b> прочитайте описание разметки
-      <a target="_blank" href="/help/markdown.md">Markdown</a> или <a href="/help/lorcode.md" target="_blank">LORCODE</a>.</div>
+
+    <div class="help-block">
+      <c:if test="${template.formatMode == 'lorcode'}">
+        <b>Внимание:</b> прочитайте описание разметки <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
+
+[b]жирный текст[/b]
+
+[i]курсив[/i]
+
+[u]подчёркнутый текст[/u]
+
+[s]зачёркнутый текст[/s]
+
+[em]emphasis[/em]
+
+[strong]stronger emphasis[/strong]
+
+[pre]preformatted text[/pre]
+
+[user]maxcom[/user] - ссылка на профиль пользователя.
+При использовании этого тега упомянутому пользователю приходит уведомление
+
+[code]код[/code]
+
+[inline]Строчное оформление кода[/inline]
+
+Цитата:
+[quote]цитата[/quote] или
+[quote='название цитаты']цитата[/quote] или
+>>цитата
+
+Ссылка:
+[url]http://www.linux.org.ru/[/url]
+можно с параметром, например:
+[url=http://www.example.com/]Сюда![/url]">LORCODE</a>.
+      </c:if>
+      <c:if test="${template.formatMode == 'markdown'}">
+        <b>Внимание:</b> прочитайте описание разметки <a target="_blank" href="/help/markdown.md">Markdown</a>.
+      </c:if>
+
+        Обратите внимание на то, как <a target=_blank href="/forum/linux-org-ru/15431459">правильно копировать вывод терминала</a>.
+    </div>
 </div>
 
 <c:if test="${group!=null and group.linksAllowed}">

@@ -25,10 +25,6 @@
 
   ${preparedTopic.processedMessage}
 
-  <c:if test="${preparedTopic.section.imagepost}">
-    <lor:image title="${preparedTopic.message.title}" image="${preparedTopic.image}" preparedMessage="${preparedTopic}" showInfo="true"/>
-  </c:if>
-
   <c:if test="${preparedTopic.section.pollPostAllowed}">
     <%
       PreparedPoll poll = preparedTopic.getPoll();

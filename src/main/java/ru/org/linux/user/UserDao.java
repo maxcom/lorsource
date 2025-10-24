@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,15 +17,13 @@ package ru.org.linux.user;
 
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,18 +34,22 @@ import scala.Tuple3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
 public class UserDao {
-  private static final Logger logger = LoggerFactory.getLogger(UserDao.class);
-
   private final JdbcTemplate jdbcTemplate;
+  private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
   private final UserLogDao userLogDao;
 
@@ -67,6 +69,7 @@ public class UserDao {
   public UserDao(UserLogDao userLogDao, DataSource dataSource) {
     this.userLogDao = userLogDao;
     jdbcTemplate = new JdbcTemplate(dataSource);
+    namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
   public int findUserId(String nick) throws UserNotFoundException {
@@ -75,7 +78,6 @@ public class UserDao {
     }
 
     if (!StringUtil.checkLoginName(nick)) {
-      logger.warn("Invalid user name '{}'", nick);
       throw new UserNotFoundException("<invalid name>");
     }
 
@@ -93,7 +95,7 @@ public class UserDao {
       throw new RuntimeException("list.size()>1 ???");
     }
 
-    return list.get(0);
+    return list.getFirst();
   }
 
   @Cacheable("Users")
@@ -127,7 +129,7 @@ public class UserDao {
       throw new RuntimeException("list.size()>1 ???");
     }
 
-    return list.get(0);
+    return list.getFirst();
   }
 
   /**
@@ -165,7 +167,7 @@ public class UserDao {
     if (infoList.isEmpty()) {
       return null;
     } else {
-      return infoList.get(0);
+      return infoList.getFirst();
     }
   }
 
@@ -192,20 +194,28 @@ public class UserDao {
                                                 "ORDER BY regdate", Integer.class);
   }
 
-  public List<Tuple3<Integer, Timestamp, Timestamp>> getNewUsersByIP(@Nullable String ip) {
+  public List<Tuple3<Integer, Timestamp, Timestamp>> getNewUsersByIP(@Nullable String ip, @Nullable Integer userAgent) {
     RowMapper<Tuple3<Integer, Timestamp, Timestamp>> mapper = (rs, rowNum) -> Tuple3.apply(
             rs.getInt("id"),
             rs.getTimestamp("regdate"),
             rs.getTimestamp("lastlogin"));
 
 
-    if (ip!=null) {
-      return jdbcTemplate.query("SELECT users.id, lastlogin, regdate from users join user_log on users.id = user_log.userid WHERE " +
+    if (ip!=null || userAgent!=null) {
+      var params = new HashMap<String, Object>();
+
+      params.put("ip", ip);
+      params.put("user_agent", userAgent);
+
+      String ipQuery = ip!=null?"AND (info->'ip')::inet <<= :ip::inet ":"";
+      String userAgentQuery = userAgent!=null?"AND (info->'user_agent')=:user_agent::text ":"";
+
+      return namedJdbcTemplate.query("SELECT users.id, lastlogin, regdate from users join user_log on users.id = user_log.userid WHERE " +
                       "regdate IS NOT null " +
                       "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
-                      "and action='register' and (info->'ip')::inet <<= ?::inet " +
+                      "and action='register' " + ipQuery + userAgentQuery +
                       "ORDER BY regdate desc",
-              mapper, ip);
+              params, mapper);
     } else {
       return jdbcTemplate.query("SELECT users.id, lastlogin, regdate from users WHERE " +
                       "regdate IS NOT null " +
@@ -215,18 +225,22 @@ public class UserDao {
     }
   }
 
-  public List<Tuple2<Integer, DateTime>> getFrozenUserIds() {
+  public List<Tuple2<Integer, Optional<Instant>>> getFrozenUserIds() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
             "frozen_until > CURRENT_TIMESTAMP and not blocked " +
             "ORDER BY frozen_until",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+            (rs, rowNum) -> Tuple2.apply(
+                    rs.getInt("id"),
+                    Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
-  public List<Tuple2<Integer, DateTime>> getUnFrozenUserIds() {
+  public List<Tuple2<Integer, Optional<Instant>>> getUnFrozenUserIds() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where " +
                     "frozen_until < CURRENT_TIMESTAMP and frozen_until > CURRENT_TIMESTAMP - '3 days'::interval and not blocked " +
                     "ORDER BY frozen_until",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+            (rs, rowNum) -> Tuple2.apply(
+                    rs.getInt("id"),
+                    Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
   public void removeTown(User user) {
@@ -240,7 +254,7 @@ public class UserDao {
   /**
    * Отчистка userpicture пользователя, с обрезанием шкворца если удаляет модератор
    * @param user пользовтель у которого чистят
-   * @param cleaner пользователь который чистит
+   * @param cleaner пользователь, который чистит
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
@@ -261,7 +275,7 @@ public class UserDao {
       userLogDao.logResetUserpic(user, cleaner, 0);
     }
 
-    return r;
+    return true;
   }
 
   /**
@@ -417,42 +431,49 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void unblock(@Nonnull User user, @Nonnull User moderator){
+  public void unblock(User user, User moderator){
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
     userLogDao.logUnblockUser(user, moderator);
   }
 
-  public List<Tuple2<Integer, DateTime>> getModerators() {
+  public List<Tuple2<Integer, Optional<Instant>>> getModerators() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where canmod ORDER BY id",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+            (rs, rowNum) -> Tuple2.apply(
+                    rs.getInt("id"),
+                    Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
-  public List<Tuple2<Integer, DateTime>> getCorrectors() {
+  public List<Tuple2<Integer, Optional<Instant>>> getCorrectors() {
     return jdbcTemplate.query("SELECT id, lastlogin FROM users where corrector ORDER BY id",
-            (rs, rowNum) -> Tuple2.apply(rs.getInt("id"), new DateTime(rs.getTimestamp("lastlogin").getTime())));
+            (rs, rowNum) -> Tuple2.apply(
+                    rs.getInt("id"),
+                    Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
+  @Nullable
   public User getByEmail(String email, boolean searchBlocked) {
     try {
+      var parsedAddress = new InternetAddress(email, true);
+
       int id;
 
       if (searchBlocked) {
         id = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) ORDER BY blocked ASC, id DESC LIMIT 1",
                 Integer.class,
-                email.toLowerCase()
+                parsedAddress.getAddress().toLowerCase()
         );
       } else {
         id = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) AND NOT blocked ORDER BY id DESC LIMIT 1",
                 Integer.class,
-                email.toLowerCase()
+                parsedAddress.getAddress().toLowerCase()
         );
       }
 
       return getUser(id);
-    } catch (EmptyResultDataAccessException ex) {
+    } catch (EmptyResultDataAccessException | AddressException ex) {
       return null;
     }
   }
@@ -470,14 +491,6 @@ public class UserDao {
 
       return userIds.stream().map(this::getUser).collect(Collectors.toList());
     }
-  }
-
-  public boolean canResetPassword(User user) {
-    return !jdbcTemplate.queryForObject(
-            "SELECT lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE id=?",
-            Boolean.class,
-            user.getId()
-    );
   }
 
   @CacheEvict(value="Users", key="#user.id")
@@ -584,5 +597,35 @@ public class UserDao {
             "select count(*) from users join user_log on users.id = user_log.userid " +
                     "where not activated and not blocked and regdate>CURRENT_TIMESTAMP-'1 day'::interval " +
                       "and action='register' and info->'ip'=?", Integer.class, ip);
+  }
+
+  public List<UserAndAgent> getUsersWithAgent(@Nullable String ip, @Nullable Integer userAgent, int limit) {
+    String ipQuery = ip!=null?"AND c.postip <<= :ip::inet ":"";
+    String userAgentQuery = userAgent!=null?"AND c.ua_id=:userAgent ":"";
+
+    Map<String, Object> params = new HashMap<>();
+
+    params.put("ip", ip);
+    params.put("userAgent", userAgent);
+    params.put("limit", limit);
+
+    return namedJdbcTemplate.query(
+            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent, blocked " +
+                    "FROM (SELECT ua_id, userid, postdate, postip FROM comments UNION ALL SELECT ua_id, userid, postdate, postip FROM topics) c " +
+                    "LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
+                    "JOIN users u ON c.userid = u.id " +
+                    "WHERE c.postdate>CURRENT_TIMESTAMP - '1 year'::interval " +
+                    ipQuery +
+                    userAgentQuery +
+                    "GROUP BY u.nick, blocked, c.ua_id, ua.name " +
+                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name " +
+                    "LIMIT :limit",
+            params,
+            (rs, rowNum) -> new UserAndAgent(
+                    rs.getTimestamp("lastdate"),
+                    rs.getString("nick"),
+                    rs.getString("user_agent"),
+                    rs.getBoolean("blocked"))
+    );
   }
 }

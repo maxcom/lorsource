@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,12 +17,10 @@ package ru.org.linux.util;
 
 import com.google.common.base.Joiner;
 import com.google.common.net.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Properties;
 
 public final class LorHttpUtils {
   private LorHttpUtils() {

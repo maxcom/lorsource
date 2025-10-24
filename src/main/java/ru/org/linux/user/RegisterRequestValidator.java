@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.net.InternetDomainName;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.validation.Errors;
@@ -36,96 +37,10 @@ import java.util.stream.Collectors;
 public class RegisterRequestValidator implements Validator {
   protected static final int TOWN_LENGTH = 100;
   protected static final int MIN_PASSWORD_LEN = 4;
+  private final EmailDomainsBlockDao emailDomainsBlockDao;
 
-  protected final ImmutableSet<String> BAD_DOMAINS;
-
-  public RegisterRequestValidator(ResourceLoader resourceLoader) {
-    ImmutableSet<String> old = ImmutableSet.of(
-            "asdasd.ru",
-            "nepwk.com",
-            "klzlk.com",
-            "nwldx.com",
-            "mailinator.com",
-            "mytrashmail.com",
-            "temporaryinbox.com",
-            "10minutemail.com",
-            "pookmail.com",
-            "dodgeit.com",
-            "mailexpire.com",
-            "spambox.us",
-            "jetable.org",
-            "maileater.com",
-            "gapmail.ru",
-            "mintemail.com",
-            "mailinator2.com",
-            "rppkn.com",
-            "sharklasers.com",
-            "spam4.me",
-            "guerrillamail.info",
-            "grr.la",
-            "pokemail.net",
-            "guerrillamailblock.com",
-            "guerrillamail.org",
-            "guerrillamail.net",
-            "guerrillamail.de",
-            "guerrillamail.biz",
-            "rtrtr.com",
-            "mailmetrash.com",
-            "getairmail.com",
-            "mailseal.de",
-            "fakeinbox.com",
-            "drdrb.com",
-            "yopmail.com",
-            "yopmail.net",
-            "cool.fr.nf",
-            "jetable.fr.nf",
-            "nospam.ze.tc",
-            "nomail.xl.cx",
-            "mega.zik.dj",
-            "speed.1s.fr",
-            "courriel.fr.nf",
-            "moncourrier.fr.nf",
-            "monemail.fr.nf",
-            "monmail.fr.nf",
-            "solvemail.info",
-            "burstmail.info",
-            "coldemail.info",
-            "mailtemp.info",
-            "one-time.email",
-            "lackmail.ru",
-            "extemail.ru",
-            "kismail.ru",
-            "divismail.ru",
-            "wimsg.com",
-            "mvrht.com",
-            "vmani.com",
-            "abyssmail.com",
-            "a.asu.mx",
-            "10mail.org",
-            "zasod.com",
-            "msgos.com",
-            "trbvn.com",
-            "thefmail.com",
-            "thefmails.com"
-    );
-
-    // https://github.com/disposable-email-domains/disposable-email-domains/blob/master/disposable_email_blocklist.conf
-    Resource resource = resourceLoader.getResource("classpath:disposable_email_blocklist.conf.txt");
-
-    try (InputStream is = resource.getInputStream()) {
-      List<String> doc =
-              new BufferedReader(new InputStreamReader(is,
-                      StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
-
-      ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-
-      builder.addAll(doc);
-      builder.addAll(old);
-
-      BAD_DOMAINS = builder.build();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  public RegisterRequestValidator(EmailDomainsBlockDao emailDomainsBlockDao) {
+    this.emailDomainsBlockDao = emailDomainsBlockDao;
   }
 
   protected void checkEmail(InternetAddress email, Errors errors) {
@@ -135,7 +50,10 @@ public class RegisterRequestValidator implements Validator {
   }
 
   public boolean isGoodDomainEmail(InternetAddress email) {
-    return !BAD_DOMAINS.contains(email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase());
+    String domain = email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase();
+    String topDomain = InternetDomainName.from(domain).topPrivateDomain().toString();
+
+    return !emailDomainsBlockDao.isBlocked(domain) && !emailDomainsBlockDao.isBlocked(topDomain);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,6 +31,7 @@ object Poll {
   def apply(id: Int, topic: Int, multiSelect: Boolean, variants: java.util.List[PollVariant]): Poll =
     Poll(id, topic, multiSelect, variants.asScala.toSeq)
 
+
   implicit val encoder: Encoder[Poll] = deriveEncoder[Poll]
   implicit val decoder: Decoder[Poll] = deriveDecoder[Poll]
 }
@@ -38,10 +39,6 @@ object Poll {
 case class Poll(@BeanProperty id: Int, @BeanProperty topic: Int, @BooleanBeanProperty multiSelect: Boolean,
                 variants: Seq[PollVariant]) {
   def getVariants: java.util.List[PollVariant] = variants.asJava
-
-  def createNew(newVariants: util.List[PollVariant]): Poll = {
-    this.copy(variants = newVariants.asScala.toSeq)
-  }
 }
 
 object PollVariant {
@@ -53,3 +50,5 @@ object PollVariant {
 }
 
 case class PollVariant(@BeanProperty id: Int, @BeanProperty label: String)
+case class PollVariantResult(@BeanProperty id: Int, @BeanProperty label: String, @BeanProperty votes: Int,
+                            @BooleanBeanProperty userVoted: Boolean)

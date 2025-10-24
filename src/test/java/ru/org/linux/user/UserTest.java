@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,15 +17,36 @@ package ru.org.linux.user;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.validation.MapBindingResult;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.test.Users;
 
 import java.sql.ResultSet;
+import java.util.Map;
 
 /**
  * Unit Tests для User
  */
 public class UserTest {
+  private void checkFrozen(User user) {
+    var errors = new MapBindingResult(Map.of(), "obj");
+
+    user.checkFrozen(errors);
+
+    if (errors.hasErrors()) {
+      throw new AccessViolationException("Пользователь временно заморожен");
+    }
+  }
+
+  private void checkBlocked(User user) {
+    var errors = new MapBindingResult(Map.of(), "obj");
+
+    user.checkBlocked(errors);
+
+    if (errors.hasErrors()) {
+      throw new AccessViolationException("Пользователь заблокирован");
+    }
+  }
 
   /**
    * проверка администратора
@@ -39,19 +60,13 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      user.checkCommit();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -67,7 +82,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus()); 
-    Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -89,22 +103,15 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertFalse(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for anonymous user", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -119,7 +126,6 @@ public class UserTest {
     Assert.assertTrue(user.isAnonymous());
     Assert.assertEquals(0, user.getScore());
     Assert.assertEquals("анонимный", user.getStatus());
-    Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -141,19 +147,13 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      user.checkCommit();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
@@ -172,7 +172,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus()); 
-    Assert.assertFalse(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -194,24 +193,15 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -228,7 +218,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★★★★★</span>", user.getStatus()); 
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -250,24 +239,15 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -284,7 +264,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus()); 
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -306,24 +285,15 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -340,7 +310,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("анонимный", user.getStatus());
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -362,23 +331,16 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Пользователь заблокирован", e.getMessage());
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for anonymous user", e.getMessage());
     }
     Assert.assertTrue(user.isBlocked());
     try {
@@ -393,7 +355,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());  // TODO для заблокированного ананомного пользователя False :-\
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("анонимный", user.getStatus());
-    Assert.assertTrue(user.isBlockable()); // можно разблокировать
     Assert.assertTrue(user.isActivated());
     Assert.assertTrue(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -415,24 +376,15 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
     } catch (AccessViolationException e) {
       Assert.fail();
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -449,7 +401,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus()); 
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -471,25 +422,16 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    Assert.assertTrue(user.matchPassword("passwd"));
     try {
-      user.checkBlocked();
+      checkBlocked(user);
     } catch (AccessViolationException e) {
       Assert.fail();
     }
     try {
-      user.checkFrozen();
+      checkFrozen(user);
       Assert.fail();
     } catch (AccessViolationException e) {
       Assert.assertEquals("Пользователь временно заморожен", e.getMessage());
-    }
-    try {
-      user.checkCommit();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Commit access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
     }
     Assert.assertFalse(user.isBlocked());
     try {
@@ -506,7 +448,6 @@ public class UserTest {
     Assert.assertFalse(user.isAnonymous());
     Assert.assertEquals(resultSet.getInt("score"), user.getScore());
     Assert.assertEquals("<span class=\"stars\">★</span>", user.getStatus()); 
-    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
@@ -532,6 +473,4 @@ public class UserTest {
     User user = new User(resultSet);
     Assert.assertEquals("0428dfed932b07ea582efd94038b1076", user.getActivationCode("secret"));
   }
-
-
 }

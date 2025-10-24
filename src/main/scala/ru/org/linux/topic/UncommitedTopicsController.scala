@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,9 +18,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
-import ru.org.linux.site.Template
 
 import java.util.{Calendar, Date}
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -28,9 +28,10 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 @Controller
 @RequestMapping(value = Array("/view-all.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
 class UncommitedTopicsController(sectionService: SectionService, topicListService: TopicListService,
-                                 prepareService: TopicPrepareService) {
+                                 prepareService: TopicPrepareService, groupPermissionService: GroupPermissionService,
+                                 topicService: TopicService) {
   @RequestMapping
-  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  def viewAll(@RequestParam(value = "section", required = false, defaultValue = "0") sectionId: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val modelAndView = new ModelAndView("view-all")
 
     val section: Option[Section] = if (sectionId != 0) {
@@ -41,17 +42,20 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
 
     section.foreach { section =>
       modelAndView.addObject("section", section)
-      modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
+
+      if (groupPermissionService.isTopicPostingAllowed(section)) {
+        modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
+      }
     }
 
     val title = section.map { section =>
       section.getId match {
-        case Section.SECTION_NEWS => "Неподтвержденные новости"
-        case Section.SECTION_POLLS => "Неподтвержденные опросы"
-        case Section.SECTION_GALLERY => "Неподтвержденные изображения"
-        case _ => "Неподтвержденные: " + section.getName
+        case Section.SECTION_NEWS => "Неподтверждённые новости"
+        case Section.SECTION_POLLS => "Неподтверждённые опросы"
+        case Section.SECTION_GALLERY => "Неподтверждённые изображения"
+        case _ => "Неподтверждённые: " + section.getName
       }
-    }.getOrElse("Просмотр неподтвержденных сообщений")
+    }.getOrElse("Просмотр неподтверждённых сообщений")
 
     modelAndView.addObject("title", title)
 
@@ -59,20 +63,31 @@ class UncommitedTopicsController(sectionService: SectionService, topicListServic
     calendar.setTime(new Date)
     calendar.add(Calendar.MONTH, -3)
 
-    val includeAnonymous = currentUserOpt.exists(u => u.moderator || u.corrector)
+    val includeAnonymous = session.moderator || session.corrector
 
     val messages = topicListService.getUncommitedTopic(section, calendar.getTime, includeAnonymous)
 
-    val tmpl = Template.getTemplate
+    val topics = prepareService.prepareTopics(messages, loadUserpics = false)
 
-    val topics = prepareService.prepareTopicsForUser(messages, currentUserOpt.map(_.user).orNull, tmpl.getProf, loadUserpics = false)
+    modelAndView.addObject("messages", topics.asJava)
 
-    modelAndView.addObject("messages", topics)
-
-    val deleted = topicListService.getDeletedTopics(sectionId, !tmpl.isModeratorSession, includeAnonymous)
+    val deleted = topicListService.getDeletedTopics(sectionId, skipBadReason = !session.moderator,
+      includeAnonymous = includeAnonymous)
 
     modelAndView.addObject("deletedTopics", deleted.asJava)
-    modelAndView.addObject("sections", sectionService.sections.asJava)
+
+    val uncommitedCounts = topicService.getUncommitedCounts
+
+    val uncommitedWithSelection = if (section.isDefined && uncommitedCounts.forall(_._1 != section.get)) {
+      uncommitedCounts :+ (section.get -> 0)
+    } else {
+      uncommitedCounts
+    }
+
+    val uncommited = uncommitedCounts.map(_._2).sum
+
+    modelAndView.getModel.put("uncommited", Int.box(uncommited))
+    modelAndView.getModel.put("uncommitedCounts", uncommitedWithSelection.asJava)
 
     modelAndView
   }

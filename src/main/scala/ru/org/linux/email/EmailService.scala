@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,13 +15,14 @@
 
 package ru.org.linux.email
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.RequestDispatcher
+import jakarta.servlet.http.HttpServletRequest
 import org.joda.time.{DateTime, DateTimeZone}
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AuthUtil
 import ru.org.linux.email.EmailService.createMessage
 import ru.org.linux.exception.ExceptionMailingActor
 import ru.org.linux.site.DateFormats
@@ -31,9 +32,9 @@ import ru.org.linux.user.User
 import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
 import java.util.{Date, Properties}
+import javax.annotation.Nullable
 import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail.{Message, MessagingException, Session, Transport}
-import javax.servlet.http.HttpServletRequest
 import scala.jdk.CollectionConverters.*
 
 @Service
@@ -139,7 +140,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
    * @param exception исключение
    * @return Строку, содержащую состояние отсылки письма
    */
-  def sendExceptionReport(request: HttpServletRequest, exception: Exception): String = {
+  def sendExceptionReport(request: HttpServletRequest, exception: Exception, @Nullable currentUser: User): String = {
     val text = new StringBuilder
 
     if (exception.getMessage == null) {
@@ -149,11 +150,11 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     }
 
     text.append("\n\n")
-    val attributeUrl = request.getAttribute("javax.servlet.error.request_uri")
+    val attributeUrl = request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI)
     if (attributeUrl != null) {
       text.append(s"Attribute URL: $attributeUrl\n")
     }
-    val forwardUrl = request.getAttribute("javax.servlet.forward.request_uri")
+    val forwardUrl = request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI)
     if (forwardUrl != null) {
       text.append(s"Forward URL: $forwardUrl\n")
     }
@@ -165,8 +166,8 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     text.append('\n')
     text.append(s"IP: ${request.getRemoteAddr}\n")
 
-    if (AuthUtil.getNick != null) {
-      text.append(s"Current user: ${AuthUtil.getNick}\n")
+    if (currentUser != null) {
+      text.append(s"Current user: ${currentUser.getNick}\n")
     }
 
     text.append("Headers: ")
@@ -200,6 +201,8 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |Для сброса вашего пароля перейдите по ссылке https://www.linux.org.ru/reset-password
          |
          |Ваш ник ${user.getNick}, код подтверждения: $resetCode
+         |
+         |Если это были не вы, то просто игнорируйте это письмо.
          |
          |Удачи!""".stripMargin)
 

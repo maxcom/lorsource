@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,14 +15,39 @@
 
 package ru.org.linux.exception
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.{ActorRef, ActorSystem}
+import com.typesafe.scalalogging.StrictLogging
 import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.scheduling.TaskScheduler
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
 import ru.org.linux.spring.SiteConfig
 
+import java.io.{PrintWriter, StringWriter}
+import java.util.concurrent.Executors
+
 @Configuration
-class ExceptionHandlingConfiguration {
+class ExceptionHandlingConfiguration extends StrictLogging {
   @Bean(name=Array("exceptionMailingActor"))
-  def exceptionMailingActor(siteConfig: SiteConfig, actorSystem: ActorSystem) = {
+  def exceptionMailingActor(siteConfig: SiteConfig, actorSystem: ActorSystem): ActorRef = {
     actorSystem.actorOf(ExceptionMailingActor.props(siteConfig))
+  }
+
+  @Bean
+  def taskScheduler(exceptionMailingActor: ActorRef): TaskScheduler = {
+    val scheduler = new ConcurrentTaskScheduler(Executors.newSingleThreadScheduledExecutor)
+
+    scheduler.setErrorHandler(ex => {
+      val text = new StringBuilder("Periodic task failed\n\n")
+
+      val exceptionStackTrace = new StringWriter
+      ex.printStackTrace(new PrintWriter(exceptionStackTrace))
+      text.append(exceptionStackTrace.toString)
+
+      logger.warn("Periodic task failed", ex)
+
+      exceptionMailingActor ! ExceptionMailingActor.Report(ex.getClass, text.toString())
+    })
+
+    scheduler
   }
 }

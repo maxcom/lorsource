@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,6 +20,8 @@ import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
 import com.sksamuel.elastic4s.requests.searches.queries.Query
 import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.WeightScore
+import com.sksamuel.elastic4s.requests.searches.queries.matches.MatchQuery
+import org.joda.time.DateTimeZone
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
@@ -31,16 +33,20 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     if (queryText.isEmpty) {
       matchAllQuery()
     } else {
-      boolQuery().
-        should(
-          commonTermsQuery("title", queryText) lowFreqMinimumShouldMatch 2,
-          commonTermsQuery("message", queryText) lowFreqMinimumShouldMatch 2,
-          matchPhraseQuery("message", queryText)).minimumShouldMatch(1)
+      boolQuery()
+        .must(
+          should(
+            MatchQuery("title", queryText).minimumShouldMatch("2"),
+            MatchQuery("message", queryText).minimumShouldMatch("2")))
+        .should(
+          matchPhraseQuery("message", queryText),
+          MatchQuery("message.raw", queryText).minimumShouldMatch("2")
+        ).minimumShouldMatch(0)
     }
   }
 
   private def boost(query: Query) = {
-    functionScoreQuery(query) functions(
+    functionScoreQuery(query).functions(
       WeightScore(TopicBoost).filter(termQuery("is_comment", "false")),
       WeightScore(RecentBoost).filter(rangeQuery("postdate").gte("now/d-3y"))
     )
@@ -54,10 +60,11 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     }
   }
 
-  def performSearch: SearchResponse = {
+  def performSearch(tz: DateTimeZone): SearchResponse = {
     val typeFilter = Option(query.getRange.getValue) map { value =>
       termQuery(query.getRange.getColumn, value)
     }
+    val selectedDateFilter = rangeQuery(query.getInterval.getColumn) gte query.atStartOfDaySelected(tz) lte query.atEndOfDaySelected(tz)
 
     val dateFilter = Option(query.getInterval.getRange) map { range =>
       rangeQuery(query.getInterval.getColumn) gt range
@@ -71,7 +78,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
       }
     }
 
-    val queryFilters = (typeFilter ++ dateFilter ++ userFilter).toSeq
+    val queryFilters = (typeFilter ++ (if (query.isDateSelected) Option(selectedDateFilter) else dateFilter) ++ userFilter).toSeq
 
     val esQuery = wrapQuery(boost(processQueryString(query.getQ)), queryFilters)
 
@@ -87,14 +94,14 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
     val future = elastic execute {
       search(ElasticsearchIndexService.MessageIndex).fetchSource(true).sourceInclude(Fields).query(esQuery).sortBy(query.getSort.order).aggs(
-        filterAggregation("sections") query matchAllQuery() subAggregations (
-            termsAggregation("sections") field "section" size 50 subAggregations (
-              termsAggregation("groups") field "group" size 50
+        filterAgg("sections", matchAllQuery()) subAggregations (
+          termsAgg("sections", "section") size 50 subAggregations (
+            termsAgg("groups", "group") size 50
             )
           ),
           sigTermsAggregation("tags") field "tag" minDocCount 30
         ).highlighting(
-          highlightOptions() encoder "html" preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
+          highlightOptions() preTags "<em class=search-hl>" postTags "</em>" requireFieldMatch false,
           highlight("title") numberOfFragments 0,
           highlight("topicTitle") numberOfFragments 0,
           highlight("message") numberOfFragments 1 fragmentSize MessageFragment highlighterType "fvh"
@@ -116,11 +123,11 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
 object SearchViewer {
   val SearchRows = 25
-  val MessageFragment = 500
-  val TopicBoost = 3
-  val RecentBoost = 2
-  val SearchTimeout: FiniteDuration = 1.minute
-  val SearchHardTimeout: FiniteDuration = SearchTimeout + 10.seconds
+  val MessageFragment = 16384 // 0 not supported here!
+  private val TopicBoost = 3
+  private val RecentBoost = 2
+  private val SearchTimeout: FiniteDuration = 1.minute
+  private val SearchHardTimeout: FiniteDuration = SearchTimeout + 10.seconds
 
   private val Fields = Seq("title", "topic_title", "author", "postdate", "topic_id",
     "section", "message", "group", "is_comment", "tag")

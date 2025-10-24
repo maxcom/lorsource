@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -60,18 +60,6 @@
 
 <link rel="canonical" href="${configuration.secureUrlWithoutSlash}${message.getLinkPage(page)}">
 
-<c:if test="${prevMessage != null}">
-  <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>">
-</c:if>
-
-<c:if test="${nextMessage != null}">
-  <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.link)}" title="<l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>">
-</c:if>
-
-<c:if test="${not message.expired}">
-  <link rel="alternate" title="Comments RSS" href="${message.link}?output=rss" type="application/rss+xml">
-</c:if>
-
 <script type="text/javascript">
   $script.ready('lorjs', function() { initNextPrevKeys(); });
   <c:if test="${not message.expired and template.sessionAuthorized}">
@@ -97,10 +85,10 @@
         <tr valign=middle>
           <c:if test="${prevMessage != null}">
             <td style="padding-right: 5px">
-              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
+              <a href="${fn:escapeXml(prevMessage.link)}">←</a>
             </td>
             <td align=left valign=top class="hideon-phone">
-              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
+              <a href="${fn:escapeXml(prevMessage.link)}">
                 <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
@@ -115,12 +103,12 @@
         <table align="right">
           <tr valign=middle align=right>
             <td class="hideon-phone">
-              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
+              <a href="${fn:escapeXml(nextMessage.link)}">
                 <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
             <td align="right" valign="middle" style="padding-left: 5px">
-              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
+              <a href="${fn:escapeXml(nextMessage.link)}">→</a>
             </td>
           </tr>
         </table>
@@ -138,10 +126,10 @@
         <tr valign=middle>
           <c:if test="${prevMessage != null}">
             <td style="padding-right: 5px">
-              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
+              <a href="${fn:escapeXml(prevMessage.link)}">←</a>
             </td>
             <td align=left valign=top class="hideon-phone">
-              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
+              <a href="${fn:escapeXml(prevMessage.link)}">
                 <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
@@ -160,12 +148,12 @@
         <table align="right">
           <tr valign=middle align=right>
             <td class="hideon-phone">
-              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
+              <a href="${fn:escapeXml(nextMessage.link)}">
                 <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
               </a>
             </td>
             <td align="right" valign="middle" style="padding-left: 5px">
-              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
+              <a href="${fn:escapeXml(nextMessage.link)}">→</a>
             </td>
           </tr>
         </table>
@@ -178,7 +166,7 @@
 <c:set var="bufInfo">
 <c:if test="${pages!=null}">
     <c:if test="${pages.hasPrevious}">
-        &emsp;<a class='page-number' href='${pages.previous}#comments'>←</a>
+        &emsp;<a class='page-number' href='${pages.previous}#comments' rel='prev'>←</a>
     </c:if>
     <c:if test="${not pages.hasPrevious}">
         &emsp;<span class='page-number'>←</span>
@@ -194,7 +182,7 @@
     </c:forEach>
 
     <c:if test="${pages.hasNext}">
-      <a class='page-number' href='${pages.next}#comments'>→</a>
+      <a class='page-number' href='${pages.next}#comments' rel='next'>→</a>
     </c:if>
     <c:if test="${not pages.hasNext}">
         <span class='page-number'>→</span>
@@ -208,12 +196,13 @@
         preparedMessage="${preparedMessage}" 
         message="${message}"
         briefEditInfo="${editInfo}"
-        showMenu="true" enableSchema="true"/>
+        showMenu="true" enableSchema="true" imageSlider="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
 
 <div class="comment" id="comments" style="padding-top: 0.5em">
 
+<%--
 <c:if test="${showAdsense}">
 <style>
 @media screen and (max-width: 480px) {
@@ -279,31 +268,24 @@
 </script>
   <p>
 </c:if>
-
-<%--
-  <div style="text-align: center; margin-top: 0.5em; height: 105px" id="interpage">
-  </div>
-  <script type="text/javascript">
-      $script.ready('lorjs', function () {
-          var ads = [
-              {
-                  type: 'rimg',
-                  img730: '/adv/linux-banner-730-90.png',
-                  img320: '/adv/linux-banner-320-100.png',
-                  href: 'https://otus.ru/lessons/linux-professional/?utm_source=partners&utm_medium=cpm&utm_campaign=linux&utm_content=kungfu-test&utm_term=linux-org-ru'
-              },
-              {
-                  type: 'rimg',
-                  img730: '/adv/spec-730x90.png',
-                  img320: '/adv/spec-320x100.png',
-                  href: 'https://otus.ru/lessons/linux-specialization/?utm_source=partners&utm_medium=cpm&utm_campaign=spec-linux&utm_content=all-lesson&utm_term=linux-org-ru#broadcast'
-              }
-          ];
-
-          init_interpage_adv(ads);
-      });
-  </script>
 --%>
+<div style="text-align: center; margin-top: 0.5em; height: 125px; margin-bottom: 0.5em" id="interpage">
+</div>
+<script type="text/javascript">
+  $script.ready('lorjs', function () {
+      var ads = [
+        {
+          type: 'rimg',
+          img320: '/adv/photo_2025-09-08_22-46-59.jpg',
+          img730: '/adv/photo_2025-09-08_22-47-03.jpg',
+          img980: '/adv/photo_2025-09-08_22-47-06.jpg',
+          href: 'https://slc.tl/h24ik'
+        }
+      ];
+
+    init_interpage_adv(ads);
+  });
+</script>
 
 <c:if test="${threadMode}">
   <div class=nav>
@@ -355,6 +337,12 @@
   </div>
 </c:if>
 
+<c:if test="${expireDate != null}">
+  <div class="infoblock">
+    Тема будет перемещена в архив <lor:date date="${expireDate}"/>.
+  </div>
+</c:if>
+
 <c:if test="${fn:length(commentsPrepared) > 0}">
   <c:if test="${ not empty bufInfo }">
     <div class="nav">
@@ -377,7 +365,7 @@
     <form action="${message.link}" method=POST>
     <lor:csrf/>
     <input type=hidden name=deleted value=1>
-    <input type=submit value="Показать удаленные комментарии">
+    <input type=submit class="btn btn-default" value="Показать удаленные комментарии">
     </form>
     <hr>
 </c:if>
@@ -412,10 +400,9 @@
             topic="${message}"
             replyto="0"
             cancel="true"
-            mode="${template.formatMode}"
             ipBlockInfo="${ipBlockInfo}"
             form_action_url="${form_action_url}"
-            postscoreInfo="${preparedMessage.postscoreInfo}" modes="${modes}" />
+            postscoreInfo="${preparedMessage.postscoreInfo}"/>
   </div>
 </c:if>
 

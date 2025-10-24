@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,17 +17,21 @@ package ru.org.linux.topic
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, RequestMethod, RequestParam, ResponseStatus}
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.group.{GroupListDao, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
-import ru.org.linux.site.Template
-import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
+import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
 import ru.org.linux.user.UserTagService
 
+import java.util.concurrent.CompletionStage
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.FutureConverters.FutureOps
 
 @Controller
 object TagTopicListController {
@@ -58,15 +62,12 @@ object TagTopicListController {
 }
 
 @Controller
-class TagTopicListController (userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
-    topicListService: TopicListService, prepareService: TopicPrepareService, topicTagDao: TopicTagDao) {
+class TagTopicListController(userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
+                             topicListService: TopicListService, prepareService: TopicPrepareService,
+                             topicTagDao: TopicTagDao, groupListDao: GroupListDao,
+                             groupPermissionService: GroupPermissionService) {
 
-  private def getTitle(tag: String, section: Option[Section]) = {
-    section match {
-      case None    => tag.capitalize
-      case Some(s) => s"${tag.capitalize} (${s.getName})"
-    }
-  }
+  private def getTitle(tag: String, section: Section) = s"${tag.capitalize} (${section.getName})"
 
   @RequestMapping(
     value = Array("/tag/{tag}"),
@@ -75,22 +76,24 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
   def tagFeed(@PathVariable tag: String,
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
                @RequestParam(value = "section", defaultValue = "0") sectionId: Int
-  ): ModelAndView = AuthorizedOpt { currentUserOpt =>
+  ): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     TagName.checkTag(tag)
 
-    tagService.getTagInfo(tag, skipZero = true) match {
+    val deadline = TagPageController.Timeout.fromNow
+
+    val section = sectionService.getSection(sectionId)
+
+    val countF = tagService.countTagTopics(tag = tag, section = Some(section), deadline = deadline)
+
+    (tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
-        val section = if (sectionId != 0) {
-          Some(sectionService.idToSection.getOrElse(sectionId, throw new SectionNotFoundException()))
-        } else {
-          None
-        }
+        val forumMode = section.getId == Section.SECTION_FORUM
 
-        val modelAndView = new ModelAndView("tag-topics")
+        val modelAndView = new ModelAndView(if (forumMode) "tag-topics-forum-new" else "tag-topics")
 
-        section.foreach(s => modelAndView.addObject("section", s))
+        modelAndView.addObject("section", section)
 
-        modelAndView.addObject("navtitle", getTitle(tag, None))
+        modelAndView.addObject("tagTitle", tag.capitalize)
         modelAndView.addObject("ptitle", getTitle(tag, section))
 
         val offset = TopicListService.fixOffset(rawOffset)
@@ -100,12 +103,11 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
         modelAndView.addObject("section", sectionId)
         modelAndView.addObject("offset", offset)
 
-        val sectionIds = topicTagDao.getTagSectoins(tagInfo.id).toSet
-        val sections = sectionService.sections.filter(s => sectionIds.contains(s.getId))
+        val sections = topicTagDao.getTagSections(tagInfo.id).map(sectionService.idToSection)
 
         modelAndView.addObject("sectionList", sections.asJava)
 
-        currentUserOpt.foreach { currentUser =>
+        currentUserOpt.opt.foreach { currentUser =>
           modelAndView.addObject("showFavoriteTagButton", !userTagService.hasFavoriteTag(currentUser.user, tag))
           modelAndView.addObject("showUnFavoriteTagButton", userTagService.hasFavoriteTag(currentUser.user, tag))
 
@@ -115,39 +117,47 @@ class TagTopicListController (userTagService: UserTagService, sectionService: Se
           }
         }
 
-        val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None,
-          20, currentUserOpt.map(_.user), noTalks = false, tech = false)
 
-        val tmpl = Template.getTemplate
+        val (preparedTopics, pageSize) = if (forumMode) {
+          (groupListDao.getSectionListTopics(section, offset, tagInfo.id).map(prepareService.prepareListItem),
+            currentUserOpt.profile.topics)
+        } else {
+          val topics = topicListService.getTopicsFeed(section, None, Some(tag), offset, None, 20, noTalks = false, tech = false)
 
-        val preparedTopics = prepareService.prepareTopicsForUser(topics, currentUserOpt.map(_.user).orNull,
-          tmpl.getProf, loadUserpics = false)
+          (prepareService.prepareTopics(topics, loadUserpics = false), 20)
+        }
 
-        modelAndView.addObject("messages", preparedTopics)
+        modelAndView.addObject("messages", preparedTopics.asJava)
 
-        modelAndView.addObject("counter", tagInfo.topicCount)
         modelAndView.addObject("url", TagTopicListController.tagListUrl(tag))
         modelAndView.addObject("favsCount", userTagService.countFavs(tagInfo.id))
         modelAndView.addObject("ignoreCount", userTagService.countIgnore(tagInfo.id))
 
-        if (offset < 200 && preparedTopics.size == 20) {
-          modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + 20))
+        if (offset < TopicListService.MaxOffset && preparedTopics.size == pageSize) {
+          modelAndView.addObject("nextLink", TagTopicListController.buildTagUri(tag, sectionId, offset + pageSize))
         }
 
-        if (offset >= 20) {
-          modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - 20))
+        if (offset > pageSize) {
+          modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        if (topics.isEmpty) {
-          new ModelAndView("errors/code404")
+        if (groupPermissionService.isTopicPostingAllowed(section)) {
+          modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))
+        }
+
+        if (preparedTopics.isEmpty) {
+          Future.successful(new ModelAndView("errors/code404"))
         } else {
-          modelAndView
+          countF.map { count =>
+            modelAndView.addObject("counter", count.getOrElse(0))
+            modelAndView
+          }
         }
       case None =>
         tagService.getTagBySynonym(tag).map { mainName =>
-          new ModelAndView(new RedirectView(TagTopicListController.buildTagUri(mainName.name, sectionId, 0), false, false))
+          Future.successful(new ModelAndView(new RedirectView(TagTopicListController.buildTagUri(mainName.name, sectionId, 0), false, false)))
         }.getOrElse(throw new TagNotFoundException())
-    }
+    }).asJava
   }
 
   @RequestMapping(

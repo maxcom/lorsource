@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,9 +15,10 @@
 
 package ru.org.linux.monitoring
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import com.google.common.base.Stopwatch
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.web.method.HandlerMethod
@@ -26,20 +27,21 @@ import org.springframework.web.servlet.{HandlerInterceptor, ModelAndView}
 import ru.org.linux.monitoring.Perf4jHandlerInterceptor.*
 
 import java.util.concurrent.{ThreadLocalRandom, TimeUnit}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.concurrent.duration.*
 import scala.util.control.NonFatal
 
 object Perf4jHandlerInterceptor {
   private val Attribute = "perf4jStopWatch"
-  private val LoggingThreshold = 1 second
-  private val ElasticProbability = 0.2
-
+  private val LoggingThreshold = 250.millis
+  private val ElasticProbability = 0.1
+  private val BootDuration = 2.minutes // do not log slow when starting up
 
   private class Metrics(val name: String, val path: String, val start: DateTime, controller: Stopwatch, view: Stopwatch) {
     def controllerDone():Unit = {
-      controller.stop()
-      view.start()
+      if (controller.isRunning) {
+        controller.stop()
+        view.start()
+      }
     }
 
     def complete():Unit = {
@@ -66,18 +68,26 @@ object Perf4jHandlerInterceptor {
 class Perf4jHandlerInterceptor(@Qualifier("loggingActor") loggingActor: ActorRef)
   extends HandlerInterceptor with StrictLogging {
 
+  private lazy val LogAfter = BootDuration.fromNow
+
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: AnyRef): Boolean = {
+    if (LogAfter.hasTimeLeft()) {
+      return true
+    }
+
     if (handler.isInstanceOf[ResourceHttpRequestHandler] || handler.isInstanceOf[DefaultServletHttpRequestHandler]) {
       return true
     }
 
-    val name = handler match {
-      case method: HandlerMethod => method.getBeanType.getSimpleName
-      case _ => handler.getClass.getSimpleName
-    }
+    if (request.getAttribute(Attribute).asInstanceOf[Metrics] == null) {
+      val name = handler match {
+        case method: HandlerMethod => method.getBeanType.getSimpleName
+        case _ => handler.getClass.getSimpleName
+      }
 
-    val watch = Metrics.start(name, request.getRequestURI)
-    request.setAttribute(Attribute, watch)
+      val watch = Metrics.start(name, request.getRequestURI)
+      request.setAttribute(Attribute, watch)
+    }
 
     true
   }

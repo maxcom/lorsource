@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -144,22 +144,10 @@
 
   <task:annotation-driven/>
 
-  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cache-manager-ref="ehcache"/>
-
-  <!-- Ehcache library setup -->
-  <bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+  <bean id="cacheManager" class="org.springframework.cache.caffeine.CaffeineCacheManager"
+        p:cache-specification="maximumSize=5000,expireAfterWrite=5m"/>
 
   <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
     <property name="locateExistingServerIfPossible" value="true"/>
-  </bean>
-
-  <bean class="net.sf.ehcache.management.ManagementService" init-method="init">
-    <constructor-arg ref="ehcache"/>
-    <constructor-arg ref="mbeanServer"/>
-    <constructor-arg value="true"/>
-    <constructor-arg value="true"/>
-    <constructor-arg value="true"/>
-    <constructor-arg value="true"/>
-    <constructor-arg value="false"/>
   </bean>
 </beans>

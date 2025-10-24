@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,9 @@ label {
 }
 
 input[type="search"] {
-    -webkit-appearance: textfield;
+    -webkit-appearance: none;
+    width: 75%;
+    max-width: 50em;
 }
 
 input[type="checkbox"] {
@@ -51,35 +53,35 @@ select {
     text-align: right;
 }
 
-.form-horizontal .controls {
+.form-horizontal {
+  .controls {
     margin-left: 18rem;
+  }
+
+  .btn {
+    margin-top: 1em;
+  }
+
+  .control-group {
+    @include clearfix;
+  }
+
+  input {
+    width: 20rem;
+    max-width: 100%;
+  }
+
+  select {
+    width: 20rem;
+    max-width: 100%;
+  }
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .control-group {
   margin-bottom: 0.7rem;
-}
-
-.form-horizontal .control-group {
-  @include clearfix;
-}
-
-.form-horizontal .controls {
-    margin-left: 18rem;
-}
-
-.form-horizontal input {
-    width: 20rem;
-    max-width: 100%;
-}
-
-.form-horizontal select {
-    width: 20rem;
-    max-width: 100%;
-}
-
-.form-horizontal {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
 }
 
 .help-inline {

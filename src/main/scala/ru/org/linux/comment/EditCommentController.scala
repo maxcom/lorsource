@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 package ru.org.linux.comment
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
@@ -21,20 +22,18 @@ import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, Requ
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.auth.{AuthUtil, IPBlockDao, IPBlockInfo}
+import ru.org.linux.auth.{IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
-import ru.org.linux.markup.{MarkupType, MessageTextService}
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.site.Template
 import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.user.IgnoreListDao
 import ru.org.linux.util.ServletParameterException
 
 import java.util
-import javax.servlet.http.HttpServletRequest
 import javax.validation.Valid
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
@@ -50,14 +49,11 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
-  @ModelAttribute("modes")
-  def getModes: util.Map[String, String] = Map.empty[String, String].asJava
-
   /**
     * Показ формы изменения комментария.
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.GET))
-  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest): ModelAndView = AuthorizedOnly { currentUser =>
+  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = commentRequest.getTopic
     if (topic == null) throw new ServletParameterException("тема не задана")
 
@@ -65,22 +61,20 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     if (original == null) throw new ServletParameterException("Комментарий не задан")
 
     val comment = commentRequest.getOriginal
-    val tmpl = Template.getTemplate
 
     val messageText = msgbaseDao.getMessageText(original.id)
 
-    val commentEditable = topicPermissionService.isCommentEditableNow(comment, AuthUtil.getCurrentUser,
-      commentReadService.hasAnswers(comment), topic, messageText.markup)
+    val commentEditable = topicPermissionService.isCommentEditableNow(comment, commentReadService.hasAnswers(comment),
+      topic, messageText.markup)
 
     if (commentEditable) {
       commentRequest.setMsg(messageText.text)
 
       val formParams = new util.HashMap[String, AnyRef]
 
-      val ignoreList = ignoreListDao.getJava(currentUser.user)
+      val ignoreList = ignoreListDao.get(currentUser.user.getId)
 
-      formParams.put("comment", commentPrepareService.prepareCommentOnly(comment, currentUser.user, tmpl.getProf,
-        topic, ignoreList))
+      formParams.put("comment", commentPrepareService.prepareCommentOnly(comment, topic, ignoreList))
 
       topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
 
@@ -102,34 +96,31 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   @CSRFNoAuto
   def editCommentPostHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest, errors: Errors,
                              request: HttpServletRequest,
-                             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = {
-    val user = commentService.getCommentUser(commentRequest, errors)
-    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, true)
+                             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
+    val user = currentUser.user
+    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, editMode = true, sessionAuthorized = true)
 
     val comment = commentService.getComment(commentRequest, user, request)
-    val tmpl = Template.getTemplate
 
-    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, AuthUtil.getCurrentUser, tmpl.getProf, commentRequest.getTopic))
+    val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, commentRequest.getTopic).asJava)
 
     val originalMessageText = msgbaseDao.getMessageText(commentRequest.getOriginal.id)
 
-    commentRequest.setMode(originalMessageText.markup.formId)
-
-    if (textService.isEmpty(MessageText.apply(commentRequest.getMsg, MarkupType.ofFormId(commentRequest.getMode)))) {
+    if (textService.isEmpty(MessageText.apply(commentRequest.getMsg, originalMessageText.markup))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
-    val msg = commentService.getCommentBody(commentRequest, user, errors)
+    val msg = commentService.getCommentBody(commentRequest, user, errors, originalMessageText.markup)
 
     if (commentRequest.getTopic != null) {
       val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)
       formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore))
-      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, user, errors)
+      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, errors)
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg))
     }
 
-    topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic,
-      AuthUtil.getCurrentUser, errors, originalMessageText.markup)
+    topicPermissionService.checkCommentsEditingAllowed(commentRequest.getOriginal, commentRequest.getTopic, errors,
+      originalMessageText.markup)
 
     if (commentRequest.isPreviewMode || errors.hasErrors || comment == null) {
       val modelAndView = new ModelAndView("edit_comment", formParams)
@@ -138,10 +129,14 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
       deadline.foreach(value => formParams.put("deadline", value.toDate))
       modelAndView
     } else {
-      commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr, request.getHeader("X-Forwarded-For"), user, originalMessageText)
+      commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr,
+        Option(request.getHeader("X-Forwarded-For")), user, originalMessageText)
+
       searchQueueSender.updateComment(commentRequest.getOriginal.id)
-      val returnUrl = "/jump-message.jsp?msgid=" + commentRequest.getTopic.id + "&cid=" + commentRequest.getOriginal.id
-      new ModelAndView(new RedirectView(returnUrl))
+
+      val returnUrl = commentRequest.getTopic.getLink + "?cid=" +commentRequest.getOriginal.id
+
+      new ModelAndView(new RedirectView(returnUrl, false, false))
     }
   }
 }

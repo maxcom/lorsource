@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,10 +17,10 @@ package ru.org.linux.user
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
 import io.circe.syntax.EncoderOps
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.jasypt.util.text.AES256TextEncryptor
 import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.core.io.ResourceLoader
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -38,7 +38,6 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 
 import javax.mail.internet.InternetAddress
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
 
@@ -47,8 +46,9 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
                          @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
                          siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao,
-                         resourceLoader: ResourceLoader) extends StrictLogging {
-  private val registerRequestValidator = new RegisterRequestValidator(resourceLoader)
+                         emailDomainsBlockDao: EmailDomainsBlockDao,
+                         userPermissionService: UserPermissionService) extends StrictLogging {
+  private val registerRequestValidator = new RegisterRequestValidator(emailDomainsBlockDao)
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,
@@ -66,7 +66,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       }
       new ModelAndView("register", "invite", invite)
     } else {
-      if (userService.canRegister(request.getRemoteAddr)) {
+      if (userPermissionService.canRegister(request.getRemoteAddr)) {
         new ModelAndView("register", "permit", makePermit)
       } else {
         new ModelAndView("no-register")
@@ -129,7 +129,9 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
       }
 
-      if (userDao.getByEmail(new InternetAddress(form.getEmail).getAddress.toLowerCase, false) != null) {
+      val byEmail = userDao.getByEmail(new InternetAddress(form.getEmail).getAddress.toLowerCase, true)
+
+      if (byEmail != null && (!byEmail.isBlocked || userService.wasRecentlyBlocker(byEmail))) {
         errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
           "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
       }
@@ -176,7 +178,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
                   @RequestParam activation: String, @RequestParam nick: String,
                   @RequestParam passwd: String): ModelAndView = {
     try {
-      val details = userDetailsService.loadUserByUsername(nick).asInstanceOf[UserDetailsImpl]
+      val details = userDetailsService.loadUserByUsername(nick)
 
       if (!details.getUser.isActivated) {
         val token = new UsernamePasswordAuthenticationToken(nick, passwd)
@@ -190,7 +192,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         if (regcode.equalsIgnoreCase(activation)) {
           userDao.activateUser(userDetails.getUser)
 
-          val updatedDetails = userDetailsService.loadUserByUsername(nick).asInstanceOf[UserDetailsImpl]
+          val updatedDetails = userDetailsService.loadUserByUsername(nick)
           token.setDetails(updatedDetails)
           val updatedAuth = authenticationManager.authenticate(token)
 
@@ -238,7 +240,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @ResponseBody
-  @RequestMapping(Array("check-login"))
+  @RequestMapping(path = Array("check-login"))
   def ajaxLoginCheck(@RequestParam nick: String): Json = {
     (if (nick.isEmpty) {
       "Не задан nick."
@@ -260,8 +262,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.GET))
-  def createInviteForm(): ModelAndView = AuthorizedOnly { currentUser =>
-    if (!userService.canInvite(currentUser.user)) {
+  def createInviteForm(): ModelAndView = AuthorizedOnly { implicit currentUser =>
+    if (!userPermissionService.canInvite) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
     }
 
@@ -269,8 +271,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
 
   @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.POST))
-  def createInvite(@RequestParam email: String): ModelAndView = AuthorizedOnly { currentUser =>
-    if (!userService.canInvite(currentUser.user)) {
+  def createInvite(@RequestParam email: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
+    if (!userPermissionService.canInvite) {
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
     }
 

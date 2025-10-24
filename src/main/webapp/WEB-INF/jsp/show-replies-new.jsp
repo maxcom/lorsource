@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -102,6 +102,7 @@
 <c:forEach var="topic" items="${topicsList}">
 <a href="${topic.link}" class="event-unread-${topic.event.unread} notifications-item">
   <div class="notifications-type">
+    <p>
     <c:choose>
       <c:when test="${topic.event.eventType == 'DELETED'}">
         <img src="/img/del.png" alt="[X]" title="Сообщение удалено" width="15" height="15">
@@ -115,17 +116,38 @@
       <c:when test="${topic.event.eventType == 'TAG'}">
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
+      <c:when test="${topic.event.eventType == 'WARNING'}">
+         <span title="Избранный тег">⚠️</span>
+      </c:when>
     </c:choose>
+    </p>
   </div>
   <div class="notifications-title">
+    <p>
     <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
     <l:title>${topic.event.subj}</l:title>
     (${topic.section.name})
     <c:if test="${topic.event.unread}">&nbsp;&bull;</c:if>
+    </p>
+  </div>
 
-    <c:choose>
-      <c:when test="${topic.event.eventType == 'REACTION'}">
-        <br>
+  <c:if test="${topic.count > 1}">
+    <div title="${topic.authorsText}" class="notifications-number">
+      <p>
+        <i class="icon-comment"></i> ${topic.count}<br>
+      </p>
+    </div>
+    <div class="notifications-when">
+      <p>
+        <lor:dateinterval date="${topic.date}" compact="true"/>
+      </p>
+    </div>
+  </c:if>
+
+  <c:if test="${topic.count == 1}">
+    <c:if test="${topic.event.eventType == 'REACTION'}">
+      <div class="notifications-reactions">
+        <p>
         <span class="reactions">
           <c:forEach var="reaction" items="${topic.reactionsList}">
             <span class="reaction">
@@ -133,30 +155,47 @@
             </span>
           </c:forEach>
         </span>
-      </c:when>
+        </p>
+      </div>
 
-      <c:when test="${topic.event.eventType == 'TAG'}">
-        <br>
-        <c:forEach var="tag" items="${topic.tags}">
-          <span class="tag">${tag}</span>
-        </c:forEach>
-      </c:when>
+      <div class="notifications-when">
+        <p>
+          <lor:dateinterval date="${topic.date}" compact="true"/>
+        </p>
+      </div>
+    </c:if>
 
-      <c:when test="${topic.event.eventType == 'DELETED'}">
-        <br>
-        <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
-      </c:when>
-    </c:choose>
-  </div>
-  <div title="${topic.authorsText}" class="notifications-who">
-    <c:if test="${topic.count > 1}">
-      <i class="icon-comment"></i> ${topic.count}<br>
+    <c:if test="${topic.event.eventType != 'REACTION'}">
+      <div class="notifications-details">
+        <p>
+          <c:choose>
+            <c:when test="${topic.event.eventType == 'TAG'}">
+              <c:forEach var="tag" items="${topic.tags}">
+                <span class="tag">${tag}</span>
+              </c:forEach>
+            </c:when>
+
+            <c:when test="${topic.event.eventType == 'DELETED'}">
+              <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
+            </c:when>
+
+            <c:when test="${topic.event.eventType == 'WARNING'}">
+              <c:if test="${topic.event.closedWarning}"><s></c:if>
+              <c:out value="${topic.event.eventMessage}" escapeXml="true"/>
+              <c:if test="${topic.event.closedWarning}"></s></c:if>
+            </c:when>
+          </c:choose>
+        </p>
+      </div>
+
+      <div class="notifications-who-when">
+        <p>
+          <lor:user user="${topic.author}"/>,
+          <lor:dateinterval date="${topic.date}" compact="true"/>
+        </p>
+      </div>
     </c:if>
-    <c:if test="${topic.count == 1 and topic.event.eventType != 'REACTION'}">
-      <lor:user user="${topic.author}"/><br>
-    </c:if>
-    <lor:dateinterval date="${topic.date}" compact="true"/>
-  </div>
+  </c:if>
 </a>
 </c:forEach>
 

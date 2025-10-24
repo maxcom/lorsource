@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -27,10 +27,12 @@
       ${message.title}
     </p>
 
-    <lor:poll-form poll="${poll}" enabled="true"/>
+    <lor:poll-form poll="${poll}" enabled="${currentUser != null and not userVoted}" votedVariants="${votedVariants}"/>
 
-    <c:url value="/view-vote.jsp" var="vote_url">
-      <c:param name="vote" value="${poll.id}"/>
+    <c:url value="/polls/polls/${poll.topic}" var="vote_url">
+      <c:if test="${not userVoted || currentUser == null}">
+        <c:param name="results" value="true"/>
+      </c:if>
     </c:url>
     <c:if test="${poll.multiSelect}">
         <a href="${vote_url}">результаты</a> (${count}/${countUsers} голосов)
@@ -38,8 +40,8 @@
     <c:if test="${not poll.multiSelect}">
         <a href="${vote_url}">результаты</a> (${count} голосов)
     </c:if>
-    <br>
+    <p>
     <a href="${main_url}">итоги прошедших опросов...</a>
-    <br>
-    [<a href="<c:url value="/add.jsp?group=19387"/>">добавить опрос</a>]
+    <p>
+    <a class="btn btn-small btn-default" href="<c:url value="/add-section.jsp?section=5"/>">добавить опрос</a>
   </div>

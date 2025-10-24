@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,17 +18,13 @@ package ru.org.linux.edithistory
 import java.util.Date
 
 case class EditInfoSummary(
-  editCount:Int, // > 0
-  editdate:Date,
-  editor:Int
+  editCount: Int, // > 0
+  editdate: Date,
+  editor: Int
 )
 
 object EditInfoSummary {
-  // TODO fetch brief info from database
-  def apply(editCount:Int, info:BriefEditInfo) = new EditInfoSummary(editCount, info.editdate, info.editor)
+  def apply(editCount: Int, info: BriefEditInfo) = new EditInfoSummary(editCount, info.editdate, info.editor)
 }
 
-case class BriefEditInfo(
-  editdate:Date,
-  editor:Int
-)
+case class BriefEditInfo(editdate: Date, editor: Int)

@@ -30,7 +30,7 @@
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1><i class="icon-tag"></i> ${navtitle}</h1>
+<h1><i class="icon-tag"></i> <a href="${url}">${tagTitle}</a></h1>
 
 <nav>
   <c:if test="${fn:length(sectionList)>1}">
@@ -85,9 +85,11 @@
     <br><span id="ignoreCount" title="Кол-во пользователей, игнорирующих тег">${ignoreCount}</span>
   </div>
 
-  <p>
-    Всего сообщений: ${counter}
-  </p>
+  <c:if test="${counter > 0}">
+    <p>
+      Всего сообщений: ${counter}
+    </p>
+  </c:if>
 </div>
 
 <c:forEach var="msg" items="${messages}">
@@ -103,12 +105,12 @@
   <tr>
     <c:if test="${not empty prevLink}">
       <td align="left" width="35%">
-        <a href="${prevLink}">← назад</a>
+        <a href="${prevLink}">← предыдущие</a>
       </td>
     </c:if>
     <c:if test="${not empty nextLink}">
       <td width="35%" align="right">
-        <a href="${nextLink}">вперед →</a>
+        <a href="${nextLink}">следующие →</a>
       </td>
     </c:if>
   </tr>

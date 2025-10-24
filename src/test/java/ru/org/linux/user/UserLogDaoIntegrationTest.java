@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -47,13 +47,15 @@ public class UserLogDaoIntegrationTest {
     when(user.getId()).thenReturn(UserDaoIntegrationTest.TEST_ID);
     when(user.getEmail()).thenReturn("old@email");
 
+    List<UserLogItem> oldLogItems = userLogDao.getLogItems(user, true);
+
     userLogDao.logAcceptNewEmail(user, "test@email");
 
     List<UserLogItem> logItems = userLogDao.getLogItems(user, true);
 
-    Assert.assertEquals(1, logItems.size());
+    Assert.assertEquals(1, logItems.size() - oldLogItems.size());
 
-    UserLogItem item = logItems.get(0);
+    UserLogItem item = logItems.getFirst();
 
     assertNotNull(item);
     assertEquals(UserLogAction.ACCEPT_NEW_EMAIL, item.getAction());
@@ -64,13 +66,15 @@ public class UserLogDaoIntegrationTest {
     User user = mock(User.class);
     when(user.getId()).thenReturn(UserDaoIntegrationTest.TEST_ID);
 
+    List<UserLogItem> oldLogItems = userLogDao.getLogItems(user, true);
+
     userLogDao.logScore50(user, user);
 
     List<UserLogItem> logItems = userLogDao.getLogItems(user, true);
 
-    Assert.assertEquals(1, logItems.size());
+    Assert.assertEquals(1, logItems.size() - oldLogItems.size());
 
-    UserLogItem item = logItems.get(0);
+    UserLogItem item = logItems.getFirst();
 
     assertNotNull(item);
     assertEquals(UserLogAction.SCORE50, item.getAction());

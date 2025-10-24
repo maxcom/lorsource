@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,8 +16,7 @@
 package ru.org.linux.help
 
 import com.typesafe.scalalogging.StrictLogging
-
-import javax.servlet.ServletRequest
+import jakarta.servlet.ServletRequest
 import org.apache.commons.io.IOUtils
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -26,13 +25,13 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.util.markdown.MarkdownFormatter
 
 import java.nio.charset.StandardCharsets
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class HelpController(renderService: MarkdownFormatter) extends StrictLogging {
   import HelpController._
 
-  @RequestMapping(Array("/help/{page}"))
+  @RequestMapping(path = Array("/help/{page}"))
   def helpPage(request: ServletRequest, @PathVariable page: String): ModelAndView = {
     val title = HelpPages.getOrElse(page, {
       logger.info(s"Help page not found $page")

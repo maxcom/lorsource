@@ -1,5 +1,6 @@
-<%--
-  ~ Copyright 1998-2022 Linux.org.ru
+<%@ tag import="ru.org.linux.site.DateFormats" %>
+<%@ tag import="ru.org.linux.util.StringUtil" %><%--
+  ~ Copyright 1998-2023 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -96,7 +97,7 @@
 <c:if test="${all}">
   <div class="reactions">
     <c:forEach var="r" items="${reactionList.list}">
-      <span class="reaction">
+      <span class="reaction" title="${fn:escapeXml(r.dateFormatted(timezone))}">
         <c:out value="${r.reaction} " escapeXml="true"/> <lor:user user="${r.user}" link="true"/>
       </span>
     </c:forEach>

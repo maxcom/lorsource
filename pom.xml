@@ -12,48 +12,49 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>17</java.version>
+    <java.version>21</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>5.3.30</dependency.spring.version>
-    <spring.security.version>5.5.8</spring.security.version>
-    <jdbc.postgresql.version>42.6.0</jdbc.postgresql.version>
-    <elastic4s.version>7.13.0</elastic4s.version>
-    <scala.version>2.13.12</scala.version>
+    <dependency.spring.version>6.2.12</dependency.spring.version>
+    <spring.security.version>6.3.9</spring.security.version>
+    <jdbc.postgresql.version>42.7.8</jdbc.postgresql.version>
+    <elastic4s.version>7.17.4</elastic4s.version>
+    <scala.version>2.13.16</scala.version>
     <scala.suffix>2.13</scala.suffix>
-    <activemq.version>5.18.2</activemq.version>
+    <activemq.version>6.1.7</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
-    <jetty.version>9.4.51.v20230217</jetty.version>
-    <akka.version>2.6.21</akka.version>
-    <log4j.version>2.20.0</log4j.version>
+    <jetty.version>12.0.13</jetty.version>
+    <pekko.version>1.2.0</pekko.version>
+    <log4j.version>2.23.1</log4j.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
-    <circe.version>0.14.3</circe.version>
-    <twemoji.version>14.0.2</twemoji.version>
-    <sttp.version>3.9.0</sttp.version>
+    <swiffy-slider.version>1.6.0</swiffy-slider.version>
+    <circe.version>0.14.13</circe.version>
+    <twemoji.version>16.0.1</twemoji.version>
+    <sttp.version>3.11.0</sttp.version>
     <flexmark.version>0.42.14</flexmark.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-actor_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-actor-typed_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-slf4j_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-slf4j_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.typesafe.akka</groupId>
-      <artifactId>akka-stream_${scala.suffix}</artifactId>
-      <version>${akka.version}</version>
+      <groupId>org.apache.pekko</groupId>
+      <artifactId>pekko-stream_${scala.suffix}</artifactId>
+      <version>${pekko.version}</version>
     </dependency>
 
     <dependency>
@@ -71,7 +72,7 @@
     <dependency>
       <groupId>org.scala-lang.modules</groupId>
       <artifactId>scala-collection-contrib_${scala.suffix}</artifactId>
-      <version>0.3.0</version>
+      <version>0.4.0</version>
     </dependency>
 
     <dependency>
@@ -83,21 +84,21 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>4.20.0</version>
+      <version>4.21.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>4.20.0</version>
+      <version>4.21.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.10.0</version>
+      <version>1.14.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -113,12 +114,12 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.13.0</version>
+      <version>2.20.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>32.1.2-jre</version>
+      <version>33.4.0-jre</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -126,11 +127,6 @@
       <version>3.0.2</version>
       <scope>provided</scope>
       <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>1.5</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -205,31 +201,31 @@
       <version>1.3.1</version>
     </dependency>
     <dependency>
-      <groupId>javax.jms</groupId>
-      <artifactId>javax.jms-api</artifactId>
-      <version>2.0.1</version>
+      <groupId>jakarta.jms</groupId>
+      <artifactId>jakarta.jms-api</artifactId>
+      <version>3.1.0</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.taglibs</groupId>
-      <artifactId>taglibs-standard-impl</artifactId>
-      <version>1.2.5</version>
+      <groupId>org.glassfish.web</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+      <version>3.0.1</version>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet.jsp</groupId>
+      <artifactId>jakarta.servlet.jsp-api</artifactId>
       <version>3.1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>javax.servlet.jsp</groupId>
-      <artifactId>javax.servlet.jsp-api</artifactId>
-      <version>2.3.3</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.2</version>
+      <groupId>jakarta.servlet.jsp.jstl</groupId>
+      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+      <version>3.0.2</version>
     </dependency>
     <dependency>
       <groupId>com.sun.mail</groupId>
@@ -273,10 +269,11 @@
       <version>${activemq.version}</version>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
-      <version>2.6.11</version>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>3.2.2</version>
     </dependency>
+
     <dependency>
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
@@ -285,13 +282,13 @@
     <dependency>
       <groupId>org.tuckey</groupId>
       <artifactId>urlrewritefilter</artifactId>
-      <version>4.0.4</version>
+      <version>5.1.3</version>
     </dependency>
 
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
-      <version>5.0.1</version>
+      <version>7.0.2</version>
     </dependency>
 
     <dependency>
@@ -304,13 +301,19 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.12.7.1</version>
+      <version>2.14.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-scala_${scala.suffix}</artifactId>
+      <version>2.14.3</version>
     </dependency>
 
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.12.5</version>
+      <version>2.14.0</version>
     </dependency>
 
     <dependency>
@@ -335,12 +338,6 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>${spring.security.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-taglibs</artifactId>
       <version>${spring.security.version}</version>
     </dependency>
 
@@ -383,7 +380,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.16.1</version>
+      <version>1.21.2</version>
     </dependency>
 
     <dependency>
@@ -413,12 +410,6 @@
 
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>webjars-locator</artifactId>
-      <version>0.37</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.webjars</groupId>
       <artifactId>momentjs</artifactId>
       <version>${momentjs.version}</version>
     </dependency>
@@ -431,7 +422,7 @@
 
     <dependency>
       <groupId>org.webjars.npm</groupId>
-      <artifactId>twemoji</artifactId>
+      <artifactId>twemoji__api</artifactId>
       <version>${twemoji.version}</version>
 
       <exclusions>
@@ -476,7 +467,7 @@
     <dependency>
       <groupId>org.opensearch</groupId>
       <artifactId>opensearch-testcontainers</artifactId>
-      <version>2.0.0</version>
+      <version>2.1.3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -486,7 +477,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>4.8.1</version>
+        <version>4.9.2</version>
         <configuration>
           <args>
             <arg>-deprecation</arg>
@@ -497,9 +488,8 @@
 -->
             <arg>-Xlint</arg>
             <arg>-language:postfixOps</arg>
-            <arg>-target:jvm-17</arg>
+            <arg>-release:21</arg>
             <arg>-Xsource:3</arg>
-            <arg>-Xmigration</arg>
           </args>
           <recompileMode>incremental</recompileMode>
         </configuration>
@@ -549,10 +539,11 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.10.1</version>
         <configuration>
-          <source>17</source>
-          <target>17</target>
+          <source>21</source>
+          <target>21</target>
           <compilerArgument>-Xlint:deprecation</compilerArgument>
           <compilerArgument>-Xlint:unchecked</compilerArgument>
+          <parameters>true</parameters>
         </configuration>
       </plugin>
 
@@ -608,6 +599,8 @@
           <encoding>utf-8</encoding>
           <excludes>
             <exclude>**/jquery-ui-*/**/*.js</exclude>
+            <exclude>**/highlight.min.js</exclude>
+            <exclude>**/lor.js</exclude>
           </excludes>
           <aggregations>
             <aggregation>
@@ -639,7 +632,8 @@
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji/${twemoji.version}/dist/twemoji.min.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji__api/${twemoji.version}/dist/twemoji.min.js</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/js/swiffy-slider.min.js</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -650,6 +644,19 @@
                 <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
+              </includes>
+            </aggregation>
+            <aggregation>
+              <removeIncluded>false</removeIncluded>
+              <insertNewLine>true</insertNewLine>
+              <output>${project.build.directory}/${project.build.finalName}/tango-auto/combined.css</output>
+              <includes>
+                <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/tango/auto.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -666,6 +673,8 @@
               <output>${project.build.directory}/${project.build.finalName}/zomg_ponies/combined.css</output>
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/style.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -675,6 +684,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -684,6 +694,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -693,10 +704,36 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
           </aggregations>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.blutorange</groupId>
+        <artifactId>closure-compiler-maven-plugin</artifactId>
+        <version>2.31.0</version>
+        <executions>
+          <execution>
+            <id>default-minify</id>
+            <configuration>
+              <encoding>UTF-8</encoding>
+              <includes>
+                <include>lor.js</include>
+              </includes>
+              <skipMerge>true</skipMerge>
+              <logLevel>all</logLevel>
+              <closureLanguageOut>ECMASCRIPT_2016</closureLanguageOut>
+              <outputFilename>#{path}/#{basename}.#{extension}</outputFilename>
+            </configuration>
+            <goals>
+              <goal>minify</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -716,6 +753,8 @@
                 <mkdir dir="${project.build.directory}/uploads/photos"/>
                 <copy file="${basedir}/src/main/webapp/img/good-penguin.png"
                       todir="${project.build.directory}/${project.build.finalName}/qrerror/"/>
+                <copy file="${basedir}/src/main/webapp/js/highlight.min.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
               </tasks>
             </configuration>
             <goals>
@@ -853,8 +892,13 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.webjars.npm</groupId>
-                  <artifactId>twemoji</artifactId>
+                  <artifactId>twemoji__api</artifactId>
                   <version>${twemoji.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>swiffy-slider</artifactId>
+                  <version>${swiffy-slider.version}</version>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>
@@ -883,7 +927,6 @@
             <configuration>
               <propertyFile>sql/liquibase.config</propertyFile>
               <verbose>true</verbose>
-              <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
             </configuration>
             <executions>
               <execution>
@@ -895,13 +938,13 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-maven-plugin</artifactId>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-maven-plugin</artifactId>
             <version>${jetty.version}</version>
             <dependencies>
               <dependency>
                 <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-server</artifactId>
+                <artifactId>jetty-websocket-jetty-server</artifactId>
                 <version>${jetty.version}</version>
               </dependency>
             </dependencies>
@@ -924,6 +967,7 @@
             <configuration>
               <stopKey>foo</stopKey>
               <stopPort>9999</stopPort>
+              <stopWait>10</stopWait>
 
               <webAppConfig>
                 <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
@@ -931,7 +975,7 @@
 
               <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
 
-              <useTestClasspath>true</useTestClasspath>
+              <useTestScope>true</useTestScope>
               <systemProperties>
                 <systemProperty>
                   <name>java.net.preferIPv4Stack</name>
@@ -978,17 +1022,12 @@
     </profile>
 
     <profile>
-      <id>travis</id>
-      <activation>
-        <property>
-          <name>env.TRAVIS</name>
-        </property>
-      </activation>
+      <id>CI</id>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-jspc-maven-plugin</artifactId>
+            <groupId>org.eclipse.jetty.ee10 </groupId>
+            <artifactId>jetty-ee10-jspc-maven-plugin</artifactId>
             <version>${jetty.version}</version>
             <executions>
               <execution>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2023 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentDao;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.Topic;
@@ -62,6 +63,8 @@ public class ToHtmlFormatter {
   @Autowired
   private CommentDao commentDao;
 
+  private GroupDao groupDao;
+
   private int maxLength=80;
 
   @Autowired
@@ -72,6 +75,11 @@ public class ToHtmlFormatter {
   @Autowired
   public void setTopicDao(TopicDao topicDao) {
     this.topicDao = topicDao;
+  }
+
+  @Autowired
+  public void setGroupDao(GroupDao groupDao) {
+    this.groupDao = groupDao;
   }
 
   // для тестирования (todo: заюзать SpringContext)
@@ -237,7 +245,7 @@ public class ToHtmlFormatter {
 
       String urlTitle = linkText!=null?simpleFormat(linkText):StringUtil.escapeHtml(message.getTitle());
 
-      String newUrlHref = url.formatJump(topicDao, siteConfig.getSecureURI());
+      String newUrlHref = url.formatJump(topicDao, groupDao, siteConfig.getSecureURI());
       String fixedUrlBody = url.formatUrlBody(maxLength);
 
       if (deleted) {
@@ -262,7 +270,7 @@ public class ToHtmlFormatter {
         out.append("</s>");
       }
     } catch (MessageNotFoundException ex) {
-      out.append("<a href=\"").append(url.toString()).append("\">").append(StringUtil.escapeHtml(url.formatUrlBody(maxLength))).append("</a>");
+      out.append("<a href=\"").append(url).append("\">").append(StringUtil.escapeHtml(url.formatUrlBody(maxLength))).append("</a>");
     }
   }
 }

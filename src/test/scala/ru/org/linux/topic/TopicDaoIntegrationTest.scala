@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.TopicDaoIntegrationTest.*
-import ru.org.linux.user.{IgnoreListDao, UserDao, UserInvitesDao, UserLogDao, UserService}
+import ru.org.linux.user.{IgnoreListDao, ProfileDao, UserDao, UserInvitesDao, UserLogDao, UserService}
 import ru.org.linux.util.bbcode.LorCodeService
 
 import javax.sql.DataSource
@@ -90,10 +90,10 @@ class TopicDaoIntegrationTestConfiguration {
   def userInvitesDao(ds: DataSource) = new UserInvitesDao(ds)
 
   @Bean
-  def imageDao = new ImageDao()
+  def imageDao(sectionService: SectionService, ds: DataSource) = new ImageDao(sectionService, ds)
 
   @Bean
-  def ipBlockDao = new IPBlockDao()
+  def ipBlockDao(ds: DataSource) = new IPBlockDao(ds)
 
   @Bean
   def imageService = Mockito.mock(classOf[ImageService])
@@ -102,11 +102,15 @@ class TopicDaoIntegrationTestConfiguration {
   def ignoreListDao(ds: DataSource) = new IgnoreListDao(ds)
 
   @Bean
+  def profileDao(ds: DataSource) = new ProfileDao(ds)
+
+  @Bean
   def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                  IPBlockDao: IPBlockDao, userAgentDao: UserAgentDao, transactionManager: PlatformTransactionManager) =
-    new UserService(siteConfig, userDao, ignoreListDao, userInvitesDao, userLogDao, deleteInfoDao, IPBlockDao,
-      userAgentDao, transactionManager)
+                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
+                  transactionManager: PlatformTransactionManager, profileDao: ProfileDao) =
+    new UserService(siteConfig = siteConfig, userDao = userDao, ignoreListDao = ignoreListDao,
+      userInvitesDao = userInvitesDao, userLogDao = userLogDao, userAgentDao = userAgentDao, profileDao = profileDao,
+      transactionManager = transactionManager)
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])

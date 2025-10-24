@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2024 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,9 +15,9 @@
 
 package ru.org.linux.monitoring
 
-import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Timers}
-import akka.pattern.PipeToSupport
+import org.apache.pekko.actor.Status.Failure
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Timers}
+import org.apache.pekko.pattern.PipeToSupport
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.handlers.index.CreateIndexTemplateResponse
@@ -85,7 +85,6 @@ class PerformanceLoggingActor(elastic: ElasticClient) extends Actor with ActorLo
       if (r.hasFailures) {
         log.warning(s"Failed to write perf metrics: ${r.failures.flatMap(_.error).map(_.reason).mkString(", ")}")
       }
-      log.debug(s"Logged ${r.items.length} metrics")
       context.become(ready)
     case Failure(ex) =>
       log.error(ex, "Failed to write perf metrics")
@@ -125,7 +124,7 @@ object PerformanceLoggingActor {
 
   private case object Initialize
 
-  def props(elastic: ElasticClient) = Props(new PerformanceLoggingActor(elastic))
+  def props(elastic: ElasticClient): Props = Props(new PerformanceLoggingActor(elastic))
 }
 
 case class Metric(name: String, start: DateTime, controllerTime: Long, viewTime: Long)

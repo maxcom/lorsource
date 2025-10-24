@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,9 +16,9 @@ package ru.org.linux.topic
 
 import org.joda.time.DateTime
 import org.springframework.stereotype.Service
+import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
 import ru.org.linux.group.Group
-import ru.org.linux.section.Section
-import ru.org.linux.tag.TagNotFoundException
+import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.TagService
 import ru.org.linux.topic.TopicListDto.CommitMode
 import ru.org.linux.user.User
@@ -30,6 +30,8 @@ import ru.org.linux.topic.TopicListDto.CommitMode.POSTMODERATED_ONLY
 
 @Service
 object TopicListService {
+  val MaxOffset = 300
+
   /**
    * Корректировка смещения в результатах выборки.
    *
@@ -40,8 +42,8 @@ object TopicListService {
     if (offset != null) {
       if (offset < 0) {
         0
-      } else if (offset > 200) {
-        200
+      } else if (offset > MaxOffset) {
+        MaxOffset
       } else {
         offset
       }
@@ -51,7 +53,7 @@ object TopicListService {
 }
 
 @Service
-class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
+class TopicListService(tagService: TagService, topicListDao: TopicListDao, sectionService: SectionService) {
   /**
    * Получение списка топиков.
    *
@@ -59,32 +61,26 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
    * @param group   группа
    * @param tag     тег
    * @param offset  смещение в результатах выборки
-   * @param year    год
-   * @param month   месяц
+   * @param yearMonth год, месяц
    * @return список топиков
-   * @throws UserErrorException
-   * @throws TagNotFoundException
    */
-  @throws[TagNotFoundException]
-  def getTopicsFeed(section: Option[Section], group: Option[Group], tag: Option[String], offset: Int, yearMonth: Option[(Int, Int)],
-                    count: Int, currentUser: Option[User], noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
+  def getTopicsFeed(section: Section, group: Option[Group], tag: Option[String], offset: Int, yearMonth: Option[(Int, Int)],
+                    count: Int, noTalks: Boolean, tech: Boolean)(implicit currentUser: AnySession): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
 
-    section.foreach { section =>
-      topicListDto.setSection(section.getId)
+    topicListDto.setSection(section.getId)
 
-      if (section.isPremoderated) {
-        topicListDto.setCommitMode(COMMITED_ONLY)
-      } else {
-        topicListDto.setCommitMode(POSTMODERATED_ONLY)
-      }
+    if (section.isPremoderated) {
+      topicListDto.setCommitMode(COMMITED_ONLY)
+    } else {
+      topicListDto.setCommitMode(POSTMODERATED_ONLY)
     }
 
     group.foreach { group =>
-      topicListDto.setGroup(group.getId)
+      topicListDto.setGroup(group.id)
     }
 
     tag.foreach { tag =>
@@ -103,7 +99,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
       topicListDto.setLimit(count)
       topicListDto.setOffset(if (offset > 0) offset else null)
 
-      if (tag == null && group == null && !section.exists(_.isPremoderated)) {
+      if (tag.isEmpty && group.isEmpty && !section.isPremoderated) {
         topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
         val calendar = Calendar.getInstance
@@ -119,24 +115,13 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
   /**
    * Получение списка топиков пользователя.
    *
-   * @param user       объект пользователя
-   * @param offset     смещение в результатах выборки
-   * @param isFavorite true если нужно выбрать избранные сообщения пользователя
-   * @return список топиков пользователя
-   */
-  def getUserTopicsFeed(user: User, offset: Int, isFavorite: Boolean, watches: Boolean): collection.Seq[Topic] =
-    getUserTopicsFeed(user, None, None, offset, isFavorite, watches)
-
-  /**
-   * Получение списка топиков пользователя.
-   *
    * @param user      объект пользователя
    * @param section   секция, из которой выбрать сообщения
    * @param offset    смещение в результатах выборки
    * @param favorites true если нужно выбрать избранные сообщения пользователя
    * @return список топиков пользователя
    */
-  def getUserTopicsFeed(user: User, section: Option[Section], group: Option[Group], offset: Int,
+  def getUserTopicsFeed(user: User, section: Option[Section] = None, offset: Int,
                         favorites: Boolean, watches: Boolean): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
@@ -151,11 +136,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
       topicListDto.setSection(section.getId)
     }
 
-    group.foreach { group =>
-      topicListDto.setGroup(group.getId)
-    }
-
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
   /**
@@ -174,7 +155,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
     topicListDto.setUserId(user.getId)
     topicListDto.setShowDraft(true)
 
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
   /**
@@ -193,14 +174,14 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
     topicListDto.setSection(section.getId)
 
     group.foreach { group =>
-      topicListDto.setGroup(group.getId)
+      topicListDto.setGroup(group.id)
     }
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
     topicListDto.setFromDate(fromDate)
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
-    topicListDto.setLimit(100)
+    topicListDto.setLimit(30)
 
     if (section.isPremoderated) {
       topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
@@ -208,7 +189,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
       topicListDto.setCommitMode(CommitMode.POSTMODERATED_ONLY)
     }
 
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
   def getUncommitedTopic(section: Option[Section], fromDate: Date, includeAnonymous: Boolean): collection.Seq[Topic] = {
@@ -224,39 +205,42 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao) {
     topicListDto.setFromDate(fromDate)
     topicListDto.setIncludeAnonymous(includeAnonymous)
 
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
-  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): collection.Seq[DeletedTopic] =
+  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean, includeAnonymous: Boolean): Seq[DeletedTopic] =
     topicListDao.getDeletedTopics(sectionId, skipBadReason, includeAnonymous)
 
-  def getMainPageFeed(showGalleryOnMain: Boolean, count: Int, hideMinor: Boolean): collection.Seq[Topic] = {
+  def getMainPageFeed(count: Int)
+                     (implicit session: AnySession): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
     topicListDto.setLimit(count)
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
-    // лучше бы этот лимит был по commit_date на главной
     topicListDto.setFromDate(DateTime.now.minusMonths(3).toDate)
 
-    if (hideMinor) {
+    if (session.profile.hasMiniNewsBoxlet) {
       topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR)
     }
 
     topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
 
-    if (showGalleryOnMain) {
+    if (session.profile.showGalleryOnMain) {
       topicListDto.setSection(Section.SECTION_NEWS, Section.SECTION_GALLERY)
     } else {
       topicListDto.setSection(Section.SECTION_NEWS)
     }
 
-    topicListDao.getTopics(topicListDto, None)
+    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
-  def getTopics(topicListDto: TopicListDto, currentUser: Option[User]): collection.Seq[Topic] =
+  def getTopics(topicListDto: TopicListDto)(implicit currentUser: AnySession): collection.Seq[Topic] =
     topicListDao.getTopics(topicListDto, currentUser)
 
-  def getDeletedUserTopics(user: User, topics: Int): collection.Seq[DeletedTopic] =
+  def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] =
     topicListDao.getDeletedUserTopics(user, topics)
+
+  def getUserSections(user: User): Seq[Section] =
+    topicListDao.getUserSections(user).map(sectionService.idToSection)
 }

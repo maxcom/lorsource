@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2025 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -70,6 +70,10 @@
       <div class="sign">
         <lor:sign user="${comment.author}" postdate="${comment.postdate}"/>
 
+        <c:if test="${comment.author.id == topic.authorUserId and not comment.author.anonymous}">
+          <span class="user-tag">автор топика</span>
+        </c:if>
+
         <c:if test="${comment.remark!=null}">
           <span><c:out value="${comment.remark}" escapeXml="true"/></span>
         </c:if>
@@ -126,10 +130,16 @@
               <li><a href="${comment.answerLink}" data-samepage="${comment.answerSamepage}">Показать ответ</a></li>
             </c:if>
 
+            <c:if test="${messageMenu.warningsAllowed}">
+              <li><a href="/post-warning?topic=${message.id}&comment=${comment.id}">Уведомить модераторов</a></li>
+            </c:if>
+
             <li><a href="${topic.link}?cid=${comment.id}">Ссылка</a></li>
           </ul>
         </div>
       </c:if>
+
+      <lor:warnings warnings="${comment.warnings}" hidden="false"/>
 
       <lor:reactions reactions="${comment.reactions}" reactionList="${reactionList}" topic="${topic}"
                      comment="${comment}"/>

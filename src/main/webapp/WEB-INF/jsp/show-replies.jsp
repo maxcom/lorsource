@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2024 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -119,6 +119,9 @@
       <c:when test="${topic.event.eventType == 'REACTION'}">
         ${topic.event.reaction}
       </c:when>
+      <c:when test="${topic.event.eventType == 'WARNING'}">
+        <span title="Избранный тег">⚠️</span>
+      </c:when>
     </c:choose>
   </td>
   <td>
@@ -133,6 +136,13 @@
       <c:if test="${topic.event.eventType == 'DELETED'}">
         <br>
         <c:out value="${topic.event.eventMessage}" escapeXml="true"/> (${topic.bonus})
+      </c:if>
+
+      <c:if test="${topic.event.eventType == 'WARNING'}">
+        <br>
+        <c:if test="${topic.event.closedWarning}"><s></c:if>
+        <c:out value="${topic.event.eventMessage}" escapeXml="true"/> ${' '}
+        <c:if test="${topic.event.closedWarning}"></s></c:if>
       </c:if>
 
     <c:if test="${topic.event.unread}">&bull;</c:if>
@@ -157,11 +167,10 @@
     <c:if test="${not firstPage}">
       <c:choose>
         <c:when test="${not isMyNotifications}">
-          <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=${offset-topics}${addition_query}">←
-            назад</a>
+          <a href="show-replies.jsp?nick=${nick}&amp;offset=${offset-topics}${addition_query}">← предыдущие</a>
         </c:when>
         <c:otherwise>
-          <a rel=prev rev=next href="notifications?offset=${offset-topics}${addition_query}">← назад</a>
+          <a href="notifications?offset=${offset-topics}${addition_query}">← предыдущие</a>
         </c:otherwise>
       </c:choose>
     </c:if>
@@ -171,11 +180,10 @@
     <c:if test="${hasMore}">
       <c:choose>
         <c:when test="${not isMyNotifications}">
-          <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=${offset+topics}${addition_query}">вперед
-            →</a>
+          <a href="show-replies.jsp?nick=${nick}&amp;offset=${offset+topics}${addition_query}">следующие →</a>
         </c:when>
         <c:otherwise>
-          <a rel=next rev=prev href="notifications?offset=${offset+topics}${addition_query}">вперед →</a>
+          <a href="notifications?offset=${offset+topics}${addition_query}">следующие →</a>
         </c:otherwise>
       </c:choose>
     </c:if>

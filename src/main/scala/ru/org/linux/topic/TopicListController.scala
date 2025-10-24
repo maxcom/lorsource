@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,11 +23,10 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AuthUtil
-import ru.org.linux.auth.AuthUtil.AuthorizedOpt
-import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException}
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException, GroupPermissionService}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
-import ru.org.linux.site.{ScriptErrorException, Template}
+import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.topic.TopicListController.ForumFilter.{NoTalks, Tech}
 import ru.org.linux.topic.TopicListController.{ForumFilter, ForumFilters, calculatePTitle}
@@ -36,7 +35,7 @@ import ru.org.linux.util.{DateUtil, ServletParameterException}
 
 import java.util.concurrent.CompletionStage
 import javax.annotation.Nullable
-import scala.compat.java8.FutureConverters.*
+import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -45,7 +44,7 @@ object TopicListController {
   private def calculatePTitle(section: Section, groupOpt: Option[Group], topicListForm: TopicListRequest): String = {
     groupOpt match {
       case Some(group) =>
-        s"${section.getName} - ${group.getTitle}"
+        s"${section.getName} - ${group.title}"
       case None =>
         if (topicListForm.yearMonth.isEmpty) {
           section.getName + topicListForm.filter.map(f => s" (${f.title})").getOrElse("")
@@ -59,7 +58,7 @@ object TopicListController {
     val navTitle = new StringBuilder(section.getName)
 
     group.foreach { group =>
-      navTitle.append(s" «${group.getTitle}»")
+      navTitle.append(s" «${group.title}»")
     }
 
     topicListForm.filter.foreach { f =>
@@ -99,9 +98,9 @@ object TopicListController {
 @Controller
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
-                          groupDao: GroupDao) extends StrictLogging {
+                          groupDao: GroupDao, groupPermissionService: GroupPermissionService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
-                                    group: Option[Group]): Future[ModelAndView] = AuthorizedOpt { currentUserOpt =>
+                                    group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
 
     checkRequestConditions(section, group)
@@ -135,17 +134,25 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject("navtitle", TopicListController.calculateNavTitle(section, group, topicListForm))
 
-    val tmpl = Template.getTemplate
-
-    val messages = topicListService.getTopicsFeed(Some(section), group, None, topicListForm.offset,
-      topicListForm.yearMonth, 20, currentUserOpt.map(_.user), topicListForm.filter.contains(NoTalks),
-      topicListForm.filter.contains(Tech))
+    val messages = topicListService.getTopicsFeed(section, group, None, topicListForm.offset,
+      topicListForm.yearMonth, 20, topicListForm.filter.contains(NoTalks), topicListForm.filter.contains(Tech))
 
     modelAndView.addObject(
       "messages",
-      prepareService.prepareTopicsForUser(messages, AuthUtil.getCurrentUser, tmpl.getProf, loadUserpics = false))
+      prepareService.prepareTopics(messages, loadUserpics = false).asJava)
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
+
+    val addUrl = group match {
+      case Some(group) if groupPermissionService.isTopicPostingAllowed(group) =>
+        AddTopicController.getAddUrl(group)
+      case None if groupPermissionService.isTopicPostingAllowed(section) =>
+        AddTopicController.getAddUrl(section)
+      case _ =>
+        ""
+    }
+
+    modelAndView.addObject("addUrl", addUrl)
 
     activeTagsF.map { activeTags =>
       if (activeTags.nonEmpty) {
@@ -156,7 +163,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
   }
 
-  @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
+  @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
   def topics(@PathVariable("section") sectionName: String,
              @RequestParam(value="offset", defaultValue = "0") offset: Int): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
@@ -166,7 +173,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       modelAndView.addObject("url", section.getNewsViewerLink)
       modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
-    }.toJava
+    }.asJava
   }
 
   private def parseFilter(@Nullable value: String): Option[ForumFilter] = {
@@ -174,7 +181,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       .map(v => ForumFilters.find(_.id == v).getOrElse(throw new UserErrorException("Некорректное значение filter")))
   }
 
-  @RequestMapping(Array("/forum/lenta"))
+  @RequestMapping(path = Array("/forum/lenta"))
   def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int,
             @RequestParam(value = "filter", required = false) filter: String): CompletionStage[ModelAndView] = {
     val section = sectionService.getSection(Section.SECTION_FORUM)
@@ -189,10 +196,10 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
         modelAndView.addObject("url", section.getNewsViewerLink + s"?filter=$filter")
         modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}&filter=$filter")
       }
-    }.toJava
+    }.asJava
   }
 
-  @RequestMapping(Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
+  @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
   def topicsByGroup(@PathVariable("section") sectionName: String,
                     @RequestParam(value="offset", defaultValue = "0") offset: Int,
                     @PathVariable("group") groupName: String): CompletionStage[ModelAndView] = {
@@ -204,10 +211,10 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     mainTopicsFeedHandler(section, topicListForm, Some(group)).map { modelAndView =>
       modelAndView.addObject("url", group.getUrl)
-    }.toJava
+    }.asJava
   }
 
-  @RequestMapping(Array("/{section}/archive/{year:\\d{4}}/{month}"))
+  @RequestMapping(path = Array("/{section}/archive/{year:\\d{4}}/{month}"))
   def sectionArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int): CompletionStage[ModelAndView] = {
     val sectionObject = sectionService.getSectionByName(section)
 
@@ -217,7 +224,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       mainTopicsFeedHandler(sectionObject, topicListForm, None)
     } else {
       Future.successful(new ModelAndView(new RedirectView(sectionObject.getSectionLink)))
-    }).toJava
+    }).asJava
   }
 
   @RequestMapping(value = Array("/show-topics.jsp"), method = Array(RequestMethod.GET))
@@ -230,7 +237,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
   }
 
-  @RequestMapping(Array("/section-rss.jsp"))
+  @RequestMapping(path = Array("/section-rss.jsp"))
   def showRSS(@RequestParam(value = "section", defaultValue = "1") sectionId: Int,
               @RequestParam(value = "group", defaultValue = "0") groupId: Int,
               @RequestParam(value = "filter", required = false) filter: String,
@@ -242,7 +249,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val group = if (groupId != 0) {
       val g = groupDao.getGroup(groupId)
-      ptitle += " - " + g.getTitle
+      ptitle += " - " + g.title
       Some(g)
     } else {
       None
@@ -275,7 +282,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     if (lastModified.exists(webRequest.checkNotModified)) {
       null
     } else {
-      modelAndView.addObject("messages", prepareService.prepareTopics(messages.toSeq).asJava)
+      modelAndView.addObject("messages", prepareService.prepareTopicForRSS(messages.toSeq).asJava)
 
       modelAndView
     }
@@ -287,8 +294,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
 
     group foreach { group =>
-      if (group.getSectionId != section.getId) {
-        throw new ScriptErrorException(s"группа #${group.getId} не принадлежит разделу #${section.getId}")
+      if (group.sectionId != section.getId) {
+        throw new ScriptErrorException(s"группа #${group.id} не принадлежит разделу #${section.getId}")
       }
     }
   }
