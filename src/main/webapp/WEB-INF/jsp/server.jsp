@@ -56,14 +56,14 @@
 </p>
 
 <p>
-Конфигурация
+Конфигурация:
 </p>
 <ul>
   <li>Supermicro 6016T-UF;</li>
   <li>2 x Intel Xeon X5675 12M Cache, 3.06 GHz, 6 ядер;</li>
   <li>96 GB DDR3, ECC, REG;</li>
-  <li>2x 960Gb Samsung PM883 (RAID1 mdadm).</li>
-  <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm);</li>
+  <li>2x 960Gb Samsung PM883 (RAID1 mdadm);</li>
+  <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm).</li>
 </ul>
 
 <h1>Софт</h1>
@@ -95,14 +95,14 @@
   принадлежат <a href="https://www.mckusick.com/beastie/mainpage/copyright.html">Marshall Kirk McKusick</a>.
 
   <h2>Twemoji</h2>
-  На сайте используется изображения Emoji, созданные проектом <a href="https://github.com/jdecked/twemoji">Twemoji</a>.
+  На сайте используются изображения Emoji, созданные проектом <a href="https://github.com/jdecked/twemoji">Twemoji</a>.
 
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
   <ul>
   <li><a href="/people/maxcom/profile">Максим Валянский</a> (maxcom)&nbsp;&#8212; <i>координатор
   проекта</i>:
-  разработка, поддержка, дизайн, новости, информационное наполнение;
+  разработка, поддержка, дизайн, новости, информационное наполнение.
 
 <%--
   <li><a href="/people/green/profile">Олег Дрокин</a> (green)&nbsp;&#8212; администрирование сервера, железо;
