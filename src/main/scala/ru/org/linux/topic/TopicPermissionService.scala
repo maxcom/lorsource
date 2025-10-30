@@ -439,7 +439,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   }
 
   def canViewHistory(msg: Topic)(implicit session: AnySession): Boolean = {
-    val viewer = session.userOpt.orNullexpired
+    val viewer = session.userOpt.orNull
 
     if (viewer != null && viewer.isModerator) {
       return true
