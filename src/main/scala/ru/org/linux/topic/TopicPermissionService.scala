@@ -439,7 +439,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   }
 
   def canViewHistory(msg: Topic)(implicit session: AnySession): Boolean = {
-    val viewer = session.userOpt.orNull
+    val viewer = session.userOpt.orNullexpired
 
     if (viewer != null && viewer.isModerator) {
       return true
@@ -457,7 +457,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   }
 
   def canPostWarning(topic: Topic, comment: Option[Comment])(implicit currentUserOpt: AnySession): Boolean = {
-    !topic.deleted && !topic.expired && comment.forall(!_.deleted) && currentUserOpt.opt.exists { user =>
+    !topic.deleted && !topic.expired && !topic.draft && comment.forall(!_.deleted) && currentUserOpt.opt.exists { user =>
       user.user.getScore >= 50 && !user.user.isFrozen
     }
   }
