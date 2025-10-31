@@ -141,7 +141,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
       errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения")
     }
 
-    if (imageParam.getHeight / (imageParam.getWidth+1d) > 2) {
+    if (imageParam.getHeight / (imageParam.getWidth+1d) > 2.3) {
       errors.reject(null, "Сбой загрузки изображения: слишком узкое изображение")
     }
 
