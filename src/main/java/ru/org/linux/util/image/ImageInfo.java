@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2020 Linux.org.ru
+ * Copyright 1998-2025 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,10 +26,10 @@ import java.io.IOException;
  * <p/>
  * currently supported file types: Jpeg Gif Png
  */
-public class ImageInfo{
+public class ImageInfo {
   private int height = -1;
   private int width = -1;
-  private int size = 0;
+  private int size;
 
   private final String filename;
 
@@ -61,10 +61,7 @@ public class ImageInfo{
   public ImageInfo(String filename) throws BadImageException, IOException {
     this.filename = filename;
 
-    FileInputStream fileStream = null;
-
-    try {
-      fileStream = new FileInputStream(filename);
+    try (FileInputStream fileStream = new FileInputStream(filename)) {
       size = (int) new File(filename).length();
 
       String lowname = filename.toLowerCase();
@@ -76,15 +73,11 @@ public class ImageInfo{
       } else if (lowname.endsWith("png")) {
         getPngInfo(fileStream);
       } else {
-        throw new BadImageException("Invalid image extension");        
+        throw new BadImageException("Invalid image extension");
       }
 
       if (height == -1 || width == -1) {
         throw new BadImageException();
-      }
-    } finally {
-      if (fileStream != null) {
-        fileStream.close();
       }
     }
   }
@@ -130,7 +123,7 @@ public class ImageInfo{
 
 
   private void getJpgInfo(FileInputStream fileStream) throws IOException, BadImageException {
-    if (fileStream.read() == 0xFF && fileStream.read() == 0xD8) {
+    if (fileStream.read() == 0xFF && fileStream.read() == 0xD8) { // 0xFFD8 - Start Of Image marker
       while (true) {
         int marker;
         do {
@@ -140,8 +133,9 @@ public class ImageInfo{
           marker = fileStream.read();
         } while (marker == 0xFF);
 
-        if (((marker >= 0xC0) && (marker <= 0xC3)) || ((marker >= 0xC5) && (marker <= 0xCB)) || ((marker >= 0xCD) && (marker <= 0xCF)))
-        {
+        if (((marker >= 0xC0) && (marker <= 0xC3)) ||
+                ((marker >= 0xC5) && (marker <= 0xCB)) ||
+                ((marker >= 0xCD) && (marker <= 0xCF))) {
           fileStream.skip(3);
           height = shortBigEndian((byte) fileStream.read(), (byte) fileStream.read());
           width = shortBigEndian((byte) fileStream.read(), (byte) fileStream.read());
@@ -161,11 +155,11 @@ public class ImageInfo{
     }
   }
 
-  private static short shortBigEndian(byte firstRead, byte lastRead) {
-    return (short) (((firstRead & 0xFF) << 8) | lastRead & 0xFF);
+  private static int shortBigEndian(byte firstRead, byte lastRead) {
+    return (((firstRead & 0xFF) << 8) | lastRead & 0xFF);
   }
 
-  private static short shortLittleEndian(byte firstRead, byte lastRead) {
+  private static int shortLittleEndian(byte firstRead, byte lastRead) {
     return shortBigEndian(lastRead, firstRead);
   }
 
