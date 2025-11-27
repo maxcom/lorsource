@@ -205,7 +205,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
 
   private def getScoreLossPostscore(topic: Topic): Int = {
-    if (!topic.sticky) {
+    if (!topic.sticky && !topic.expired) {
       val scoreLoss = deleteInfoDao.scoreLoss(topic.id)
 
       if (scoreLoss >= 150) {
