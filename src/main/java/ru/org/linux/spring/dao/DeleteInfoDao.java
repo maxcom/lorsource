@@ -137,7 +137,7 @@ public class DeleteInfoDao {
 
   public int scoreLoss(int msgid) {
     return jdbcTemplate.queryForObject("select COALESCE((select sum(-bonus) as total_bonus from del_info " +
-            "join comments on comments.id = del_info.msgid where bonus is not null and " +
+            "join comments on comments.id = del_info.msgid where bonus is not null and bonus!=0 and " +
             "comments.userid!=2 and topic = ? " +
             "group by topic), 0)", Integer.class, msgid);
   }
