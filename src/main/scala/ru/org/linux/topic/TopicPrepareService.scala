@@ -132,12 +132,17 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       ignoreListDao.get(user.getId)
     }.getOrElse(Set.empty[Int])
 
-    val postscore = topicPermissionService.getPostscore(group, topic)
+    lazy val postscore = topicPermissionService.getPostscore(group, topic)
 
     val showRegisterInvite = !session.authorized &&
-      (postscore <= 45 &&
-        postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED ||
-        userService.getAnonymous.isFrozen)
+      (userService.getAnonymous.isFrozen || postscore <= 45 &&
+        postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED)
+
+    val postscoreInfo = if (!topic.isExpired) {
+      TopicPermissionService.getPostScoreInfo(postscore)
+    } else {
+      ""
+    }
 
     val userAgent = if (session.moderator) {
       userAgentDao.getUserAgentById(topic.userAgentId).toScala
@@ -147,7 +152,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
-      TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull,
+      postscoreInfo, remark.orNull, showRegisterInvite, userAgent.orNull,
       reactionPrepareService.prepare(topic.reactions, ignoreList, topic, None),
       warningService.prepareWarning(warnings).asJava, additionalPreparedImages.asJava)
   }
