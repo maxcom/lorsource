@@ -204,11 +204,12 @@ public class User implements Serializable {
     if (score < 0) {
       score = 0;
     }
-    if (score >= 600) {
-      score = 599;
-    }
 
-    return (int) Math.floor(score / 100.0);
+//    if (score >= 600) {
+//      score = 599;
+//    }
+
+    return (int) Math.floor(score / 10.0);
   }
 
   private static int getGreyStars(int score, int maxScore) {
@@ -230,15 +231,15 @@ public class User implements Serializable {
     StringBuilder out = new StringBuilder();
 
     int stars = getGreenStars(score);
-    int greyStars = getGreyStars(score, maxScore);
+//    int greyStars = getGreyStars(score, maxScore);
 
     if (html) {
       out.append("<span class=\"stars\">");
     }
 
-    out.append("★".repeat(Math.max(0, stars)));
+    out.append("❄".repeat(Math.max(0, stars)));
 
-    out.append("☆".repeat(Math.max(0, greyStars)));
+//    out.append("☆".repeat(Math.max(0, greyStars)));
 
     if (html) {
       out.append("</span>");
@@ -260,7 +261,7 @@ public class User implements Serializable {
 
     if (maxScore>=100 && text.isEmpty()) {
       return getStars(score, maxScore, true);
-    } else if (maxScore>=100) {
+    } else if (maxScore >= 1) {
       return text + " " + getStars(score, maxScore, true);
     } else {
       return text;
