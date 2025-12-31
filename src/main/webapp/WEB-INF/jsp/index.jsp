@@ -80,6 +80,7 @@
   </div>
 </c:if>
 --%>
+<%--
   <div style="text-align: center; margin-top: 0.5em; height: 125px" id="interpage">
   </div>
   <script type="text/javascript">
@@ -97,6 +98,7 @@
       init_interpage_adv(ads);
     });
   </script>
+--%>
 
 <c:if test="${(template.moderatorSession or template.correctorSession) and (uncommited > 0)}">
 <nav>
