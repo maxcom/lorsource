@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -14,7 +14,6 @@
   ~    limitations under the License.
   --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.PreparedUserEvent>"--%>
@@ -41,16 +40,6 @@
 <title>${title}</title>
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml">
 <link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml">
-<script type="text/javascript">
-  $script.ready('plugins', function() {
-    $(document).ready(function() {
-      $('#reset_form').ajaxSubmit({
-        success: function() { $('#reset_form').hide(); },
-        url: "/notifications-reset"
-      });
-    });
-  });
-</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>${title}</h1>
@@ -92,7 +81,7 @@
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
         <lor:csrf/>
         <input type="hidden" name="topId" value="${topId}"/>
-        <button type="submit">Сбросить</button>
+        <button type="submit">Сбросить все</button>
       </form>
     </c:if>
   </div>
@@ -100,7 +89,11 @@
 
 <div class="notifications">
 <c:forEach var="topic" items="${topicsList}">
-<a href="${topic.link}" class="event-unread-${topic.event.unread} notifications-item">
+<form action="/notifications-click" method="POST">
+  <lor:csrf/>
+  <input type="hidden" name="eventId" value="${topic.lastId}"/>
+  <button type="submit" class="event-unread-${topic.event.unread} notifications-item">
+
   <div class="notifications-type">
     <p>
     <c:choose>
@@ -196,7 +189,8 @@
       </div>
     </c:if>
   </c:if>
-</a>
+</button>
+</form>
 </c:forEach>
 
 </div>

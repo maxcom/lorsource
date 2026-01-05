@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -138,12 +138,18 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     userEventDao.getRepliesForUser(user.getId, showPrivate, topics, offset, eventFilterType)
   }
 
-  /**
+  def getEvent(id: Int): UserEvent = userEventDao.getEvent(id)
+
+   /**
    * Сброс уведомлений.
    *
    * @param user пользователь которому сбрасываем
    */
-  def resetUnreadReplies(user: User, topId: Int): Unit = userEventDao.resetUnreadReplies(user.getId, topId)
+  def resetUnreadEvents(user: User, topId: Int, eventType: Option[UserEventFilterEnum] = None): Unit =
+    userEventDao.resetUnreadEvents(user.getId, topId, eventType)
+  def resetSingleEvent(user: User, eventId: Int): Unit = userEventDao.resetSingle(user.getId, eventId)
+  def resetUnreadEvents(user: User, topId: Int, topicId: Int, eventType: UserEventFilterEnum): Unit =
+    userEventDao.resetUnreadEvents(user.getId, topId, topicId, eventType)
 
   /**
    * Удаление уведомлений, относящихся к удаленным топикам

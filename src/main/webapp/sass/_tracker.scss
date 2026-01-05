@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -458,26 +458,32 @@ $grid_padding: 0.4em;
   width: 100%;
   margin-bottom: 1em;
   border-collapse: collapse;
+
+  form {
+    border-top: 1px solid $table_border_color;
+    border-right: 1px solid $table_border_color;
+    border-left: 1px solid $table_border_color;
+
+    &:last-of-type {
+      border-bottom: 1px solid;
+      border-color: $table_border_color;
+    }
+  }
 }
 
 .notifications-item {
   display: grid;
   grid-template-columns: 3em repeat(11, 1fr);
+  min-height: 3.8em; // wtf?
 
-  border-top: 1px solid $table_border_color;
-  border-right: 1px solid $table_border_color;
-  border-left: 1px solid $table_border_color;
-
-  padding-top: $grid_padding;
-  padding-bottom: $grid_padding;
+  padding: $grid_padding 0;
   background: $table_background_color;
+  border: 0;
 
-  min-height: 3em;
-
-  &:last-of-type {
-    border-bottom: 1px solid;
-    border-color: $table_border_color;
-  }
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
 
   p {
     padding-left: $grid_padding;
@@ -574,7 +580,7 @@ $grid_padding: 0.4em;
     color: $text_color;
   }
 
-  &.event-unread-true:visited {
+  &.event-unread-true {
     color: $table_link_color !important;
   }
 

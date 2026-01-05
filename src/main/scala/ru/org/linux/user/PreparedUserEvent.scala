@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters.*
 
 case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option[String], @BeanProperty author: User,
                              bonus: Option[Int], @BeanProperty section: Section,
-                             group: Group, tags: Seq[String], lastId: Int, @BeanProperty date: Timestamp,
+                             group: Group, tags: Seq[String], @BeanProperty lastId: Int, @BeanProperty date: Timestamp,
                              commentId: Int, @BeanProperty count: Int = 1, authors: Set[User],
                              reactions: Seq[ReactionListItem]) {
   def withSimilarFav(event: UserEvent, author: User): PreparedUserEvent = {

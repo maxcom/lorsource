@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,9 +26,11 @@ import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.ReactionDao
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEvent.NoReaction
+import ru.org.linux.user.UserEventDao.QueryById
 import ru.org.linux.user.UserEventFilterEnum.DELETED
 import ru.org.linux.util.StringUtil
 
+import java.sql.ResultSet
 import java.util
 import javax.sql.DataSource
 import scala.collection.mutable
@@ -36,12 +38,25 @@ import scala.jdk.CollectionConverters.*
 
 @Repository
 object UserEventDao {
+  private val QueryById =
+    """
+      |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
+      |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
+      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
+      |  message_warnings.closed_by is not null as closed_warning, user_events.userid
+      |FROM user_events
+      |  INNER JOIN topics ON (topics.id = message_id)
+      |  LEFT JOIN comments ON (comments.id=comment_id)
+      |  LEFT JOIN message_warnings ON (message_warnings.id=warning_id)
+      |WHERE user_events.id = ?
+      |""".stripMargin
+
   private val QueryAll =
     """
       |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
       |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
       |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
-      |  message_warnings.closed_by is not null as closed_warning
+      |  message_warnings.closed_by is not null as closed_warning, user_events.userid
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
@@ -55,7 +70,7 @@ object UserEventDao {
       |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
       |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
       |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
-      |  false as closed_warning
+      |  false as closed_warning, user_events.userid
       |FROM user_events
       |  INNER JOIN topics ON (topics.id = message_id)
       |  LEFT JOIN comments ON (comments.id=comment_id)
@@ -141,8 +156,35 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @param userId идентификационный номер пользователь которому сбрасываем
    * @param topId  сбрасываем уведомления с идентификатором не больше этого
    */
-  def resetUnreadReplies(userId: Int, topId: Int): Unit = transactional() { _ =>
-    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=?", userId, topId)
+  def resetUnreadEvents(userId: Int, topId: Int, eventType: Option[UserEventFilterEnum]): Unit = transactional() { _ =>
+    eventType match {
+      case Some(eventType) =>
+        jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=? " +
+          "AND type = ?::event_type",
+          userId, topId, eventType.getType)
+      case None =>
+        jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=?", userId, topId)
+    }
+
+    recalcEventCount(Seq(userId))
+  }
+
+  def resetUnreadEvents(userId: Int, topId: Int, topicId: Int, eventType: UserEventFilterEnum): Unit = transactional() { _ =>
+    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=? " +
+      "AND type = ?::event_type AND message_id = ?",
+      userId, topId, eventType.getType, topicId)
+
+    recalcEventCount(Seq(userId))
+  }
+
+  /**
+   * Сброс уведомлений.
+   *
+   * @param userId идентификационный номер пользователь которому сбрасываем
+   * @param topId  сбрасываем уведомления с идентификатором не больше этого
+   */
+  def resetSingle(userId: Int, eventId: Int): Unit = transactional() { _ =>
+    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id=?", userId, eventId)
     recalcEventCount(Seq(userId))
   }
 
@@ -193,6 +235,12 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     count
   }
 
+  def getEvent(id: Int): UserEvent = {
+    jdbcTemplate.queryForObjectAndMap(QueryById, id) { (resultSet, _) =>
+      toUserEvent(resultSet)
+    }.get
+  }
+
   /**
    * Получить список уведомлений для пользователя.
    *
@@ -218,35 +266,39 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     }
 
     jdbcTemplate.queryAndMap(queryString, userId, topics, offset) { (resultSet, _) =>
-      val subj = StringUtil.makeTitle(resultSet.getString("subj"))
-      val eventDate = resultSet.getTimestamp("event_date")
-      val cid = resultSet.getInt("cid")
-
-      val cAuthor = if (!resultSet.wasNull) {
-        resultSet.getInt("cAuthor")
-      } else {
-        0
-      }
-
-      val groupId = resultSet.getInt("groupid")
-      val msgid = resultSet.getInt("msgid")
-      val `type` = UserEventFilterEnum.valueOfByType(resultSet.getString("type"))
-      val eventMessage = resultSet.getString("ev_msg")
-      val unread = resultSet.getBoolean("unread")
-
-      val originUser = resultSet.getInt("origin_user")
-
-      val reaction = {
-        val topicReactions = resultSet.getString("t_reactions")
-        val commentReactions = resultSet.getString("c_reactions")
-
-        ReactionDao.parse(Option(commentReactions).getOrElse(topicReactions)).reactions.getOrElse(originUser, NoReaction)
-      }
-
-      UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread,
-        resultSet.getInt("tAuthor"), resultSet.getInt("id"),
-        originUser, reaction, resultSet.getBoolean("closed_warning"))
+      toUserEvent(resultSet)
     }
+  }
+
+  private def toUserEvent(resultSet: ResultSet): UserEvent = {
+    val subj = StringUtil.makeTitle(resultSet.getString("subj"))
+    val eventDate = resultSet.getTimestamp("event_date")
+    val cid = resultSet.getInt("cid")
+
+    val cAuthor = if (!resultSet.wasNull) {
+      resultSet.getInt("cAuthor")
+    } else {
+      0
+    }
+
+    val groupId = resultSet.getInt("groupid")
+    val msgid = resultSet.getInt("msgid")
+    val `type` = UserEventFilterEnum.valueOfByType(resultSet.getString("type"))
+    val eventMessage = resultSet.getString("ev_msg")
+    val unread = resultSet.getBoolean("unread")
+
+    val originUser = resultSet.getInt("origin_user")
+
+    val reaction = {
+      val topicReactions = resultSet.getString("t_reactions")
+      val commentReactions = resultSet.getString("c_reactions")
+
+      ReactionDao.parse(Option(commentReactions).getOrElse(topicReactions)).reactions.getOrElse(originUser, NoReaction)
+    }
+
+    UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread,
+      resultSet.getInt("tAuthor"), resultSet.getInt("id"),
+      originUser, reaction, resultSet.getBoolean("closed_warning"), resultSet.getInt("userid"))
   }
 
   def deleteTopicEvents(topics: Seq[Int]): collection.Seq[Int] = {
