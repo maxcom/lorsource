@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -509,6 +509,20 @@ $(document).ready(function() {
     })
   }
 
+  function initNotificationsOpener() {
+    $('button.notifications-item').on('click', function(event) {
+      if (event.ctrlKey || event.metaKey || event.shiftKey) {
+        $(this).parent().attr('target', '_blank');
+      } else {
+        $(this).parent().removeAttr('target');
+      }
+    });
+    $('button.notifications-item').on('auxclick', function(event) {
+      $(this).parent().attr('target', '_blank');
+      $(this).parent().submit();
+    });
+  }
+
   initCtrlEnter();
 
   initSamepageCommentNavigation();
@@ -521,6 +535,8 @@ $(document).ready(function() {
 
   initCodeSpoilers();
   initReactionsUI();
+
+  initNotificationsOpener();
 
   // fix images on Pale Moon
   $('.medium-image-container').each(function() {
