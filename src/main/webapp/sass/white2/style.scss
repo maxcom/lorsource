@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,6 +33,7 @@ $table_link_color: $a_color;
 $text_color: $a_visit_color; // hack for new tracker
 $table_hover_background: #FFDDFF;
 $table_background_color: $nav_back;
+$unread_marker_color: #00A;
 
 body {
     font-family: sans-serif;

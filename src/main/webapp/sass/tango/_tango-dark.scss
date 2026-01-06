@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -43,6 +43,7 @@
   --tagpage-group-label-background: #8f5902;
 
   --icon-reply-color: #729fcf;
+  --unread-marker-color: #729fcf;
   --icon-pin-color: #e9b96e;
 
   --preview-border-color: #c4a000;
@@ -61,6 +62,7 @@ $table_header_color: $text_color;
 $table_link_color: var(--table-link-color);
 $table_hover_background: var(--table-hover-background);
 $table_background_color: $main_background;
+$unread_marker_color: var(--unread-marker-color);
 
 $tag_color: var(--tag-color);
 $main_menu_color: var(--main-menu-color);

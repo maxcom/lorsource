@@ -479,6 +479,9 @@ $grid_padding: 0.4em;
   padding: $grid_padding 0;
   background: $table_background_color;
   border: 0;
+  border-left: 0.5em;
+  border-left-style: solid;
+  border-left-color: $table_background_color;
 
   width: 100%;
   text-align: left;
@@ -567,6 +570,7 @@ $grid_padding: 0.4em;
 
   &:hover {
     background-color: $table_hover_background;
+    border-left-color: $table_hover_background;
   }
 
   text-decoration: none;
@@ -582,6 +586,8 @@ $grid_padding: 0.4em;
 
   &.event-unread-true {
     color: $table_link_color !important;
+    border-left-style: solid;
+    border-left-color: $unread-marker-color;
   }
 
   @include respond-to(tablet-and-desktops) {

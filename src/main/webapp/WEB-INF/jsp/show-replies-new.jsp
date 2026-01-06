@@ -120,7 +120,6 @@
     <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
     <l:title>${topic.event.subj}</l:title>
     (${topic.section.name})
-    <c:if test="${topic.event.unread}">&nbsp;&bull;</c:if>
     </p>
   </div>
 
