@@ -516,8 +516,11 @@ $(document).ready(function() {
       } else {
         $(this).parent().removeAttr('target');
       }
+
+      $(this).removeClass("event-unread-true").addClass("event-unread-false");
     });
     $('button.notifications-item').on('auxclick', function(event) {
+      $(this).removeClass("event-unread-true").addClass("event-unread-false");
       $(this).parent().attr('target', '_blank');
       $(this).parent().submit();
     });
