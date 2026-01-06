@@ -40,6 +40,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
             MatchQuery("message", queryText).minimumShouldMatch("2")))
         .should(
           matchPhraseQuery("message", queryText),
+          matchPhraseQuery("title", queryText),
           MatchQuery("message.raw", queryText).minimumShouldMatch("2")
         ).minimumShouldMatch(0)
     }
