@@ -81,7 +81,7 @@
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
         <lor:csrf/>
         <input type="hidden" name="topId" value="${topId}"/>
-        <button type="submit">Сбросить все</button>
+        <button class="btn-small" type="submit">Сбросить все</button>
       </form>
     </c:if>
   </div>
