@@ -22,6 +22,7 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.spring.dao.DeleteInfoDao
+import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
 import scala.annotation.tailrec
@@ -40,7 +41,7 @@ class DeletedCommentController(deleteInfoDao: DeleteInfoDao, commentReadService:
     if (topicPermissionService.canViewDeletedComment(topic, comment, deleteInfo)) {
       val preparedComment = commentPrepareService.prepareCommentOnly(comment, topic, Set.empty)
 
-      val chain = if (deleteInfo.reason.startsWith("7.1 ")) {
+      val chain = if (deleteInfo.reason.startsWith("7.1 ") && topic.postscore != POSTSCORE_HIDE_COMMENTS) {
         loadChain(comment, List.empty)
       } else {
         Seq.empty
