@@ -42,7 +42,7 @@ class DeletedCommentController(deleteInfoDao: DeleteInfoDao, commentReadService:
       val preparedComment = commentPrepareService.prepareCommentOnly(comment, topic, Set.empty)
 
       val chain = if (deleteInfo.reason.startsWith("7.1 ")) {
-        loadChain(comment, Chain.empty)
+        loadChain(comment, Chain.empty).reverse
       } else {
         Seq.empty
       }

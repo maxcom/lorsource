@@ -29,21 +29,26 @@
 </nav>
 
 <div class=messages>
+
+  <c:forEach var="comment" items="${chain}">
+    <h2>Ответ на:</h2>
+
     <lor:comment
             commentsAllowed="false"
             showMenu="false"
             comment="${comment}"
             topic="${topic}"/>
+  </c:forEach>
 
-<c:forEach var="comment" items="${chain}">
-  <h2>Ответ на:</h2>
+  <c:if test="${not empty chain}">
+    <h2>Удаленный комментарий:</h2>
+  </c:if>
 
   <lor:comment
           commentsAllowed="false"
           showMenu="false"
           comment="${comment}"
           topic="${topic}"/>
-</c:forEach>
 
 </div>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
