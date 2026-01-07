@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,7 +32,6 @@ import ru.org.linux.user.{IgnoreListDao, UserErrorException, UserService}
 import java.util
 import scala.collection.Seq
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOptional
 
 @Controller
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentReadService,
@@ -188,7 +187,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val topic = topicDao.getById(comment.topicId)
 
-    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid).toScala
+    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
     if (!permissionService.isUndeletable(topic, comment, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")
@@ -206,7 +205,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
   def undelete(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val comment = commentService.getById(msgid)
     val topic = topicDao.getById(comment.topicId)
-    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid).toScala
+    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
     if (!permissionService.isUndeletable(topic, comment, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")

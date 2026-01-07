@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,6 +24,7 @@ import ru.org.linux.user.User;
 import scala.Option;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -54,8 +55,8 @@ public class DeleteInfoDao {
    * @param id id проверяемого сообщения
    * @return информация о удаленном сообщении
    */
-  public Optional<DeleteInfo> getDeleteInfo(int id) {
-    return Optional.ofNullable(getDeleteInfo(id, false));
+  public Option<DeleteInfo> getDeleteInfo(int id) {
+    return Option.apply(getDeleteInfo(id, false));
   }
 
   /**
@@ -64,6 +65,7 @@ public class DeleteInfoDao {
    * @param forUpdate блокировать запись до конца текущей транзакции (SELECT ... FOR UPDATE)
    * @return информация о удаленном сообщении
    */
+  @Nullable
   public DeleteInfo getDeleteInfo(int id, boolean forUpdate) {
     List<DeleteInfo> list = jdbcTemplate.query(
             forUpdate?QUERY_DELETE_INFO_FOR_UPDATE:QUERY_DELETE_INFO,

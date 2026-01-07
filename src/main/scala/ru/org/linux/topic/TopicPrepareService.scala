@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -86,7 +86,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val section = sectionService.getSection(topic.sectionId)
 
     val deleteInfo = if (topic.deleted) {
-      deleteInfoDao.getDeleteInfo(topic.id).toScala
+      deleteInfoDao.getDeleteInfo(topic.id)
     } else {
       None
     }
@@ -138,7 +138,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
       (userService.getAnonymous.isFrozen || postscore <= 45 &&
         postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED)
 
-    val postscoreInfo = if (!topic.isExpired) {
+    val postscoreInfo = if (!topic.expired) {
       TopicPermissionService.getPostScoreInfo(postscore)
     } else {
       ""

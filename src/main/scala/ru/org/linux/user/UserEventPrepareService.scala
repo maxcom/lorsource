@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,8 +22,6 @@ import ru.org.linux.reaction.ReactionListItem
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicTagService
-
-import scala.jdk.OptionConverters.RichOptional
 
 @Service
 class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: MessageTextService, userService: UserService,
@@ -97,7 +95,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
     (if ("DEL" == event.eventType.getType) {
       val msgid = if (event.isComment) event.cid else event.topicId
 
-      deleteInfoDao.getDeleteInfo(msgid).toScala
+      deleteInfoDao.getDeleteInfo(msgid)
     } else {
       None
     }).map(_.getBonus)

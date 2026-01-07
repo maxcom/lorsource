@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ import com.google.common.base.Preconditions
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
-import ru.org.linux.auth.{AccessViolationException, AnySession}
+import ru.org.linux.auth.{AccessViolationException, AnySession, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MarkupType
@@ -34,7 +34,6 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.MapHasAsJava
-import scala.jdk.OptionConverters.RichOptional
 
 object TopicPermissionService {
   // константы используются в jsp!
@@ -48,7 +47,7 @@ object TopicPermissionService {
   private val LinkFollowMinScore = 100
   private val ViewDeletedScore = 100
   private val DeletePeriod = Duration.standardHours(3)
-  private val ViewAfterDeleteDays = 14 // для топика
+  private val ViewAfterDeleteDays = 14
 
   def getPostScoreInfo(postscore: Int): String = postscore match {
     case POSTSCORE_UNRESTRICTED =>
@@ -100,7 +99,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
           message.postscore == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
           message.postscore == POSTSCORE_HIDE_COMMENTS
 
-      val userAllowed = currentUser.userOpt.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= 50)
+      val userAllowed = currentUser.userOpt.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= 100)
 
       !topicForbidden && userAllowed && (deleteInfoDao.scoreLoss(message.id) < 150)
     } else {
@@ -134,7 +133,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         }
 
         if (!viewByAuthor) {
-          val deleteExpire = deleteInfoDao.getDeleteInfo(message.id).toScala.map(_.delDate).map(_.toInstant)
+          val deleteExpire = deleteInfoDao.getDeleteInfo(message.id).map(_.delDate).map(_.toInstant)
             .forall(_.isBefore(Instant.now.minus(TopicPermissionService.ViewAfterDeleteDays, ChronoUnit.DAYS)))
 
           if (deleteExpire) {
@@ -460,5 +459,11 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     !topic.deleted && !topic.expired && !topic.draft && comment.forall(!_.deleted) && currentUserOpt.opt.exists { user =>
       user.user.getScore >= 50 && !user.user.isFrozen
     }
+  }
+
+  def canViewDeletedComment(comment: Comment, deleteInfo: DeleteInfo)(implicit currentUser: AuthorizedSession): Boolean = {
+    currentUser.moderator ||
+      (currentUser.user.getId == comment.userid &&
+        deleteInfo.delDate.toInstant.isAfter(Instant.now.minus(TopicPermissionService.ViewAfterDeleteDays, ChronoUnit.DAYS)))
   }
 }

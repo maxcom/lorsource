@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,6 @@ import ru.org.linux.user.{User, UserPermissionService}
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.annotation.Nullable
-import scala.jdk.OptionConverters.RichOptional
 
 @Service
 object GroupPermissionService {
@@ -67,7 +66,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       } else if (!topic.expired) {
         true
       } else {
-        deleteInfoDao.getDeleteInfo(topic.id).toScala
+        deleteInfoDao.getDeleteInfo(topic.id)
           .filter(_.delDate != null)
           .map(_.delDate.toInstant)
           .exists(_.isAfter(Instant.now.minus(14, ChronoUnit.DAYS)))

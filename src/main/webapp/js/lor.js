@@ -295,7 +295,7 @@ function tag_memories_form_setup(tag, csrf_token) {
 function replace_state() {
   if (typeof (history.replaceState) !== 'function') return;
 
-  if (document.location.hash.indexOf('#comment-') === 0) {
+  if (document.location.hash.indexOf('#comment-') === 0 && !document.location.pathname.startsWith("/view-deleted")) {
     // Yes, we are viewing a comment
 
     // exit if no such target
