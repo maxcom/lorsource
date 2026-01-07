@@ -21,12 +21,11 @@ import org.springframework.web.bind.annotation.{RequestMapping, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
+import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
 import scala.annotation.tailrec
-import scala.collection.immutable.VectorBuilder
 import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
 
 @Controller
@@ -39,7 +38,7 @@ class DeletedCommentController(deleteInfoDao: DeleteInfoDao, commentReadService:
     val comment = commentReadService.getById(id)
     val topic = topicDao.getById(comment.topicId)
 
-    if (topicPermissionService.canViewDeletedComment(comment, deleteInfo)) {
+    if (topicPermissionService.canViewDeletedComment(topic, comment, deleteInfo)) {
       val preparedComment = commentPrepareService.prepareCommentOnly(comment, topic, Set.empty)
 
       val chain = if (deleteInfo.reason.startsWith("7.1 ")) {
