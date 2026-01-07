@@ -15,7 +15,6 @@
 
 package ru.org.linux.comment
 
-import cats.data.Chain
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestParam}
 import org.springframework.web.servlet.ModelAndView
@@ -42,7 +41,7 @@ class DeletedCommentController(deleteInfoDao: DeleteInfoDao, commentReadService:
       val preparedComment = commentPrepareService.prepareCommentOnly(comment, topic, Set.empty)
 
       val chain = if (deleteInfo.reason.startsWith("7.1 ")) {
-        loadChain(comment, Chain.empty).reverse
+        loadChain(comment, List.empty)
       } else {
         Seq.empty
       }
@@ -60,23 +59,23 @@ class DeletedCommentController(deleteInfoDao: DeleteInfoDao, commentReadService:
   }
 
   @tailrec
-  private def loadChain(comment: Comment, acc: Chain[Comment]): Seq[Comment] = {
+  private def loadChain(comment: Comment, acc: List[Comment]): Seq[Comment] = {
     if (comment.replyTo != 0) {
       val parent = commentReadService.getById(comment.replyTo)
-      val withParent = acc :+ parent
+      val withParent = parent :: acc
 
       if (parent.deleted) {
         deleteInfoDao.getDeleteInfo(parent.id) match {
           case Some(parentDelInfo) if parentDelInfo.reason.startsWith("7.1 ") =>
             loadChain(parent, withParent)
           case _ =>
-            withParent.toVector
+            withParent
         }
       } else {
-        withParent.toVector
+        withParent
       }
     } else {
-      acc.toVector
+      acc
     }
   }
 }
