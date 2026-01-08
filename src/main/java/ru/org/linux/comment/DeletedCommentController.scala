@@ -38,7 +38,7 @@ class DeletedCommentController(deleteInfoDao: DeleteInfoDao, commentReadService:
     val comment = commentReadService.getById(id)
     val topic = topicDao.getById(comment.topicId)
 
-    if (topicPermissionService.canViewDeletedComment(topic, comment, deleteInfo)) {
+    if (topicPermissionService.canViewDeletedComment(comment, deleteInfo)) {
       val preparedComment = commentPrepareService.prepareCommentOnly(comment, topic, Set.empty)
 
       val chain = if (deleteInfo.reason.startsWith("7.1 ") && topic.postscore != POSTSCORE_HIDE_COMMENTS) {

@@ -461,9 +461,8 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
   }
 
-  def canViewDeletedComment(topic: Topic, comment: Comment, deleteInfo: DeleteInfo)(implicit currentUser: AuthorizedSession): Boolean = {
-    currentUser.user.isAdministrator ||
-      (currentUser.moderator && !topic.expired) ||
+  def canViewDeletedComment(comment: Comment, deleteInfo: DeleteInfo)(implicit currentUser: AuthorizedSession): Boolean = {
+    currentUser.moderator ||
       (currentUser.user.getId == comment.userid && !currentUser.user.isFrozen &&
         deleteInfo.delDate.toInstant.isAfter(Instant.now.minus(TopicPermissionService.ViewAfterDeleteDays, ChronoUnit.DAYS)))
   }
