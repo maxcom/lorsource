@@ -45,7 +45,7 @@
           <s>
         </c:if>
 
-          <a href="/view-deleted?id=${item.commentId}"><l:title>${item.title}</l:title></a>
+          <a href="/view-deleted?id=${item.commentId}#comment-${item.commentId}"><l:title>${item.title}</l:title></a>
 
         <c:if test="${item.topicDeleted}">
           </s>
