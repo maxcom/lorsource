@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,6 +22,8 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.user.{UserNotFoundException, UserService}
 
+import scala.jdk.CollectionConverters.SeqHasAsJava
+
 @Controller
 class ShowCommentsController(userService: UserService, commentService: CommentReadService) {
   @RequestMapping(Array("/show-comments.jsp"))
@@ -37,7 +39,7 @@ class ShowCommentsController(userService: UserService, commentService: CommentRe
     val mv = new ModelAndView("deleted-comments")
 
     mv.getModel.put("user", user)
-    mv.getModel.put("deletedList", commentService.getDeletedComments(user))
+    mv.getModel.put("deletedList", commentService.getDeletedComments(user).asJava)
 
     mv
   }
