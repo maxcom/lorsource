@@ -45,7 +45,13 @@
           <s>
         </c:if>
 
+        <c:if test="${item.deleted}">
           <a href="/view-deleted?id=${item.commentId}#comment-${item.commentId}"><l:title>${item.title}</l:title></a>
+        </c:if>
+
+        <c:if test="${not item.deleted}">
+          <a href="jump-message.jsp?msgid=${item.msgid}&cid=${item.commentId}"><l:title>${item.title}</l:title></a>
+        </c:if>
 
         <c:if test="${item.topicDeleted}">
           </s>
