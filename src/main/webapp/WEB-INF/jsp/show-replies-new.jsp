@@ -91,7 +91,8 @@
 <c:forEach var="topic" items="${topicsList}">
 <form action="/notifications-click" method="POST">
   <lor:csrf/>
-  <input type="hidden" name="eventId" value="${topic.lastId}"/>
+  <input type="hidden" name="lastId" value="${topic.lastId}"/>
+  <input type="hidden" name="firstId" value="${topic.event.id}"/>
   <button type="submit" class="event-unread-${topic.event.unread} notifications-item">
 
   <div class="notifications-type">

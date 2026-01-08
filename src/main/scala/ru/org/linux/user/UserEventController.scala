@@ -47,26 +47,31 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   }
 
   @RequestMapping(value = Array("/notifications-click"), method = Array(RequestMethod.POST))
-  def clickNotifications(@RequestParam eventId: Int): RedirectView = AuthorizedOnly { currentUser =>
-    val event = userEventService.getEvent(eventId)
-    if (currentUser.user.getId != event.userId) {
+  def clickNotifications(@RequestParam firstId: Int, @RequestParam lastId: Int): RedirectView = AuthorizedOnly { currentUser =>
+    val firstEvent = userEventService.getEvent(firstId)
+    if (currentUser.user.getId != firstEvent.userId) {
       throw new AccessViolationException("event owner does not match")
     }
 
-    if (event.unread) {
-      if (event.eventType == UserEventFilterEnum.FAVORITES || event.eventType == UserEventFilterEnum.REACTION) {
-        userEventService.resetUnreadEvents(currentUser.user, event.id, event.topicId, event.eventType)
+    val lastEvent = userEventService.getEvent(lastId)
+    if (currentUser.user.getId != lastEvent.userId) {
+      throw new AccessViolationException("event owner does not match")
+    }
+
+    if (lastEvent.unread) {
+      if (lastEvent.eventType == UserEventFilterEnum.FAVORITES || lastEvent.eventType == UserEventFilterEnum.REACTION) {
+        userEventService.resetUnreadEvents(currentUser.user, lastEvent.id, lastEvent.topicId, lastEvent.eventType)
       } else {
-        userEventService.resetSingleEvent(currentUser.user, event.id)
+        userEventService.resetSingleEvent(currentUser.user, lastEvent.id)
       }
 
       RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.getId))
     }
 
 
-    val preparedEvent = prepareService.prepareSimple(Seq(event), withText = false).head
+    val preparedFirstEvent = prepareService.prepareSimple(Seq(firstEvent), withText = false).head
 
-    val view = new RedirectView(preparedEvent.getLink)
+    val view = new RedirectView(preparedFirstEvent.getLink)
     view.setExposeModelAttributes(false)
     view
   }

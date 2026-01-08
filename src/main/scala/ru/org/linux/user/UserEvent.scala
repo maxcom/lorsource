@@ -23,9 +23,9 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 case class UserEvent(@BeanProperty cid: Int, commentAuthor: Int, groupId: Int,
                      @BeanProperty subj: String, @BeanProperty topicId: Int,
                      @BeanProperty eventType: UserEventFilterEnum, @BeanProperty eventMessage: String,
-                     @BeanProperty eventDate: Timestamp, @BeanProperty unread: Boolean, topicAuthor: Int, id: Int,
-                     originUserId: Int, @BeanProperty reaction: String, @BooleanBeanProperty closedWarning: Boolean,
-                     userId: Int) {
+                     @BeanProperty eventDate: Timestamp, @BeanProperty unread: Boolean, topicAuthor: Int,
+                     @BeanProperty id: Int, originUserId: Int, @BeanProperty reaction: String,
+                     @BooleanBeanProperty closedWarning: Boolean, userId: Int) {
   def isComment: Boolean = cid > 0
 }
 
