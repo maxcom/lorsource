@@ -25,7 +25,12 @@
 <h1>Просмотр удаленного комментария</h1>
 
 <nav>
-  <a class="btn btn-default" href="/view-message.jsp?msgid=${topic.id}">Перейти в топик</a></li>
+<c:if test="${template.moderatorSession}">
+  <a class="btn btn-default" href="${topic.link}?cid=${comment.id}">Перейти в топик</a></li>
+</c:if>
+<c:if test="${not template.moderatorSession}">
+  <a class="btn btn-default" href="${topic.link}">Перейти в топик</a></li>
+</c:if>
 </nav>
 
 <div class=messages>
