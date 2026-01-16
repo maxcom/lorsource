@@ -26,7 +26,7 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED}
+import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED, ViewDeletedScore}
 import ru.org.linux.user.{User, UserPermissionService, UserService}
 import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
@@ -45,7 +45,7 @@ object TopicPermissionService {
   val POSTSCORE_REGISTERED_ONLY: Int = -50
 
   private val LinkFollowMinScore = 100
-  private val ViewDeletedScore = 100
+  private val ViewDeletedScore = 200
   private val DeletePeriod = Duration.standardHours(3)
   private val ViewAfterDeleteDays = 14
 
@@ -99,7 +99,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
           message.postscore == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
           message.postscore == POSTSCORE_HIDE_COMMENTS
 
-      val userAllowed = currentUser.userOpt.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= 100)
+      val userAllowed = currentUser.userOpt.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= ViewDeletedScore)
 
       !topicForbidden && userAllowed && (deleteInfoDao.scoreLoss(message.id) < 150)
     } else {
