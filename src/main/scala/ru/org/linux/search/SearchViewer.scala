@@ -48,7 +48,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
 
   private def boost(query: Query) = {
     functionScoreQuery(query).functions(
-      WeightScore(TopicBoost).filter(termQuery("is_comment", "false")),
+//      WeightScore(TopicBoost).filter(termQuery("is_comment", "false")),
       WeightScore(RecentBoost).filter(rangeQuery("postdate").gte("now/d-3y"))
     )
   }
