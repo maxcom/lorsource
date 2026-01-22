@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,7 +22,7 @@ sealed trait SearchOrder {
   def name: String
   def id: String
 
-  def order: Sort
+  def order: Seq[Sort]
 }
 
 object SearchOrder {
@@ -30,21 +30,21 @@ object SearchOrder {
     override val name = "по релевантности"
     override val id = "RELEVANCE"
 
-    override def order: Sort = scoreSort(SortOrder.DESC)
+    override def order: Seq[Sort] = Seq(scoreSort(SortOrder.DESC), fieldSort("postdate") order SortOrder.DESC)
   }
 
   case object Date extends SearchOrder {
     override val name = "по дате: от новых к старым"
     override val id = "DATE"
 
-    override def order: Sort = fieldSort("postdate") order SortOrder.DESC
+    override def order: Seq[Sort] = Seq(fieldSort("postdate") order SortOrder.DESC)
   }
 
   case object DateReverse extends SearchOrder {
     override val name = "по дате: от старых к новым"
     override val id = "DATE_OLD_TO_NEW"
 
-    override def order: Sort = fieldSort("postdate") order SortOrder.ASC
+    override def order: Seq[Sort] = Seq(fieldSort("postdate") order SortOrder.ASC)
   }
 
   val values: Seq[SearchOrder] = Seq(Relevance, Date, DateReverse)
