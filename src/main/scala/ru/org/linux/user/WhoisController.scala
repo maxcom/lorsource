@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -46,7 +46,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
                       topicDao: TopicDao, userPermissionService: UserPermissionService,
                       deleteInfoDao: DeleteInfoDao) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def getInfoNew(@PathVariable nick: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
+  def getInfoNew(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
 
     if (user.isBlocked && !currentUserOpt.authorized) {
@@ -134,7 +134,9 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
       val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator).asScala
       if (logItems.nonEmpty) {
-        mv.addObject("userlog", userLogPrepareService.prepare(logItems).asJava)
+        val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
+
+        mv.addObject("userlog", userLogPrepareService.prepare(logItems, timezone).asJava)
       }
 
       mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))

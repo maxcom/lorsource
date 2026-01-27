@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -27,10 +27,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-import java.sql.Timestamp;
 import java.util.Optional;
 
 @Repository
@@ -49,6 +49,7 @@ public class UserLogDao {
   public static final String OPTION_USER_AGENT = "user_agent";
   public static final String OPTION_INVITED_BY = "invited_by";
   public static final String OPTION_ACCEPT_LANGUAGE = "accept_lang";
+  public static final String OPTION_UNTIL = "until";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -109,17 +110,19 @@ public class UserLogDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
-  public void logFreezeUser(@Nonnull User user, @Nonnull User moderator,  
-    @Nonnull String reason, @Nonnull Timestamp until) {
-
-    Timestamp     now = new Timestamp(System.currentTimeMillis());
-    UserLogAction action = UserLogAction.FROZEN;
+  public void logFreezeUser(User user, User moderator, String reason, Instant until) {
+    UserLogAction action;
+    Map<String, String> options;
 
     // the action may be not consistent with database (e.g. with real action)
     // if the 'until' is close to the now, but we don't have to worry about it,
     // since, it's not about real use cases
-    if (until.before(now)) {
-        action = UserLogAction.DEFROSTED;
+    if (until.isBefore(Instant.now())) {
+      action = UserLogAction.DEFROSTED;
+      options = ImmutableMap.of(OPTION_REASON, reason);
+    } else {
+      action = UserLogAction.FROZEN;
+      options = ImmutableMap.of(OPTION_REASON, reason, OPTION_UNTIL, until.toString());
     }
 
     jdbcTemplate.update(
@@ -127,7 +130,7 @@ public class UserLogDao {
             user.getId(),
             moderator.getId(),
             action.toString(),
-            ImmutableMap.of(OPTION_REASON, reason)
+            options
     );
   }
 

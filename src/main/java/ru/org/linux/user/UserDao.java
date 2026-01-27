@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -400,15 +400,12 @@ public class UserDao {
    * @param until до каких пор ему быть замороженным, если указано прошлое,
    *              то пользователь будет разморожен
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   @CacheEvict(value="Users", key="#user.id")
-  public void freezeUser(@Nonnull User user, @Nonnull User moderator, 
-    @Nonnull String reason, @Nonnull Timestamp until) {
+  public void freezeUser(User user, User moderator, String reason, Timestamp until) {
 
     jdbcTemplate.update(
       "UPDATE users SET frozen_until=?,frozen_by=?,freezing_reason=? WHERE id=?",
        until, moderator.getId(), reason, user.getId());
-    userLogDao.logFreezeUser(user, moderator, reason, until);
   }
 
   /**

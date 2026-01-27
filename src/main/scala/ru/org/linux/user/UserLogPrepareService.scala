@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,12 +14,14 @@
  */
 package ru.org.linux.user
 
+import org.joda.time.DateTimeZone
 import org.springframework.stereotype.Service
+import ru.org.linux.site.DateFormats
 import ru.org.linux.spring.dao.UserAgentDao
-
 import ru.org.linux.user.UserLogDao.*
 import ru.org.linux.util.StringUtil.escapeHtml
 
+import java.time.Instant
 import scala.jdk.CollectionConverters.{MapHasAsJava, MapHasAsScala}
 
 object UserLogPrepareService {
@@ -30,12 +32,13 @@ object UserLogPrepareService {
         OPTION_OLD_EMAIL -> "Старый email",
         OPTION_OLD_INFO -> "Старый текст информации",
         OPTION_OLD_USERPIC -> "Старая фотография",
-        OPTION_REASON -> "Причина")
+        OPTION_REASON -> "Причина",
+        OPTION_UNTIL -> "Срок действия")
 }
 
 @Service
 class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao) {
-  def prepare(items: collection.Seq[UserLogItem]): Seq[PreparedUserLogItem] = {
+  def prepare(items: collection.Seq[UserLogItem], timezone: DateTimeZone): Seq[PreparedUserLogItem] = {
     items.view.map((item: UserLogItem) => {
       val options = for ((rawKey, rawValue) <- item.getOptions.asScala) yield {
         val key = UserLogPrepareService.OptionDescription.getOrElse(rawKey, escapeHtml(rawKey))
@@ -57,6 +60,10 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
             } else {
               escapeHtml("<нет>")
             }
+          case OPTION_UNTIL =>
+            val until = Instant.parse(rawValue);
+
+            DateFormats.getDefault(timezone).print(until.toEpochMilli)
           case _ =>
             escapeHtml(rawValue)
         }
