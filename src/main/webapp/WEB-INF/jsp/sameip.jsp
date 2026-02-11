@@ -3,7 +3,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -126,7 +126,7 @@
               dataType: 'json',
               success: function (json) {
                   if (json.success) {
-                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city + " (" + json.org + ")")
+                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city + " (" + json.connection.org + ")")
                   } else {
                       $('#geolookup').text("rejected - " + json.message)
                   }
