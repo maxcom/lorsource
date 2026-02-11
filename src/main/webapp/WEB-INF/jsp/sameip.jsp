@@ -122,7 +122,7 @@
           $.ajax({
               method: 'GET',
               contentType: 'application/json',
-              url: 'https://ipwhois.app/json/${ip}',
+              url: 'https://ipwho.is/${ip}',
               dataType: 'json',
               success: function (json) {
                   if (json.success) {
