@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -91,7 +91,7 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
           captchaRequired = false
       }
 
-      ipBlockDao.blockIP(ip, moderator.getId, reason, banTo.orNull, allowPosting, captchaRequired)
+      ipBlockDao.blockIP(ip, moderator.getId, reason, banTo, allowPosting, captchaRequired)
     }
 
     val deleteResult = commentDeleteService.deleteByIPAddress(ip, ts, reason)

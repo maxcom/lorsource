@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,7 +36,7 @@ class BlackListUpdater(httpClient: SttpBackend[Identity, Any], dao: IPBlockDao,
         logger.debug("Updating TOR exit node list")
 
         body.linesIterator.foreach { ip =>
-          dao.blockIP(ip, 0, "TOR Exit Node", OffsetDateTime.now().plusMonths(1), true, false)
+          dao.blockIP(ip, 0, "TOR Exit Node", Some(OffsetDateTime.now().plusMonths(1)), true, false)
         }
       case Left(error) =>
         logger.warn(s"Can't update TOR exit node list: $error")

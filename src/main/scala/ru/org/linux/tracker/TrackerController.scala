@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -106,8 +106,8 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
       params.put("blockedUsers", userService.getRecentlyBlocked.asJava)
       params.put("unBlockedUsers", userService.getRecentlyUnBlocked.asJava)
       params.put("recentUserpics", userService.getRecentUserpics.asJava)
-      params.put("blockedIps", ipBlockDao.getRecentlyBlocked)
-      params.put("unBlockedIps", ipBlockDao.getRecentlyUnBlocked)
+      params.put("blockedIps", ipBlockDao.getRecentlyBlocked.asJava)
+      params.put("unBlockedIps", ipBlockDao.getRecentlyUnBlocked.asJava)
     } else {
       params.put("newUsers", Seq.empty.asJava)
       params.put("frozenUsers", Seq.empty.asJava)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -54,7 +54,7 @@ class BanIPController(ipBlockDao: IPBlockDao) {
       case _ => throw new UserErrorException("Invalid count")
     }
 
-    ipBlockDao.blockIP(ip, moderator.user.getId, reason, banTo.orNull, allowPosting, captchaRequired)
+    ipBlockDao.blockIP(ip, moderator.user.getId, reason, banTo, allowPosting, captchaRequired)
 
     new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, StandardCharsets.UTF_8)))
   }
