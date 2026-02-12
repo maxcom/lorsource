@@ -8,3 +8,7 @@ target
 .idea
 .DS_Store
 docker/db/
+.classpath
+.factorypath
+.project
+.settings/
