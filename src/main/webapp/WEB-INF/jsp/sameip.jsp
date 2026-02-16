@@ -121,14 +121,13 @@
       $script.ready("jquery", function () {
           $.ajax({
               method: 'GET',
-              contentType: 'application/json',
-              url: 'https://ipwho.is/${ip}',
+              url: '/admin/geoip?ip=${ip}',
               dataType: 'json',
               success: function (json) {
-                  if (json.success) {
-                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city + " (" + json.connection.org + ")")
+                  if (json.error) {
+                      $('#geolookup').text("rejected - " + json.error)
                   } else {
-                      $('#geolookup').text("rejected - " + json.message)
+                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city + " (" + json.org + ")")
                   }
               }
           });
