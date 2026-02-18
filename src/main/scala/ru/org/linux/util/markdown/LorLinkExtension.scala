@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package ru.org.linux.util.markdown
 import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.html.renderer.*
 import com.vladsch.flexmark.html.{HtmlRenderer, HtmlWriter}
-import com.vladsch.flexmark.util.options.MutableDataHolder
+import com.vladsch.flexmark.util.data.MutableDataHolder
 import org.apache.commons.httpclient.URIException
 import ru.org.linux.comment.CommentDao
 import ru.org.linux.site.MessageNotFoundException

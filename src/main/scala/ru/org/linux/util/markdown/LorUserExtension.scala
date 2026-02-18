@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,9 +20,9 @@ import java.util.regex.Pattern
 
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{LinkType, NodeRenderer, NodeRenderingHandler}
-import com.vladsch.flexmark.parser.{InlineParser, InlineParserExtension, InlineParserExtensionFactory, Parser}
+import com.vladsch.flexmark.parser.{InlineParser, InlineParserExtension, InlineParserExtensionFactory, LightInlineParser, Parser}
 import com.vladsch.flexmark.util.ast.{DoNotDecorate, Node}
-import com.vladsch.flexmark.util.options.MutableDataHolder
+import com.vladsch.flexmark.util.data.MutableDataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import ru.org.linux.user.UserService
 import ru.org.linux.util.formatter.ToHtmlFormatter
@@ -55,7 +55,7 @@ object LorUserParserExtension {
 
     override def getBeforeDependents: util.Set[? <: Class[?]] = null
 
-    override def create(inlineParser: InlineParser): LorUserParserExtension = new LorUserParserExtension(inlineParser)
+    override def apply(inlineParser: LightInlineParser): LorUserParserExtension = new LorUserParserExtension(inlineParser)
 
     override def affectsGlobalScope = false
   }
@@ -73,14 +73,14 @@ class LorUser(openingMarker: BasedSequence, text: BasedSequence)
   }
 }
 
-class LorUserParserExtension(val inlineParser: InlineParser) extends InlineParserExtension {
+class LorUserParserExtension(val inlineParser: LightInlineParser) extends InlineParserExtension {
   override def finalizeDocument(inlineParser: InlineParser): Unit = {
   }
 
   override def finalizeBlock(inlineParser: InlineParser): Unit = {
   }
 
-  override def parse(inlineParser: InlineParser): Boolean = {
+  override def parse(inlineParser: LightInlineParser): Boolean = {
     val index = inlineParser.getIndex
 
     val possible = index == 0 || {

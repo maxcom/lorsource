@@ -35,7 +35,7 @@
     <circe.version>0.14.13</circe.version>
     <twemoji.version>16.0.1</twemoji.version>
     <sttp.version>3.11.0</sttp.version>
-    <flexmark.version>0.42.14</flexmark.version>
+    <flexmark.version>0.50.50</flexmark.version>
   </properties>
 
   <dependencies>

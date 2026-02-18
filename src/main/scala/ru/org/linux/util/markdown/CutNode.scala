@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,6 +28,7 @@ class CutNode extends Block with ParagraphContainer with AnchorRefTarget {
   private var closingMarker = BasedSequence.NULL
   private var closingTrailing = BasedSequence.NULL
   private var anchorRefId = ""
+  private var explicitAnchorRefId = false
 
   override def getAstExtra(out: java.lang.StringBuilder): Unit = {
     Node.segmentSpanChars(out, openingMarker, "open")
@@ -57,4 +58,8 @@ class CutNode extends Block with ParagraphContainer with AnchorRefTarget {
   override def getAnchorRefId: String = anchorRefId
 
   override def setAnchorRefId(anchorRefId: String): Unit = this.anchorRefId = anchorRefId
+
+  override def isExplicitAnchorRefId: Boolean = explicitAnchorRefId
+
+  override def setExplicitAnchorRefId(explicit: Boolean): Unit = this.explicitAnchorRefId = explicit
 }

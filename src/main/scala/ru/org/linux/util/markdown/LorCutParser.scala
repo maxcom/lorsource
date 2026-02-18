@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import java.util.regex.Pattern
 import com.vladsch.flexmark.parser.InlineParser
 import com.vladsch.flexmark.parser.block.*
 import com.vladsch.flexmark.util.ast.{Block, BlockContent}
-import com.vladsch.flexmark.util.options.DataHolder
+import com.vladsch.flexmark.util.data.DataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import scala.jdk.CollectionConverters.*
 
@@ -36,7 +36,7 @@ object LorCutParser {
 
     override def affectsGlobalScope = false
 
-    override def create(options: DataHolder): BlockFactory = new LorCutParser.BlockFactory(options)
+    override def apply(options: DataHolder): BlockFactory = new LorCutParser.BlockFactory(options)
   }
 
   class BlockFactory(options: DataHolder) extends AbstractBlockParserFactory(options) {
