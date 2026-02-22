@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -320,7 +320,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       oldText
     }
 
-    if (!preview && !errors.hasErrors && ipBlockInfo.isCaptchaRequired) {
+    if (!preview && !errors.hasErrors && ipBlockInfo.captchaRequired) {
       captcha.checkCaptcha(request, errors)
     }
 

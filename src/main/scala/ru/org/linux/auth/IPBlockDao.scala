@@ -29,12 +29,12 @@ class IPBlockDao(ds: DataSource) {
   def getBlockInfo(addr: String): IPBlockInfo = {
     val list = jdbcTemplate.query(
       "SELECT ip, reason, ban_date, date, mod_id, allow_posting, captcha_required FROM b_ips WHERE ip = ?::inet",
-      (rs, _) => new IPBlockInfo(rs),
+      (rs, _) => IPBlockInfo.fromResultSet(rs),
       addr
     )
 
     if (list.isEmpty) {
-      new IPBlockInfo(addr)
+      IPBlockInfo(addr)
     } else {
       list.getFirst
     }
@@ -44,7 +44,7 @@ class IPBlockDao(ds: DataSource) {
               allowPosting: Boolean, captchaRequired: Boolean): Unit = {
     val blockInfo = getBlockInfo(ip)
 
-    if (!blockInfo.isInitialized) {
+    if (!blockInfo.initialized) {
       jdbcTemplate.update(
         "INSERT INTO b_ips (ip, mod_id, date, reason, ban_date, allow_posting, captcha_required)" +
           " VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)",

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -215,7 +215,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       CSRFProtectionService.checkCSRF(request, errors)
     }
 
-    if (!form.isPreviewMode && !errors.hasErrors && !sessionUserOpt.authorized || ipBlockInfo.isCaptchaRequired) {
+    if (!form.isPreviewMode && !errors.hasErrors && !sessionUserOpt.authorized || ipBlockInfo.captchaRequired) {
       captcha.checkCaptcha(request, errors)
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -47,8 +47,8 @@ object UserPermissionService {
   def allowedFormatsJava(user: User): java.util.Set[MarkupType] = allowedFormats(user).asJava
 
   def checkBlockIP(block: IPBlockInfo, errors: Errors, @Nullable user: User): Unit = {
-    if (block.isBlocked && (user == null || user.isAnonymousScore || !block.isAllowRegistredPosting)) {
-      errors.reject(null, "Постинг заблокирован: " + block.getReason)
+    if (block.isBlocked && (user == null || user.isAnonymousScore || !block.isAllowRegisteredPosting)) {
+      errors.reject(null, "Постинг заблокирован: " + block.reason)
     }
   }
 }

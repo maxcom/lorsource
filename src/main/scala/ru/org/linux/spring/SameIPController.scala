@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -116,13 +116,13 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
         var allowPosting = false
         var captchaRequired = true
 
-        if (blockInfo.isInitialized) {
+        if (blockInfo.initialized) {
           mv.getModel.put("blockInfo", blockInfo)
-          allowPosting = blockInfo.isAllowRegistredPosting
-          captchaRequired = blockInfo.isCaptchaRequired
+          allowPosting = blockInfo.isAllowRegisteredPosting
+          captchaRequired = blockInfo.captchaRequired
 
-          if (blockInfo.getModerator != 0) {
-            mv.getModel.put("blockModerator", userService.getUserCached(blockInfo.getModerator))
+          if (blockInfo.moderator != 0) {
+            mv.getModel.put("blockModerator", userService.getUserCached(blockInfo.moderator))
           }
         }
 
