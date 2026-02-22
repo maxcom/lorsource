@@ -18,7 +18,6 @@ package ru.org.linux.util.markdown
 import com.vladsch.flexmark.ast.AnchorRefTarget
 import com.vladsch.flexmark.ast.Paragraph
 import com.vladsch.flexmark.ast.ParagraphContainer
-import com.vladsch.flexmark.ast.util.TextCollectingVisitor
 import com.vladsch.flexmark.util.ast.{Block, Node}
 import com.vladsch.flexmark.util.sequence.BasedSequence
 
@@ -52,8 +51,6 @@ class CutNode extends Block with ParagraphContainer with AnchorRefTarget {
   def setClosingTrailing(closingTrailing: BasedSequence): Unit = this.closingTrailing = closingTrailing
 
   override def getAnchorRefText: String = "cut"
-
-  override def getAnchorRefSegments: Array[BasedSequence] = new TextCollectingVisitor().collectAndGetSegments(this)
 
   override def getAnchorRefId: String = anchorRefId
 

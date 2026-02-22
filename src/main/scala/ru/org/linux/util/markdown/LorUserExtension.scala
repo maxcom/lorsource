@@ -49,11 +49,11 @@ object LorUserParserExtension {
   val LorUser: Pattern = Pattern.compile("^(@)([a-z][a-z_\\d-]{0,80})", Pattern.CASE_INSENSITIVE)
 
   class Factory extends InlineParserExtensionFactory {
-    override def getAfterDependents: util.Set[? <: Class[?]] = null
+    override def getAfterDependents: util.Set[Class[_]] = null
 
     override def getCharacters: String = "@"
 
-    override def getBeforeDependents: util.Set[? <: Class[?]] = null
+    override def getBeforeDependents: util.Set[Class[_]] = null
 
     override def apply(inlineParser: LightInlineParser): LorUserParserExtension = new LorUserParserExtension(inlineParser)
 

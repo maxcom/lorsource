@@ -19,6 +19,7 @@ import com.vladsch.flexmark.ast.FencedCodeBlock
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{CoreNodeRenderer, NodeRenderer, NodeRenderingHandler}
 import com.vladsch.flexmark.util.data.MutableDataHolder
+import com.vladsch.flexmark.util.misc.CharPredicate
 import ru.org.linux.util.bbcode.tags.CodeTag
 
 import java.util
@@ -44,7 +45,7 @@ class FencedCodeRenderer extends NodeRenderer {
 
     val info = node.getInfo
     if (info.isNotNull && !info.isBlank) {
-      val language = node.getInfoDelimitedByAny(" ")
+      val language = node.getInfoDelimitedByAny(CharPredicate.anyOf(" "))
       val clss = CodeTag.langHash.asScala.get(language.unescape)
 
       clss.foreach { v =>

@@ -30,9 +30,9 @@ object LorCutParser {
   private val CutEnd = Pattern.compile("<<<(\\s*$)")
 
   class Factory extends CustomBlockParserFactory {
-    override def getAfterDependents: util.Set[Class[? <: CustomBlockParserFactory]] = null
+    override def getAfterDependents: util.Set[Class[_]] = null
 
-    override def getBeforeDependents: util.Set[Class[? <: CustomBlockParserFactory]] = null
+    override def getBeforeDependents: util.Set[Class[_]] = null
 
     override def affectsGlobalScope = false
 
