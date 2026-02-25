@@ -89,5 +89,7 @@ public class MarkdownFormatterTest {
     assertEquals("@ (linux.org.ru) https://www.linux.org.ru/",
             markdownFormatter.renderToText("[@](https://www.linux.org.ru/)"));
 
+    assertEquals("@ (---) http://#$#@$@QW",
+            markdownFormatter.renderToText("[@](http://#$#@$@QW)"));
   }
 }

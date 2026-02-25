@@ -135,16 +135,21 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
       context.renderChildren(node)
 
       if (node.getText.length() <= 3) {
-        val host = URI.create(resolvedLink.getUrl).getHost
+        try {
+          val host = URI.create(resolvedLink.getUrl).getHost
 
-        if (host != null) {
-          val domain = InternetDomainName.from(host).topPrivateDomain().toString
+          if (host != null) {
+            val domain = InternetDomainName.from(host).topPrivateDomain().toString
 
-          html.text(" (")
-          html.text(domain)
-          html.text(")")
-        } else {
-          html.text(" ---")
+            html.text(" (")
+            html.text(domain)
+            html.text(")")
+          } else {
+            html.text(" (---)")
+          }
+        } catch {
+          case _: IllegalArgumentException | _: IllegalStateException =>
+            html.text(" (---)")
         }
       }
 
