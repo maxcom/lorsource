@@ -15,6 +15,7 @@
 
 package ru.org.linux.util.markdown
 
+import com.google.common.net.InternetDomainName
 import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.html.renderer.*
 import com.vladsch.flexmark.html.{HtmlRenderer, HtmlWriter}
@@ -26,6 +27,8 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.util.LorURL
 
+import java.net.URI
+import java.util
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOptional
 
@@ -42,7 +45,7 @@ class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: C
 
 
 class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends NodeRenderer {
-  override def getNodeRenderingHandlers = Set(new NodeRenderingHandler[AutoLink](classOf[AutoLink], (node, ctx, html) => {
+  private val autolink = new NodeRenderingHandler[AutoLink](classOf[AutoLink], (node, ctx, html) => {
     try {
       val url: LorURL = new LorURL(siteConfig.getMainURI, node.getUrl.toString)
 
@@ -55,7 +58,9 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
       case _: URIException =>
         ctx.delegateRender()
     }
-  })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
+  })
+
+  private val link = new NodeRenderingHandler[Link](classOf[Link], renderLink)
 
   private def renderLorUrl(node: AutoLink, html: HtmlWriter, url: LorURL, ctx: NodeRendererContext): Unit = {
     val canonical = url.canonize(siteConfig.getSecureURI)
@@ -112,4 +117,42 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
       renderLink()
     }
   }
+
+  private def renderLink(node: Link, context: NodeRendererContext, html: HtmlWriter): Unit = {
+    if (context.isDoNotRenderLinks || CoreNodeRenderer.isSuppressedLinkPrefix(node.getUrl, context)) {
+      context.renderChildren(node)
+    } else {
+      var resolvedLink = context.resolveLink(LinkType.LINK, node.getUrl.unescape, null, null)
+      html.attr("href", resolvedLink.getUrl)
+      // we have a title part, use that
+      if (node.getTitle.isNotNull) {
+        resolvedLink = resolvedLink.withTitle(node.getTitle.unescape)
+      }
+
+      html.attr(resolvedLink.getNonNullAttributes)
+      html.srcPos(node.getChars).withAttr(resolvedLink).tag("a")
+
+      context.renderChildren(node)
+
+      if (node.getText.length() <= 3) {
+        val host = URI.create(resolvedLink.getUrl).getHost
+
+        if (host != null) {
+          val domain = InternetDomainName.from(host).topPrivateDomain().toString
+
+          html.text(" (")
+          html.text(domain)
+          html.text(")")
+        } else {
+          html.text(" ---")
+        }
+      }
+
+      html.tag("/a")
+    }
+  }
+
+
+  override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[?]] =
+    Set[NodeRenderingHandler[_]](autolink, link).asJava
 }
