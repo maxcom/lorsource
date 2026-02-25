@@ -19,7 +19,7 @@ import com.vladsch.flexmark.ast.{AutoLink, Link}
 import com.vladsch.flexmark.html.renderer.{AttributablePart, LinkResolverContext}
 import com.vladsch.flexmark.html.{AttributeProvider, HtmlRenderer, IndependentAttributeProviderFactory}
 import com.vladsch.flexmark.util.ast.Node
-import com.vladsch.flexmark.util.html.Attributes
+import com.vladsch.flexmark.util.html.MutableAttributes
 import com.vladsch.flexmark.util.data.MutableDataHolder
 
 class NofollowExtension extends HtmlRenderer.HtmlRendererExtension {
@@ -34,7 +34,7 @@ class NofollowExtension extends HtmlRenderer.HtmlRendererExtension {
 }
 
 class NofollowAttributeProvider extends AttributeProvider {
-  override def setAttributes(node: Node, part: AttributablePart, attributes: Attributes): Unit = {
+  override def setAttributes(node: Node, part: AttributablePart, attributes: MutableAttributes): Unit = {
     node match {
       case _: Link if part == AttributablePart.LINK =>
         attributes.addValue("rel", "nofollow")
