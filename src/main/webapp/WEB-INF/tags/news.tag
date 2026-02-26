@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -12,7 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ tag import="com.google.common.net.InternetDomainName" %>
+<%@ tag import="ru.org.linux.util.URLUtil" %>
 <%@ tag import="ru.org.linux.group.Group" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.topic.Topic" %>
@@ -20,7 +20,6 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.image.ImageInfo" %>
 <%@ tag import="java.io.IOException" %>
-<%@ tag import="java.net.URI" %>
 <%@ tag import="ru.org.linux.spring.SiteConfig" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -134,20 +133,12 @@
   out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
 
   if (moderateMode) {
-    try {
-      String host = URI.create(url).getHost();
+    String shortHost = URLUtil.extractShortHost(url).getOrElse(null);
 
-      if (host != null) {
-        String shortHost = InternetDomainName.from(host).topPrivateDomain().toString();
-
-        out.append(" (" + shortHost + ")");
-      } else {
-        out.append(" (Invalid URL, no host part!)");
-      }
-    } catch (IllegalStateException ex) {
-      out.append(" (" + ex.getMessage() + ")");
-    } catch (IllegalArgumentException ex) {
-      out.append(" (" + ex.getMessage() + ")");
+    if (shortHost != null) {
+      out.append(" (" + shortHost + ")");
+    } else {
+      out.append(" (Invalid URL, no host part!)");
     }
   }
 %>

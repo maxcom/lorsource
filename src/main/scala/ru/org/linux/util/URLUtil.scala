@@ -15,6 +15,9 @@
 
 package ru.org.linux.util
 
+import com.google.common.net.InternetDomainName
+
+import java.net.URI
 import java.util.regex.Pattern
 
 object URLUtil {
@@ -38,4 +41,17 @@ object URLUtil {
   }
 
   def isUrl(x: String): Boolean = IsUrl.matcher(x).matches
+
+  def extractShortHost(url: String): Option[String] = {
+    try {
+      val host = URI.create(url).getHost
+      if (host != null) {
+        Some(InternetDomainName.from(host).topPrivateDomain.toString)
+      } else {
+        None
+      }
+    } catch {
+      case _: IllegalArgumentException | _: IllegalStateException => None
+    }
+  }
 }

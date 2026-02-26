@@ -15,7 +15,6 @@
 
 package ru.org.linux.util.markdown
 
-import com.google.common.net.InternetDomainName
 import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.html.renderer.*
 import com.vladsch.flexmark.html.{HtmlRenderer, HtmlWriter}
@@ -25,7 +24,7 @@ import ru.org.linux.comment.CommentDao
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
-import ru.org.linux.util.LorURL
+import ru.org.linux.util.{LorURL, URLUtil}
 
 import java.net.URI
 import java.util
@@ -135,20 +134,12 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
       context.renderChildren(node)
 
       if (node.getText.length() <= 3) {
-        try {
-          val host = URI.create(resolvedLink.getUrl).getHost
-
-          if (host != null) {
-            val domain = InternetDomainName.from(host).topPrivateDomain().toString
-
+        URLUtil.extractShortHost(resolvedLink.getUrl) match {
+          case Some(domain) =>
             html.text(" (")
             html.text(domain)
             html.text(")")
-          } else {
-            html.text(" (---)")
-          }
-        } catch {
-          case _: IllegalArgumentException | _: IllegalStateException =>
+          case None =>
             html.text(" (---)")
         }
       }
