@@ -16,9 +16,38 @@
 package ru.org.linux.util
 
 import com.google.common.net.InternetDomainName
+import org.apache.commons.httpclient.{URI, URIException}
 
-import java.net.URI
 import java.util.regex.Pattern
+
+class RelaxedURI(url: String) extends URI {
+  protocolCharset = "UTF-8"
+
+  try {
+    parseUriReference(url, true)
+
+    /*
+     * Пытаемся вычислить, что fragment таки не encode
+     */
+    if (_fragment != null) {
+      val fragmentStr = new String(_fragment)
+      val asciiFragment = fragmentStr.replaceAll("[^\\p{ASCII}]", "")
+
+      if (fragmentStr.length != asciiFragment.length) {
+        throw new URIException("error fragment?")
+      }
+    }
+
+    getQuery() // check if we can decode it
+  } catch {
+    case _: URIException =>
+      parseUriReference(url, false)
+  }
+
+  if (_host == null) {
+    throw new URIException("no host")
+  }
+}
 
 object URLUtil {
   private val IsUrl: Pattern = Pattern.compile(
@@ -44,14 +73,14 @@ object URLUtil {
 
   def extractShortHost(url: String): Option[String] = {
     try {
-      val host = URI.create(url).getHost
+      val host = new RelaxedURI(url).getHost
       if (host != null) {
         Some(InternetDomainName.from(host).topPrivateDomain.toString)
       } else {
         None
       }
     } catch {
-      case _: IllegalArgumentException | _: IllegalStateException => None
+      case _: IllegalArgumentException | _: IllegalStateException | _: URIException => None
     }
   }
 }

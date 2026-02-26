@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -43,38 +43,8 @@ public class LorURL {
 
   private final URI parsed;
 
-  private static class Impl extends URI {
-    Impl(String url) throws URIException {
-      protocolCharset = "UTF-8";
-
-      try {
-        parseUriReference(url, true);
-
-        /*
-         * Пытаемся вычислить, что fragment таки не encode
-         */
-        if (_fragment != null) {
-          String fragmentStr = new String(_fragment);
-          String asciiFragment = fragmentStr.replaceAll("[^\\p{ASCII}]", "");
-
-          if (fragmentStr.length() != asciiFragment.length()) {
-            throw new URIException("error fragment?");
-          }
-        }
-
-        getQuery(); // check if we can decode it
-      } catch (URIException ex) {
-        parseUriReference(url, false);
-      }
-
-      if (_host == null) {
-        throw new URIException("no host");
-      }
-    }
-  }
-
   public LorURL(URI mainURI, String url) throws URIException {
-    parsed = new Impl(url);
+    parsed = new RelaxedURI(url);
 
     char[] _main_host = mainURI.getRawHost();
     int _main_port = mainURI.getPort();
