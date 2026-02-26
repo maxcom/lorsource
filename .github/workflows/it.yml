@@ -47,4 +47,4 @@ jobs:
       - name: Build 
         run: mvn --batch-mode -DskipTests=true -Dmaven.javadoc.skip=true package
       - name: Test
-        run: mvn --batch-mode -P CI verify
+        run: mvn --batch-mode verify
