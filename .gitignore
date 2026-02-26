@@ -12,3 +12,6 @@ docker/db/
 .factorypath
 .project
 .settings/
+.bloop/
+.metals/
+.vscode/
