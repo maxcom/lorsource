@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,40 +13,29 @@
  *    limitations under the License.
  */
 
-/* (C) Max Valjansky,
-       Anastasiya Mishechkina 2000
-*/
+package ru.org.linux.util
 
-package ru.org.linux.util;
+import java.util.regex.Pattern
 
-import java.util.regex.Pattern;
-
-public final class URLUtil {
-  private static final Pattern isUrl = Pattern.compile(
+object URLUtil {
+  private val IsUrl: Pattern = Pattern.compile(
     "(((https?)|(ftp))://(([0-9\\p{L}.-]+\\.[0-9\\p{L}]+)|(\\d+\\.\\d+\\.\\d+\\.\\d+))(:[0-9]+)?(/[^ ]*)?)|(mailto:[a-z0-9_+-.]+@[0-9a-z.-]+\\.[a-z]+)|(news:[a-z0-9.-]+)|(((www)|(ftp))\\.(([0-9a-z.-]+\\.[a-z]+(:[0-9]+)?(/[^ ]*)?)|([a-z]+(/[^ ]*)?)))",
     Pattern.CASE_INSENSITIVE
-  );
+  )
 
-  private URLUtil() {
-  }
+  def fixURL(url: String): String = {
+    val trimmed = url.trim
 
-  public static String fixURL(String url) {
-    url = url.trim();
-
-    if (isUrl(url)) {
-      if (url.toLowerCase().startsWith("www.")) {
-        return "http://" + url;
-      }
-      if (url.toLowerCase().startsWith("ftp.")) {
-        return "ftp://" + url;
-      }
-      return url;
+    if (!isUrl(trimmed)) {
+      trimmed
+    } else if (trimmed.toLowerCase.startsWith("www.")) {
+      "http://" + trimmed
+    } else if (trimmed.toLowerCase.startsWith("ftp.")) {
+      "ftp://" + trimmed
+    } else {
+      trimmed
     }
-
-    return url;
   }
 
-  public static boolean isUrl(String x) {
-    return isUrl.matcher(x).matches();
-  }
+  def isUrl(x: String): Boolean = IsUrl.matcher(x).matches
 }
