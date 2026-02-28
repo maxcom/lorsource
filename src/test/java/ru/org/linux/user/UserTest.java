@@ -55,7 +55,7 @@ public class UserTest {
   @Test
   public void maxcomTest() throws Exception {
     ResultSet resultSet = Users.getMaxcom();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -93,7 +93,7 @@ public class UserTest {
   @Test
   public void anonymousTest() throws Exception {
     ResultSet resultSet = Users.getAnonymous();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -131,7 +131,7 @@ public class UserTest {
   @Test
   public void svuTest() throws Exception {
     ResultSet resultSet = Users.getModerator();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -169,7 +169,7 @@ public class UserTest {
   @Test
   public void user5starTest() throws Exception {
     ResultSet resultSet = Users.getUser5star();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -207,7 +207,7 @@ public class UserTest {
   @Test
   public void user1starTest() throws Exception {
     ResultSet resultSet = Users.getUser1star();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -245,7 +245,7 @@ public class UserTest {
   @Test
   public void user45scoreTest() throws Exception {
     ResultSet resultSet = Users.getUser45Score();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -283,7 +283,7 @@ public class UserTest {
   @Test
   public void userBlockedTest() throws Exception {
     ResultSet resultSet = Users.getUser45ScoreBlocked();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -322,7 +322,7 @@ public class UserTest {
   @Test
   public void userDefrosedTest() throws Exception {
     ResultSet resultSet = Users.getUserDefrosted();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -360,7 +360,7 @@ public class UserTest {
   @Test
   public void userFrozenTest() throws Exception {
     ResultSet resultSet = Users.getUserFrozen();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
@@ -405,7 +405,7 @@ public class UserTest {
   @Test
   public void hizelTest() throws Exception {
     ResultSet resultSet = Users.getHizel();
-    User user = User.apply(resultSet);
+    User user = User.fromResultSet(resultSet);
     Assert.assertEquals("0428dfed932b07ea582efd94038b1076", user.getActivationCode("secret"));
   }
 }

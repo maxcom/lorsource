@@ -123,8 +123,6 @@ case class User(
 object User {
   final val ANONYMOUS_LEVEL_SCORE = 50
 
-  def apply(rs: ResultSet): User = fromResultSet(rs)
-
   def fromResultSet(rs: ResultSet): User = {
     val id = rs.getInt("id")
     val nick = rs.getString("nick")

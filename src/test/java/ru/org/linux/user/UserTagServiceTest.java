@@ -66,7 +66,7 @@ public class UserTagServiceTest {
     ResultSet rs = mock(ResultSet.class);
     try {
       when(rs.getInt("id")).thenReturn(id);
-      return User.apply(rs);
+      return User.fromResultSet(rs);
     } catch (SQLException ignored) {
       return null;
     }
