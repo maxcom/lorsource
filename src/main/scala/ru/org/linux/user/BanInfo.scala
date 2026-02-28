@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,30 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.user;
+package ru.org.linux.user
 
-import java.sql.Timestamp;
+import java.sql.Timestamp
+import scala.beans.BeanProperty
 
-public class BanInfo {
-  private final Timestamp date;
-  private final String reason;
-  private final User moderator;
-
-  public BanInfo(Timestamp date, String reason, User moderator) {
-    this.date = date;
-    this.reason = reason;
-    this.moderator = moderator;
-  }
-
-  public Timestamp getDate() {
-    return date;
-  }
-
-  public String getReason() {
-    return reason;
-  }
-
-  public User getModerator() {
-    return moderator;
-  }
-}
+case class BanInfo(
+  @BeanProperty date: Timestamp,
+  @BeanProperty reason: String,
+  @BeanProperty moderator: User
+)
