@@ -54,7 +54,7 @@ class BanIPController(ipBlockDao: IPBlockDao) {
       case _ => throw new UserErrorException("Invalid count")
     }
 
-    ipBlockDao.blockIP(ip, moderator.user.getId, reason, banTo, allowPosting, captchaRequired)
+    ipBlockDao.blockIP(ip, moderator.user.id, reason, banTo, allowPosting, captchaRequired)
 
     new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, StandardCharsets.UTF_8)))
   }

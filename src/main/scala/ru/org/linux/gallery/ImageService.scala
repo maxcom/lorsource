@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -51,7 +51,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     transactional() { _ =>
       val info = if (image.main) {
         EditHistoryRecord(
-          editor = session.user.getId,
+          editor = session.user.id,
           msgid = image.topicId,
           oldimage = Some(image.id),
           objectType = EditHistoryObjectTypeEnum.TOPIC)
@@ -59,7 +59,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
         val oldImages = imageDao.allImagesForTopic(image.topicId).filterNot(_.main)
 
         EditHistoryRecord(
-          editor = session.user.getId,
+          editor = session.user.id,
           msgid = image.topicId,
           oldaddimages = Some(oldImages.map(_.id)),
           objectType = EditHistoryObjectTypeEnum.TOPIC)
@@ -160,7 +160,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  private def uploadedImagePrefix(user: User) = s"preview-${user.getId}-"
+  private def uploadedImagePrefix(user: User) = s"preview-${user.id}-"
 
   private def saveToTempFile(@Nullable imageUpload: MultipartFile): Option[File] = {
     if (imageUpload != null && !imageUpload.isEmpty) {

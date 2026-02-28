@@ -147,7 +147,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   def getCommentBody(commentRequest: CommentRequest, user: User, errors: Errors, mode: MarkupType): MessageText = {
     val messageText = MessageText(commentRequest.getMsg, mode)
 
-    val maxLength = if (user.isAnonymous) 4096 else 8192
+    val maxLength = if (user.anonymous) 4096 else 8192
 
     if (messageText.text.length > maxLength) {
       errors.rejectValue("msg", null, "Слишком большое сообщение")
@@ -174,7 +174,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
         commentRequest.getOriginal.id
       }
 
-      Comment.buildNew(replyto, commentRequest.getTopic.id, commentId, user.getId, request.getRemoteAddr)
+      Comment.buildNew(replyto, commentRequest.getTopic.id, commentId, user.id, request.getRemoteAddr)
     } else {
       null
     }
@@ -183,7 +183,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   @throws[UserNotFoundException]
   def prepareReplyto(add: CommentRequest, topic: Topic)(implicit currentUser: AnySession): Map[String, AnyRef] = {
     if (add.getReplyto != null) {
-      val ignoreList = currentUser.opt.map(user => ignoreListDao.get(user.user.getId)).getOrElse(Set.empty)
+      val ignoreList = currentUser.opt.map(user => ignoreListDao.get(user.user.id)).getOrElse(Set.empty)
 
       val preparedComment = commentPrepareService.prepareCommentOnly(add.getReplyto, topic, ignoreList)
 
@@ -206,7 +206,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   @throws[MessageNotFoundException]
   def create(author: User, comment: Comment, commentBody: MessageText, remoteAddress: String,
              xForwardedFor: Option[String], userAgent: Option[String]): (Int, Set[Int]) = transactional() { _ =>
-    Preconditions.checkArgument(comment.userid == author.getId)
+    Preconditions.checkArgument(comment.userid == author.id)
 
     val notifyUsers = Set.newBuilder[Int]
 
@@ -216,14 +216,14 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
 
     if (permissionService.isUserCastAllowed(author)) {
       val mentions = notifyMentions(author, comment, commentBody, commentId)
-      notifyUsers.addAll(mentions.map(_.getId))
+      notifyUsers.addAll(mentions.map(_.id))
     }
 
     val parentCommentOpt: Option[Comment] = if (comment.replyTo != 0) {
       val parentComment = commentDao.getById(comment.replyTo)
       val mention = notifyReply(comment, commentId, parentComment)
 
-      mention.foreach(user => notifyUsers.addOne(user.getId))
+      mention.foreach(user => notifyUsers.addOne(user.id))
 
       Some(parentComment)
     } else {
@@ -243,9 +243,9 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   private def notifyReply(comment: Comment, commentId: Int, parentComment: Comment): Option[User] = {
     val notifyUser = if (parentComment.userid != comment.userid) {
       Some(userService.getUserCached(parentComment.userid))
-        .filterNot(_.isAnonymous)
+        .filterNot(_.anonymous)
         .filterNot { parentAuthor =>
-          ignoreListDao.get(parentAuthor.getId).contains(comment.userid)
+          ignoreListDao.get(parentAuthor.id).contains(comment.userid)
         }
     } else {
       None
@@ -260,7 +260,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
 
   /* кастование пользователей */
   private def notifyMentions(author: User, comment: Comment, commentBody: MessageText, commentId: Int) = {
-    val userRefs = textService.mentions(commentBody).filter((p: User) => !userService.isIgnoring(p.getId, author.getId))
+    val userRefs = textService.mentions(commentBody).filter((p: User) => !userService.isIgnoring(p.id, author.id))
 
     userEventService.addUserRefEvent(userRefs, comment.topicId, commentId)
 
@@ -322,7 +322,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
     val editHistoryRecord = EditHistoryRecord(
       msgid = original.id,
       objectType = EditHistoryObjectTypeEnum.COMMENT,
-      editor = editor.getId,
+      editor = editor.id,
       oldtitle = Some(original.title).filterNot(_ == comment.title),
       oldmessage = Some(originalMessageText).filterNot(_ == messageText))
 
@@ -341,6 +341,6 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   private def updateLatestEditorInfo(editor: User, original: Comment, comment: Comment): Unit = {
     val editCount = editHistoryService.editCount(original.id, EditHistoryObjectTypeEnum.COMMENT)
 
-    commentDao.updateLatestEditorInfo(original.id, editor.getId, comment.postdate, editCount)
+    commentDao.updateLatestEditorInfo(original.id, editor.id, comment.postdate, editCount)
   }
 }

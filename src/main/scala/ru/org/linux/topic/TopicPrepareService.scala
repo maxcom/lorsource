@@ -60,7 +60,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(implicit session: AnySession): PreparedEditInfoSummary = {
-    val lastEditor = userService.getUserCached(editInfo.editor).getNick
+    val lastEditor = userService.getUserCached(editInfo.editor).nick
     val editCount = editInfo.editCount
     val lastEditDate = editInfo.editdate
 
@@ -129,7 +129,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }
 
     val ignoreList = session.userOpt.map { user =>
-      ignoreListDao.get(user.getId)
+      ignoreListDao.get(user.id)
     }.getOrElse(Set.empty[Int])
 
     lazy val postscore = topicPermissionService.getPostscore(group, topic)
@@ -205,7 +205,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val tagsEditable = groupPermissionService.isTagsEditable(topic)
 
     val (resolvable, deletable, undeletable) = session.opt.map  { implicit currentUser =>
-      val resolvable = (currentUser.moderator || (topic.author.getId == currentUser.user.getId)) &&
+      val resolvable = (currentUser.moderator || (topic.author.id == currentUser.user.id)) &&
         topic.group.resolvable
 
       val deletable = groupPermissionService.isDeletable(topic.message)

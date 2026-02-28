@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -47,7 +47,7 @@ class MemoriesDao(ds: DataSource) {
     val id = getId(user, topic.id, watch)
 
     if (id == 0) {
-      insertTemplate.executeAndReturnKey(ImmutableMap.of("userid", user.getId,
+      insertTemplate.executeAndReturnKey(ImmutableMap.of("userid", user.id,
         "topic", topic.id, "watch", watch)).intValue
     } else {
       id
@@ -59,7 +59,7 @@ class MemoriesDao(ds: DataSource) {
     */
   private def getId(user: User, topic: Int, watch: Boolean): Int = {
     val res = jdbcTemplate.queryForSeq[Int]("SELECT id FROM memories WHERE userid=? AND topic=? AND watch=?",
-      user.getId, topic, watch)
+      user.id, topic, watch)
 
     res.headOption.getOrElse(0)
   }
@@ -84,7 +84,7 @@ class MemoriesDao(ds: DataSource) {
 
     currentUserOpt match {
       case Some(currentUser) =>
-        val ids = jdbcTemplate.queryAndMap("SELECT id, watch FROM memories WHERE userid=? AND topic=?", currentUser.getId, topic) {
+        val ids = jdbcTemplate.queryAndMap("SELECT id, watch FROM memories WHERE userid=? AND topic=?", currentUser.id, topic) {
           (rs, _) => rs.getInt("id") -> rs.getBoolean("watch")
         }
 
@@ -118,7 +118,7 @@ class MemoriesDao(ds: DataSource) {
 
   private def checkMemoriesPresent(user: User, watch: Boolean) = {
     val present = jdbcTemplate.queryForSeq[Int]("select memories.id from memories join topics on memories.topic=topics.id " +
-      "where memories.userid=? and watch=? and not deleted limit 1", user.getId, watch)
+      "where memories.userid=? and watch=? and not deleted limit 1", user.id, watch)
 
     present.nonEmpty
   }
@@ -132,7 +132,7 @@ class MemoriesDao(ds: DataSource) {
   def getWatchCountForUser(user: User): Int = {
     val ret = jdbcTemplate.queryForSeq[Int](
       "select count(id) from memories where userid=? and watch='t'",
-      user.getId)
+      user.id)
 
     ret.headOption.getOrElse(0)
   }

@@ -13,6 +13,7 @@
  *    limitations under the License.
  */
 package ru.org.linux.topic
+import ru.org.linux.user.UserConstants
 
 import com.google.common.base.Preconditions
 import org.joda.time.{DateTime, Duration}
@@ -99,7 +100,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
           message.postscore == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
           message.postscore == POSTSCORE_HIDE_COMMENTS
 
-      val userAllowed = currentUser.userOpt.exists(u => !u.isAnonymous && !u.isFrozen && u.getScore >= ViewDeletedScore)
+      val userAllowed = currentUser.userOpt.exists(u => !u.anonymous && !u.isFrozen && u.score >= ViewDeletedScore)
 
       !topicForbidden && userAllowed && (deleteInfoDao.scoreLoss(message.id) < 150)
     } else {
@@ -112,7 +113,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   def checkView(group: Group, message: Topic, topicAuthor: User, showDeleted: Boolean)
                (implicit session: AnySession): Unit = {
     Preconditions.checkArgument(message.groupId == group.id)
-    Preconditions.checkArgument(message.authorUserId == topicAuthor.getId)
+    Preconditions.checkArgument(message.authorUserId == topicAuthor.id)
 
     if (!session.moderator) {
       val currentUser = session.userOpt.orNull
@@ -121,7 +122,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         throw new MessageNotFoundException(message.id, "вы не можете смотреть удаленные комментарии")
       }
 
-      val viewByAuthor = currentUser != null && currentUser.getId == message.authorUserId
+      val viewByAuthor = currentUser != null && currentUser.id == message.authorUserId
 
       if (message.deleted) {
         if (message.expired) {
@@ -144,11 +145,11 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
             throw new MessageNotFoundException(message.id, "Сообщение удалено")
           }
 
-          if (currentUser.getScore < TopicPermissionService.ViewDeletedScore) {
+          if (currentUser.score < TopicPermissionService.ViewDeletedScore) {
             throw new MessageNotFoundException(message.id, "Сообщение удалено")
           }
 
-          if (topicAuthor.isModerator) {
+          if (topicAuthor.canmod) {
             throw new MessageNotFoundException(message.id, "Сообщение удалено")
           }
         }
@@ -170,7 +171,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
       val viewByCorrector = currentUser != null && currentUser.canCorrect
 
-      if (group.premoderated && !message.commited && topicAuthor.isAnonymous && !viewByCorrector) {
+      if (group.premoderated && !message.commited && topicAuthor.anonymous && !viewByCorrector) {
         throw new AccessViolationException("Это сообщение нельзя посмотреть")
       }
     }
@@ -246,7 +247,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
     val effectiveUser = user.getOrElse(userService.getAnonymous)
 
-    if (effectiveUser.isBlocked || (!ignoreFrozen && effectiveUser.isFrozen)) {
+    if (effectiveUser.blocked || (!ignoreFrozen && effectiveUser.isFrozen)) {
       return false
     }
 
@@ -260,7 +261,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       return true
     }
 
-    if (effectiveUser.isAnonymous) {
+    if (effectiveUser.anonymous) {
       false
     } else {
       if (user.get.isModerator) {
@@ -275,7 +276,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         return false
       }
 
-      val viewByAuthor = user.get.getId == topic.authorUserId
+      val viewByAuthor = user.get.id == topic.authorUserId
 
       if (score == TopicPermissionService.POSTSCORE_MOD_AUTHOR) {
         return viewByAuthor
@@ -335,11 +336,11 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       errors.reject(null, "Тема или комментарий удалены")
     }
 
-    if (currentUser == null || currentUser.isAnonymous) {
+    if (currentUser == null || currentUser.anonymous) {
       errors.reject(null, "Анонимный пользователь")
     }
 
-    val editByAuthor = currentUser != null && (currentUser.getId == comment.userid)
+    val editByAuthor = currentUser != null && (currentUser.id == comment.userid)
 
     /* Проверка на то, что пользователь модератор */
     val editable = currentUser != null && (currentUser.isModerator && siteConfig.isModeratorAllowedToEditComments)
@@ -358,7 +359,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       }
 
       /* Проверка на то, что у пользователя достаточно скора для редактирования комментария */
-      if (currentUser.getScore < siteConfig.getCommentScoreValueForEditing) {
+      if (currentUser.score < siteConfig.getCommentScoreValueForEditing) {
         errors.reject(null, "У вас недостаточно прав для редактирования этого комментария")
       }
 
@@ -384,11 +385,11 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       return false
     }
 
-    if (currentUser == null || currentUser.isAnonymous) {
+    if (currentUser == null || currentUser.anonymous) {
       return false
     }
 
-    val deleteByAuthor = currentUser.getId == comment.userid
+    val deleteByAuthor = currentUser.id == comment.userid
 
     val deleteDeadline = new DateTime(comment.postdate).plus(TopicPermissionService.DeletePeriod)
 
@@ -402,7 +403,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
    * @return true обычная ссылка, false - добавить rel=nofollow
    */
   def followAuthorLinks(author: User): Boolean = {
-    if (author.isBlocked || author.isAnonymous || author.isFrozen) {
+    if (author.blocked || author.anonymous || author.isFrozen) {
       false
     } else {
       author.getScore >= TopicPermissionService.LinkFollowMinScore
@@ -434,17 +435,17 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     Preconditions.checkArgument(msg.groupId == group.id)
 
     !msg.deleted && !msg.draft && !msg.isCommentsHidden &&
-      (!group.premoderated || msg.commited || msg.authorUserId != User.ANONYMOUS_ID)
+      (!group.premoderated || msg.commited || msg.authorUserId != UserConstants.ANONYMOUS_ID)
   }
 
   def canViewHistory(msg: Topic)(implicit session: AnySession): Boolean = {
     val viewer = session.userOpt.orNull
 
-    if (viewer != null && viewer.isModerator) {
+    if (viewer != null && viewer.canmod) {
       return true
     }
 
-    if (viewer != null && msg.authorUserId == viewer.getId) {
+    if (viewer != null && msg.authorUserId == viewer.id) {
       return true
     }
 
@@ -463,7 +464,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
   def canViewDeletedComment(comment: Comment, deleteInfo: DeleteInfo)(implicit currentUser: AuthorizedSession): Boolean = {
     currentUser.moderator ||
-      (currentUser.user.getId == comment.userid && !currentUser.user.isFrozen &&
+      (currentUser.user.id == comment.userid && !currentUser.user.isFrozen &&
         deleteInfo.delDate.toInstant.isAfter(Instant.now.minus(TopicPermissionService.ViewAfterDeleteDays, ChronoUnit.DAYS)))
   }
 }

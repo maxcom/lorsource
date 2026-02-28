@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -199,7 +199,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     if (showDeleted || topic.deleted) {
       logger.info(s"View deleted ${topic.getLink} by " +
-        s"${session.userOpt.map(_.getNick).getOrElse("<none>")} (deleted = ${topic.deleted})")
+        s"${session.userOpt.map(_.nick).getOrElse("<none>")} (deleted = ${topic.deleted})")
     }
 
     params.put("showDeleted", Boolean.box(showDeleted))
@@ -233,7 +233,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("memoriesInfo", memoriesDao.getTopicInfo(topic.id, session.userOpt))
 
     val ignoreList: Set[Int] = session.userOpt.map { currentUser =>
-      ignoreListDao.get(currentUser.getId)
+      ignoreListDao.get(currentUser.id)
     }.getOrElse(Set.empty)
 
     val (filterMode, filterModeShow) = if (filter=="show") {
@@ -440,7 +440,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     if (deleted) redirectUrl = redirectUrl.showDeleted
 
     if (session.authorized && !deleted) {
-      val ignoreList = ignoreListDao.get(session.userOpt.get.getId)
+      val ignoreList = ignoreListDao.get(session.userOpt.get.id)
       val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(ignoreList.isEmpty), ignoreList)
 
       if (hideSet.contains(node.getComment.id)) {

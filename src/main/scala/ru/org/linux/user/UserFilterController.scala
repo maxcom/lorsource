@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -37,7 +37,7 @@ class UserFilterController(userService: UserService, ignoreListDao: IgnoreListDa
                @RequestParam(value = "newIgnoreTagName", required = false) newIgnoreTagName: String): ModelAndView = AuthorizedOnly { currentUser =>
     val modelAndView = new ModelAndView("user-filter-list")
 
-    val ignoreMap = createIgnoreMap(ignoreListDao.get(currentUser.user.getId))
+    val ignoreMap = createIgnoreMap(ignoreListDao.get(currentUser.user.id))
     val ignoreRemarks = remarkDao.getRemarks(currentUser.user, ignoreMap.values)
 
     modelAndView.addObject("ignoreRemarks", ignoreRemarks.asJava)
@@ -74,13 +74,13 @@ class UserFilterController(userService: UserService, ignoreListDao: IgnoreListDa
     }
 
     // Add nick to ignore list
-    if (nick == currentUser.user.getNick) {
+    if (nick == currentUser.user.nick) {
       throw new BadInputException("нельзя игнорировать самого себя")
     }
 
-    val ignoreSet = ignoreListDao.get(currentUser.user.getId)
+    val ignoreSet = ignoreListDao.get(currentUser.user.id)
 
-    if (!ignoreSet.contains(addUser.getId)) {
+    if (!ignoreSet.contains(addUser.id)) {
       ignoreListDao.addUser(currentUser.user, addUser)
     }
 

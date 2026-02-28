@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -51,7 +51,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
   @RequestMapping(method = Array(RequestMethod.GET))
   def show(@ModelAttribute("form") form: EditRegisterRequest, @PathVariable("nick") nick: String,
            response: HttpServletResponse): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (currentUser.user.getNick != nick) {
+    if (currentUser.user.nick != nick) {
       throw new AccessViolationException("Not authorized")
     }
 
@@ -64,7 +64,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
     mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
 
-    form.setEmail(user.getEmail)
+    form.setEmail(user.email)
     form.setUrl(userInfo.getUrl)
     form.setTown(userInfo.getTown)
     form.setName(user.getName)
@@ -79,7 +79,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
   def edit(request: HttpServletRequest, response: HttpServletResponse, @PathVariable("nick") nick: String,
            @Valid @ModelAttribute("form") form: EditRegisterRequest,
            errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (currentUser.user.getNick != nick) {
+    if (currentUser.user.nick != nick) {
       throw new AccessViolationException("Not authorized")
     }
 
@@ -116,7 +116,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     }
 
     val newEmail = mail.flatMap { mail =>
-      if (user.getEmail != null && user.getEmail == mail.getAddress.toLowerCase) {
+      if (user.email != null && user.email == mail.getAddress.toLowerCase) {
         None
       } else {
         if (userDao.getByEmail(mail.getAddress.toLowerCase, false) != null) {
@@ -141,14 +141,14 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
 
       newEmail match {
         case Some(newEmail) =>
-          emailService.sendRegistrationEmail(user.getNick, newEmail, isNew = false)
+          emailService.sendRegistrationEmail(user.nick, newEmail, isNew = false)
 
           val msg = s"Обновление регистрации прошло успешно. " +
             s"Ожидайте письма на ${StringUtil.escapeHtml(newEmail)} с кодом активации смены email."
 
           new ModelAndView("action-done", "message", msg)
         case None =>
-          new ModelAndView(new RedirectView("/people/" + user.getNick + "/profile"))
+          new ModelAndView(new RedirectView("/people/" + user.nick + "/profile"))
       }
     } else {
       val mv = new ModelAndView("edit-reg")
@@ -162,8 +162,8 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
 
   private def updateAuthToken(request: HttpServletRequest, response: HttpServletResponse, user: User, newPassword: String): Unit = {
     try {
-      val token = new UsernamePasswordAuthenticationToken(user.getNick, newPassword)
-      val details = userDetailsService.loadUserByUsername(user.getNick)
+      val token = new UsernamePasswordAuthenticationToken(user.nick, newPassword)
+      val details = userDetailsService.loadUserByUsername(user.nick)
 
       token.setDetails(details)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -102,7 +102,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
       s"""
          |Здравствуйте!
          |
-         |Участник https://www.linux.org.ru/, ${inviteUser.getNick} (https://www.linux.org.ru/people/${inviteUser.getNick}/profile),
+         |Участник https://www.linux.org.ru/, ${inviteUser.nick} (https://www.linux.org.ru/people/${inviteUser.nick}/profile),
          |пригласил вас зарегистрироваться на форуме.\n
          |
          |Если вы не понимаете, о чем идет речь - просто проигнорируйте это сообщение!
@@ -167,7 +167,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     text.append(s"IP: ${request.getRemoteAddr}\n")
 
     if (currentUser != null) {
-      text.append(s"Current user: ${currentUser.getNick}\n")
+      text.append(s"Current user: ${currentUser.nick}\n")
     }
 
     text.append("Headers: ")
@@ -191,7 +191,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
   def sendPasswordReset(user: User, resetCode: String): Unit = {
     val msg = createMessage
     msg.setFrom(new InternetAddress("no-reply@linux.org.ru"))
-    msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail))
+    msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user.email))
     msg.setSubject("Your password @linux.org.ru")
     msg.setSentDate(new Date)
 
@@ -200,7 +200,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |
          |Для сброса вашего пароля перейдите по ссылке https://www.linux.org.ru/reset-password
          |
-         |Ваш ник ${user.getNick}, код подтверждения: $resetCode
+         |Ваш ник ${user.nick}, код подтверждения: $resetCode
          |
          |Если это были не вы, то просто игнорируйте это письмо.
          |

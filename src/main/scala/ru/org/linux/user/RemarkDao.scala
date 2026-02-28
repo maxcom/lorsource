@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,7 +32,7 @@ class RemarkDao(ds: DataSource) {
   def remarkCount(user: User):Int = {
     val count:Option[Int] = jdbcTemplate.queryForObject[Integer](
       "SELECT count(*) as c FROM user_remarks WHERE user_id=?",
-      user.getId).map(_.toInt)
+      user.id).map(_.toInt)
 
     count.getOrElse(0)
   }
@@ -45,7 +45,7 @@ class RemarkDao(ds: DataSource) {
    * @param ref  user
    */
   def getRemark(user: User, ref: User): Option[Remark] = {
-    jdbcTemplate.queryAndMap("SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=? AND ref_user_id=?", user.getId, ref.getId) { (rs, _) =>
+    jdbcTemplate.queryAndMap("SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=? AND ref_user_id=?", user.id, ref.id) { (rs, _) =>
       new Remark(rs)
     }.headOption
   }
@@ -56,7 +56,7 @@ class RemarkDao(ds: DataSource) {
     } else {
       namedTemplate.query(
         "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=:user AND ref_user_id IN (:list)",
-        Map("list" -> refs.map(_.getId).toSeq.asJavaCollection, "user" -> user.getId).asJava,
+        Map("list" -> refs.map(_.id).toSeq.asJavaCollection, "user" -> user.id).asJava,
         new RowMapper[(Int, Remark)]() {
           override def mapRow(rs: ResultSet, rowNum: Int) = {
             val remark = new Remark(rs)
@@ -71,7 +71,7 @@ class RemarkDao(ds: DataSource) {
 
   private def setRemark(user: User, ref: User, text: String):Unit = {
     if (text.nonEmpty) {
-      jdbcTemplate.update("INSERT INTO user_remarks (user_id,ref_user_id,remark_text) VALUES (?,?,?)", user.getId, ref.getId, text)
+      jdbcTemplate.update("INSERT INTO user_remarks (user_id,ref_user_id,remark_text) VALUES (?,?,?)", user.id, ref.id, text)
     }
   }
 
@@ -109,7 +109,7 @@ class RemarkDao(ds: DataSource) {
       "SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?"
     }
 
-    jdbcTemplate.queryAndMap(qs, user.getId, limit, offset) { (rs, _) =>
+    jdbcTemplate.queryAndMap(qs, user.id, limit, offset) { (rs, _) =>
       new Remark(rs)
     }
   }

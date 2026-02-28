@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,6 +13,7 @@
  *    limitations under the License.
  */
 package ru.org.linux.user
+import ru.org.linux.user.UserConstants
 
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
@@ -131,7 +132,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
       val byEmail = userDao.getByEmail(new InternetAddress(form.getEmail).getAddress.toLowerCase, true)
 
-      if (byEmail != null && (!byEmail.isBlocked || userService.wasRecentlyBlocker(byEmail))) {
+      if (byEmail != null && (!byEmail.blocked || userService.wasRecentlyBlocker(byEmail))) {
         errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
           "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
       }
@@ -180,7 +181,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
     try {
       val details = userDetailsService.loadUserByUsername(nick)
 
-      if (!details.getUser.isActivated) {
+      if (!details.getUser.activated) {
         val token = new UsernamePasswordAuthenticationToken(nick, passwd)
 
         token.setDetails(details)
@@ -226,16 +227,16 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("new_email == null?!")
     }
 
-    val regcode = currentUser.user.getActivationCode(siteConfig.getSecret, newEmail)
+    val regcode = currentUser.user.getActivationCodeWithEmail(siteConfig.getSecret, newEmail)
 
     if (!regcode.equalsIgnoreCase(activation)) {
-      val params = activationFormParams(currentUser.user.getNick, activation) + ("error" -> "Неправильный код активации")
+      val params = activationFormParams(currentUser.user.nick, activation) + ("error" -> "Неправильный код активации")
 
       new ModelAndView("activate", params.asJava)
     } else {
       userDao.acceptNewEmail(currentUser.user, newEmail)
 
-      new ModelAndView(new RedirectView("/people/" + currentUser.user.getNick + "/profile"))
+      new ModelAndView(new RedirectView("/people/" + currentUser.user.nick + "/profile"))
     }
   }
 
@@ -246,7 +247,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       "Не задан nick."
     } else if (!StringUtil.checkLoginName(nick)) {
       "Некорректное имя пользователя."
-    } else if (nick != null && nick.length > User.MAX_NICK_LENGTH) {
+    } else if (nick != null && nick.length > UserConstants.MAX_NICK_LENGTH) {
       "Слишком длинное имя пользователя."
     } else if (userDao.isUserExists(nick) || userDao.hasSimilarUsers(nick)) {
       "Это имя пользователя уже используется. Пожалуйста выберите другое имя."

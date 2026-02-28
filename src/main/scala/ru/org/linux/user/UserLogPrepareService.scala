@@ -50,7 +50,7 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
             s"<a href=\"/sameip.jsp?ip=${escapeHtml(rawValue)}\">${escapeHtml(rawValue)}</a>"
           case OPTION_INVITED_BY =>
             val user = userService.getUserCached(rawValue.toInt)
-            s"<a href=\"/people/${user.getNick}/profile\">${user.getNick}</a>"
+            s"<a href=\"/people/${user.nick}/profile\">${user.nick}</a>"
           case OPTION_USER_AGENT =>
             val id = rawValue.toInt
             val ip = item.getOptions.getOrDefault(OPTION_IP, "")

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import scala.jdk.CollectionConverters.*
 class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermissionService: UserPermissionService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (!(currentUser.user.getNick == nick)) {
+    if (!(currentUser.user.nick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
 
@@ -41,10 +41,10 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
 
     val nonDeprecatedThemes = Theme.THEMES.asScala.view.filterNot(_.isDeprecated).map(_.getId).toVector
 
-    if (currentUser.user.getScore >= 500) {
+    if (currentUser.user.score >= 500) {
       params.put("stylesList", Theme.THEMES.asScala.map(_.getId).asJava)
-    } else if (DefaultProfile.getTheme(currentUser.user.getStyle).isDeprecated) {
-      params.put("stylesList", (nonDeprecatedThemes :+ currentUser.user.getStyle).asJava)
+    } else if (DefaultProfile.getTheme(currentUser.user.style).isDeprecated) {
+      params.put("stylesList", (nonDeprecatedThemes :+ currentUser.user.style).asJava)
     } else {
       params.put("stylesList", nonDeprecatedThemes.asJava)
     }
@@ -72,7 +72,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
                      @RequestParam("format_mode") formatMode: String,
                      @PathVariable nick: String
                  ): ModelAndView = AuthorizedOnly { currentUser =>
-    if (!(currentUser.user.getNick == nick)) {
+    if (!(currentUser.user.nick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
     if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == currentUser.profile.topics)) {

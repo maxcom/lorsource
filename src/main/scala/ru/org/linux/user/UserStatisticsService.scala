@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -79,7 +79,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
   def getYearStats(user: User, timezone: DateTimeZone): Future[Map[Long, Long]] = {
     Future.successful(elastic).flatMap {
       _ execute {
-        val root = boolQuery().filter(termQuery("author", user.getNick), rangeQuery("postdate").gt("now-1y/M"))
+        val root = boolQuery().filter(termQuery("author", user.nick), rangeQuery("postdate").gt("now-1y/M"))
 
         search(MessageIndex) size 0 timeout 30.seconds query root aggs
           dateHistogramAgg("days", "postdate")
@@ -107,7 +107,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
   private def countComments(user: User): Future[Long] = {
     elastic execute {
       val root = boolQuery().filter(
-        termQuery("author", user.getNick),
+        termQuery("author", user.nick),
         termQuery("is_comment", true))
 
       statSearch.query(root).trackTotalHits(true)
@@ -119,7 +119,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
   private def topicStats(user: User): Future[TopicStats] = {
     elastic execute {
       val root = boolQuery().filter(
-        termQuery("author", user.getNick),
+        termQuery("author", user.nick),
         termQuery("is_comment", false))
 
       statSearch query root aggs(

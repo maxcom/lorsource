@@ -13,6 +13,7 @@
  *    limitations under the License.
  */
 package ru.org.linux.user
+import ru.org.linux.user.UserConstants
 
 import com.google.common.collect.ImmutableMap
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -132,7 +133,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     jdbcTemplate.update("INSERT INTO " +
         "user_events (userid, type, private, message_id, comment_id, origin_user)" +
         "VALUES (?, 'REACTION', false, ?, ?, ?) ON CONFLICT DO NOTHING",
-      authorId, topic.id, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
+      authorId, topic.id, comment.map(c => Integer.valueOf(c.id)).orNull, user.id)
   }
 
   def deleteUnreadReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit = {
@@ -142,7 +143,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
         "DELETE FROM user_events " +
           "WHERE userid=? AND message_id=? AND comment_id IS NOT DISTINCT FROM ? " +
           "AND origin_user=? AND unread AND type='REACTION'",
-      authorId, topic.id, comment.map(c => Integer.valueOf(c.id)).orNull, user.getId)
+      authorId, topic.id, comment.map(c => Integer.valueOf(c.id)).orNull, user.id)
 
     recalcEventCount(Seq(authorId))
   }
@@ -376,7 +377,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     namedJdbcTemplate.update(s"""
         insert into user_events (userid, type, private, message_id, message)
           (select topics.userid, '${DELETED.getType}', true, topics.id, :message from topics where topics.id in (:topics)
-            and topics.userid != :deletedBy and topics.userid != ${User.ANONYMOUS_ID})
+            and topics.userid != :deletedBy and topics.userid != ${UserConstants.ANONYMOUS_ID})
       """, Map("message" -> reason, "topics" -> topicsIds.map(Integer.valueOf).asJava, "deletedBy" -> deletedBy).asJava)
   }
 
@@ -385,7 +386,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
         insert into user_events (userid, type, private, message_id, comment_id, message)
           (select comments.userid, '${DELETED.getType}', true, comments.topic, comments.id,
             :message from comments where comments.id in (:comments)
-            and comments.userid != :deletedBy and comments.userid != ${User.ANONYMOUS_ID})
+            and comments.userid != :deletedBy and comments.userid != ${UserConstants.ANONYMOUS_ID})
       """, Map("message" -> reason, "comments" -> commentIds.map(Integer.valueOf).asJava, "deletedBy" -> deletedBy).asJava)
   }
 }

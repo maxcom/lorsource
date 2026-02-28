@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,6 +14,7 @@
  */
 
 package ru.org.linux.topic
+import ru.org.linux.user.UserConstants
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -42,7 +43,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("url",
       UriComponentsBuilder.fromUriString("/people/{nick}/favs").buildAndExpand(nick).encode.toUriString)
 
-    modelAndView.addObject("ptitle", s"Избранные сообщения ${user.getNick}")
+    modelAndView.addObject("ptitle", s"Избранные сообщения ${user.nick}")
     modelAndView.addObject("navtitle", s"Избранные сообщения")
 
     val offset = TopicListService.fixOffset(rawOffset)
@@ -68,7 +69,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("url",
       UriComponentsBuilder.fromUriString("/people/{nick}/drafts").buildAndExpand(nick).encode.toUriString)
 
-    modelAndView.addObject("ptitle", s"Черновики ${user.getNick}")
+    modelAndView.addObject("ptitle", s"Черновики ${user.nick}")
     modelAndView.addObject("navtitle", s"Черновики")
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
@@ -88,7 +89,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   ): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
-    if (user.getId == User.ANONYMOUS_ID && !currentUser.moderator) {
+    if (user.id == UserConstants.ANONYMOUS_ID && !currentUser.moderator) {
       throw new UserErrorException("Лента для пользователя anonymous не доступна")
     }
 
@@ -104,10 +105,10 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
       modelAndView.addObject("meLink", userInfo.getUrl)
     }
 
-    modelAndView.addObject("nick", user.getNick)
+    modelAndView.addObject("nick", user.nick)
     modelAndView.addObject("url",
       UriComponentsBuilder.fromUriString("/people/{nick}/").buildAndExpand(nick).encode.toUriString)
-    modelAndView.addObject("ptitle", s"Сообщения ${user.getNick}")
+    modelAndView.addObject("ptitle", s"Сообщения ${user.nick}")
     modelAndView.addObject("navtitle", s"Сообщения")
     modelAndView.addObject("rssLink",
       UriComponentsBuilder.fromUriString("/people/{nick}/?output=rss").buildAndExpand(nick).encode.toUriString)
@@ -174,7 +175,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("url",
       UriComponentsBuilder.fromUriString("/people/{nick}/tracked").buildAndExpand(nick).encode.toUriString)
 
-    modelAndView.addObject("ptitle", s"Отслеживаемые сообщения ${user.getNick}")
+    modelAndView.addObject("ptitle", s"Отслеживаемые сообщения ${user.nick}")
     modelAndView.addObject("navtitle", s"Отслеживаемые сообщения")
 
     val offset = TopicListService.fixOffset(rawOffset)

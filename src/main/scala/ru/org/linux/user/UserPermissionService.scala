@@ -97,5 +97,5 @@ class UserPermissionService(userLogDao: UserLogDao, userInvitesDao: UserInvitesD
   }
 
   def canResetPasswordByCode(user: User): Boolean =
-    !user.isBlocked && user.isActivated && !user.isAnonymous && !user.isAdministrator
+    !user.blocked && user.activated && !user.anonymous && !user.isAdministrator
 }

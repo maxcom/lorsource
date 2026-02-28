@@ -60,7 +60,7 @@ object UserService {
 
   def matchPassword(user: User, password: String): Boolean = {
     try {
-      UserPasswordEncryptor.checkPassword(password, user.getPassword)
+      UserPasswordEncryptor.checkPassword(password, user.password)
     } catch {
       case _: EncryptionOperationNotPossibleException =>
         false
@@ -130,19 +130,19 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       avatarStyle
     }
 
-    val userpic = if (user.isAnonymous && misteryMan) {
+    val userpic = if (user.anonymous && misteryMan) {
       Some(Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
-    } else if (user.getPhoto != null && user.getPhoto.nonEmpty) {
+    } else if (user.photo != null && user.photo.nonEmpty) {
       Try {
-        val info = new ImageInfo(s"${siteConfig.getUploadPath}/photos/${user.getPhoto}").scale(150)
+        val info = new ImageInfo(s"${siteConfig.getUploadPath}/photos/${user.photo}").scale(150)
 
-        Userpic(s"/photos/${user.getPhoto}", info.getWidth, info.getHeight)
+        Userpic(s"/photos/${user.photo}", info.getWidth, info.getHeight)
       } match {
         case Failure(e: FileNotFoundException) =>
-          logger.warn(s"Userpic not found for ${user.getNick}: ${e.getMessage}")
+          logger.warn(s"Userpic not found for ${user.nick}: ${e.getMessage}")
           None
         case Failure(e) =>
-          logger.warn(s"Bad userpic for ${user.getNick}", e)
+          logger.warn(s"Bad userpic for ${user.nick}", e)
           None
         case Success(u) =>
           Some(u)
@@ -155,7 +155,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       if (avatarMode == "empty" || !user.hasEmail) {
         UserService.DisabledUserpic
       } else {
-        Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
+        Userpic(gravatar(user.email, avatarMode, 150), 150, 150)
       }
     }
   }
@@ -173,7 +173,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def getUsersCached(ids: Iterable[Int]): Seq[User] = ids.map(x => userDao.getUserCached(x)).toSeq
 
   def getUsersCachedMap(userIds: Iterable[Int]): Map[Int, User] =
-    getUsersCached(userIds.toSet).view.map(u => u.getId -> u).toMap
+    getUsersCached(userIds.toSet).view.map(u => u.id -> u).toMap
 
   def getUsersCachedJava(ids: java.lang.Iterable[Integer]): util.List[User] =
     getUsersCached(ids.asScala.map(i => i)).asJava
@@ -271,8 +271,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     val userInfo = userDao.getUserInfo(user)
 
     if ((userInfo != null) && userInfo.trim.nonEmpty) {
-      userDao.updateUserInfo(user.getId, null)
-      userDao.changeScore(user.getId, -10)
+      userDao.updateUserInfo(user.id, null)
+      userDao.changeScore(user.id, -10)
       userLogDao.logResetInfo(user, moderator, userInfo, -10)
     }
   }
@@ -283,7 +283,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     if (userInfo.getTown != null && userInfo.getTown.trim.nonEmpty) {
       userDao.removeTown(user)
       userLogDao.logResetTown(user, moderator, userInfo.getTown, -10)
-      userDao.changeScore(user.getId, -10)
+      userDao.changeScore(user.id, -10)
     }
   }
 
@@ -293,7 +293,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     if (userInfo.getUrl != null || userInfo.getUrl.trim.nonEmpty) {
       userDao.removeUrl(user)
       userLogDao.logResetUrl(user, moderator, userInfo.getUrl, 0)
-      userDao.changeScore(user.getId, 0)
+      userDao.changeScore(user.id, 0)
     }
   }
 
@@ -307,7 +307,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
     if (userDao.updateTown(user, town)) changed += "town" -> town
 
-    if (userDao.updateUserInfo(user.getId, info)) changed += "info" -> info
+    if (userDao.updateUserInfo(user.id, info)) changed += "info" -> info
 
     updateEmailPasswd(user, newEmail, password, ip)
 
@@ -327,7 +327,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def isBlockable(user: User, by: User): Boolean =
-    !user.isAnonymous && by.isModerator && (!user.isModerator || by.isAdministrator)
+    !user.anonymous && by.isModerator && (!user.isModerator || by.isAdministrator)
 
   def isFreezable(user: User, by: User): Boolean = by.isModerator && !user.isModerator
 
@@ -343,7 +343,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def getProfile(user: User): Profile = {
-    val profile = profileDao.readProfile(user.getId)
+    val profile = profileDao.readProfile(user.id)
 
     val mode = profile.formatMode
 

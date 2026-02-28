@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -41,24 +41,24 @@ class UserReactionsController(reactionService: ReactionService, userService: Use
 
     val modelAndView = new ModelAndView("user-reactions")
     // меняется по логике ниже
-    var url = s"/people/${user.getNick}/reactions"
+    var url = s"/people/${user.nick}/reactions"
 
     modelAndView.addObject("title", "Реакции")
 
     val title = if (user == currentUser.user)
       "мои реакции"
     else
-      s"реакции ${user.getNick}"
+      s"реакции ${user.nick}"
 
     val titleTo = if (user == currentUser.user)
       "на мои сообщения"
     else
-      s"реакции на ${user.getNick}"
+      s"реакции на ${user.nick}"
 
     modelAndView.addObject("reactionsTitle", titleTo)
     modelAndView.addObject("meTitle", title)
     modelAndView.addObject("url", url)
-    modelAndView.addObject("reactionsUrl", s"/people/${user.getNick}/reactions/to")
+    modelAndView.addObject("reactionsUrl", s"/people/${user.nick}/reactions/to")
 
     val showDeleted = currentUser.moderator
 
@@ -67,7 +67,7 @@ class UserReactionsController(reactionService: ReactionService, userService: Use
         // признак включения режима "реакции на меня"
         modelAndView.addObject("modeTo", 1)
         // переделка url для пагинации
-        url = s"/people/${user.getNick}/reactions/to"
+        url = s"/people/${user.nick}/reactions/to"
         reactionService.getReactionsView(user, offset, ItemsPerPage + 1, modeTo = true,showDeleted)
       } else
         throw new BadParameterException("mode", "incorrect")

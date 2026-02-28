@@ -49,11 +49,11 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
   def getInfoNew(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
 
-    if (user.isBlocked && !currentUserOpt.authorized) {
+    if (user.blocked && !currentUserOpt.authorized) {
       throw new UserBanedException(user, userDao.getBanInfoClass(user))
     }
 
-    if (!user.isActivated && !currentUserOpt.moderator) {
+    if (!user.activated && !currentUserOpt.moderator) {
       throw new UserNotFoundException(user.getName)
     }
 
@@ -66,7 +66,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     mv.getModel.put("userpic", userService.getUserpic(user, currentUserOpt.profile.avatarMode, misteryMan = true))
 
-    if (user.isBlocked) {
+    if (user.blocked) {
       mv.getModel.put("banInfo", userDao.getBanInfoClass(user))
     }
 
@@ -78,33 +78,33 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     // freezes the user, if frozen
     if (user.isFrozen) {
       mv.getModel.put("isFrozen", true)
-      val freezer = userService.getUserCached(user.getFrozenBy)
+      val freezer = userService.getUserCached(user.frozenBy)
       mv.getModel.put("freezer", freezer)
     }
 
     if (currentUserOpt.moderator) {
-      val othersWithSameEmail = userDao.getAllByEmail(user.getEmail).asScala.filter(_.getId != user.getId)
+      val othersWithSameEmail = userDao.getAllByEmail(user.email).asScala.filter(_.id != user.id)
 
       mv.getModel.put("otherUsers", othersWithSameEmail.asJava)
 
       mv.getModel.put("recentScoreLoss", deleteInfoDao.getRecentScoreLoss(user))
     }
 
-    if (!user.isAnonymous) {
+    if (!user.anonymous) {
       mv.getModel.put("watchPresent", memoriesDao.isWatchPresetForUser(user))
       mv.getModel.put("favPresent", memoriesDao.isFavPresetForUser(user))
     }
 
-    val viewByOwner = currentUserOpt.userOpt.exists(_.getNick == nick)
+    val viewByOwner = currentUserOpt.userOpt.exists(_.nick == nick)
 
     mv.getModel.put("moderatorOrCurrentUser", viewByOwner || currentUserOpt.moderator)
     mv.getModel.put("viewByOwner", viewByOwner)
 
     currentUserOpt.userOpt.foreach { currentUser =>
       if (!viewByOwner) {
-        val ignoreList = ignoreListDao.get(currentUser.getId)
+        val ignoreList = ignoreListDao.get(currentUser.id)
 
-        mv.getModel.put("ignored", ignoreList.contains(user.getId))
+        mv.getModel.put("ignored", ignoreList.contains(user.id))
 
         remarkDao.getRemark(currentUser, user).foreach { remark =>
           mv.getModel.put("remark", remark)
@@ -181,7 +181,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
   def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[Json] = MaybeAuthorized { currentUser =>
     val user = userService.getUser(nick)
 
-    if (!currentUser.moderator && user.isBlocked) {
+    if (!currentUser.moderator && user.blocked) {
       throw new AccessViolationException("Пользователь заблокирован")
     }
 

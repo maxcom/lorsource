@@ -133,7 +133,7 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
             .attr("height", "16")
             .tagVoid("img")
 
-          if (user.isBlocked) {
+          if (user.blocked) {
             html.tag("s")
           }
 
@@ -143,7 +143,7 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
             .withAttr(resolvedLink)
             .tag("a", false, false, () => html.text(nick))
 
-          if (user.isBlocked) {
+          if (user.blocked) {
             html.closeTag("s")
           }
 

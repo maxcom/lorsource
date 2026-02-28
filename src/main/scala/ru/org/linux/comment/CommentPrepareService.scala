@@ -51,7 +51,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
           case Some(replyNode) =>
             val reply = replyNode.getComment
             val samePage = samePageComments.contains(reply.id)
-            val replyAuthor = userService.getUserCached(reply.userid).getNick
+            val replyAuthor = userService.getUserCached(reply.userid).nick
             Some(new ReplyInfo(reply.id, replyAuthor, Strings.emptyToNull(reply.title.trim), reply.postdate, samePage, false))
         }
       } else {
@@ -95,7 +95,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
 
     val deleteInfo = loadDeleteInfo(comment)
-    val apiDeleteInfo = deleteInfo.map(i => new ApiDeleteInfo(userService.getUserCached(i.userid).getNick, i.getReason))
+    val apiDeleteInfo = deleteInfo.map(i => new ApiDeleteInfo(userService.getUserCached(i.userid).nick, i.getReason))
     val editSummary = loadEditSummary(comment)
 
     val (postIP, userAgent) = if (session != null && session.moderator) {
@@ -132,7 +132,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   private def loadEditSummary(comment: Comment): Option[EditSummary] = {
     if (comment.editCount > 0) {
-      Some(new EditSummary(userService.getUserCached(comment.editorId).getNick, comment.editDate, comment.editCount))
+      Some(new EditSummary(userService.getUserCached(comment.editorId).nick, comment.editDate, comment.editCount))
     } else {
       None
     }
@@ -195,7 +195,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       list.map { comment =>
         val text = texts(comment.id)
         val author = users(comment.userid)
-        val remark = remarks.get(author.getId)
+        val remark = remarks.get(author.id)
         val warnings = allWarnings.getOrElse(comment.id, Seq.empty)
 
         prepareComment(text, author, remark.map(_.getText), comment, Option(comments), topic, hideSet,

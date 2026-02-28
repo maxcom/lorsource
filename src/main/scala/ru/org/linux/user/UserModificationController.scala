@@ -38,7 +38,7 @@ object UserModificationController {
   private def redirectToProfile(user: User) = new ModelAndView(new RedirectView(getNoCacheLinkToProfile(user)))
 
   private def getNoCacheLinkToProfile(user: User) = {
-    "/people/" + URLEncoder.encode(user.getNick, StandardCharsets.UTF_8) + "/profile?nocache=" + ThreadLocalRandom.current().nextInt
+    "/people/" + URLEncoder.encode(user.nick, StandardCharsets.UTF_8) + "/profile?nocache=" + ThreadLocalRandom.current().nextInt
   }
 
   // get 'now', add the duration and returns result;
@@ -67,16 +67,16 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
   def blockUser(@RequestParam("id") user: User,
                 @RequestParam(value = "reason", required = false) reason: String): ModelAndView = ModeratorOnly { moderator =>
     if (!userService.isBlockable(user = user, by = moderator.user)) {
-      throw new AccessViolationException(s"Пользователя ${user.getNick} нельзя заблокировать")
+      throw new AccessViolationException(s"Пользователя ${user.nick} нельзя заблокировать")
     }
 
-    if (user.isBlocked) {
+    if (user.blocked) {
       throw new UserErrorException("Пользователь уже блокирован")
     }
 
     userDao.block(user, moderator.user, reason)
 
-    logger.info(s"User ${user.getNick} blocked by ${moderator.user.getNick}")
+    logger.info(s"User ${user.nick} blocked by ${moderator.user.nick}")
 
     redirectToProfile(user)
   }
@@ -89,8 +89,8 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
    */
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=score50"))
   def score50(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
-    if (user.isBlocked || user.isAnonymous || user.getScore > 50) {
-      throw new AccessViolationException(s"Нельзя выставить score=50 пользователю ${user.getNick}")
+    if (user.blocked || user.anonymous || user.getScore > 50) {
+      throw new AccessViolationException(s"Нельзя выставить score=50 пользователю ${user.nick}")
     }
 
     userDao.score50(user, moderator.user)
@@ -107,12 +107,12 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=unblock"))
   def unblockUser(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
     if (!userService.isBlockable(user = user, by = moderator.user)) {
-      throw new AccessViolationException(s"Пользователя ${user.getNick} нельзя разблокировать")
+      throw new AccessViolationException(s"Пользователя ${user.nick} нельзя разблокировать")
     }
 
     userDao.unblock(user, moderator.user)
 
-    logger.info(s"User ${user.getNick} unblocked by ${moderator.user.getNick}")
+    logger.info(s"User ${user.nick} unblocked by ${moderator.user.nick}")
 
     redirectToProfile(user)
   }
@@ -127,16 +127,16 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
   def blockAndMassiveDeleteCommentUser(@RequestParam("id") user: User,
                                        @RequestParam(value = "reason", required = false) reason: String): ModelAndView = ModeratorOnly { implicit moderator =>
     if (!userService.isBlockable(user = user, by = moderator.user)) {
-      throw new AccessViolationException(s"Пользователя ${user.getNick} нельзя заблокировать")
+      throw new AccessViolationException(s"Пользователя ${user.nick} нельзя заблокировать")
     }
 
-    if (user.isBlocked) {
+    if (user.blocked) {
       throw new UserErrorException("Пользователь уже блокирован")
     }
 
     val deleteResult = commentService.deleteAllAndBlock(user, reason)
 
-    logger.info(s"User ${user.getNick} blocked by ${moderator.user.getNick}")
+    logger.info(s"User ${user.nick} blocked by ${moderator.user.nick}")
 
     deleteResult.getDeletedTopicIds.asScala.foreach { topicId =>
       searchQueueSender.updateMessage(topicId, true)
@@ -150,8 +150,8 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
     params.put("comments", Integer.valueOf(deleteResult.getDeletedCommentIds.size))
     params.put("skipped", deleteResult.getSkippedComments)
 
-    logger.info("Deleted {} by moderator {}: topic={}; comments={}", user.getNick,
-      moderator.user.getNick, deleteResult.getDeletedTopicIds.size, deleteResult.getDeletedCommentIds.size)
+    logger.info("Deleted {} by moderator {}: topic={}; comments={}", user.nick,
+      moderator.user.nick, deleteResult.getDeletedTopicIds.size, deleteResult.getDeletedCommentIds.size)
 
     new ModelAndView("delip", params.asJava)
   }
@@ -165,12 +165,12 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=toggle_corrector"))
   def toggleUserCorrector(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
     if (user.getScore < UserService.CorrectorScore) {
-      throw new AccessViolationException(s"Пользователя ${user.getNick} нельзя сделать корректором")
+      throw new AccessViolationException(s"Пользователя ${user.nick} нельзя сделать корректором")
     }
 
     userDao.toggleCorrector(user, moderator.user)
 
-    logger.info(s"Toggle corrector ${user.getNick} by ${moderator.user.getNick}")
+    logger.info(s"Toggle corrector ${user.nick} by ${moderator.user.nick}")
 
     redirectToProfile(user)
   }
@@ -184,16 +184,16 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=reset-password"))
   def resetPassword(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
     if (user.isModerator && !moderator.user.isAdministrator) {
-      throw new AccessViolationException(s"Пользователю ${user.getNick} нельзя сбросить пароль")
+      throw new AccessViolationException(s"Пользователю ${user.nick} нельзя сбросить пароль")
     }
 
-    if (user.isAnonymous) {
-      throw new AccessViolationException(s"Пользователю ${user.getNick} нельзя сбросить пароль")
+    if (user.anonymous) {
+      throw new AccessViolationException(s"Пользователю ${user.nick} нельзя сбросить пароль")
     }
 
     userDao.resetPassword(user, moderator.user)
 
-    logger.info(s"Пароль ${user.getNick} сброшен модератором ${moderator.user.getNick}")
+    logger.info(s"Пароль ${user.nick} сброшен модератором ${moderator.user.nick}")
 
     val mv = new ModelAndView("action-done")
 
@@ -208,8 +208,8 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
    */
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=remove_userinfo"))
   def removeUserInfo(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
-    if (user.isAnonymous) {
-      throw new AccessViolationException(s"Пользователю ${user.getNick} нельзя удалить сведения")
+    if (user.anonymous) {
+      throw new AccessViolationException(s"Пользователю ${user.nick} нельзя удалить сведения")
     }
 
     userService.removeUserInfo(user, moderator.user)
@@ -222,8 +222,8 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
    */
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=remove_town"))
   def removeTown(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
-    if (user.isAnonymous) {
-      throw new AccessViolationException(s"Пользователю ${user.getNick} нельзя удалить сведения")
+    if (user.anonymous) {
+      throw new AccessViolationException(s"Пользователю ${user.nick} нельзя удалить сведения")
     }
 
     userService.removeTown(user, moderator.user)
@@ -233,8 +233,8 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
 
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=remove_url"))
   def removeUrl(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
-    if (user.isAnonymous) {
-      throw new AccessViolationException(s"Пользователю ${user.getNick} нельзя удалить сведения")
+    if (user.anonymous) {
+      throw new AccessViolationException(s"Пользователю ${user.nick} нельзя удалить сведения")
     }
 
     userService.removeUrl(user, moderator.user)
@@ -245,12 +245,12 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
   @RequestMapping(value = Array("/remove-userpic.jsp"), method = Array(RequestMethod.POST))
   def removeUserpic(@RequestParam("id") user: User): ModelAndView = AuthorizedOnly { currentUser =>
     // Не модератор не может удалять чужие аватары
-    if (!currentUser.moderator && currentUser.user.getId != user.getId) {
+    if (!currentUser.moderator && currentUser.user.id != user.id) {
       throw new AccessViolationException("Not permitted")
     }
 
     if (userDao.resetUserpic(user, currentUser.user)) {
-      logger.info(s"Clearing ${user.getNick} userpic by ${currentUser.user.getNick}")
+      logger.info(s"Clearing ${user.nick} userpic by ${currentUser.user.nick}")
     }
 
     redirectToProfile(user)
@@ -276,16 +276,16 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
     val until = UserModificationController.getUntil(shift)
 
     if (!userService.isFreezable(user = user, by = moderator.user)) {
-      throw new AccessViolationException(s"Пользователя ${user.getNick} нельзя заморозить")
+      throw new AccessViolationException(s"Пользователя ${user.nick} нельзя заморозить")
     }
 
-    if (user.isBlocked) {
+    if (user.blocked) {
       throw new UserErrorException("Пользователь блокирован, его нельзя заморозить")
     }
 
     userService.freezeUser(user, moderator.user, reason, until)
 
-    logger.info(s"Freeze ${user.getNick} by ${moderator.user.getNick} until $until")
+    logger.info(s"Freeze ${user.nick} by ${moderator.user.nick} until $until")
 
     redirectToProfile(user)
   }
@@ -298,7 +298,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new AccessViolationException("Пользователя нельзя заблокировать")
     }
 
-    if (user.isBlocked) {
+    if (user.blocked) {
       throw new UserErrorException("Пользователь уже блокирован")
     }
 

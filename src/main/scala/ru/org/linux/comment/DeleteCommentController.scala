@@ -63,7 +63,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val comments = commentService.getCommentList(topic, currentUser.moderator)
     val list = commentService.getCommentsSubtree(comments, msgid, Set.empty[Int])
 
-    val ignoreList = ignoreListDao.get(currentUser.user.getId)
+    val ignoreList = ignoreListDao.get(currentUser.user.id)
 
     new ModelAndView("delete_comment", Map[String, Any](
       "msgid" -> msgid,
@@ -103,7 +103,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val user = currentUser.user
 
     val deleted: Seq[Int] = if (currentUser.moderator) {
-      val effectiveBonus = if (user.getId != comment.userid) {
+      val effectiveBonus = if (user.id != comment.userid) {
         bonus
       } else {
         0
@@ -152,7 +152,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     if (currentUser.moderator && currentUser.user != author) {
       logger.info("Comment deleted by moderator {}: {}; {}",
-        currentUser.user.getNick, message, bigMessage.map(_._2).getOrElse("<none>"))
+        currentUser.user.nick, message, bigMessage.map(_._2).getOrElse("<none>"))
 
       new ModelAndView("comment-deleted-by-moderator", (Map[String, Any](
         "message" -> message,
@@ -162,7 +162,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
         "ua" -> comment.userAgentId
       ) ++ bigMessage).asJava)
     } else {
-      logger.info("Comment deleted by author {}: {}", currentUser.user.getNick, message)
+      logger.info("Comment deleted by author {}: {}", currentUser.user.nick, message)
 
       new ModelAndView("action-done", (Map(
         "message" -> message,
@@ -193,7 +193,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
-    val ignoreList = ignoreListDao.get(currentUser.user.getId)
+    val ignoreList = ignoreListDao.get(currentUser.user.id)
 
     new ModelAndView("undelete_comment", Map[String, Any](
       "comment" -> prepareService.prepareCommentOnly(comment, topic, ignoreList),

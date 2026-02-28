@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -203,9 +203,9 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
 
     indexInto(MessageIndexType) id comment.id.toString fields (
       Map[String, Any]("section" -> section.getUrlName,
-        "topic_author" -> topicAuthor.getNick,
+        "topic_author" -> topicAuthor.nick,
         "topic_id" -> topic.id,
-        "author" -> author.getNick,
+        "author" -> author.nick,
         "group" -> group.urlName,
         "topic_title" -> topicTitle,
         COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
@@ -236,9 +236,9 @@ class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupD
 
     indexInto(MessageIndexType).id(topic.id.toString).fields(
       "section" -> section.getUrlName,
-      "topic_author" -> author.getNick,
+      "topic_author" -> author.nick,
       "topic_id" -> topic.id,
-      "author" -> author.getNick,
+      "author" -> author.nick,
       "group" -> group.urlName,
       "title" -> topic.getTitleUnescaped,
       "topic_title" -> topic.getTitleUnescaped,

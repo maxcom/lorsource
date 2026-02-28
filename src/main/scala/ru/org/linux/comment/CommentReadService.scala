@@ -78,7 +78,7 @@ class CommentReadService(commentDao: CommentDao) {
    * @return список удалённых комментариев пользователя
    */
   def getDeletedComments(user: User): collection.Seq[CommentsListItem] =
-    commentDao.getDeletedComments(user.getId).asScala
+    commentDao.getDeletedComments(user.id).asScala
 
   def makeHideSet(comments: CommentList, filterChain: Int, ignoreList: Set[Int]): Set[Int] = {
     if (filterChain == CommentFilter.FILTER_NONE) {

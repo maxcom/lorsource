@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -62,17 +62,17 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
   def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Int =
     transactional(propagation = Propagation.MANDATORY) { _ =>
       if (set) {
-        val add = Map(user.getId -> reaction).asJson.noSpaces
+        val add = Map(user.id -> reaction).asJson.noSpaces
 
         jdbcTemplate.update("UPDATE comments SET reactions = reactions || ? WHERE id=?", add, comment.id)
         jdbcTemplate.update("INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction) VALUES(?, ?, ?, ?) " +
           "ON CONFLICT (origin_user, topic_id, comment_id) " +
           "DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction",
-          user.getId, comment.topicId, comment.id, reaction)
+          user.id, comment.topicId, comment.id, reaction)
       } else {
-        jdbcTemplate.update("UPDATE comments SET reactions = reactions - ? WHERE id=?", user.getId.toString, comment.id)
+        jdbcTemplate.update("UPDATE comments SET reactions = reactions - ? WHERE id=?", user.id.toString, comment.id)
         jdbcTemplate.update("DELETE FROM reactions_log WHERE origin_user=? AND topic_id=? AND comment_id=?",
-          user.getId, comment.topicId, comment.id)
+          user.id, comment.topicId, comment.id)
       }
 
       val r = jdbcTemplate.queryForObject[String]("SELECT reactions FROM comments WHERE id=?", comment.id)
@@ -83,16 +83,16 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
   def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int =
     transactional(propagation = Propagation.MANDATORY) { _ =>
       if (set) {
-        val add = Map(user.getId -> reaction).asJson.noSpaces
+        val add = Map(user.id -> reaction).asJson.noSpaces
 
         jdbcTemplate.update("UPDATE topics SET reactions = reactions || ? WHERE id=?", add, topic.id)
         jdbcTemplate.update("INSERT INTO reactions_log (origin_user, topic_id, reaction) VALUES(?, ?, ?) " +
           "ON CONFLICT (origin_user, topic_id, comment_id) " +
-          "DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction", user.getId, topic.id, reaction)
+          "DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction", user.id, topic.id, reaction)
       } else {
-        jdbcTemplate.update("UPDATE topics SET reactions = reactions - ? WHERE id=?", user.getId.toString, topic.id)
+        jdbcTemplate.update("UPDATE topics SET reactions = reactions - ? WHERE id=?", user.id.toString, topic.id)
         jdbcTemplate.update("DELETE FROM reactions_log WHERE origin_user=? AND topic_id=? AND comment_id IS NULL",
-          user.getId, topic.id)
+          user.id, topic.id)
       }
 
       val r = jdbcTemplate.queryForObject[String]("SELECT reactions FROM topics WHERE id=?", topic.id)
@@ -103,7 +103,7 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
   def recentReactionCount(origin: User): Int =
     jdbcTemplate.queryForObject[Int](
       "SELECT count(*) FROM reactions_log " +
-        "WHERE origin_user=? AND set_date > CURRENT_TIMESTAMP - '10 minutes'::interval", origin.getId).getOrElse(0)
+        "WHERE origin_user=? AND set_date > CURRENT_TIMESTAMP - '10 minutes'::interval", origin.id).getOrElse(0)
 
   def getLogByTopic(topic: Topic): Seq[ReactionsLogItem] =
     jdbcTemplate.queryAndMap[ReactionsLogItem](
@@ -158,10 +158,10 @@ class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionMan
         "WHERE origin_user=?  " +
         (if (!includeDeleted) {  " AND NOT topics.deleted AND comments.deleted IS NOT TRUE "  } else "") +
         " ORDER BY set_date DESC OFFSET ? LIMIT ?",
-      originUser.getId, offset, size)  { case (rs, _) =>
+      originUser.id, offset, size)  { case (rs, _) =>
       ReactionsView(
         item = ReactionsLogItem(
-          originUserId = originUser.getId,
+          originUserId = originUser.id,
           topicId = rs.getInt("topic_id"),
           commentId = Option(rs.getInt("comment_id")).filter(_ != 0),
           setDate = rs.getTimestamp("set_date"),

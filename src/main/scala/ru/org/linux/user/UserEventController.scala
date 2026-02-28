@@ -39,7 +39,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
   def resetNotifications(@RequestParam topId: Int): RedirectView = AuthorizedOnly { currentUser =>
     userEventService.resetUnreadEvents(currentUser.user, topId)
-    RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.getId))
+    RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.id))
 
     val view = new RedirectView("/notifications")
     view.setExposeModelAttributes(false)
@@ -49,12 +49,12 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
   @RequestMapping(value = Array("/notifications-click"), method = Array(RequestMethod.POST))
   def clickNotifications(@RequestParam firstId: Int, @RequestParam lastId: Int): RedirectView = AuthorizedOnly { currentUser =>
     val firstEvent = userEventService.getEvent(firstId)
-    if (currentUser.user.getId != firstEvent.userId) {
+    if (currentUser.user.id != firstEvent.userId) {
       throw new AccessViolationException("event owner does not match")
     }
 
     val lastEvent = userEventService.getEvent(lastId)
-    if (currentUser.user.getId != lastEvent.userId) {
+    if (currentUser.user.id != lastEvent.userId) {
       throw new AccessViolationException("event owner does not match")
     }
 
@@ -65,7 +65,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         userEventService.resetSingleEvent(currentUser.user, lastEvent.id)
       }
 
-      RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.getId))
+      RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.id))
     }
 
 
@@ -89,7 +89,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
                         @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView =
     AuthorizedOnly { currentUser =>
       val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
-      val nick = currentUser.user.getNick
+      val nick = currentUser.user.nick
 
       val params = mutable.Map[String, Any]()
 
@@ -120,7 +120,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       params.put("topics", topics)
       params.put("offset", offset)
       params.put("disable_event_header", true)
-      params.put("unreadCount", currentUser.user.getUnreadEvents)
+      params.put("unreadCount", currentUser.user.unreadEvents)
       params.put("isMyNotifications", true)
 
       response.addHeader("Cache-Control", "no-cache")
@@ -163,7 +163,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         throw new BadInputException("некорректное имя пользователя")
       }
 
-      if (currentUser.user.getNick == nick) {
+      if (currentUser.user.nick == nick) {
         return new ModelAndView(new RedirectView("/notifications"))
       }
 
@@ -220,7 +220,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       throw new BadInputException("некорректное имя пользователя")
     }
 
-    val viewByOwner = currentUserOpt.userOpt.exists(_.getNick == nick)
+    val viewByOwner = currentUserOpt.userOpt.exists(_.nick == nick)
 
     val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
 

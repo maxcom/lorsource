@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,7 @@ class ShowRemarkController(remarkDao: RemarkDao, prepareService: PreparedRemarkS
   @RequestMapping(Array("/people/{nick}/remarks"))
   def showRemarks(@PathVariable nick: String, @RequestParam(value = "offset", defaultValue = "0") offset: Int,
                   @RequestParam(value = "sort", defaultValue = "0") sortorder: Int): ModelAndView = AuthUtil.AuthorizedOnly { currentUser =>
-    if (currentUser.user.getNick != nick) {
+    if (currentUser.user.nick != nick) {
       throw new AccessViolationException("Not authorized")
     }
 

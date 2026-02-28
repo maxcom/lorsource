@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -65,10 +65,10 @@ class FloodProtector(deleteInfoDao: DeleteInfoDao, siteConfig: SiteConfig) {
 
   def checkRateLimit(action: FloodProtector.Action, ip: String, @Nullable user: User, errors: Errors): Unit = {
     if (enabled) {
-      val threshold: Duration = if (user == null || user.isAnonymous) {
+      val threshold: Duration = if (user == null || user.anonymous) {
         action.threshold
       } else if (user.getScore < 35 ||
-        Option(user.getFrozenUntil).map(_.toInstant).exists(_.isAfter(Instant.now.minus(3, ChronoUnit.DAYS))) ||
+        Option(user.frozenUntil).map(_.toInstant).exists(_.isAfter(Instant.now.minus(3, ChronoUnit.DAYS))) ||
         deleteInfoDao.getRecentScoreLoss(user) >= 30) {
         action.thresholdLowScore
       } else if (user.getScore >= 100) {

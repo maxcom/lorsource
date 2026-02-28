@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -106,7 +106,7 @@ object AuthUtil {
     if (currentUser == null) {
       null
     } else {
-      currentUser.getNick
+      currentUser.nick
     }
   }
 
@@ -202,14 +202,14 @@ object AuthUtil {
       formUser match {
         case None =>
           NonAuthorizedSession
-        case Some(formUser) if formUser.isAnonymous =>
+        case Some(formUser) if formUser.anonymous =>
           NonAuthorizedSession
         case Some(formUser) =>
-          if (formUser.isBlocked || !formUser.isActivated) {
-            errors.rejectValue("user", null, s"Пользователь \"${formUser.getNick}\" заблокирован или не активирован")
+          if (formUser.blocked || !formUser.activated) {
+            errors.rejectValue("user", null, s"Пользователь \"${formUser.nick}\" заблокирован или не активирован")
             NonAuthorizedSession
-          } else if (!(formUser.isAnonymous && formPassword.get.isEmpty) && !UserService.matchPassword(formUser, formPassword.get)) {
-            errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.getNick}\" задан неверно!")
+          } else if (!(formUser.anonymous && formPassword.get.isEmpty) && !UserService.matchPassword(formUser, formPassword.get)) {
+            errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.nick}\" задан неверно!")
             NonAuthorizedSession
           } else {
             AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false, profile = Profile.DEFAULT)

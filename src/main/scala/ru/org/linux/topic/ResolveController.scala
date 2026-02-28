@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -34,7 +34,7 @@ class ResolveController(messageDao: TopicDao, groupDao: GroupDao) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные")
     }
 
-    if (!currentUser.moderator && currentUser.user.getId != message.authorUserId) {
+    if (!currentUser.moderator && currentUser.user.id != message.authorUserId) {
       throw new AccessViolationException("У Вас нет прав на решение данной темы")
     }
 

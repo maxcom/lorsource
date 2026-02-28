@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -79,7 +79,7 @@ public class RegisterRequestValidator implements Validator {
       errors.rejectValue("nick", null, "некорректное имя пользователя");
     }
 
-    if (nick!=null && nick.length() > User.MAX_NICK_LENGTH) {
+    if (nick!=null && nick.length() > UserConstants.MAX_NICK_LENGTH) {
       errors.rejectValue("nick", null, "слишком длинное имя пользователя");
     }
 

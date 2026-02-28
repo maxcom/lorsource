@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -236,9 +236,9 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef[Protoco
           .collect { case token: RememberMeAuthenticationToken if token.isAuthenticated => token.getPrincipal }
           .collect { case user: UserDetailsImpl => user.getUser }
 
-      logger.debug(s"Connected! currentUser=${currentUser.map(_.getNick)}")
+      logger.debug(s"Connected! currentUser=${currentUser.map(_.nick)}")
 
-      val result = hub.ask(SessionStarted(session, currentUser.map(_.getId), _))
+      val result = hub.ask(SessionStarted(session, currentUser.map(_.id), _))
 
       Await.result(result, 10.seconds)
     } catch {

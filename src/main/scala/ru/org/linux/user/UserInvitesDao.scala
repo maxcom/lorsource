@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -50,7 +50,7 @@ class UserInvitesDao(ds: DataSource) {
 
     insert.execute(Map(
       "invite_code" -> inviteCode,
-      "owner" -> owner.getId,
+      "owner" -> owner.id,
       "valid_until" -> new Timestamp(validUntil.getMillis),
       "email" -> email
     ).asJava)
@@ -81,7 +81,7 @@ class UserInvitesDao(ds: DataSource) {
   // returns total and user's counts
   def countValidInvites(user: User): (Int, Int) = {
     jdbcTemplate.queryForObjectAndMap(
-      "select count(*), count(*) filter (where owner=?) from user_invites where valid_until > CURRENT_TIMESTAMP", user.getId) { (row, _) =>
+      "select count(*), count(*) filter (where owner=?) from user_invites where valid_until > CURRENT_TIMESTAMP", user.id) { (row, _) =>
       (row.getInt(1), row.getInt(2))
     }.get
   }
@@ -89,7 +89,7 @@ class UserInvitesDao(ds: DataSource) {
   def getAllInvitedUsers(user: User): Seq[Int] =
     jdbcTemplate.queryForSeq[Int](
       "select invited_user from user_invites where owner = ? and invited_user is not null order by issue_date",
-      user.getId)
+      user.id)
 }
 
 object UserInvitesDao {

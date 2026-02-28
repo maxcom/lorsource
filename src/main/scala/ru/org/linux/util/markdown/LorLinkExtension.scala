@@ -26,7 +26,6 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.util.{LorURL, URLUtil}
 
-import java.net.URI
 import java.util
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOptional

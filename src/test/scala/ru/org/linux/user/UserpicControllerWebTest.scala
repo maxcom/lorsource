@@ -47,7 +47,7 @@ class UserpicControllerWebTest {
   private def rescueJB(): Unit = {
     val user = userDao.getUser(userDao.findUserId("JB"))
 
-    jdbcTemplate.update("DELETE FROM user_log WHERE userid=?", user.getId)
+    jdbcTemplate.update("DELETE FROM user_log WHERE userid=?", user.id)
 
     userDao.unblock(user, user)
   }

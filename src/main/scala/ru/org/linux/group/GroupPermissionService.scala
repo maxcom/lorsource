@@ -44,7 +44,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @return признак возможности удаления
     */
   private def isDeletableByUser(topic: Topic, user: User, section: Section): Boolean = {
-    if (topic.authorUserId != user.getId) {
+    if (topic.authorUserId != user.id) {
       false
     } else if (topic.draft) {
       true
@@ -93,11 +93,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     isTopicPostingAllowed(effectivePostscore(group), currentUser.userOpt.orNull)
 
   private def isTopicPostingAllowed(restriction: Int, @Nullable currentUser: User): Boolean = {
-    if (currentUser!=null && (currentUser.isBlocked || currentUser.isFrozen)) {
+    if (currentUser!=null && (currentUser.blocked || currentUser.isFrozen)) {
       false
     } else if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
       true
-    } else if (currentUser == null || currentUser.isAnonymous) {
+    } else if (currentUser == null || currentUser.anonymous) {
       false
     } else if (restriction == TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
       currentUser.isModerator
@@ -105,7 +105,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
         restriction == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
       false
     } else {
-      currentUser.getScore >= restriction
+      currentUser.score >= restriction
     }
   }
 
@@ -201,7 +201,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
     if (message.deleted) {
       false
-    } else if (by == null || by.isAnonymous || by.isBlocked || by.isFrozen) {
+    } else if (by == null || by.anonymous || by.blocked || by.isFrozen) {
       false
     } else if (by.isAdministrator) {
       true
@@ -213,7 +213,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       true
     } else if (by.canCorrect && section.isPremoderated) {
       true
-    } else if (by.getId == author.getId && !message.commited) {
+    } else if (by.id == author.id && !message.commited) {
       if (message.sticky) {
         true
       } else if (section.isPremoderated) {
@@ -225,7 +225,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
-    } else if (by.getId == author.getId && message.commited && section.getId == SECTION_ARTICLES) {
+    } else if (by.id == author.id && message.commited && section.getId == SECTION_ARTICLES) {
       val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
@@ -249,7 +249,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
     if (message.deleted) {
       false
-    } else if (by == null || by.isAnonymous || by.isBlocked || by.isFrozen) {
+    } else if (by == null || by.anonymous || by.blocked || by.isFrozen) {
       false
     } else if (by.isAdministrator) {
       true
@@ -257,7 +257,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       true
     } else if (by.canCorrect) {
       true
-    } else if (by.getId == author.getId && !message.commited) {
+    } else if (by.id == author.id && !message.commited) {
       if (message.sticky) {
         true
       } else if (message.draft) {
@@ -269,7 +269,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
-    } else if (by.getId == author.getId && message.commited && section.getId == SECTION_ARTICLES) {
+    } else if (by.id == author.id && message.commited && section.getId == SECTION_ARTICLES) {
       val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
@@ -281,7 +281,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   def canCreateTag(section: Section)(implicit session: AnySession): Boolean = {
     val user = session.userOpt.orNull
 
-    if (section.isPremoderated && user!=null && !user.isAnonymous) {
+    if (section.isPremoderated && user!=null && !user.anonymous) {
       true
     } else {
       user != null && user.getScore >= CreateTagScore
@@ -289,5 +289,5 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def canCommit(topic: Topic)(implicit session: AnySession): Boolean =
-    session.userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.getId))
+    session.userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.id))
 }

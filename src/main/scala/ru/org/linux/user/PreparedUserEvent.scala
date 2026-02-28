@@ -42,7 +42,7 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
   def withSimilarReaction(similarEvent: UserEvent, originUser: User): PreparedUserEvent = {
     assume(event.cid == similarEvent.cid)
     assume(event.topicId == similarEvent.topicId)
-    assume(similarEvent.originUserId == originUser.getId)
+    assume(similarEvent.originUserId == originUser.id)
 
     if (event.unread) {
       copy(reactions = reactions :+ ReactionListItem(originUser, similarEvent.reaction, None), lastId = similarEvent.id)
@@ -75,7 +75,7 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
   }
 
   def getAuthorsText: String = if (authors.sizeIs > 1) {
-    authors.toSeq.map(_.getNick).sorted.mkString("Комментарии ", ", ", "")
+    authors.toSeq.map(_.nick).sorted.mkString("Комментарии ", ", ", "")
   } else {
     ""
   }

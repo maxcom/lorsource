@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -56,7 +56,7 @@ class ResetPasswordController(userDao: UserDao, userService: UserService,
     }
 
     val resetDate = userDao.getResetDate(user)
-    val resetCode = userService.getResetCode(user.getNick, user.getEmail, resetDate)
+    val resetCode = userService.getResetCode(user.nick, user.email, resetDate)
 
     if (resetCode != formCode) {
       logger.warn("Код проверки не совпадает; login={} formCode={} resetCode={}", nick, formCode, resetCode)

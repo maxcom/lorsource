@@ -119,7 +119,7 @@ public class UserDao {
   }
 
   private User getUserInternal(int id) throws UserNotFoundException {
-    List<User> list = jdbcTemplate.query(queryUserById, (rs, rowNum) -> new User(rs), id);
+    List<User> list = jdbcTemplate.query(queryUserById, (rs, rowNum) -> User.apply(rs), id);
 
     if (list.isEmpty()) {
       throw new UserNotFoundException(id);

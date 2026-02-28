@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -58,11 +58,11 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
     val now = new Timestamp(System.currentTimeMillis)
 
     try {
-      val resetCode = userService.getResetCode(user.getNick, user.getEmail, now)
+      val resetCode = userService.getResetCode(user.nick, user.email, now)
 
       emailService.sendPasswordReset(user, resetCode)
 
-      userService.updateResetDate(user, currentUser.userOpt.orNull, user.getEmail, now)
+      userService.updateResetDate(user, currentUser.userOpt.orNull, user.email, now)
 
       new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email")
     } catch {

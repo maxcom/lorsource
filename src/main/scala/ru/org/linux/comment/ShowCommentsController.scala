@@ -29,7 +29,7 @@ class ShowCommentsController(userService: UserService, commentService: CommentRe
   @RequestMapping(Array("/show-comments.jsp"))
   def showComments(@RequestParam nick: String): RedirectView = {
     val user = userService.getUserCached(nick)
-    new RedirectView(s"search.jsp?range=COMMENTS&user=${user.getNick}&sort=DATE")
+    new RedirectView(s"search.jsp?range=COMMENTS&user=${user.nick}&sort=DATE")
   }
 
   @RequestMapping(value = Array("/people/{nick}/deleted-comments"))

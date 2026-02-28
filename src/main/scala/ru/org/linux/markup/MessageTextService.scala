@@ -145,17 +145,17 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
         s"""
            |$link
            |
-           |[i]Перемещено ${moveBy.getNick} из $moveFrom[/i]
+           |[i]Перемещено ${moveBy.nick} из $moveFrom[/i]
            |""".stripMargin
       case Html =>
         s"""
-           |$link<br><i>Перемещено ${moveBy.getNick} из $moveFrom</i>
+           |$link<br><i>Перемещено ${moveBy.nick} из $moveFrom</i>
            |""".stripMargin
       case Markdown =>
         s"""
            |$link
            |
-           |Перемещено ${moveBy.getNick} из $moveFrom
+           |Перемещено ${moveBy.nick} из $moveFrom
            |""".stripMargin
     }
   }

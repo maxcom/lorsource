@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -44,7 +44,7 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
         (userService.getModerators.filter(_._2).map(_._1) ++ userService.getCorrectors.filter(_._2).map(_._1)).distinct
     }
 
-    val id = warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.getId,
+    val id = warningDao.postWarning(topicId = topic.id, commentId = comment.map(_.id), authorId = author.id,
       message = message, warningType = warningType)
 
     eventService.addWarningEvent(author, notifyList, topic, comment, s"[${warningType.name}] $message", warningId = id)
@@ -55,7 +55,7 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
     }
   }
 
-  def lastWarningsCount(user: AuthorizedSession): Int = warningDao.lastWarningsCount(user.user.getId)
+  def lastWarningsCount(user: AuthorizedSession): Int = warningDao.lastWarningsCount(user.user.id)
 
   def prepareWarning(warnings: Seq[Warning]): Seq[PreparedWarning] =
     warnings.map { warning =>
@@ -77,7 +77,7 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
   def get(id: Int): Warning = warningDao.get(id)
 
   def clear(warning: Warning, by: AuthorizedSession): Unit = {
-    warningDao.clear(warning.id, by.user.getId)
+    warningDao.clear(warning.id, by.user.id)
 
     if (warning.commentId.isEmpty) {
       topicDao.updateLastmod(warning.topicId)

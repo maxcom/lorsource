@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -32,19 +32,19 @@ class UserpicPermissionInterceptor(userService: UserService) extends HandlerInte
           val user = userService.getUserCached(userid.toInt)
           val image = s"$userid$suffix"
 
-          if (image == user.getPhoto) {
+          if (image == user.photo) {
             true
           } else {
             val currentUser = Option(AuthUtil.getCurrentUser)
 
-            val allowed = currentUser.exists(u => u.getId == user.getId || u.isModerator)
+            val allowed = currentUser.exists(u => u.id == user.id || u.isModerator)
 
             if (!allowed) {
-              if (user.getPhoto!=null && user.getPhoto.nonEmpty) {
-                logger.warn(s"Redirect $image for ${currentUser.map(_.getNick).getOrElse("unauthorized user")} to ${user.getPhoto}")
-                response.sendRedirect(s"/photos/${user.getPhoto}")
+              if (user.photo!=null && user.photo.nonEmpty) {
+                logger.warn(s"Redirect $image for ${currentUser.map(_.nick).getOrElse("unauthorized user")} to ${user.photo}")
+                response.sendRedirect(s"/photos/${user.photo}")
               } else {
-                logger.warn(s"Forbidden access $image for ${currentUser.map(_.getNick).getOrElse("unauthorized user")}")
+                logger.warn(s"Forbidden access $image for ${currentUser.map(_.nick).getOrElse("unauthorized user")}")
                 response.sendRedirect(UserService.DisabledUserpic.url)
               }
             }

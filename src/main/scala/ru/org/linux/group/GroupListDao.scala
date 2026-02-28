@@ -223,7 +223,7 @@ class GroupListDao(ds: DataSource) {
       partIgnored = GroupListDao.QueryPartIgnored
       tagIgnored = GroupListDao.QueryPartTagIgnored
 
-      parameter.addValue("userid", session.userOpt.get.getId)
+      parameter.addValue("userid", session.userOpt.get.id)
     } else {
       partIgnored = ""
       commentIgnored = ""

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -36,6 +36,30 @@ public class GroupPermissionServiceTest {
     return AuthorizedSession.apply(user, user.isCorrector(), user.isModerator(), user.isAdministrator(), Profile.DEFAULT());
   }
 
+  private User createUser(int id, boolean moderator, boolean corrector, boolean administrator) {
+    return new User(
+      "testuser",           // nick
+      id,                   // id
+      moderator,            // canmod
+      administrator,        // candel
+      false,                // anonymous
+      corrector,            // corrector
+      false,                // blocked
+      "",                   // password
+      0,                    // score
+      0,                    // maxScore
+      null,                 // photo
+      null,                 // email
+      null,                 // fullName
+      0,                    // unreadEvents
+      null,                 // style
+      null,                 // frozenUntil
+      0,                    // frozenBy
+      null,                 // freezingReason
+      true                  // activated
+    );
+  }
+
   /**
    * Проверка, что пользователь МОЖЕТ удалить топик, автором которого он является,
    * и прошло меньше часа с момента постинга
@@ -63,9 +87,7 @@ public class GroupPermissionServiceTest {
     when(resultSet.getBoolean("moderate")).thenReturn(true);
     when(resultSet.getInt("stat1")).thenReturn(0);
 
-    User user = mock(User.class);
-    when(user.isModerator()).thenReturn(false);
-    when(user.getId()).thenReturn(13);
+    User user = createUser(13, false, false, false);
 
     Topic message = Topic.fromResultSet(resultSet);
 
@@ -108,9 +130,7 @@ public class GroupPermissionServiceTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    User user = mock(User.class);
-    when(user.isModerator()).thenReturn(false);
-    when(user.getId()).thenReturn(13);
+    User user = createUser(13, false, false, false);
 
     Topic message = Topic.fromResultSet(resultSet);
 
@@ -154,9 +174,7 @@ public class GroupPermissionServiceTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    User user = mock(User.class);
-    when(user.isModerator()).thenReturn(false);
-    when(user.getId()).thenReturn(14);
+    User user = createUser(14, false, false, false);
 
     Topic message = Topic.fromResultSet(resultSet);
 
@@ -200,9 +218,7 @@ public class GroupPermissionServiceTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    User user = mock(User.class);
-    when(user.isModerator()).thenReturn(false);
-    when(user.getId()).thenReturn(14);
+    User user = createUser(14, false, false, false);
 
     Topic message = Topic.fromResultSet(resultSet);
 
@@ -298,9 +314,7 @@ public class GroupPermissionServiceTest {
     when(resultSetNotModerateNew.getTimestamp("postdate")).thenReturn(new Timestamp(newTime));
 
 
-    User user = mock(User.class);
-    when(user.isModerator()).thenReturn(true);
-    when(user.getId()).thenReturn(13);
+    User user = createUser(13, true, false, false);
 
     // проверка что данные в mock user верные
     assertTrue(user.isModerator());

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,6 +13,7 @@
  *    limitations under the License.
  */
 package ru.org.linux.reaction
+import ru.org.linux.user.UserConstants
 
 import org.apache.pekko.actor.typed.ActorRef
 import org.joda.time.DateTimeZone
@@ -128,7 +129,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       !topic.deleted &&
       !topic.expired &&
       comment.forall(!_.deleted) &&
-      currentUser.forall(_.getId != authorId) &&
+      currentUser.forall(_.id != authorId) &&
       (comment.isEmpty || !topic.isCommentsHidden)
   }
 
@@ -153,7 +154,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
 
           val filteredUserIds = userIdsSet -- ignoreList
           val users = userService.getUsersCached(filteredUserIds)
-          val clicked = session.userOpt.map(_.getId).exists(userIdsSet.contains)
+          val clicked = session.userOpt.map(_.id).exists(userIdsSet.contains)
 
           r -> PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava,
             hasMore = users.sizeIs > 3, clicked = clicked, DefinedReactions.getOrElse(r, r))
@@ -173,7 +174,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(comment.userid)
 
-        if (!authorsIgnoreList.contains(user.getId) && comment.userid != User.ANONYMOUS_ID &&
+        if (!authorsIgnoreList.contains(user.id) && comment.userid != UserConstants.ANONYMOUS_ID &&
           isNotificationsEnabledFor(comment.userid)) {
           userEventDao.insertReactionNotification(user, topic, Some(comment))
         }
@@ -198,7 +199,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(topic.authorUserId)
 
-        if (!authorsIgnoreList.contains(user.getId) && topic.authorUserId != User.ANONYMOUS_ID &&
+        if (!authorsIgnoreList.contains(user.id) && topic.authorUserId != UserConstants.ANONYMOUS_ID &&
           isNotificationsEnabledFor(topic.authorUserId)) {
           userEventDao.insertReactionNotification(user, topic, None)
         }
@@ -220,7 +221,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     val targetUserIds = items.view.map(_.targetUserId).distinct.toSeq
 
     val texts: Map[Int, MessageText] = msgbaseDao.getMessageText(textIds)
-    val targetUsers: Map[Int, User] = userService.getUsersCached(targetUserIds).view.map(u => u.getId -> u).toMap
+    val targetUsers: Map[Int, User] = userService.getUsersCached(targetUserIds).view.map(u => u.id -> u).toMap
 
     items.map { item =>
       val plainText = textService.extractPlainText(texts(item.item.commentId.getOrElse(item.item.topicId)))

@@ -91,7 +91,7 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
           captchaRequired = false
       }
 
-      ipBlockDao.blockIP(ip, moderator.getId, reason, banTo, allowPosting, captchaRequired)
+      ipBlockDao.blockIP(ip, moderator.id, reason, banTo, allowPosting, captchaRequired)
     }
 
     val deleteResult = commentDeleteService.deleteByIPAddress(ip, ts, reason)
@@ -107,7 +107,7 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
     searchQueueSender.updateComment(deleteResult.getDeletedCommentIds)
 
     logger.info("Deleted {} from {} by moderator {}: topic={}; comments={}", ip, time,
-      currentUser.user.getNick, deleteResult.getDeletedTopicIds.size, deleteResult.getDeletedCommentIds.size)
+      currentUser.user.nick, deleteResult.getDeletedTopicIds.size, deleteResult.getDeletedCommentIds.size)
 
     new ModelAndView("delip", params.asJava)
   }

@@ -31,14 +31,14 @@ class UserEventApiController(userEventService: UserEventService,
   @RequestMapping(value = Array("/notifications-count"), method = Array(RequestMethod.GET))
   def getEventsCount(response: HttpServletResponse): Json = AuthorizedOnly { currentUser =>
     response.setHeader("Cache-control", "no-cache")
-    currentUser.user.getUnreadEvents.asJson
+    currentUser.user.unreadEvents.asJson
   }
 
   @RequestMapping(value = Array("/notifications-reset"), method = Array(RequestMethod.POST))
   @ResponseBody
   def resetNotifications(@RequestParam topId: Int): Json = AuthorizedOnly { currentUser =>
     userEventService.resetUnreadEvents(currentUser.user, topId)
-    RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.getId))
+    RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.id))
 
     "ok".asJson
   }
@@ -52,7 +52,7 @@ class UserEventApiController(userEventService: UserEventService,
         Map.empty[String, Int].asJson
       case Some(currentUser) =>
         response.setHeader("Cache-control", "no-cache")
-        Map("notifications" -> currentUser.user.getUnreadEvents).asJson
+        Map("notifications" -> currentUser.user.unreadEvents).asJson
     }
   }
 }

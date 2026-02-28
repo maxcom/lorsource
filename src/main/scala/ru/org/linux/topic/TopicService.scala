@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -87,9 +87,9 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     val notified = if (!previewMsg.draft) {
       if (section.isPremoderated) {
-        sendEvents(message, msgid, Seq.empty, user.getId)
+        sendEvents(message, msgid, Seq.empty, user.id)
       } else {
-        sendEvents(message, msgid, tags, user.getId)
+        sendEvents(message, msgid, tags, user.id)
       }
     } else {
       Set.empty[Int]
@@ -113,11 +113,11 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     val notifiedUsers = userEventService.getNotifiedUsers(msgid)
 
     var userRefs = textService.mentions(message)
-    userRefs = userRefs.filterNot(p => userService.isIgnoring(p.getId, author))
+    userRefs = userRefs.filterNot(p => userService.isIgnoring(p.id, author))
 
     // оповещение пользователей по тегам
     val userIdListByTags = userTagService.getUserIdListByTags(author, tags)
-    val userRefIds = userRefs.view.map(_.getId).filterNot(notifiedUsers.contains).toSet
+    val userRefIds = userRefs.view.map(_.id).filterNot(notifiedUsers.contains).toSet
 
     // Не оповещать пользователей, которые ранее были оповещены через упоминание
     val tagUsers = userIdListByTags.filterNot(u => userRefIds.contains(u) || notifiedUsers.contains(u))
@@ -134,7 +134,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                                     additionalImages: Seq[UploadedImagePreview]): Boolean = {
     var editHistoryRecord = EditHistoryRecord(
       msgid = oldMsg.id,
-      editor = user.getId,
+      editor = user.id,
       objectType = EditHistoryObjectTypeEnum.TOPIC)
 
     val oldText = msgbaseDao.getMessageText(oldMsg.id).text
@@ -249,7 +249,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
 
     if (modified) {
-      logger.info(s"сообщение ${oldMsg.id} исправлено ${user.getNick}")
+      logger.info(s"сообщение ${oldMsg.id} исправлено ${user.nick}")
     }
 
     (modified, notified)
@@ -285,7 +285,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     userDao.changeScore(msg.authorUserId, bonus)
 
     for ((key, delta) <- editorBonus) {
-      userDao.changeScore(key.getId, delta)
+      userDao.changeScore(key.id, delta)
     }
   }
 

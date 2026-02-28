@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -73,7 +73,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     val out = new StringBuilder
     if (topic.postscore != postscore) {
       out.append("Установлен новый уровень записи: ").append(postScoreInfoFull(postscore)).append("<br>")
-      logger.info(s"Установлен новый уровень записи $postscore для $msgid пользователем ${currentUser.user.getNick}")
+      logger.info(s"Установлен новый уровень записи $postscore для $msgid пользователем ${currentUser.user.nick}")
 
       searchQueueSender.updateMessage(topic.id, true)
     }
@@ -119,7 +119,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       }
 
       messageDao.moveTopic(msg, newGrp, moveInfo.toJava)
-      logger.info(s"topic ${msg.id} moved by ${currentUser.user.getNick} from news/forum ${msg.groupUrl} to forum ${newGrp.title}")
+      logger.info(s"topic ${msg.id} moved by ${currentUser.user.nick} from news/forum ${msg.groupUrl} to forum ${newGrp.title}")
     }
 
     searchQueueSender.updateMessage(msg.id, true)
@@ -185,7 +185,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     searchQueueSender.updateMessage(topic.id, true)
 
-    logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${currentUser.user.getNick}")
+    logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${currentUser.user.nick}")
 
     new ModelAndView("action-done",
       Map("message" -> "Подтверждение отменено", "link" -> topic.getLink).asJava)
