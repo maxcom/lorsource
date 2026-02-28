@@ -154,7 +154,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
-    user.checkFrozen(errors)
+    UserPermissionService.checkFrozen(user, errors)
 
     UserPermissionService.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 

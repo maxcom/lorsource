@@ -15,13 +15,11 @@
 
 package ru.org.linux.user
 
-import org.springframework.validation.Errors
 import ru.org.linux.util.StringUtil
 
 import java.sql.{ResultSet, Timestamp}
 import javax.annotation.Nullable
-import scala.beans.BeanProperty
-import scala.beans.BooleanBeanProperty
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class User(
   @BeanProperty nick: String,
@@ -44,23 +42,7 @@ case class User(
   @Nullable @BeanProperty freezingReason: String,
   @BooleanBeanProperty activated: Boolean
 ) {
-  import User._
-
-  def checkBlocked(errors: Errors): Unit = {
-    if (blocked) {
-      errors.reject(null, "Пользователь заблокирован")
-    }
-
-    if (!activated) {
-      errors.reject(null, "Пользователь не активирован")
-    }
-  }
-
-  def checkFrozen(errors: Errors): Unit = {
-    if (isFrozen) {
-      errors.reject(null, "Пользователь временно заморожен")
-    }
-  }
+  import User.*
 
   def isFrozen: Boolean = {
     if (frozenUntil == null) {
@@ -88,7 +70,7 @@ case class User(
   def getStars: String = User.getStars(score, maxScore, true)
 
   def getStatus: String = {
-    val text: String = if (score < ANONYMOUS_LEVEL_SCORE) {
+    val text: String = if (score < AnonymousLevelScore) {
       "анонимный"
     } else if (score < 100 && maxScore < 100) {
       "новый пользователь"
@@ -105,7 +87,7 @@ case class User(
     }
   }
 
-  def isAnonymousScore: Boolean = anonymous || blocked || score < ANONYMOUS_LEVEL_SCORE
+  def isAnonymousScore: Boolean = anonymous || blocked || score < AnonymousLevelScore
 
   def hasEmail: Boolean = email != null
 
@@ -121,7 +103,7 @@ case class User(
 }
 
 object User {
-  final val ANONYMOUS_LEVEL_SCORE = 50
+  private val AnonymousLevelScore = 50
 
   def fromResultSet(rs: ResultSet): User = {
     val id = rs.getInt("id")

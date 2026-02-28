@@ -127,8 +127,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
       CSRFProtectionService.checkCSRF(request, errors)
     }
 
-    user.checkBlocked(errors)
-    user.checkFrozen(errors)
+    UserPermissionService.checkFrozen(user, errors)
     UserPermissionService.checkBlockIP(ipBlockInfo, errors, user)
 
     if (!commentRequest.isPreviewMode && !errors.hasErrors && !editMode) {

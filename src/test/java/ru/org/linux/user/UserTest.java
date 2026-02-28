@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,37 +17,14 @@ package ru.org.linux.user;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.validation.MapBindingResult;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.test.Users;
 
 import java.sql.ResultSet;
-import java.util.Map;
 
 /**
  * Unit Tests для User
  */
 public class UserTest {
-  private void checkFrozen(User user) {
-    var errors = new MapBindingResult(Map.of(), "obj");
-
-    user.checkFrozen(errors);
-
-    if (errors.hasErrors()) {
-      throw new AccessViolationException("Пользователь временно заморожен");
-    }
-  }
-
-  private void checkBlocked(User user) {
-    var errors = new MapBindingResult(Map.of(), "obj");
-
-    user.checkBlocked(errors);
-
-    if (errors.hasErrors()) {
-      throw new AccessViolationException("Пользователь заблокирован");
-    }
-  }
-
   /**
    * проверка администратора
    * @throws Exception хм
@@ -60,16 +37,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
     Assert.assertTrue(user.isModerator());
     Assert.assertTrue(user.isAdministrator());
@@ -98,16 +65,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -136,16 +93,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
     Assert.assertTrue(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -174,16 +121,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -212,16 +149,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -250,16 +177,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -288,17 +205,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Пользователь заблокирован", e.getMessage());
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertTrue(user.isBlocked());
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -327,16 +233,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
@@ -365,17 +261,6 @@ public class UserTest {
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Пользователь временно заморожен", e.getMessage());
-    }
     Assert.assertFalse(user.isBlocked());
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());

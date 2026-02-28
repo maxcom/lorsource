@@ -27,12 +27,12 @@ import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.SetHasAsJava
 
 object UserPermissionService {
-  val MaxTotalInvites = 15
-  val MaxUserInvites = 1
-  val MaxInviteScoreLoss = 10
-  val InviteScore = 200
-  val MaxUnactivatedPerIp = 2
-  val MaxUserpicScoreLoss = 20
+  private val MaxTotalInvites = 15
+  private val MaxUserInvites = 1
+  private val MaxInviteScoreLoss = 10
+  private val InviteScore = 200
+  private val MaxUnactivatedPerIp = 2
+  private val MaxUserpicScoreLoss = 20
 
   def allowedFormats(user: User): Set[MarkupType] = {
     if (user==null) { // anonymous
@@ -49,6 +49,12 @@ object UserPermissionService {
   def checkBlockIP(block: IPBlockInfo, errors: Errors, @Nullable user: User): Unit = {
     if (block.isBlocked && (user == null || user.isAnonymousScore || !block.isAllowRegisteredPosting)) {
       errors.reject(null, "Постинг заблокирован: " + block.reason)
+    }
+  }
+
+  def checkFrozen(user: User, errors: Errors): Unit = {
+    if (user.isFrozen) {
+      errors.reject(null, "Пользователь временно заморожен")
     }
   }
 }
