@@ -52,9 +52,6 @@ public class UserDao {
 
   private final UserLogDao userLogDao;
 
-  /**
-   * изменение score пользователю
-   */
   private static final String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
   private static final String queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style,frozen_until FROM users where id=?";
   private static final String queryUserIdByNick = "SELECT id FROM users where nick=?";
@@ -337,36 +334,13 @@ public class UserDao {
   public void setStyle(User user, String theme){
     jdbcTemplate.update(updateUserStyle, theme, user.getId());
   }
-  
 
-  /**
-   * Сброс пороля на случайный
-   * @param user пользователь которому сбрасывается пароль
-   * @return новый пароь в открытом виде
-   */
-  @CacheEvict(value="Users", key="#user.id")
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public String resetPassword(User user){
-    String password = StringUtil.generatePassword();
-    userLogDao.logResetPassword(user, user);
-    return setPassword(user, password);
-  }
-
-  @CacheEvict(value="Users", key="#user.id")
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void resetPassword(User user, User moderator){
-    setPassword(user, StringUtil.generatePassword());
-    userLogDao.logResetPassword(user, moderator);
-  }
-
-  public String setPassword(User user, String password) {
+  public void setPassword(User user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);
 
     jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
         encryptedPassword, user.getId());
-
-    return password;
   }
 
   public void updateResetDate(User user, Timestamp now) {

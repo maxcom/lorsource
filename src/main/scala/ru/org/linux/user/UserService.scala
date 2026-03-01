@@ -35,7 +35,7 @@ import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
 import java.time.{Duration, Instant}
 import java.util
-import java.util.{List, Optional}
+import java.util.Optional
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.collection.mutable
@@ -394,11 +394,17 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def resetPassword(user: User): String = transactional() { _ =>
-    userDao.resetPassword(user)
+    val newPassword = StringUtil.generatePassword
+
+    userDao.setPassword(user, newPassword)
+    userLogDao.logResetPassword(user, user)
+
+    newPassword
   }
 
   def resetPassword(user: User, moderator: User): Unit = transactional() { _ =>
-    userDao.resetPassword(user, moderator)
+    userDao.setPassword(user, StringUtil.generatePassword)
+    userLogDao.logResetPassword(user, moderator)
   }
 
   def activateUser(user: User): Unit = transactional() { _ =>
