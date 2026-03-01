@@ -13,7 +13,6 @@
  *    limitations under the License.
  */
 package ru.org.linux.user
-import ru.org.linux.user.UserConstants
 
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
@@ -130,11 +129,11 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
       }
 
-      val byEmail = userDao.getByEmail(new InternetAddress(form.getEmail).getAddress.toLowerCase, true)
-
-      if (byEmail != null && (!byEmail.blocked || userService.wasRecentlyBlocker(byEmail))) {
-        errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
-          "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
+      userService.getByEmail(form.getEmail, searchBlocked = true).foreach { byEmail =>
+        if (!byEmail.blocked || userService.wasRecentlyBlocker(byEmail)) {
+          errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
+            "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
+        }
       }
     }
 
@@ -277,7 +276,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("Вы не можете пригласить нового пользователя")
     }
 
-    if (userDao.getByEmail(email, false) != null) {
+    if (userDao.getByEmail(email, false) != 0) {
       throw new AccessViolationException("Пользователь с этим адресом уже зарегистрирован")
     }
 

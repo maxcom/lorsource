@@ -68,7 +68,12 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     mv.getModel.put("userpic", userService.getUserpic(user, currentUserOpt.profile.avatarMode, misteryMan = true))
 
     if (user.blocked) {
-      mv.getModel.put("banInfo", userDao.getBanInfoClass(user))
+      val banInfo = userDao.getBanInfoClass(user)
+      mv.getModel.put("banInfo", banInfo)
+
+      if (banInfo.moderator != 0) {
+        mv.getModel.put("bannedBy", userService.getUserCached(banInfo.moderator))
+      }
     }
 
     mv.getModel.put("blockable", currentUserOpt.opt.exists(by => userService.isBlockable(user = user, by = by.user)))
@@ -84,7 +89,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     }
 
     if (currentUserOpt.moderator) {
-      val othersWithSameEmail = userDao.getAllByEmail(user.email).asScala.filter(_.id != user.id)
+      val othersWithSameEmail = userService.getAllByEmail(user.email).filter(_.id != user.id)
 
       mv.getModel.put("otherUsers", othersWithSameEmail.asJava)
 

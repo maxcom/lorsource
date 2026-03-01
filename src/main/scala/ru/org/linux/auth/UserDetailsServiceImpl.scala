@@ -49,12 +49,12 @@ object UserDetailsServiceImpl {
 }
 
 @Component
-class UserDetailsServiceImpl(userDao: UserDao, userService: UserService) extends UserDetailsService {
+class UserDetailsServiceImpl(userService: UserService) extends UserDetailsService {
   @throws[UsernameNotFoundException]
   @throws[DataAccessException]
   override def loadUserByUsername(username: String): UserDetailsImpl = {
     val user: User = if (username.contains("@")) {
-      userDao.getByEmail(username, true)
+      userService.getByEmail(username, searchBlocked = true).getOrElse(throw new UsernameNotFoundException(username))
     } else {
       try {
         userService.getUser(username)
@@ -62,10 +62,6 @@ class UserDetailsServiceImpl(userDao: UserDao, userService: UserService) extends
         case _: UserNotFoundException =>
           throw new UsernameNotFoundException(username)
       }
-    }
-
-    if (user == null) {
-      throw new UsernameNotFoundException(username)
     }
 
     new UserDetailsImpl(user, UserDetailsServiceImpl.retrieveUserAuthorities(user).asJava, userService.getProfile(user))

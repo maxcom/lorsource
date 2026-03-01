@@ -21,5 +21,5 @@ import scala.beans.BeanProperty
 case class BanInfo(
   @BeanProperty date: Timestamp,
   @BeanProperty reason: String,
-  @BeanProperty moderator: User
+  @BeanProperty moderator: Int
 )

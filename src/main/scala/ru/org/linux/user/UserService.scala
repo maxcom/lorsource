@@ -35,7 +35,7 @@ import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
 import java.time.{Duration, Instant}
 import java.util
-import java.util.Optional
+import java.util.{List, Optional}
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.collection.mutable
@@ -170,7 +170,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     userLogDao.logSentPasswordReset(forUser, byUser, email)
   }
 
-  def getUsersCached(ids: Iterable[Int]): Seq[User] = ids.map(x => userDao.getUserCached(x)).toSeq
+  def getUsersCached(ids: Iterable[Int]): Seq[User] = ids.map(x => getUserCached(x)).toSeq
 
   def getUsersCachedMap(userIds: Iterable[Int]): Map[Int, User] =
     getUsersCached(userIds.toSet).view.map(u => u.id -> u).toMap
@@ -221,7 +221,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getUserCached(nick: String): User = userDao.getUserCached(findUserIdCached(nick))
 
-  def findUserCached(nick: String): Option[User] = try Some(userDao.getUserCached(findUserIdCached(nick))) catch {
+  def findUserCached(nick: String): Option[User] = try Some(getUserCached(findUserIdCached(nick))) catch {
     case _: UserNotFoundException =>
       None
   }
@@ -230,7 +230,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getUser(nick: String): User = userDao.getUser(findUserIdCached(nick))
 
-  def getAnonymous: User = try userDao.getUserCached(UserService.AnonymousUserId) catch {
+  def getAnonymous: User = try {
+    getUserCached(UserService.AnonymousUserId)
+  } catch {
     case e: UserNotFoundException =>
       throw new RuntimeException("Anonymous not found!?", e)
   }
@@ -262,7 +264,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def getAllInvitedUsers(user: User): util.List[User] =
-    userInvitesDao.getAllInvitedUsers(user).map(userDao.getUserCached).asJava
+    userInvitesDao.getAllInvitedUsers(user).map(getUserCached).asJava
 
   def wasRecentlyBlocker(user: User): Boolean =
     userLogDao.hasRecentModerationEvent(user, Duration.ofDays(14), UserLogAction.BLOCK_USER)
@@ -409,5 +411,25 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def resetUserpic(user: User, cleaner: User): Boolean = transactional() { _ =>
     userDao.resetUserpic(user, cleaner)
+  }
+
+  def getByEmail(email: String, searchBlocked: Boolean): Option[User] = {
+    val id = userDao.getByEmail(email, searchBlocked)
+
+    if (id != 0) {
+      Some(getUserCached(id))
+    } else {
+      None
+    }
+  }
+
+  def getAllByEmail(email: String): Seq[User] = {
+    if (email == null || email.isEmpty) {
+      Seq.empty
+    } else {
+      val userIds = userDao.getAllByEmail(email).asScala
+
+      userIds.view.map(i => getUserCached(i)).toVector
+    }
   }
 }

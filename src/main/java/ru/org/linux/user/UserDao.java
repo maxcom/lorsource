@@ -44,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class UserDao {
@@ -160,7 +159,7 @@ public class UserDao {
     List<BanInfo> infoList = jdbcTemplate.query(queryBanInfoClass, (resultSet, i) -> {
       Timestamp date = resultSet.getTimestamp("bandate");
       String reason = resultSet.getString("reason");
-      User moderator = getUser(resultSet.getInt("ban_by"));
+      int moderator = resultSet.getInt("ban_by");
       return new BanInfo(date, reason, moderator);
     }, user.getId());
 
@@ -448,34 +447,29 @@ public class UserDao {
                     Optional.ofNullable(rs.getTimestamp("lastlogin")).map(Timestamp::toInstant)));
   }
 
-  @Nullable
-  public User getByEmail(String email, boolean searchBlocked) {
+  public int getByEmail(String email, boolean searchBlocked) {
     try {
-      var parsedAddress = new InternetAddress(email, true);
-
-      int id;
+      var parsedAddress = new InternetAddress(email.toLowerCase(), true);
 
       if (searchBlocked) {
-        id = jdbcTemplate.queryForObject(
+        return jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) ORDER BY blocked ASC, id DESC LIMIT 1",
                 Integer.class,
                 parsedAddress.getAddress().toLowerCase()
         );
       } else {
-        id = jdbcTemplate.queryForObject(
+        return jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE normalize_email(email)=normalize_email(?) AND NOT blocked ORDER BY id DESC LIMIT 1",
                 Integer.class,
                 parsedAddress.getAddress().toLowerCase()
         );
       }
-
-      return getUser(id);
     } catch (EmptyResultDataAccessException | AddressException ex) {
-      return null;
+      return 0;
     }
   }
 
-  public List<User> getAllByEmail(String email) {
+  public List<Integer> getAllByEmail(String email) {
     if (email==null || email.isEmpty()) {
       return List.of();
     } else {
@@ -486,7 +480,7 @@ public class UserDao {
               Integer.class,
               email.toLowerCase());
 
-      return userIds.stream().map(this::getUser).collect(Collectors.toList());
+      return userIds;
     }
   }
 

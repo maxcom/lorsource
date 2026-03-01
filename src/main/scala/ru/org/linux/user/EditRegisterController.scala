@@ -119,7 +119,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
       if (user.email != null && user.email == mail.getAddress.toLowerCase) {
         None
       } else {
-        if (userDao.getByEmail(mail.getAddress.toLowerCase, false) != null) {
+        if (userDao.getByEmail(mail.getAddress.toLowerCase, false) != 0) {
           errors.rejectValue("email", null, "такой email уже используется")
         }
 

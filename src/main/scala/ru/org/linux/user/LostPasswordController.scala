@@ -28,7 +28,7 @@ import javax.mail.internet.AddressException
 
 @Controller
 @RequestMapping(Array("/lostpwd.jsp"))
-class LostPasswordController(userDao: UserDao, userService: UserService, emailService: EmailService,
+class LostPasswordController(userService: UserService, emailService: EmailService,
                              userPermissionService: UserPermissionService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm: ModelAndView = new ModelAndView("lostpwd-form")
@@ -38,10 +38,8 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
   def sendPassword(@RequestParam("email") email: String): ModelAndView = MaybeAuthorized { currentUser =>
     if (Strings.isNullOrEmpty(email)) throw new BadInputException("email не задан")
 
-    val user = userDao.getByEmail(email, true)
-    if (user == null) {
-      throw new BadInputException("Этот email не зарегистрирован!")
-    }
+    val user = userService.getByEmail(email, searchBlocked = true)
+      .getOrElse(throw new BadInputException("Этот email не зарегистрирован!"))
 
     if (!userPermissionService.canResetPasswordByCode(user)) {
       throw new AccessViolationException("Пароль этого пользователя нельзя сбросить через email")
