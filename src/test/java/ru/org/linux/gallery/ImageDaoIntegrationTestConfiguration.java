@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -47,12 +47,7 @@ public class ImageDaoIntegrationTestConfiguration {
   }
 
   @Bean
-  public UserDao userDao(UserLogDao userLogDao, DataSource dataSource) {
-    return new UserDao(userLogDao, dataSource);
-  }
-
-  @Bean
-  public UserLogDao userLogDao() {
-    return mock(UserLogDao.class);
+  public UserDao userDao(DataSource dataSource) {
+    return new UserDao(dataSource);
   }
 }

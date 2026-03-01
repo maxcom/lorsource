@@ -67,7 +67,7 @@ class DeregisterController(userService: UserService) {
     if (errors.hasErrors) {
       new ModelAndView("deregister")
     } else {
-      userService.deregister(user, request.getRemoteAddr)
+      userService.deregister(user)
 
       new ModelAndView("action-done", "message", "Удаление пользователя прошло успешно.")
     }

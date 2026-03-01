@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 package ru.org.linux.user;
 
-import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -30,12 +29,7 @@ public class UserEventDaoIntegrationTestConfiguration {
   }
 
   @Bean
-  public UserDao userDao(UserLogDao userLogDao, DataSource dataSource) {
-    return new UserDao(userLogDao, dataSource);
-  }
-
-  @Bean
-  public UserLogDao userLogDao() {
-    return Mockito.mock(UserLogDao.class);
+  public UserDao userDao(DataSource dataSource) {
+    return new UserDao(dataSource);
   }
 }

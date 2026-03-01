@@ -20,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.Cache;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -32,15 +34,15 @@ import static org.junit.Assert.*;
 
 @ContextHierarchy({
         @ContextConfiguration("classpath:database.xml"),
-        @ContextConfiguration(classes = UserDaoIntegrationTestConfiguration.class)
+        @ContextConfiguration(classes = SimpleIntegrationTestConfiguration.class)
 })
 @RunWith(SpringJUnit4ClassRunner.class)
 @Transactional
-public class UserDaoIntegrationTest {
+public class UserServiceIntegrationTest {
   public static final int TEST_ID = 7806;
 
   @Autowired
-  private UserDao userDao;
+  private UserService userService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -56,21 +58,57 @@ public class UserDaoIntegrationTest {
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", TEST_ID);
   }
 
+  @Before
+  public void clearCache() {
+    userService.idToUserCache().invalidateAll();
+  }
+
   @Test
-  public void testUser() throws UserNotFoundException {
-    User user = userDao.getUser(TEST_ID);
+  public void testUserCached() throws UserNotFoundException {
+    User user = userService.getUserCached(TEST_ID);
+
+    jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", TEST_ID);
+
+    User userCached = userService.getUserCached(TEST_ID);
+
+    assertFalse(userCached.isBlocked());
+
+    User userNotCached = userService.getUser(user.nick());
+
+    assertTrue(userNotCached.isBlocked());
+  }
+
+  @Test
+  public void testCachePutOnGet() throws UserNotFoundException {
+    userService.idToUserCache().invalidate(TEST_ID);
+
+    User user = userService.getUserCached(TEST_ID);
 
     assertNotNull(user);
 
     assertFalse(user.isBlocked());
+
+    assertNotNull(userService.idToUserCache().get(user.getId()));
   }
+
   @Test
   public void testBlock() throws UserNotFoundException {
-    User user = userDao.getUser(TEST_ID);
+    User user = userService.getUserCached(TEST_ID);
 
-    userDao.block(user, user, "");
+    userService.block(user, user, "");
 
-    User userAfter = userDao.getUser(TEST_ID);
+    User userAfter = userService.getUserCached(TEST_ID);
+
+    assertTrue(userAfter.isBlocked());
+  }
+
+  @Test
+  public void testCacheResetOnBlock() throws UserNotFoundException {
+    User user = userService.getUserCached(TEST_ID);
+
+    userService.block(user, user, "");
+
+    User userAfter = userService.getUserCached(TEST_ID);
 
     assertTrue(userAfter.isBlocked());
   }

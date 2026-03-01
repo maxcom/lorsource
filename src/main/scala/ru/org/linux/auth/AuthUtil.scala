@@ -17,7 +17,7 @@ package ru.org.linux.auth
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.Errors
-import ru.org.linux.user.{Profile, User, UserDao, UserService}
+import ru.org.linux.user.{Profile, User, UserService}
 
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -56,14 +56,14 @@ case object NonAuthorizedSession extends AnySession {
 }
 
 object AuthUtil {
-  def updateLastLogin(authentication: Authentication, userDao: UserDao): Unit = {
+  def updateLastLogin(authentication: Authentication, userService: UserService): Unit = {
     if (authentication != null && authentication.isAuthenticated) {
       val principal = authentication.getPrincipal
 
       principal match {
         case userDetails: UserDetailsImpl =>
           val user = userDetails.getUser
-          userDao.updateLastlogin(user, true)
+          userService.updateLastLogin(user, force = true)
         case _ =>
       }
     }

@@ -17,22 +17,16 @@ package ru.org.linux.user;
 
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 import scala.Tuple2;
 import scala.Tuple3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -50,8 +44,6 @@ public class UserDao {
   private final JdbcTemplate jdbcTemplate;
   private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
-  private final UserLogDao userLogDao;
-
   private static final String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
   private static final String queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style,frozen_until FROM users where id=?";
   private static final String queryUserIdByNick = "SELECT id FROM users where nick=?";
@@ -62,8 +54,7 @@ public class UserDao {
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
 
-  public UserDao(UserLogDao userLogDao, DataSource dataSource) {
-    this.userLogDao = userLogDao;
+  public UserDao(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
     namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
@@ -94,11 +85,6 @@ public class UserDao {
     return list.getFirst();
   }
 
-  @Cacheable("Users")
-  public User getUserCached(int id) throws UserNotFoundException {
-    return getUserInternal(id);
-  }
-
   /**
    * Загружает пользователя из БД не используя кеш (всегда обновляет кеш).
    * Метод используется там, где нужно проверить права пользователя, совершить какой-то
@@ -109,12 +95,7 @@ public class UserDao {
    * @return объект пользователя
    * @throws UserNotFoundException если пользователь с таким id не найден
    */
-  @CachePut("Users")
   public User getUser(int id) throws UserNotFoundException {
-    return getUserInternal(id);
-  }
-
-  private User getUserInternal(int id) throws UserNotFoundException {
     List<User> list = jdbcTemplate.query(queryUserById, (rs, rowNum) -> User.fromResultSet(rs), id);
 
     if (list.isEmpty()) {
@@ -249,29 +230,10 @@ public class UserDao {
 
   /**
    * Отчистка userpicture пользователя, с обрезанием шкворца если удаляет модератор
-   * @param user пользовтель у которого чистят
-   * @param cleaner пользователь, который чистит
+   * @param user пользователь у которого чистят
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  @CacheEvict(value="Users", key="#user.id")
-  public boolean resetUserpic(User user, User cleaner) {
-    boolean r;
-
-    r = jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
-
-    if (!r) {
-      return false;
-    }
-
-    // Обрезать score у пользователя если его чистит модератор и пользователь не модератор
-    if (cleaner.isModerator() && cleaner.getId() != user.getId() && !user.isModerator()) {
-      changeScore(user.getId(), -10);
-      userLogDao.logResetUserpic(user, cleaner, -10);
-    } else {
-      userLogDao.logResetUserpic(user, cleaner, 0);
-    }
-
-    return true;
+  public boolean resetUserpic(User user) {
+    return jdbcTemplate.update("UPDATE users SET photo=null WHERE id=? and photo is not null", user.getId()) > 0;
   }
 
   /**
@@ -279,11 +241,8 @@ public class UserDao {
    * @param user пользователь
    * @param photo userpick
    */
-  @CacheEvict(value="Users", key="#user.id")
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void setPhoto(@Nonnull User user, @Nonnull String photo){
+  public void setPhoto(User user, String photo) {
     jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
-    userLogDao.logSetUserpic(user, photo);
   }
 
   /**
@@ -302,7 +261,6 @@ public class UserDao {
    * @param id id пользователя
    * @param delta дельта на которую меняется шкворец
    */
-  @CacheEvict(value="Users", key="#id")
   public void changeScore(int id, int delta) {
     if (jdbcTemplate.update(queryChangeScore, delta, id)==0) {
       throw new IllegalArgumentException(new UserNotFoundException(id));
@@ -313,25 +271,27 @@ public class UserDao {
    * Смена признака корректора для пользователя
    * @param user пользователь у которого меняется признак корректора
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  @CacheEvict(value="Users", key="#user.id")
-  public void toggleCorrector(User user, User moderator) {
-    if(user.isCorrector()){
-      jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.getId());
-      userLogDao.unsetCorrector(user, moderator);
-    } else {
+  public void setCorrector(User user) {
+    if (!user.isCorrector()) {
       jdbcTemplate.update("UPDATE users SET corrector='t' WHERE id=?", user.getId());
-      userLogDao.setCorrector(user, moderator);
     }
   }
-  
+
+  /**
+   * Смена признака корректора для пользователя
+   * @param user пользователь у которого меняется признак корректора
+   */
+  public void unsetCorrector(User user) {
+    if (user.isCorrector()) {
+      jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.getId());
+    }
+  }
+
   /**
    * Смена стиля\темы пользователя
    * @param user пользователь у которого меняется стиль\тема
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  @CacheEvict(value="Users", key="#user.id")
-  public void setStyle(User user, String theme){
+  public void setStyle(User user, String theme) {
     jdbcTemplate.update(updateUserStyle, theme, user.getId());
   }
 
@@ -357,12 +317,9 @@ public class UserDao {
    * @param moderator модератор который блокирует пользователя
    * @param reason причина блокировки
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  @CacheEvict(value="Users", key="#user.id")
-  public void block(@Nonnull User user, @Nonnull User moderator, @Nonnull String reason) {
+  public void block(User user, User moderator, String reason) {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)", user.getId(), reason, moderator.getId());
-    userLogDao.logBlockUser(user, moderator, reason);
   }
 
   /**
@@ -373,9 +330,7 @@ public class UserDao {
    * @param until до каких пор ему быть замороженным, если указано прошлое,
    *              то пользователь будет разморожен
    */
-  @CacheEvict(value="Users", key="#user.id")
   public void freezeUser(User user, User moderator, String reason, Timestamp until) {
-
     jdbcTemplate.update(
       "UPDATE users SET frozen_until=?,frozen_by=?,freezing_reason=? WHERE id=?",
        until, moderator.getId(), reason, user.getId());
@@ -385,26 +340,18 @@ public class UserDao {
    * Ставим score=50 если он меньше
    *
    * @param user кому ставим score
-   * @param moderator модератор
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  @CacheEvict(value="Users", key="#user.id")
-  public void score50(@Nonnull User user, @Nonnull User moderator) {
-    if (jdbcTemplate.update("UPDATE users SET score=GREATEST(score, 50), max_score=GREATEST(max_score, 50) WHERE id=? AND score<50", user.getId()) > 0) {
-      userLogDao.logScore50(user, moderator);
-    }
+  public boolean score50(User user) {
+    return jdbcTemplate.update("UPDATE users SET score=GREATEST(score, 50), max_score=GREATEST(max_score, 50) WHERE id=? AND score<50", user.getId()) > 0;
   }
 
   /**
    * Разблокировка пользователя
    * @param user разблокируемый пользователь
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  @CacheEvict(value="Users", key="#user.id")
-  public void unblock(User user, User moderator){
+  public void unblock(User user) {
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
-    userLogDao.logUnblockUser(user, moderator);
   }
 
   public List<Tuple2<Integer, Optional<Instant>>> getModerators() {
@@ -458,7 +405,6 @@ public class UserDao {
     }
   }
 
-  @CacheEvict(value="Users", key="#user.id")
   public void activateUser(User user) {
     jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());
   }
@@ -479,7 +425,6 @@ public class UserDao {
     jdbcTemplate.update("UPDATE users SET new_email=? WHERE id=?", newEmail, user.getId());
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.MANDATORY)
   public int createUser(
           String name,
           String nick,
@@ -521,15 +466,12 @@ public class UserDao {
     return c>0;
   }
 
-  public String getNewEmail(@Nonnull User user) {
+  public String getNewEmail(User user) {
     return jdbcTemplate.queryForObject("SELECT new_email FROM users WHERE id=?", String.class, user.getId());
   }
 
-  @CacheEvict(value="Users", key="#user.id")
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void acceptNewEmail(@Nonnull User user, @Nonnull String newEmail) {
+  public void acceptNewEmail(User user, String newEmail) {
     jdbcTemplate.update("UPDATE users SET email=?, new_email=null WHERE id=?", newEmail, user.getId());
-    userLogDao.logAcceptNewEmail(user, newEmail);
   }
 
   /**
@@ -537,11 +479,13 @@ public class UserDao {
    * @param user logged user
    * @throws SQLException on database failure
    */
-  public void updateLastlogin(User user, boolean force) {
+  public boolean updateLastlogin(User user, boolean force) {
     if (force) {
       jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?", user.getId());
+
+      return true;
     } else {
-      jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=? AND CURRENT_TIMESTAMP-lastlogin > '1 hour'::interval", user.getId());
+      return jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=? AND CURRENT_TIMESTAMP-lastlogin > '1 hour'::interval", user.getId()) > 0;
     }
   }
 

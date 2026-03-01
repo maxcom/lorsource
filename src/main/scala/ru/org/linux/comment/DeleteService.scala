@@ -131,15 +131,21 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    * @return список удаленных комментариев
    */
   def deleteAllAndBlock(user: User, reason: String)
-                       (implicit currentUser: AuthorizedSession): DeleteCommentResult = transactional() { _ =>
-    assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
+                       (implicit currentUser: AuthorizedSession): DeleteCommentResult = {
+    val result = transactional() { _ =>
+      assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
 
-    userService.block(user, currentUser.user, reason)
+      userService.block(user, currentUser.user, reason)
 
-    val topics = topicDao.getUserTopicForUpdate(user).asScala.map(_.toInt)
-    val comments = commentDao.getAllByUserForUpdate(user).asScala.map(_.toInt)
+      val topics = topicDao.getUserTopicForUpdate(user).asScala.map(_.toInt)
+      val comments = commentDao.getAllByUserForUpdate(user).asScala.map(_.toInt)
 
-    massDelete(currentUser.user, topics, comments, "Блокировка пользователя с удалением сообщений", notifyUser = false)
+      massDelete(currentUser.user, topics, comments, "Блокировка пользователя с удалением сообщений", notifyUser = false)
+    }
+
+    userService.invalidateCache(user)
+
+    result
   }
 
   def undeleteComment(comment: Comment)

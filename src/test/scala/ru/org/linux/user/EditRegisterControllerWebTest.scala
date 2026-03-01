@@ -63,7 +63,7 @@ class EditRegisterControllerWebTest {
     val user = userDao.getUser(userDao.findUserId("JB"))
     userService.updateUser(user, JB_NAME, JB_URL, Some(JB_EMAIL), JB_TOWN, Some(JB_PASS), JB_INFO, "127.0.0.1")
     userDao.acceptNewEmail(user, JB_EMAIL)
-    userDao.unblock(user, user)
+    userDao.unblock(user)
   }
 
   @After

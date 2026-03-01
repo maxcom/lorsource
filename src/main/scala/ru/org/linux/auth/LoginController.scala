@@ -27,7 +27,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.user.UserDao
+import ru.org.linux.user.{UserDao, UserService}
 
 import java.util.concurrent.CompletionStage
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,7 +43,7 @@ object LoginStatus {
 }
 
 @Controller
-class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
+class LoginController(userDao: UserDao, userDetailsService: UserDetailsService, userService: UserService,
                       rememberMeServices: GenerationBasedTokenRememberMeServices,
                       authenticationManager: AuthenticationManager, actorSystem: ActorSystem) extends StrictLogging {
   @RequestMapping(value = Array("/login_process"), method = Array(RequestMethod.POST))
@@ -63,7 +63,7 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
         rememberMeServices.loginSuccess(request, response, auth)
 
         delayResponse {
-          AuthUtil.updateLastLogin(auth, userDao)
+          AuthUtil.updateLastLogin(auth, userService)
           new ModelAndView(new RedirectView("/"))
         }
       }
@@ -105,7 +105,7 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
         rememberMeServices.loginSuccess(request, response, auth)
 
         delayResponse {
-          AuthUtil.updateLastLogin(auth, userDao)
+          AuthUtil.updateLastLogin(auth, userService)
           LoginStatus(auth.isAuthenticated, auth.getName).asJson
         }
       }
@@ -129,7 +129,10 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService,
 
   @RequestMapping(value = Array("/logout_all_sessions"), method = Array(RequestMethod.POST))
   def logoutAllDevices(request: HttpServletRequest, response: HttpServletResponse): ModelAndView = {
-    if (AuthUtil.isSessionAuthorized) userDao.unloginAllSessions(AuthUtil.getCurrentUser)
+    if (AuthUtil.isSessionAuthorized) {
+      userDao.unloginAllSessions(AuthUtil.getCurrentUser)
+    }
+
     logout(request, response)
   }
 

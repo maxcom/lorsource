@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -84,7 +84,7 @@ class TopicDaoIntegrationTestConfiguration {
   def topicDao = new TopicDao()
 
   @Bean
-  def userDao(userLogDao: UserLogDao, dataSource: DataSource) = new UserDao(userLogDao, dataSource)
+  def userDao(dataSource: DataSource) = new UserDao(dataSource)
 
   @Bean
   def userInvitesDao(ds: DataSource) = new UserInvitesDao(ds)

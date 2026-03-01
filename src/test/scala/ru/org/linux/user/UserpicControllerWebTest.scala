@@ -49,7 +49,7 @@ class UserpicControllerWebTest {
 
     jdbcTemplate.update("DELETE FROM user_log WHERE userid=?", user.id)
 
-    userDao.unblock(user, user)
+    userDao.unblock(user)
   }
 
   private def addPhoto(filename: String, auth: String) = {
