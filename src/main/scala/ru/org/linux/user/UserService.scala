@@ -14,8 +14,7 @@
  */
 package ru.org.linux.user
 
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
-import com.google.common.util.concurrent.UncheckedExecutionException
+import com.github.benmanes.caffeine.cache.{CacheLoader, Caffeine, LoadingCache}
 import com.typesafe.scalalogging.StrictLogging
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException
 import org.jasypt.util.password.BasicPasswordEncryptor
@@ -36,6 +35,7 @@ import java.sql.Timestamp
 import java.time.{Duration, Instant}
 import java.util
 import java.util.Optional
+import java.util.concurrent.CompletionException
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.collection.mutable
@@ -74,10 +74,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
                   profileDao: ProfileDao, val transactionManager: PlatformTransactionManager)
     extends StrictLogging with TransactionManagement {
   private val nameToIdCache: LoadingCache[String, Int] =
-    CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Int](
-      new CacheLoader[String, Int] {
-        override def load(nick: String): Int = userDao.findUserId(nick)
-      }
+    Caffeine.newBuilder().maximumSize(UserService.NameCacheSize).build(
+      (nick: String) => userDao.findUserId(nick)
     )
 
   @throws(classOf[UserErrorException])
@@ -219,7 +217,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     try {
       nameToIdCache.get(nick)
     } catch {
-      case ex: UncheckedExecutionException => throw ex.getCause
+      case ex: CompletionException => throw ex.getCause
     }
 
   def getUserCached(nick: String): User = userDao.getUserCached(findUserIdCached(nick))
