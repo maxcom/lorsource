@@ -16,13 +16,15 @@
 package ru.org.linux.user
 
 import java.sql.{ResultSet, Timestamp}
+import javax.annotation.Nullable
 import scala.beans.BeanProperty
 
 case class UserInfo(
   @BeanProperty url: String,
   @BeanProperty town: String,
   @BeanProperty lastLogin: Timestamp,
-  @BeanProperty registrationDate: Timestamp
+  @BeanProperty registrationDate: Timestamp,
+  @Nullable @BeanProperty freezingReason: String
 )
 
 object UserInfo {
@@ -31,7 +33,8 @@ object UserInfo {
       url = rs.getString("url"),
       town = rs.getString("town"),
       lastLogin = rs.getTimestamp("lastlogin"),
-      registrationDate = rs.getTimestamp("regdate")
+      registrationDate = rs.getTimestamp("regdate"),
+      freezingReason = rs.getString("freezing_reason")
     )
   }
 }

@@ -57,7 +57,7 @@ public class UserDao {
    * изменение score пользователю
    */
   private static final String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
-  private static final String queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style,frozen_until,frozen_by,freezing_reason FROM users where id=?";
+  private static final String queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style,frozen_until,frozen_by FROM users where id=?";
   private static final String queryUserIdByNick = "SELECT id FROM users where nick=?";
   private static final String updateUserStyle = "UPDATE users SET style=? WHERE id=?";
 
@@ -148,7 +148,7 @@ public class UserDao {
    * @return информация
    */
   public UserInfo getUserInfoClass(User user) {
-    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate FROM users WHERE id=?", (resultSet, i) -> UserInfo.apply(resultSet), user.getId());
+    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate, freezing_reason FROM users WHERE id=?", (resultSet, i) -> UserInfo.apply(resultSet), user.getId());
   }
 
   /**

@@ -39,7 +39,6 @@ case class User(
   @Nullable @BeanProperty style: String,
   @Nullable @BeanProperty frozenUntil: Timestamp,
   @BeanProperty frozenBy: Int,
-  @Nullable @BeanProperty freezingReason: String,
   @BooleanBeanProperty activated: Boolean
 ) {
   import User.*
@@ -128,7 +127,6 @@ object User {
     val style = rs.getString("style")
     val frozenUntil = rs.getTimestamp("frozen_until")
     val frozenBy = rs.getInt("frozen_by")
-    val freezingReason = rs.getString("freezing_reason")
 
     new User(
       nick = nick,
@@ -148,7 +146,6 @@ object User {
       style = style,
       frozenUntil = frozenUntil,
       frozenBy = frozenBy,
-      freezingReason = freezingReason,
       activated = activated
     )
   }

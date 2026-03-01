@@ -227,7 +227,7 @@
         <b>Заморожен</b>
             до <lor:date date="${user.frozenUntil}"/>
             модератором <lor:user link="true" user="${freezer}"/>
-            по причине <c:out escapeXml="true" value="${user.freezingReason}"/>
+            по причине <c:out escapeXml="true" value="${userInfo.freezingReason}"/>
         <br>
     </c:if>
 
