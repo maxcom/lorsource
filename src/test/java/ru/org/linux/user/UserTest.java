@@ -277,7 +277,6 @@ public class UserTest {
     Assert.assertTrue(user.isFrozen());
     Assert.assertEquals(resultSet.getTimestamp("frozen_until"), 
       user.getFrozenUntil());
-    Assert.assertEquals(resultSet.getInt("frozen_by"), user.getFrozenBy());
   }
 
 

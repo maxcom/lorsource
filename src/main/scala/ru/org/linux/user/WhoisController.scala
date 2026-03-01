@@ -62,7 +62,8 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     val mv = new ModelAndView("whois")
 
     mv.getModel.put("user", user)
-    mv.getModel.put("userInfo", userDao.getUserInfoClass(user))
+    val userInfo = userDao.getUserInfoClass(user)
+    mv.getModel.put("userInfo", userInfo)
 
     mv.getModel.put("userpic", userService.getUserpic(user, currentUserOpt.profile.avatarMode, misteryMan = true))
 
@@ -78,7 +79,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     // freezes the user, if frozen
     if (user.isFrozen) {
       mv.getModel.put("isFrozen", true)
-      val freezer = userService.getUserCached(user.frozenBy)
+      val freezer = userService.getUserCached(userInfo.frozenBy)
       mv.getModel.put("freezer", freezer)
     }
 
