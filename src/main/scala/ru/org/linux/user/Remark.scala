@@ -12,17 +12,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package ru.org.linux.user
 
-import org.springframework.stereotype.Service
+import java.sql.ResultSet
+import scala.beans.BeanProperty
 
-@Service
-class PreparedRemarkService(private val userService: UserService) {
-  def prepareRemarks(list: Seq[Remark]): Seq[PreparedRemark] = {
-    list.map(remark => {
-      val refUser = userService.getUserCached(remark.refUserId)
+case class Remark(
+  @BeanProperty id: Int,
+  @BeanProperty refUserId: Int,
+  @BeanProperty text: String
+)
 
-      PreparedRemark(remark, refUser)
-    })
+object Remark {
+  def apply(rs: ResultSet): Remark = {
+    new Remark(
+      rs.getInt("id"),
+      rs.getInt("ref_user_id"),
+      rs.getString("remark_text")
+    )
   }
 }

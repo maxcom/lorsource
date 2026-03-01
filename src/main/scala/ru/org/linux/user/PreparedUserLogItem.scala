@@ -12,17 +12,27 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package ru.org.linux.user
 
-import org.springframework.stereotype.Service
+import com.google.common.collect.ImmutableMap
+import scala.beans.BeanProperty
+import scala.jdk.CollectionConverters.MapHasAsJava
 
-@Service
-class PreparedRemarkService(private val userService: UserService) {
-  def prepareRemarks(list: Seq[Remark]): Seq[PreparedRemark] = {
-    list.map(remark => {
-      val refUser = userService.getUserCached(remark.refUserId)
+case class PreparedUserLogItem(
+  @BeanProperty item: UserLogItem,
+  @BeanProperty actionUser: User,
+  @BeanProperty options: ImmutableMap[String, String],
+  @BeanProperty self: Boolean
+)
 
-      PreparedRemark(remark, refUser)
-    })
+object PreparedUserLogItem {
+  def apply(item: UserLogItem, actionUser: User, options: java.util.Map[String, String]): PreparedUserLogItem = {
+    new PreparedUserLogItem(
+      item,
+      actionUser,
+      ImmutableMap.copyOf(options),
+      item.getUser == item.getActionUser
+    )
   }
 }

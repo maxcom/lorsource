@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,31 +13,25 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.user;
+package ru.org.linux.user
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.{ResultSet, Timestamp}
+import scala.beans.BeanProperty
 
-public class Remark {
-  private final int id;
-  private final int refUserId;
-  private final String text;
+case class UserInfo(
+  @BeanProperty url: String,
+  @BeanProperty town: String,
+  @BeanProperty lastLogin: Timestamp,
+  @BeanProperty registrationDate: Timestamp
+)
 
-  public Remark(ResultSet resultSet) throws SQLException {
-    id = resultSet.getInt("id");
-    refUserId = resultSet.getInt("ref_user_id");
-    text = resultSet.getString("remark_text");
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public int getRefUserId() {
-    return refUserId;
-  }
-
-  public String getText() {
-    return text;
+object UserInfo {
+  def apply(rs: ResultSet): UserInfo = {
+    new UserInfo(
+      url = rs.getString("url"),
+      town = rs.getString("town"),
+      lastLogin = rs.getTimestamp("lastlogin"),
+      registrationDate = rs.getTimestamp("regdate")
+    )
   }
 }

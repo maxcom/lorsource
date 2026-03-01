@@ -148,7 +148,7 @@ public class UserDao {
    * @return информация
    */
   public UserInfo getUserInfoClass(User user) {
-    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate FROM users WHERE id=?", (resultSet, i) -> new UserInfo(resultSet), user.getId());
+    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate FROM users WHERE id=?", (resultSet, i) -> UserInfo.apply(resultSet), user.getId());
   }
 
   /**

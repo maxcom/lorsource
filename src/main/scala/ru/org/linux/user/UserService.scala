@@ -280,9 +280,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def removeTown(user: User, moderator: User): Unit = transactional() { _ =>
     val userInfo = userDao.getUserInfoClass(user)
 
-    if (userInfo.getTown != null && userInfo.getTown.trim.nonEmpty) {
+    if (userInfo.town != null && userInfo.town.trim.nonEmpty) {
       userDao.removeTown(user)
-      userLogDao.logResetTown(user, moderator, userInfo.getTown, -10)
+      userLogDao.logResetTown(user, moderator, userInfo.town, -10)
       userDao.changeScore(user.id, -10)
     }
   }
@@ -290,9 +290,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def removeUrl(user: User, moderator: User): Unit = transactional() { _ =>
     val userInfo = userDao.getUserInfoClass(user)
 
-    if (userInfo.getUrl != null || userInfo.getUrl.trim.nonEmpty) {
+    if (userInfo.url != null || userInfo.url.trim.nonEmpty) {
       userDao.removeUrl(user)
-      userLogDao.logResetUrl(user, moderator, userInfo.getUrl, 0)
+      userLogDao.logResetUrl(user, moderator, userInfo.url, 0)
       userDao.changeScore(user.id, 0)
     }
   }

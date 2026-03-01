@@ -198,7 +198,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
         val remark = remarks.get(author.id)
         val warnings = allWarnings.getOrElse(comment.id, Seq.empty)
 
-        prepareComment(text, author, remark.map(_.getText), comment, Option(comments), topic, hideSet,
+        prepareComment(text, author, remark.map(_.text), comment, Option(comments), topic, hideSet,
           samePageComments, group, ignoreList, filterShow, warnings)
       }
     }

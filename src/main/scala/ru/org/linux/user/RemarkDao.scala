@@ -46,7 +46,7 @@ class RemarkDao(ds: DataSource) {
    */
   def getRemark(user: User, ref: User): Option[Remark] = {
     jdbcTemplate.queryAndMap("SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=? AND ref_user_id=?", user.id, ref.id) { (rs, _) =>
-      new Remark(rs)
+      Remark(rs)
     }.headOption
   }
 
@@ -59,8 +59,8 @@ class RemarkDao(ds: DataSource) {
         Map("list" -> refs.map(_.id).toSeq.asJavaCollection, "user" -> user.id).asJava,
         new RowMapper[(Int, Remark)]() {
           override def mapRow(rs: ResultSet, rowNum: Int) = {
-            val remark = new Remark(rs)
-            remark.getRefUserId -> remark
+            val remark = Remark(rs)
+            remark.refUserId -> remark
           }
         }
       ).asScala.toMap
@@ -93,7 +93,7 @@ class RemarkDao(ds: DataSource) {
    */
   def setOrUpdateRemark(user: User, ref: User, text: String): Unit = {
     getRemark(user, ref) match {
-      case Some(remark) => updateRemark(remark.getId, text)
+      case Some(remark) => updateRemark(remark.id, text)
       case None         => setRemark(user, ref, text)
     }
   }
@@ -110,7 +110,7 @@ class RemarkDao(ds: DataSource) {
     }
 
     jdbcTemplate.queryAndMap(qs, user.id, limit, offset) { (rs, _) =>
-      new Remark(rs)
+      Remark(rs)
     }
   }
 }

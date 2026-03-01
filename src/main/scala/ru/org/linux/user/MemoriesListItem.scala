@@ -12,17 +12,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 package ru.org.linux.user
 
-import org.springframework.stereotype.Service
+import java.sql.{ResultSet, Timestamp}
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 
-@Service
-class PreparedRemarkService(private val userService: UserService) {
-  def prepareRemarks(list: Seq[Remark]): Seq[PreparedRemark] = {
-    list.map(remark => {
-      val refUser = userService.getUserCached(remark.refUserId)
+case class MemoriesListItem(
+  @BeanProperty id: Int,
+  @BeanProperty userid: Int,
+  @BeanProperty timestamp: Timestamp,
+  @BeanProperty topic: Int,
+  @BooleanBeanProperty watch: Boolean
+)
 
-      PreparedRemark(remark, refUser)
-    })
+object MemoriesListItem {
+  def apply(rs: ResultSet): MemoriesListItem = {
+    new MemoriesListItem(
+      rs.getInt("id"),
+      rs.getInt("userid"),
+      rs.getTimestamp("add_date"),
+      rs.getInt("topic"),
+      rs.getBoolean("watch")
+    )
   }
 }

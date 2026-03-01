@@ -104,7 +104,7 @@ class MemoriesDao(ds: DataSource) {
 
   def getMemoriesListItem(id: Int): java.util.Optional[MemoriesListItem] = {
     val res = jdbcTemplate.queryAndMap("SELECT * FROM memories WHERE id=?", id) {
-      (rs, _) => new MemoriesListItem(rs)
+      (rs, _) => MemoriesListItem(rs)
     }
 
     res.headOption.toJava

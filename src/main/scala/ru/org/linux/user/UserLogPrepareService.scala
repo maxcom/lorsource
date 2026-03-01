@@ -71,7 +71,7 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
         key -> value
       }
 
-      new PreparedUserLogItem(item, userService.getUserCached(item.getActionUser), options.asJava)
+      PreparedUserLogItem(item, userService.getUserCached(item.getActionUser), options.asJava)
     }).toVector
   }
 }

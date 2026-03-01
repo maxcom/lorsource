@@ -65,8 +65,8 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
 
     form.setEmail(user.email)
-    form.setUrl(userInfo.getUrl)
-    form.setTown(userInfo.getTown)
+    form.setUrl(userInfo.url)
+    form.setTown(userInfo.town)
     form.setName(user.getName)
     form.setInfo(userDao.getUserInfo(user))
 
