@@ -14,7 +14,7 @@
  */
 package ru.org.linux.user
 
-import com.google.common.cache.{CacheBuilder, CacheLoader}
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.typesafe.scalalogging.StrictLogging
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException
@@ -73,10 +73,10 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
                   profileDao: ProfileDao, val transactionManager: PlatformTransactionManager)
     extends StrictLogging with TransactionManagement {
-  private val nameToIdCache =
-    CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
-      new CacheLoader[String, Integer] {
-        override def load(nick: String): Integer = userDao.findUserId(nick)
+  private val nameToIdCache: LoadingCache[String, Int] =
+    CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Int](
+      new CacheLoader[String, Int] {
+        override def load(nick: String): Int = userDao.findUserId(nick)
       }
     )
 
@@ -215,9 +215,12 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }.filterNot(_._2 == DisabledUserpic)
   }
 
-  private def findUserIdCached(nick: String) = try nameToIdCache.get(nick) catch {
-    case ex: UncheckedExecutionException => throw ex.getCause
-  }
+  private def findUserIdCached(nick: String): Int =
+    try {
+      nameToIdCache.get(nick)
+    } catch {
+      case ex: UncheckedExecutionException => throw ex.getCause
+    }
 
   def getUserCached(nick: String): User = userDao.getUserCached(findUserIdCached(nick))
 
