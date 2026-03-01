@@ -362,4 +362,52 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     userDao.freezeUser(user, moderator, reason, until)
     userLogDao.logFreezeUser(user, moderator, reason, until.toInstant)
   }
+
+  def setPhoto(user: User, photo: String): Unit = transactional() { _ =>
+    userDao.setPhoto(user, photo)
+  }
+
+  def setStyle(user: User, style: String): Unit = transactional() { _ =>
+    userDao.setStyle(user, style)
+  }
+
+  def changeScore(userId: Int, delta: Int): Unit = transactional() { _ =>
+    userDao.changeScore(userId, delta)
+  }
+
+  def block(user: User, moderator: User, reason: String): Unit = transactional() { _ =>
+    userDao.block(user, moderator, reason)
+  }
+
+  def score50(user: User, moderator: User): Unit = transactional() { _ =>
+    userDao.score50(user, moderator)
+  }
+
+  def unblock(user: User, moderator: User): Unit = transactional() { _ =>
+    userDao.unblock(user, moderator)
+  }
+
+  def toggleCorrector(user: User, moderator: User): Unit = transactional() { _ =>
+    userDao.toggleCorrector(user, moderator)
+  }
+
+  def resetPassword(user: User): String = transactional() { _ =>
+    userDao.resetPassword(user)
+  }
+
+  def resetPassword(user: User, moderator: User): Unit = transactional() { _ =>
+    userDao.resetPassword(user, moderator)
+  }
+
+  def activateUser(user: User): Unit = transactional() { _ =>
+    userDao.activateUser(user)
+  }
+
+  def acceptNewEmail(user: User, newEmail: String): Unit = transactional() { _ =>
+    userDao.acceptNewEmail(user, newEmail)
+  }
+
+  def resetUserpic(user: User, cleaner: User): Boolean = transactional() { _ =>
+    userDao.resetUserpic(user, cleaner)
+  }
 }

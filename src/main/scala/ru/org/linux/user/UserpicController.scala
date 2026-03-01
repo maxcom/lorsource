@@ -40,7 +40,7 @@ object UserpicController {
 }
 
 @Controller
-class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: UserService,
+class UserpicController(siteConfig: SiteConfig, userService: UserService,
                         userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/addphoto.jsp"), method = Array(RequestMethod.GET))
   def showForm: ModelAndView = AuthorizedOnly { implicit currentUser =>
@@ -84,7 +84,7 @@ class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: U
         Files.move(uploadedFile, photofile.toPath)
         photofile.setReadable(true, false)
 
-        userDao.setPhoto(currentUser.user, photoname)
+        userService.setPhoto(currentUser.user, photoname)
 
         logger.info("Установлена фотография пользователем {}", currentUser.user.nick)
 

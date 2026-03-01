@@ -52,7 +52,7 @@ object TopicService {
 class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: SectionService,
                    imageService: ImageService, pollDao: PollDao, userEventService: UserEventService,
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
-                   userDao: UserDao, textService: MessageTextService, editHistoryDao: EditHistoryDao,
+                   textService: MessageTextService, editHistoryDao: EditHistoryDao,
                    imageDao: ImageDao, siteConfig: SiteConfig, permissionService: GroupPermissionService,
                    val transactionManager: PlatformTransactionManager) extends TransactionManagement with StrictLogging {
 
@@ -282,10 +282,10 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     topicDao.commit(msg, commiter)
 
-    userDao.changeScore(msg.authorUserId, bonus)
+    userService.changeScore(msg.authorUserId, bonus)
 
     for ((key, delta) <- editorBonus) {
-      userDao.changeScore(key.id, delta)
+      userService.changeScore(key.id, delta)
     }
   }
 

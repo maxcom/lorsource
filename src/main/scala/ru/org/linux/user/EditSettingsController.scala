@@ -30,7 +30,7 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 @RequestMapping (path = Array ("/people/{nick}/settings") )
-class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermissionService: UserPermissionService) {
+class EditSettingsController(profileDao: ProfileDao, userPermissionService: UserPermissionService, userService: UserService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
     if (!(currentUser.user.nick == nick)) {
@@ -98,7 +98,7 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
     builder.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
     builder.setFormatMode(formatMode)
     builder.setStyle(request.getParameter("style"))
-    userDao.setStyle(currentUser.user, request.getParameter("style"))
+    userService.setStyle(currentUser.user, request.getParameter("style"))
     builder.setOldTracker("on" == request.getParameter("oldTracker"))
     builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
 

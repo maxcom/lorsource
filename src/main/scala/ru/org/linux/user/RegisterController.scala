@@ -191,7 +191,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         val regcode = userDetails.getUser.getActivationCode(siteConfig.getSecret)
 
         if (regcode.equalsIgnoreCase(activation)) {
-          userDao.activateUser(userDetails.getUser)
+          userService.activateUser(userDetails.getUser)
 
           val updatedDetails = userDetailsService.loadUserByUsername(nick)
           token.setDetails(updatedDetails)
@@ -234,7 +234,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
       new ModelAndView("activate", params.asJava)
     } else {
-      userDao.acceptNewEmail(currentUser.user, newEmail)
+      userService.acceptNewEmail(currentUser.user, newEmail)
 
       new ModelAndView(new RedirectView("/people/" + currentUser.user.nick + "/profile"))
     }

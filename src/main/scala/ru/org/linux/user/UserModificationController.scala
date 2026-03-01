@@ -74,7 +74,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new UserErrorException("Пользователь уже блокирован")
     }
 
-    userDao.block(user, moderator.user, reason)
+    userService.block(user, moderator.user, reason)
 
     logger.info(s"User ${user.nick} blocked by ${moderator.user.nick}")
 
@@ -93,7 +93,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new AccessViolationException(s"Нельзя выставить score=50 пользователю ${user.nick}")
     }
 
-    userDao.score50(user, moderator.user)
+    userService.score50(user, moderator.user)
 
     redirectToProfile(user)
   }
@@ -110,7 +110,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new AccessViolationException(s"Пользователя ${user.nick} нельзя разблокировать")
     }
 
-    userDao.unblock(user, moderator.user)
+    userService.unblock(user, moderator.user)
 
     logger.info(s"User ${user.nick} unblocked by ${moderator.user.nick}")
 
@@ -168,7 +168,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new AccessViolationException(s"Пользователя ${user.nick} нельзя сделать корректором")
     }
 
-    userDao.toggleCorrector(user, moderator.user)
+    userService.toggleCorrector(user, moderator.user)
 
     logger.info(s"Toggle corrector ${user.nick} by ${moderator.user.nick}")
 
@@ -191,7 +191,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new AccessViolationException(s"Пользователю ${user.nick} нельзя сбросить пароль")
     }
 
-    userDao.resetPassword(user, moderator.user)
+    userService.resetPassword(user, moderator.user)
 
     logger.info(s"Пароль ${user.nick} сброшен модератором ${moderator.user.nick}")
 
@@ -249,7 +249,7 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
       throw new AccessViolationException("Not permitted")
     }
 
-    if (userDao.resetUserpic(user, currentUser.user)) {
+    if (userService.resetUserpic(user, currentUser.user)) {
       logger.info(s"Clearing ${user.nick} userpic by ${currentUser.user.nick}")
     }
 
