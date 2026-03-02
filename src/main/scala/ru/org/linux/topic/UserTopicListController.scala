@@ -99,7 +99,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
       None
     }
 
-    val userInfo = userDao.getUserInfoClass(user)
+    val userInfo = userDao.getUserInfo(user)
 
     if (topicPermissionService.followAuthorLinks(user)) {
       modelAndView.addObject("meLink", userInfo.url)

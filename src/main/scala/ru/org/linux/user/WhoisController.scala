@@ -62,7 +62,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     val mv = new ModelAndView("whois")
 
     mv.getModel.put("user", user)
-    val userInfo = userDao.getUserInfoClass(user)
+    val userInfo = userDao.getUserInfo(user)
     mv.getModel.put("userInfo", userInfo)
 
     mv.getModel.put("userpic", userService.getUserpic(user, currentUserOpt.profile.avatarMode, misteryMan = true))
@@ -126,7 +126,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       }
     }
 
-    val userinfo = userDao.getUserInfo(user)
+    val userinfo = userInfo.text
 
     if (!Strings.isNullOrEmpty(userinfo)) {
       mv.getModel.put("userInfoText",

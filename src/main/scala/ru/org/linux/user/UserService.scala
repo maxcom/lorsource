@@ -293,10 +293,10 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     transactional() { _ =>
       val userInfo = userDao.getUserInfo(user)
 
-      if ((userInfo != null) && userInfo.trim.nonEmpty) {
+      if ((userInfo.text != null) && userInfo.text.trim.nonEmpty) {
         userDao.updateUserInfo(user.id, null)
         userDao.changeScore(user.id, -10)
-        userLogDao.logResetInfo(user, moderator, userInfo, -10)
+        userLogDao.logResetInfo(user, moderator, userInfo.text, -10)
       }
     }
 
@@ -305,7 +305,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def removeTown(user: User, moderator: User): Unit = {
     transactional() { _ =>
-      val userInfo = userDao.getUserInfoClass(user)
+      val userInfo = userDao.getUserInfo(user)
 
       if (userInfo.town != null && userInfo.town.trim.nonEmpty) {
         userDao.removeTown(user)
@@ -319,7 +319,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def removeUrl(user: User, moderator: User): Unit = {
     transactional() { _ =>
-      val userInfo = userDao.getUserInfoClass(user)
+      val userInfo = userDao.getUserInfo(user)
 
       if (userInfo.url != null || userInfo.url.trim.nonEmpty) {
         userDao.removeUrl(user)

@@ -25,7 +25,8 @@ case class UserInfo(
   @BeanProperty lastLogin: Timestamp,
   @BeanProperty registrationDate: Timestamp,
   @Nullable @BeanProperty freezingReason: String,
-  @BeanProperty frozenBy: Int
+  @BeanProperty frozenBy: Int,
+  @Nullable @BeanProperty text: String
 )
 
 object UserInfo {
@@ -36,7 +37,8 @@ object UserInfo {
       lastLogin = rs.getTimestamp("lastlogin"),
       registrationDate = rs.getTimestamp("regdate"),
       freezingReason = rs.getString("freezing_reason"),
-      frozenBy = rs.getInt("frozen_by")
+      frozenBy = rs.getInt("frozen_by"),
+      text = rs.getString("userinfo")
     )
   }
 }

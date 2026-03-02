@@ -57,7 +57,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
 
     val user = currentUser.user
 
-    val userInfo = userDao.getUserInfoClass(user)
+    val userInfo = userDao.getUserInfo(user)
 
     val mv = new ModelAndView("edit-reg")
 
@@ -68,7 +68,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     form.setUrl(userInfo.url)
     form.setTown(userInfo.town)
     form.setName(user.getName)
-    form.setInfo(userDao.getUserInfo(user))
+    form.setInfo(userInfo.text)
 
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 

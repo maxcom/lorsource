@@ -110,22 +110,12 @@ public class UserDao {
   }
 
   /**
-   * Получить поле userinfo пользователя
-   * TODO надо переименовать?
-   * @param user пользователь
-   * @return поле userinfo
-   */
-  public String getUserInfo(User user) {
-    return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?", String.class, user.getId());
-  }
-
-  /**
    * Получить информацию о пользователе
    * @param user пользователь
    * @return информация
    */
-  public UserInfo getUserInfoClass(User user) {
-    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate, freezing_reason, frozen_by FROM users WHERE id=?", (resultSet, i) -> UserInfo.apply(resultSet), user.getId());
+  public UserInfo getUserInfo(User user) {
+    return jdbcTemplate.queryForObject("SELECT url, town, lastlogin, regdate, freezing_reason, frozen_by, userinfo FROM users WHERE id=?", (resultSet, i) -> UserInfo.apply(resultSet), user.getId());
   }
 
   /**
