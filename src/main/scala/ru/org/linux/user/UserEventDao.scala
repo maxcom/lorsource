@@ -236,10 +236,10 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     count
   }
 
-  def getEvent(id: Int): UserEvent = {
-    jdbcTemplate.queryForObjectAndMap(QueryById, id) { (resultSet, _) =>
+  def getEvent(id: Int): Option[UserEvent] = {
+    jdbcTemplate.queryAndMap(QueryById, id) { (resultSet, _) =>
       toUserEvent(resultSet)
-    }.get
+    }.headOption
   }
 
   /**

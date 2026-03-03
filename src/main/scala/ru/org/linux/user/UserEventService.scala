@@ -139,7 +139,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     userEventDao.getRepliesForUser(user.id, showPrivate, topics, offset, eventFilterType)
   }
 
-  def getEvent(id: Int): UserEvent = userEventDao.getEvent(id)
+  def getEvent(id: Int): Option[UserEvent] = userEventDao.getEvent(id)
 
    /**
    * Сброс уведомлений.

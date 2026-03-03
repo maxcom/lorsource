@@ -48,32 +48,35 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
   @RequestMapping(value = Array("/notifications-click"), method = Array(RequestMethod.POST))
   def clickNotifications(@RequestParam firstId: Int, @RequestParam lastId: Int): RedirectView = AuthorizedOnly { currentUser =>
-    val firstEvent = userEventService.getEvent(firstId)
-    if (currentUser.user.id != firstEvent.userId) {
-      throw new AccessViolationException("event owner does not match")
-    }
+    val firstEventOpt = userEventService.getEvent(firstId)
+    val lastEventOpt = userEventService.getEvent(lastId)
 
-    val lastEvent = userEventService.getEvent(lastId)
-    if (currentUser.user.id != lastEvent.userId) {
-      throw new AccessViolationException("event owner does not match")
-    }
+    if (firstEventOpt.isEmpty || lastEventOpt.isEmpty) {
+      new RedirectView("/notifications")
+    } else {
+      val firstEvent = firstEventOpt.get
+      val lastEvent = lastEventOpt.get
 
-    if (lastEvent.unread) {
-      if (lastEvent.eventType == UserEventFilterEnum.FAVORITES || lastEvent.eventType == UserEventFilterEnum.REACTION) {
-        userEventService.resetUnreadEvents(currentUser.user, lastEvent.id, lastEvent.topicId, lastEvent.eventType)
-      } else {
-        userEventService.resetSingleEvent(currentUser.user, lastEvent.id)
+      if (currentUser.user.id != firstEvent.userId || currentUser.user.id != lastEvent.userId) {
+        throw new AccessViolationException("event owner does not match")
       }
 
-      RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.id))
+      if (lastEvent.unread) {
+        if (lastEvent.eventType == UserEventFilterEnum.FAVORITES || lastEvent.eventType == UserEventFilterEnum.REACTION) {
+          userEventService.resetUnreadEvents(currentUser.user, lastEvent.id, lastEvent.topicId, lastEvent.eventType)
+        } else {
+          userEventService.resetSingleEvent(currentUser.user, lastEvent.id)
+        }
+
+        RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.id))
+      }
+
+      val preparedFirstEvent = prepareService.prepareSimple(Seq(firstEvent), withText = false).head
+
+      val view = new RedirectView(preparedFirstEvent.getLink)
+      view.setExposeModelAttributes(false)
+      view
     }
-
-
-    val preparedFirstEvent = prepareService.prepareSimple(Seq(firstEvent), withText = false).head
-
-    val view = new RedirectView(preparedFirstEvent.getLink)
-    view.setExposeModelAttributes(false)
-    view
   }
 
   /**
