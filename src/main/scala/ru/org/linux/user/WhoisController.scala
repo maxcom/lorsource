@@ -146,7 +146,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       }
 
       mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))
-      mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user))
+      mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user).asJava)
     }
 
     userStatsF.map { userStat =>

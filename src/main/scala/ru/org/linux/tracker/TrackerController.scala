@@ -100,7 +100,7 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
     }
 
     if (session.moderator) {
-      params.put("newUsers", userService.getNewUsers)
+      params.put("newUsers", userService.getNewUsers.asJava)
       params.put("frozenUsers", userService.getFrozenUsers.asJava)
       params.put("unFrozenUsers", userService.getUnFrozenUsers.asJava)
       params.put("blockedUsers", userService.getRecentlyBlocked.asJava)

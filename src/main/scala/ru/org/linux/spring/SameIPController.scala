@@ -91,8 +91,8 @@ class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAge
     mv.getModel.put("rowsLimit", rowsLimit)
 
     val (users, newUsers) = if (!scoreOpt.contains(AnonymousScoreFilter) && (ipMask.isDefined || userAgentOpt.isDefined)) {
-      (userService.getUsersWithAgent(ip = ipMask, userAgent = userAgentOpt, limit = rowsLimit),
-        userService.getNewUsersByUAIp(ipMask, userAgent))
+      (userService.getUsersWithAgent(ip = ipMask, userAgent = userAgentOpt, limit = rowsLimit).asJava,
+        userService.getNewUsersByUAIp(ipMask, userAgent).asJava)
     } else {
       (Seq.empty.asJava, Seq.empty.asJava)
     }
