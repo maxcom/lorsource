@@ -71,7 +71,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       val banInfo = userDao.getBanInfoClass(user)
       mv.getModel.put("banInfo", banInfo)
 
-      if (banInfo.moderator != 0) {
+      if (banInfo != null && banInfo.moderator != 0) {
         mv.getModel.put("bannedBy", userService.getUserCached(banInfo.moderator))
       }
     }
