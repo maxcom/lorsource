@@ -34,12 +34,12 @@ mvn test -Dtest=StringUtilTest#processTitle
 
 **Run integration tests:**
 ```bash
-mvn integration-test
+mvn integration-test -Pintegration-testing
 ```
 
 **Run a single integration test:**
 ```bash
-mvn integration-test -Dtest=TopicControllerIntegrationTest
+mvn integration-test -Pintegration-testing -Dit.test=TopicControllerIntegrationTest
 ```
 
 **Run all tests (unit + integration):**
