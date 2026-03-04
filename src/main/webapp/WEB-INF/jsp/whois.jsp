@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -159,6 +159,7 @@
     <b>Nick:</b> <span class="nickname">
         ${user.nick}
         <c:if test="${isFrozen}"> ❄</c:if>
+        <c:if test="${slowMode}"> &#x1F40C;</c:if>
     </span><br>
     <c:if test="${not empty user.name}">
         <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
@@ -242,9 +243,6 @@
 </div>
 <c:if test="${template.moderatorSession}">
     <b>Score:</b> ${user.score}${' '}MaxScore: ${user.maxScore}
-    <c:if test="${recentScoreLoss > 0}">
-      RecentScoreLoss: ${recentScoreLoss}
-    </c:if>
 </c:if>
 <c:if test="${viewByOwner and not template.moderatorSession}">
     <b>Score:</b> ${user.score}

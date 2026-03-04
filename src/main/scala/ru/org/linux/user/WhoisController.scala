@@ -27,7 +27,6 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.util.bbcode.LorCodeService
 
@@ -43,8 +42,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
                       lorCodeService: LorCodeService, userTagService: UserTagService,
                       topicPermissionService: TopicPermissionService, userService: UserService, userLogDao: UserLogDao,
                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
-                      topicDao: TopicDao, userPermissionService: UserPermissionService,
-                      deleteInfoDao: DeleteInfoDao) extends StrictLogging {
+                      topicDao: TopicDao, userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def getInfoNew(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
@@ -92,8 +90,6 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       val othersWithSameEmail = userService.getAllByEmail(user.email).filter(_.id != user.id)
 
       mv.getModel.put("otherUsers", othersWithSameEmail.asJava)
-
-      mv.getModel.put("recentScoreLoss", deleteInfoDao.getRecentScoreLoss(user))
     }
 
     if (!user.anonymous) {
@@ -147,6 +143,10 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
       mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))
       mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user).asJava)
+
+      mv.getModel.put("slowMode", userPermissionService.isSlowMode(user))
+    } else {
+      mv.getModel.put("slowMode", false)
     }
 
     userStatsF.map { userStat =>

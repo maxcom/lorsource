@@ -22,7 +22,8 @@ import ru.org.linux.markup.MarkupType.{Html, Lorcode, LorcodeUlb, Markdown}
 import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.user.UserPermissionService.*
 
-import java.time.Duration
+import java.time.temporal.ChronoUnit
+import java.time.{Duration, Instant}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.SetHasAsJava
 
@@ -104,4 +105,11 @@ class UserPermissionService(userLogDao: UserLogDao, userInvitesDao: UserInvitesD
 
   def canResetPasswordByCode(user: User): Boolean =
     !user.blocked && user.activated && !user.anonymous && !user.isAdministrator
+
+  def isSlowMode(user: User): Boolean = {
+    !user.anonymous && !user.isFrozen && !user.blocked && (
+      user.getScore < 35 ||
+        Option(user.frozenUntil).map(_.toInstant).exists(_.isAfter(Instant.now.minus(3, ChronoUnit.DAYS))) ||
+        deleteInfoDao.getRecentScoreLoss(user) >= 30)
+  }
 }
