@@ -75,7 +75,13 @@
   Group group = preparedMessage.getGroup();
 %>
 <h1>
-  <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
+  <a href="${fn:escapeXml(message.link)}">
+    <l:title>${message.title}</l:title>
+  </a>
+
+  <c:if test="${message.resolved}">
+    <span title="решено">☑️</span>
+  </c:if>
 </h1>
 
 <c:if test="${multiPortal}">
