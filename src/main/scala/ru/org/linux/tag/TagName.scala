@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,8 +17,6 @@ package ru.org.linux.tag
 
 import org.springframework.validation.Errors
 import ru.org.linux.user.UserErrorException
-
-import scala.jdk.CollectionConverters.*
 
 object TagName {
   val MaxTagsPerTopic = 5
@@ -71,8 +69,12 @@ object TagName {
       }
     }
 
-    if (goodTags.size > maxTags) {
+    if (goodTags.sizeIs > maxTags) {
       errors.rejectValue("tags", null, "Слишком много тегов (максимум " + maxTags + ')')
+    }
+
+    if (!errors.hasErrors && goodTags.isEmpty) {
+      errors.rejectValue("tags", null, "Установите теги")
     }
 
     goodTags.toVector
@@ -84,9 +86,6 @@ object TagName {
    * @param tags список тегов через запятую
    * @return список тегов
    */
-  def parseAndSanitizeTagsJava(tags:String): java.util.List[String] =
-    parseAndSanitizeTags(tags).asJava
-
   def parseAndSanitizeTags(tags: String): Seq[String] =
     parseTags(tags).filter(isGoodTag).toVector
 }
