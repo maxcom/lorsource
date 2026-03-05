@@ -49,7 +49,7 @@
             &#128274;
           </c:if>
           <c:if test="${msg.resolved}">
-            <span title="решено">☑️</span>
+            <i class="icon-check" title="решено"></i>
           </c:if>
 
           <l:title>${msg.title}</l:title>

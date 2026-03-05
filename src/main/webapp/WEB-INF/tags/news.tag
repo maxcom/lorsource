@@ -76,7 +76,7 @@
 %>
 <h1>
   <c:if test="${message.resolved}">
-    <span title="решено">☑️</span>
+   <i class="icon-check" title="решено"></i>
   </c:if>
 
   <a href="${fn:escapeXml(message.link)}">

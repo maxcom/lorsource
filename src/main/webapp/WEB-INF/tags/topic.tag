@@ -91,7 +91,7 @@
 
     <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
       <c:if test="${message.resolved}">
-        <span title="решено">☑️</span>
+        <i class="icon-check" title="решено"></i>
       </c:if>
       <a href="${message.link}"><l:title>${message.title}</l:title></a>
       <c:if test="${message.draft}"><span style="color:red">(черновик)</span></c:if>
