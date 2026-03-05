@@ -662,7 +662,7 @@
                 <td>
                     <strong>${item.item.action.description}</strong>
                     <c:if test="${not item.self}">
-                        &emsp;<img src="/img/tuxlor.png"><lor:user user="${item.actionUser}"/>
+                        &emsp;@<lor:user user="${item.actionUser}"/>
                     </c:if><br>
                     <c:if test="${not empty item.item.options}">
                         <c:forEach items="${item.options}" var="option">

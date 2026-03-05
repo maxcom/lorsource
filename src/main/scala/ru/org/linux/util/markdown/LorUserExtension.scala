@@ -29,7 +29,8 @@ import ru.org.linux.util.formatter.ToHtmlFormatter
 
 import scala.jdk.CollectionConverters.*
 
-class LorUserExtension(userService: UserService, toHtmlFormatter: ToHtmlFormatter) extends Parser.ParserExtension with HtmlRenderer.HtmlRendererExtension {
+class LorUserExtension(userService: UserService, toHtmlFormatter: ToHtmlFormatter)
+    extends Parser.ParserExtension with HtmlRenderer.HtmlRendererExtension {
   override def parserOptions(options: MutableDataHolder): Unit = {}
 
   override def extend(parserBuilder: Parser.Builder): Unit = {
@@ -55,7 +56,7 @@ object LorUserParserExtension {
 
     override def getBeforeDependents: util.Set[Class[_]] = null
 
-    override def apply(inlineParser: LightInlineParser): LorUserParserExtension = new LorUserParserExtension(inlineParser)
+    override def apply(inlineParser: LightInlineParser): LorUserParserExtension = new LorUserParserExtension()
 
     override def affectsGlobalScope = false
   }
@@ -73,7 +74,7 @@ class LorUser(openingMarker: BasedSequence, text: BasedSequence)
   }
 }
 
-class LorUserParserExtension(val inlineParser: LightInlineParser) extends InlineParserExtension {
+class LorUserParserExtension extends InlineParserExtension {
   override def finalizeDocument(inlineParser: InlineParser): Unit = {
   }
 
@@ -117,31 +118,20 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
       maybeUser match {
         case Some(user) =>
           val resolvedLink = ctx.resolveLink(LinkType.LINK, toHtmlFormatter.memberURL(user), null)
-          val tuxLink = ctx.resolveLink(LinkType.LINK, "/img/tuxlor.png", null)
 
           html
             .withAttr()
             .attr("style", "white-space: nowrap")
             .tag("span")
 
-          html
-            .attr("src", "/img/tuxlor.png")
-            .withAttr(tuxLink)
-            .attr("alt", "@")
-            .attr("title", "@")
-            .attr("width", "7")
-            .attr("height", "16")
-            .tagVoid("img")
-
           if (user.blocked) {
             html.tag("s")
           }
 
           html
-            .attr("style", "text-decoration: none")
             .attr("href", resolvedLink.getUrl)
             .withAttr(resolvedLink)
-            .tag("a", false, false, () => html.text(nick))
+            .tag("a", false, false, () => html.text("@" + nick))
 
           if (user.blocked) {
             html.closeTag("s")

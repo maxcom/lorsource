@@ -105,13 +105,13 @@
         <i class="icon-reply icon-reply-color" title="Ответ"></i>
       </c:when>
       <c:when test="${topic.event.eventType == 'REFERENCE'}">
-        <i class="icon-user icon-user-color"></i>
+         <span title="Упоминание">@️</span>
       </c:when>
       <c:when test="${topic.event.eventType == 'TAG'}">
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
       <c:when test="${topic.event.eventType == 'WARNING'}">
-         <span title="Избранный тег">⚠️</span>
+         <span title="Уведомление модератора">⚠️</span>
       </c:when>
     </c:choose>
     </p>
