@@ -51,9 +51,13 @@ public class RegisterRequestValidator implements Validator {
 
   public boolean isGoodDomainEmail(InternetAddress email) {
     String domain = email.getAddress().replaceFirst("^[^@]+@", "").toLowerCase();
-    String topDomain = InternetDomainName.from(domain).topPrivateDomain().toString();
 
-    return !emailDomainsBlockDao.isBlocked(domain) && !emailDomainsBlockDao.isBlocked(topDomain);
+    try {
+      String topDomain = InternetDomainName.from(domain).topPrivateDomain().toString();
+      return !emailDomainsBlockDao.isBlocked(domain) && !emailDomainsBlockDao.isBlocked(topDomain);
+    } catch (IllegalStateException e) {
+      return false;
+    }
   }
 
   @Override
