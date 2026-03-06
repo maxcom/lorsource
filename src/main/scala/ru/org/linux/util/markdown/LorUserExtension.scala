@@ -131,6 +131,7 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
           html
             .attr("href", resolvedLink.getUrl)
             .withAttr(resolvedLink)
+            .attr("class", "mention")
             .tag("a", false, false, () => html.text("@" + nick))
 
           if (user.blocked) {
