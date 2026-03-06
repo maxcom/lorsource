@@ -246,7 +246,9 @@ table.nav {
 }
 
 .msg .reply {
-  font-size: smaller;
+  @include respond-to(tablet-and-desktops) {
+    font-size: smaller;
+  }
 
   ul {
     display: inline;
