@@ -270,7 +270,7 @@ public class UserLogDao {
 
     return jdbcTemplate.query(
             sql,
-            (rs, rowNum) -> new UserLogItem(
+            (rs, rowNum) -> UserLogItem.apply(
                     rs.getInt("id"),
                     rs.getInt("userid"),
                     rs.getInt("action_userid"),

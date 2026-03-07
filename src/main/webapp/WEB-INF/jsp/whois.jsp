@@ -664,7 +664,7 @@
                     <c:if test="${not item.self}">
                         &emsp;@<lor:user user="${item.actionUser}"/>
                     </c:if><br>
-                    <c:if test="${not empty item.item.options}">
+                    <c:if test="${not empty item.options}">
                         <c:forEach items="${item.options}" var="option">
                             ${option.key}: ${option.value}<br>
                         </c:forEach>

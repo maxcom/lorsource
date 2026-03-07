@@ -22,7 +22,6 @@ import ru.org.linux.user.UserLogDao.*
 import ru.org.linux.util.StringUtil.escapeHtml
 
 import java.time.Instant
-import scala.jdk.CollectionConverters.{MapHasAsJava, MapHasAsScala}
 
 object UserLogPrepareService {
   private val OptionDescription: Map[String, String] =
@@ -40,7 +39,7 @@ object UserLogPrepareService {
 class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao) {
   def prepare(items: collection.Seq[UserLogItem], timezone: DateTimeZone): Seq[PreparedUserLogItem] = {
     items.view.map((item: UserLogItem) => {
-      val options = for ((rawKey, rawValue) <- item.getOptions.asScala) yield {
+      val options = for ((rawKey, rawValue) <- item.options) yield {
         val key = UserLogPrepareService.OptionDescription.getOrElse(rawKey, escapeHtml(rawKey))
 
         val value = rawKey match {
@@ -53,7 +52,7 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
             s"<a href=\"/people/${user.nick}/profile\">${user.nick}</a>"
           case OPTION_USER_AGENT =>
             val id = rawValue.toInt
-            val ip = item.getOptions.getOrDefault(OPTION_IP, "")
+            val ip = item.options.getOrElse(OPTION_IP, "")
 
             if (id != 0) {
               s"<a href=\"/sameip.jsp?ua=$id&ip=$ip&mask=0\">${userAgentDao.getUserAgentById(id).orElse(escapeHtml("<не найден>"))}</a>"
@@ -61,7 +60,7 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
               escapeHtml("<нет>")
             }
           case OPTION_UNTIL =>
-            val until = Instant.parse(rawValue);
+            val until = Instant.parse(rawValue)
 
             DateFormats.getDefault(timezone).print(until.toEpochMilli)
           case _ =>
@@ -71,7 +70,7 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
         key -> value
       }
 
-      PreparedUserLogItem(item, userService.getUserCached(item.getActionUser), options.asJava)
+      PreparedUserLogItem(item, userService.getUserCached(item.actionUser), options)
     }).toVector
   }
 }
