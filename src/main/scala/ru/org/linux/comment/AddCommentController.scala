@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -105,7 +105,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(postingUser)
     }
 
-    if (textService.isEmpty(MessageText.apply(add.getMsg, sessionUserOpt.profile.formatMode))) {
+    if (textService.isEmpty(MessageText(add.getMsg, sessionUserOpt.profile.formatMode))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
@@ -120,8 +120,6 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
       } else {
         Map.empty
       }
-
-      add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
 
       new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic)(sessionUserOpt) ++ info).asJava)
     } else {

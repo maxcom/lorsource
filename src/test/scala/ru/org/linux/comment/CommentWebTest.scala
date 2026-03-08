@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,16 +12,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.topic
+package ru.org.linux.comment
 
 import org.jsoup.Jsoup
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+import ru.org.linux.comment.CommentWebTest.{TestGroup, TestTitle}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import ru.org.linux.test.WebHelper
-import ru.org.linux.topic.CommentWebTest.{TestGroup, TestTitle}
 import sttp.client3.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 

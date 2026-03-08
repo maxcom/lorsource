@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -36,14 +36,6 @@
   </div>
 </div>
 
-<%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
-<%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
-<%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>
-<%--помещать новости на главную страницу,--%>
-<%--<a href="register.jsp">зарегистрируйтесь</a></font>.--%>
-<%--<p>--%>
-
-<%--<% } %>--%>
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
   <a href="/help/rules.md">правилами</a> сайта.</font>
 
@@ -88,7 +80,6 @@
 <lor:commentForm
         topic="${add.topic}"
         replyto="<%= replyto %>"
-        msg="${add.msg}"
         form_action_url="${form_action_url}"
         postscoreInfo="${postscoreInfo}"/>
 
