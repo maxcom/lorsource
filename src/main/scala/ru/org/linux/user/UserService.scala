@@ -33,7 +33,6 @@ import ru.org.linux.util.{BadImageException, StringUtil}
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
 import java.time.{Duration, Instant}
-import java.util
 import java.util.concurrent.{CompletionException, TimeUnit}
 import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
@@ -181,9 +180,6 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def getUsersCachedMap(userIds: Iterable[Int]): Map[Int, User] =
     getUsersCached(userIds.toSet).view.map(u => u.id -> u).toMap
 
-  private def getUsersCachedJava(ids: java.lang.Iterable[Integer]): util.List[User] =
-    getUsersCached(ids.asScala.map(i => i)).asJava
-
   def getNewUsers: Seq[User] = getUsersCached(userDao.getNewUserIds)
 
   def getNewUsersByUAIp(ip: Option[String], @Nullable userAgent: Integer): Seq[(User, Timestamp, Timestamp)] =
@@ -205,16 +201,16 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getUnFrozenUsers: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getUnFrozenUserIds, activityDays = 1)
 
-  def getRecentlyBlocked: collection.Seq[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER)).asScala
+  def getRecentlyBlocked: Seq[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER))
 
-  def getRecentlyUnBlocked: collection.Seq[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER)).asScala
+  def getRecentlyUnBlocked: Seq[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER))
 
   def getModerators: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getModerators, activityDays = 30)
 
   def getCorrectors: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getCorrectors, activityDays = 30)
 
   def getRecentUserpics: Seq[(User, Userpic)] = {
-    val userIds = userLogDao.getRecentlyHasEvent(UserLogAction.SET_USERPIC).asScala.map(_.toInt).toSeq.distinct
+    val userIds = userLogDao.getRecentlyHasEvent(UserLogAction.SET_USERPIC).distinct
 
     getUsersCached(userIds).map { user =>
       user -> getUserpic(user, "empty", misteryMan = false)
@@ -271,7 +267,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
       val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
 
-      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).toJava, userAgentId, language.toJava)
+      userLogDao.logRegister(newUserId, ip, inviteOwner, userAgentId, language)
 
       newUserId
     }

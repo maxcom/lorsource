@@ -134,7 +134,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     if (viewByOwner || currentUserOpt.moderator) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user))
 
-      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator).asScala
+      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator)
       if (logItems.nonEmpty) {
         val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
 

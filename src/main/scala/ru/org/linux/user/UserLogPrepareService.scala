@@ -25,14 +25,14 @@ import java.time.Instant
 
 object UserLogPrepareService {
   private val OptionDescription: Map[String, String] =
-    Map(OPTION_BONUS -> "Изменение score",
-        OPTION_NEW_EMAIL -> "Новый email",
-        OPTION_NEW_USERPIC -> "Новая фотография",
-        OPTION_OLD_EMAIL -> "Старый email",
-        OPTION_OLD_INFO -> "Старый текст информации",
-        OPTION_OLD_USERPIC -> "Старая фотография",
-        OPTION_REASON -> "Причина",
-        OPTION_UNTIL -> "Срок действия")
+    Map(OptionBonus -> "Изменение score",
+        OptionNewEmail -> "Новый email",
+        OptionNewUserpic -> "Новая фотография",
+        OptionOldEmail -> "Старый email",
+        OptionOldInfo -> "Старый текст информации",
+        OptionOldUserpic -> "Старая фотография",
+        OptionReason -> "Причина",
+        OptionUntil -> "Срок действия")
 }
 
 @Service
@@ -43,23 +43,23 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
         val key = UserLogPrepareService.OptionDescription.getOrElse(rawKey, escapeHtml(rawKey))
 
         val value = rawKey match {
-          case OPTION_OLD_USERPIC | OPTION_NEW_USERPIC =>
+          case OptionOldUserpic | OptionNewUserpic =>
             s"<a href=\"/photos/${escapeHtml(rawValue)}\">${escapeHtml(rawValue)}</a>"
-          case OPTION_IP =>
+          case OptionIp =>
             s"<a href=\"/sameip.jsp?ip=${escapeHtml(rawValue)}\">${escapeHtml(rawValue)}</a>"
-          case OPTION_INVITED_BY =>
+          case OptionInvitedBy =>
             val user = userService.getUserCached(rawValue.toInt)
             s"<a href=\"/people/${user.nick}/profile\">${user.nick}</a>"
-          case OPTION_USER_AGENT =>
+          case OptionUserAgent =>
             val id = rawValue.toInt
-            val ip = item.options.getOrElse(OPTION_IP, "")
+            val ip = item.options.getOrElse(OptionIp, "")
 
             if (id != 0) {
               s"<a href=\"/sameip.jsp?ua=$id&ip=$ip&mask=0\">${userAgentDao.getUserAgentById(id).orElse(escapeHtml("<не найден>"))}</a>"
             } else {
               escapeHtml("<нет>")
             }
-          case OPTION_UNTIL =>
+          case OptionUntil =>
             val until = Instant.parse(rawValue)
 
             DateFormats.getDefault(timezone).print(until.toEpochMilli)
