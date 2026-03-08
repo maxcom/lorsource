@@ -38,7 +38,6 @@ import javax.annotation.Nullable
 import javax.mail.internet.InternetAddress
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
 import scala.util.{Failure, Success, Try}
 
 object UserService {

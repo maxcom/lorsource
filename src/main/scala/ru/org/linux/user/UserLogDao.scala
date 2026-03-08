@@ -21,7 +21,6 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.PlatformTransactionManager
 
-import java.sql.ResultSet
 import java.time.{Duration, Instant, OffsetDateTime}
 import javax.annotation.Nullable
 import javax.sql.DataSource
@@ -38,14 +37,14 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       map = map + (UserLogDao.OptionBonus -> Int.box(bonus))
     }
 
-    if (user.getPhoto != null) {
-      map = map + (UserLogDao.OptionOldUserpic -> user.getPhoto)
+    if (user.photo != null) {
+      map = map + (UserLogDao.OptionOldUserpic -> user.photo)
     }
 
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(actionUser.getId),
+      Int.box(user.id),
+      Int.box(actionUser.id),
       UserLogAction.RESET_USERPIC.toString,
       map.asJava
     )
@@ -54,16 +53,16 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logSetUserpic(user: User, userpic: String): Unit = transactional() { _ =>
     var map = Map[String, Any]()
 
-    if (user.getPhoto != null) {
-      map = map + (UserLogDao.OptionOldUserpic -> user.getPhoto)
+    if (user.photo != null) {
+      map = map + (UserLogDao.OptionOldUserpic -> user.photo)
     }
 
     map = map + (UserLogDao.OptionNewUserpic -> userpic)
 
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(user.getId),
+      Int.box(user.id),
+      Int.box(user.id),
       UserLogAction.SET_USERPIC.toString,
       map.asJava
     )
@@ -72,8 +71,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logBlockUser(user: User, moderator: User, reason: String): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.BLOCK_USER.toString,
       Map(UserLogDao.OptionReason -> reason).asJava
     )
@@ -91,8 +90,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
 
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       action.toString,
       options.asJava
     )
@@ -101,8 +100,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logScore50(user: User, moderator: User): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, '')",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.SCORE50.toString
     )
   }
@@ -110,8 +109,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logUnblockUser(user: User, moderator: User): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.UNBLOCK_USER.toString,
       Map.empty[String, String].asJava
     )
@@ -122,14 +121,14 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
 
     map = map + (UserLogDao.OptionNewEmail -> newEmail)
 
-    if (user.getEmail != null) {
-      map = map + (UserLogDao.OptionOldEmail -> user.getEmail)
+    if (user.email != null) {
+      map = map + (UserLogDao.OptionOldEmail -> user.email)
     }
 
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(user.getId),
+      Int.box(user.id),
+      Int.box(user.id),
       UserLogAction.ACCEPT_NEW_EMAIL.toString,
       map.asJava
     )
@@ -138,8 +137,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logResetInfo(user: User, moderator: User, userInfo: String, bonus: Int): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.RESET_INFO.toString,
       Map(
         UserLogDao.OptionOldInfo -> userInfo,
@@ -151,8 +150,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logResetUrl(user: User, moderator: User, url: String, bonus: Int): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.RESET_URL.toString,
       Map(
         UserLogDao.OptionOldUrl -> url,
@@ -164,8 +163,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logResetTown(user: User, moderator: User, town: String, bonus: Int): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.RESET_TOWN.toString,
       Map(
         UserLogDao.OptionOldTown -> town,
@@ -177,8 +176,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logSentPasswordReset(resetFor: User, @Nullable resetBy: User, email: String): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(resetFor.getId),
-      Int.box(if (resetBy != null) resetBy.getId else resetFor.getId),
+      Int.box(resetFor.id),
+      Int.box(if (resetBy != null) resetBy.id else resetFor.id),
       UserLogAction.SENT_PASSWORD_RESET.toString,
       Map(UserLogDao.OptionEmail -> email).asJava
     )
@@ -187,8 +186,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logResetPassword(user: User, moderator: User): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.RESET_PASSWORD.toString,
       Map.empty[String, String].asJava
     )
@@ -197,8 +196,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logSetPassword(user: User, ip: String): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(user.getId),
+      Int.box(user.id),
+      Int.box(user.id),
       UserLogAction.SET_PASSWORD.toString,
       Map(UserLogDao.OptionIp -> ip).asJava
     )
@@ -207,8 +206,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def logSetUserInfo(user: User, info: java.util.Map[String, String]): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(user.getId),
+      Int.box(user.id),
+      Int.box(user.id),
       UserLogAction.SET_INFO.toString,
       info
     )
@@ -224,7 +223,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
 
     jdbcTemplate.queryAndMap(
       sql,
-      user.getId
+      user.id
     ) { (rs, _) =>
       UserLogItem(
         rs.getInt("id"),
@@ -240,7 +239,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def getUserpicSetCount(user: User, duration: Duration): Int = {
     jdbcTemplate.queryForObject[Int](
       "SELECT count(*) FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>?",
-      Int.box(user.getId),
+      Int.box(user.id),
       UserLogAction.SET_USERPIC.toString,
       OffsetDateTime.now().minus(duration)
     ).get
@@ -249,7 +248,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def hasRecentModerationEvent(user: User, duration: Duration, action: UserLogAction): Boolean = {
     jdbcTemplate.queryForObject[Boolean](
       "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid!=action_userid)",
-      Int.box(user.getId),
+      Int.box(user.id),
       action.toString,
       OffsetDateTime.now().minus(duration)
     ).get
@@ -258,7 +257,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def hasRecentSelfEvent(user: User, duration: Duration, action: UserLogAction): Boolean = {
     jdbcTemplate.queryForObject[Boolean](
       "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid=action_userid)",
-      Int.box(user.getId),
+      Int.box(user.id),
       action.toString,
       OffsetDateTime.now().minus(duration)
     ).get
@@ -291,8 +290,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def setCorrector(user: User, moderator: User): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.SET_CORRECTOR.toString,
       Map.empty[String, String].asJava
     )
@@ -301,8 +300,8 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def unsetCorrector(user: User, moderator: User): Unit = transactional() { _ =>
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.getId),
-      Int.box(moderator.getId),
+      Int.box(user.id),
+      Int.box(moderator.id),
       UserLogAction.UNSET_CORRECTOR.toString,
       Map.empty[String, String].asJava
     )

@@ -18,7 +18,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
@@ -42,8 +41,8 @@ class UserLogDaoIntegrationTest {
   @Test
   def testLogAcceptEmail(): Unit = {
     val user = mock(classOf[User])
-    when(user.getId).thenReturn(UserLogDaoIntegrationTest.TestId)
-    when(user.getEmail).thenReturn("old@email")
+    when(user.id).thenReturn(UserLogDaoIntegrationTest.TestId)
+    when(user.email).thenReturn("old@email")
 
     val oldLogItems = userLogDao.getLogItems(user, includeSelf = true)
 
@@ -62,7 +61,7 @@ class UserLogDaoIntegrationTest {
   @Test
   def testLogScore50(): Unit = {
     val user = mock(classOf[User])
-    when(user.getId).thenReturn(UserLogDaoIntegrationTest.TestId)
+    when(user.id).thenReturn(UserLogDaoIntegrationTest.TestId)
 
     val oldLogItems = userLogDao.getLogItems(user, includeSelf = true)
 
