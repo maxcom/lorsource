@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
-import ru.org.linux.msgbase.DeleteInfoDao.InsertDeleteInfo
+import ru.org.linux.msgbase.InsertDeleteInfo
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEventFilterEnum.*
 import ru.org.linux.user.UserEventFilterEnum.DELETED
@@ -191,30 +191,30 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
   }
 
   def insertTopicDeleteNotification(topic: Topic, info: InsertDeleteInfo): Unit = {
-    assert(topic.id == info.msgid())
+    assert(topic.id == info.msgid)
 
-    if (info.deleteUser().id != topic.authorUserId && topic.authorUserId != UserConstants.ANONYMOUS_ID) {
+    if (info.deleteUser.id != topic.authorUserId && topic.authorUserId != UserConstants.ANONYMOUS_ID) {
       userEventDao.addEvent(
         eventType = DELETED.getType,
         userId = topic.authorUserId,
         isPrivate = true,
         topicId = Some(topic.id),
         commentId = None,
-        message = Some(info.reason()))
+        message = Some(info.reason))
     }
   }
 
   def insertCommentDeleteNotification(comment: Comment, info: InsertDeleteInfo): Unit = {
-    assert(comment.id == info.msgid())
+    assert(comment.id == info.msgid)
 
-    if (info.deleteUser().id != comment.userid && comment.userid != UserConstants.ANONYMOUS_ID) {
+    if (info.deleteUser.id != comment.userid && comment.userid != UserConstants.ANONYMOUS_ID) {
       userEventDao.addEvent(
         eventType = DELETED.getType,
         userId = comment.userid,
         isPrivate = true,
         topicId = Some(comment.topicId),
         commentId = Some(comment.id),
-        message = Some(info.reason()))
+        message = Some(info.reason))
     }
   }
 

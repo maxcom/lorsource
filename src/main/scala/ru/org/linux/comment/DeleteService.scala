@@ -21,7 +21,7 @@ import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.common.DeleteReasons
 import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.site.ScriptErrorException
-import DeleteInfoDao.InsertDeleteInfo
+import ru.org.linux.msgbase.InsertDeleteInfo
 import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserEventService, UserService}
 
@@ -154,8 +154,10 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(comment.id, true)
 
-    if (deleteInfo != null && deleteInfo.getBonus != 0) {
-      userService.changeScore(comment.userid, -deleteInfo.getBonus)
+    deleteInfo.foreach { info =>
+      if (info.getBonus != 0) {
+        userService.changeScore(comment.userid, -info.getBonus)
+      }
     }
 
     commentDao.undeleteComment(comment)
@@ -169,8 +171,10 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(topic.id, true)
 
-    if (deleteInfo != null && deleteInfo.getBonus != 0) {
-      userService.changeScore(topic.authorUserId, -deleteInfo.getBonus)
+    deleteInfo.foreach { info =>
+      if (info.getBonus != 0) {
+        userService.changeScore(topic.authorUserId, -info.getBonus)
+      }
     }
 
     topicDao.undelete(topic)
@@ -254,7 +258,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     }
 
     if (deleteInfos.nonEmpty) {
-      deleteInfoDao.insert(deleteInfos.asJava)
+      deleteInfoDao.insert(deleteInfos.toSeq)
 
       commentDao.updateStatsAfterDelete(root.id, deleteInfos.size)
     }
@@ -322,7 +326,8 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     userEventService.processCommentsDeleted(deletedCommentIds)
 
     // common
-    deleteInfoDao.insert((deletedComments ++ deletedTopics).asJava)
+    val allDeleted = deletedComments.toSeq ++ deletedTopics
+    deleteInfoDao.insert(allDeleted)
 
     if (notifyUser) {
       userEventService.insertTopicMassDeleteNotifications(deletedTopics.map(_.msgid), reason, moderator)
