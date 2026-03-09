@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.msgbase;
 
 import com.google.common.base.Preconditions;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -29,7 +29,6 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Получение информации кем и почему удален топик

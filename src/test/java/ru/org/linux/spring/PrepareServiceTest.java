@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,11 +18,12 @@ package ru.org.linux.spring;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.msgbase.DeleteInfoDao;
+import ru.org.linux.msgbase.UserAgentDao;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionDaoImpl;
 import ru.org.linux.topic.Topic;
-import ru.org.linux.spring.dao.*;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.UserDao;
 

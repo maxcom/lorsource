@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.markup.MarkupType
+import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.site.DefaultProfile
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.UserAgentDao
 import ru.org.linux.user.UserService.*
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
 import ru.org.linux.util.{BadImageException, StringUtil}

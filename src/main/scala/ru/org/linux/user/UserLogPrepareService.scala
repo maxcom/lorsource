@@ -16,8 +16,8 @@ package ru.org.linux.user
 
 import org.joda.time.DateTimeZone
 import org.springframework.stereotype.Service
+import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.site.DateFormats
-import ru.org.linux.spring.dao.UserAgentDao
 import ru.org.linux.user.UserLogDao.*
 import ru.org.linux.util.StringUtil.escapeHtml
 

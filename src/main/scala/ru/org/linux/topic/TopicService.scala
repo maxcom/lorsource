@@ -26,11 +26,11 @@ import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, Edit
 import ru.org.linux.gallery.{Image, ImageDao, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{PollDao, PollVariant}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.tag.TagName
 import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils

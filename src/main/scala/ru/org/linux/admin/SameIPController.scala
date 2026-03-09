@@ -12,17 +12,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.spring
+package ru.org.linux.admin
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestParam}
 import org.springframework.web.servlet.ModelAndView
+import ru.org.linux.admin.SameIPController.AnonymousScoreFilter
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.auth.IPBlockDao
+import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.sameip.SameIpService
 import ru.org.linux.site.BadInputException
-import ru.org.linux.spring.SameIPController.AnonymousScoreFilter
-import ru.org.linux.spring.dao.UserAgentDao
 import ru.org.linux.user.UserService
 
 import java.util

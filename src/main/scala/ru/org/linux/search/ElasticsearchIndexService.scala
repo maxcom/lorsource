@@ -27,9 +27,9 @@ import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.MsgbaseDao
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicTagService}
 import ru.org.linux.user.UserService
 

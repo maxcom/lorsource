@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
-import ru.org.linux.spring.dao.DeleteInfoDao.InsertDeleteInfo
+import ru.org.linux.msgbase.DeleteInfoDao.InsertDeleteInfo
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEventFilterEnum.*
 import ru.org.linux.user.UserEventFilterEnum.DELETED

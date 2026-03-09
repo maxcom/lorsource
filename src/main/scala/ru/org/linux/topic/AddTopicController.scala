@@ -32,11 +32,11 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
 import ru.org.linux.gallery.UploadedImagePreview
 import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
+import ru.org.linux.msgbase.MessageText
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
 import ru.org.linux.user.{User, UserPermissionService, UserPropertyEditor, UserService}

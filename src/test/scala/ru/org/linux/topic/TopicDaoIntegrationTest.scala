@@ -28,10 +28,10 @@ import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.PollDao
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.TopicDaoIntegrationTest.*
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, UserDao, UserInvitesDao, UserLogDao, UserService}
 import ru.org.linux.util.bbcode.LorCodeService

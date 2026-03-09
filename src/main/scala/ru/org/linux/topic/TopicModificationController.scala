@@ -24,9 +24,9 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.group.GroupDao
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.MsgbaseDao
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import scala.jdk.CollectionConverters.*

@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.{RequestMapping, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 

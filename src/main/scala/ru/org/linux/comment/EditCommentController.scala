@@ -25,8 +25,8 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.user.IgnoreListDao
 import ru.org.linux.util.ServletParameterException

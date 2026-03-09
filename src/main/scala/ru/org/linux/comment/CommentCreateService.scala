@@ -26,8 +26,8 @@ import ru.org.linux.auth.*
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, EditHistoryService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.site.MessageNotFoundException
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.*
 import ru.org.linux.util.ExceptionBindingErrorProcessor

@@ -29,12 +29,12 @@ import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
 import ru.org.linux.group.{GroupDao, GroupPermissionService}
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.tag.{TagName, TagRef, TagService}
 import ru.org.linux.user.{User, UserErrorException, UserPermissionService, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor

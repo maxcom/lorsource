@@ -31,9 +31,9 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.{AccessViolationException, AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.MessageText
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.UserService
 import ru.org.linux.util.{ServletParameterException, StringUtil}

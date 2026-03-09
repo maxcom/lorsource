@@ -12,13 +12,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.spring
+package ru.org.linux.admin
 
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.auth.IPBlockDao
@@ -27,8 +25,7 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.user.UserErrorException
 
 import java.sql.Timestamp
-import java.time.Instant
-import java.time.OffsetDateTime
+import java.time.{Instant, OffsetDateTime}
 import java.time.temporal.ChronoUnit
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}

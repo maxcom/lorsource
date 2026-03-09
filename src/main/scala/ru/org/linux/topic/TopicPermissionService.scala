@@ -23,10 +23,10 @@ import ru.org.linux.auth.{AccessViolationException, AnySession, AuthorizedSessio
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MarkupType
+import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.section.Section
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED, ViewDeletedScore}
 import ru.org.linux.user.{User, UserPermissionService, UserService}
 import ru.org.linux.warning.WarningService.TopicMaxWarnings

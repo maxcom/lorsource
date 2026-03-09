@@ -24,12 +24,12 @@ import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AnySession
 import ru.org.linux.comment.Comment
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.section.Section
 import ru.org.linux.site.DateFormats
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
 

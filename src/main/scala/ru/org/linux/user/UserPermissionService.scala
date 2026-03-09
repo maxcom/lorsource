@@ -19,7 +19,7 @@ import org.springframework.validation.Errors
 import ru.org.linux.auth.{AuthorizedSession, IPBlockDao, IPBlockInfo}
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.markup.MarkupType.{Html, Lorcode, LorcodeUlb, Markdown}
-import ru.org.linux.spring.dao.DeleteInfoDao
+import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.user.UserPermissionService.*
 
 import java.time.temporal.ChronoUnit

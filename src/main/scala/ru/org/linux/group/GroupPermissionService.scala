@@ -17,9 +17,9 @@ package ru.org.linux.group
 import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, AuthorizedSession}
+import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_GALLERY, SECTION_NEWS}
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.{User, UserPermissionService}
 

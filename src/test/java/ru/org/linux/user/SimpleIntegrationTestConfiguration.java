@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import ru.org.linux.spring.SiteConfig;
-import ru.org.linux.spring.dao.UserAgentDao;
+import ru.org.linux.msgbase.UserAgentDao;
 
 import javax.sql.DataSource;
 

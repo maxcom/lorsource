@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.common.DeleteReasons
+import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.site.ScriptErrorException
-import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.spring.dao.DeleteInfoDao.InsertDeleteInfo
+import DeleteInfoDao.InsertDeleteInfo
 import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserEventService, UserService}
 

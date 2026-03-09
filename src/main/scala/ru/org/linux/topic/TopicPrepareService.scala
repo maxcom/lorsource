@@ -20,11 +20,11 @@ import ru.org.linux.edithistory.EditInfoSummary
 import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{GroupDao, GroupPermissionService, PreparedTopicsListItem, TopicsListItem}
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.{Poll, PollPrepareService, PreparedPoll}
 import ru.org.linux.reaction.ReactionService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user.*
 import ru.org.linux.util.StringUtil

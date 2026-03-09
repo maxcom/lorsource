@@ -18,9 +18,9 @@ package ru.org.linux.user
 import org.springframework.stereotype.Service
 import ru.org.linux.group.GroupDao
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.reaction.ReactionListItem
 import ru.org.linux.section.SectionService
-import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicTagService
 
 @Service

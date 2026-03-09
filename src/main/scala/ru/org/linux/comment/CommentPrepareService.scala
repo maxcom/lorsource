@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service
 import ru.org.linux.auth.AnySession
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.reaction.{PreparedReactions, ReactionService}
 import ru.org.linux.site.ApiDeleteInfo
-import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.user.*
 import ru.org.linux.warning.{Warning, WarningService}
