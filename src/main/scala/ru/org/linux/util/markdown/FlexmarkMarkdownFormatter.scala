@@ -145,19 +145,17 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
     }
 
     private def preserveWhitespace(@Nullable node: Node): Boolean = {
-      // looks only at this element and five levels up, to prevent recursion & needless stack searches
       node match {
         case element: Element =>
-          var el = element
+          var el: Element = element
           var i = 0
-          do {
+          while (i < 6 && el != null) {
             if (el.tag.preserveWhitespace) {
               return true
             }
-
             el = el.parent
             i += 1
-          } while (i < 6 && el != null)
+          }
         case _ =>
       }
       false
