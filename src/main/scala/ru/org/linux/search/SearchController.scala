@@ -37,7 +37,7 @@ import ru.org.linux.user.UserService
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
-import scala.collection.immutable.{SortedMap, VectorMap}
+import scala.collection.immutable.VectorMap
 import scala.jdk.CollectionConverters.{IterableHasAsJava, MapHasAsJava}
 
 @Controller
@@ -46,23 +46,17 @@ class SearchController(sectionService: SectionService, userService: UserService,
   @ModelAttribute("sorts")
   def getSorts: java.util.Map[String, String] = {
     // VectorMap preserves order!
-    SearchOrder.values.map(v => v.id -> v.name).to(VectorMap).asJava
+    SearchOrder.values.view.map(v => v.id -> v.name).to(VectorMap).asJava
   }
 
   @ModelAttribute("intervals")
   def getIntervals: java.util.Map[SearchInterval, String] = {
-    val builder = ImmutableSortedMap.naturalOrder[SearchInterval, String]
-
-    for (value <- SearchInterval.values) {
-      builder.put(value, value.getTitle)
-    }
-
-    SearchInterval.values.view.map(v => v -> v.getTitle).to(SortedMap).asJava
+    SearchInterval.values.view.map(v => v -> v.getTitle).to(VectorMap).asJava
   }
 
   @ModelAttribute("ranges")
   def getRanges: java.util.Map[SearchEnums.SearchRange, String] = {
-    SearchRange.values().view.map(v => v -> v.getTitle).to(SortedMap).asJava
+    SearchRange.values().view.map(v => v -> v.getTitle).to(VectorMap).asJava
   }
 
   @RequestMapping(value = Array("/search.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))

@@ -31,7 +31,7 @@ import java.time.Instant
 import javax.annotation.Nullable
 import javax.mail.internet.{AddressException, InternetAddress}
 import javax.sql.DataSource
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Repository
 class UserDao(ds: DataSource) extends StrictLogging {
@@ -260,7 +260,7 @@ class UserDao(ds: DataSource) extends StrictLogging {
    * @param user пользователь у которого меняется признак корректора
    */
   def setCorrector(user: User): Unit =
-    if (!user.isCorrector()) {
+    if (!user.corrector) {
       jdbcTemplate.update("UPDATE users SET corrector='t' WHERE id=?", user.id)
     }
 
@@ -269,7 +269,7 @@ class UserDao(ds: DataSource) extends StrictLogging {
    * @param user пользователь у которого меняется признак корректора
    */
   def unsetCorrector(user: User): Unit =
-    if (user.isCorrector()) {
+    if (user.corrector) {
       jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.id)
     }
 

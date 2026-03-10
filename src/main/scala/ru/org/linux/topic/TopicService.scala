@@ -21,6 +21,7 @@ import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
+import org.springframework.web.multipart.MultipartFile
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.gallery.{Image, ImageDao, ImageService, UploadedImagePreview}
@@ -294,7 +295,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                     (implicit postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
     val section = sectionService.getSection(group.sectionId)
 
-    val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty)
+    val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty[MultipartFile])
     val additionalImagesLimit = Math.max(0, permissionService.additionalImageLimit(section) - currentAdditionalCount)
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
@@ -304,7 +305,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
         val additionalImagePreviews =
           Option(form.additionalUploadedImages)
-            .getOrElse(Array.empty)
+            .getOrElse(Array.empty[String])
             .view
             .zipAll(additionalImagesNonNull, null, null)
             .take(additionalImagesLimit)

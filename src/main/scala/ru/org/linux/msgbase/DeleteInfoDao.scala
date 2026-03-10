@@ -108,7 +108,7 @@ class DeleteInfoDao(dataSource: DataSource) {
       "select COALESCE((select sum(-bonus) as total_bonus from del_info " +
         "join comments on comments.id = del_info.msgid where bonus is not null and bonus!=0 and " +
         "comments.userid!=2 and comments.deleted and topic = ?), 0)",
-      classOf[Integer],
+      classOf[Int],
       msgid
     )
 }

@@ -124,9 +124,9 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     if (isImagePostingAllowed(section)) {
       section.getId match {
         case SECTION_ARTICLES | SECTION_GALLERY | SECTION_NEWS =>
-      	  3
-    	  case _ =>
-      	  0
+          3
+        case _ =>
+          0
       }
     } else {
       0
