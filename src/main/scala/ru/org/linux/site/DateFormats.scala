@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import org.joda.time.format.ISODateTimeFormat
 import java.util.{Date, Locale}
 
 object DateFormats {
-  private val RussianLocale = new Locale("ru")
+  private val RussianLocale = Locale.forLanguageTag("ru")
   private val Default = DateTimeFormat.forPattern("dd.MM.yy HH:mm:ss z").withLocale(RussianLocale)
   private val Short = DateTimeFormat.forPattern("dd.MM.yy HH:mm").withLocale(RussianLocale)
   private val Time = DateTimeFormat.forPattern("HH:mm").withLocale(RussianLocale)
@@ -52,11 +52,11 @@ object DateFormats {
       val min = diff / (1000 * 60)
 
       if (min % 10 < 5 && min % 10 > 1 && (min > 20 || min < 10)) {
-        min + "&nbsp;минуты назад"
+        s"$min&nbsp;минуты назад"
       } else if (min % 10 == 1 && min > 20) {
-        min + "&nbsp;минута назад"
+        s"$min&nbsp;минута назад"
       } else {
-        min + "&nbsp;минут назад"
+        s"$min&nbsp;минут назад"
       }
     } else if (c.isAfter(today)) {
       "сегодня " + time(timezone).print(c)
@@ -77,7 +77,7 @@ object DateFormats {
     if (diff < 1000 * 60 * 60) {
       val min = Math.max(1, diff / (1000 * 60))
 
-      min + "&nbsp;мин"
+      s"$min&nbsp;мин"
     } else if (diff < 1000 * 60 * 60 * 4 || c.isAfter(today)) {
       time(timezone).print(c)
     } else if (c.isAfter(yesterday)) {
