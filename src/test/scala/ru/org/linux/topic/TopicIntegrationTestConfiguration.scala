@@ -32,7 +32,7 @@ import ru.org.linux.search.{MoreLikeThisService, SearchQueueListener, SearchQueu
 import ru.org.linux.section.SectionService
 import ru.org.linux.user.{IgnoreListDao, MemoriesDao}
 import ru.org.linux.warning.WarningService
-import sttp.client3.SttpBackend
+import sttp.client3.*
 
 import java.io.FileInputStream
 import java.util.Properties
@@ -117,8 +117,8 @@ class TopicIntegrationTestConfiguration {
   }
 
   @Bean
-  def syncClient: SttpBackend[Any, Any] = {
-    Mockito.mock(classOf[SttpBackend[Any, Any]])
+  def syncClient: SttpBackend[Identity, Any] = {
+    Mockito.mock(classOf[SttpBackend[Identity, Any]])
   }
 
   @Bean
