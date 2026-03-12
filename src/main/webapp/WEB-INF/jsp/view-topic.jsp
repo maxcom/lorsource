@@ -5,7 +5,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -269,7 +269,6 @@
   <p>
 </c:if>
 --%>
-<%--
 <div style="text-align: center; margin-top: 0.5em; height: 125px; margin-bottom: 0.5em" id="interpage">
 </div>
 <script type="text/javascript">
@@ -277,9 +276,9 @@
       var ads = [
         {
           type: 'rimg',
-          img320: '/adv/photo_2025-09-08_22-46-59.jpg',
-          img730: '/adv/photo_2025-09-08_22-47-03.jpg',
-          img980: '/adv/photo_2025-09-08_22-47-06.jpg',
+          img320: '/adv/320-100_Open Fix.jpg',
+          img730: '/adv/730-90_Open Fix.jpg',
+          img980: '/adv/980-120_Open Fix.jpg',
           href: 'https://slc.tl/h24ik'
         }
       ];
@@ -287,7 +286,6 @@
     init_interpage_adv(ads);
   });
 </script>
---%>
 
 <c:if test="${threadMode}">
   <div class=nav>
