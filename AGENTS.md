@@ -82,7 +82,8 @@ mvn dependency:analyze   # Analyze dependencies
 - Java classes: `CamelCase` (e.g., `UserDao`, `TopicController`)
 - Scala classes/objects: `CamelCase` (e.g., `CommentCreateService`)
 - Methods/fields: `camelCase`
-- Constants: `UPPER_SNAKE_CASE`
+- Java constants: `UPPER_SNAKE_CASE`
+- Scala constants: `UpperCamelCase`
 - Test classes: `*Test.java`, `*Spec.scala`, `*IntegrationTest.java`, `*WebTest.scala`
 
 ### Error Handling
@@ -111,7 +112,7 @@ mvn dependency:analyze   # Analyze dependencies
 - Spring Framework 6.x
 - Spring Security 6.x
 - PostgreSQL JDBC driver
-- OpenSearch 2 (via elastic4s)
+- OpenSearch 2 via elastic4s and opensearch-java. Prefer opensearch-java.
 - Pekko for async
 
 ## Project Structure
