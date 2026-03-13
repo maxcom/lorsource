@@ -30,7 +30,7 @@ class SearchViewerIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
-  var indexService: OpenSearchIndexService = _
+  var indexCreationService: OpenSearchIndexCreationService = _
 
   @Autowired
   var elastic: ElasticClient = _
@@ -38,7 +38,7 @@ class SearchViewerIntegrationSpec extends SpecificationWithJUnit {
   trait IndexFixture extends Scope with After {
     elastic execute { deleteIndex("*") } await
 
-    indexService.createIndexIfNeeded()
+    indexCreationService.createIndexIfNeeded()
 
     override def after: Unit = elastic execute { deleteIndex("*") } await
   }

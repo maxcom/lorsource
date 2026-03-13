@@ -132,7 +132,6 @@ src/
 
 - IntelliJ IDEA (has good Scala/Java support)
 - For VS Code: Use Java extension with null analysis mode set to "automatic"
-- Metals + Bloop for Scala development (configured)
 
 ## Docker Development
 

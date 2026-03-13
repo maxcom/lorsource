@@ -32,6 +32,9 @@ class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
+  var indexCreationService: OpenSearchIndexCreationService = _
+
+  @Autowired
   var indexService: OpenSearchIndexService = _
 
   @Autowired
@@ -43,7 +46,7 @@ class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
   trait IndexFixture extends Scope with After {
     implicit val Timeout: Duration = 30.seconds
 
-    indexService.createIndexIfNeeded()
+    indexCreationService.createIndexIfNeeded()
     indexService.reindexMessage(1920001, withComments = false)
     elastic execute {
       refreshIndex("*")

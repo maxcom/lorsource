@@ -15,14 +15,11 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticDsl.*
-import com.sksamuel.elastic4s.analysis.{Analysis, CustomAnalyzer, LengthTokenFilter, MappingCharFilter, SnowballTokenFilter, StandardTokenizer}
-import com.sksamuel.elastic4s.requests.bulk.{BulkCompatibleRequest, BulkRequest}
-import com.sksamuel.elastic4s.requests.indexes.IndexRequest
-import com.sksamuel.elastic4s.requests.mappings.{MappingDefinition, TermVector}
-import com.sksamuel.elastic4s.{ElasticClient, Index}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.StringEscapeUtils
+import org.opensearch.client.opensearch.OpenSearchClient
+import org.opensearch.client.opensearch.core.BulkRequest
+import org.opensearch.client.opensearch.core.bulk.{BulkOperation, DeleteOperation, IndexOperation}
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupDao}
@@ -38,68 +35,26 @@ import scala.jdk.CollectionConverters.*
 object OpenSearchIndexService {
   val MessageIndex = "messages"
 
-  private val MessageIndexType: Index = Index(MessageIndex)
-
   val COLUMN_TOPIC_AWAITS_COMMIT = "topic_awaits_commit"
-
-  private val Mapping: MappingDefinition = properties(
-    keywordField("group"),
-    keywordField("section"),
-    booleanField("is_comment"),
-    dateField("postdate"),
-    keywordField("author"),
-    keywordField("tag"),
-    keywordField("topic_author"),
-    longField("topic_id"),
-    textField("topic_title").index(false),
-    textField("title").analyzer("text_analyzer"),
-    textField("message").analyzer("text_analyzer").termVector(TermVector.WithPositionsOffsets).fields {
-      textField("raw").termVector(TermVector.WithPositionsOffsets).analyzer("exact_analyzer")
-    },
-    booleanField("topic_awaits_commit"))
-
-  private val Analyzers = Analysis(
-    analyzers = List(
-      CustomAnalyzer(
-        name = "text_analyzer",
-        tokenizer = "text_tokenizer",
-        tokenFilters = List("m_long_word", "lowercase", "m_my_snow_ru", "m_my_snow_en"),
-        charFilters = List("html_strip", "m_ee")),
-      CustomAnalyzer(
-        name = "exact_analyzer",
-        tokenizer = "text_tokenizer",
-        tokenFilters = List("m_long_word", "lowercase"),
-        charFilters = List("html_strip", "m_ee"))),
-    tokenizers = List(
-      StandardTokenizer("text_tokenizer")
-    ),
-    tokenFilters = List(
-      LengthTokenFilter("m_long_word").max(100),
-      SnowballTokenFilter("m_my_snow_ru", "Russian"),
-      SnowballTokenFilter("m_my_snow_en", "English")
-    ),
-    charFilters = List(
-      MappingCharFilter("m_ee", Map("ё" -> "е", "Ё" -> "Е"))
-    )
-  )
 }
 
 @Service
 class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao, userService: UserService,
                              topicTagService: TopicTagService, messageTextService: MessageTextService,
                              msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentReadService,
-                             elastic: ElasticClient, topicPermissionService: TopicPermissionService,
+                             client: OpenSearchClient, topicPermissionService: TopicPermissionService,
                              siteConfig: SiteConfig) extends StrictLogging {
   import OpenSearchIndexService.*
 
-  private def reindexComments(topic: Topic, comments: Seq[Comment]): Seq[BulkCompatibleRequest] = {
+  private def reindexComments(topic: Topic, comments: Seq[Comment]): Seq[BulkOperation] = {
     comments.map { comment =>
       if (comment.deleted) {
-        deleteById(MessageIndexType, comment.id.toString)
+        BulkOperation.of(op => op.delete(DeleteOperation.of(d => d
+          .index(MessageIndex)
+          .id(comment.id.toString))))
       } else {
         val group = groupDao.getGroup(topic.groupId)
-
-        indexOfComment(topic, comment, group)
+        indexCommentToBulkOp(topic, comment, group)
       }
     }
   }
@@ -115,13 +70,24 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
       lazy val group = groupDao.getGroup(topic.groupId)
 
       if (comment.deleted || !topicPermissionService.isTopicSearchable(topic, group)) {
-        deleteById(MessageIndexType, comment.id.toString)
+        BulkOperation.of(op => op.delete(DeleteOperation.of(d => d
+          .index(MessageIndex)
+          .id(comment.id.toString))))
       } else {
-        indexOfComment(topic, comment, group)
+        indexCommentToBulkOp(topic, comment, group)
       }
     }
 
-    executeBulk(bulk(requests))
+    executeBulk(requests)
+  }
+
+  private def indexCommentToBulkOp(topic: Topic, comment: Comment, group: Group): BulkOperation = {
+    val doc = indexOfComment(topic, comment, group)
+    val indexOp = IndexOperation.of[java.util.Map[String, Any]](i => i
+      .index(MessageIndex)
+      .id(comment.id.toString)
+      .document(doc.asJava))
+    BulkOperation.of(op => op.index(indexOp))
   }
 
   def reindexMessage(msgid: Int, withComments: Boolean): Unit = {
@@ -129,25 +95,38 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
     val group = groupDao.getGroup(topic.groupId)
 
     if (topicPermissionService.isTopicSearchable(topic, group)) {
-      val topicIndex = indexOfTopic(topic, group)
+      val topicDoc = indexOfTopic(topic, group)
+
+      val indexOp = IndexOperation.of[java.util.Map[String, Any]](i => i
+        .index(MessageIndex)
+        .id(topic.id.toString)
+        .document(topicDoc.asJava))
+
+      val operations = Seq(
+        BulkOperation.of(op => op.index(indexOp))
+      )
 
       val commentsIndex = if (withComments) {
         reindexComments(topic, commentService.getCommentList(topic, showDeleted = true).comments)
       } else Seq.empty
 
-      executeBulk(bulk(topicIndex +: commentsIndex))
+      executeBulk(operations ++ commentsIndex)
     } else {
-      val topicDelete = deleteById(MessageIndexType, topic.id.toString)
+      val topicDelete = BulkOperation.of(op => op.delete(DeleteOperation.of(d => d
+        .index(MessageIndex)
+        .id(topic.id.toString))))
 
       val commentsDelete = if (withComments) {
         val comments = commentService.getCommentList(topic, showDeleted = true).comments
 
-        comments.map {
-          comment => deleteById(MessageIndexType, comment.id.toString)
+        comments.map { comment =>
+          BulkOperation.of(op => op.delete(DeleteOperation.of(d => d
+            .index(MessageIndex)
+            .id(comment.id.toString))))
         }
       } else Seq.empty
 
-      executeBulk(bulk(topicDelete +: commentsDelete))
+      executeBulk(topicDelete +: commentsDelete)
     }
   }
 
@@ -159,30 +138,24 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
     }
   }
 
-  def createIndexIfNeeded(): Unit = {
-    val indexExistsResult = elastic execute {
-      indexExists(MessageIndex)
-    } await
+  private def executeBulk(operations: Seq[BulkOperation]): Unit = {
+    if (operations.nonEmpty) {
+      val bulkRequest = BulkRequest.of(b => {
+        operations.foreach(op => b.operations(op))
+        b
+      })
 
-    if (!indexExistsResult.result.isExists) {
-      elastic.execute {
-        createIndex(MessageIndex).mapping(Mapping).analysis(Analyzers)
-      }.await.result
-    }
-  }
+      val bulkResponse = client.bulk(bulkRequest)
 
-  private def executeBulk(bulkRequest: BulkRequest): Unit = {
-    if (bulkRequest.requests.nonEmpty) {
-      val bulkResponse = elastic.execute(bulkRequest).await
-
-      if (bulkResponse.result.failures.exists(_.status != 404)) {
-        logger.warn(s"Bulk index failed: ${bulkResponse.result.failures.flatMap(_.error).map(_.reason).mkString(", ")}")
+      if (bulkResponse.errors()) {
+        val failures = bulkResponse.items().asScala.toSeq.flatMap(item => Option(item.error()).map(_.reason()))
+        logger.warn(s"Bulk index failed: ${failures.mkString(", ")}")
         throw new RuntimeException("Bulk request failed")
       }
     }
   }
 
-  private def indexOfComment(topic: Topic, comment: Comment, group: Group): IndexRequest = {
+  private def indexOfComment(topic: Topic, comment: Comment, group: Group): Map[String, Any] = {
     val section = sectionService.getSection(topic.sectionId)
     val author = userService.getUserCached(comment.userid)
     val topicAuthor = userService.getUserCached(topic.authorUserId)
@@ -201,19 +174,23 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
         .filterNot(_.startsWith("Re:"))
         .map(StringEscapeUtils.unescapeHtml4)
 
-    indexInto(MessageIndexType) id comment.id.toString fields (
-      Map[String, Any]("section" -> section.getUrlName,
-        "topic_author" -> topicAuthor.nick,
-        "topic_id" -> topic.id,
-        "author" -> author.nick,
-        "group" -> group.urlName,
-        "topic_title" -> topicTitle,
-        COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
-        "message" -> html,
-        "postdate" -> comment.postdate.toInstant,
-        "tag" -> topicTagService.getTags(topic),
-        "is_comment" -> true) ++ title.map("title" -> _)
-      )
+    val fields = scala.collection.mutable.Map[String, Any](
+      "section" -> section.getUrlName,
+      "topic_author" -> topicAuthor.nick,
+      "topic_id" -> topic.id,
+      "author" -> author.nick,
+      "group" -> group.urlName,
+      "topic_title" -> topicTitle,
+      COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
+      "message" -> html,
+      "postdate" -> comment.postdate.toInstant.toString,
+      "tag" -> topicTagService.getTags(topic),
+      "is_comment" -> true
+    )
+
+    title.foreach(t => fields("title") = t)
+
+    fields.toMap
   }
 
   private def topicAwaitsCommit(msg: Topic) = {
@@ -222,7 +199,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
     section.isPremoderated && !msg.commited
   }
 
-  private def indexOfTopic(topic: Topic, group: Group): IndexRequest = {
+  private def indexOfTopic(topic: Topic, group: Group): Map[String, Any] = {
     val section = sectionService.getSection(topic.sectionId)
     val author = userService.getUserCached(topic.authorUserId)
 
@@ -234,7 +211,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
       nofollow = !topicPermissionService.followInTopic(topic, author),
       canonicalUrl = url)
 
-    indexInto(MessageIndexType).id(topic.id.toString).fields(
+    Map(
       "section" -> section.getUrlName,
       "topic_author" -> author.nick,
       "topic_id" -> topic.id,
@@ -243,9 +220,10 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
       "title" -> topic.getTitleUnescaped,
       "topic_title" -> topic.getTitleUnescaped,
       "message" -> html,
-      "postdate" -> topic.postdate.toInstant,
+      "postdate" -> topic.postdate.toInstant.toString,
       "tag" -> topicTagService.getTags(topic),
       COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
-      "is_comment" -> false)
+      "is_comment" -> false
+    )
   }
 }

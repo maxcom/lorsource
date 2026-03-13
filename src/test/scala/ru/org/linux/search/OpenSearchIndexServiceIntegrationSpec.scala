@@ -40,16 +40,16 @@ class OpenSearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
-  var indexService: OpenSearchIndexService = _
+  var indexCreationService: OpenSearchIndexCreationService = _
 
   @Autowired
   var elastic: ElasticClient = _
 
-  "ElasticsearchIndexService" should {
+  "OpenSearchIndexCreationService" should {
     "create index" in {
-      indexService.createIndexIfNeeded()
+      indexCreationService.createIndexIfNeeded()
 
-      val exists = elastic execute { indexExists(MessageIndex) } await
+      val exists = elastic.execute { indexExists(MessageIndex) } await
 
       exists.result.isExists must beTrue
     }

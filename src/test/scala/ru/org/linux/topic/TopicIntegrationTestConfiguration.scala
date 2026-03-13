@@ -18,6 +18,7 @@ package ru.org.linux.topic
 import org.apache.pekko.actor.typed.ActorRef
 import com.sksamuel.elastic4s.ElasticClient
 import org.mockito.Mockito
+import org.opensearch.client.opensearch.OpenSearchClient
 import org.springframework.context.annotation.{Bean, ComponentScan, Configuration, FilterType, ImportResource}
 import org.springframework.stereotype.Controller
 import ru.org.linux.auth.{BlackListUpdater, IPBlockDao}
@@ -124,6 +125,11 @@ class TopicIntegrationTestConfiguration {
   @Bean
   def elasticClient: ElasticClient = {
     Mockito.mock(classOf[ElasticClient])
+  }
+
+  @Bean
+  def openSearchClient: OpenSearchClient = {
+    Mockito.mock(classOf[OpenSearchClient])
   }
 
   @Bean(Array("realtimeHubWS"))
