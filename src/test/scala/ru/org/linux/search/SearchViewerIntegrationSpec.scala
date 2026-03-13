@@ -30,7 +30,7 @@ class SearchViewerIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
-  var indexService: ElasticsearchIndexService = _
+  var indexService: OpenSearchIndexService = _
 
   @Autowired
   var elastic: ElasticClient = _

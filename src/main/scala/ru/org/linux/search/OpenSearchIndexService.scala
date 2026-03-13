@@ -35,7 +35,7 @@ import ru.org.linux.user.UserService
 
 import scala.jdk.CollectionConverters.*
 
-object ElasticsearchIndexService {
+object OpenSearchIndexService {
   val MessageIndex = "messages"
 
   private val MessageIndexType: Index = Index(MessageIndex)
@@ -85,12 +85,12 @@ object ElasticsearchIndexService {
 }
 
 @Service
-class ElasticsearchIndexService(sectionService: SectionService, groupDao: GroupDao, userService: UserService,
-                                topicTagService: TopicTagService, messageTextService: MessageTextService,
-                                msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentReadService,
-                                elastic: ElasticClient, topicPermissionService: TopicPermissionService,
-                                siteConfig: SiteConfig) extends StrictLogging {
-  import ElasticsearchIndexService.*
+class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao, userService: UserService,
+                             topicTagService: TopicTagService, messageTextService: MessageTextService,
+                             msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentReadService,
+                             elastic: ElasticClient, topicPermissionService: TopicPermissionService,
+                             siteConfig: SiteConfig) extends StrictLogging {
+  import OpenSearchIndexService.*
 
   private def reindexComments(topic: Topic, comments: Seq[Comment]): Seq[BulkCompatibleRequest] = {
     comments.map { comment =>

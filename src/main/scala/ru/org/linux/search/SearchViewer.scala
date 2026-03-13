@@ -94,7 +94,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
     val future = elastic execute {
-      search(ElasticsearchIndexService.MessageIndex).fetchSource(true).sourceInclude(Fields).query(esQuery).sortBy(query.getSort.order).aggs(
+      search(OpenSearchIndexService.MessageIndex).fetchSource(true).sourceInclude(Fields).query(esQuery).sortBy(query.getSort.order).aggs(
         filterAgg("sections", matchAllQuery()) subAggregations (
           termsAgg("sections", "section") size 50 subAggregations (
             termsAgg("groups", "group") size 50

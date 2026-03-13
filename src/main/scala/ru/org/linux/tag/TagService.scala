@@ -21,7 +21,7 @@ import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Service
 import ru.org.linux.group.{Group, GroupDao}
-import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
+import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.topic.TagTopicListController
 import ru.org.linux.topic.TopicListController.ForumFilter

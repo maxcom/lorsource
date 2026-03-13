@@ -24,7 +24,7 @@ import com.sksamuel.elastic4s.requests.searches.{DateHistogramInterval, SearchRe
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.{DateTime, DateTimeZone}
 import org.springframework.stereotype.Service
-import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
+import ru.org.linux.search.OpenSearchIndexService.MessageIndex
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService.*
 import ru.org.linux.util.RichFuture.RichFuture

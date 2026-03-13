@@ -29,7 +29,7 @@ import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
+import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic

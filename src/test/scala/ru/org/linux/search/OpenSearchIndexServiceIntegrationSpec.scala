@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,12 @@ package ru.org.linux.search
 import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.http.JavaClient
+import org.apache.commons.httpclient.URI
+import org.apache.hc.core5.http.HttpHost
 import org.mockito.Mockito
+import org.opensearch.client.opensearch.OpenSearchClient
+import org.opensearch.client.transport.OpenSearchTransport
+import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder
 import org.opensearch.testcontainers.OpenSearchContainer
 import org.specs2.mutable.SpecificationWithJUnit
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,16 +31,16 @@ import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 import ru.org.linux.PekkoConfiguration
 import ru.org.linux.auth.FloodProtector
-import ru.org.linux.search.ElasticsearchIndexService.MessageIndex
+import ru.org.linux.search.OpenSearchIndexService.MessageIndex
 import ru.org.linux.spring.SiteConfig
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
   classOf[PekkoConfiguration]))
-class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
+class OpenSearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
-  var indexService: ElasticsearchIndexService = _
+  var indexService: OpenSearchIndexService = _
 
   @Autowired
   var elastic: ElasticClient = _
@@ -63,15 +68,30 @@ class ElasticsearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   includeFilters = Array(
     new ComponentScan.Filter(`type` = FilterType.ANNOTATION, value = Array(classOf[Service], classOf[Repository]))))
 class SearchIntegrationTestConfiguration {
-  @Bean(destroyMethod="close")
-  def elasticClient: ElasticClient = {
-    val container = new OpenSearchContainer("opensearchproject/opensearch:2.11.0")
+  @Bean
+  def openSearchContainer: OpenSearchContainer[Nothing] = {
+    val container = new OpenSearchContainer("opensearchproject/opensearch:2.19.5")
     container.start()
+    container
+  }
 
+  @Bean(destroyMethod="close")
+  def legacyClient(container: OpenSearchContainer[Nothing]): ElasticClient = {
     val host = container.getHttpHostAddress
 
     ElasticClient(JavaClient(ElasticProperties(host)))
   }
+
+  @Bean(destroyMethod = "close")
+  def clientTransport(container: OpenSearchContainer[Nothing]): OpenSearchTransport = {
+    val url = new URI(container.getHttpHostAddress, true)
+    val transport = ApacheHttpClient5TransportBuilder.builder(new HttpHost(url.getScheme, url.getHost, url.getPort)).build()
+
+    transport
+  }
+
+  @Bean
+  def client(transport: OpenSearchTransport): OpenSearchClient = new OpenSearchClient(transport)
 
   @Bean
   def floodProtector: FloodProtector = Mockito.mock(classOf[FloodProtector])
