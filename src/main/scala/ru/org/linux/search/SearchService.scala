@@ -50,7 +50,6 @@ class SearchService(elastic: ElasticClient) {
 
   private def boost(query: Query) = {
     functionScoreQuery(query).functions(
-//      WeightScore(TopicBoost).filter(termQuery("is_comment", "false")),
       WeightScore(RecentBoost).filter(rangeQuery("postdate").gte("now/d-3y"))
     )
   }
@@ -127,7 +126,6 @@ class SearchService(elastic: ElasticClient) {
 object SearchService {
   val SearchRows = 25
   val MessageFragment = 16384 // 0 not supported here!
-  private val TopicBoost = 3
   private val RecentBoost = 2
   private val SearchTimeout: FiniteDuration = 1.minute
   private val SearchHardTimeout: FiniteDuration = SearchTimeout + 10.seconds
