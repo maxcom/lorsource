@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -173,7 +173,7 @@ class SearchResultsService(userService: UserService, sectionService: SectionServ
 }
 
 object SearchResultsService {
-  def postdate(doc: SearchHit): Instant = Instant.parse(doc.sourceAsMap("postdate").asInstanceOf[String])
+  def postdate(doc: java.util.Map[String, AnyRef]): Instant = Instant.parse(doc.get("postdate").asInstanceOf[String])
   def section(doc: SearchHit): String = doc.sourceAsMap("section").asInstanceOf[String]
   def group(doc: SearchHit): String = doc.sourceAsMap("group").asInstanceOf[String]
 
