@@ -29,11 +29,19 @@ import ru.org.linux.PekkoConfiguration
 class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
+  sequential
+
   @Autowired
   var indexCreationService: OpenSearchIndexCreationService = _
 
   @Autowired
   var elastic: ElasticClient = _
+
+  @Autowired
+  var service: SearchService = _
+
+  @Autowired
+  var indexService: OpenSearchIndexService = _
 
   trait IndexFixture extends Scope with After {
     elastic execute { deleteIndex("*") } await
@@ -43,11 +51,24 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
     override def after: Unit = elastic execute { deleteIndex("*") } await
   }
 
-  "SearchViewer" should {
+  "SearchService" should {
     "make valid default search" in new IndexFixture {
-      val response = new SearchService(elastic).performSearch(new SearchRequest(), null)
+      val response = service.performSearch(new SearchRequest(), null)
 
       response.totalHits must be equalTo 0
+    }
+
+    "prepare some results" in new IndexFixture {
+      indexService.reindexMessage(1920001, withComments = false)
+      elastic execute {
+        refreshIndex("*")
+      } await
+
+      val response = service.performSearch(new SearchRequest(), null)
+
+      val prepared: Array[SearchItem] = response.hits.hits.map(service.prepare)
+
+      prepared must not be empty
     }
   }
 }

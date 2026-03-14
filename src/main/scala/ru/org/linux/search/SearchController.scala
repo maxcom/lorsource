@@ -36,7 +36,7 @@ import scala.jdk.CollectionConverters.{IterableHasAsJava, MapHasAsJava}
 
 @Controller
 class SearchController(sectionService: SectionService, userService: UserService, groupDao: GroupDao,
-                       searchService: SearchService, resultsService: SearchResultsService) {
+                       searchService: SearchService) {
   @ModelAttribute("sorts")
   def getSorts: java.util.Map[String, String] = {
     // VectorMap preserves order!
@@ -64,22 +64,22 @@ class SearchController(sectionService: SectionService, userService: UserService,
       val response = searchService.performSearch(query, tz)
       val current = System.currentTimeMillis
 
-      val res = resultsService.prepareAll(response.hits.hits)
+      val res = response.hits.hits.view.map(searchService.prepare).toVector
 
       if (response.aggregations != null) {
         val countFacet = response.aggregations.filter("sections")
         val sectionsFacet = countFacet.terms("sections")
 
         if (sectionsFacet.buckets.size > 1 || !Strings.isNullOrEmpty(query.getSection)) {
-          params.put("sectionFacet", resultsService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection))))
+          params.put("sectionFacet", searchService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection))))
 
           if (!Strings.isNullOrEmpty(query.getSection)) {
             val selectedSection = sectionsFacet.bucketOpt(query.getSection)
 
             if (!Strings.isNullOrEmpty(query.getGroup)) {
-              params.put("groupFacet", resultsService.buildGroupFacet(selectedSection, Some(query.getSection -> query.getGroup)))
+              params.put("groupFacet", searchService.buildGroupFacet(selectedSection, Some(query.getSection -> query.getGroup)))
             } else {
-              params.put("groupFacet", resultsService.buildGroupFacet(selectedSection, None))
+              params.put("groupFacet", searchService.buildGroupFacet(selectedSection, None))
             }
           }
         } else if (Strings.isNullOrEmpty(query.getSection) && sectionsFacet.buckets.size == 1) {
@@ -87,10 +87,10 @@ class SearchController(sectionService: SectionService, userService: UserService,
 
           query.setSection(onlySection.key)
 
-          params.put("groupFacet", resultsService.buildGroupFacet(Some(onlySection), None))
+          params.put("groupFacet", searchService.buildGroupFacet(Some(onlySection), None))
         }
 
-        params.put("tags", resultsService.foundTags(response.aggregations))
+        params.put("tags", searchService.foundTags(response.aggregations))
       }
 
       val time = System.currentTimeMillis - current
