@@ -20,6 +20,7 @@ import com.sksamuel.elastic4s.http.JavaClient
 import org.apache.commons.httpclient.URI
 import org.apache.hc.core5.http.HttpHost
 import org.mockito.Mockito
+import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch.OpenSearchClient
 import org.opensearch.client.transport.OpenSearchTransport
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder
@@ -92,6 +93,9 @@ class SearchIntegrationTestConfiguration {
 
   @Bean
   def client(transport: OpenSearchTransport): OpenSearchClient = new OpenSearchClient(transport)
+
+  @Bean
+  def asyncClient(transport: OpenSearchTransport): OpenSearchAsyncClient = new OpenSearchAsyncClient(transport)
 
   @Bean
   def floodProtector: FloodProtector = Mockito.mock(classOf[FloodProtector])

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,9 +16,12 @@
 package ru.org.linux.tag
 
 import org.apache.pekko.actor.ActorSystem
-import com.sksamuel.elastic4s.ElasticDsl.*
-import com.sksamuel.elastic4s.{ElasticClient, ElasticDate}
 import com.typesafe.scalalogging.StrictLogging
+import org.opensearch.client.opensearch.OpenSearchAsyncClient
+import org.opensearch.client.opensearch._types.FieldValue
+import org.opensearch.client.json.JsonData
+import org.opensearch.client.opensearch._types.query_dsl.{BoolQuery, Query, RangeQuery, TermQuery}
+import org.opensearch.client.opensearch.core.{CountRequest, SearchRequest}
 import org.springframework.stereotype.Service
 import ru.org.linux.group.{Group, GroupDao}
 import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
@@ -28,15 +31,16 @@ import ru.org.linux.topic.TopicListController.ForumFilter
 import ru.org.linux.util.RichFuture.RichFuture
 
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
+import java.time.format.DateTimeFormatter
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Deadline
 import scala.concurrent.{Future, TimeoutException}
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
 
 @Service
-class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSystem,
+class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: ActorSystem,
                  sectionService: SectionService, groupDao: GroupDao) extends StrictLogging {
   private implicit val pekko: ActorSystem = actorSystem
 
@@ -80,19 +84,23 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
     tagDao.getTagSynonymId(tagName).map(tagDao.getTagInfo).map(i => tagRef(i, threshold = 0))
 
   def countTagTopics(tag: String, section: Option[Section], deadline: Deadline): Future[Option[Long]] = {
-    val sectionFilter = section.map(s => termQuery("section", s.getUrlName))
+    val sectionFilter = section.map(s => Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(s.getUrlName))))))
 
-    Future.successful(elastic).flatMap {
-      _ execute {
-        count(MessageIndex).query(
-          boolQuery().filter(
-            Seq(termQuery("is_comment", "false"),
-            termQuery("tag", tag),
-            termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false")) ++ sectionFilter))
-      }
-    }.map { r =>
-      Some(r.result.count)
-    }.withTimeout(deadline.timeLeft)
+    val filters = Seq(
+      Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
+      Query.of(q => q.term(TermQuery.of(t => t.field("tag").value(FieldValue.of(tag))))),
+      Query.of(q => q.term(TermQuery.of(t => t.field(COLUMN_TOPIC_AWAITS_COMMIT).value(FieldValue.of("false")))))
+    ) ++ sectionFilter
+
+    val request = new CountRequest.Builder()
+      .index(MessageIndex)
+      .query(Query.of(q => q.bool(BoolQuery.of(b => b.filter(filters.asJava)))))
+      .build()
+
+    elastic.count(request)
+      .asScala
+      .map(r => Some(r.count))
+      .withTimeout(deadline.timeLeft)
       .recover {
         case ex: TimeoutException =>
           logger.warn(s"Tag topics count timed out (${ex.getMessage})")
@@ -108,70 +116,94 @@ class TagService(tagDao: TagDao, elastic: ElasticClient, actorSystem: ActorSyste
       tagDao.getTagId(tag, skipZero = true).isDefined || tagDao.getTagSynonymId(tag).isDefined
     }
 
-  def getRelatedTags(tag: String, deadline: Deadline): Future[Seq[TagRef]] = Future.successful(elastic).flatMap {
-    _ execute {
-      search(MessageIndex) size 0 query
-        boolQuery().filter(termQuery("is_comment", "false"), termQuery("tag", tag)) aggs (
-        sigTermsAggregation("related") field "tag" backgroundFilter
-          termQuery("is_comment", "false") /* broken in 6.x tcp client: includeExclude(Seq.empty, Seq(tag))*/)
-    }
-  }.map { r =>
-    (for {
-      bucket <- r.result.aggregations.significantTerms("related").buckets
-    } yield {
-      tagRef(bucket.key)
-    }).sorted.filterNot(_.name == tag) // filtering in query is broken in elastic4s-tcp 6.2.x
-  }.withTimeout(deadline.timeLeft)
+  def getRelatedTags(tag: String, deadline: Deadline): Future[Seq[TagRef]] = {
+    val request = new SearchRequest.Builder()
+      .index(MessageIndex)
+      .size(0)
+      .query(Query.of(q => q.bool(BoolQuery.of(b => b
+        .filter(Seq(
+          Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
+          Query.of(q => q.term(TermQuery.of(t => t.field("tag").value(FieldValue.of(tag))))))
+        .asJava)
+      ))))
+      .aggregations("related", a => a
+        .significantTerms(st => st
+          .field("tag")
+          .backgroundFilter(Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))))
+        ))
+      .build()
+
+    elastic.search(request, classOf[Void])
+      .asScala
+      .map { r =>
+        val buckets = r.aggregations.get("related").sigsterms().buckets.array().asScala
+        buckets.map(b => tagRef(b.key)).toVector.sorted.filterNot(_.name == tag)
+      }
+      .withTimeout(deadline.timeLeft)
+  }
 
   def getActiveTopTags(section: Section, group: Option[Group], filter: Option[ForumFilter],
                        deadline: Deadline): Future[Seq[TagRef]] = {
     if (group.exists(g => g.id == 4068)) {
       Future.successful(Seq.empty)
     } else {
-      val groupFilter = group.map(g => termQuery("group", g.urlName))
+      val groupFilter = group.map(g => Query.of(q => q.term(TermQuery.of(t => t.field("group").value(FieldValue.of(g.urlName))))))
 
       val additionalFilter = filter.collect {
         case ForumFilter.Tech =>
-          boolQuery()
-            .filter(termQuery("section", sectionForum.getUrlName))
-            .not(termsQuery("group", NonTechNames))
+          Query.of(q => q.bool(BoolQuery.of(b => b
+            .filter(Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(sectionForum.getUrlName))))))
+            .mustNot(NonTechNames.map(n => Query.of(qq => qq.term(TermQuery.of(tt => tt.field("group").value(FieldValue.of(n)))))).asJava)
+          )))
         case ForumFilter.NoTalks =>
-          boolQuery()
-            .not(termQuery("group", "talks"))
+          Query.of(q => q.bool(BoolQuery.of(b => b
+            .mustNot(Query.of(q => q.term(TermQuery.of(t => t.field("group").value(FieldValue.of("talks"))))))
+          )))
       }
+
+      val dateTwoYearsAgo = LocalDate.now().minus(2, java.time.temporal.ChronoUnit.YEARS).format(DateTimeFormatter.ISO_LOCAL_DATE)
+      val dateOneYearAgo = LocalDate.now().minus(1, java.time.temporal.ChronoUnit.YEARS).format(DateTimeFormatter.ISO_LOCAL_DATE)
 
       val filters = Seq(
-        termQuery("is_comment", "false"),
-        termQuery("section", section.getUrlName),
-        rangeQuery("postdate").gte(ElasticDate(LocalDate.now().atStartOfDay().minus(1, ChronoUnit.YEARS).toLocalDate))
+        Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
+        Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(section.getUrlName))))),
+        Query.of(q => q.range(RangeQuery.of(r => r.field("postdate").gte(JsonData.of(dateOneYearAgo)))))
       ) ++ groupFilter ++ additionalFilter
 
-      Future.successful(elastic).flatMap {
-        _.execute {
-          search(MessageIndex).size(0).query(
-            boolQuery().filter(filters)).aggs {
-            sigTermsAggregation("active").size(15).field("tag").minDocCount(5).backgroundFilter(
-              boolQuery().filter(
-                termQuery("is_comment", "false"),
-                termQuery("section", section.getUrlName),
-                rangeQuery("postdate").gte(
-                  ElasticDate(LocalDate.now().atStartOfDay().minus(2, ChronoUnit.YEARS).toLocalDate))))
-          }
+      val bgFilters = Seq(
+        Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
+        Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(section.getUrlName))))),
+        Query.of(q => q.range(RangeQuery.of(r => r.field("postdate").gte(JsonData.of(dateTwoYearsAgo)))))
+      )
+
+      val request = new SearchRequest.Builder()
+        .index(MessageIndex)
+        .size(0)
+        .query(Query.of(q => q.bool(BoolQuery.of(b => b.filter(filters.asJava)))))
+        .aggregations("active", a => a
+          .significantTerms(st => st
+            .field("tag")
+            .size(15)
+            .minDocCount(5)
+            .backgroundFilter(Query.of(q => q.bool(BoolQuery.of(bb => bb.filter(bgFilters.asJava)))))
+          ))
+        .build()
+
+      elastic.search(request, classOf[Void])
+        .asScala
+        .map { r =>
+          val buckets = r.aggregations.get("active").sigsterms().buckets.array().asScala
+          buckets.map(b => tagRef(b.key, section)).toVector.sorted
         }
-      }.map { r =>
-        (for {
-          bucket <- r.result.aggregations.significantTerms("active").buckets
-        } yield {
-          tagRef(bucket.key, section)
-        }).sorted
-      }.withTimeout(deadline.timeLeft).recover {
-        case ex: TimeoutException =>
-          logger.warn(s"Active top tags search timed out (${ex.getMessage})")
-          Seq.empty
-        case ex =>
-          logger.warn("Unable to find active top tags", ex)
-          Seq.empty
-      }
+        .withTimeout(deadline.timeLeft)
+        .recover {
+          case ex: TimeoutException =>
+            logger.warn(s"Active top tags search timed out (${ex.getMessage})")
+            Seq.empty
+          case ex =>
+            logger.warn("Unable to find active top tags", ex)
+            Seq.empty
+        }
     }
   }
 
