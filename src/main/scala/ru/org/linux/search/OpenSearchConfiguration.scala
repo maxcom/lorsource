@@ -21,7 +21,7 @@ import org.apache.commons.httpclient.URI
 import org.apache.hc.core5.http.HttpHost
 import org.apache.http.client.config.RequestConfig
 import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback
-import org.opensearch.client.opensearch.OpenSearchClient
+import org.opensearch.client.opensearch.{OpenSearchAsyncClient, OpenSearchClient}
 import org.opensearch.client.transport.OpenSearchTransport
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder
 import org.springframework.context.annotation.{Bean, Configuration}
@@ -39,7 +39,7 @@ class OpenSearchConfiguration(config: SiteConfig) {
   }
 
   @Bean(destroyMethod = "close")
-  def clientTransport: OpenSearchTransport = {
+  def openSearchClientTransport: OpenSearchTransport = {
     val url = new URI(config.getElasticsearch, true)
     val transport = ApacheHttpClient5TransportBuilder.builder(new HttpHost(url.getScheme, url.getHost, url.getPort)).build()
 
@@ -47,5 +47,8 @@ class OpenSearchConfiguration(config: SiteConfig) {
   }
 
   @Bean
-  def client(transport: OpenSearchTransport): OpenSearchClient = new OpenSearchClient(transport)
+  def openSearchClient(transport: OpenSearchTransport): OpenSearchClient = new OpenSearchClient(transport)
+
+  @Bean
+  def asyncOpenSearchClient(transport: OpenSearchTransport): OpenSearchAsyncClient = new OpenSearchAsyncClient(transport)
 }
