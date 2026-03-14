@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,18 +15,12 @@
 package ru.org.linux.search
 
 import com.google.common.base.Strings
-import com.google.common.collect.ImmutableSortedMap
-import com.sksamuel.elastic4s.ElasticClient
-import jakarta.servlet.http.HttpServletRequest
 import org.joda.time.DateTimeZone
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation.InitBinder
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestAttribute, RequestMapping, RequestMethod}
 import ru.org.linux.group.GroupDao
 import ru.org.linux.search.SearchEnums.SearchInterval
 import ru.org.linux.search.SearchEnums.SearchRange
@@ -42,7 +36,7 @@ import scala.jdk.CollectionConverters.{IterableHasAsJava, MapHasAsJava}
 
 @Controller
 class SearchController(sectionService: SectionService, userService: UserService, groupDao: GroupDao,
-                       client: ElasticClient, resultsService: SearchResultsService) {
+                       searchService: SearchService, resultsService: SearchResultsService) {
   @ModelAttribute("sorts")
   def getSorts: java.util.Map[String, String] = {
     // VectorMap preserves order!
@@ -61,16 +55,13 @@ class SearchController(sectionService: SectionService, userService: UserService,
 
   @RequestMapping(value = Array("/search.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def search(model: Model, @ModelAttribute("query") query: SearchRequest, bindingResult: BindingResult,
-             request: HttpServletRequest): String = {
+             @RequestAttribute(name="timezone") tz: DateTimeZone): String = {
     val params = model.asMap
 
     if (!query.isInitial && !bindingResult.hasErrors) {
       sanitizeQuery(query)
 
-      val sv = new SearchViewer(query, client)
-      val tz = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
-
-      val response = sv.performSearch(tz)
+      val response = searchService.performSearch(query, tz)
       val current = System.currentTimeMillis
 
       val res = resultsService.prepareAll(response.hits.hits)
@@ -108,12 +99,12 @@ class SearchController(sectionService: SectionService, userService: UserService,
       params.put("searchTime", response.took)
       params.put("numFound", response.totalHits)
 
-      if (response.totalHits > query.getOffset + SearchViewer.SearchRows) {
-        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset + SearchViewer.SearchRows))
+      if (response.totalHits > query.getOffset + SearchService.SearchRows) {
+        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset + SearchService.SearchRows))
       }
 
-      if (query.getOffset - SearchViewer.SearchRows >= 0) {
-        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset - SearchViewer.SearchRows))
+      if (query.getOffset - SearchService.SearchRows >= 0) {
+        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset - SearchService.SearchRows))
       }
 
       params.put("time", time)

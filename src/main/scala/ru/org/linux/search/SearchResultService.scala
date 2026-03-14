@@ -92,7 +92,7 @@ class SearchResultsService(userService: UserService, sectionService: SectionServ
 
   private def getMessage(doc: SearchHit): String = {
     val html = doc.highlight.get("message").flatMap(_.headOption) getOrElse {
-      doc.sourceAsMap("message").asInstanceOf[String].take(SearchViewer.MessageFragment)
+      doc.sourceAsMap("message").asInstanceOf[String].take(SearchService.MessageFragment)
     }
 
     Jsoup.clean(html, siteConfig.getSecureUrl, TextSafelist)

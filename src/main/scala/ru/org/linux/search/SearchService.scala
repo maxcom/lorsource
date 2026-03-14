@@ -22,12 +22,14 @@ import com.sksamuel.elastic4s.requests.searches.queries.Query
 import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.WeightScore
 import com.sksamuel.elastic4s.requests.searches.queries.matches.MatchQuery
 import org.joda.time.DateTimeZone
+import org.springframework.stereotype.Service
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
-  import ru.org.linux.search.SearchViewer.*
+@Service
+class SearchService(elastic: ElasticClient) {
+  import ru.org.linux.search.SearchService.*
 
   private def processQueryString(queryText: String) = {
     if (queryText.isEmpty) {
@@ -61,7 +63,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
     }
   }
 
-  def performSearch(tz: DateTimeZone): SearchResponse = {
+  def performSearch(query: SearchRequest, tz: DateTimeZone): SearchResponse = {
     val typeFilter = Option(query.getRange.getValue) map { value =>
       termQuery(query.getRange.getColumn, value)
     }
@@ -106,7 +108,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
           highlight("title") numberOfFragments 0,
           highlight("topicTitle") numberOfFragments 0,
           highlight("message") numberOfFragments 1 fragmentSize MessageFragment highlighterType "fvh"
-        ).size(SearchRows).from(this.query.getOffset).postFilter(andFilters(postFilters)).timeout(SearchTimeout)
+        ).size(SearchRows).from(query.getOffset).postFilter(andFilters(postFilters)).timeout(SearchTimeout)
         .trackTotalHits(true)
     }
 
@@ -122,7 +124,7 @@ class SearchViewer(query: SearchRequest, elastic: ElasticClient) {
   }
 }
 
-object SearchViewer {
+object SearchService {
   val SearchRows = 25
   val MessageFragment = 16384 // 0 not supported here!
   private val TopicBoost = 3

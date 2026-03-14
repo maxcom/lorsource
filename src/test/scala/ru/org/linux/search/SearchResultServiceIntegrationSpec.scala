@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -57,7 +57,7 @@ class SearchResultServiceIntegrationSpec  extends SpecificationWithJUnit {
 
   "SearchResultsService" should {
     "prepare some results" in new IndexFixture {
-      val response = new SearchViewer(new SearchRequest(), elastic).performSearch(null)
+      val response = new SearchService(elastic).performSearch(new SearchRequest(), null)
 
       val prepared: Array[SearchItem] = response.hits.hits.map(service.prepare)
 
