@@ -17,12 +17,14 @@ package ru.org.linux.user
 
 import org.apache.pekko.actor.ActorSystem
 import cats.implicits.*
-import com.sksamuel.elastic4s.ElasticClient
-import com.sksamuel.elastic4s.ElasticDsl.*
-import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.{DateHistogram, Terms}
-import com.sksamuel.elastic4s.requests.searches.{DateHistogramInterval, SearchResponse}
 import com.typesafe.scalalogging.StrictLogging
 import org.joda.time.{DateTime, DateTimeZone}
+import org.opensearch.client.json.JsonData
+import org.opensearch.client.opensearch.OpenSearchAsyncClient
+import org.opensearch.client.opensearch._types.FieldValue
+import org.opensearch.client.opensearch.core.{CountRequest, SearchRequest, SearchResponse}
+import org.opensearch.client.opensearch._types.aggregations.{CalendarInterval, DateHistogramAggregation, StatsAggregation, TermsAggregation}
+import org.opensearch.client.opensearch._types.query_dsl.{BoolQuery, Query, RangeQuery, TermQuery}
 import org.springframework.stereotype.Service
 import ru.org.linux.search.OpenSearchIndexService.MessageIndex
 import ru.org.linux.section.{Section, SectionService}
@@ -30,17 +32,17 @@ import ru.org.linux.user.UserStatisticsService.*
 import ru.org.linux.util.RichFuture.RichFuture
 
 import java.sql.Timestamp
-import java.util.{Date, TimeZone}
+import java.util.Date
 import scala.beans.BeanProperty
 import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.*
-import scala.util.Try
+import scala.jdk.FutureConverters.*
 
 @Service
 class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sectionService: SectionService,
-                            elastic: ElasticClient, actorSystem: ActorSystem) extends StrictLogging {
+                            elastic: OpenSearchAsyncClient, actorSystem: ActorSystem) extends StrictLogging {
   private implicit val pekko: ActorSystem = actorSystem
 
   def getStats(user: User): Future[UserStats] = {
@@ -77,76 +79,104 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
   }
 
   def getYearStats(user: User, timezone: DateTimeZone): Future[Map[Long, Long]] = {
-    Future.successful(elastic).flatMap {
-      _ execute {
-        val root = boolQuery().filter(termQuery("author", user.nick), rangeQuery("postdate").gt("now-1y/M"))
+    val rootQuery = Query.of(q => q.bool(BoolQuery.of(b => b
+      .filter(
+        Query.of(qq => qq.term(TermQuery.of(t => t.field("author").value(FieldValue.of(user.nick))))),
+        Query.of(qq => qq.range(RangeQuery.of(r => r.field("postdate").gt(JsonData.of("now-1y/M")))))
+      )
+    )))
 
-        search(MessageIndex) size 0 timeout 30.seconds query root aggs
-          dateHistogramAgg("days", "postdate")
-            .timeZone(TimeZone.getTimeZone(timezone.getID))
-            .calendarInterval(DateHistogramInterval.days(1))
-            .minDocCount(1)
-      } map {
-        _.result.aggregations.result[DateHistogram]("days").buckets.map { bucket =>
-          bucket.timestamp/1000 -> bucket.docCount
-        }.toMap
+    val request = new SearchRequest.Builder()
+      .index(MessageIndex)
+      .size(0)
+      .query(rootQuery)
+      .aggregations("days", a => a
+        .dateHistogram(DateHistogramAggregation.of(d => d
+          .field("postdate")
+          .timeZone(timezone.getID)
+          .calendarInterval(CalendarInterval.Day)
+          .minDocCount(1)
+        ))
+      )
+      .build()
+
+    elastic.search(request, classOf[Void])
+      .asScala
+      .map { response =>
+        val buckets = response.aggregations.get("days").dateHistogram().buckets.array().asScala
+        buckets.map(b => b.key/1000 -> b.docCount).toMap
       }
-    }
   }
 
-  private def timeoutHandler(response: SearchResponse): Future[SearchResponse] = {
-    if (response.isTimedOut) {
-      Future failed new RuntimeException("ES Request timed out")
+  private def timeoutHandler(response: SearchResponse[Void]): Future[SearchResponse[Void]] = {
+    if (response.timedOut) {
+      Future.failed(new RuntimeException("ES Request timed out"))
     } else {
-      Future successful response
+      Future.successful(response)
     }
   }
-
-  private def statSearch = search(MessageIndex).size(0).timeout(ElasticTimeout)
 
   private def countComments(user: User): Future[Long] = {
-    elastic execute {
-      val root = boolQuery().filter(
-        termQuery("author", user.nick),
-        termQuery("is_comment", true))
+    val rootQuery = Query.of(q => q.bool(BoolQuery.of(b => b
+      .filter(
+        Query.of(qq => qq.term(TermQuery.of(t => t.field("author").value(FieldValue.of(user.nick))))),
+        Query.of(qq => qq.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of(true)))))
+      )
+    )))
 
-      statSearch.query(root).trackTotalHits(true)
-    } map (_.result) flatMap timeoutHandler map {
-      _.totalHits
-    }
+    val request = new CountRequest.Builder()
+      .index(MessageIndex)
+      .query(rootQuery)
+      .build()
+
+    elastic.count(request)
+      .asScala
+      .map(_.count())
   }
 
   private def topicStats(user: User): Future[TopicStats] = {
-    elastic execute {
-      val root = boolQuery().filter(
-        termQuery("author", user.nick),
-        termQuery("is_comment", false))
+    val rootQuery = Query.of(q => q.bool(BoolQuery.of(b => b
+      .filter(
+        Query.of(qq => qq.term(TermQuery.of(t => t.field("author").value(FieldValue.of(user.nick))))),
+        Query.of(qq => qq.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of(false)))))
+      )
+    )))
 
-      statSearch query root aggs(
-        statsAggregation("topic_stats") field "postdate",
-        termsAgg("sections", "section"))
-    } map (_.result) flatMap timeoutHandler map { response =>
-      // workaround https://github.com/sksamuel/elastic4s/issues/1614
-      val topicStatsResult = Try(response.aggregations.statsBucket("topic_stats")).toOption
-      val sectionsResult = response.aggregations.result[Terms]("sections")
+    val request = new SearchRequest.Builder()
+    .index(MessageIndex)
+    .size(0)
+    .timeout(formatTimeout(ElasticTimeout))
+      .query(rootQuery)
+      .aggregations("topic_stats", a => a.stats(StatsAggregation.of(s => s.field("postdate"))))
+      .aggregations("sections", a => a.terms(TermsAggregation.of(t => t.field("section").size(1000))))
+      .build()
 
-      val (firstTopic, lastTopic) = if (topicStatsResult.exists(_.count > 0)) {
-        (Some(new DateTime(topicStatsResult.get.min.toLong)), Some(new DateTime(topicStatsResult.get.max.toLong)))
-      } else {
-        (None, None)
+    elastic.search(request, classOf[Void])
+      .asScala
+      .flatMap(timeoutHandler)
+      .map { response =>
+        val topicStatsResult = Option(response.aggregations.get("topic_stats").stats())
+        val sectionsResult = response.aggregations.get("sections").sterms()
+
+        val (firstTopic, lastTopic) = if (topicStatsResult.exists(_.count() > 0)) {
+          (Some(new DateTime(topicStatsResult.get.min().toLong)), Some(new DateTime(topicStatsResult.get.max().toLong)))
+        } else {
+          (None, None)
+        }
+
+        val sections = sectionsResult.buckets.array().asScala.map { bucket =>
+          (bucket.key(), bucket.docCount())
+        }
+
+        TopicStats(firstTopic, lastTopic, sections.toSeq)
       }
-
-      val sections = sectionsResult.buckets.map { bucket =>
-        (bucket.key, bucket.docCount)
-      }
-
-      TopicStats(firstTopic, lastTopic, sections)
-    }
   }
 }
 
 object UserStatisticsService {
   private val ElasticTimeout: FiniteDuration = 5.seconds
+
+  private def formatTimeout(timeout: FiniteDuration): String = s"${timeout.toSeconds}s"
 
   private case class TopicStats(firstTopic: Option[DateTime], lastTopic: Option[DateTime], sectionCount: Seq[(String, Long)])
 }
