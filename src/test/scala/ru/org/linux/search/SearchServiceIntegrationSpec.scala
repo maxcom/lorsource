@@ -22,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
 import ru.org.linux.PekkoConfiguration
+import ru.org.linux.topic.TopicTagService
+
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
   classOf[PekkoConfiguration]))
@@ -43,6 +46,9 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
   @Autowired
   var indexService: OpenSearchIndexService = _
 
+  @Autowired
+  var topicTagService: TopicTagService = _
+
   trait IndexFixture extends Scope with After {
     elastic execute { deleteIndex("*") } await
 
@@ -59,6 +65,7 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
     }
 
     "prepare some results" in new IndexFixture {
+      topicTagService.updateTags(1920001, Seq("lor"))
       indexService.reindexMessage(1920001, withComments = false)
       elastic execute {
         refreshIndex("*")
@@ -67,6 +74,7 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
       val response = service.performSearch(new SearchServiceRequest(), null)
 
       response.hits must not be empty
+      response.hits.head.tags.asScala.map(_.name) must containTheSameElementsAs(Seq("lor"))
     }
   }
 }
