@@ -53,7 +53,7 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
 
   "SearchService" should {
     "make valid default search" in new IndexFixture {
-      val response = service.performSearch(new SearchRequest(), null)
+      val response = service.performSearch(new SearchServiceRequest(), null)
 
       response.totalHits must be equalTo 0
     }
@@ -64,11 +64,9 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
         refreshIndex("*")
       } await
 
-      val response = service.performSearch(new SearchRequest(), null)
+      val response = service.performSearch(new SearchServiceRequest(), null)
 
-      val prepared: Array[SearchItem] = response.hits.hits.map(service.prepare)
-
-      prepared must not be empty
+      response.hits must not be empty
     }
   }
 }

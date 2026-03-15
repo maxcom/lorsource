@@ -15,36 +15,25 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticDsl.*
-import com.sksamuel.elastic4s.requests.searches.sort.{Sort, SortOrder}
-
 sealed trait SearchOrder {
   def name: String
   def id: String
-
-  def order: Seq[Sort]
 }
 
 object SearchOrder {
   case object Relevance extends SearchOrder {
     override val name = "по релевантности"
     override val id = "RELEVANCE"
-
-    override def order: Seq[Sort] = Seq(scoreSort(SortOrder.DESC), fieldSort("postdate") order SortOrder.DESC)
   }
 
   case object Date extends SearchOrder {
     override val name = "по дате: от новых к старым"
     override val id = "DATE"
-
-    override def order: Seq[Sort] = Seq(fieldSort("postdate") order SortOrder.DESC)
   }
 
   case object DateReverse extends SearchOrder {
     override val name = "по дате: от старых к новым"
     override val id = "DATE_OLD_TO_NEW"
-
-    override def order: Seq[Sort] = Seq(fieldSort("postdate") order SortOrder.ASC)
   }
 
   val values: Seq[SearchOrder] = Seq(Relevance, Date, DateReverse)

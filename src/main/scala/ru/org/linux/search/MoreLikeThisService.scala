@@ -15,20 +15,18 @@
 
 package ru.org.linux.search
 
-import java.util.concurrent.TimeUnit
-import org.apache.pekko.actor.Scheduler
-import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
+import org.apache.pekko.actor.Scheduler
+import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
-import org.opensearch.client.opensearch.core.{SearchRequest, SearchResponse}
-import org.opensearch.client.opensearch.core.search.{Hit, SourceConfig, SourceFilter}
-import org.opensearch.client.opensearch._types.query_dsl.{BoolQuery, MoreLikeThisQuery, Query, TermQuery, TermsQuery}
 import org.opensearch.client.opensearch._types.FieldValue
-import org.opensearch.client.opensearch._types.query_dsl.Like
+import org.opensearch.client.opensearch._types.query_dsl.*
+import org.opensearch.client.opensearch.core.SearchRequest
+import org.opensearch.client.opensearch.core.search.{Hit, SourceConfig, SourceFilter}
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
@@ -37,16 +35,17 @@ import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
-import java.time.ZoneId
+import java.time.{Instant, ZoneId}
+import java.util.concurrent.TimeUnit
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
-import scala.jdk.FutureConverters._
+import scala.collection.Seq as MSeq
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, TimeoutException}
+import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.*
 import scala.util.control.NonFatal
-import scala.collection.Seq as MSeq
 
 @Service
 class MoreLikeThisService(
@@ -54,7 +53,7 @@ class MoreLikeThisService(
   sectionService: SectionService,
   scheduler: Scheduler
 ) extends StrictLogging {
-  import MoreLikeThisService._
+  import MoreLikeThisService.*
 
   private type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
 
@@ -162,7 +161,7 @@ class MoreLikeThisService(
     val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
     val link = builder.buildAndExpand(section, group, Integer.parseInt(hit.id)).toUriString
 
-    val postdate = SearchResultsService.postdate(source)
+    val postdate = Instant.parse(source.get("postdate").asInstanceOf[String])
 
     val title = source.get("title").asInstanceOf[String]
 

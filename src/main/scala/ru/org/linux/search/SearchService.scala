@@ -15,20 +15,22 @@
 
 package ru.org.linux.search
 
+import com.google.common.base.Strings
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.ElasticDsl.*
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.bucket.{TermBucket, Terms}
 import com.sksamuel.elastic4s.requests.searches.aggs.responses.{Aggregations, FilterAggregationResult}
-import com.sksamuel.elastic4s.requests.searches.{SearchHit, SearchResponse}
 import com.sksamuel.elastic4s.requests.searches.queries.Query
 import com.sksamuel.elastic4s.requests.searches.queries.funcscorer.WeightScore
 import com.sksamuel.elastic4s.requests.searches.queries.matches.MatchQuery
+import com.sksamuel.elastic4s.requests.searches.sort.SortOrder
+import com.sksamuel.elastic4s.requests.searches.{SearchHit, SearchResponse}
 import org.joda.time.DateTimeZone
 import org.jsoup.Jsoup
+import org.jsoup.safety.Safelist
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupDao
-import ru.org.linux.search.SearchResultsService.TextSafelist
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.{TagRef, TagService}
@@ -77,7 +79,7 @@ class SearchService(elastic: ElasticClient, userService: UserService, siteConfig
     }
   }
 
-  def performSearch(query: SearchRequest, tz: DateTimeZone): SearchResponse = {
+  def performSearch(query: SearchServiceRequest, tz: DateTimeZone): SearchServiceResponse = {
     val typeFilter = Option(query.getRange.getValue) map { value =>
       termQuery(query.getRange.getColumn, value)
     }
@@ -109,8 +111,17 @@ class SearchService(elastic: ElasticClient, userService: UserService, siteConfig
 
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
+    val order = query.getSort match {
+      case SearchOrder.Relevance =>
+        Seq(scoreSort(SortOrder.DESC), fieldSort("postdate") order SortOrder.DESC)
+      case SearchOrder.Date =>
+        Seq(fieldSort("postdate") order SortOrder.DESC)
+      case SearchOrder.DateReverse =>
+        Seq(fieldSort("postdate") order SortOrder.DESC)
+    }
+
     val future = elastic execute {
-      search(OpenSearchIndexService.MessageIndex).fetchSource(true).sourceInclude(Fields).query(esQuery).sortBy(query.getSort.order).aggs(
+      search(OpenSearchIndexService.MessageIndex).fetchSource(true).sourceInclude(Fields).query(esQuery).sortBy(order).aggs(
         filterAgg("sections", matchAllQuery()) subAggregations (
           termsAgg("sections", "section") size 50 subAggregations (
             termsAgg("groups", "group") size 50
@@ -126,7 +137,50 @@ class SearchService(elastic: ElasticClient, userService: UserService, siteConfig
         .trackTotalHits(true)
     }
 
-    Await.result(future, SearchHardTimeout).result
+    buildResponse(query, Await.result(future, SearchHardTimeout).result)
+  }
+
+  private def buildResponse(query: SearchServiceRequest, response: SearchResponse): SearchServiceResponse = {
+    var sectionFacetResponse: Option[Seq[FacetItem]] = None
+    var groupFacetResponse: Option[Seq[FacetItem]] = None
+    var foundTagsResponse: Option[Seq[TagRef]] = None
+
+    if (response.aggregations != null) {
+      val countFacet = response.aggregations.filter("sections")
+      val sectionsFacet = countFacet.terms("sections")
+
+      if (sectionsFacet.buckets.size > 1 || !Strings.isNullOrEmpty(query.getSection)) {
+        sectionFacetResponse = Some(buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection))))
+
+        if (!Strings.isNullOrEmpty(query.getSection)) {
+          val selectedSection = sectionsFacet.bucketOpt(query.getSection)
+
+          if (!Strings.isNullOrEmpty(query.getGroup)) {
+            groupFacetResponse = buildGroupFacet(selectedSection, Some(query.getSection -> query.getGroup))
+          } else {
+            groupFacetResponse = buildGroupFacet(selectedSection, None)
+          }
+        }
+
+
+      } else if (Strings.isNullOrEmpty(query.getSection) && sectionsFacet.buckets.size == 1) {
+        val onlySection = sectionsFacet.buckets.head
+
+        query.setSection(onlySection.key)
+
+        groupFacetResponse = buildGroupFacet(Some(onlySection), None)
+      }
+
+      foundTagsResponse = Some(foundTags(response.aggregations))
+    }
+
+    SearchServiceResponse(
+      hits = response.hits.hits.view.map(prepare).toVector,
+      sectionFacet = sectionFacetResponse,
+      groupFacet = groupFacetResponse,
+      foundTags = foundTagsResponse,
+      totalHits = response.totalHits,
+      took = response.took)
   }
 
   private def andFilters(filters: Seq[Query]) = {
@@ -137,7 +191,7 @@ class SearchService(elastic: ElasticClient, userService: UserService, siteConfig
     }
   }
 
-  def prepare(doc: SearchHit): SearchItem = {
+  private def prepare(doc: SearchHit): SearchItem = {
     val author = userService.getUserCached(doc.sourceAsMap("author").asInstanceOf[String])
 
     val postdate = Instant.parse(doc.sourceAsMap("postdate").asInstanceOf[String])
@@ -185,12 +239,12 @@ class SearchService(elastic: ElasticClient, userService: UserService, siteConfig
   }
 
   private def getUrl(doc: SearchHit): String = {
-    val section = SearchResultsService.section(doc)
+    val section = doc.sourceAsMap("section").asInstanceOf[String]
     val msgid = doc.id
 
     val comment = doc.sourceAsMap("is_comment").asInstanceOf[Boolean]
     val topic = doc.sourceAsMap("topic_id").asInstanceOf[Int]
-    val group = SearchResultsService.group(doc)
+    val group = doc.sourceAsMap("group").asInstanceOf[String]
 
     if (comment) {
       val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}")
@@ -201,7 +255,7 @@ class SearchService(elastic: ElasticClient, userService: UserService, siteConfig
     }
   }
 
-  def buildSectionFacet(sectionFacet: FilterAggregationResult, selected:Option[String]): java.util.List[FacetItem] = {
+  private def buildSectionFacet(sectionFacet: FilterAggregationResult, selected:Option[String]): Seq[FacetItem] = {
     def mkItem(urlName: String, count: Long) = {
       val name = sectionService.nameToSection.get(urlName).map(_.getName).getOrElse(urlName).toLowerCase
       FacetItem(urlName, s"$name ($count)")
@@ -217,10 +271,10 @@ class SearchService(elastic: ElasticClient, userService: UserService, siteConfig
 
     val all = FacetItem("", s"все (${sectionFacet.docCount})")
 
-    (all +: (missing ++ items)).asJava
+    all +: (missing ++ items)
   }
 
-  def buildGroupFacet(maybeSection: Option[TermBucket], selected:Option[(String, String)]): java.util.List[FacetItem] = {
+  private def buildGroupFacet(maybeSection: Option[TermBucket], selected:Option[(String, String)]): Option[Seq[FacetItem]] = {
     def mkItem(section:Section, groupUrlName:String, count:Long) = {
       val group = groupDao.getGroup(section, groupUrlName)
       val name = group.title.toLowerCase
@@ -245,16 +299,16 @@ class SearchService(elastic: ElasticClient, userService: UserService, siteConfig
     if (items.size > 1 || selected.isDefined) {
       val all = FacetItem("", s"все (${maybeSection.map(_.docCount).getOrElse(0)})")
 
-      (all +: items).asJava
+      Some(all +: items)
     } else {
-      null
+      None
     }
   }
 
-  def foundTags(agg: Aggregations): java.util.List[TagRef] = {
+  private def foundTags(agg: Aggregations): Seq[TagRef] = {
     val tags = agg.significantTerms("tags")
 
-    tags.buckets.map(bucket => TagService.tagRef(bucket.key)).asJava
+    tags.buckets.map(bucket => TagService.tagRef(bucket.key))
   }
 }
 
@@ -267,4 +321,6 @@ object SearchService {
 
   private val Fields = Seq("title", "topic_title", "author", "postdate", "topic_id",
     "section", "message", "group", "is_comment", "tag")
+
+  private val TextSafelist: Safelist = Safelist.relaxed().addAttributes(":all", "class")
 }

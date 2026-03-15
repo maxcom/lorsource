@@ -32,7 +32,7 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
 import scala.collection.immutable.VectorMap
-import scala.jdk.CollectionConverters.{IterableHasAsJava, MapHasAsJava}
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class SearchController(sectionService: SectionService, userService: UserService, groupDao: GroupDao,
@@ -54,7 +54,7 @@ class SearchController(sectionService: SectionService, userService: UserService,
   }
 
   @RequestMapping(value = Array("/search.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def search(model: Model, @ModelAttribute("query") query: SearchRequest, bindingResult: BindingResult,
+  def search(model: Model, @ModelAttribute("query") query: SearchServiceRequest, bindingResult: BindingResult,
              @RequestAttribute(name="timezone") tz: DateTimeZone): String = {
     val params = model.asMap
 
@@ -62,40 +62,20 @@ class SearchController(sectionService: SectionService, userService: UserService,
       sanitizeQuery(query)
 
       val response = searchService.performSearch(query, tz)
-      val current = System.currentTimeMillis
 
-      val res = response.hits.hits.view.map(searchService.prepare).toVector
-
-      if (response.aggregations != null) {
-        val countFacet = response.aggregations.filter("sections")
-        val sectionsFacet = countFacet.terms("sections")
-
-        if (sectionsFacet.buckets.size > 1 || !Strings.isNullOrEmpty(query.getSection)) {
-          params.put("sectionFacet", searchService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection))))
-
-          if (!Strings.isNullOrEmpty(query.getSection)) {
-            val selectedSection = sectionsFacet.bucketOpt(query.getSection)
-
-            if (!Strings.isNullOrEmpty(query.getGroup)) {
-              params.put("groupFacet", searchService.buildGroupFacet(selectedSection, Some(query.getSection -> query.getGroup)))
-            } else {
-              params.put("groupFacet", searchService.buildGroupFacet(selectedSection, None))
-            }
-          }
-        } else if (Strings.isNullOrEmpty(query.getSection) && sectionsFacet.buckets.size == 1) {
-          val onlySection = sectionsFacet.buckets.head
-
-          query.setSection(onlySection.key)
-
-          params.put("groupFacet", searchService.buildGroupFacet(Some(onlySection), None))
-        }
-
-        params.put("tags", searchService.foundTags(response.aggregations))
+      response.sectionFacet.foreach { facet =>
+        params.put("sectionFacet", facet.asJava)
       }
 
-      val time = System.currentTimeMillis - current
+      response.groupFacet.foreach { facet =>
+        params.put("groupFacet", facet.asJava)
+      }
 
-      params.put("result", res.asJavaCollection)
+      response.foundTags.foreach { facet =>
+        params.put("tags", facet.asJava)
+      }
+
+      params.put("result", response.hits.asJava)
       params.put("searchTime", response.took)
       params.put("numFound", response.totalHits)
 
@@ -106,14 +86,12 @@ class SearchController(sectionService: SectionService, userService: UserService,
       if (query.getOffset - SearchService.SearchRows >= 0) {
         params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset - SearchService.SearchRows))
       }
-
-      params.put("time", time)
     }
 
     "search"
   }
 
-  private def sanitizeQuery(query: SearchRequest): Unit = {
+  private def sanitizeQuery(query: SearchServiceRequest): Unit = {
     if (!Strings.isNullOrEmpty(query.getSection)) {
       val section = sectionService.fuzzyNameToSection.get(query.getSection)
 
