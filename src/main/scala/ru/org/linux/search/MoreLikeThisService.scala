@@ -80,7 +80,7 @@ class MoreLikeThisService(
       breaker.withCircuitBreaker {
         val request = makeQuery(topic, tags)
 
-        val result: Future[Result] = client.search(request, classOf[java.util.Map[String, AnyRef]])
+        val result: Future[Result] = client.search(request, classOf[MessageIndexDocument])
           .asScala
           .map { response =>
             val hits = response.hits.hits.asScala
@@ -153,17 +153,17 @@ class MoreLikeThisService(
     }
   }
 
-  private def processHit(hit: Hit[java.util.Map[String, AnyRef]]): MoreLikeThisTopic = {
+  private def processHit(hit: Hit[MessageIndexDocument]): MoreLikeThisTopic = {
     val source = hit.source
-    val section = source.get("section").asInstanceOf[String]
-    val group = source.get("group").asInstanceOf[String]
+    val section = source.section
+    val group = source.group
 
     val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
     val link = builder.buildAndExpand(section, group, Integer.parseInt(hit.id)).toUriString
 
-    val postdate = Instant.parse(source.get("postdate").asInstanceOf[String])
+    val postdate = Instant.parse(source.postdate)
 
-    val title = source.get("title").asInstanceOf[String]
+    val title = source.title.getOrElse("")
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),

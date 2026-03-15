@@ -171,11 +171,11 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
       .trackTotalHits(t => t.enabled(true))
       .build()
 
-    val response = elastic.search(request, classOf[util.Map[String, AnyRef]])
+    val response = elastic.search(request, classOf[MessageIndexDocument])
     buildResponse(query, response)
   }
 
-  private def buildResponse(query: SearchServiceRequest, response: SearchResponse[util.Map[String, AnyRef]]): SearchServiceResponse = {
+  private def buildResponse(query: SearchServiceRequest, response: SearchResponse[MessageIndexDocument]): SearchServiceResponse = {
     var sectionFacetResponse: Option[Seq[FacetItem]] = None
     var groupFacetResponse: Option[Seq[FacetItem]] = None
     var foundTagsResponse: Option[Seq[TagRef]] = None
@@ -227,19 +227,19 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
     }
   }
 
-  private def prepare(doc: Hit[util.Map[String, AnyRef]]): SearchItem = {
+  private def prepare(doc: Hit[MessageIndexDocument]): SearchItem = {
     val source = doc.source
 
-    val author = userService.getUserCached(source.get("author").asInstanceOf[String])
+    val author = userService.getUserCached(source.author)
 
-    val postdate = Instant.parse(source.get("postdate").asInstanceOf[String])
+    val postdate = Instant.parse(source.postdate)
 
-    val comment = source.get("is_comment").asInstanceOf[Boolean]
+    val comment = source.isComment
 
     val tags: Seq[TagRef] = if (comment) {
       Seq.empty
     } else {
-      source.get("tag").asInstanceOf[Seq[String]].map(tag => TagService.tagRef(tag))
+      source.tags.map(tag => TagService.tagRef(tag))
     }
 
     val docScore = if (doc.score != null) doc.score.toFloat else 0f
@@ -256,37 +256,37 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
     )
   }
 
-  private def getTitle(doc: Hit[util.Map[String, AnyRef]]): String = {
+  private def getTitle(doc: Hit[MessageIndexDocument]): String = {
     val highlight = Option(doc.highlight).map(_.asScala.toMap).getOrElse(Map.empty)
     val source = doc.source
 
     val itemTitle = highlight.get("title").flatMap(_.asScala.headOption)
-      .orElse(Option(source.get("title")).map { v => StringUtil.escapeHtml(v.asInstanceOf[String]) })
+      .orElse(source.title.map { v => StringUtil.escapeHtml(v) })
 
     itemTitle.filter(_.trim.nonEmpty).orElse(
       highlight.get("topic_title").flatMap(_.asScala.headOption))
-      .getOrElse(StringUtil.escapeHtml(source.get("topic_title").asInstanceOf[String]))
+      .getOrElse(StringUtil.escapeHtml(source.topicTitle))
   }
 
-  private def getMessage(doc: Hit[util.Map[String, AnyRef]]): String = {
+  private def getMessage(doc: Hit[MessageIndexDocument]): String = {
     val highlight = Option(doc.highlight).map(_.asScala.toMap).getOrElse(Map.empty)
     val source = doc.source
 
     val html = highlight.get("message").flatMap(_.asScala.headOption) getOrElse {
-      source.get("message").asInstanceOf[String].take(MessageFragment)
+      source.message.take(MessageFragment)
     }
 
     Jsoup.clean(html, siteConfig.getSecureUrl, TextSafelist)
   }
 
-  private def getUrl(doc: Hit[util.Map[String, AnyRef]]): String = {
+  private def getUrl(doc: Hit[MessageIndexDocument]): String = {
     val source = doc.source
-    val section = source.get("section").asInstanceOf[String]
+    val section = source.section
     val msgid = doc.id
 
-    val comment = source.get("is_comment").asInstanceOf[Boolean]
-    val topic = source.get("topic_id").asInstanceOf[Int]
-    val group = source.get("group").asInstanceOf[String]
+    val comment = source.isComment
+    val topic = source.topicId
+    val group = source.group
 
     if (comment) {
       val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}?cid={cid}")

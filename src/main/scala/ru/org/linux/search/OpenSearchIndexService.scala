@@ -83,10 +83,10 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
 
   private def indexCommentToBulkOp(topic: Topic, comment: Comment, group: Group): BulkOperation = {
     val doc = indexOfComment(topic, comment, group)
-    val indexOp = IndexOperation.of[java.util.Map[String, Any]](i => i
+    val indexOp = IndexOperation.of[MessageIndexDocument](i => i
       .index(MessageIndex)
       .id(comment.id.toString)
-      .document(doc.asJava))
+      .document(doc))
     BulkOperation.of(op => op.index(indexOp))
   }
 
@@ -97,10 +97,10 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
     if (topicPermissionService.isTopicSearchable(topic, group)) {
       val topicDoc = indexOfTopic(topic, group)
 
-      val indexOp = IndexOperation.of[java.util.Map[String, Any]](i => i
+      val indexOp = IndexOperation.of[MessageIndexDocument](i => i
         .index(MessageIndex)
         .id(topic.id.toString)
-        .document(topicDoc.asJava))
+        .document(topicDoc))
 
       val operations = Seq(
         BulkOperation.of(op => op.index(indexOp))
@@ -155,7 +155,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
     }
   }
 
-  private def indexOfComment(topic: Topic, comment: Comment, group: Group): Map[String, Any] = {
+  private def indexOfComment(topic: Topic, comment: Comment, group: Group): MessageIndexDocument = {
     val section = sectionService.getSection(topic.sectionId)
     val author = userService.getUserCached(comment.userid)
     val topicAuthor = userService.getUserCached(topic.authorUserId)
@@ -174,23 +174,20 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
         .filterNot(_.startsWith("Re:"))
         .map(StringEscapeUtils.unescapeHtml4)
 
-    val fields = scala.collection.mutable.Map[String, Any](
-      "section" -> section.getUrlName,
-      "topic_author" -> topicAuthor.nick,
-      "topic_id" -> topic.id,
-      "author" -> author.nick,
-      "group" -> group.urlName,
-      "topic_title" -> topicTitle,
-      COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
-      "message" -> html,
-      "postdate" -> comment.postdate.toInstant.toString,
-      "tag" -> topicTagService.getTags(topic),
-      "is_comment" -> true
+    MessageIndexDocument(
+      section = section.getUrlName,
+      topicAuthor = topicAuthor.nick,
+      topicId = topic.id,
+      author = author.nick,
+      group = group.urlName,
+      title = title,
+      topicTitle = topicTitle,
+      message = html,
+      postdate = comment.postdate.toInstant.toString,
+      tags = topicTagService.getTags(topic),
+      isComment = true,
+      topicAwaitsCommit = topicAwaitsCommit(topic)
     )
-
-    title.foreach(t => fields("title") = t)
-
-    fields.toMap
   }
 
   private def topicAwaitsCommit(msg: Topic) = {
@@ -199,7 +196,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
     section.isPremoderated && !msg.commited
   }
 
-  private def indexOfTopic(topic: Topic, group: Group): Map[String, Any] = {
+  private def indexOfTopic(topic: Topic, group: Group): MessageIndexDocument = {
     val section = sectionService.getSection(topic.sectionId)
     val author = userService.getUserCached(topic.authorUserId)
 
@@ -211,19 +208,19 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
       nofollow = !topicPermissionService.followInTopic(topic, author),
       canonicalUrl = url)
 
-    Map(
-      "section" -> section.getUrlName,
-      "topic_author" -> author.nick,
-      "topic_id" -> topic.id,
-      "author" -> author.nick,
-      "group" -> group.urlName,
-      "title" -> topic.getTitleUnescaped,
-      "topic_title" -> topic.getTitleUnescaped,
-      "message" -> html,
-      "postdate" -> topic.postdate.toInstant.toString,
-      "tag" -> topicTagService.getTags(topic),
-      COLUMN_TOPIC_AWAITS_COMMIT -> topicAwaitsCommit(topic),
-      "is_comment" -> false
+    MessageIndexDocument(
+      section = section.getUrlName,
+      topicAuthor = author.nick,
+      topicId = topic.id,
+      author = author.nick,
+      group = group.urlName,
+      title = Some(topic.getTitleUnescaped),
+      topicTitle = topic.getTitleUnescaped,
+      message = html,
+      postdate = topic.postdate.toInstant.toString,
+      tags = topicTagService.getTags(topic),
+      isComment = false,
+      topicAwaitsCommit = topicAwaitsCommit(topic)
     )
   }
 }
