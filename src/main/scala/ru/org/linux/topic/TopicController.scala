@@ -98,41 +98,47 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                       msgbaseDao: MsgbaseDao, textService: MessageTextService,
                       warningService: WarningService) extends StrictLogging {
   @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}"))
-  def getMessageNewMain(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
-                        @RequestParam(value = "filter", required = false) filter: String,
-                        @RequestParam(value = "cid", required = false) cid: Integer,
-                        @RequestParam(value = "deleted", required = false) deleted: String,
-                        @RequestParam(value = "skipdeleted", required = false, defaultValue = "false") skipDeleted: Boolean,
-                        @PathVariable("section") sectionName: String, @PathVariable("group") groupName: String,
-                        @PathVariable("id") msgid: Int): ModelAndView = {
+  def getMessageMain(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
+                     @RequestParam(value = "filter", required = false) filter: String,
+                     @RequestParam(value = "cid", required = false) cid: Integer,
+                     @RequestParam(value = "deleted", required = false) deleted: String,
+                     @RequestParam(value = "skipdeleted", required = false, defaultValue = "false") skipDeleted: Boolean,
+                     @PathVariable("section") sectionName: String, @PathVariable("group") groupName: String,
+                     @PathVariable("id") msgid: Int): ModelAndView = MaybeAuthorized { implicit session =>
     if (cid != null) {
       jumpMessage(msgid, cid, skipDeleted)
     } else {
       val section = sectionService.getSectionByName(sectionName)
 
-      val showDeleted = deleted!=null
+      val showDeleted = deleted != null
+
+      val topic = topicDao.getById(msgid)
 
       if (showDeleted) {
-        getMessage(section, webRequest, request, response, -1, null, groupName, msgid, 0, showDeleted = true)
+        if (!session.moderator && showDeleted && !("POST" == request.getMethod)) {
+          new ModelAndView(new RedirectView(topic.getLink))
+        } else {
+          getMessage(topic, section, webRequest, request, response, -1, null, groupName, 0, showDeleted = true)
+        }
       } else {
-        getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, 0, showDeleted = false)
+        getMessage(topic, section, webRequest, request, response, 0, filter, groupName, 0, showDeleted = false)
       }
     }
   }
 
   @RequestMapping(value = Array("/{section:(?:forum)|(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group}/{id}/page{page}"),
     method = Array(RequestMethod.GET))
-  def getMessageNewPage(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
-                        @RequestParam(value = "filter", required = false) filter: String,
-                        @PathVariable("section") sectionName: String, @PathVariable("group") groupName: String,
-                        @PathVariable("id") msgid: Int, @PathVariable("page") page: Int): ModelAndView = {
+  def getMessagePage(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
+                     @RequestParam(value = "filter", required = false) filter: String,
+                     @PathVariable("section") sectionName: String, @PathVariable("group") groupName: String,
+                     @PathVariable("id") msgid: Int, @PathVariable("page") page: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val section = sectionService.getSectionByName(sectionName)
+    val topic = topicDao.getById(msgid)
 
     if (page == -1) {
-      val topic = topicDao.getById(msgid)
       new ModelAndView(new RedirectView(topic.getLink))
     } else {
-      getMessage(section, webRequest, request, response, page, filter, groupName, msgid, 0, showDeleted = false)
+      getMessage(topic, section, webRequest, request, response, page, filter, groupName, 0, showDeleted = false)
     }
   }
 
@@ -141,22 +147,18 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
   def getMessageThread(webRequest: WebRequest, request: HttpServletRequest, response: HttpServletResponse,
                        @RequestParam(value = "filter", required = false) filter: String,
                        @PathVariable("section") sectionName: String, @PathVariable("group") groupName: String,
-                       @PathVariable("id") msgid: Int, @PathVariable("threadRoot") threadRoot: Int): ModelAndView = {
+                       @PathVariable("id") msgid: Int, @PathVariable("threadRoot") threadRoot: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val section = sectionService.getSectionByName(sectionName)
-
-    getMessage(section, webRequest, request, response, 0, filter, groupName, msgid, threadRoot, showDeleted = false)
-  }
-
-  private def getMessage(section: Section, webRequest: WebRequest, request: HttpServletRequest,
-                         response: HttpServletResponse, page: Int, filter: String, groupName: String, msgid: Int,
-                         threadRoot: Int, showDeleted: Boolean): ModelAndView = MaybeAuthorized { implicit session =>
-    val deadline = TopicController.MoreLikeThisTimeout.fromNow
-
     val topic = topicDao.getById(msgid)
 
-    if (!session.moderator && showDeleted && !("POST" == request.getMethod)) {
-      return new ModelAndView(new RedirectView(topic.getLink))
-    }
+    getMessage(topic, section, webRequest, request, response, 0, filter, groupName, threadRoot, showDeleted = false)
+  }
+
+  private def getMessage(topic: Topic, section: Section, webRequest: WebRequest, request: HttpServletRequest,
+                         response: HttpServletResponse, page: Int, filter: String, groupName: String,
+                         threadRoot: Int, showDeleted: Boolean)
+                        (implicit session: AnySession): ModelAndView = {
+    val deadline = TopicController.MoreLikeThisTimeout.fromNow
 
     val tags = topicTagService.getTagRefs(topic).asScala
     val moreLikeThis = moreLikeThisService.searchSimilar(topic, tags)
