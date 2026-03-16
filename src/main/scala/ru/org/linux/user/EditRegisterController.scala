@@ -15,6 +15,7 @@
 package ru.org.linux.user
 
 import com.google.common.base.Strings
+import com.sun.mail.smtp.SMTPAddressFailedException
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -127,6 +128,11 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
       }
     }
 
+    val mv = new ModelAndView("edit-reg")
+
+    mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
+    mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
+
     if (!errors.hasErrors) {
       if (userPermissionService.canEditProfileInfo) {
         userService.updateUser(user, name, url, newEmail, town, newPassword, info, request.getRemoteAddr)
@@ -141,21 +147,23 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
 
       newEmail match {
         case Some(newEmail) =>
-          emailService.sendRegistrationEmail(user.nick, newEmail, isNew = false)
+          try {
+            emailService.sendRegistrationEmail(user.nick, newEmail, isNew = false)
 
-          val msg = s"Обновление регистрации прошло успешно. " +
-            s"Ожидайте письма на ${StringUtil.escapeHtml(newEmail)} с кодом активации смены email."
+            val msg = s"Обновление регистрации прошло успешно. " +
+              s"Ожидайте письма на ${StringUtil.escapeHtml(newEmail)} с кодом активации смены email."
 
-          new ModelAndView("action-done", "message", msg)
+            new ModelAndView("action-done", "message", msg)
+          } catch {
+            case ex: SMTPAddressFailedException =>
+              logger.warn("Failed to send email to {}", newEmail, ex)
+              errors.rejectValue("newEmail", "Отправка e-mail на указанный адрес не возможна: " + ex.getMessage)
+              mv
+          }
         case None =>
           new ModelAndView(new RedirectView("/people/" + user.nick + "/profile"))
       }
     } else {
-      val mv = new ModelAndView("edit-reg")
-
-      mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
-      mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
-
       mv
     }
   }
