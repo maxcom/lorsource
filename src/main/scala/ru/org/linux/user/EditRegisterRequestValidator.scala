@@ -19,8 +19,8 @@ import org.springframework.validation.Errors
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
 
-import javax.mail.internet.AddressException
-import javax.mail.internet.InternetAddress
+import jakarta.mail.internet.AddressException
+import jakarta.mail.internet.InternetAddress
 
 class EditRegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao)
   extends RegisterRequestValidator(emailDomainsBlockDao) {

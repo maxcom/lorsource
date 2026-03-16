@@ -33,8 +33,8 @@ import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
 import java.util.{Date, Properties}
 import javax.annotation.Nullable
-import javax.mail.internet.{InternetAddress, MimeMessage}
-import javax.mail.{Message, MessagingException, Session, Transport}
+import jakarta.mail.internet.{InternetAddress, MimeMessage}
+import jakarta.mail.{Message, MessagingException, Session, Transport}
 import scala.jdk.CollectionConverters.*
 
 @Service

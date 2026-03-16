@@ -20,8 +20,8 @@ import org.springframework.validation.Errors
 import org.springframework.validation.Validator
 import ru.org.linux.util.StringUtil
 
-import javax.mail.internet.AddressException
-import javax.mail.internet.InternetAddress
+import jakarta.mail.internet.AddressException
+import jakarta.mail.internet.InternetAddress
 
 class RegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao) extends Validator {
   protected val TOWN_LENGTH = 100

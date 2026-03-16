@@ -24,7 +24,7 @@ import ru.org.linux.email.EmailService
 import ru.org.linux.site.BadInputException
 
 import java.sql.Timestamp
-import javax.mail.internet.AddressException
+import jakarta.mail.internet.AddressException
 
 @Controller
 @RequestMapping(Array("/lostpwd.jsp"))

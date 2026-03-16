@@ -35,7 +35,7 @@ import java.sql.Timestamp
 import java.time.{Duration, Instant}
 import java.util.concurrent.{CompletionException, TimeUnit}
 import javax.annotation.Nullable
-import javax.mail.internet.InternetAddress
+import jakarta.mail.internet.InternetAddress
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}

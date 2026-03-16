@@ -29,7 +29,7 @@ import ru.org.linux.util.URLUtil
 import java.sql.Timestamp
 import java.time.Instant
 import javax.annotation.Nullable
-import javax.mail.internet.{AddressException, InternetAddress}
+import jakarta.mail.internet.{AddressException, InternetAddress}
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
 

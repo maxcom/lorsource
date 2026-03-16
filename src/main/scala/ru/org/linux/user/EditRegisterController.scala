@@ -15,7 +15,7 @@
 package ru.org.linux.user
 
 import com.google.common.base.Strings
-import com.sun.mail.smtp.SMTPAddressFailedException
+import org.eclipse.angus.mail.smtp.SMTPAddressFailedException
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -36,8 +36,8 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
 
-import javax.mail.internet.AddressException
-import javax.mail.internet.InternetAddress
+import jakarta.mail.internet.AddressException
+import jakarta.mail.internet.InternetAddress
 import javax.validation.Valid
 
 @Controller
