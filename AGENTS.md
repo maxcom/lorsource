@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a Java 21 + Scala 2.13 web application (WAR) for Linux.org.ru. It uses Maven for build,
+This is a Java 21 + Scala 3 web application (WAR) for Linux.org.ru. It uses Maven for build,
 Spring Framework, and includes both unit and integration tests.
 
 ## Build Commands
@@ -73,7 +73,7 @@ mvn dependency:analyze   # Analyze dependencies
 
 ### Scala Conventions
 
-- Follow `.scalafmt.conf` configuration (version 3.10.7, Scala 2.13 dialect)
+- Follow `.scalafmt.conf` configuration (version 3.10.7, Scala 3 dialect)
 - Use strict logging: `com.typesafe.scalalogging.StrictLogging`
 - Use Akka/Pekko for async operations
 

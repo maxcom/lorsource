@@ -74,7 +74,7 @@
       <li>AlmaLinux OS 9.x;</li>
       <li>СУБД PostgreSQL 16;</li>
       <li>OpenJDK 21;</li>
-      <li>Scala 2.13;</li>
+      <li>Scala 3;</li>
       <li>Apache Tomcat 10.1;</li>
       <li>ActiveMQ 6.x;</li>
       <li>Spring 6.x;</li>

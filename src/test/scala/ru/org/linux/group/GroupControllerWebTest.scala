@@ -39,7 +39,7 @@ class GroupControllerWebTest extends Specification {
 
       val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      doc.select(".infoblock").text must not be empty
+      doc.select(".infoblock").text must beMatching(".+")
     }
 
     "contain info and edit link for moderator" in new AuthenticatedUser("maxcom") {
@@ -52,7 +52,7 @@ class GroupControllerWebTest extends Specification {
 
       val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      doc.select(".infoblock").text must not be empty
+      doc.select(".infoblock").text must beMatching(".+")
 
       // у модератора в последнем абзаце groupInfo ссылка на изменение groupinfo
       doc.select(".infoblock p").last.text must be equalTo "[править]"

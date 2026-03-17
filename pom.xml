@@ -18,8 +18,8 @@
     <dependency.spring.version>6.2.16</dependency.spring.version>
     <spring.security.version>6.3.10</spring.security.version>
     <jdbc.postgresql.version>42.7.9</jdbc.postgresql.version>
-    <scala.version>2.13.18</scala.version>
-    <scala.suffix>2.13</scala.suffix>
+    <scala.version>3.8.2</scala.version>
+    <scala.suffix>3</scala.suffix>
     <activemq.version>6.2.1</activemq.version>
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
@@ -31,7 +31,7 @@
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
     <swiffy-slider.version>1.6.0</swiffy-slider.version>
-    <circe.version>0.14.13</circe.version>
+    <circe.version>0.14.15</circe.version>
     <twemoji.version>16.0.1</twemoji.version>
     <sttp.version>3.11.0</sttp.version>
     <flexmark.version>0.64.8</flexmark.version>
@@ -39,6 +39,12 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala3-library_${scala.suffix}</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.pekko</groupId>
       <artifactId>pekko-actor-typed_${scala.suffix}</artifactId>
@@ -78,14 +84,14 @@
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>4.21.0</version>
+      <version>4.23.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.specs2</groupId>
       <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>4.21.0</version>
+      <version>4.23.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -483,7 +489,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>4.9.2</version>
+        <version>4.9.10</version>
         <configuration>
           <args>
             <arg>-deprecation</arg>
@@ -492,10 +498,8 @@
 <!--
             <arg>-Xfatal-warnings</arg>
 -->
-            <arg>-Xlint</arg>
             <arg>-language:postfixOps</arg>
             <arg>-release:21</arg>
-            <arg>-Xsource:3</arg>
           </args>
           <recompileMode>incremental</recompileMode>
         </configuration>
@@ -1020,7 +1024,7 @@
           <plugin>
             <groupId>net.alchim31.maven</groupId>
             <artifactId>scala-maven-plugin</artifactId>
-            <version>4.9.2</version>
+            <version>4.9.10</version>
             <configuration>
               <recompileMode>all</recompileMode>
             </configuration>
