@@ -39,10 +39,10 @@ class OpenSearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
-  var indexCreationService: OpenSearchIndexCreationService = _
+  var indexCreationService: OpenSearchIndexCreationService = scala.compiletime.uninitialized
 
   @Autowired
-  var elastic: OpenSearchClient = _
+  var elastic: OpenSearchClient = scala.compiletime.uninitialized
 
   "OpenSearchIndexCreationService" should {
     "create index" in {

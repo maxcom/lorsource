@@ -149,7 +149,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val group = form.group
     val section = sectionService.getSection(group.sectionId)
 
-    val params = prepareModel(Some(group), section)(sessionUserOpt).to(mutable.HashMap)
+    val params = prepareModel(Some(group), section)(using sessionUserOpt).to(mutable.HashMap)
 
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
@@ -158,11 +158,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     UserPermissionService.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
-    if (!permissionService.isTopicPostingAllowed(group)(postingUser)) {
+    if (!permissionService.isTopicPostingAllowed(group)(using postingUser)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
     }
 
-    if (!permissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
+    if (!permissionService.enableAllowAnonymousCheckbox(group)(using postingUser)) {
       form.allowAnonymous=true
     }
 
@@ -180,7 +180,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val (imagePreview, additionalImagePreviews) = postingUser.opt match {
       case Some(authorized) =>
-        topicService.processUploads(form, group, errors)(authorized)
+        topicService.processUploads(form, group, errors)(using authorized)
       case None =>
         (None, Seq.empty)
     }
@@ -195,7 +195,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val tagNames = TagName.parseAndSanitizeTags(form.tags)
 
-    if (!permissionService.canCreateTag(section)(postingUser)) {
+    if (!permissionService.canCreateTag(section)(using postingUser)) {
       val newTags = tagService.getNewTags(tagNames)
 
       if (newTags.nonEmpty) {
@@ -208,7 +208,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     params.put("message", preparedTopic)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)(sessionUserOpt)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)(using sessionUserOpt)
     params.put("topicMenu", topicMenu)
 
     if (!form.isPreviewMode && !errors.hasErrors) {

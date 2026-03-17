@@ -38,9 +38,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextS
 )
 class TopicControllerIntegrationTest {
   @Autowired
-  var wac: WebApplicationContext = _
+  var wac: WebApplicationContext = scala.compiletime.uninitialized
 
-  private var mockMvc: MockMvc = _
+  private var mockMvc: MockMvc = scala.compiletime.uninitialized
 
   @Before
   def setup(): Unit = {

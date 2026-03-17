@@ -42,7 +42,7 @@ import javax.sql.DataSource
 @ContextConfiguration (classes = Array (classOf[TopicDaoIntegrationTestConfiguration] ) )
 class TopicDaoIntegrationTest {
   @Autowired
-  var topicDao: TopicDao = _
+  var topicDao: TopicDao = scala.compiletime.uninitialized
 
   @Test
   def testLoadTopic(): Unit = {

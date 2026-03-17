@@ -48,10 +48,10 @@ object EditRegisterControllerWebTest {
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
 class EditRegisterControllerWebTest {
   @Autowired
-  private var userDao: UserDao = _
+  private var userDao: UserDao = scala.compiletime.uninitialized
 
   @Autowired
-  private var userService: UserService = _
+  private var userService: UserService = scala.compiletime.uninitialized
 
   private def rescueMaxcom(): Unit = {
     val user = userDao.getUser(userDao.findUserId("maxcom"))

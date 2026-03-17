@@ -500,6 +500,11 @@
 -->
             <arg>-language:postfixOps</arg>
             <arg>-release:21</arg>
+<!--
+            <arg>-rewrite</arg>
+            <arg>-source</arg>
+            <arg>3.7-migration</arg>
+-->
           </args>
           <recompileMode>incremental</recompileMode>
         </configuration>

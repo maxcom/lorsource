@@ -36,19 +36,19 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
   sequential
 
   @Autowired
-  var indexCreationService: OpenSearchIndexCreationService = _
+  var indexCreationService: OpenSearchIndexCreationService = scala.compiletime.uninitialized
 
   @Autowired
-  var elastic: OpenSearchClient = _
+  var elastic: OpenSearchClient = scala.compiletime.uninitialized
 
   @Autowired
-  var service: SearchService = _
+  var service: SearchService = scala.compiletime.uninitialized
 
   @Autowired
-  var indexService: OpenSearchIndexService = _
+  var indexService: OpenSearchIndexService = scala.compiletime.uninitialized
 
   @Autowired
-  var topicTagService: TopicTagService = _
+  var topicTagService: TopicTagService = scala.compiletime.uninitialized
 
   trait IndexFixture extends Scope with After {
     elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))

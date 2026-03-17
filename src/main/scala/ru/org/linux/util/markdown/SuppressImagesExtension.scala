@@ -50,7 +50,7 @@ class SuppressImagesRenderer extends NodeRenderer {
 
       html.text(altText)
     })
-    ).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
+    ).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[?]]]
   }
 }
 

@@ -102,7 +102,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(postingUser)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(using postingUser)
     }
 
     if (textService.isEmpty(MessageText(add.getMsg, sessionUserOpt.profile.formatMode))) {
@@ -121,7 +121,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
         Map.empty
       }
 
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic)(sessionUserOpt) ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic)(using sessionUserOpt) ++ info).asJava)
     } else {
       val (msgid, mentions) = commentService.create(user, comment, msg, remoteAddress = request.getRemoteAddr,
         xForwardedFor = Option(request.getHeader("X-Forwarded-For")), userAgent = Option(request.getHeader("user-agent")))
@@ -149,7 +149,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(postingUser)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(using postingUser)
     }
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {

@@ -34,10 +34,10 @@ object UserEventDaoIntegrationTest {
 @Transactional
 class UserEventDaoIntegrationTest {
   @Autowired
-  var userEventDao: UserEventDao = _
+  var userEventDao: UserEventDao = scala.compiletime.uninitialized
 
   @Autowired
-  var userDao: UserDao = _
+  var userDao: UserDao = scala.compiletime.uninitialized
 
   @Test
   def testAdd(): Unit = {

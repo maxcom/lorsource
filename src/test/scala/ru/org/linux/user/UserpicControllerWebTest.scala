@@ -35,9 +35,9 @@ import javax.sql.DataSource
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
 class UserpicControllerWebTest {
   @Autowired
-  private var userDao: UserDao = _
+  private var userDao: UserDao = scala.compiletime.uninitialized
 
-  private var jdbcTemplate: JdbcTemplate = _
+  private var jdbcTemplate: JdbcTemplate = scala.compiletime.uninitialized
 
   @Autowired
   def setDatasource(ds: DataSource): Unit = {

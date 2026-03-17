@@ -36,7 +36,7 @@ object UserLogDaoIntegrationTest {
 @Transactional
 class UserLogDaoIntegrationTest {
   @Autowired
-  var userLogDao: UserLogDao = _
+  var userLogDao: UserLogDao = scala.compiletime.uninitialized
 
   @Test
   def testLogAcceptEmail(): Unit = {

@@ -45,7 +45,7 @@ class CutExtension extends Parser.ParserExtension with HtmlRenderer.HtmlRenderer
 }
 
 class CutRenderer(options: DataHolder) extends NodeRenderer {
-  override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[_ <: Node]] = Set(
+  override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[? <: Node]] = Set(
     new NodeRenderingHandler[CutNode](classOf[CutNode], (node, ctx, html) => {
       val id = ctx.getNodeId(node)
 
@@ -70,5 +70,5 @@ class CutRenderer(options: DataHolder) extends NodeRenderer {
         })
       }
 
-  })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
+  })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[?]]]
 }

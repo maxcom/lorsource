@@ -25,7 +25,7 @@ import jakarta.mail.internet.InternetAddress
 class EditRegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao)
   extends RegisterRequestValidator(emailDomainsBlockDao) {
 
-  override def supports(clazz: Class[_]): Boolean = classOf[EditRegisterRequest] == clazz
+  override def supports(clazz: Class[?]): Boolean = classOf[EditRegisterRequest] == clazz
 
   override def validate(target: AnyRef, errors: Errors): Unit = {
     val form = target.asInstanceOf[EditRegisterRequest]

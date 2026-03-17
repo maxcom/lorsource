@@ -23,7 +23,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(Array("integration-tests-context.xml")) class SectionDaoIntegrationTest {
   @Autowired
-  private var sectionDao: SectionDao = _
+  private var sectionDao: SectionDao = scala.compiletime.uninitialized
 
   private def getSectionById(sections: Seq[Section], id: Int) = sections.find(_.getId == id).orNull
 

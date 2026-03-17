@@ -56,7 +56,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val additionalImageObjects = additionalImages.map(_.toImage(main = false))
 
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
-      text, imageObject, additionalImageObjects, imageLazyLoad = false)(NonAuthorizedSession)
+      text, imageObject, additionalImageObjects, imageLazyLoad = false)(using NonAuthorizedSession)
   }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(implicit session: AnySession): PreparedEditInfoSummary = {
@@ -195,7 +195,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     messages.view.map { message =>
       prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, textMap(message.id),
-        image = None, imageLazyLoad = false)(NonAuthorizedSession)
+        image = None, imageLazyLoad = false)(using NonAuthorizedSession)
     }.toSeq
   }
 

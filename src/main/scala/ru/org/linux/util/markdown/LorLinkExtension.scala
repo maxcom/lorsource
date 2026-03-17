@@ -149,5 +149,5 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
 
 
   override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[?]] =
-    Set[NodeRenderingHandler[_]](autolink, link).asJava
+    Set[NodeRenderingHandler[?]](autolink, link).asJava
 }

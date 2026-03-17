@@ -202,6 +202,6 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
     val otherPrepared = other.view.map(event => prepare(event, withText = false, users, tags))
 
     (groupedFavorities ++ otherPrepared ++ groupedReactions)
-      .toSeq.sorted(Ordering.by((_: PreparedUserEvent).date).reverse)
+      .toSeq.sorted(using Ordering.by((_: PreparedUserEvent).date).reverse)
   }
 }

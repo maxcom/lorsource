@@ -44,7 +44,7 @@ class RegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao) exten
     }
   }
 
-  override def supports(clazz: Class[_]): Boolean = classOf[RegisterRequest] == clazz
+  override def supports(clazz: Class[?]): Boolean = classOf[RegisterRequest] == clazz
 
   override def validate(target: AnyRef, errors: Errors): Unit = {
     val form = target.asInstanceOf[RegisterRequest]
