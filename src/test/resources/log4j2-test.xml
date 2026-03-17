@@ -14,7 +14,6 @@
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
     <Logger name="org.apache.activemq" level="info"/>
-    <Logger name="com.sksamuel.elastic4s" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="CONSOLE"/>

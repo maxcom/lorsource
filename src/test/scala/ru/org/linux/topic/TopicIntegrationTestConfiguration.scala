@@ -16,7 +16,6 @@
 package ru.org.linux.topic
 
 import org.apache.pekko.actor.typed.ActorRef
-import com.sksamuel.elastic4s.ElasticClient
 import org.mockito.Mockito
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch.OpenSearchClient
@@ -121,11 +120,6 @@ class TopicIntegrationTestConfiguration {
   @Bean
   def syncClient: SttpBackend[Identity, Any] = {
     Mockito.mock(classOf[SttpBackend[Identity, Any]])
-  }
-
-  @Bean
-  def elasticClient: ElasticClient = {
-    Mockito.mock(classOf[ElasticClient])
   }
 
   @Bean

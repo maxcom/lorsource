@@ -18,7 +18,6 @@
     <dependency.spring.version>6.2.16</dependency.spring.version>
     <spring.security.version>6.3.10</spring.security.version>
     <jdbc.postgresql.version>42.7.9</jdbc.postgresql.version>
-    <elastic4s.version>7.17.4</elastic4s.version>
     <scala.version>2.13.18</scala.version>
     <scala.suffix>2.13</scala.suffix>
     <activemq.version>6.2.1</activemq.version>
@@ -56,13 +55,6 @@
       <groupId>org.apache.pekko</groupId>
       <artifactId>pekko-stream_${scala.suffix}</artifactId>
       <version>${pekko.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sksamuel.elastic4s</groupId>
-      <artifactId>elastic4s-client-esjava_${scala.suffix}</artifactId>
-      <version>${elastic4s.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>

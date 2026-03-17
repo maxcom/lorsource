@@ -46,7 +46,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
   private implicit val pekko: ActorSystem = actorSystem
 
   def getStats(user: User): Future[UserStats] = {
-    val deadline = ElasticTimeout.fromNow
+    val deadline = SearchTimeout.fromNow
 
     val commentCountFuture = countComments(user).map(Some.apply).withTimeout(deadline.timeLeft).recover { ex =>
       logger.warn("Unable to count comments", ex)
@@ -145,7 +145,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
     val request = new SearchRequest.Builder()
     .index(MessageIndex)
     .size(0)
-    .timeout(formatTimeout(ElasticTimeout))
+    .timeout(formatTimeout(SearchTimeout))
       .query(rootQuery)
       .aggregations("topic_stats", a => a.stats(StatsAggregation.of(s => s.field("postdate"))))
       .aggregations("sections", a => a.terms(TermsAggregation.of(t => t.field("section").size(1000))))
@@ -174,7 +174,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
 }
 
 object UserStatisticsService {
-  private val ElasticTimeout: FiniteDuration = 5.seconds
+  private val SearchTimeout: FiniteDuration = 5.seconds
 
   private def formatTimeout(timeout: FiniteDuration): String = s"${timeout.toSeconds}s"
 

@@ -14,14 +14,12 @@
  */
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
-import com.sksamuel.elastic4s.ElasticDsl.*
-import com.sksamuel.elastic4s.http.JavaClient
 import org.apache.commons.httpclient.URI
 import org.apache.hc.core5.http.HttpHost
 import org.mockito.Mockito
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch.OpenSearchClient
+import org.opensearch.client.opensearch.indices.ExistsRequest
 import org.opensearch.client.transport.OpenSearchTransport
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder
 import org.opensearch.testcontainers.OpenSearchContainer
@@ -44,15 +42,15 @@ class OpenSearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   var indexCreationService: OpenSearchIndexCreationService = _
 
   @Autowired
-  var elastic: ElasticClient = _
+  var elastic: OpenSearchClient = _
 
   "OpenSearchIndexCreationService" should {
     "create index" in {
       indexCreationService.createIndexIfNeeded()
 
-      val exists = elastic.execute { indexExists(MessageIndex) } await
+      val exists = elastic.indices().exists(ExistsRequest.of(_.index(MessageIndex))).value()
 
-      exists.result.isExists must beTrue
+      exists must beTrue
     }
   }
 }
@@ -74,13 +72,6 @@ class SearchIntegrationTestConfiguration {
     val container = new OpenSearchContainer("opensearchproject/opensearch:2.19.5")
     container.start()
     container
-  }
-
-  @Bean(destroyMethod="close")
-  def legacyClient(container: OpenSearchContainer[Nothing]): ElasticClient = {
-    val host = container.getHttpHostAddress
-
-    ElasticClient(JavaClient(ElasticProperties(host)))
   }
 
   @Bean(destroyMethod = "close")

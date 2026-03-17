@@ -14,8 +14,9 @@
  */
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.ElasticClient
-import com.sksamuel.elastic4s.ElasticDsl.*
+import org.opensearch.client.opensearch.OpenSearchClient
+import org.opensearch.client.opensearch.indices.DeleteIndexRequest
+import org.opensearch.client.opensearch.indices.RefreshRequest
 import org.specs2.mutable.{After, SpecificationWithJUnit}
 import org.specs2.specification.Scope
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,7 +39,7 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
   var indexCreationService: OpenSearchIndexCreationService = _
 
   @Autowired
-  var elastic: ElasticClient = _
+  var elastic: OpenSearchClient = _
 
   @Autowired
   var service: SearchService = _
@@ -50,11 +51,11 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
   var topicTagService: TopicTagService = _
 
   trait IndexFixture extends Scope with After {
-    elastic execute { deleteIndex("*") } await
+    elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
 
     indexCreationService.createIndexIfNeeded()
 
-    override def after: Unit = elastic execute { deleteIndex("*") } await
+    override def after: Unit = elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
   }
 
   "SearchService" should {
@@ -67,9 +68,7 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
     "prepare some results" in new IndexFixture {
       topicTagService.updateTags(1920001, Seq("lor"))
       indexService.reindexMessage(1920001, withComments = false)
-      elastic execute {
-        refreshIndex("*")
-      } await
+      elastic.indices().refresh(RefreshRequest.of(r => r.index("*")))
 
       val response = service.performSearch(new SearchServiceRequest(), null)
 

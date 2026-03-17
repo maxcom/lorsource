@@ -32,7 +32,6 @@
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
     <Logger name="play" level="info"/>
-    <Logger name="com.sksamuel.elastic4s" level="info"/>
     <Logger name="ru.org.linux.auth.GenerationBasedTokenRememberMeServices" level="debug"/>
     <Logger name="org.springframework.web.socket.server.support.DefaultHandshakeHandler" level="off"/>
 

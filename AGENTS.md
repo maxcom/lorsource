@@ -112,7 +112,7 @@ mvn dependency:analyze   # Analyze dependencies
 - Spring Framework 6.x
 - Spring Security 6.x
 - PostgreSQL JDBC driver
-- OpenSearch 2 via elastic4s and opensearch-java. Prefer opensearch-java.
+- OpenSearch 2 via opensearch-java.
 - Pekko for async
 
 ## Project Structure
