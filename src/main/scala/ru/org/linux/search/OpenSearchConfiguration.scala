@@ -15,12 +15,8 @@
 
 package ru.org.linux.search
 
-import com.sksamuel.elastic4s.http.JavaClient
-import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
 import org.apache.commons.httpclient.URI
 import org.apache.hc.core5.http.HttpHost
-import org.apache.http.client.config.RequestConfig
-import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback
 import org.opensearch.client.opensearch.{OpenSearchAsyncClient, OpenSearchClient}
 import org.opensearch.client.transport.OpenSearchTransport
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder
@@ -30,18 +26,11 @@ import ru.org.linux.spring.SiteConfig
 @Configuration
 class OpenSearchConfiguration(config: SiteConfig) {
   @Bean(destroyMethod = "close")
-  def legacyClient: ElasticClient = {
-    ElasticClient(JavaClient(ElasticProperties(config.getElasticsearch), new RequestConfigCallback() {
-      override def customizeRequestConfig(requestConfigBuilder: RequestConfig.Builder): RequestConfig.Builder = {
-        requestConfigBuilder.setSocketTimeout(120000)
-      }
-    }))
-  }
-
-  @Bean(destroyMethod = "close")
   def openSearchClientTransport: OpenSearchTransport = {
     val url = new URI(config.getElasticsearch, true)
-    val transport = ApacheHttpClient5TransportBuilder.builder(new HttpHost(url.getScheme, url.getHost, url.getPort)).build()
+    val transport = ApacheHttpClient5TransportBuilder
+      .builder(new HttpHost(url.getScheme, url.getHost, url.getPort))
+      .build()
 
     transport
   }
@@ -50,5 +39,6 @@ class OpenSearchConfiguration(config: SiteConfig) {
   def openSearchClient(transport: OpenSearchTransport): OpenSearchClient = new OpenSearchClient(transport)
 
   @Bean
-  def asyncOpenSearchClient(transport: OpenSearchTransport): OpenSearchAsyncClient = new OpenSearchAsyncClient(transport)
+  def asyncOpenSearchClient(transport: OpenSearchTransport): OpenSearchAsyncClient =
+    new OpenSearchAsyncClient(transport)
 }

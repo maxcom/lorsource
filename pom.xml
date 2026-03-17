@@ -62,6 +62,7 @@
       <groupId>com.sksamuel.elastic4s</groupId>
       <artifactId>elastic4s-client-esjava_${scala.suffix}</artifactId>
       <version>${elastic4s.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
