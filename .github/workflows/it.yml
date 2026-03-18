@@ -38,10 +38,10 @@ jobs:
           psql -c 'create extension hstore;' -U postgres lor
           psql -c 'create extension fuzzystrmatch;' -U postgres lor
           PGPASSWORD=maxcom psql -f sql/demo.db -U maxcom lor
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v3
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'adopt'
           cache: maven
       - name: Build 

@@ -24,7 +24,7 @@
     <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
-    <jetty.version>12.0.13</jetty.version>
+    <jetty.version>12.0.33</jetty.version>
     <pekko.version>1.4.0</pekko.version>
     <log4j.version>2.25.3</log4j.version>
     <d3js.version>5.9.7</d3js.version>
@@ -499,7 +499,7 @@
             <arg>-Xfatal-warnings</arg>
 -->
             <arg>-language:postfixOps</arg>
-            <arg>-release:21</arg>
+            <arg>-release:25</arg>
 <!--
             <arg>-rewrite</arg>
             <arg>-source</arg>
@@ -554,8 +554,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.10.1</version>
         <configuration>
-          <source>21</source>
-          <target>21</target>
+          <source>25</source>
+          <target>25</target>
           <compilerArgument>-Xlint:deprecation</compilerArgument>
           <compilerArgument>-Xlint:unchecked</compilerArgument>
           <parameters>true</parameters>

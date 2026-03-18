@@ -69,7 +69,7 @@ class OpenSearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
 class SearchIntegrationTestConfiguration {
   @Bean
   def openSearchContainer: OpenSearchContainer[Nothing] = {
-    val container = new OpenSearchContainer("opensearchproject/opensearch:2.19.5")
+    val container = new OpenSearchContainer("opensearchproject/opensearch:3.5.0")
     container.start()
     container
   }

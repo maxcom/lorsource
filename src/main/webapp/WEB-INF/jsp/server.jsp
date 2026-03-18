@@ -73,12 +73,12 @@
     <ul>
       <li>AlmaLinux OS 9.x;</li>
       <li>СУБД PostgreSQL 16;</li>
-      <li>OpenJDK 21;</li>
+      <li>OpenJDK 25;</li>
       <li>Scala 3;</li>
       <li>Apache Tomcat 10.1;</li>
       <li>ActiveMQ 6.x;</li>
       <li>Spring 6.x;</li>
-      <li>OpenSearch 2.x;</li>
+      <li>OpenSearch 3.x;</li>
       <li>Nginx 1.x.</li>
     </ul>
 
