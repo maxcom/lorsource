@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -46,7 +46,7 @@ object TagPageController {
 
   private val RecentPeriod: time.Duration = java.time.Duration.ofDays(365)
 
-  val Timeout: FiniteDuration = 500.millis
+  val Timeout: FiniteDuration = 1000.millis
 
   def isRecent(date: Instant): Boolean = date.isAfter(Instant.now().minus(RecentPeriod))
 }
