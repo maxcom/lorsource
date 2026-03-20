@@ -106,7 +106,7 @@ public class CommentDaoIntegrationTest {
 
     List<Map<String, Object>> rows = getComment(commentId);
     assertFalse("No any records", rows.isEmpty());
-    Map<String, Object> row = rows.get(0);
+    Map<String, Object> row = rows.getFirst();
     assertEquals("CommentDaoIntegrationTest.editCommentTest(): new title", row.get("title"));
   }
 
@@ -123,7 +123,7 @@ public class CommentDaoIntegrationTest {
 
     List<Map<String, Object>> rows = getComment(commentId);
     assertFalse("No any records", rows.isEmpty());
-    Map<String, Object> row = rows.get(0);
+    Map<String, Object> row = rows.getFirst();
 
     assertNull(row.get("edit_nick"));
     assertNull(row.get("edit_date"));
@@ -134,7 +134,7 @@ public class CommentDaoIntegrationTest {
 
     rows = getComment(commentId);
     assertFalse("No any records", rows.isEmpty());
-    row = rows.get(0);
+    row = rows.getFirst();
     Timestamp rowTimestamp = (Timestamp) row.get("edit_date");
     assertEquals("maxcom", row.get("edit_nick"));
     assertEquals(rowTimestamp.getTime(), commentEditDate.getTime());

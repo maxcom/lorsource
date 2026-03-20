@@ -313,7 +313,7 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
     val allDocCount = sectionsBuckets.foldLeft(0L)((sum, b) => sum + b.docCount)
     val all = FacetItem("", s"все ($allDocCount)")
 
-    (all +: (missing ++ items)).toSeq
+    all +: (missing ++ items)
   }
 
   private def buildGroupFacet(maybeSection: Option[StringTermsBucket], selected:Option[(String, String)]): Option[Seq[FacetItem]] = {

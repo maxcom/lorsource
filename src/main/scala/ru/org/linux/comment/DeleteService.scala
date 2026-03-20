@@ -199,7 +199,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     }
 
     if (deleted) {
-      Some(new InsertDeleteInfo(comment.id, reason, scoreBonus, deleteBy))
+      Some(InsertDeleteInfo(comment.id, reason, scoreBonus, deleteBy))
     } else {
       None
     }
@@ -215,7 +215,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     val deleted = commentDao.deleteComment(commentId)
 
     if (deleted) {
-      Some(new InsertDeleteInfo(commentId, reason, 0, deleteBy))
+      Some(InsertDeleteInfo(commentId, reason, 0, deleteBy))
     } else {
       None
     }
@@ -280,7 +280,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
         userService.changeScore(topic.authorUserId, scoreBonus)
       }
 
-      Some(new InsertDeleteInfo(topic.id, reason, scoreBonus, moderator))
+      Some(InsertDeleteInfo(topic.id, reason, scoreBonus, moderator))
     } else {
       None
     }
@@ -295,7 +295,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
       val deleted = topicDao.delete(mid)
 
       if (deleted) {
-        val info = new InsertDeleteInfo(mid, reason, 0, moderator)
+        val info = InsertDeleteInfo(mid, reason, 0, moderator)
         deletedTopicsBuilder.addOne(info)
       }
     }

@@ -78,7 +78,7 @@ public class TextNode extends Node {
   public String renderXHtml() {
     ToHtmlFormatter toHtmlFormatter = state.getRootNode().getToHtmlFormatter();
     if(toHtmlFormatter != null) {
-      if (TagNode.class.isInstance(parent)) {
+      if (parent instanceof TagNode) {
         TagNode tagNode = (TagNode) parent;
         if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
           return toHtmlFormatter.format(

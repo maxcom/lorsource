@@ -22,11 +22,8 @@ import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionDaoImpl;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.user.UserLogDao;
 
 import javax.sql.DataSource;
-
-import static org.mockito.Mockito.mock;
 
 @Configuration
 @ImportResource("classpath:common.xml")

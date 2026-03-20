@@ -66,7 +66,7 @@ public class PollDaoIntegrationTest {
     pollVariants = pollDao.getPollResults(poll);
     assertEquals(4, pollVariants.size());
 
-    PollVariantResult next = pollVariants.iterator().next();
+    PollVariantResult next = pollVariants.getFirst();
     pollDao.removeVariant(new PollVariant(next.getId(), next.getLabel()));
     pollVariants = pollDao.getPollResults(poll);
     assertEquals(3, pollVariants.size());

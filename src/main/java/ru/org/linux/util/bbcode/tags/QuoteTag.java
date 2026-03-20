@@ -92,11 +92,11 @@ public class QuoteTag extends Tag {
     } else {
       // обработка пустого тэга
       if (node.lengthChildren() == 1) {
-        Node child = node.getChildren().iterator().next();
-        if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().isEmpty()) {
+        Node child = node.getChildren().getFirst();
+        if (child instanceof TextNode && ((TextNode) child).getText().trim().isEmpty()) {
           return "";
         }
-        if (TagNode.class.isInstance(child)) {
+        if (child instanceof TagNode) {
           TagNode tagNode = (TagNode)child;
           Tag tag = tagNode.getBbtag();
           if("quote".equals(tag.getName())) {

@@ -83,7 +83,7 @@ abstract public class Tag {
   }
 
   public Tag(String name, ImmutableSet<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
-    this(name, allowedChildren, implicitTag, parserParameters, ImmutableSet.<String>of());
+    this(name, allowedChildren, implicitTag, parserParameters, ImmutableSet.of());
   }
 
   public void setSelfClosing(boolean selfClosing) {

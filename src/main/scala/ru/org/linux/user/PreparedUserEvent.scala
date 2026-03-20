@@ -61,7 +61,7 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
   def getLink: String = {
     if (event.eventType==UserEventFilterEnum.DELETED) {
       if (commentId > 0) {
-        s"/view-deleted?id=${commentId}#comment-${commentId}"
+        s"/view-deleted?id=$commentId#comment-$commentId"
       } else {
         s"${group.getUrl}${event.topicId}"
       }

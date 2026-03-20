@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,18 +26,18 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public final class DefaultProfile {
-  public static String STYLE_PROPERTY = "style";
-  public static String FORMAT_MODE_PROPERTY = "format.mode";
-  public static String MESSAGES_PROPERTY = "messages";
-  public static String TOPICS_PROPERTY = "topics";
-  public static String HIDE_ADSENSE_PROPERTY = "hideAdsense";
-  public static String PHOTOS_PROPERTY = "photos";
-  public static String MAIN_GALLERY_PROPERTY = "mainGallery";
-  public static String AVATAR_PROPERTY = "avatar";
-  public static String BOXES_MAIN2_PROPERTY = "main2";
-  public static String TRACKER_MODE = "trackerMode";
-  public static String OLD_TRACKER = "oldTracker";
-  public static String REACTION_NOTIFICATION_PROPERTY = "reactionNotification";
+  public static final String STYLE_PROPERTY = "style";
+  public static final String FORMAT_MODE_PROPERTY = "format.mode";
+  public static final String MESSAGES_PROPERTY = "messages";
+  public static final String TOPICS_PROPERTY = "topics";
+  public static final String HIDE_ADSENSE_PROPERTY = "hideAdsense";
+  public static final String PHOTOS_PROPERTY = "photos";
+  public static final String MAIN_GALLERY_PROPERTY = "mainGallery";
+  public static final String AVATAR_PROPERTY = "avatar";
+  public static final String BOXES_MAIN2_PROPERTY = "main2";
+  public static final String TRACKER_MODE = "trackerMode";
+  public static final String OLD_TRACKER = "oldTracker";
+  public static final String REACTION_NOTIFICATION_PROPERTY = "reactionNotification";
 
   private static final ImmutableMap<String, String> BOX_LEGEND = new ImmutableMap.Builder<String,String>()
       .put("poll", "Текущий опрос")

@@ -80,14 +80,14 @@ class UserReactionsController(reactionService: ReactionService, userService: Use
     modelAndView.addObject("items", items.take(ItemsPerPage).asJava)
 
     val nextUrl = if (items.sizeIs == ItemsPerPage + 1 && items.sizeIs < MaxOffset - ItemsPerPage)
-      s"${url}?offset=${offset + ItemsPerPage}"
+      s"$url?offset=${offset + ItemsPerPage}"
     else
       ""
 
     val prevUrl = if (offset == ItemsPerPage)
       url
     else if (offset > ItemsPerPage)
-      s"${url}?offset=${offset - ItemsPerPage}"
+      s"$url?offset=${offset - ItemsPerPage}"
     else
       ""
 

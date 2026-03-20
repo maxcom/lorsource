@@ -169,7 +169,7 @@ public class Parser {
     boolean isAllow = true;
     boolean isParagraphed = false;
 
-    if (TagNode.class.isInstance(currentNode)) {
+    if (currentNode instanceof TagNode) {
       TagNode tempNode = (TagNode) currentNode;
       Set<String> disallowedParagraphTags = parserParameters.getDisallowedParagraphTags();
       Set<String> paragraphedTags = parserParameters.getParagraphedTags();
@@ -247,7 +247,7 @@ public class Parser {
         return currentNode;
       } else if (currentNode == automatonState.getRootNode()
               || blockLevelTags.contains(((TagNode) currentNode).getBbtag().getName()) && newTag.getImplicitTag() != null) {
-        if (currentNode != automatonState.getRootNode() && TagNode.class.isInstance(currentNode)) {
+        if (currentNode != automatonState.getRootNode() && currentNode instanceof TagNode) {
           TagNode currentTagNode = (TagNode) currentNode;
           if ("p".equals(currentTagNode.getBbtag().getName())) {
             currentNode = currentNode.getParent();
@@ -284,7 +284,7 @@ public class Parser {
       if (tempNode == rootNode) {
         break;
       }
-      if (TagNode.class.isInstance(tempNode)) {
+      if (tempNode instanceof TagNode) {
         TagNode node = (TagNode) tempNode;
         String tagName = node.getBbtag().getName();
         if (tagName.equals(name) || ("url".equals(name) && "url2".equals(tagName))) {
