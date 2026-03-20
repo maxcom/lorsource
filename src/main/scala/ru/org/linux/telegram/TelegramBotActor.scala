@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -30,7 +30,7 @@ class TelegramBotActor(dao: TelegramPostsDao, httpClient: SttpBackend[Future, An
                        topicTagDao: TopicTagDao)
   extends Actor with Timers with ActorLogging with PipeToSupport {
 
-  timers.startTimerAtFixedRate(Check, Check, 10.minutes)
+  timers.startTimerAtFixedRate(Check, Check, 5.minutes)
 
   import context.dispatcher
 
@@ -40,7 +40,7 @@ class TelegramBotActor(dao: TelegramPostsDao, httpClient: SttpBackend[Future, An
         case Some(topic) =>
           val tags = topicTagDao.getTags(topic.id)
 
-          log.info(s"Posting topic ${topic.getLink}")
+          log.debug(s"Posting topic ${topic.getLink}")
 
           if (config.getTelegramToken.equals("false")) {
             log.info("Posting disabled")
@@ -56,7 +56,7 @@ class TelegramBotActor(dao: TelegramPostsDao, httpClient: SttpBackend[Future, An
             context.become(posting(topic))
           }
         case None =>
-          log.info("No hot topics :-(")
+          log.debug("No hot topics :-(")
 
           dao.topicToDelete match {
             case Some(toDelete) =>
@@ -84,11 +84,11 @@ class TelegramBotActor(dao: TelegramPostsDao, httpClient: SttpBackend[Future, An
             _.hcursor.downField("result").downField("message_id").as[Int]
           ).toTry.get
 
-          log.info(s"Post success! telegramId = $telegramId")
+          log.info(s"Post success! ${topic.getLink} telegramId = $telegramId")
           dao.storePost(topic, telegramId)
           context.become(receive)
         case Left(error) =>
-          log.error(s"Failed to post: status=${r.code} body=$error")
+          log.error(s"Post failed! ${topic.getLink} status=${r.code} body=$error")
           context.become(receive)
       }
     case Status.Failure(ex) =>
