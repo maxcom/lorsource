@@ -198,7 +198,7 @@ class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: Ac
         .withTimeout(deadline.timeLeft)
         .recover {
           case ex: TimeoutException =>
-            logger.warn(s"Active top tags for $section / ${group.map(_.urlName)} / $filter search timed out (${ex.getMessage})")
+            logger.warn(s"Active top tags for ${section.getUrlName} / ${group.map(_.urlName)} / $filter search timed out (${ex.getMessage})")
             Seq.empty
           case ex =>
             logger.warn("Unable to find active top tags", ex)
