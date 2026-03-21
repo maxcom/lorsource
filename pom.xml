@@ -17,7 +17,7 @@
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <dependency.spring.version>6.2.17</dependency.spring.version>
     <spring.security.version>6.4.13</spring.security.version>
-    <jdbc.postgresql.version>42.7.9</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.10</jdbc.postgresql.version>
     <scala.version>3.8.2</scala.version>
     <scala.suffix>3</scala.suffix>
     <activemq.version>6.2.1</activemq.version>
@@ -34,7 +34,7 @@
     <twemoji.version>16.0.1</twemoji.version>
     <sttp.version>3.11.0</sttp.version>
     <flexmark.version>0.64.8</flexmark.version>
-    <jackson.version>2.21.1</jackson.version>
+    <jackson.version>2.21.2</jackson.version>
   </properties>
 
   <dependencies>
@@ -380,7 +380,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.21.2</version>
+      <version>1.22.1</version>
     </dependency>
 
     <dependency>
@@ -575,7 +575,7 @@
       <plugin>
         <groupId>nl.geodienstencentrum.maven</groupId>
         <artifactId>sass-maven-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.7.2</version>
         <executions>
           <execution>
             <goals>
@@ -739,7 +739,7 @@
       <plugin>
         <groupId>com.github.blutorange</groupId>
         <artifactId>closure-compiler-maven-plugin</artifactId>
-        <version>2.31.0</version>
+        <version>2.32.0</version>
         <executions>
           <execution>
             <id>default-minify</id>
