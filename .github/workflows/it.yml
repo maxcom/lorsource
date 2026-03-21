@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: 3.9.14-eclipse-temurin-25
+    container: maven:3.9.14-eclipse-temurin-25
     services:
       postgres:
         image: postgres:16
