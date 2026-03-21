@@ -141,7 +141,7 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
       case SearchOrder.Date =>
         Seq(SortOptions.of(s => s.field(f => f.field("postdate").order(SortOrder.Desc))))
       case SearchOrder.DateReverse =>
-        Seq(SortOptions.of(s => s.field(f => f.field("postdate").order(SortOrder.Desc))))
+        Seq(SortOptions.of(s => s.field(f => f.field("postdate").order(SortOrder.Asc))))
     }
 
     val request = new SearchRequest.Builder()
