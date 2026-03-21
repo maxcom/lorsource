@@ -48,17 +48,17 @@ class GroupModificationController(groupDao: GroupDao, prepareService: GroupInfoP
     if (preview != null) {
       group = group.updated(title, info, longInfo)
 
-      return new ModelAndView("groupmod", Map[String, Any](
+      new ModelAndView("groupmod", Map[String, Any](
         "group" -> group,
         "groupInfo" -> prepareService.prepareGroupInfo(group),
         "preview" -> true
       ).asJava)
+    } else {
+      groupDao.setParams(group, title, info, longInfo, resolvable != null, urlName)
+
+      logger.info("Настройки группы {} изменены {}", group.urlName, currentUser.user.nick)
+
+      new ModelAndView("action-done", "message", "Параметры изменены")
     }
-
-    groupDao.setParams(group, title, info, longInfo, resolvable != null, urlName)
-
-    logger.info("Настройки группы {} изменены {}", group.urlName, currentUser.user.nick)
-
-    new ModelAndView("action-done", "message", "Параметры изменены")
   }
 }
