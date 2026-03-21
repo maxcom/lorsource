@@ -12,7 +12,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <dependency.spring.version>6.2.17</dependency.spring.version>
@@ -23,7 +23,7 @@
     <activemq.version>6.2.1</activemq.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
-    <jetty.version>12.1.7</jetty.version>
+    <jetty.version>12.0.33</jetty.version>
     <pekko.version>1.4.0</pekko.version>
     <log4j.version>2.25.3</log4j.version>
     <d3js.version>5.9.7</d3js.version>
@@ -978,8 +978,7 @@
             <configuration>
               <stopKey>foo</stopKey>
               <stopPort>9999</stopPort>
-              <stopWait>10</stopWait>
-              <deployMode>FORK</deployMode>
+              <stopWait>20</stopWait>
               <webAppConfig>
                 <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
               </webAppConfig>
