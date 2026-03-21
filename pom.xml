@@ -21,10 +21,9 @@
     <scala.version>3.8.2</scala.version>
     <scala.suffix>3</scala.suffix>
     <activemq.version>6.2.1</activemq.version>
-    <slf4j.version>1.7.22</slf4j.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
-    <jetty.version>12.0.33</jetty.version>
+    <jetty.version>12.1.7</jetty.version>
     <pekko.version>1.4.0</pekko.version>
     <log4j.version>2.25.3</log4j.version>
     <d3js.version>5.9.7</d3js.version>
@@ -236,11 +235,6 @@
       <groupId>com.rometools</groupId>
       <artifactId>rome</artifactId>
       <version>1.18.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -985,7 +979,7 @@
               <stopKey>foo</stopKey>
               <stopPort>9999</stopPort>
               <stopWait>10</stopWait>
-
+              <deployMode>FORK</deployMode>
               <webAppConfig>
                 <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
               </webAppConfig>
