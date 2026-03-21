@@ -15,6 +15,7 @@
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
     <Logger name="org.apache.activemq" level="info"/>
     <Logger name="com.github.dockerjava.zerodep.shaded.org.apache.hc" level="info"/>
+    <Logger name="com.zaxxer.hikari.pool" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="CONSOLE"/>

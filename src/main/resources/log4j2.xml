@@ -31,9 +31,9 @@
     <Logger name="org.apache.http" level="info"/>
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
-    <Logger name="play" level="info"/>
     <Logger name="ru.org.linux.auth.GenerationBasedTokenRememberMeServices" level="debug"/>
     <Logger name="org.springframework.web.socket.server.support.DefaultHandshakeHandler" level="off"/>
+    <Logger name="com.zaxxer.hikari.pool" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="A1" level="INFO"/>
