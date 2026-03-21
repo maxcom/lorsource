@@ -16,6 +16,7 @@
     <Logger name="org.apache.activemq" level="info"/>
     <Logger name="com.github.dockerjava.zerodep.shaded.org.apache.hc" level="info"/>
     <Logger name="com.zaxxer.hikari.pool" level="info"/>
+    <Logger name="com.github.dockerjava" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="CONSOLE"/>
