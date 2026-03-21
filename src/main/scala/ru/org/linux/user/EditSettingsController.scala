@@ -51,15 +51,15 @@ class EditSettingsController(profileDao: ProfileDao, userPermissionService: User
 
     params.put("trackerModes", TrackerFilterEnum.values.filter(_.isCanBeDefault))
 
-    params.put("topicsValues", (DefaultProfile.TOPICS_VALUES.asScala + currentUser.profile.topics).toSeq.sorted.asJava)
-    params.put("messagesValues", (DefaultProfile.COMMENTS_VALUES.asScala + currentUser.profile.messages).toSeq.sorted.asJava)
+    params.put("topicsValues", (DefaultProfile.TopicsValues + currentUser.profile.topics).toSeq.sorted.asJava)
+    params.put("messagesValues", (DefaultProfile.CommentsValues + currentUser.profile.messages).toSeq.sorted.asJava)
 
     params.put("format_mode", currentUser.profile.formatMode.formId)
 
     params.put("formatModes",
       UserPermissionService.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
 
-    params.put("avatarsList", DefaultProfile.getAvatars)
+    params.put("avatarsList", DefaultProfile.getAvatars.asJava)
 
     params.put("canLoadUserpic", Boolean.box(userPermissionService.canLoadUserpic))
 
@@ -75,10 +75,10 @@ class EditSettingsController(profileDao: ProfileDao, userPermissionService: User
     if (!(currentUser.user.nick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
-    if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == currentUser.profile.topics)) {
+    if (!(DefaultProfile.TopicsValues.contains(topics) || topics == currentUser.profile.topics)) {
       throw new BadInputException("некорректное число тем")
     }
-    if (!(DefaultProfile.COMMENTS_VALUES.contains(messages) || messages == currentUser.profile.messages)) {
+    if (!(DefaultProfile.CommentsValues.contains(messages) || messages == currentUser.profile.messages)) {
       throw new BadInputException("некорректное число комментариев")
     }
     if (!DefaultProfile.isStyle(request.getParameter("style"))) {
@@ -100,7 +100,7 @@ class EditSettingsController(profileDao: ProfileDao, userPermissionService: User
     builder.setStyle(request.getParameter("style"))
     userService.setStyle(currentUser.user, request.getParameter("style"))
     builder.setOldTracker("on" == request.getParameter("oldTracker"))
-    builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
+    builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DefaultTrackerMode))
 
     val avatar = request.getParameter("avatar")
     if (!DefaultProfile.getAvatars.contains(avatar)) {
