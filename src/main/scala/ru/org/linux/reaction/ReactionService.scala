@@ -13,6 +13,7 @@
  *    limitations under the License.
  */
 package ru.org.linux.reaction
+
 import ru.org.linux.user.UserConstants
 
 import org.apache.pekko.actor.typed.ActorRef
@@ -59,7 +60,7 @@ case class PreparedReactions(reactions: Map[String, PreparedReaction],
 
 case class ReactionListItem(@BeanProperty user: User, @BeanProperty reaction: String, date: Option[Date]) {
   // for jsp
-  def dateFormatted(tz: DateTimeZone): String = date.map(d => DateFormats.getDefault(tz).print(d.getTime)).getOrElse("")
+  def dateFormatted(tz: DateTimeZone): String = date.map(d => DateFormats.formatDefault(tz, d)).getOrElse("")
 }
 
 case class PreparedReactionList(reactions: Seq[ReactionListItem]) {

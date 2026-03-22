@@ -1,7 +1,7 @@
 <%@ tag import="ru.org.linux.site.DateFormats" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -15,6 +15,6 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="date" required="true" type="java.util.Date" %><%
-  out.print(DateFormats.Rfc822().print(date.getTime()));
+  out.print(DateFormats.formatRfc822(date));
 %>
 

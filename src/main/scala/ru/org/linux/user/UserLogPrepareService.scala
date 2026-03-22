@@ -22,6 +22,7 @@ import ru.org.linux.user.UserLogDao.*
 import ru.org.linux.util.StringUtil.escapeHtml
 
 import java.time.Instant
+import java.util.Date
 
 object UserLogPrepareService {
   private val OptionDescription: Map[String, String] =
@@ -62,7 +63,7 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
           case OptionUntil =>
             val until = Instant.parse(rawValue)
 
-            DateFormats.getDefault(timezone).print(until.toEpochMilli)
+            DateFormats.formatDefault(timezone, Date.from(until))
           case _ =>
             escapeHtml(rawValue)
         }

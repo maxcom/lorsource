@@ -21,69 +21,69 @@ import org.joda.time.format.ISODateTimeFormat
 
 import java.util.{Date, Locale}
 
-object DateFormats {
+object DateFormats:
   private val RussianLocale = Locale.forLanguageTag("ru")
   private val Default = DateTimeFormat.forPattern("dd.MM.yy HH:mm:ss z").withLocale(RussianLocale)
   private val Short = DateTimeFormat.forPattern("dd.MM.yy HH:mm").withLocale(RussianLocale)
   private val Time = DateTimeFormat.forPattern("HH:mm").withLocale(RussianLocale)
   private val Date = DateTimeFormat.forPattern("dd.MM.yy").withLocale(RussianLocale)
 
-  val Iso8601: DateTimeFormatter = ISODateTimeFormat.dateTime
-  val Rfc822: DateTimeFormatter = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.US)
-  val DateLong: DateTimeFormatter = DateTimeFormat.longDate().withLocale(RussianLocale)
+  private val Iso8601: DateTimeFormatter = ISODateTimeFormat.dateTime
+  private val Rfc822: DateTimeFormatter = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.US)
+  private val DateLong: DateTimeFormatter = DateTimeFormat.longDate().withLocale(RussianLocale)
 
-  def getDefault(tz: DateTimeZone): DateTimeFormatter = Default.withZone(tz)
-  def dateLong(tz: DateTimeZone): DateTimeFormatter = DateLong.withZone(tz)
+  private def getDefault(tz: DateTimeZone): DateTimeFormatter = Default.withZone(tz)
+  private def dateLong(tz: DateTimeZone): DateTimeFormatter = DateLong.withZone(tz)
 
   private def short(tz: DateTimeZone): DateTimeFormatter = Short.withZone(tz)
   private def time(tz: DateTimeZone): DateTimeFormatter = Time.withZone(tz)
-  def date(tz: DateTimeZone): DateTimeFormatter = Date.withZone(tz)
+  private def dateOnly(tz: DateTimeZone): DateTimeFormatter = Date.withZone(tz)
 
-  def formatInterval(date: Date, timezone: DateTimeZone): String = {
+  def formatDefault(tz: DateTimeZone, date: Date) = getDefault(tz).print(date.getTime)
+  def formatIso8601(date: Date): String = Iso8601.print(date.getTime)
+  def formatRfc822(date: Date): String = Rfc822.print(date.getTime)
+  def formatDateLong(tz: DateTimeZone, date: Date): String = dateLong(tz).print(date.getTime)
+  def formatDateOnly(tz: DateTimeZone, date: Date) = dateOnly(tz).print(date.getTime)
+
+  def formatInterval(date: Date, timezone: DateTimeZone): String =
     val diff = System.currentTimeMillis - date.getTime
     val c = new DateTime(date.getTime)
 
     val today = DateTime.now.withZone(timezone).withTimeAtStartOfDay
     val yesterday = DateTime.now.withZone(timezone).minusDays(1).withTimeAtStartOfDay
 
-    if (diff < 2 * 1000 * 60) {
+    if diff < 2 * 1000 * 60 then
       "минуту назад"
-    } else if (diff < 1000 * 60 * 60) {
+    else if diff < 1000 * 60 * 60 then
       val min = diff / (1000 * 60)
 
-      if (min % 10 < 5 && min % 10 > 1 && (min > 20 || min < 10)) {
+      if min % 10 < 5 && min % 10 > 1 && (min > 20 || min < 10) then
         s"$min&nbsp;минуты назад"
-      } else if (min % 10 == 1 && min > 20) {
+      else if min % 10 == 1 && min > 20 then
         s"$min&nbsp;минута назад"
-      } else {
+      else
         s"$min&nbsp;минут назад"
-      }
-    } else if (c.isAfter(today)) {
+    else if c.isAfter(today) then
       "сегодня " + time(timezone).print(c)
-    } else if (c.isAfter(yesterday)) {
+    else if c.isAfter(yesterday) then
       "вчера " + time(timezone).print(c)
-    } else {
+    else
       short(timezone).print(c)
-    }
-  }
 
-  def formatCompactInterval(date: Date, timezone: DateTimeZone): String = {
+  def formatCompactInterval(date: Date, timezone: DateTimeZone): String =
     val diff = System.currentTimeMillis - date.getTime
     val c = new DateTime(date.getTime)
 
     val today = DateTime.now.withZone(timezone).withTimeAtStartOfDay
     val yesterday = DateTime.now.withZone(timezone).minusDays(1).withTimeAtStartOfDay
 
-    if (diff < 1000 * 60 * 60) {
+    if diff < 1000 * 60 * 60 then
       val min = Math.max(1, diff / (1000 * 60))
 
       s"$min&nbsp;мин"
-    } else if (diff < 1000 * 60 * 60 * 4 || c.isAfter(today)) {
+    else if diff < 1000 * 60 * 60 * 4 || c.isAfter(today) then
       time(timezone).print(c)
-    } else if (c.isAfter(yesterday)) {
+    else if c.isAfter(yesterday) then
       "вчера"
-    } else {
-      DateFormats.date(timezone).print(c)
-    }
-  }
-}
+    else
+      DateFormats.dateOnly(timezone).print(c)

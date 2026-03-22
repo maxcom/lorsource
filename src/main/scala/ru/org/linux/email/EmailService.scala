@@ -112,7 +112,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |https://www.linux.org.ru/register.jsp?invite=${URLEncoder.encode(inviteCode, "utf-8")}
          |
          |Эта ссылка позволяет зарегистрировать только одну учетную запись. Ссылка действует
-         |до ${DateFormats.getDefault(DateTimeZone.getDefault).print(validUntil)}.
+         |до ${DateFormats.formatDefault(DateTimeZone.getDefault, validUntil.toDate)}.
          |
          |До встречи!
          |
