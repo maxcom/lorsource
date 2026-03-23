@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,21 +14,18 @@
  */
 package ru.org.linux.util.bbcode
 
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import munit.FunSuite
 import ru.org.linux.util.bbcode.Parser.DEFAULT_PARSER
 
-@RunWith(classOf[JUnitRunner])
-class UrlWithParamTagSpec extends Specification {
+class UrlWithParamTagTest extends FunSuite {
   private def parse(text: String): String = {
     DEFAULT_PARSER.parseRoot(DEFAULT_PARSER.createRootNode, text).renderXHtml
   }
 
-  "parse and renderXhtml" should {
-    "escape quotes and markup" in {
-      parse("""[url=http://tts.com/"><b>a</b>]usrl[/url]""") must be equalTo
+  test("parse and renderXhtml escape quotes and markup") {
+    assertEquals(
+      parse("""[url=http://tts.com/"><b>a</b>]usrl[/url]"""),
       """<p><a href="http://tts.com/&quot;&gt;&lt;b&gt;a&lt;/b&gt;">usrl</a></p>"""
-    }
+    )
   }
 }

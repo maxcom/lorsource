@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2012 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,18 +12,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.util.image
+package ru.org.linux.reaction
 
-import org.specs2.mutable.Specification
+import munit.FunSuite
 
-class ImageInfoSpec extends Specification {
-  "ImageInfo" should {
-    "parse jpeg with exif" in {
-      val info = new ImageInfo("src/test/resources/images/exif.jpg")
+class ReactionsDaoTest extends FunSuite {
+  test("parser parse sample data") {
+    val parsed = ReactionDao.parse(
+      """
+        |{
+        | "1": "гаф-гаф",
+        | "2": "тяф-тяф"
+        |}
+        |""".stripMargin)
 
-      info.getWidth must be equalTo 4000
-      info.getHeight must be equalTo 3000
-    }
+    assertEquals(parsed.reactions.size, 2)
+    assertEquals(parsed.reactions.get(1), Some("гаф-гаф"))
   }
-
 }
