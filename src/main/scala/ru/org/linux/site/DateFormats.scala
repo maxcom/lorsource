@@ -27,14 +27,15 @@ object DateFormats:
   private val Short = DateTimeFormat.forPattern("dd.MM.yy HH:mm").withLocale(RussianLocale)
   private val Time = DateTimeFormat.forPattern("HH:mm").withLocale(RussianLocale)
   private val Date = DateTimeFormat.forPattern("dd.MM.yy").withLocale(RussianLocale)
+  private val Moscow = DateTimeZone.forID("Europe/Moscow")
 
   private val Iso8601: DateTimeFormatter = ISODateTimeFormat.dateTime
   private val Rfc822: DateTimeFormatter = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.US)
   private val DateLong: DateTimeFormatter = DateTimeFormat.longDate().withLocale(RussianLocale)
 
   def formatDefault(tz: DateTimeZone, date: Date) = Default.withZone(tz).print(date.getTime)
-  def formatIso8601(date: Date): String = Iso8601.print(date.getTime)
-  def formatRfc822(date: Date): String = Rfc822.print(date.getTime)
+  def formatIso8601(date: Date): String = Iso8601.withZone(Moscow).print(date.getTime)
+  def formatRfc822(date: Date): String = Rfc822.withZone(Moscow).print(date.getTime)
   def formatDateLong(tz: DateTimeZone, date: Date): String = DateLong.withZone(tz).print(date.getTime)
   def formatDateOnly(tz: DateTimeZone, date: Date) = Date.withZone(tz).print(date.getTime)
   private[site] def formatTime(tz: DateTimeZone, date: Date) = Time.withZone(tz).print(date.getTime)
