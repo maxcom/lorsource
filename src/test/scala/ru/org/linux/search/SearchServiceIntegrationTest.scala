@@ -14,11 +14,9 @@
  */
 package ru.org.linux.search
 
+import munit.FunSuite
 import org.opensearch.client.opensearch.OpenSearchClient
-import org.opensearch.client.opensearch.indices.DeleteIndexRequest
-import org.opensearch.client.opensearch.indices.RefreshRequest
-import org.specs2.mutable.{After, SpecificationWithJUnit}
-import org.specs2.specification.Scope
+import org.opensearch.client.opensearch.indices.{DeleteIndexRequest, RefreshRequest}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
@@ -30,10 +28,8 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
   classOf[PekkoConfiguration]))
 @DirtiesContext
-class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
+class SearchServiceIntegrationTest extends FunSuite:
   new TestContextManager(this.getClass).prepareTestInstance(this)
-
-  sequential
 
   @Autowired
   var indexCreationService: OpenSearchIndexCreationService = scala.compiletime.uninitialized
@@ -50,30 +46,26 @@ class SearchServiceIntegrationSpec extends SpecificationWithJUnit {
   @Autowired
   var topicTagService: TopicTagService = scala.compiletime.uninitialized
 
-  trait IndexFixture extends Scope with After {
-    elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
-
-    indexCreationService.createIndexIfNeeded()
-
-    override def after: Unit = elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
-  }
-
-  "SearchService" should {
-    "make valid default search" in new IndexFixture {
-      val response = service.performSearch(new SearchServiceRequest(), null)
-
-      response.totalHits must be equalTo 0
+  private val indexFixture = FunFixture[Unit](
+    setup = { test =>
+      elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
+      indexCreationService.createIndexIfNeeded()
+    },
+    teardown = { _ =>
+      elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
     }
+  )
 
-    "prepare some results" in new IndexFixture {
-      topicTagService.updateTags(1920001, Seq("lor"))
-      indexService.reindexMessage(1920001, withComments = false)
-      elastic.indices().refresh(RefreshRequest.of(r => r.index("*")))
+  indexFixture.test("SearchService make valid default search"): _ =>
+    val response = service.performSearch(new SearchServiceRequest(), null)
+    assertEquals(response.totalHits.toInt, 0)
 
-      val response = service.performSearch(new SearchServiceRequest(), null)
+  indexFixture.test("SearchService prepare some results"): _ =>
+    topicTagService.updateTags(1920001, Seq("lor"))
+    indexService.reindexMessage(1920001, withComments = false)
+    elastic.indices().refresh(RefreshRequest.of(r => r.index("*")))
 
-      response.hits must not be empty
-      response.hits.head.tags.asScala.map(_.name) must containTheSameElementsAs(Seq("lor"))
-    }
-  }
-}
+    val response = service.performSearch(new SearchServiceRequest(), null)
+
+    assert(response.hits.nonEmpty)
+    assertEquals(response.hits.head.tags.asScala.map(_.name).toSeq, Seq("lor"))

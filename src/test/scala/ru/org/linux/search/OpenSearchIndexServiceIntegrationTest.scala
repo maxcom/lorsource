@@ -23,11 +23,11 @@ import org.opensearch.client.opensearch.indices.ExistsRequest
 import org.opensearch.client.transport.OpenSearchTransport
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder
 import org.opensearch.testcontainers.OpenSearchContainer
-import org.specs2.mutable.SpecificationWithJUnit
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
 import org.springframework.test.context.{ContextConfiguration, TestContextManager}
+import munit.FunSuite
 import ru.org.linux.PekkoConfiguration
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.OpenSearchIndexService.MessageIndex
@@ -35,7 +35,7 @@ import ru.org.linux.spring.SiteConfig
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
   classOf[PekkoConfiguration]))
-class OpenSearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
+class OpenSearchIndexServiceIntegrationTest extends FunSuite:
   new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
@@ -44,16 +44,12 @@ class OpenSearchIndexServiceIntegrationSpec extends SpecificationWithJUnit {
   @Autowired
   var elastic: OpenSearchClient = scala.compiletime.uninitialized
 
-  "OpenSearchIndexCreationService" should {
-    "create index" in {
-      indexCreationService.createIndexIfNeeded()
+  test("OpenSearchIndexCreationService create index"):
+    indexCreationService.createIndexIfNeeded()
 
-      val exists = elastic.indices().exists(ExistsRequest.of(_.index(MessageIndex))).value()
+    val exists = elastic.indices().exists(ExistsRequest.of(_.index(MessageIndex))).value()
 
-      exists must beTrue
-    }
-  }
-}
+    assertEquals(exists, true)
 
 @Configuration
 @ImportResource(Array("classpath:common.xml", "classpath:database.xml"))

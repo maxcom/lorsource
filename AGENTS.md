@@ -84,7 +84,7 @@ mvn dependency:analyze   # Analyze dependencies
 - Methods/fields: `camelCase`
 - Java constants: `UPPER_SNAKE_CASE`
 - Scala constants: `UpperCamelCase`
-- Test classes: `*Test.java`, `*Spec.scala`, `*IntegrationTest.java`, `*WebTest.scala`
+- Test classes: `*Test`, `*IntegrationTest`, `*WebTest.scala`
 
 ### Error Handling
 
@@ -96,7 +96,7 @@ mvn dependency:analyze   # Analyze dependencies
 ### Testing
 
 - Use JUnit 4/5 for Java unit tests
-- Use Specs2 for Scala tests
+- Use MUnit and Specs2 for Scala tests
 - Follow AAA pattern (Arrange/Act/Assert or Given/When/Then)
 - Place test classes in same package under `src/test/java` or `src/test/scala`
 - Integration tests require database (use testcontainers if needed)
@@ -112,7 +112,7 @@ mvn dependency:analyze   # Analyze dependencies
 - Spring Framework 6.x
 - Spring Security 6.x
 - PostgreSQL JDBC driver
-- OpenSearch 2 via opensearch-java.
+- OpenSearch 3 via opensearch-java.
 - Pekko for async
 
 ## Project Structure

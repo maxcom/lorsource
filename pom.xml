@@ -831,11 +831,9 @@
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <includes>
             <include>**/*Test.java</include>
-            <include>**/*Spec.java</include>
           </includes>
           <excludes>
             <exclude>**/*IntegrationTest.java</exclude>
-            <exclude>**/*IntegrationSpec.java</exclude>
             <exclude>**/*WebTest.java</exclude>
           </excludes>
           <parallel>classes</parallel>
@@ -859,7 +857,6 @@
             <configuration>
               <includes>
                 <include>**/*IntegrationTest.java</include>
-                <include>**/*IntegrationSpec.java</include>
                 <include>**/*WebTest.java</include>
               </includes>
             </configuration>
