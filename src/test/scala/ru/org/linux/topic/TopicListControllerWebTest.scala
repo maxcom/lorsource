@@ -14,22 +14,14 @@
  */
 package ru.org.linux.topic
 
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import munit.FunSuite
 import ru.org.linux.test.WebHelper
 import sttp.client3.*
 import sttp.model.StatusCode
 
-@RunWith(classOf[JUnitRunner])
-class TopicListControllerWebTest extends Specification with WebHelper {
-  "TopicListController" should {
-    "load archive with 200 code" in {
-      val response = basicRequest
-        .get(MainUrl.addPath("news", "archive", "2007", "5"))
-        .send(backend)
-
-      response.code must be equalTo StatusCode.Ok
-    }
-  }
-}
+class TopicListControllerWebTest extends FunSuite with WebHelper:
+  test("TopicListController loads archive with 200 code"):
+    val response = basicRequest
+      .get(MainUrl.addPath("news", "archive", "2007", "5"))
+      .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")

@@ -14,30 +14,20 @@
  */
 package ru.org.linux.topic
 
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import munit.FunSuite
 import ru.org.linux.test.WebHelper
 import sttp.client3.{UriContext, basicRequest}
 import sttp.model.StatusCode
 
-@RunWith(classOf[JUnitRunner])
-class ArchiveControllerWebTest extends Specification with WebHelper {
-  "archive controller" should {
-    "open without slash" in {
-      val response = basicRequest
-        .get(uri"${MainUrl}news/archive")
-        .send(backend)
+class ArchiveControllerWebTest extends FunSuite with WebHelper:
+  test("archive controller opens without slash"):
+    val response = basicRequest
+      .get(uri"${MainUrl}news/archive")
+      .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      response.code must be equalTo StatusCode.Ok
-    }
-
-    "open with slash" in {
-      val response = basicRequest
-        .get(uri"${MainUrl}news/archive/")
-        .send(backend)
-
-      response.code must be equalTo StatusCode.Ok
-    }
-  }
-}
+  test("archive controller opens with slash"):
+    val response = basicRequest
+      .get(uri"${MainUrl}news/archive/")
+      .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")

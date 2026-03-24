@@ -14,20 +14,12 @@
  */
 package ru.org.linux.spring
 
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import munit.FunSuite
 import ru.org.linux.test.WebHelper
 import sttp.client3.*
 import sttp.model.StatusCode
 
-@RunWith(classOf[JUnitRunner])
-class MainPageControllerWebTest extends Specification with WebHelper {
-  "main page" should {
-    "open with code 200" in {
-      val response = basicRequest.get(MainUrl).send(backend)
-
-      response.code must be equalTo StatusCode.Ok
-    }
-  }
-}
+class MainPageControllerWebTest extends FunSuite with WebHelper:
+  test("main page opens with code 200"):
+    val response = basicRequest.get(MainUrl).send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")
