@@ -15,15 +15,15 @@
 
 package ru.org.linux.search;
 
-import org.joda.time.DateTimeZone;
 import ru.org.linux.search.SearchEnums.SearchInterval;
 import ru.org.linux.search.SearchEnums.SearchRange;
 import ru.org.linux.user.User;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -164,24 +164,12 @@ public class SearchServiceRequest {
     return dt >0;
   }
 
-  public long atEndOfDaySelected(DateTimeZone tz) {
-    final Calendar calendar = tz!=null? Calendar.getInstance(tz.toTimeZone()) : Calendar.getInstance();
-    calendar.setTime(new Date(dt));
-    calendar.set(Calendar.HOUR_OF_DAY, 23);
-    calendar.set(Calendar.MINUTE, 59);
-    calendar.set(Calendar.SECOND, 59);
-    calendar.set(Calendar.MILLISECOND, 999);
-    return calendar.getTime().getTime();
+  public long atEndOfDaySelected(ZoneId tz) {
+    return Instant.ofEpochMilli(dt).atZone(tz).plusDays(1).truncatedTo(ChronoUnit.DAYS).toInstant().toEpochMilli();
   }
 
-  public long atStartOfDaySelected(DateTimeZone tz) {
-    final Calendar calendar = tz!=null? Calendar.getInstance(tz.toTimeZone()) : Calendar.getInstance();
-    calendar.setTime(new Date(dt));
-    calendar.set(Calendar.HOUR_OF_DAY, 0);
-    calendar.set(Calendar.MINUTE, 0);
-    calendar.set(Calendar.SECOND, 0);
-    calendar.set(Calendar.MILLISECOND, 0);
-    return calendar.getTime().getTime();
+  public long atStartOfDaySelected(ZoneId tz) {
+    return Instant.ofEpochMilli(dt).atZone(tz).truncatedTo(ChronoUnit.DAYS).toInstant().toEpochMilli();
   }
 
   private static String buildParams(Map<String, String> params) {

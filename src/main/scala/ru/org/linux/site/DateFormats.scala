@@ -14,42 +14,40 @@
  */
 package ru.org.linux.site
 
-import org.joda.time.{DateTime, DateTimeZone}
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
-import org.joda.time.format.ISODateTimeFormat
-
+import java.time.{Instant, ZoneId}
+import java.time.format.{DateTimeFormatter, FormatStyle}
+import java.time.temporal.ChronoUnit
 import java.util.{Date, Locale}
 
 object DateFormats:
   private val RussianLocale = Locale.forLanguageTag("ru")
-  private val Default = DateTimeFormat.forPattern("dd.MM.yy HH:mm:ss z").withLocale(RussianLocale)
-  private val Short = DateTimeFormat.forPattern("dd.MM.yy HH:mm").withLocale(RussianLocale)
-  private val Time = DateTimeFormat.forPattern("HH:mm").withLocale(RussianLocale)
-  private val Date = DateTimeFormat.forPattern("dd.MM.yy").withLocale(RussianLocale)
-  private val Moscow = DateTimeZone.forID("Europe/Moscow")
+  private val Default = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm:ss z").withLocale(RussianLocale)
+  private val Short = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm").withLocale(RussianLocale)
+  private val Time = DateTimeFormatter.ofPattern("HH:mm").withLocale(RussianLocale)
+  private val Date = DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(RussianLocale)
+  private val Moscow = ZoneId.of("Europe/Moscow")
 
-  private val Iso8601: DateTimeFormatter = ISODateTimeFormat.dateTime
-  private val Rfc822: DateTimeFormatter = DateTimeFormat.forPattern("EEE, d MMM yyyy HH:mm:ss Z").withLocale(Locale.US)
-  private val DateLong: DateTimeFormatter = DateTimeFormat.longDate().withLocale(RussianLocale)
+  private val Iso8601: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+  private val Rfc822: DateTimeFormatter = DateTimeFormatter.RFC_1123_DATE_TIME
+  private val DateLong: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(RussianLocale)
 
-  def formatDefault(tz: DateTimeZone, date: Date) = Default.withZone(tz).print(date.getTime)
-  def formatIso8601(date: Date): String = Iso8601.withZone(Moscow).print(date.getTime)
-  def formatRfc822(date: Date): String = Rfc822.withZone(Moscow).print(date.getTime)
-  def formatDateLong(tz: DateTimeZone, date: Date): String = DateLong.withZone(tz).print(date.getTime)
-  def formatDateOnly(tz: DateTimeZone, date: Date) = Date.withZone(tz).print(date.getTime)
-  private[site] def formatTime(tz: DateTimeZone, date: Date) = Time.withZone(tz).print(date.getTime)
-  private[site] def formatShort(tz: DateTimeZone, date: Date) = Short.withZone(tz).print(date.getTime)
+  def formatDefault(tz: ZoneId, date: Date) = Default.withZone(tz).format(date.toInstant)
+  def formatIso8601(date: Date): String = Iso8601.withZone(Moscow).format(date.toInstant)
+  def formatRfc822(date: Date): String = Rfc822.withZone(Moscow).format(date.toInstant)
+  def formatDateLong(tz: ZoneId, date: Date): String = DateLong.withZone(tz).format(date.toInstant)
+  def formatDateOnly(tz: ZoneId, date: Date) = Date.withZone(tz).format(date.toInstant)
+  private[site] def formatTime(tz: ZoneId, date: Date) = Time.withZone(tz).format(date.toInstant)
+  private[site] def formatShort(tz: ZoneId, date: Date) = Short.withZone(tz).format(date.toInstant)
 
-  def formatInterval(date: Date, timezone: DateTimeZone): String =
-    formatIntervalImpl(date, timezone, DateTime.now)
+  def formatInterval(date: Date, timezone: ZoneId): String =
+    formatIntervalImpl(date, timezone, Instant.now)
 
-  private[site] def formatIntervalImpl(date: Date, timezone: DateTimeZone, now: DateTime): String =
-    val diff = now.getMillis - date.getTime
-    val c = new DateTime(date.getTime)
+  private[site] def formatIntervalImpl(date: Date, timezone: ZoneId, now: Instant): String =
+    val diff = now.toEpochMilli - date.getTime
+    val c = date.toInstant.atZone(timezone)
 
-    val today = now.withZone(timezone).withTimeAtStartOfDay
-    val yesterday = now.withZone(timezone).minusDays(1).withTimeAtStartOfDay
+    val today = now.atZone(timezone).truncatedTo(ChronoUnit.DAYS);
+    val yesterday = now.atZone(timezone).truncatedTo(ChronoUnit.DAYS).minusDays(1)
 
     if diff < 2 * 1000 * 60 then
       "минуту назад"
@@ -69,15 +67,15 @@ object DateFormats:
     else
       formatShort(timezone, date)
 
-  def formatCompactInterval(date: Date, timezone: DateTimeZone): String =
-    formatCompactIntervalImpl(date, timezone, DateTime.now)
+  def formatCompactInterval(date: Date, timezone: ZoneId): String =
+    formatCompactIntervalImpl(date, timezone, Instant.now)
 
-  private[site] def formatCompactIntervalImpl(date: Date, timezone: DateTimeZone, now: DateTime): String =
-    val diff = now.getMillis - date.getTime
-    val c = new DateTime(date.getTime)
+  private[site] def formatCompactIntervalImpl(date: Date, timezone: ZoneId, now: Instant): String =
+    val diff = now.toEpochMilli - date.getTime
+    val c = date.toInstant.atZone(timezone)
 
-    val today = now.withZone(timezone).withTimeAtStartOfDay
-    val yesterday = now.withZone(timezone).minusDays(1).withTimeAtStartOfDay
+    val today = now.atZone(timezone).truncatedTo(ChronoUnit.DAYS);
+    val yesterday = now.atZone(timezone).truncatedTo(ChronoUnit.DAYS).minusDays(1)
 
     if diff < 1000 * 60 * 60 then
       val min = Math.max(1, diff / (1000 * 60))

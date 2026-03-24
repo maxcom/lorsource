@@ -19,7 +19,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
 import io.circe.syntax.*
 import jakarta.servlet.http.HttpServletRequest
-import org.joda.time.DateTimeZone
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -32,6 +31,7 @@ import ru.org.linux.util.bbcode.LorCodeService
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.ZoneId
 import java.util.concurrent.CompletionStage
 import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -136,7 +136,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
       val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator)
       if (logItems.nonEmpty) {
-        val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
+        val timezone = request.getAttribute("timezone").asInstanceOf[ZoneId]
 
         mv.addObject("userlog", userLogPrepareService.prepare(logItems, timezone).asJava)
       }
@@ -191,7 +191,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       throw new AccessViolationException("Пользователь заблокирован")
     }
 
-    val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
+    val timezone = request.getAttribute("timezone").asInstanceOf[ZoneId]
 
     userStatisticsService.getYearStats(user, timezone).map(_.asJson).asJava
   }

@@ -18,7 +18,7 @@ package ru.org.linux.user
 import org.apache.pekko.actor.ActorSystem
 import cats.implicits.*
 import com.typesafe.scalalogging.StrictLogging
-import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.DateTime
 import org.opensearch.client.json.JsonData
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch._types.FieldValue
@@ -32,6 +32,7 @@ import ru.org.linux.user.UserStatisticsService.*
 import ru.org.linux.util.RichFuture.RichFuture
 
 import java.sql.Timestamp
+import java.time.ZoneId
 import java.util.Date
 import scala.beans.BeanProperty
 import scala.concurrent.*
@@ -78,7 +79,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
     }
   }
 
-  def getYearStats(user: User, timezone: DateTimeZone): Future[Map[Long, Long]] = {
+  def getYearStats(user: User, timezone: ZoneId): Future[Map[Long, Long]] = {
     val rootQuery = Query.of(q => q.bool(BoolQuery.of(b => b
       .filter(
         Query.of(qq => qq.term(TermQuery.of(t => t.field("author").value(FieldValue.of(user.nick))))),
@@ -93,7 +94,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
       .aggregations("days", a => a
         .dateHistogram(DateHistogramAggregation.of(d => d
           .field("postdate")
-          .timeZone(timezone.getID)
+          .timeZone(timezone.getId)
           .calendarInterval(CalendarInterval.Day)
           .minDocCount(1)
         ))

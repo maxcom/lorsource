@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@ package ru.org.linux.auth
 
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import jakarta.servlet.{FilterChain, ServletRequest, ServletResponse}
-import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.filter.GenericFilterBean
@@ -25,6 +24,8 @@ import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
 
+import java.time.ZoneId
+import java.time.zone.ZoneRulesException
 import java.util.Locale
 
 object CommonContextFilter {
@@ -43,12 +44,12 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     val timezoneName = cookies.get("tz").filter(_.nonEmpty).filterNot(BadTimezones.contains)
 
     val timezone = (try {
-      timezoneName.map(DateTimeZone.forID)
+      timezoneName.map(ZoneId.of)
     } catch {
-      case ex: IllegalArgumentException =>
+      case ex: ZoneRulesException =>
         logger.info(s"Wrong timezone: $timezoneName (${ex.toString})")
         None
-    }).getOrElse(DateTimeZone.getDefault)
+    }).getOrElse(ZoneId.systemDefault())
 
     request.setAttribute("timezone", timezone)
 

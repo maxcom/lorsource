@@ -23,6 +23,7 @@ import org.springframework.test.context.{ContextConfiguration, TestContextManage
 import ru.org.linux.PekkoConfiguration
 import ru.org.linux.topic.TopicTagService
 
+import java.time.ZoneId
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
@@ -57,7 +58,7 @@ class SearchServiceIntegrationTest extends FunSuite:
   )
 
   indexFixture.test("SearchService make valid default search"): _ =>
-    val response = service.performSearch(new SearchServiceRequest(), null)
+    val response = service.performSearch(new SearchServiceRequest(), ZoneId.systemDefault())
     assertEquals(response.totalHits.toInt, 0)
 
   indexFixture.test("SearchService prepare some results"): _ =>
@@ -65,7 +66,7 @@ class SearchServiceIntegrationTest extends FunSuite:
     indexService.reindexMessage(1920001, withComments = false)
     elastic.indices().refresh(RefreshRequest.of(r => r.index("*")))
 
-    val response = service.performSearch(new SearchServiceRequest(), null)
+    val response = service.performSearch(new SearchServiceRequest(), ZoneId.systemDefault())
 
     assert(response.hits.nonEmpty)
     assertEquals(response.hits.head.tags.asScala.map(_.name).toSeq, Seq("lor"))

@@ -1,5 +1,5 @@
 <%@ tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag import="org.joda.time.DateTimeZone" %>
+<%@ tag import="java.time.ZoneId" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
@@ -21,10 +21,10 @@
 
   if (comp) {
     out.print("<time data-format=\"compact-interval\" datetime=\"" + DateFormats.formatIso8601(date)+"\">");
-    out.print(DateFormats.formatCompactInterval(date, (DateTimeZone) request.getAttribute("timezone")));
+    out.print(DateFormats.formatCompactInterval(date, (ZoneId) request.getAttribute("timezone")));
   } else {
     out.print("<time data-format=\"interval\" datetime=\"" + DateFormats.formatIso8601(date)+"\">");
-    out.print(DateFormats.formatInterval(date, (DateTimeZone) request.getAttribute("timezone")));
+    out.print(DateFormats.formatInterval(date, (ZoneId) request.getAttribute("timezone")));
   }
 
   out.print("</time>");

@@ -1,6 +1,6 @@
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %><%@
         tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag import="org.joda.time.DateTimeZone" %>
+<%@ tag import="java.time.ZoneId" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,5 +19,5 @@
         taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
         attribute name="itemprop" type="java.lang.String" required="false" %><%--
 --%><time data-format="date" datetime="<%= DateFormats.formatIso8601(date) %>" <c:if test="${not empty itemprop}">itemprop="${itemprop}"</c:if>><%
-  out.print(DateFormats.formatDateOnly((DateTimeZone) request.getAttribute("timezone"), date));
+  out.print(DateFormats.formatDateOnly((ZoneId) request.getAttribute("timezone"), date));
 %></time>

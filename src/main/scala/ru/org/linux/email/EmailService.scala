@@ -15,12 +15,14 @@
 
 package ru.org.linux.email
 
-import org.apache.pekko.actor.ActorRef
 import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.mail.internet.{InternetAddress, MimeMessage}
+import jakarta.mail.{Message, MessagingException, Session, Transport}
 import jakarta.servlet.RequestDispatcher
 import jakarta.servlet.http.HttpServletRequest
-import org.joda.time.{DateTime, DateTimeZone}
+import org.apache.pekko.actor.ActorRef
+import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.org.linux.email.EmailService.createMessage
@@ -31,10 +33,9 @@ import ru.org.linux.user.User
 
 import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
+import java.time.ZoneId
 import java.util.{Date, Properties}
 import javax.annotation.Nullable
-import jakarta.mail.internet.{InternetAddress, MimeMessage}
-import jakarta.mail.{Message, MessagingException, Session, Transport}
 import scala.jdk.CollectionConverters.*
 
 @Service
@@ -112,7 +113,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |https://www.linux.org.ru/register.jsp?invite=${URLEncoder.encode(inviteCode, "utf-8")}
          |
          |Эта ссылка позволяет зарегистрировать только одну учетную запись. Ссылка действует
-         |до ${DateFormats.formatDefault(DateTimeZone.getDefault, validUntil.toDate)}.
+         |до ${DateFormats.formatDefault(ZoneId.systemDefault(), validUntil.toDate)}.
          |
          |До встречи!
          |

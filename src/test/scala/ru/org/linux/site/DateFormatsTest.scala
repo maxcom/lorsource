@@ -14,17 +14,17 @@
  */
 package ru.org.linux.site
 
-import org.joda.time.{DateTime, DateTimeZone}
 import munit.FunSuite
 
+import java.time.{LocalDateTime, ZoneId}
 import java.util.Date
 
 class DateFormatsTest extends FunSuite:
-  private val Moscow = DateTimeZone.forID("Europe/Moscow")
-  private val Novosibirsk = DateTimeZone.forID("Asia/Novosibirsk")
+  private val Moscow = ZoneId.of("Europe/Moscow")
+  private val Novosibirsk = ZoneId.of("Asia/Novosibirsk")
 
   private def makeDate(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0, second: Int = 0): Date =
-    new DateTime(year, month, day, hour, minute, second, Moscow).toDate
+    Date.from(LocalDateTime.of(year, month, day, hour, minute, second).atZone(Moscow).toInstant)
 
   test("formatDefault"):
     val date = makeDate(2024, 6, 15, 14, 30, 45)
@@ -36,7 +36,7 @@ class DateFormatsTest extends FunSuite:
 
   test("formatIso8601"):
     val date = makeDate(2024, 6, 15, 14, 30, 45)
-    assertEquals(DateFormats.formatIso8601(date), "2024-06-15T14:30:45.000+03:00")
+    assertEquals(DateFormats.formatIso8601(date), "2024-06-15T14:30:45+03:00")
 
   test("formatRfc822"):
     val date = makeDate(2024, 6, 15, 14, 30, 45)
@@ -61,44 +61,44 @@ class DateFormatsTest extends FunSuite:
   test("formatIntervalImpl less than minute"):
     val now = makeDate(2024, 6, 15, 14, 0, 0)
     val date = makeDate(2024, 6, 15, 13, 59, 30)
-    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, new DateTime(now.getTime, Moscow)), "минуту назад")
+    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, now.toInstant), "минуту назад")
 
   test("formatIntervalImpl few minutes"):
     val now = makeDate(2024, 6, 15, 14, 0, 0)
     val date = makeDate(2024, 6, 15, 13, 55, 0)
-    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, new DateTime(now.getTime, Moscow)), "5&nbsp;минут назад")
+    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, now.toInstant), "5&nbsp;минут назад")
 
   test("formatIntervalImpl today"):
-    val now = new DateTime(2024, 6, 15, 12, 0, 0, Moscow)
+    val now = makeDate(2024, 6, 15, 12, 0, 0)
     val date = makeDate(2024, 6, 15, 10, 30, 0)
-    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, now), "сегодня 10:30")
+    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, now.toInstant), "сегодня 10:30")
 
   test("formatIntervalImpl yesterday"):
-    val now = new DateTime(2024, 6, 15, 12, 0, 0, Moscow)
+    val now = makeDate(2024, 6, 15, 12, 0, 0)
     val date = makeDate(2024, 6, 14, 10, 30, 0)
-    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, now), "вчера 10:30")
+    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, now.toInstant), "вчера 10:30")
 
   test("formatIntervalImpl older"):
-    val now = new DateTime(2024, 6, 15, 12, 0, 0, Moscow)
+    val now = makeDate(2024, 6, 15, 12, 0, 0)
     val date = makeDate(2024, 6, 10, 10, 30, 0)
-    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, now), "10.06.24 10:30")
+    assertEquals(DateFormats.formatIntervalImpl(date, Moscow, now.toInstant), "10.06.24 10:30")
 
   test("formatCompactIntervalImpl less than hour"):
     val now = makeDate(2024, 6, 15, 14, 0, 0)
     val date = makeDate(2024, 6, 15, 13, 30, 0)
-    assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, new DateTime(now.getTime, Moscow)), "30&nbsp;мин")
+    assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, now.toInstant), "30&nbsp;мин")
 
   test("formatCompactIntervalImpl few hours"):
     val now = makeDate(2024, 6, 15, 14, 0, 0)
     val date = makeDate(2024, 6, 15, 11, 30, 0)
-    assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, new DateTime(now.getTime, Moscow)), "11:30")
+    assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, now.toInstant), "11:30")
 
   test("formatCompactIntervalImpl yesterday"):
-    val now = new DateTime(2024, 6, 15, 12, 0, 0, Moscow)
+    val now = makeDate(2024, 6, 15, 12, 0, 0)
     val date = makeDate(2024, 6, 14, 10, 30, 0)
-    assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, now), "вчера")
+    assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, now.toInstant), "вчера")
 
   test("formatCompactIntervalImpl older"):
-    val now = new DateTime(2024, 6, 15, 12, 0, 0, Moscow)
+    val now = makeDate(2024, 6, 15, 12, 0, 0)
     val date = makeDate(2024, 6, 10, 10, 30, 0)
-    assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, now), "10.06.24")
+    assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, now.toInstant), "10.06.24")

@@ -14,10 +14,7 @@
  */
 package ru.org.linux.reaction
 
-import ru.org.linux.user.UserConstants
-
 import org.apache.pekko.actor.typed.ActorRef
-import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
@@ -32,10 +29,11 @@ import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.section.Section
 import ru.org.linux.site.DateFormats
 import ru.org.linux.topic.{Topic, TopicDao}
-import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
+import ru.org.linux.user.*
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.ZoneId
 import java.util.Date
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.immutable.TreeMap
@@ -60,7 +58,7 @@ case class PreparedReactions(reactions: Map[String, PreparedReaction],
 
 case class ReactionListItem(@BeanProperty user: User, @BeanProperty reaction: String, date: Option[Date]) {
   // for jsp
-  def dateFormatted(tz: DateTimeZone): String = date.map(d => DateFormats.formatDefault(tz, d)).getOrElse("")
+  def dateFormatted(tz: ZoneId): String = date.map(d => DateFormats.formatDefault(tz, d)).getOrElse("")
 }
 
 case class PreparedReactionList(reactions: Seq[ReactionListItem]) {

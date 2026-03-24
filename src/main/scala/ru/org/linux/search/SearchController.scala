@@ -15,7 +15,6 @@
 package ru.org.linux.search
 
 import com.google.common.base.Strings
-import org.joda.time.DateTimeZone
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -31,6 +30,7 @@ import ru.org.linux.user.UserService
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
+import java.time.ZoneId
 import scala.collection.immutable.VectorMap
 import scala.jdk.CollectionConverters.*
 
@@ -55,7 +55,7 @@ class SearchController(sectionService: SectionService, userService: UserService,
 
   @RequestMapping(value = Array("/search.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def search(model: Model, @ModelAttribute("query") query: SearchServiceRequest, bindingResult: BindingResult,
-             @RequestAttribute(name="timezone") tz: DateTimeZone): String = {
+             @RequestAttribute(name="timezone") tz: ZoneId): String = {
     val params = model.asMap
 
     if (!query.isInitial && !bindingResult.hasErrors) {

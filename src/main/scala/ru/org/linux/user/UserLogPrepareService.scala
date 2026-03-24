@@ -14,14 +14,13 @@
  */
 package ru.org.linux.user
 
-import org.joda.time.DateTimeZone
 import org.springframework.stereotype.Service
 import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.site.DateFormats
 import ru.org.linux.user.UserLogDao.*
 import ru.org.linux.util.StringUtil.escapeHtml
 
-import java.time.Instant
+import java.time.{Instant, ZoneId}
 import java.util.Date
 
 object UserLogPrepareService {
@@ -38,7 +37,7 @@ object UserLogPrepareService {
 
 @Service
 class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao) {
-  def prepare(items: collection.Seq[UserLogItem], timezone: DateTimeZone): Seq[PreparedUserLogItem] = {
+  def prepare(items: collection.Seq[UserLogItem], timezone: ZoneId): Seq[PreparedUserLogItem] = {
     items.view.map((item: UserLogItem) => {
       val options = for ((rawKey, rawValue) <- item.options) yield {
         val key = UserLogPrepareService.OptionDescription.getOrElse(rawKey, escapeHtml(rawKey))

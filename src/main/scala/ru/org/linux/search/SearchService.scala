@@ -16,19 +16,16 @@
 package ru.org.linux.search
 
 import com.google.common.base.Strings
-import org.joda.time.DateTimeZone
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import org.opensearch.client.json.JsonData
 import org.opensearch.client.opensearch.OpenSearchClient
-import org.opensearch.client.opensearch._types.FieldValue
-import org.opensearch.client.opensearch._types.SortOrder
-import org.opensearch.client.opensearch._types.SortOptions
-import org.opensearch.client.opensearch._types.aggregations.{Aggregate, SignificantTermsAggregation, StringTermsBucket, TermsAggregation}
-import org.opensearch.client.opensearch._types.query_dsl.{BoolQuery, FunctionScoreQuery, MatchQuery, MatchPhraseQuery, Query, RangeQuery, TermQuery}
-import org.opensearch.client.opensearch.core.SearchRequest
-import org.opensearch.client.opensearch.core.SearchResponse
-import org.opensearch.client.opensearch.core.search.{Hit, HighlightField}
+import org.opensearch.client.opensearch._types.{FieldValue, SortOptions, SortOrder}
+import org.opensearch.client.opensearch._types.aggregations.{Aggregate, SignificantTermsAggregation, StringTermsBucket,
+  TermsAggregation}
+import org.opensearch.client.opensearch._types.query_dsl.*
+import org.opensearch.client.opensearch.core.{SearchRequest, SearchResponse}
+import org.opensearch.client.opensearch.core.search.{HighlightField, Hit}
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupDao
@@ -38,16 +35,16 @@ import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.user.UserService
 import ru.org.linux.util.StringUtil
 
-import java.time.Instant
+import java.time.{Instant, ZoneId}
 import java.util
 import java.util.Date
 import scala.concurrent.duration.*
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Service
 class SearchService(elastic: OpenSearchClient, userService: UserService, siteConfig: SiteConfig,
                     sectionService: SectionService, groupDao: GroupDao) {
-  import ru.org.linux.search.SearchService._
+  import ru.org.linux.search.SearchService.*
 
   private def processQueryString(queryText: String): Query = {
     if (queryText.isEmpty) {
@@ -96,14 +93,14 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
     }
   }
 
-  def performSearch(query: SearchServiceRequest, tz: DateTimeZone): SearchServiceResponse = {
+  def performSearch(query: SearchServiceRequest, tz: ZoneId): SearchServiceResponse = {
     val typeFilter = Option(query.getRange.getValue) map { value =>
       Query.of(q => q.term(TermQuery.of(t => t.field(query.getRange.getColumn).value(FieldValue.of(value)))))
     }
     val selectedDateFilter = Query.of(q => q.range(RangeQuery.of(r => r
       .field(query.getInterval.getColumn)
       .gte(JsonData.of(query.atStartOfDaySelected(tz).toString))
-      .lte(JsonData.of(query.atEndOfDaySelected(tz).toString))
+      .lt(JsonData.of(query.atEndOfDaySelected(tz).toString))
     )))
 
     val dateFilter = Option(query.getInterval.getRange) map { range =>
