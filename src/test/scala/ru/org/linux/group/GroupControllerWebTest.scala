@@ -18,17 +18,12 @@ import org.jsoup.Jsoup
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import org.specs2.specification.Scope
 import ru.org.linux.test.WebHelper
 import sttp.client3.*
 import sttp.model.StatusCode
 
 @RunWith(classOf[JUnitRunner])
 class GroupControllerWebTest extends Specification with WebHelper {
-  class AuthenticatedUser(user: String) extends Scope {
-    val auth: String = doLogin(user, "passwd")
-  }
-
   "talks page" should {
     "contain info" in {
       val response = basicRequest
@@ -42,7 +37,7 @@ class GroupControllerWebTest extends Specification with WebHelper {
       doc.select(".infoblock").text must beMatching(".+")
     }
 
-    "contain info and edit link for moderator" in new AuthenticatedUser("maxcom") {
+    "contain info and edit link for moderator" in Authorized("maxcom") { auth =>
       val response = basicRequest
         .get(MainUrl.addPath("forum", "talks"))
         .cookie(AuthCookie, auth)
@@ -62,7 +57,7 @@ class GroupControllerWebTest extends Specification with WebHelper {
   }
 
   "job page" should {
-    "contain empty info for moderator" in new AuthenticatedUser("maxcom")  {
+    "contain empty info for moderator" in Authorized("maxcom")  { auth =>
       val response = basicRequest
         .get(MainUrl.addPath("forum", "job"))
         .cookie(AuthCookie, auth)
