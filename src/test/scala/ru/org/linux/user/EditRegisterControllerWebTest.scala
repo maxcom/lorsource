@@ -14,20 +14,16 @@
  */
 package ru.org.linux.user
 
+import munit.FunSuite
 import org.jsoup.Jsoup
-import org.junit.Assert.{assertEquals, assertNotNull}
-import org.junit.runner.RunWith
-import org.junit.{After, Before, Test}
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
+import org.springframework.test.context.{ContextConfiguration, ContextHierarchy, TestContextManager}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.test.WebHelper
-import ru.org.linux.user.EditRegisterControllerWebTest.*
 import sttp.client3.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
-object EditRegisterControllerWebTest {
+object EditRegisterControllerWebTest:
   private val MAXCOM_NAME = "Максим Валянский"
   private val MAXCOM_URL = "http://maxcom.pp.ru/"
   private val MAXCOM_EMAIL = "max.valjanski+test93@gmail.com"
@@ -40,44 +36,40 @@ object EditRegisterControllerWebTest {
   private val JB_TOWN = "Самара"
   private val JB_INFO = "[i]Эффективный менеджер по распилу гос-бабла[/i]"
   private val JB_PASS = "passwd"
-}
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
-class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[EditRegisterControllerWebTest]) with WebHelper {
+class EditRegisterControllerWebTest extends FunSuite with WebHelper:
+  import EditRegisterControllerWebTest._
+
+  new TestContextManager(this.getClass).prepareTestInstance(this)
+
   @Autowired
   private var userDao: UserDao = scala.compiletime.uninitialized
 
   @Autowired
   private var userService: UserService = scala.compiletime.uninitialized
 
-  private def rescueMaxcom(): Unit = {
+  private def rescueMaxcom(): Unit =
     val user = userDao.getUser(userDao.findUserId("maxcom"))
-    userService.updateUser(user, MAXCOM_NAME, MAXCOM_URL, Some(MAXCOM_EMAIL), MAXCOM_TOWN, Some(MAXCOM_PASS), MAXCOM_INFO,  "127.0.0.1")
+    userService.updateUser(user, MAXCOM_NAME, MAXCOM_URL, Some(MAXCOM_EMAIL), MAXCOM_TOWN, Some(MAXCOM_PASS), MAXCOM_INFO, "127.0.0.1")
     userDao.acceptNewEmail(user, MAXCOM_EMAIL)
-  }
 
-  private def rescueJB(): Unit = {
+  private def rescueJB(): Unit =
     val user = userDao.getUser(userDao.findUserId("JB"))
     userService.updateUser(user, JB_NAME, JB_URL, Some(JB_EMAIL), JB_TOWN, Some(JB_PASS), JB_INFO, "127.0.0.1")
     userDao.acceptNewEmail(user, JB_EMAIL)
     userDao.unblock(user)
-  }
 
-  @After
-  @Before
-  def clean(): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
     rescueMaxcom()
     rescueJB()
-  }
 
-  /**
-   * Вводим теже данные которые и были изначально. После изменений должен быть
-   * redirect в профиль
-   * */
-  @Test
-  def testSimple(): Unit = {
+  override def afterEach(context: AfterEach): Unit =
+    rescueMaxcom()
+    rescueJB()
+
+  test("Вводим те же данные которые и были изначально. После изменений должен быть redirect в профиль"):
     val auth = doLogin("JB", JB_PASS)
 
     val cr = basicRequest
@@ -85,11 +77,11 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
       .cookie(AuthCookie, auth)
       .send(backend)
 
-    assertEquals(cr.code, StatusCode.Ok)
+    assertEquals(cr.code, StatusCode.Ok, "status code")
 
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
 
-    assertEquals("/people/JB/edit", doc.getElementById("editRegForm").attr("action"))
+    assertEquals("/people/JB/edit", doc.getElementById("editRegForm").attr("action"), "form action")
 
     val name = doc.getElementById("name").`val`
     val url = doc.getElementById("url").`val`
@@ -97,11 +89,11 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
     val town = doc.getElementById("town").`val`
     val info = doc.getElementById("info").`val`
 
-    assertEquals(JB_NAME, name)
-    assertEquals(JB_URL, url)
-    assertEquals(JB_EMAIL, email)
-    assertEquals(JB_TOWN, town)
-    assertEquals(JB_INFO, info)
+    assertEquals(JB_NAME, name, "JB_NAME")
+    assertEquals(JB_URL, url, "JB_URL")
+    assertEquals(JB_EMAIL, email, "JB_EMAIL")
+    assertEquals(JB_TOWN, town, "JB_TOWN")
+    assertEquals(JB_INFO, info, "JB_INFO")
 
     val cr2 = basicRequest
       .body(
@@ -119,13 +111,11 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
       .followRedirects(false)
       .send(backend)
 
-    assertEquals(StatusCode.Found, cr2.code)
+    assertEquals(StatusCode.Found, cr2.code, "redirect status")
     assertEquals(Some(Uri.unsafeParse("http://127.0.0.1:8080/people/JB/profile")),
-      cr2.header(HeaderNames.Location).map(Uri.unsafeParse).map(MainUrl.resolve))
-  }
+      cr2.header(HeaderNames.Location).map(Uri.unsafeParse).map(MainUrl.resolve), "redirect location")
 
-  @Test
-  def testChangePassword(): Unit = {
+  test("ChangePassword"):
     val auth = doLogin("maxcom", MAXCOM_PASS)
 
     val cr = basicRequest
@@ -133,7 +123,7 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
       .cookie(AuthCookie, auth)
       .send(backend)
 
-    assertEquals(StatusCode.Ok, cr.code)
+    assertEquals(StatusCode.Ok, cr.code, "status code")
 
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
 
@@ -143,11 +133,11 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
     val town = doc.getElementById("town").`val`
     val info = doc.getElementById("info").`val`
 
-    assertEquals(MAXCOM_NAME, name)
-    assertEquals(MAXCOM_URL, url)
-    assertEquals(MAXCOM_EMAIL, email)
-    assertEquals(MAXCOM_TOWN, town)
-    assertEquals(MAXCOM_INFO, info)
+    assertEquals(MAXCOM_NAME, name, "MAXCOM_NAME")
+    assertEquals(MAXCOM_URL, url, "MAXCOM_URL")
+    assertEquals(MAXCOM_EMAIL, email, "MAXCOM_EMAIL")
+    assertEquals(MAXCOM_TOWN, town, "MAXCOM_TOWN")
+    assertEquals(MAXCOM_INFO, info, "MAXCOM_INFO")
 
     val cr2 = basicRequest
       .body(
@@ -167,10 +157,10 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
       .followRedirects(false)
       .send(backend)
 
-    assertEquals(StatusCode.Found, cr2.code)
+    assertEquals(StatusCode.Found, cr2.code, "redirect status")
 
     val newAuth = getAuthCookie(cr2)
-    assertNotNull(newAuth)
+    assert(newAuth != null, "newAuth should not be null")
 
     val location = Uri.unsafeParse(cr2.header(HeaderNames.Location).get)
 
@@ -179,7 +169,7 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
       .cookie(AuthCookie, newAuth)
       .send(backend)
 
-    assertEquals(StatusCode.Ok, cr3.code)
+    assertEquals(StatusCode.Ok, cr3.code, "status code")
 
     val cr4 = basicRequest
       .body(
@@ -199,7 +189,7 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
       .followRedirects(false)
       .send(backend)
 
-    assertEquals(StatusCode.Found, cr4.code)
+    assertEquals(StatusCode.Found, cr4.code, "redirect status")
 
     val newAuth2 = getAuthCookie(cr4)
 
@@ -210,11 +200,9 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
       .cookie(AuthCookie, newAuth2)
       .send(backend)
 
-    assertEquals(StatusCode.Ok, cr5.code)
-  }
+    assertEquals(StatusCode.Ok, cr5.code, "status code")
 
-  @Test
-  def testChange(): Unit = {
+  test("Для изменения регистрации нужен ваш пароль"):
     val auth = doLogin("JB", JB_PASS)
 
     val cr = basicRequest
@@ -222,11 +210,11 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
       .cookie(AuthCookie, auth)
       .send(backend)
 
-    assertEquals(StatusCode.Ok, cr.code)
+    assertEquals(StatusCode.Ok, cr.code, "status code")
 
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
 
-    assertEquals("/people/JB/edit", doc.getElementById("editRegForm").attr("action"))
+    assertEquals("/people/JB/edit", doc.getElementById("editRegForm").attr("action"), "form action")
 
     val name = doc.getElementById("name").`val`
     val url = doc.getElementById("url").`val`
@@ -234,11 +222,11 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
     val town = doc.getElementById("town").`val`
     val info = doc.getElementById("info").`val`
 
-    assertEquals(JB_NAME, name)
-    assertEquals(JB_URL, url)
-    assertEquals(JB_EMAIL, email)
-    assertEquals(JB_TOWN, town)
-    assertEquals(JB_INFO, info)
+    assertEquals(JB_NAME, name, "JB_NAME")
+    assertEquals(JB_URL, url, "JB_URL")
+    assertEquals(JB_EMAIL, email, "JB_EMAIL")
+    assertEquals(JB_TOWN, town, "JB_TOWN")
+    assertEquals(JB_INFO, info, "JB_INFO")
 
     val cr2 = basicRequest
       .body(
@@ -257,12 +245,10 @@ class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[Edit
 
     val doc2 = Jsoup.parse(cr2.body.merge, cr2.request.uri.toString())
 
-    assertEquals(StatusCode.Ok, cr2.code)
+    assertEquals(StatusCode.Ok, cr2.code, "status code")
 
-    assertEquals("Для изменения регистрации нужен ваш пароль", doc2.select(".error").text.trim)
-    assertEquals("/people/JB/edit", doc2.getElementById("editRegForm").attr("action"))
-  }
+    assertEquals("Для изменения регистрации нужен ваш пароль", doc2.select(".error").text.trim, "error message")
+    assertEquals("/people/JB/edit", doc2.getElementById("editRegForm").attr("action"), "form action")
 
   private def getAuthCookie(cr: Response[?]): String =
     cr.unsafeCookies.find(_.name == AuthCookie).map(_.value).orNull
-}

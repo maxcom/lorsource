@@ -14,14 +14,11 @@
  */
 package ru.org.linux.user
 
+import munit.FunSuite
 import org.jsoup.Jsoup
-import org.junit.Assert.{assertEquals, assertTrue}
-import org.junit.runner.RunWith
-import org.junit.{After, Before, Test}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
+import org.springframework.test.context.{ContextConfiguration, ContextHierarchy, TestContextManager}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.test.WebHelper
 import sttp.client3.*
@@ -30,31 +27,26 @@ import sttp.model.{HeaderNames, StatusCode, Uri}
 import java.io.File
 import javax.sql.DataSource
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database-admin.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
-class UserpicControllerWebTest extends SpringJUnit4ClassRunner(classOf[UserpicControllerWebTest]) with WebHelper {
+class UserpicControllerWebTest extends FunSuite with WebHelper:
+  new TestContextManager(this.getClass).prepareTestInstance(this)
   @Autowired
   private var userDao: UserDao = scala.compiletime.uninitialized
 
   private var jdbcTemplate: JdbcTemplate = scala.compiletime.uninitialized
 
   @Autowired
-  def setDatasource(ds: DataSource): Unit = {
+  def setDatasource(ds: DataSource): Unit =
     jdbcTemplate = new JdbcTemplate(ds)
-  }
 
-  private def rescueJB(): Unit = {
+  private def rescueJB(): Unit =
     val user = userDao.getUser(userDao.findUserId("JB"))
-
     jdbcTemplate.update("DELETE FROM user_log WHERE userid=?", user.id)
-
     userDao.unblock(user)
-  }
 
-  private def addPhoto(filename: String, auth: String) = {
+  private def addPhoto(filename: String, auth: String) =
     val file = new File(filename)
-
     basicRequest
       .multipartBody(
         multipart("csrf", "csrf"),
@@ -64,121 +56,65 @@ class UserpicControllerWebTest extends SpringJUnit4ClassRunner(classOf[UserpicCo
       .post(MainUrl.addPath("addphoto.jsp"))
       .followRedirects(false)
       .send(backend)
-  }
 
-  @After
-  @Before
-  def clean(): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
     rescueJB()
-  }
 
-  @Test
-  def testPage(): Unit = {
+  override def afterEach(context: AfterEach): Unit =
+    rescueJB()
+
+  test("Страница загрузки фото"):
     val auth = doLogin("JB", "passwd")
-
     val response = basicRequest
       .cookie(AuthCookie, auth)
       .get(MainUrl.addPath("addphoto.jsp"))
       .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-    assertEquals(response.code, StatusCode.Ok)
-  }
-
-  /**
-   * Тест неправильной картинки
-   */
-  @Test
-  def testInvalidImage(): Unit = {
+  test("Тест неправильной картинки: XML файл"):
     val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/test/resources/database.xml", auth)
-
-    assertEquals(cr.code, StatusCode.BadRequest)
-
+    assertEquals(cr.code, StatusCode.BadRequest, "status code")
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
+    assertEquals("Ошибка! Invalid image", doc.select(".error").text, "error message")
 
-    assertEquals("Ошибка! Invalid image", doc.select(".error").text) // сообщение об ошипке
-  }
-
-  /**
-   * Тест неправильной картинки
-   */
-  @Test
-  def testInvalid2Image(): Unit = {
+  test("Тест неправильной картинки: слишком большой файл"):
     val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/main/webapp/img/pcard.jpg", auth)
-
-    assertEquals(cr.code, StatusCode.BadRequest)
-
+    assertEquals(cr.code, StatusCode.BadRequest, "status code")
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
-
     assertEquals("Ошибка! Сбой загрузки изображения: слишком большой файл",
-      doc.select(".error").text) // сообщение об ошибке
-  }
+      doc.select(".error").text, "error message")
 
-  /**
-   * Тест неправильной картинки
-   */
-  @Test
-  def testInvalid3Image(): Unit = {
+  test("Тест неправильной картинки: недопустимые размеры"):
     val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/main/webapp/img/twitter.png", auth)
-
-    assertEquals(cr.code, StatusCode.BadRequest)
-
+    assertEquals(cr.code, StatusCode.BadRequest, "status code")
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
-
     assertEquals("Ошибка! Сбой загрузки изображения: недопустимые размеры фотографии",
-      doc.select(".error").text) // сообщение об ошибке
-  }
+      doc.select(".error").text, "error message")
 
-  /**
-   * Тест неправильной картинки
-   */
-  @Test
-  def testInvalid4Image(): Unit = {
+  test("Тест неправильной картинки: анимация GIF"):
     val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/test/resources/images/animated.gif", auth)
-
-    assertEquals(cr.code, StatusCode.BadRequest)
-
+    assertEquals(cr.code, StatusCode.BadRequest, "status code")
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
-
     assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима",
-      doc.select(".error").text) // сообщение об ошибке
-  }
+      doc.select(".error").text, "error message")
 
-  /**
-   * Тест неправильной картинки
-   */
-  @Test
-  def testValidImage(): Unit = {
+  test("Тест валидной картинки"):
     val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/main/webapp/tango/img/android.png", auth)
-
-    assertEquals(StatusCode.Found, cr.code)
-
+    assertEquals(StatusCode.Found, cr.code, "status code")
     val redirect = cr.header(HeaderNames.Location).map(Uri.unsafeParse)
-
     val url = Uri.unsafeParse("http://127.0.0.1:8080/people/JB/profile")
+    assertEquals(Some(url.path), redirect.map(_.path), "redirect path")
+    assert(redirect.get.params.get("nocache").isDefined, "nocache param exists")
+    assert(redirect.get.params.get("nocache").exists(_.nonEmpty), "nocache has value")
 
-    assertEquals(Some(url.path), redirect.map(_.path))
-    assertTrue(redirect.get.params.get("nocache").isDefined)
-    assertTrue("у nocache должен быть аргумент", redirect.get.params.get("nocache").exists(_.nonEmpty))
-  }
-
-  /**
-   * Тест с apng анимацией и поней
-   * image source via http://tamalesyatole.deviantart.com/art/I-want-to-be-a-Hero-APNG-Animated-332248278
-   */
-  @Test
-  def testAPNGImage(): Unit = {
+  test("Тест APNG анимации"):
     val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/test/resources/images/i_want_to_be_a_hero__apng_animated__by_tamalesyatole-d5ht8eu.png", auth)
-
-    assertEquals(cr.code, StatusCode.BadRequest)
-
+    assertEquals(cr.code, StatusCode.BadRequest, "status code")
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
-
-    assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text) // сообщение об ошибке
-  }
-}
+    assertEquals("Ошибка! Сбой загрузки изображения: анимация не допустима", doc.select(".error").text, "error message")
