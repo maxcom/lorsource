@@ -31,10 +31,10 @@ object CommentWebTest {
 }
 
 @RunWith(classOf[JUnitRunner])
-class CommentWebTest extends Specification {
+class CommentWebTest extends Specification with WebHelper {
   "post and edit" should {
-    "post and edit" in WebHelper.Authorized() { auth =>
-      val topicId = WebHelper.createTopic(auth, TestGroup, TestTitle).fold(v => throw new RuntimeException(v), identity)
+    "post and edit" in Authorized() { auth =>
+      val topicId = createTopic(auth, TestGroup, TestTitle).fold(v => throw new RuntimeException(v), identity)
 
       val postResponse = basicRequest
         .body(Map(
@@ -43,15 +43,15 @@ class CommentWebTest extends Specification {
           "topic" -> topicId.toString,
           "msg" -> "blah blah blah",
           "csrf" -> "csrf"))
-        .cookie(WebHelper.AuthCookie, auth)
+        .cookie(AuthCookie, auth)
         .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
         .followRedirects(false)
-        .post(WebHelper.MainUrl.addPath("add_comment.jsp"))
-        .send(WebHelper.backend)
+        .post(MainUrl.addPath("add_comment.jsp"))
+        .send(backend)
 
-      postResponse.code must oneOf(StatusCode.Ok, StatusCode.SeeOther)
+      postResponse.code must be equalTo(StatusCode.Ok) or equalTo(StatusCode.SeeOther)
 
-      val postDoc = Jsoup.parse(postResponse.body.merge, WebHelper.MainUrl.toString())
+      val postDoc = Jsoup.parse(postResponse.body.merge, MainUrl.toString())
 
       postDoc.select(".error").text() must be empty
 
@@ -66,14 +66,14 @@ class CommentWebTest extends Specification {
           "original" -> commentId.toString,
           "msg" -> "not so blah blah blah",
           "csrf" -> "csrf"))
-        .cookie(WebHelper.AuthCookie, auth)
+        .cookie(AuthCookie, auth)
         .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
-        .post(WebHelper.MainUrl.addPath("edit_comment"))
-        .send(WebHelper.backend)
+        .post(MainUrl.addPath("edit_comment"))
+        .send(backend)
 
       editResponse.code must be equalTo StatusCode.Ok
 
-      val editDoc = Jsoup.parse(editResponse.body.merge, WebHelper.MainUrl.toString())
+      val editDoc = Jsoup.parse(editResponse.body.merge, MainUrl.toString())
 
       editDoc.select(".error").text() must be empty
     }

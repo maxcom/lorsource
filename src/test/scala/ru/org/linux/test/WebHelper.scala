@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import ru.org.linux.section.Section
 import sttp.client3.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
-object WebHelper {
+trait WebHelper {
   val AuthCookie = "remember_me"
   val MainUrl: Uri = Uri.unsafeParse("http://127.0.0.1:8080/")
 
@@ -52,11 +52,11 @@ object WebHelper {
         "group" -> groupId.toString,
         "csrf" -> "csrf",
         "title" -> title))
-      .cookie(WebHelper.AuthCookie, auth)
+      .cookie(AuthCookie, auth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
       .followRedirects(false)
-      .post(WebHelper.MainUrl.addPath("add.jsp"))
-      .send(WebHelper.backend)
+      .post(MainUrl.addPath("add.jsp"))
+      .send(backend)
 
     if (response.code == StatusCode.SeeOther && response.header(HeaderNames.Location).isDefined) {
       val parsed = Uri.parse(response.header(HeaderNames.Location).get)

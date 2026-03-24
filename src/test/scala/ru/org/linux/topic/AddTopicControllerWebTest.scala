@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,8 +21,7 @@ import org.specs2.runner.JUnitRunner
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import ru.org.linux.test.WebHelper
-import ru.org.linux.test.WebHelper.{TestPassword, TestUser}
-import ru.org.linux.topic.AddTopicControllerWebTest.{TestGroup, TestTitle}
+import ru.org.linux.topic.AddTopicControllerWebTest.{TestGroup, TestGroupNews, TestTitle}
 import sttp.client3.*
 import sttp.model.StatusCode
 
@@ -35,12 +34,12 @@ object AddTopicControllerWebTest {
 }
 
 @RunWith(classOf[JUnitRunner])
-class AddTopicControllerWebTest extends Specification {
+class AddTopicControllerWebTest extends Specification with WebHelper {
   "post form" should {
     "open and have CSRF" in {
       val response = basicRequest
-        .get(uri"${WebHelper.MainUrl}add-section.jsp?section=${Section.SECTION_NEWS}")
-        .send(WebHelper.backend)
+        .get(uri"${MainUrl}add-section.jsp?section=${Section.SECTION_NEWS}")
+        .send(backend)
 
       response.code must be equalTo StatusCode.Ok
 
@@ -56,20 +55,20 @@ class AddTopicControllerWebTest extends Specification {
         .body(Map(
           "section" -> Section.SECTION_FORUM.toString,
           "group" -> AddTopicControllerWebTest.TestGroup.toString))
-        .post(WebHelper.MainUrl.addPath("add.jsp"))
-        .send(WebHelper.backend)
+        .post(MainUrl.addPath("add.jsp"))
+        .send(backend)
 
       response.code must be equalTo StatusCode.Ok
 
-      val doc = Jsoup.parse(response.body.merge, WebHelper.MainUrl.toString())
+      val doc = Jsoup.parse(response.body.merge, MainUrl.toString())
 
       doc.select("#messageForm").asScala must not be empty
       doc.select(".error").asScala must not be empty
       doc.select("input[name=csrf]").asScala must not be empty
     }
 
-    "perform post" in WebHelper.Authorized() { auth =>
-      WebHelper.createTopic(auth, TestGroup, TestTitle) must beRight
+    "perform post" in Authorized() { auth =>
+      createTopic(auth, TestGroup, TestTitle) must beRight
     }
 
     "post news without auth" in {
@@ -83,8 +82,8 @@ class AddTopicControllerWebTest extends Specification {
           "csrf" -> "csrf",
           "title" -> "Новость без аутентификации"))
         .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
-        .post(WebHelper.MainUrl.addPath("add.jsp"))
-        .send(WebHelper.backend)
+        .post(MainUrl.addPath("add.jsp"))
+        .send(backend)
 
       val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 

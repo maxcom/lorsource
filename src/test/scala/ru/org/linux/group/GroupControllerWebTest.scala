@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,16 +24,16 @@ import sttp.client3.*
 import sttp.model.StatusCode
 
 @RunWith(classOf[JUnitRunner])
-class GroupControllerWebTest extends Specification {
+class GroupControllerWebTest extends Specification with WebHelper {
   class AuthenticatedUser(user: String) extends Scope {
-    val auth: String = WebHelper.doLogin(user, "passwd")
+    val auth: String = doLogin(user, "passwd")
   }
 
   "talks page" should {
     "contain info" in {
       val response = basicRequest
-        .get(WebHelper.MainUrl.addPath("forum", "talks"))
-        .send(WebHelper.backend)
+        .get(MainUrl.addPath("forum", "talks"))
+        .send(backend)
 
       response.code must be equalTo StatusCode.Ok
 
@@ -44,9 +44,9 @@ class GroupControllerWebTest extends Specification {
 
     "contain info and edit link for moderator" in new AuthenticatedUser("maxcom") {
       val response = basicRequest
-        .get(WebHelper.MainUrl.addPath("forum", "talks"))
-        .cookie(WebHelper.AuthCookie, auth)
-        .send(WebHelper.backend)
+        .get(MainUrl.addPath("forum", "talks"))
+        .cookie(AuthCookie, auth)
+        .send(backend)
 
       response.code must be equalTo StatusCode.Ok
 
@@ -64,9 +64,9 @@ class GroupControllerWebTest extends Specification {
   "job page" should {
     "contain empty info for moderator" in new AuthenticatedUser("maxcom")  {
       val response = basicRequest
-        .get(WebHelper.MainUrl.addPath("forum", "job"))
-        .cookie(WebHelper.AuthCookie, auth)
-        .send(WebHelper.backend)
+        .get(MainUrl.addPath("forum", "job"))
+        .cookie(AuthCookie, auth)
+        .send(backend)
 
       response.code must be equalTo StatusCode.Ok
 

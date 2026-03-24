@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -33,7 +33,7 @@ import javax.sql.DataSource
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database-admin.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
-class UserpicControllerWebTest {
+class UserpicControllerWebTest extends SpringJUnit4ClassRunner(classOf[UserpicControllerWebTest]) with WebHelper {
   @Autowired
   private var userDao: UserDao = scala.compiletime.uninitialized
 
@@ -59,11 +59,11 @@ class UserpicControllerWebTest {
       .multipartBody(
         multipart("csrf", "csrf"),
         multipartFile("file", file))
-      .cookie(WebHelper.AuthCookie, auth)
+      .cookie(AuthCookie, auth)
       .cookie(CSRFProtectionService.CSRF_COOKIE -> "csrf")
-      .post(WebHelper.MainUrl.addPath("addphoto.jsp"))
+      .post(MainUrl.addPath("addphoto.jsp"))
       .followRedirects(false)
-      .send(WebHelper.backend)
+      .send(backend)
   }
 
   @After
@@ -74,12 +74,12 @@ class UserpicControllerWebTest {
 
   @Test
   def testPage(): Unit = {
-    val auth = WebHelper.doLogin("JB", "passwd")
+    val auth = doLogin("JB", "passwd")
 
     val response = basicRequest
-      .cookie(WebHelper.AuthCookie, auth)
-      .get(WebHelper.MainUrl.addPath("addphoto.jsp"))
-      .send(WebHelper.backend)
+      .cookie(AuthCookie, auth)
+      .get(MainUrl.addPath("addphoto.jsp"))
+      .send(backend)
 
     assertEquals(response.code, StatusCode.Ok)
   }
@@ -89,7 +89,7 @@ class UserpicControllerWebTest {
    */
   @Test
   def testInvalidImage(): Unit = {
-    val auth = WebHelper.doLogin("JB", "passwd")
+    val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/test/resources/database.xml", auth)
 
     assertEquals(cr.code, StatusCode.BadRequest)
@@ -104,7 +104,7 @@ class UserpicControllerWebTest {
    */
   @Test
   def testInvalid2Image(): Unit = {
-    val auth = WebHelper.doLogin("JB", "passwd")
+    val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/main/webapp/img/pcard.jpg", auth)
 
     assertEquals(cr.code, StatusCode.BadRequest)
@@ -120,7 +120,7 @@ class UserpicControllerWebTest {
    */
   @Test
   def testInvalid3Image(): Unit = {
-    val auth = WebHelper.doLogin("JB", "passwd")
+    val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/main/webapp/img/twitter.png", auth)
 
     assertEquals(cr.code, StatusCode.BadRequest)
@@ -136,7 +136,7 @@ class UserpicControllerWebTest {
    */
   @Test
   def testInvalid4Image(): Unit = {
-    val auth = WebHelper.doLogin("JB", "passwd")
+    val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/test/resources/images/animated.gif", auth)
 
     assertEquals(cr.code, StatusCode.BadRequest)
@@ -152,7 +152,7 @@ class UserpicControllerWebTest {
    */
   @Test
   def testValidImage(): Unit = {
-    val auth = WebHelper.doLogin("JB", "passwd")
+    val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/main/webapp/tango/img/android.png", auth)
 
     assertEquals(StatusCode.Found, cr.code)
@@ -172,7 +172,7 @@ class UserpicControllerWebTest {
    */
   @Test
   def testAPNGImage(): Unit = {
-    val auth = WebHelper.doLogin("JB", "passwd")
+    val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/test/resources/images/i_want_to_be_a_hero__apng_animated__by_tamalesyatole-d5ht8eu.png", auth)
 
     assertEquals(cr.code, StatusCode.BadRequest)

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,7 +23,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.test.WebHelper
-import ru.org.linux.test.WebHelper.AuthCookie
 import ru.org.linux.user.EditRegisterControllerWebTest.*
 import sttp.client3.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
@@ -46,7 +45,7 @@ object EditRegisterControllerWebTest {
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
-class EditRegisterControllerWebTest {
+class EditRegisterControllerWebTest extends SpringJUnit4ClassRunner(classOf[EditRegisterControllerWebTest]) with WebHelper {
   @Autowired
   private var userDao: UserDao = scala.compiletime.uninitialized
 
@@ -79,12 +78,12 @@ class EditRegisterControllerWebTest {
    * */
   @Test
   def testSimple(): Unit = {
-    val auth = WebHelper.doLogin("JB", JB_PASS)
+    val auth = doLogin("JB", JB_PASS)
 
     val cr = basicRequest
-      .get(WebHelper.MainUrl.addPath("people", "JB", "edit"))
-      .cookie(WebHelper.AuthCookie, auth)
-      .send(WebHelper.backend)
+      .get(MainUrl.addPath("people", "JB", "edit"))
+      .cookie(AuthCookie, auth)
+      .send(backend)
 
     assertEquals(cr.code, StatusCode.Ok)
 
@@ -114,25 +113,25 @@ class EditRegisterControllerWebTest {
           ("info", info),
           ("csrf", "csrf"),
           ("oldpass", JB_PASS)))
-      .post(WebHelper.MainUrl.addPath("people", "JB", "edit"))
-      .cookie(WebHelper.AuthCookie, auth)
+      .post(MainUrl.addPath("people", "JB", "edit"))
+      .cookie(AuthCookie, auth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
       .followRedirects(false)
-      .send(WebHelper.backend)
+      .send(backend)
 
     assertEquals(StatusCode.Found, cr2.code)
     assertEquals(Some(Uri.unsafeParse("http://127.0.0.1:8080/people/JB/profile")),
-      cr2.header(HeaderNames.Location).map(Uri.unsafeParse).map(WebHelper.MainUrl.resolve))
+      cr2.header(HeaderNames.Location).map(Uri.unsafeParse).map(MainUrl.resolve))
   }
 
   @Test
   def testChangePassword(): Unit = {
-    val auth = WebHelper.doLogin("maxcom", MAXCOM_PASS)
+    val auth = doLogin("maxcom", MAXCOM_PASS)
 
     val cr = basicRequest
-      .get(WebHelper.MainUrl.addPath("people", "maxcom", "edit"))
-      .cookie(WebHelper.AuthCookie, auth)
-      .send(WebHelper.backend)
+      .get(MainUrl.addPath("people", "maxcom", "edit"))
+      .cookie(AuthCookie, auth)
+      .send(backend)
 
     assertEquals(StatusCode.Ok, cr.code)
 
@@ -162,11 +161,11 @@ class EditRegisterControllerWebTest {
           ("oldpass", "passwd"),
           ("password", "passwd2"),
           ("password2", "passwd2")))
-      .post(WebHelper.MainUrl.addPath("people", "maxcom", "edit"))
-      .cookie(WebHelper.AuthCookie, auth)
+      .post(MainUrl.addPath("people", "maxcom", "edit"))
+      .cookie(AuthCookie, auth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
       .followRedirects(false)
-      .send(WebHelper.backend)
+      .send(backend)
 
     assertEquals(StatusCode.Found, cr2.code)
 
@@ -176,9 +175,9 @@ class EditRegisterControllerWebTest {
     val location = Uri.unsafeParse(cr2.header(HeaderNames.Location).get)
 
     val cr3 = basicRequest
-      .get(WebHelper.MainUrl.resolve(location))
-      .cookie(WebHelper.AuthCookie, newAuth)
-      .send(WebHelper.backend)
+      .get(MainUrl.resolve(location))
+      .cookie(AuthCookie, newAuth)
+      .send(backend)
 
     assertEquals(StatusCode.Ok, cr3.code)
 
@@ -194,11 +193,11 @@ class EditRegisterControllerWebTest {
           ("oldpass", "passwd2"),
           ("password", "passwd"),
           ("password2", "passwd")))
-      .post(WebHelper.MainUrl.addPath("people", "maxcom", "edit"))
-      .cookie(WebHelper.AuthCookie, newAuth)
+      .post(MainUrl.addPath("people", "maxcom", "edit"))
+      .cookie(AuthCookie, newAuth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
       .followRedirects(false)
-      .send(WebHelper.backend)
+      .send(backend)
 
     assertEquals(StatusCode.Found, cr4.code)
 
@@ -207,21 +206,21 @@ class EditRegisterControllerWebTest {
     val location2 = Uri.unsafeParse(cr4.header(HeaderNames.Location).get)
 
     val cr5 = basicRequest
-      .get(WebHelper.MainUrl.resolve(location2))
-      .cookie(WebHelper.AuthCookie, newAuth2)
-      .send(WebHelper.backend)
+      .get(MainUrl.resolve(location2))
+      .cookie(AuthCookie, newAuth2)
+      .send(backend)
 
     assertEquals(StatusCode.Ok, cr5.code)
   }
 
   @Test
   def testChange(): Unit = {
-    val auth = WebHelper.doLogin("JB", JB_PASS)
+    val auth = doLogin("JB", JB_PASS)
 
     val cr = basicRequest
-      .get(WebHelper.MainUrl.addPath("people", "JB", "edit"))
-      .cookie(WebHelper.AuthCookie, auth)
-      .send(WebHelper.backend)
+      .get(MainUrl.addPath("people", "JB", "edit"))
+      .cookie(AuthCookie, auth)
+      .send(backend)
 
     assertEquals(StatusCode.Ok, cr.code)
 
@@ -250,11 +249,11 @@ class EditRegisterControllerWebTest {
           ("town", town),
           ("info", info),
           ("csrf", "csrf")))
-      .post(WebHelper.MainUrl.addPath("people", "JB", "edit"))
-      .cookie(WebHelper.AuthCookie, auth)
+      .post(MainUrl.addPath("people", "JB", "edit"))
+      .cookie(AuthCookie, auth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
       .followRedirects(false)
-      .send(WebHelper.backend)
+      .send(backend)
 
     val doc2 = Jsoup.parse(cr2.body.merge, cr2.request.uri.toString())
 
