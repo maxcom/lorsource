@@ -14,16 +14,15 @@
  */
 package ru.org.linux.test
 
+import munit.{BaseFunSuite, FunFixtures, FunSuite}
 import org.jsoup.Jsoup
 import org.junit.Assert
-import org.specs2.execute.{AsResult, Result}
-import org.specs2.specification.Fixture
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import sttp.client3.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
-trait WebHelper {
+trait WebHelper extends FunFixtures { self: BaseFunSuite =>
   val AuthCookie = "remember_me"
   val MainUrl: Uri = Uri.unsafeParse("http://127.0.0.1:8080/")
 
@@ -69,11 +68,8 @@ trait WebHelper {
     }
   }
 
-  def Authorized(user: String = TestUser, password: String = TestPassword): Fixture[String] = new Fixture[String] {
-    override def apply[R: AsResult](f: String => R): Result = {
-      val auth = doLogin(user, password)
-
-      AsResult(f(auth))
-    }
-  }
+  def authorized(user: String = TestUser, password: String = TestPassword): FunFixture[String] = FunFixture[String](
+    setup = { _ => doLogin(user, password) },
+    teardown = { s => },
+  )
 }

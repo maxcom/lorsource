@@ -14,68 +14,61 @@
  */
 package ru.org.linux.comment
 
+import munit.FunSuite
 import org.jsoup.Jsoup
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
-import ru.org.linux.comment.CommentWebTest.{TestGroup, TestTitle}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import ru.org.linux.test.WebHelper
 import sttp.client3.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
-object CommentWebTest {
+object CommentWebTest:
   private val TestGroup = 4068
   private val TestTitle = "Comment Web Test"
-}
 
-@RunWith(classOf[JUnitRunner])
-class CommentWebTest extends Specification with WebHelper {
-  "post and edit" should {
-    "post and edit" in Authorized() { auth =>
-      val topicId = createTopic(auth, TestGroup, TestTitle).fold(v => throw new RuntimeException(v), identity)
+class CommentWebTest extends FunSuite with WebHelper:
+  import CommentWebTest.*
 
-      val postResponse = basicRequest
-        .body(Map(
-          "section" -> Section.SECTION_FORUM.toString,
-          "group" -> TestGroup.toString,
-          "topic" -> topicId.toString,
-          "msg" -> "blah blah blah",
-          "csrf" -> "csrf"))
-        .cookie(AuthCookie, auth)
-        .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
-        .followRedirects(false)
-        .post(MainUrl.addPath("add_comment.jsp"))
-        .send(backend)
+  authorized().test("post and edit"): auth =>
+    val topicId = createTopic(auth, TestGroup, TestTitle).fold(v => throw new RuntimeException(v), identity)
 
-      postResponse.code must be equalTo(StatusCode.Ok) or equalTo(StatusCode.SeeOther)
+    val postResponse = basicRequest
+      .body(Map(
+        "section" -> Section.SECTION_FORUM.toString,
+        "group" -> TestGroup.toString,
+        "topic" -> topicId.toString,
+        "msg" -> "blah blah blah",
+        "csrf" -> "csrf"))
+      .cookie(AuthCookie, auth)
+      .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
+      .followRedirects(false)
+      .post(MainUrl.addPath("add_comment.jsp"))
+      .send(backend)
 
-      val postDoc = Jsoup.parse(postResponse.body.merge, MainUrl.toString())
+    assert(postResponse.code == StatusCode.Ok || postResponse.code == StatusCode.SeeOther, "post should succeed")
 
-      postDoc.select(".error").text() must be empty
+    val postDoc = Jsoup.parse(postResponse.body.merge, MainUrl.toString())
 
-      val commentId = postResponse.header(HeaderNames.Location).map(Uri.parse).flatMap(_.toOption)
-        .flatMap(_.params.get("cid")).map(_.toInt).getOrElse(0)
+    assert(postDoc.select(".error").text().isEmpty, "no errors in post")
 
-      val editResponse = basicRequest
-        .body(Map(
-          "section" -> Section.SECTION_FORUM.toString,
-          "group" -> TestGroup.toString,
-          "topic" -> topicId.toString,
-          "original" -> commentId.toString,
-          "msg" -> "not so blah blah blah",
-          "csrf" -> "csrf"))
-        .cookie(AuthCookie, auth)
-        .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
-        .post(MainUrl.addPath("edit_comment"))
-        .send(backend)
+    val commentId = postResponse.header(HeaderNames.Location).map(Uri.parse).flatMap(_.toOption)
+      .flatMap(_.params.get("cid")).map(_.toInt).getOrElse(0)
 
-      editResponse.code must be equalTo StatusCode.Ok
+    val editResponse = basicRequest
+      .body(Map(
+        "section" -> Section.SECTION_FORUM.toString,
+        "group" -> TestGroup.toString,
+        "topic" -> topicId.toString,
+        "original" -> commentId.toString,
+        "msg" -> "not so blah blah blah",
+        "csrf" -> "csrf"))
+      .cookie(AuthCookie, auth)
+      .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
+      .post(MainUrl.addPath("edit_comment"))
+      .send(backend)
 
-      val editDoc = Jsoup.parse(editResponse.body.merge, MainUrl.toString())
+    assertEquals(editResponse.code, StatusCode.Ok, "edit should succeed")
 
-      editDoc.select(".error").text() must be empty
-    }
-  }
-}
+    val editDoc = Jsoup.parse(editResponse.body.merge, MainUrl.toString())
+
+    assert(editDoc.select(".error").text().isEmpty, "no errors in edit")

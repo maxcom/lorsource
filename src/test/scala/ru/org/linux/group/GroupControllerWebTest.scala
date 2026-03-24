@@ -14,61 +14,48 @@
  */
 package ru.org.linux.group
 
+import munit.FunSuite
 import org.jsoup.Jsoup
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
 import ru.org.linux.test.WebHelper
 import sttp.client3.*
 import sttp.model.StatusCode
 
-@RunWith(classOf[JUnitRunner])
-class GroupControllerWebTest extends Specification with WebHelper {
-  "talks page" should {
-    "contain info" in {
-      val response = basicRequest
-        .get(MainUrl.addPath("forum", "talks"))
-        .send(backend)
+class GroupControllerWebTest extends FunSuite with WebHelper:
+  test("talks page contains info"):
+    val response = basicRequest
+      .get(MainUrl.addPath("forum", "talks"))
+      .send(backend)
 
-      response.code must be equalTo StatusCode.Ok
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+    val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      doc.select(".infoblock").text must beMatching(".+")
-    }
+    assert(doc.select(".infoblock").text().nonEmpty, "infoblock should have text")
 
-    "contain info and edit link for moderator" in Authorized("maxcom") { auth =>
-      val response = basicRequest
-        .get(MainUrl.addPath("forum", "talks"))
-        .cookie(AuthCookie, auth)
-        .send(backend)
+  authorized("maxcom").test("talks page contains info and edit link for moderator"): auth =>
+    val response = basicRequest
+      .get(MainUrl.addPath("forum", "talks"))
+      .cookie(AuthCookie, auth)
+      .send(backend)
 
-      response.code must be equalTo StatusCode.Ok
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+    val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      doc.select(".infoblock").text must beMatching(".+")
+    assert(doc.select(".infoblock").text().nonEmpty, "infoblock should have text")
 
-      // у модератора в последнем абзаце groupInfo ссылка на изменение groupinfo
-      doc.select(".infoblock p").last.text must be equalTo "[править]"
+    assertEquals("[править]", doc.select(".infoblock p").last.text(), "last paragraph should be edit link")
 
-      doc.select(".infoblock p").last.select("a").attr("href") must be equalTo "groupmod.jsp?group=8404"
-    }
-  }
+    assertEquals("groupmod.jsp?group=8404", doc.select(".infoblock p").last.select("a").attr("href"), "edit link href")
 
-  "job page" should {
-    "contain empty info for moderator" in Authorized("maxcom")  { auth =>
-      val response = basicRequest
-        .get(MainUrl.addPath("forum", "job"))
-        .cookie(AuthCookie, auth)
-        .send(backend)
+  authorized("maxcom").test("job page contains empty info for moderator"): auth =>
+    val response = basicRequest
+      .get(MainUrl.addPath("forum", "job"))
+      .cookie(AuthCookie, auth)
+      .send(backend)
 
-      response.code must be equalTo StatusCode.Ok
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+    val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      // кстати, у форумов без userinfo кнопочки нет (
-      doc.select(".infoblock").text must not contain("править")
-    }
-  }
-}
+    assert(!doc.select(".infoblock").text().contains("править"), "infoblock should not contain edit link")
