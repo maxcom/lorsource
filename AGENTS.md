@@ -96,7 +96,7 @@ mvn dependency:analyze   # Analyze dependencies
 ### Testing
 
 - Use JUnit 4/5 for Java unit tests
-- Use MUnit and Specs2 for Scala tests
+- Use MUnit for Scala tests
 - Follow AAA pattern (Arrange/Act/Assert or Given/When/Then)
 - Place test classes in same package under `src/test/java` or `src/test/scala`
 - Integration tests require database (use testcontainers if needed)
