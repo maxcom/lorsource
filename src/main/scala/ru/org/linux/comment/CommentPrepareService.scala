@@ -15,7 +15,6 @@
 package ru.org.linux.comment
 
 import com.google.common.base.Strings
-import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AnySession
 import ru.org.linux.group.{Group, GroupDao}
@@ -27,6 +26,7 @@ import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.user.*
 import ru.org.linux.warning.{Warning, WarningService}
 
+import java.time.Duration
 import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.*
 
@@ -204,13 +204,13 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  def buildDateJumpSet(comments: Seq[Comment], jumpMinDuration: Duration): java.util.Set[Integer] = {
+  def buildDateJumpSet(comments: Seq[Comment], jumpMinDuration: Duration): Set[Int] = {
     val commentDates = comments.view.map { c =>
-      c.id -> new DateTime(c.postdate)
+      c.id -> c.postdate.toInstant
     }
 
-    commentDates.zip(commentDates.drop(1)).filter { case (first, second) =>
-      new Duration(first._2, second._2).isLongerThan(jumpMinDuration)
-    }.map(_._2._1).map(Integer.valueOf).toSet.asJava
+    commentDates.view.zip(commentDates.drop(1)).filter { case (first, second) =>
+      Duration.between(first._2, second._2).compareTo(jumpMinDuration) > 0
+    }.map(_._2._1).toSet
   }
 }

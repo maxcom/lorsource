@@ -16,7 +16,6 @@ package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -43,13 +42,12 @@ import java.util
 import java.util.concurrent.{Callable, TimeUnit}
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava}
+import scala.jdk.CollectionConverters.*
 
 object TopicController {
   private val MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS)
-  private val logger = LoggerFactory.getLogger(classOf[TopicController])
 
-  private val JUMP_MIN_DURATION: org.joda.time.Duration = org.joda.time.Duration.standardDays(30)
+  private val JUMP_MIN_DURATION: java.time.Duration = java.time.Duration.ofDays(30)
 
   private def getDefaultFilter(emptyIgnoreList: Boolean): Int = {
     var filterMode = CommentFilter.FILTER_IGNORED
@@ -299,7 +297,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("showDeletedButton",
       Boolean.box(permissionService.allowViewDeletedComments(topic) && !showDeleted))
 
-    params.put("dateJumps", prepareService.buildDateJumpSet(commentsFiltered, TopicController.JUMP_MIN_DURATION))
+    params.put("dateJumps", prepareService.buildDateJumpSet(commentsFiltered, TopicController.JUMP_MIN_DURATION).map(Integer.valueOf).asJava)
 
     new ModelAndView("view-topic", params.asJava)
   }
@@ -474,7 +472,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
   @ExceptionHandler(Array(classOf[MessageNotFoundException]))
   @ResponseStatus(HttpStatus.NOT_FOUND)
   def handleMessageNotFoundException(ex: MessageNotFoundException): ModelAndView = {
-    TopicController.logger.debug("Not found", ex)
+    logger.debug("Not found", ex)
 
     if (ex.getTopic != null) {
       val mav = new ModelAndView("errors/good-penguin")
