@@ -14,7 +14,6 @@
  */
 package ru.org.linux.user
 
-import org.joda.time.DateTime
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
@@ -23,6 +22,7 @@ import ru.org.linux.user.UserInvitesDao.ValidDays
 
 import java.security.SecureRandom
 import java.sql.Timestamp
+import java.time.{Instant, ZonedDateTime}
 import java.util.Base64
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
@@ -38,7 +38,7 @@ class UserInvitesDao(ds: DataSource) {
 
   private val jdbcTemplate = new JdbcTemplate(ds)
 
-  def createInvite(owner: User, email: String): (String, DateTime) = {
+  def createInvite(owner: User, email: String): (String, Instant) = {
     val random = new SecureRandom
 
     val value = new Array[Byte](16)
@@ -46,12 +46,12 @@ class UserInvitesDao(ds: DataSource) {
 
     val inviteCode = Base64.getEncoder.encodeToString(value)
 
-    val validUntil = DateTime.now().plusDays(ValidDays)
+    val validUntil = ZonedDateTime.now().plusDays(ValidDays).toInstant
 
     insert.execute(Map(
       "invite_code" -> inviteCode,
       "owner" -> owner.id,
-      "valid_until" -> new Timestamp(validUntil.getMillis),
+      "valid_until" -> Timestamp.from(validUntil),
       "email" -> email
     ).asJava)
 

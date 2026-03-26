@@ -19,7 +19,6 @@ import io.circe.Json
 import io.circe.syntax.EncoderOps
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.jasypt.util.text.AES256TextEncryptor
-import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
@@ -36,8 +35,9 @@ import ru.org.linux.auth.*
 import ru.org.linux.email.EmailService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
-
 import jakarta.mail.internet.InternetAddress
+
+import java.time.{Instant, OffsetDateTime}
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
 
@@ -76,7 +76,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
   private def makePermit: String = {
     val key = siteConfig.getSecret
-    val message = s"permit:${DateTime.now().plusHours(1).getMillis}"
+    val message = s"permit:${OffsetDateTime.now().plusHours(1).toInstant.toEpochMilli}"
 
     val textEncryptor = new AES256TextEncryptor
     textEncryptor.setPassword(key)
@@ -90,11 +90,11 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
     textEncryptor.decrypt(permit).split(":", 2) match {
       case Array("permit", date) =>
-        val decodedDate = new DateTime(date.toLong)
+        val decodedDate = Instant.ofEpochMilli(date.toLong)
         logger.debug(s"Decoded permit date: $decodedDate")
-        decodedDate.isAfterNow
+        decodedDate.isAfter(Instant.now)
       case other =>
-        logger.warn(s"Invalid permit - decrypted: $other")
+        logger.warn(s"Invalid permit - decrypted: ${other.mkString}")
         false
     }
   }

@@ -22,7 +22,6 @@ import jakarta.mail.{Message, MessagingException, Session, Transport}
 import jakarta.servlet.RequestDispatcher
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.pekko.actor.ActorRef
-import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.org.linux.email.EmailService.createMessage
@@ -33,7 +32,7 @@ import ru.org.linux.user.User
 
 import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
-import java.time.ZoneId
+import java.time.{Instant, ZoneId}
 import java.util.{Date, Properties}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -98,7 +97,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     sendRegistrationMail(email, text.toString())
   }
 
-  def sendInviteEmail(inviteUser: User, email: String, inviteCode: String, validUntil: DateTime): Unit = {
+  def sendInviteEmail(inviteUser: User, email: String, inviteCode: String, validUntil: Instant): Unit = {
     val text =
       s"""
          |Здравствуйте!
@@ -113,7 +112,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |https://www.linux.org.ru/register.jsp?invite=${URLEncoder.encode(inviteCode, "utf-8")}
          |
          |Эта ссылка позволяет зарегистрировать только одну учетную запись. Ссылка действует
-         |до ${DateFormats.formatDefault(ZoneId.systemDefault(), validUntil.toDate)}.
+         |до ${DateFormats.formatDefault(ZoneId.systemDefault(), Date.from(validUntil))}.
          |
          |До встречи!
          |
