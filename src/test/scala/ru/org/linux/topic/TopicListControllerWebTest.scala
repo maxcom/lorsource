@@ -25,3 +25,9 @@ class TopicListControllerWebTest extends FunSuite with WebHelper:
       .get(MainUrl.addPath("news", "archive", "2007", "5"))
       .send(backend)
     assertEquals(response.code, StatusCode.Ok, "status code")
+
+  test("polls section loads with 200 code"):
+    val response = basicRequest
+      .get(uri"${MainUrl}polls/")
+      .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")

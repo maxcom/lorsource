@@ -59,7 +59,7 @@ class Section(
     if id == Forum then
       "/forum/lenta/"
     else
-      "/" + getUrlName(id) + "/"
+      Section.getSectionLink(id)
 
   def getSectionLink: String = Section.getSectionLink(id)
 
@@ -97,9 +97,7 @@ object Section:
       rs.getBoolean("imageallowed")
     )
 
-  def getSectionLink(section: Int): String = getSectionLinkInternal(section)
-
-  private def getSectionLinkInternal(section: Int): String = s"/${getUrlName(section)}/"
+  def getSectionLink(section: Int): String = "/" + getUrlName(section) + "/"
 
   def getUrlName(section: Int): String =
     sections.get(section) match
