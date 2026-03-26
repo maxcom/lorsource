@@ -63,3 +63,33 @@ class SectionDaoIntegrationTest extends FunSuite:
     assertEquals("gallery", Section.getUrlName(Section.Gallery))
     assertEquals("polls", Section.getUrlName(Section.Polls))
     assertEquals("articles", Section.getUrlName(Section.Articles))
+
+  test("getArchiveLinkTest"):
+    val sectionList = sectionDao.getAllSections
+
+    val forum = getSectionById(sectionList, Section.Forum)
+    assert(forum != null)
+    assertEquals(null, forum.getArchiveLink)
+
+    val gallery = getSectionById(sectionList, Section.Gallery)
+    assert(gallery != null)
+    assertEquals("/gallery/archive/", gallery.getArchiveLink)
+
+    val polls = getSectionById(sectionList, Section.Polls)
+    assert(polls != null)
+    assertEquals("/polls/archive/", polls.getArchiveLink)
+
+    val news = getSectionById(sectionList, Section.News)
+    assert(news != null)
+    assertEquals("/news/archive/", news.getArchiveLink)
+
+    val articles = getSectionById(sectionList, Section.Articles)
+    assert(articles != null)
+    assertEquals("/articles/archive/", articles.getArchiveLink)
+
+  test("getArchiveLinkWithYearMonthTest"):
+    val sectionList = sectionDao.getAllSections
+
+    val gallery = getSectionById(sectionList, Section.Gallery)
+    assert(gallery != null)
+    assertEquals("/gallery/archive/2024/5/", gallery.getArchiveLink(2024, 5))

@@ -53,7 +53,7 @@ class Section(
     if id == Forum then
       null
     else
-      s"${getSectionLink(id)}archive/"
+      s"${Section.getSectionLink(id)}archive/"
 
   def getNewsViewerLink: String =
     if id == Forum then
