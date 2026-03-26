@@ -47,7 +47,7 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
   def createTopic(auth: String, groupId: Int, title: String): Either[String, Int] = {
     val response = basicRequest
       .body(Map(
-        "section" -> Section.SECTION_FORUM.toString,
+        "section" -> Section.Forum.toString,
         "group" -> groupId.toString,
         "csrf" -> "csrf",
         "title" -> title))

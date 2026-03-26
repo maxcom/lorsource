@@ -46,7 +46,7 @@ class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: Ac
 
   import ru.org.linux.tag.TagService.*
 
-  private val sectionForum: Section = sectionService.getSection(Section.SECTION_FORUM)
+  private val sectionForum: Section = sectionService.getSection(Section.Forum)
   private val NonTechNames: Seq[String] =
     groupDao.getGroups(sectionForum).asScala.filter(g => SectionController.NonTech.contains(g.id)).map(_.urlName).toSeq
 

@@ -62,7 +62,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                  previewMsg: Topic): (Int, Set[Int]) = transactional() { _ =>
     val section = sectionService.getSection(group.sectionId)
 
-    if (section.isImagepost && image.isEmpty) {
+    if (section.imagepost && image.isEmpty) {
       throw new ScriptErrorException("scrn is empty?!")
     }
 
@@ -323,7 +323,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     form.additionalUploadedImages = (additionalImagePreviews.map(_.mainFile.getName) ++
       Vector.fill(additionalImagesLimit - additionalImagePreviews.size)(null)).toArray
 
-    if (section.isImagepost && imagePreview.isEmpty && !hasImage) {
+    if (section.imagepost && imagePreview.isEmpty && !hasImage) {
       errors.reject(null, "Изображение отсутствует")
     }
 

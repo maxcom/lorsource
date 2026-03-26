@@ -130,8 +130,8 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.GET))
   def moveToForumForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
-    val sections = Seq(sectionService.getSection(Section.SECTION_FORUM),
-      sectionService.getSection(Section.SECTION_ARTICLES))
+    val sections = Seq(sectionService.getSection(Section.Forum),
+      sectionService.getSection(Section.Articles))
 
     val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
 

@@ -34,7 +34,7 @@ class AddTopicControllerWebTest extends FunSuite with WebHelper:
 
   test("post form opens and has CSRF"):
     val response = basicRequest
-      .get(uri"${MainUrl}add-section.jsp?section=${Section.SECTION_NEWS}")
+      .get(uri"${MainUrl}add-section.jsp?section=${Section.News}")
       .send(backend)
 
     assertEquals(response.code, StatusCode.Ok, "status code")
@@ -46,7 +46,7 @@ class AddTopicControllerWebTest extends FunSuite with WebHelper:
   test("post action rejects request without CSRF"):
     val response = basicRequest
       .body(Map(
-        "section" -> Section.SECTION_FORUM.toString,
+        "section" -> Section.Forum.toString,
         "group" -> TestGroup.toString))
       .post(MainUrl.addPath("add.jsp"))
       .send(backend)
@@ -69,7 +69,7 @@ class AddTopicControllerWebTest extends FunSuite with WebHelper:
         "nick" -> TestUser,
         "password" -> TestPassword,
         "h-captcha-response" -> "10000000-aaaa-bbbb-cccc-000000000001",
-        "section" -> Section.SECTION_NEWS.toString,
+        "section" -> Section.News.toString,
         "group" -> TestGroupNews.toString,
         "csrf" -> "csrf",
         "title" -> "Новость без аутентификации"))

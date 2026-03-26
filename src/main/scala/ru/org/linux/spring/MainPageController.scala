@@ -71,7 +71,7 @@ class MainPageController(prepareService: TopicPrepareService, topicListService: 
 
     mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
 
-    val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
+    val sectionNews = sectionService.getSection(Section.News)
 
     if (groupPermissionService.isTopicPostingAllowed(sectionNews)) {
       mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))

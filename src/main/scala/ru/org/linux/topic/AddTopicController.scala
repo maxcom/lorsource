@@ -63,14 +63,14 @@ object AddTopicController {
 
   def getAddUrl(section: Section, tag: String): String = {
     val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
-    builder.queryParam("section", section.getId)
+    builder.queryParam("section", section.id)
     builder.queryParam("tag", tag)
     builder.build.toUriString
   }
 
   def getAddUrl(section: Section): String = {
     val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
-    builder.queryParam("section", section.getId)
+    builder.queryParam("section", section.id)
     builder.build.toUriString
   }
 
@@ -121,14 +121,14 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
                           (implicit currentUser: AnySession): Map[String, AnyRef] = {
     val params = Map.newBuilder[String, AnyRef]
 
-    val helpResource = servletContext.getResource("/help/new-topic-" + Section.getUrlName(section.getId) + ".md")
+    val helpResource = servletContext.getResource("/help/new-topic-" + Section.getUrlName(section.id) + ".md")
     if (helpResource != null) {
       val helpRawText = IOUtils.toString(helpResource, StandardCharsets.UTF_8)
       val addInfo = renderService.renderToHtml(helpRawText, nofollow = false)
       params.addOne("addportal" -> addInfo)
     }
 
-    params.addOne("sectionId" -> Integer.valueOf(section.getId))
+    params.addOne("sectionId" -> Integer.valueOf(section.id))
     params.addOne("section" -> section)
 
     group.foreach { group =>

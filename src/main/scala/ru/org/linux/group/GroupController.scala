@@ -71,7 +71,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
                    @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
-    val section = sectionService.getSection(Section.SECTION_FORUM)
+    val section = sectionService.getSection(Section.Forum)
     val group = groupDao.getGroup(section, groupName)
 
     if (year < 1990 || year > 3000) {
@@ -104,7 +104,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
             @RequestParam(defaultValue = "false") showDeleted: Boolean,
             @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
             request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
-    val section = sectionService.getSection(Section.SECTION_FORUM)
+    val section = sectionService.getSection(Section.Forum)
     val group = groupDao.getGroup(section, groupName)
 
     if (showDeleted && !currentUserOpt.authorized) {

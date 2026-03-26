@@ -18,7 +18,7 @@ import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.msgbase.DeleteInfoDao
-import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_GALLERY, SECTION_NEWS}
+import ru.org.linux.section.Section.{Articles, Gallery, News}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.{User, UserPermissionService}
@@ -77,7 +77,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   private def effectivePostscore(group: Group) = {
     val section = sectionService.getSection(group.sectionId)
 
-    Math.max(group.topicRestriction, section.getTopicsRestriction)
+    Math.max(group.topicRestriction, section.topicsRestriction)
   }
 
   def enableAllowAnonymousCheckbox(group: Group)(implicit currentUser: AnySession): Boolean = {
@@ -87,7 +87,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def isTopicPostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean =
-    isTopicPostingAllowed(section.getTopicsRestriction, currentUser.userOpt.orNull)
+    isTopicPostingAllowed(section.topicsRestriction, currentUser.userOpt.orNull)
 
   def isTopicPostingAllowed(group: Group)(implicit currentUser: AnySession): Boolean =
     isTopicPostingAllowed(effectivePostscore(group), currentUser.userOpt.orNull)
@@ -110,11 +110,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   }
 
   def isImagePostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean = {
-    if (section.isImagepost) {
+    if (section.imagepost) {
       true
     } else if (currentUser.authorized &&
         (currentUser.moderator || currentUser.corrector || currentUser.userOpt.exists(_.getScore >= 50))) {
-      section.isImageAllowed
+      section.imageAllowed
     } else {
       false
     }
@@ -122,8 +122,8 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
   def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
     if (isImagePostingAllowed(section)) {
-      section.getId match {
-        case SECTION_ARTICLES | SECTION_GALLERY | SECTION_NEWS =>
+      section.id match {
+        case Articles | Gallery | News =>
           3
         case _ =>
           0
@@ -225,7 +225,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
-    } else if (by.id == author.id && message.commited && section.getId == SECTION_ARTICLES) {
+    } else if (by.id == author.id && message.commited && section.id == Articles) {
       val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow
@@ -269,7 +269,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
         editDeadline.isAfterNow
       }
-    } else if (by.id == author.id && message.commited && section.getId == SECTION_ARTICLES) {
+    } else if (by.id == author.id && message.commited && section.id == Articles) {
       val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
 
       editDeadline.isAfterNow

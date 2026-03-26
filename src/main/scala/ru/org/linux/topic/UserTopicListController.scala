@@ -127,7 +127,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
         modelAndView.addObject("sectionList", sections.asJava)
       }
 
-      modelAndView.addObject("params", section.map(s => s"section=${s.getId}").getOrElse(""))
+      modelAndView.addObject("params", section.map(s => s"section=${s.id}").getOrElse(""))
 
       prepareTopicsForPlainOrRss(modelAndView, rss, messages)
 

@@ -14,15 +14,15 @@
  */
 package ru.org.linux.section.stub
 
-import ru.org.linux.section.{Section, SectionDao}
+import ru.org.linux.section.{Section, SectionDao, SectionScrollModeEnum}
 import ru.org.linux.topic.TopicPermissionService
 
 class TestSectionDaoImpl extends SectionDao {
   override def getAllSections = {
     Seq(
-      new Section("Section 1", false, true, 1, false, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED),
-      new Section("Section 2", false, true, 2, false, "GROUP", TopicPermissionService.POSTSCORE_UNRESTRICTED),
-      new Section("Section 3", true, true, 3, false, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED),
-      new Section("Section 5", false, false, 5, true, "SECTION", TopicPermissionService.POSTSCORE_UNRESTRICTED))
+      new Section("Section 1", false, true, 1, false, SectionScrollModeEnum.SECTION, TopicPermissionService.POSTSCORE_UNRESTRICTED, false),
+      new Section("Section 2", false, true, 2, false, SectionScrollModeEnum.GROUP, TopicPermissionService.POSTSCORE_UNRESTRICTED, false),
+      new Section("Section 3", true, true, 3, false, SectionScrollModeEnum.SECTION, TopicPermissionService.POSTSCORE_UNRESTRICTED, false),
+      new Section("Section 5", false, false, 5, true, SectionScrollModeEnum.SECTION, TopicPermissionService.POSTSCORE_UNRESTRICTED, false))
   }
 }

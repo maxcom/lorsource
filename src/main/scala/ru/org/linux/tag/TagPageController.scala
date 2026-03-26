@@ -93,10 +93,10 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
         val (news, newsDate) = getNewsSection(tag)
-        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.SECTION_FORUM, CommitMode.POSTMODERATED_ONLY)
+        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.Forum, CommitMode.POSTMODERATED_ONLY)
         val gallery = getGallerySection(tag, tagInfo.id)
-        val (polls, _) = getTopicList(tag, tagInfo.id, Section.SECTION_POLLS, CommitMode.COMMITED_ONLY)
-        val (articles, _) = getTopicList(tag, tagInfo.id, Section.SECTION_ARTICLES, CommitMode.COMMITED_ONLY)
+        val (polls, _) = getTopicList(tag, tagInfo.id, Section.Polls, CommitMode.COMMITED_ONLY)
+        val (articles, _) = getTopicList(tag, tagInfo.id, Section.Articles, CommitMode.COMMITED_ONLY)
 
         val newsFirst = newsDate.isDefined && (newsDate.exists(isRecent) || newsDate.zip(forumDate).exists(p => p._1.isAfter(p._2)))
 
@@ -136,7 +136,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 }
 
   private def getNewsSection(tag: String)(implicit currentUser: AnySession) = {
-    val newsSection = sectionService.getSection(Section.SECTION_NEWS)
+    val newsSection = sectionService.getSection(Section.News)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
       TagPageController.TotalNewsCount, noTalks = false, tech = false)
 
@@ -172,7 +172,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
   private def getGallerySection(tag: String, tagId: Int)(implicit  currentUser: AnySession) = {
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId).asJava)
-    val section = sectionService.getSection(Section.SECTION_GALLERY)
+    val section = sectionService.getSection(Section.Gallery)
 
     val add = if (groupPermissionService.isTopicPostingAllowed(section)) {
       Some("addGallery" -> AddTopicController.getAddUrl(section, tag))
@@ -193,7 +193,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val forumSection = sectionService.getSection(section)
 
     val topicListDto = new TopicListDto
-    topicListDto.setSection(forumSection.getId)
+    topicListDto.setSection(forumSection.id)
     topicListDto.setCommitMode(mode)
     topicListDto.setTag(tagId)
     topicListDto.setLimit(TagPageController.ForumTopicCount)

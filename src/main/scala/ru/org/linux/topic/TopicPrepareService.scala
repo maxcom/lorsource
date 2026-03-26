@@ -108,7 +108,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val url = s"${siteConfig.getSecureUrlWithoutSlash}${topic.getLink}"
     val processedMessage = textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(topic, author), url)
 
-    val (preparedImage, additionalPreparedImages) = if (section.isImagepost || section.isImageAllowed) {
+    val (preparedImage, additionalPreparedImages) = if (section.imagepost || section.imageAllowed) {
       val currentImages = if (topic.id != 0) {
         imageService.allImagesForTopic(topic)
       } else {

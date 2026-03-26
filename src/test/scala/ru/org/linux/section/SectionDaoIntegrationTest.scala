@@ -25,7 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
   @Autowired
   private var sectionDao: SectionDao = scala.compiletime.uninitialized
 
-  private def getSectionById(sections: Seq[Section], id: Int) = sections.find(_.getId == id).orNull
+  private def getSectionById(sections: Seq[Section], id: Int) = sections.find(_.id == id).orNull
 
   @Test
   def sectionsScrollModeTest() = {
@@ -33,18 +33,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
     var section = getSectionById(sectionList, 1)
     Assert.assertNotNull(section)
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode)
+    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.scrollMode)
 
     section = getSectionById(sectionList, 2)
     Assert.assertNotNull(section)
-    Assert.assertEquals(SectionScrollModeEnum.GROUP, section.getScrollMode)
+    Assert.assertEquals(SectionScrollModeEnum.GROUP, section.scrollMode)
 
     section = getSectionById(sectionList, 3)
     Assert.assertNotNull(section)
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode)
+    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.scrollMode)
 
     section = getSectionById(sectionList, 5)
     Assert.assertNotNull(section)
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode)
+    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.scrollMode)
   }
 }

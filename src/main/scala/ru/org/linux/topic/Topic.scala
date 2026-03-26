@@ -20,7 +20,7 @@ import org.joda.time.DateTime
 import ru.org.linux.group.Group
 import ru.org.linux.reaction.{ReactionDao, Reactions}
 import ru.org.linux.section.Section
-import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_NEWS}
+import ru.org.linux.section.Section.{Articles, News}
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
 import ru.org.linux.util.{StringUtil, URLUtil}
@@ -156,7 +156,7 @@ object Topic {
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
     val sectionId = group.sectionId
 
-    val minor: Boolean = if (sectionId == SECTION_NEWS || sectionId == SECTION_ARTICLES) {
+    val minor: Boolean = if (sectionId == News || sectionId == Articles) {
       form.minor
     } else {
       original.minor

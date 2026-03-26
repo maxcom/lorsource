@@ -44,18 +44,18 @@ object TopicListController {
   private def calculatePTitle(section: Section, groupOpt: Option[Group], topicListForm: TopicListRequest): String = {
     groupOpt match {
       case Some(group) =>
-        s"${section.getName} - ${group.title}"
+        s"${section.name} - ${group.title}"
       case None =>
         if (topicListForm.yearMonth.isEmpty) {
-          section.getName + topicListForm.filter.map(f => s" (${f.title})").getOrElse("")
+          section.name + topicListForm.filter.map(f => s" (${f.title})").getOrElse("")
         } else {
-          s"Архив: ${section.getName}, ${topicListForm.getYear.get}, ${DateUtil.getMonth(topicListForm.getMonth.get)}"
+          s"Архив: ${section.name}, ${topicListForm.getYear.get}, ${DateUtil.getMonth(topicListForm.getMonth.get)}"
         }
     }
   }
 
   private def calculateNavTitle(section: Section, group: Option[Group], topicListForm: TopicListRequest): String = {
-    val navTitle = new StringBuilder(section.getName)
+    val navTitle = new StringBuilder(section.name)
 
     group.foreach { group =>
       navTitle.append(s" «${group.title}»")
@@ -124,7 +124,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("section", section)
     modelAndView.addObject("archiveLink", section.getArchiveLink)
 
-    if (section.getId != Section.SECTION_FORUM) {
+    if (section.id != Section.Forum) {
       modelAndView.addObject("groupList",
         SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
     } else {
@@ -172,7 +172,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       modelAndView.addObject("url", section.getNewsViewerLink)
-      modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
+      modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}")
     }.asJava
   }
 
@@ -184,17 +184,17 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   @RequestMapping(path = Array("/forum/lenta"))
   def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int,
             @RequestParam(value = "filter", required = false) filter: String): CompletionStage[ModelAndView] = {
-    val section = sectionService.getSection(Section.SECTION_FORUM)
+    val section = sectionService.getSection(Section.Forum)
 
     val topicListForm = TopicListRequest.ofOffset(offset).copy(filter = parseFilter(filter))
 
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       if (filter==null) {
         modelAndView.addObject("url", section.getNewsViewerLink)
-        modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
+        modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}")
       } else {
         modelAndView.addObject("url", section.getNewsViewerLink + s"?filter=$filter")
-        modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}&filter=$filter")
+        modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}&filter=$filter")
       }
     }.asJava
   }
@@ -245,7 +245,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val forumFilter = parseFilter(filter)
 
     val section = sectionService.getSection(sectionId)
-    var ptitle = section.getName
+    var ptitle = section.name
 
     val group = if (groupId != 0) {
       val g = groupDao.getGroup(groupId)
@@ -294,8 +294,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
 
     group foreach { group =>
-      if (group.sectionId != section.getId) {
-        throw new ScriptErrorException(s"группа #${group.id} не принадлежит разделу #${section.getId}")
+      if (group.sectionId != section.id) {
+        throw new ScriptErrorException(s"группа #${group.id} не принадлежит разделу #${section.id}")
       }
     }
   }

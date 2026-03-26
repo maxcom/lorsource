@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -60,19 +60,19 @@ class ArchiveController(sectionService: SectionService, groupDao: GroupDao, arch
   }
 
   @RequestMapping(path = Array("/gallery/archive"))
-  def galleryArchive: ModelAndView = archiveList(Section.SECTION_GALLERY)
+  def galleryArchive: ModelAndView = archiveList(Section.Gallery)
 
   @RequestMapping(path = Array("/news/archive"))
-  def newsArchive: ModelAndView = archiveList(Section.SECTION_NEWS)
+  def newsArchive: ModelAndView = archiveList(Section.News)
 
   @RequestMapping(path = Array("/polls/archive"))
-  def pollsArchive: ModelAndView = archiveList(Section.SECTION_POLLS)
+  def pollsArchive: ModelAndView = archiveList(Section.Polls)
 
   @RequestMapping(path = Array("/articles/archive"))
-  def articlesArchive: ModelAndView = archiveList(Section.SECTION_ARTICLES)
+  def articlesArchive: ModelAndView = archiveList(Section.Articles)
 
   @RequestMapping(path = Array("/forum/{group}/archive"))
-  def forumArchive(@PathVariable group: String): ModelAndView = archiveList(Section.SECTION_FORUM, Some(group))
+  def forumArchive(@PathVariable group: String): ModelAndView = archiveList(Section.Forum, Some(group))
 
   @ExceptionHandler(Array(classOf[GroupNotFoundException]))
   @ResponseStatus(HttpStatus.NOT_FOUND)

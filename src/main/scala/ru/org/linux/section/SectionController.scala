@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.group.{Group, GroupDao}
-import ru.org.linux.section.Section.SECTION_FORUM
+import ru.org.linux.section.Section.Forum
 import ru.org.linux.section.SectionController.NonTech
 
 import scala.jdk.CollectionConverters.*
@@ -29,7 +29,7 @@ import scala.jdk.CollectionConverters.*
 class SectionController(sectionService: SectionService, groupDao: GroupDao) {
   @RequestMapping(path = Array("/forum"))
   def forum(): ModelAndView = {
-    val section = sectionService.getSection(SECTION_FORUM)
+    val section = sectionService.getSection(Forum)
 
     val allGroups = groupDao.getGroups(section)
 

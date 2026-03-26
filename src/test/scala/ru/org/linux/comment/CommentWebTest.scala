@@ -34,7 +34,7 @@ class CommentWebTest extends FunSuite with WebHelper:
 
     val postResponse = basicRequest
       .body(Map(
-        "section" -> Section.SECTION_FORUM.toString,
+        "section" -> Section.Forum.toString,
         "group" -> TestGroup.toString,
         "topic" -> topicId.toString,
         "msg" -> "blah blah blah",
@@ -56,7 +56,7 @@ class CommentWebTest extends FunSuite with WebHelper:
 
     val editResponse = basicRequest
       .body(Map(
-        "section" -> Section.SECTION_FORUM.toString,
+        "section" -> Section.Forum.toString,
         "group" -> TestGroup.toString,
         "topic" -> topicId.toString,
         "original" -> commentId.toString,

@@ -157,7 +157,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       form.msg=messageText.text
     }
 
-    if (message.sectionId == Section.SECTION_NEWS || message.sectionId == Section.SECTION_ARTICLES) {
+    if (message.sectionId == Section.News || message.sectionId == Section.Articles) {
       form.minor=message.minor
     }
 

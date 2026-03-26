@@ -71,7 +71,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
 
-    topicListDto.setSection(section.getId)
+    topicListDto.setSection(section.id)
 
     if (section.isPremoderated) {
       topicListDto.setCommitMode(COMMITED_ONLY)
@@ -133,7 +133,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setUserWatches(watches)
 
     section.foreach { section =>
-      topicListDto.setSection(section.getId)
+      topicListDto.setSection(section.id)
     }
 
     topicListDao.getTopics(topicListDto, NonAuthorizedSession)
@@ -171,7 +171,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
   def getRssTopicsFeed(section: Section, group: Option[Group], fromDate: Date, noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
-    topicListDto.setSection(section.getId)
+    topicListDto.setSection(section.id)
 
     group.foreach { group =>
       topicListDto.setGroup(group.id)
@@ -198,7 +198,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setCommitMode(CommitMode.UNCOMMITED_ONLY)
 
     section.foreach { section =>
-      topicListDto.setSection(section.getId)
+      topicListDto.setSection(section.id)
     }
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
@@ -227,9 +227,9 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
 
     if (session.profile.showGalleryOnMain) {
-      topicListDto.setSection(Section.SECTION_NEWS, Section.SECTION_GALLERY)
+      topicListDto.setSection(Section.News, Section.Gallery)
     } else {
-      topicListDto.setSection(Section.SECTION_NEWS)
+      topicListDto.setSection(Section.News)
     }
 
     topicListDao.getTopics(topicListDto, NonAuthorizedSession)

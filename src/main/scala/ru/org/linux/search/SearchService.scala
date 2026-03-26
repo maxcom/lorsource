@@ -296,7 +296,7 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
 
   private def buildSectionFacet(sectionsAgg: Aggregate, selected:Option[String]): Seq[FacetItem] = {
     def mkItem(urlName: String, count: Long) = {
-      val name = sectionService.nameToSection.get(urlName).map(_.getName).getOrElse(urlName).toLowerCase
+      val name = sectionService.nameToSection.get(urlName).map(_.name).getOrElse(urlName).toLowerCase
       FacetItem(urlName, s"$name ($count)")
     }
 

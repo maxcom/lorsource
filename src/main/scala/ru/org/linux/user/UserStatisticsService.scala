@@ -65,7 +65,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
     (commentCountFuture, topicsFuture).mapN { (commentCount, topicStat) =>
       val topicsBySection = topicStat.map(_.sectionCount).getOrElse(Seq()).map(
         e => PreparedUsersSectionStatEntry(sectionService.getSectionByName(e._1), e._2)
-      ).sortBy(_.section.getId)
+      ).sortBy(_.section.id)
 
       UserStats(
         ignoreCount = ignoreCount,

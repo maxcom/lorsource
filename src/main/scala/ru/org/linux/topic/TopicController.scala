@@ -173,7 +173,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     val group = preparedMessage.group
 
-    if (!(group.urlName == groupName) || group.sectionId != section.getId) {
+    if (!(group.urlName == groupName) || group.sectionId != section.id) {
       return new ModelAndView(new RedirectView(topic.getLink))
     }
 
