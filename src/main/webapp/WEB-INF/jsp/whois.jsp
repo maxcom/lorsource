@@ -672,7 +672,7 @@
                 </td>
 
                 <td>
-                    <lor:dateinterval date="${item.item.actionDate.toDate()}"/>
+                    <lor:dateinterval date="${item.actionDate}"/>
                 </td>
             </tr>
             </c:forEach>

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.PlatformTransactionManager
 
 import java.time.{Duration, Instant, OffsetDateTime}
+import java.util
 import javax.annotation.Nullable
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
@@ -225,14 +226,22 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       sql,
       user.id
     ) { (rs, _) =>
+      val options = 
+        rs
+          .getObject("info")
+          .asInstanceOf[util.Map[String, String]]
+          .asScala
+          .view
+          .mapValues(v => if (v == null) "" else v)
+          .toMap
+      
       UserLogItem(
         rs.getInt("id"),
         rs.getInt("userid"),
         rs.getInt("action_userid"),
-        new DateTime(rs.getTimestamp("action_date")),
+        rs.getTimestamp("action_date").toInstant,
         UserLogAction.valueOf(rs.getString("action").toUpperCase),
-        rs.getObject("info").asInstanceOf[java.util.Map[String, String]]
-      )
+        options)
     }
   }
 

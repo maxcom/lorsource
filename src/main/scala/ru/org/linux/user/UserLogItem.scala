@@ -15,36 +15,14 @@
 
 package ru.org.linux.user
 
-import org.joda.time.DateTime
-
+import java.time.Instant
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters.*
 
 case class UserLogItem(
-  id: Int,
-  user: Int,
-  actionUser: Int,
-  @BeanProperty actionDate: DateTime,
-  @BeanProperty action: UserLogAction,
-  options: Map[String, String]
-)
-
-object UserLogItem {
-  def apply(
     id: Int,
     user: Int,
     actionUser: Int,
-    actionDate: DateTime,
+    actionDate: Instant,
+    @BeanProperty
     action: UserLogAction,
-    options: java.util.Map[String, String]
-  ): UserLogItem = {
-    UserLogItem(
-      id = id,
-      user = user,
-      actionUser = actionUser,
-      actionDate = actionDate,
-      action = action,
-      options = options.asScala.view.mapValues(v => if (v == null) "" else v).toMap
-    )
-  }
-}
+    options: Map[String, String])

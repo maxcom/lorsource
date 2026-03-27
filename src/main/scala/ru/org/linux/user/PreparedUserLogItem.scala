@@ -17,23 +17,27 @@ package ru.org.linux.user
 
 import com.google.common.collect.ImmutableMap
 
+import java.util.Date
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
 
 case class PreparedUserLogItem(
-  @BeanProperty item: UserLogItem,
-  @BeanProperty actionUser: User,
-  @BeanProperty options: ImmutableMap[String, String],
-  @BeanProperty self: Boolean
-)
+    @BeanProperty
+    item: UserLogItem,
+    @BeanProperty
+    actionUser: User,
+    @BeanProperty
+    options: ImmutableMap[String, String],
+    @BeanProperty
+    self: Boolean,
+    @BeanProperty
+    actionDate: Date)
 
-object PreparedUserLogItem {
-  def apply(item: UserLogItem, actionUser: User, options: Map[String, String]): PreparedUserLogItem = {
+object PreparedUserLogItem:
+  def apply(item: UserLogItem, actionUser: User, options: Map[String, String]): PreparedUserLogItem =
     new PreparedUserLogItem(
       item,
       actionUser,
       ImmutableMap.copyOf(options.asJava),
-      item.user == item.actionUser
-    )
-  }
-}
+      item.user == item.actionUser,
+      actionDate = Date.from(item.actionDate))
