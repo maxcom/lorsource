@@ -47,7 +47,7 @@
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
   <meta name="twitter:card" content="summary_large_image">
 </c:if>
-<c:if test="${preparedMessage.image != null}">
+<c:if test="${preparedMessage.image == null}">
   <meta property="og:image" content="${configuration.secureUrlWithoutSlash}/img/good-penguin.png">
   <meta name="twitter:card" content="summary">
 </c:if>
