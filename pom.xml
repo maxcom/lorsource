@@ -621,28 +621,6 @@
             <aggregation>
               <removeIncluded>false</removeIncluded>
               <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/js/plugins.js</output>
-              <includes>
-                <include>
-                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-form/${jquery.form.version}/dist/jquery.form.min.js
-                </include>
-                <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys.js</include>
-                <include>
-                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/dist/jquery.validate.min.js
-                </include>
-                <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/pattern.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/jquery.popover-1.1.2.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji__api/${twemoji.version}/dist/twemoji.min.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/js/swiffy-slider.min.js</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
@@ -737,6 +715,26 @@
             </goals>
             <phase>generate-resources</phase>
           </execution>
+          <execution>
+            <id>minify-plugins-individual</id>
+            <configuration>
+              <encoding>UTF-8</encoding>
+              <includes>
+                <include>jquery.hotkeys.js</include>
+                <include>jquery.validate.ru.js</include>
+                <include>pattern.js</include>
+                <include>jquery.popover-1.1.2.js</include>
+              </includes>
+              <skipMerge>true</skipMerge>
+              <compilationLevel>WHITESPACE_ONLY</compilationLevel>
+              <closureLanguageOut>ECMASCRIPT_2016</closureLanguageOut>
+              <outputFilename>#{path}/#{basename}.#{extension}</outputFilename>
+            </configuration>
+            <goals>
+              <goal>minify</goal>
+            </goals>
+            <phase>process-resources</phase>
+          </execution>
         </executions>
       </plugin>
 
@@ -745,6 +743,51 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.7</version>
         <executions>
+          <execution>
+            <id>copy-local-js</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <tasks>
+                <copy file="${basedir}/src/main/webapp/js/jquery.hotkeys.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
+                <copy file="${basedir}/src/main/webapp/js/jquery.validate.ru.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
+                <copy file="${basedir}/src/main/webapp/js/pattern.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
+                <copy file="${basedir}/src/main/webapp/js/jquery.popover-1.1.2.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>concat-plugins-js</id>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/js/plugins.js" fixlastline="true">
+                  <filelist dir="${project.build.directory}/${project.build.finalName}/js">
+                    <file name="META-INF/resources/webjars/jquery-form/${jquery.form.version}/dist/jquery.form.min.js"/>
+                    <file name="jquery.hotkeys.js"/>
+                    <file name="META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/dist/jquery.validate.min.js"/>
+                    <file name="jquery.validate.ru.js"/>
+                    <file name="pattern.js"/>
+                    <file name="jquery.popover-1.1.2.js"/>
+                    <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js"/>
+                    <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js"/>
+                    <file name="META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js"/>
+                    <file name="META-INF/resources/webjars/twemoji__api/${twemoji.version}/dist/twemoji.min.js"/>
+                    <file name="META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/js/swiffy-slider.min.js"/>
+                  </filelist>
+                </concat>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
           <execution>
             <id>create-temp-storage</id>
             <phase>generate-test-resources</phase>
