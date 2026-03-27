@@ -25,6 +25,8 @@
 // Defaults (feel free to override)
 ////////////////////////////////////////////////////////////////////////////////
 
+@use "sass:math";
+
 $total_columns: 	12;			// 				//
 $total_width:		960px; 		// px|100% 		// px = fixed, 100% = fluid
 $gutter_width:		1%;			// px|%			// px = fixed, % = fluid
@@ -41,23 +43,23 @@ $class_push:		'push';		//				//
 
 @function element_width($column_index){
 	@if ($total_width == 100%){
-	  	$not_rounded_value: (((100% + $gutter_width)/$total_columns)*$column_index)-$gutter_width;
+	  	$not_rounded_value: (math.div(100% + $gutter_width, $total_columns)*$column_index)-$gutter_width;
 	    $not_rounded_value: $not_rounded_value * 100;
-	    $rounded_value: round($not_rounded_value)/100;
+	    $rounded_value: round($not_rounded_value)*0.01;
 	    @return $rounded_value;
 	}@else{
-		@return ((($total_width + $gutter_width)/$total_columns)*$column_index)-$gutter_width;
+		@return (math.div($total_width + $gutter_width, $total_columns)*$column_index)-$gutter_width;
 	}
 }
 
 @function column_width(){
 	@if ($total_width == 100%){
-	  	$not_rounded_value: (((100 + $gutter_width)/$total_columns))-$gutter_width;
+	  	$not_rounded_value: (math.div(100 + $gutter_width, $total_columns))-$gutter_width;
 	    $not_rounded_value: $not_rounded_value * 100;
-	    $rounded_value: round($not_rounded_value)/100;
+	    $rounded_value: round($not_rounded_value)*0.01;
 	    @return $rounded_value * 1%;
 	}@else{
-		@return ($total_width - ($gutter_width*($total_columns - 1)))/$total_columns;
+		@return math.div($total_width - ($gutter_width*($total_columns - 1)), $total_columns);
 	}
 }
 
@@ -181,7 +183,7 @@ $class_push:		'push';		//				//
 
 @mixin generate_grid_positions($_column_selector, $_element_width){
 
-	$_cols_per_row: floor($total_columns / $_element_width);
+	$_cols_per_row: floor(math.div($total_columns, $_element_width));
 
 	// create rule for each element
 	@for $i from 1 through $_cols_per_row{
@@ -202,7 +204,7 @@ $class_push:		'push';		//				//
 
 @mixin generate_grid_positions_legacy($_column_selector, $_element_width, $_elements_in_grid:$total_columns){
 
-	$_cols_per_row: floor($total_columns / $_element_width);
+	$_cols_per_row: floor(math.div($total_columns, $_element_width));
 	$_current_col:1;
 
 	// create rule for each element
