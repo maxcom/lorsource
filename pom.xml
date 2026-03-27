@@ -607,16 +607,7 @@
             <exclude>**/lor.js</exclude>
           </excludes>
           <aggregations>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/js/diff_match_patch.js</output>
-              <includes>
-                <include>
-                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch_uncompressed.js
-                </include>
-              </includes>
-            </aggregation>
+
 
             <aggregation>
               <removeIncluded>false</removeIncluded>
@@ -756,6 +747,8 @@
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${basedir}/src/main/webapp/js/jquery.popover-1.1.2.js"
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
+                <copy file="${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch.js"
+                      tofile="${project.build.directory}/${project.build.finalName}/js/diff_match_patch.js"/>
               </tasks>
             </configuration>
             <goals>
