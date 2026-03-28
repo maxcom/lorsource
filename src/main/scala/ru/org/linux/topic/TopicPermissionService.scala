@@ -13,6 +13,7 @@
  *    limitations under the License.
  */
 package ru.org.linux.topic
+
 import ru.org.linux.user.UserConstants
 
 import com.google.common.base.Preconditions
@@ -93,7 +94,7 @@ object TopicPermissionService {
 @Service
 class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupService: GroupService,
                              deleteInfoDao: DeleteInfoDao, userService: UserService) {
-  def allowViewDeletedComments(message: Topic)(implicit currentUser: AnySession): Boolean = {
+  def allowViewDeletedComments(message: Topic)(using currentUser: AnySession): Boolean = {
     if (!currentUser.moderator) {
       val topicForbidden = message.expired || message.draft ||
           message.postscore == TopicPermissionService.POSTSCORE_MODERATORS_ONLY ||
@@ -111,7 +112,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   @throws[MessageNotFoundException]
   @throws[AccessViolationException]
   def checkView(group: Group, message: Topic, topicAuthor: User, showDeleted: Boolean)
-               (implicit session: AnySession): Unit = {
+               (using session: AnySession): Unit = {
     Preconditions.checkArgument(message.groupId == group.id)
     Preconditions.checkArgument(message.authorUserId == topicAuthor.id)
 
@@ -177,7 +178,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
   }
 
-  def checkCommentsAllowed(topic: Topic, errors: Errors)(implicit anySession: AnySession): Unit = {
+  def checkCommentsAllowed(topic: Topic, errors: Errors)(using anySession: AnySession): Unit = {
     if (topic.deleted) {
       errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению")
     }
@@ -237,7 +238,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     getPostscore(group, topic)
   }
 
-  def isCommentsAllowed(group: Group, topic: Topic)(implicit anySession: AnySession): Boolean =
+  def isCommentsAllowed(group: Group, topic: Topic)(using anySession: AnySession): Boolean =
     isCommentsAllowedByUser(group, topic, anySession.userOpt, ignoreFrozen = false)
 
   def isCommentsAllowedByUser(group: Group, topic: Topic, user: Option[User], ignoreFrozen: Boolean): Boolean = {
@@ -290,7 +291,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
    * Проверка на права редактирования комментария.
    */
   def checkCommentsEditingAllowed(comment: Comment, topic: Topic, errors: Errors, markup: MarkupType)
-                                 (implicit session: AnySession): Unit = {
+                                 (using session: AnySession): Unit = {
     Preconditions.checkNotNull(comment)
     Preconditions.checkNotNull(topic)
 
@@ -316,7 +317,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
    * @return результат
    */
   def isCommentEditableNow(comment: Comment, haveAnswers: Boolean, topic: Topic,
-                           markup: MarkupType)(implicit anySession: AnySession): Boolean = {
+                           markup: MarkupType)(using anySession: AnySession): Boolean = {
     val errors = new MapBindingResult(Map.empty.asJava, "obj")
 
     checkCommentsAllowed(topic, errors)
@@ -378,7 +379,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
    * @return резултат
    */
   def isCommentDeletableNow(comment: Comment, topic: Topic, haveAnswers: Boolean)
-                           (implicit session: AnySession): Boolean = {
+                           (using session: AnySession): Boolean = {
     val currentUser = session.userOpt.orNull
 
     if (comment.deleted || topic.deleted) {
@@ -419,7 +420,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   def isUserCastAllowed(author: User): Boolean = author.getScore >= 0
 
   def isUndeletable(topic: Topic, comment: Comment, deleteInfo: Option[DeleteInfo])
-                   (implicit session: AnySession): Boolean = {
+                   (using session: AnySession): Boolean = {
     if (!session.authorized) {
       false
     } else if (topic.deleted || !comment.deleted || !session.moderator || topic.expired) {
@@ -438,7 +439,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       (!group.premoderated || msg.commited || msg.authorUserId != UserConstants.ANONYMOUS_ID)
   }
 
-  def canViewHistory(msg: Topic)(implicit session: AnySession): Boolean = {
+  def canViewHistory(msg: Topic)(using session: AnySession): Boolean = {
     val viewer = session.userOpt.orNull
 
     if (viewer != null && viewer.canmod) {
@@ -456,14 +457,18 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     false
   }
 
-  def canPostWarning(topic: Topic, comment: Option[Comment])(implicit currentUserOpt: AnySession): Boolean = {
+  def canPostWarning(topic: Topic, comment: Option[Comment])(using currentUserOpt: AnySession): Boolean = {
     !topic.deleted && !topic.expired && !topic.draft && comment.forall(!_.deleted) && currentUserOpt.opt.exists { user =>
       user.user.getScore >= 50 && !user.user.isFrozen
     }
   }
 
-  def canViewDeletedComment(comment: Comment, deleteInfo: DeleteInfo)(implicit currentUser: AuthorizedSession): Boolean = {
-    currentUser.moderator ||
+  def canViewDeletedComment(topic: Topic, comment: Comment, deleteInfo: DeleteInfo)
+                           (using currentUser: AuthorizedSession): Boolean = {
+    assert(comment.topicId == topic.id)
+    assert(comment.deleted)
+
+    allowViewDeletedComments(topic) ||
       (currentUser.user.id == comment.userid && !currentUser.user.isFrozen &&
         deleteInfo.delDate.toInstant.isAfter(Instant.now.minus(TopicPermissionService.ViewAfterDeleteDays, ChronoUnit.DAYS)))
   }
