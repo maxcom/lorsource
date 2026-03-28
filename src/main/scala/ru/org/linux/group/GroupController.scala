@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -39,13 +39,13 @@ private object GroupController {
 }
 
 @Controller
-class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService: SectionService,
+class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectionService: SectionService,
                       prepareService: GroupInfoPrepareService, groupPermissionService: GroupPermissionService,
                       groupListDao: GroupListDao, tagService: TagService, topicPrepareService: TopicPrepareService) {
   @RequestMapping(path = Array("/group.jsp"))
   def topics(@RequestParam("group") groupId: Int,
              @RequestParam(value = "offset", required = false) offsetObject: Integer): View = {
-    val group = groupDao.getGroup(groupId)
+    val group = groupService.getGroup(groupId)
 
     if (offsetObject != null) {
       new RedirectView(group.getUrl + "?offset=" + offsetObject)
@@ -57,7 +57,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
   @RequestMapping(path = Array("/group-lastmod.jsp"))
   def topicsLastmod(@RequestParam("group") groupId: Int,
                     @RequestParam(value = "offset", required = false) offsetObject: Integer): View = {
-    val group = groupDao.getGroup(groupId)
+    val group = groupService.getGroup(groupId)
 
     if (offsetObject != null) {
       new RedirectView(s"${group.getUrl}?offset=$offsetObject&lastmod=true")
@@ -72,7 +72,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
                    @PathVariable year: Int, @PathVariable month: Int,
                    @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val section = sectionService.getSection(Section.Forum)
-    val group = groupDao.getGroup(section, groupName)
+    val group = groupService.getGroup(section, groupName)
 
     if (year < 1990 || year > 3000) {
       throw new ServletParameterBadValueException("year", "указан некорректный год")
@@ -105,7 +105,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
             @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
             request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val section = sectionService.getSection(Section.Forum)
-    val group = groupDao.getGroup(section, groupName)
+    val group = groupService.getGroup(section, groupName)
 
     if (showDeleted && !currentUserOpt.authorized) {
       throw new AccessViolationException("Вы не авторизованы")
@@ -143,7 +143,7 @@ class GroupController(groupDao: GroupDao, archiveDao: ArchiveDao, sectionService
 
     params.put("showDeleted", Boolean.box(showDeleted))
 
-    params.put("groupList", SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
+    params.put("groupList", SectionController.groupsSorted(groupService.getGroups(section).asScala).asJava)
 
     params.put("firstPage", Boolean.box(firstPage))
     params.put("offset", Integer.valueOf(offset))

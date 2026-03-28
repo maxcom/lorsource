@@ -22,7 +22,7 @@ import org.opensearch.client.opensearch.core.BulkRequest
 import org.opensearch.client.opensearch.core.bulk.{BulkOperation, DeleteOperation, IndexOperation}
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.{Comment, CommentReadService}
-import ru.org.linux.group.{Group, GroupDao}
+import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MsgbaseDao
 import ru.org.linux.section.SectionService
@@ -39,7 +39,7 @@ object OpenSearchIndexService {
 }
 
 @Service
-class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao, userService: UserService,
+class OpenSearchIndexService(sectionService: SectionService, groupService: GroupService, userService: UserService,
                              topicTagService: TopicTagService, messageTextService: MessageTextService,
                              msgbaseDao: MsgbaseDao, topicDao: TopicDao, commentService: CommentReadService,
                              client: OpenSearchClient, topicPermissionService: TopicPermissionService,
@@ -53,7 +53,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
           .index(MessageIndex)
           .id(comment.id.toString))))
       } else {
-        val group = groupDao.getGroup(topic.groupId)
+        val group = groupService.getGroup(topic.groupId)
         indexCommentToBulkOp(topic, comment, group)
       }
     }
@@ -67,7 +67,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
     val requests = comments.filterNot(_ == 0).map { msgid =>
       val comment = commentService.getById(msgid)
       lazy val topic = topicDao.getById(comment.topicId)
-      lazy val group = groupDao.getGroup(topic.groupId)
+      lazy val group = groupService.getGroup(topic.groupId)
 
       if (comment.deleted || !topicPermissionService.isTopicSearchable(topic, group)) {
         BulkOperation.of(op => op.delete(DeleteOperation.of(d => d
@@ -92,7 +92,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupDao: GroupDao,
 
   def reindexMessage(msgid: Int, withComments: Boolean): Unit = {
     val topic = topicDao.getById(msgid)
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
 
     if (topicPermissionService.isTopicSearchable(topic, group)) {
       val topicDoc = indexOfTopic(topic, group)

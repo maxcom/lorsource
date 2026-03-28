@@ -24,7 +24,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.reaction.ReactionController.ReactionsLimit
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.{IgnoreListDao, UserService}
@@ -38,7 +38,7 @@ object ReactionController {
 @Controller
 @RequestMapping(path = Array("/reactions"))
 class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionService: TopicPermissionService,
-                         groupDao: GroupDao, userService: UserService, commentPrepareService: CommentPrepareService,
+                         groupService: GroupService, userService: UserService, commentPrepareService: CommentPrepareService,
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
                          reactionService: ReactionService, reactionsDao: ReactionDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
@@ -119,7 +119,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       case None =>
         new ModelAndView(new RedirectView(topic.getLink))
       case Some(currentUser) =>
-        val group = groupDao.getGroup(topic.groupId)
+        val group = groupService.getGroup(topic.groupId)
         val topicAuthor = userService.getUserCached(topic.authorUserId)
 
         permissionService.checkView(group, topic, topicAuthor, showDeleted = false)

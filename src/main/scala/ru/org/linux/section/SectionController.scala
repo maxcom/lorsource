@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,19 +19,19 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestParam, ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.group.{Group, GroupDao}
+import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.section.Section.Forum
 import ru.org.linux.section.SectionController.NonTech
 
 import scala.jdk.CollectionConverters.*
 
 @Controller
-class SectionController(sectionService: SectionService, groupDao: GroupDao) {
+class SectionController(sectionService: SectionService, groupService: GroupService) {
   @RequestMapping(path = Array("/forum"))
   def forum(): ModelAndView = {
     val section = sectionService.getSection(Forum)
 
-    val allGroups = groupDao.getGroups(section)
+    val allGroups = groupService.getGroups(section)
 
     val (other, tech) = allGroups.asScala.partition(g => NonTech.contains(g.id))
 

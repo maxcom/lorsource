@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MsgbaseDao
 import ru.org.linux.search.SearchQueueSender
@@ -34,7 +34,7 @@ import scala.jdk.OptionConverters.RichOption
 
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
-                                  sectionService: SectionService, groupDao: GroupDao,
+                                  sectionService: SectionService, groupService: GroupService,
                                   userService: UserService, searchQueueSender: SearchQueueSender,
                                   msgbaseDao: MsgbaseDao, textService: MessageTextService) extends StrictLogging {
 
@@ -44,7 +44,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     new ModelAndView("setpostscore", Map(
       "message" -> message,
-      "group" -> groupDao.getGroup(message.groupId)
+      "group" -> groupService.getGroup(message.groupId)
     ).asJava)
   }
 
@@ -103,7 +103,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       throw new AccessViolationException("Сообщение удалено")
     }
 
-    val newGrp = groupDao.getGroup(newgr)
+    val newGrp = groupService.getGroup(newgr)
 
     if (msg.groupId != newGrp.id) {
       val moveInfo = if (!newGrp.linksAllowed) {
@@ -133,7 +133,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     val sections = Seq(sectionService.getSection(Section.Forum),
       sectionService.getSection(Section.Articles))
 
-    val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
+    val groups = sections.flatMap(g => groupService.getGroups(g).asScala)
 
     new ModelAndView("mtn", Map (
       "message" -> topic,
@@ -154,7 +154,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       Seq(currentSection)
     }
 
-    val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
+    val groups = sections.flatMap(g => groupService.getGroups(g).asScala)
 
     new ModelAndView("mtn", Map(
       "message" -> topic,

@@ -28,7 +28,7 @@ import org.opensearch.client.opensearch.core.{SearchRequest, SearchResponse}
 import org.opensearch.client.opensearch.core.search.{HighlightField, Hit}
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.{TagRef, TagService}
@@ -43,7 +43,7 @@ import scala.jdk.CollectionConverters.*
 
 @Service
 class SearchService(elastic: OpenSearchClient, userService: UserService, siteConfig: SiteConfig,
-                    sectionService: SectionService, groupDao: GroupDao) {
+                    sectionService: SectionService, groupService: GroupService) {
   import ru.org.linux.search.SearchService.*
 
   private def processQueryString(queryText: String): Query = {
@@ -315,7 +315,7 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
 
   private def buildGroupFacet(maybeSection: Option[StringTermsBucket], selected:Option[(String, String)]): Option[Seq[FacetItem]] = {
     def mkItem(section:Section, groupUrlName:String, count:Long) = {
-      val group = groupDao.getGroup(section, groupUrlName)
+      val group = groupService.getGroup(section, groupUrlName)
       val name = group.title.toLowerCase
       FacetItem(groupUrlName, s"$name ($count)")
     }

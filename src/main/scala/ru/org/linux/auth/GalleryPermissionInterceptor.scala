@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,12 +21,12 @@ import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.web.servlet.HandlerInterceptor
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.gallery.{Image, ImageDao}
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicPermissionService, TopicService}
 import ru.org.linux.user.UserService
 
-class GalleryPermissionInterceptor(imageDao: ImageDao, topicService: TopicService, groupDao: GroupDao,
+class GalleryPermissionInterceptor(imageDao: ImageDao, topicService: TopicService, groupService: GroupService,
                                    topicPermissionService: TopicPermissionService, userService: UserService)
   extends HandlerInterceptor with StrictLogging {
 
@@ -69,7 +69,7 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicService: TopicServic
 
   private def visible(topic: Topic, image: Image)(implicit session: AnySession): Boolean = {
     try {
-      topicPermissionService.checkView(groupDao.getGroup(topic.groupId), topic,
+      topicPermissionService.checkView(groupService.getGroup(topic.groupId), topic,
         userService.getUserCached(topic.authorUserId), showDeleted = false)
 
       if (image.deleted) {

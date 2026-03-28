@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentDao;
-import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.Topic;
@@ -63,7 +63,7 @@ public class ToHtmlFormatter {
   @Autowired
   private CommentDao commentDao;
 
-  private GroupDao groupDao;
+  private GroupService groupService;
 
   private int maxLength=80;
 
@@ -78,8 +78,8 @@ public class ToHtmlFormatter {
   }
 
   @Autowired
-  public void setGroupDao(GroupDao groupDao) {
-    this.groupDao = groupDao;
+  public void setGroupService(GroupService groupService) {
+    this.groupService = groupService;
   }
 
   // для тестирования (todo: заюзать SpringContext)
@@ -245,7 +245,7 @@ public class ToHtmlFormatter {
 
       String urlTitle = linkText!=null?simpleFormat(linkText):StringUtil.escapeHtml(message.getTitle());
 
-      String newUrlHref = url.formatJump(topicDao, groupDao, siteConfig.getSecureURI());
+      String newUrlHref = url.formatJump(topicDao, groupService, siteConfig.getSecureURI());
       String fixedUrlBody = url.formatUrlBody(maxLength);
 
       if (deleted) {

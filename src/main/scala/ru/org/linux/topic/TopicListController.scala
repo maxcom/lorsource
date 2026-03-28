@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException, GroupPermissionService}
+import ru.org.linux.group.{Group, GroupNotFoundException, GroupPermissionService, GroupService}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.tag.{TagPageController, TagService}
@@ -98,7 +98,7 @@ object TopicListController {
 @Controller
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
-                          groupDao: GroupDao, groupPermissionService: GroupPermissionService) extends StrictLogging {
+                          groupService: GroupService, groupPermissionService: GroupPermissionService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
                                     group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
@@ -126,7 +126,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     if (section.id != Section.Forum) {
       modelAndView.addObject("groupList",
-        SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
+        SectionController.groupsSorted(groupService.getGroups(section).asScala).asJava)
     } else {
       modelAndView.addObject("filters", ForumFilters.asJava)
       modelAndView.addObject("filter", topicListForm.filter.getOrElse(""))
@@ -205,7 +205,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
                     @PathVariable("group") groupName: String): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
 
-    val group = groupDao.getGroup(section, groupName)
+    val group = groupService.getGroup(section, groupName)
 
     val topicListForm = TopicListRequest.ofOffset(offset)
 
@@ -248,7 +248,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     var ptitle = section.name
 
     val group = if (groupId != 0) {
-      val g = groupDao.getGroup(groupId)
+      val g = groupService.getGroup(groupId)
       ptitle += " - " + g.title
       Some(g)
     } else {

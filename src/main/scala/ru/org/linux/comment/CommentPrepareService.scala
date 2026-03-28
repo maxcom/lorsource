@@ -17,7 +17,7 @@ package ru.org.linux.comment
 import com.google.common.base.Strings
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AnySession
-import ru.org.linux.group.{Group, GroupDao}
+import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.reaction.{PreparedReactions, ReactionService}
@@ -34,7 +34,7 @@ import scala.jdk.OptionConverters.*
 class CommentPrepareService(textService: MessageTextService, msgbaseDao: MsgbaseDao,
                             topicPermissionService: TopicPermissionService, userService: UserService,
                             deleteInfoDao: DeleteInfoDao, userAgentDao: UserAgentDao, remarkDao: RemarkDao,
-                            groupDao: GroupDao, reactionPrepareService: ReactionService,
+                            groupService: GroupService, reactionPrepareService: ReactionService,
                             warningService: WarningService) {
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
@@ -144,7 +144,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
     val messageText = msgbaseDao.getMessageText(comment.id)
     val author = userService.getUserCached(comment.userid)
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
 
     prepareComment(messageText = messageText, author = author, remark = None, comment = comment, comments = None,
       topic = topic, hideSet = Set.empty, samePageComments = Set.empty, group = group,
@@ -178,7 +178,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     } else {
       val texts = msgbaseDao.getMessageText(list.map(_.id))
       val users = userService.getUsersCachedMap(list.map(_.userid))
-      val group = groupDao.getGroup(topic.groupId)
+      val group = groupService.getGroup(topic.groupId)
 
       val allWarnings: Map[Int, Seq[Warning]] = if (!topic.expired && currentUser.moderator) {
         warningService.load(list)

@@ -20,7 +20,7 @@ import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestAttribute, RequestMapping, RequestMethod}
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.search.SearchEnums.SearchInterval
 import ru.org.linux.search.SearchEnums.SearchRange
 import ru.org.linux.section.SectionService
@@ -35,7 +35,7 @@ import scala.collection.immutable.VectorMap
 import scala.jdk.CollectionConverters.*
 
 @Controller
-class SearchController(sectionService: SectionService, userService: UserService, groupDao: GroupDao,
+class SearchController(sectionService: SectionService, userService: UserService, groupService: GroupService,
                        searchService: SearchService) {
   @ModelAttribute("sorts")
   def getSorts: java.util.Map[String, String] = {
@@ -99,7 +99,7 @@ class SearchController(sectionService: SectionService, userService: UserService,
         query.setSection(section.get.getUrlName)
 
         if (!Strings.isNullOrEmpty(query.getGroup)) {
-          val group = groupDao.getGroupOpt(section.get, query.getGroup, true)
+          val group = groupService.getGroupOpt(section.get, query.getGroup, true)
 
           if (group.isEmpty) {
             query.setGroup("")

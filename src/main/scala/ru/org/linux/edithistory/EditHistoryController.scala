@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,7 +20,7 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.comment.CommentReadService
-import ru.org.linux.group.{GroupDao, GroupPermissionService}
+import ru.org.linux.group.{GroupPermissionService, GroupService}
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
 
@@ -29,13 +29,13 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 @Controller
 class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistoryService,
                             commentService: CommentReadService, topicPermissionService: TopicPermissionService,
-                            groupPermissionService: GroupPermissionService, groupDao: GroupDao,
+                            groupPermissionService: GroupPermissionService, groupService: GroupService,
                             userService: UserService, topicPrepareService: TopicPrepareService) {
   @RequestMapping(Array("/news/{group}/{id}/history", "/forum/{group}/{id}/history", "/gallery/{group}/{id}/history",
     "/polls/{group}/{id}/history", "/articles/{group}/{id}/history"))
   def showEditInfo(@PathVariable("id") msgid: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
     val topic = messageDao.getById(msgid)
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
 
     val preparedMessage = topicPrepareService.prepareTopic(topic)
 
@@ -62,7 +62,7 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
   def showCommentEditInfo(@PathVariable("id") msgid: Int,
                           @PathVariable("commentid") commentId: Int): ModelAndView = MaybeAuthorized { implicit session =>
     val topic = messageDao.getById(msgid)
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
     val comment = commentService.getById(commentId)
     val editHistories = editHistoryService.prepareEditInfo(comment)
     val topicAuthor = userService.getUserCached(topic.authorUserId)

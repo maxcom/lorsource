@@ -25,10 +25,10 @@ import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
-class GroupModificationController(groupDao: GroupDao, prepareService: GroupInfoPrepareService) extends StrictLogging {
+class GroupModificationController(groupService: GroupService, prepareService: GroupInfoPrepareService) extends StrictLogging {
   @RequestMapping(value = Array("/groupmod.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam("group") id: Int): ModelAndView = ModeratorOnly { _ =>
-    val group = groupDao.getGroup(id)
+    val group = groupService.getGroup(id)
 
     val mv = new ModelAndView("groupmod", "group", group)
 
@@ -43,7 +43,7 @@ class GroupModificationController(groupDao: GroupDao, prepareService: GroupInfoP
                   @RequestParam("longinfo") longInfo: String,
                   @RequestParam(value = "preview", required = false) preview: String,
                   @RequestParam(value = "resolvable", required = false) resolvable: String): ModelAndView = ModeratorOnly { currentUser =>
-    var group = groupDao.getGroup(id)
+    var group = groupService.getGroup(id)
 
     if (preview != null) {
       group = group.updated(title, info, longInfo)
@@ -54,7 +54,7 @@ class GroupModificationController(groupDao: GroupDao, prepareService: GroupInfoP
         "preview" -> true
       ).asJava)
     } else {
-      groupDao.setParams(group, title, info, longInfo, resolvable != null, urlName)
+      groupService.setParams(group, title, info, longInfo, resolvable != null, urlName)
 
       logger.info("Настройки группы {} изменены {}", group.urlName, currentUser.user.nick)
 

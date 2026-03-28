@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 1998-2012 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,5 +23,6 @@
     <import resource="classpath:common.xml"/>
 
     <bean class="ru.org.linux.group.GroupDao" id="groupDao"/>
+    <bean class="ru.org.linux.group.GroupService" id="groupService"/>
 
 </beans>

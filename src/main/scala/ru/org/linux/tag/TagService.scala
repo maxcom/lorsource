@@ -23,7 +23,7 @@ import org.opensearch.client.json.JsonData
 import org.opensearch.client.opensearch._types.query_dsl.{BoolQuery, Query, RangeQuery, TermQuery}
 import org.opensearch.client.opensearch.core.{CountRequest, SearchRequest}
 import org.springframework.stereotype.Service
-import ru.org.linux.group.{Group, GroupDao}
+import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.topic.TagTopicListController
@@ -41,14 +41,14 @@ import scala.jdk.FutureConverters._
 
 @Service
 class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: ActorSystem,
-                 sectionService: SectionService, groupDao: GroupDao) extends StrictLogging {
+                 sectionService: SectionService, groupService: GroupService) extends StrictLogging {
   private implicit val pekko: ActorSystem = actorSystem
 
   import ru.org.linux.tag.TagService.*
 
   private val sectionForum: Section = sectionService.getSection(Section.Forum)
   private val NonTechNames: Seq[String] =
-    groupDao.getGroups(sectionForum).asScala.filter(g => SectionController.NonTech.contains(g.id)).map(_.urlName).toSeq
+    groupService.getGroups(sectionForum).asScala.filter(g => SectionController.NonTech.contains(g.id)).map(_.urlName).toSeq
 
   /**
    * Получение идентификационного номера тега по названию.

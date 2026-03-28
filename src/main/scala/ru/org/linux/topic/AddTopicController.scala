@@ -31,7 +31,7 @@ import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
 import ru.org.linux.gallery.UploadedImagePreview
-import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
+import ru.org.linux.group.{Group, GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
@@ -90,7 +90,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
                          permissionService: GroupPermissionService, addTopicRequestValidator: AddTopicRequestValidator,
                          topicService: TopicService,
                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-                         renderService: MarkdownFormatter, groupDao: GroupDao, dupeProtector: FloodProtector,
+                          renderService: MarkdownFormatter, groupService: GroupService, dupeProtector: FloodProtector,
                          ipBlockDao: IPBlockDao, servletContext: ServletContext) {
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
@@ -262,7 +262,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       TagName.checkTag(tag)
     }
 
-    val groups = groupDao.getGroups(section)
+    val groups = groupService.getGroups(section)
 
     if (groups.size == 1) {
       new ModelAndView(new RedirectView(AddTopicController.getAddUrl(groups.get(0), tag)))
@@ -283,7 +283,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def initBinder(binder: WebDataBinder): Unit = {
     binder.registerCustomEditor(classOf[Group], new PropertyEditorSupport() {
       override def setAsText(text: String): Unit = {
-        setValue(groupDao.getGroup(text.toInt))
+        setValue(groupService.getGroup(text.toInt))
       }
 
       override def getAsText: String = {

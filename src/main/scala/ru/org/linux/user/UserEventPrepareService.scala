@@ -16,7 +16,7 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Service
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.reaction.ReactionListItem
@@ -25,7 +25,7 @@ import ru.org.linux.topic.TopicTagService
 
 @Service
 class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: MessageTextService, userService: UserService,
-                              deleteInfoDao: DeleteInfoDao, sectionService: SectionService, groupDao: GroupDao,
+                              deleteInfoDao: DeleteInfoDao, sectionService: SectionService, groupService: GroupService,
                               tagService: TopicTagService) {
   /**
    * @param events      список событий
@@ -64,7 +64,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
       None
     }
 
-    val group = groupDao.getGroup(event.groupId)
+    val group = groupService.getGroup(event.groupId)
 
     val topicAuthor = users(event.topicAuthor)
 
@@ -113,7 +113,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
             None
           }
 
-          val group = groupDao.getGroup(event.groupId)
+          val group = groupService.getGroup(event.groupId)
 
           val topicAuthor = users(event.topicAuthor)
 

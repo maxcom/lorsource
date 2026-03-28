@@ -20,15 +20,15 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 
 @Controller
-class ResolveController(messageDao: TopicDao, groupDao: GroupDao) {
+class ResolveController(messageDao: TopicDao, groupService: GroupService) {
   @RequestMapping(Array("/resolve.jsp"))
   def resolve(@RequestParam("msgid") msgid: Int,
               @RequestParam("resolve") resolved: String): RedirectView = AuthorizedOnly { currentUser =>
     val message = messageDao.getById(msgid)
-    val group = groupDao.getGroup(message.groupId)
+    val group = groupService.getGroup(message.groupId)
 
     if (!group.resolvable) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные")

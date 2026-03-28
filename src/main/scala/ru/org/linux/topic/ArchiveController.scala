@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.group.{GroupDao, GroupNotFoundException, GroupPermissionService}
+import ru.org.linux.group.{GroupNotFoundException, GroupPermissionService, GroupService}
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
 
 @Controller
-class ArchiveController(sectionService: SectionService, groupDao: GroupDao, archiveDao: ArchiveDao,
+class ArchiveController(sectionService: SectionService, groupService: GroupService, archiveDao: ArchiveDao,
                         groupPermissionService: GroupPermissionService) {
   private def archiveList(sectionid: Int,
                           groupName: Option[String] = None) = MaybeAuthorized { implicit currentUserOpt =>
@@ -37,7 +37,7 @@ class ArchiveController(sectionService: SectionService, groupDao: GroupDao, arch
 
     mv.getModel.put("section", section)
 
-    val group = groupName.map(name => groupDao.getGroup(section, name))
+    val group = groupName.map(name => groupService.getGroup(section, name))
 
     mv.getModel.put("group", group.orNull)
 

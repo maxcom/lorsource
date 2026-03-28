@@ -28,7 +28,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
-import ru.org.linux.group.{GroupDao, GroupPermissionService}
+import ru.org.linux.group.{GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
@@ -46,7 +46,7 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsSca
 
 @Controller
 class EditTopicController(searchQueueSender: SearchQueueSender, topicService: TopicService,
-                          prepareService: TopicPrepareService, groupDao: GroupDao, pollDao: PollDao,
+                          prepareService: TopicPrepareService, groupService: GroupService, pollDao: PollDao,
                           permissionService: GroupPermissionService, captcha: CaptchaService, msgbaseDao: MsgbaseDao,
                           editHistoryService: EditHistoryService, editTopicRequestValidator: EditTopicRequestValidator,
                           ipBlockDao: IPBlockDao, tagService: TagService, userService: UserService,
@@ -104,7 +104,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
     val group = preparedTopic.group
 
     params.put("group", group)
-    params.put("groups", groupDao.getGroups(preparedTopic.section))
+    params.put("groups", groupService.getGroups(preparedTopic.section))
     params.put("newMsg", message)
 
     val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)
@@ -301,7 +301,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
 
     if (changeGroupId != null) {
       if (topic.groupId != changeGroupId) {
-        val changeGroup = groupDao.getGroup(changeGroupId)
+        val changeGroup = groupService.getGroup(changeGroupId)
         if (changeGroup.sectionId != topic.sectionId) {
           throw new AccessViolationException("Can't move topics between sections")
         }

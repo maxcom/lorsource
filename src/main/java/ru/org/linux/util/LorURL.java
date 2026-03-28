@@ -17,7 +17,7 @@ package ru.org.linux.util;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.group.Group;
-import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
@@ -246,11 +246,11 @@ public class LorURL {
    * @throws MessageNotFoundException если нет сообещния
    * @throws URIException если url неправильный
    */
-  public String formatJump(TopicDao messageDao, GroupDao groupDao, URI canonical) throws MessageNotFoundException, URIException {
+  public String formatJump(TopicDao messageDao, GroupService groupService, URI canonical) throws MessageNotFoundException, URIException {
     if(_topic_id != -1) {
       Topic message = messageDao.getById(_topic_id);
 
-      Group group = groupDao.getGroup(message.getGroupId());
+      Group group = groupService.getGroup(message.getGroupId());
 
       String scheme = canonical.getScheme();
 

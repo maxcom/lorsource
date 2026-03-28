@@ -17,7 +17,7 @@ package ru.org.linux.spring;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupService;
 import ru.org.linux.msgbase.DeleteInfoDao;
 import ru.org.linux.msgbase.UserAgentDao;
 import ru.org.linux.poll.PollDao;
@@ -42,7 +42,7 @@ public class PrepareServiceTest {
     Topic message = mock(Topic.class);
 
     PollDao pollDao = mock(PollDao.class);
-    GroupDao groupDao = mock(GroupDao.class);
+    GroupService groupService = mock(GroupService.class);
     UserDao userDao = mock(UserDao.class);
     SectionDao sectionDao = mock(SectionDaoImpl.class);
     DeleteInfoDao deleteInfoDao = mock(DeleteInfoDao.class);

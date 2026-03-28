@@ -28,16 +28,16 @@ import org.junit.Assert.assertEquals
 @ContextConfiguration(Array("integration-tests-context.xml"))
 class GroupDaoIntegrationTest {
   @Autowired
-  private val groupDao: GroupDao = null
+  private val groupService: GroupService = null
 
   @Test
   def groupsTest(): Unit = {
     val sectionDto = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
 
-    val groupDtoList = groupDao.getGroups(sectionDto)
+    val groupDtoList = groupService.getGroups(sectionDto)
     assertEquals(16, groupDtoList.size)
 
-    val groupDto = groupDao.getGroup(sectionDto, "general")
+    val groupDto = groupService.getGroup(sectionDto, "general")
     assertEquals("General", groupDto.title)
   }
 }

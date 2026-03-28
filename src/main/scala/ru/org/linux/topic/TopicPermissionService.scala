@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
 import ru.org.linux.auth.{AccessViolationException, AnySession, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentReadService}
-import ru.org.linux.group.{Group, GroupDao}
+import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.section.Section
@@ -91,7 +91,7 @@ object TopicPermissionService {
 }
 
 @Service
-class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupDao: GroupDao,
+class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupService: GroupService,
                              deleteInfoDao: DeleteInfoDao, userService: UserService) {
   def allowViewDeletedComments(message: Topic)(implicit currentUser: AnySession): Boolean = {
     if (!currentUser.moderator) {
@@ -190,7 +190,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       errors.reject(null, "Сообщение уже устарело")
     }
 
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
 
     if (!isCommentsAllowed(group, topic)) {
       errors.reject(null, "Вы не можете добавлять комментарии в эту тему")
@@ -232,7 +232,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     getAllowAnonymousPostscore(topic), getScoreLossPostscore(topic), getOpenWarningsPostscore(topic)).max
 
   def getPostscore(topic: Topic): Int = {
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
 
     getPostscore(group, topic)
   }

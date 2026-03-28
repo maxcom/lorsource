@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
 import ru.org.linux.edithistory.EditInfoSummary
 import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
-import ru.org.linux.group.{GroupDao, GroupPermissionService, PreparedTopicsListItem, TopicsListItem}
+import ru.org.linux.group.{GroupPermissionService, GroupService, PreparedTopicsListItem, TopicsListItem}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.{Poll, PollPrepareService, PreparedPoll}
@@ -34,7 +34,7 @@ import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOptional
 
 @Service
-class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, deleteInfoDao: DeleteInfoDao,
+class TopicPrepareService(sectionService: SectionService, groupService: GroupService, deleteInfoDao: DeleteInfoDao,
                           pollPrepareService: PollPrepareService, remarkDao: RemarkDao, textService: MessageTextService,
                           siteConfig: SiteConfig, userService: UserService,
                           topicPermissionService: TopicPermissionService,
@@ -81,7 +81,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                            text: MessageText, image: Option[Image], additionalImages: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty,
                            imageLazyLoad: Boolean)
                           (implicit session: AnySession): PreparedTopic = {
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
     val section = sectionService.getSection(topic.sectionId)
 
@@ -229,7 +229,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   }
 
   def prepareBrief(topic: Topic, groupInTitle: Boolean): BriefTopicRef = {
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
 
     val showComments = !topic.isCommentsHidden
 

@@ -22,7 +22,7 @@ import org.junit.Test;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.group.Group;
-import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupService;
 import ru.org.linux.markup.MarkupType;
 import ru.org.linux.markup.MessageTextService;
 import ru.org.linux.spring.SiteConfig;
@@ -119,7 +119,7 @@ public class HTMLFormatterTest {
     URI secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8");
 
     TopicDao topicDao = mock(TopicDao.class);
-    GroupDao groupDao = mock(GroupDao.class);
+    GroupService groupService = mock(GroupService.class);
     Topic message1 = mock(Topic.class);
     when(message1.getGroupId()).thenReturn(1);
     Group group1 = mock(Group.class);
@@ -154,12 +154,12 @@ public class HTMLFormatterTest {
     when(group12.getUrl()).thenReturn("/forum/security/");
     when(group15.getUrl()).thenReturn("/forum/linux-org-ru/");
     when(groupHistory.getUrl()).thenReturn("/news/kernel/");
-    when(groupDao.getGroup(message1.getGroupId())).thenReturn(group1);
-    when(groupDao.getGroup(message2.getGroupId())).thenReturn(group2);
-    when(groupDao.getGroup(message3.getGroupId())).thenReturn(group3);
-    when(groupDao.getGroup(message12.getGroupId())).thenReturn(group12);
-    when(groupDao.getGroup(message15.getGroupId())).thenReturn(group15);
-    when(groupDao.getGroup(messageHistory.getGroupId())).thenReturn(groupHistory);
+    when(groupService.getGroup(message1.getGroupId())).thenReturn(group1);
+    when(groupService.getGroup(message2.getGroupId())).thenReturn(group2);
+    when(groupService.getGroup(message3.getGroupId())).thenReturn(group3);
+    when(groupService.getGroup(message12.getGroupId())).thenReturn(group12);
+    when(groupService.getGroup(message15.getGroupId())).thenReturn(group15);
+    when(groupService.getGroup(messageHistory.getGroupId())).thenReturn(groupHistory);
     when(topicDao.getById(6753486)).thenReturn(message1);
     when(topicDao.getById(6893165)).thenReturn(message2);
     when(topicDao.getById(6890857)).thenReturn(message3);
@@ -178,7 +178,7 @@ public class HTMLFormatterTest {
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setSiteConfig(siteConfig);
     toHtmlFormatter.setTopicDao(topicDao);
-    toHtmlFormatter.setGroupDao(groupDao);
+    toHtmlFormatter.setGroupService(groupService);
     toHtmlFormatter.setCommentDao(commentDao);
 
     toHtmlFormatter20 = new ToHtmlFormatter();
