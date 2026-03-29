@@ -434,27 +434,9 @@
 
                 <div class="controls">
                     <select name="shift">
-                        <option value="-P1D">Разморозить</option>
-                        <option value="PT5M">5 минут</option>
-                        <option value="PT10M">10 минут</option>
-                        <option value="PT15M">15 минут</option>
-                        <option value="PT20M">20 минут</option>
-                        <option value="PT30M">30 минут</option>
-                        <option value="PT1H">час</option>
-                        <option value="PT2H">2 часа</option>
-                        <option value="PT3H">3 часа</option>
-                        <option value="PT6H">6 часов</option>
-                        <option value="PT9H">9 часов</option>
-                        <option value="PT12H">12 часов</option>
-                        <option value="P1D">сутки</option>
-                        <option value="P2D">двое суток</option>
-                        <option value="P3D">3 дня</option>
-                        <option value="P5D">5 дней</option>
-                        <option value="P7D">неделя</option>
-                        <option value="P14D">две недели</option>
-                        <option value="P30D">месяц</option>
-                        <option value="P60D">2 месяца</option>
-                        <option value="P90D">3 месяца</option>
+                        <c:forEach items="${freezeDurations}" var="shift">
+                            <option value="${shift.key}">${shift.value}</option>
+                        </c:forEach>
                     </select>
                 </div>
             </div>

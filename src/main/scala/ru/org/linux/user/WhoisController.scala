@@ -31,11 +31,12 @@ import ru.org.linux.util.bbcode.LorCodeService
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.time.ZoneId
+import java.time.{OffsetDateTime, ZoneId}
 import java.util.concurrent.CompletionStage
 import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*
+import scala.collection.immutable.ListMap
 
 @Controller
 class WhoisController(userStatisticsService: UserStatisticsService, userDao: UserDao, ignoreListDao: IgnoreListDao,
@@ -85,6 +86,8 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       val freezer = userService.getUserCached(userInfo.frozenBy)
       mv.getModel.put("freezer", freezer)
     }
+
+    mv.getModel.put("freezeDurations", getFreezeDurations(user).asJava)
 
     if (currentUserOpt.moderator) {
       val othersWithSameEmail = userService.getAllByEmail(user.email).filter(_.id != user.id)
@@ -182,6 +185,21 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     mav
   }
 
+  private def getFreezeDurations(user: User): Map[String, String] = {
+    val recentFreeze = user.frozenUntil != null && user.frozenUntil.toInstant.isAfter(OffsetDateTime.now().minusYears(2).toInstant)
+    val baseFreezeDurations = if (recentFreeze) {
+      WhoisController.LongFreezeDurations
+    } else {
+      WhoisController.FreezeDurations
+    }
+
+    if (user.isFrozen) {
+      ListMap("-P1D" -> "Разморозить") ++ baseFreezeDurations
+    } else {
+      baseFreezeDurations
+    }
+  }
+
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD), params = Array("year-stats"))
   @ResponseBody
   def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[Json] = MaybeAuthorized { currentUser =>
@@ -195,4 +213,28 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     userStatisticsService.getYearStats(user, timezone).map(_.asJson).asJava
   }
+}
+
+object WhoisController {
+  private val FreezeDurations: Map[String, String] = ListMap(
+    "PT30M" -> "30 минут",
+    "PT1H" -> "час",
+    "PT2H" -> "2 часа",
+    "PT3H" -> "3 часа",
+    "PT6H" -> "6 часов",
+    "PT9H" -> "9 часов",
+    "PT12H" -> "12 часов",
+    "P1D" -> "сутки",
+    "P2D" -> "двое суток",
+    "P3D" -> "3 дня",
+    "P5D" -> "5 дней",
+    "P7D" -> "неделя",
+    "P14D" -> "две недели"
+  )
+
+  private val LongFreezeDurations: Map[String, String] = FreezeDurations ++ ListMap(
+    "P30D" -> "месяц",
+    "P60D" -> "2 месяца",
+    "P90D" -> "3 месяца"
+  )
 }
