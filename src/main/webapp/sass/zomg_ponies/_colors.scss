@@ -13,6 +13,8 @@
  *    limitations under the License.
  */
 
+@use "sass:color";
+
 $main_background: #FFDFFF;
 $text_color: #000;
 $link_color: #000040;
@@ -51,7 +53,7 @@ $stars_color: #400040;
 
 $icon_button_active_color: $stars_color;
 
-$heatmap_max: darken(#8ae234, 15%);
+$heatmap_max: color.adjust(#8ae234, $lightness: -15%);
 $heatmap_scale: -1.5;
 $tracker_tag_color: $tag_even_color;
 

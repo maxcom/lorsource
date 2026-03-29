@@ -13,6 +13,8 @@
  *    limitations under the License.
  */
 
+@use "sass:color";
+
 @import "../common";
 
 $main_background: white;
@@ -279,7 +281,7 @@ textarea {
 
 @import "../responsive";
 
-$heatmap_max: darken(#8ae234, 15%);
+$heatmap_max: color.adjust(#8ae234, $lightness: -15%);
 $heatmap_scale: -1.5;
 @import "../cal-heapmap";
 @import "../tracker";

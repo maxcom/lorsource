@@ -13,6 +13,8 @@
  *    limitations under the License.
  */
 
+@use "sass:color";
+
 $main_background: #ECECEC;
 $text_color: #000;
 $link_color: #275096;
@@ -48,7 +50,7 @@ $tagpage_group_label_background: #E7AF55;
 $tagpage_group_label_color: $table_link_color;
 $stars_color: #465A48;
 
-$heatmap_max: darken(#8ae234, 15%);
+$heatmap_max: color.adjust(#8ae234, $lightness: -15%);
 $heatmap_scale: -1.5;
 $tracker_tag_color: $table_border_color;
 
