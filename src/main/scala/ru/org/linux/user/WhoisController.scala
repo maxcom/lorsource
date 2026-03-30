@@ -233,8 +233,8 @@ object WhoisController {
   )
 
   private val LongFreezeDurations: Map[String, String] = FreezeDurations ++ ListMap(
-    "P30D" -> "месяц",
-    "P60D" -> "2 месяца",
-    "P90D" -> "3 месяца"
+    "P1M" -> "месяц",
+    "P2M" -> "2 месяца",
+    "P3M" -> "3 месяца"
   )
 }

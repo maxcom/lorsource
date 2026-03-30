@@ -28,7 +28,7 @@ import ru.org.linux.search.SearchQueueSender
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.sql.Timestamp
-import java.time.Duration
+import java.time.{Period, ZonedDateTime}
 import java.util.concurrent.ThreadLocalRandom
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
@@ -44,10 +44,10 @@ object UserModificationController {
   // get 'now', add the duration and returns result;
   // the duration can be negative
   private def getUntil(shift: String): Timestamp = {
-    val d = Duration.parse(shift)
-    val now = new Timestamp(System.currentTimeMillis)
-    now.setTime(now.getTime + d.toMillis)
-    now
+    val d = Period.parse(shift)
+    val now = ZonedDateTime.now().plus(d)
+    
+    Timestamp.from(now.toInstant)
   }
 }
 
