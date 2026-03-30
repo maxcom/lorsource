@@ -18,6 +18,7 @@ package ru.org.linux.user
 import ru.org.linux.util.StringUtil
 
 import java.sql.{ResultSet, Timestamp}
+import java.time.{LocalDate, Month}
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
@@ -38,7 +39,9 @@ case class User(
   @BeanProperty unreadEvents: Int,
   @Nullable @BeanProperty style: String,
   @Nullable @BeanProperty frozenUntil: Timestamp,
-  @BooleanBeanProperty activated: Boolean
+  @BooleanBeanProperty activated: Boolean,
+  @Nullable @BeanProperty mostPopularReaction: String,
+  @BeanProperty mostPopularCount: Int
 ) {
   import User.*
 
@@ -64,8 +67,31 @@ case class User(
 
   def getMaxScore: Int = if (anonymous) 0 else maxScore
 
-  @deprecated("Use field access or User.getStars(score, maxScore, html) instead", since = "2026")
-  def getStars: String = User.getStars(score, maxScore, true)
+  def getStars: String = {
+    val today = LocalDate.now
+
+    // Check if Month is APRIL and Day is 1
+    if ((today.getMonth == Month.APRIL) && (today.getDayOfMonth == 1)) {
+      val out = new StringBuilder
+
+      out.append("<span class=\"stars\">")
+
+      if (mostPopularReaction != null) {
+        val stars = getGreenStars(mostPopularCount)
+
+        if mostPopularReaction == "\u2615\u2615" then
+          out.append("\u2615" * Math.max(0, stars))
+        else
+          out.append(mostPopularReaction * Math.max(0, stars))
+      }
+
+      out.append("</span>")
+      
+      out.toString
+    } else {
+      User.getStars(score, maxScore = maxScore, html = true)
+    }
+  }
 
   def getStatus: String = {
     val text: String = if (score < AnonymousLevelScore) {
@@ -77,9 +103,9 @@ case class User(
     }
 
     if (maxScore >= 100 && text.isEmpty) {
-      User.getStars(score, maxScore, true)
+      getStars
     } else if (maxScore >= 100) {
-      s"$text ${User.getStars(score, maxScore, true)}"
+      s"$text ${getStars}"
     } else {
       text
     }
@@ -143,7 +169,9 @@ object User {
       unreadEvents = unreadEvents,
       style = style,
       frozenUntil = frozenUntil,
-      activated = activated
+      activated = activated,
+      mostPopularReaction = rs.getString("most_popular_reaction"),
+      mostPopularCount = rs.getInt("most_popular_count")
     )
   }
 

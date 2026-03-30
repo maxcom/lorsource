@@ -37,6 +37,8 @@ public class Users {
     when(resultSet.getBoolean("blocked")).thenReturn(false);
     when(resultSet.getInt("score")).thenReturn(600);
     when(resultSet.getInt("max_score")).thenReturn(600);
+    when(resultSet.getString("most_popular_reaction")).thenReturn("★");
+    when(resultSet.getInt("most_popular_count")).thenReturn(600);
     when(resultSet.getString("name")).thenReturn("Максим Валянский");
     when(resultSet.getString("passwd")).thenReturn("UEX2F5/8Q5loMT3EQaknMyNbSxtlgain");
     when(resultSet.getString("photo")).thenReturn("1:403073453.png");
@@ -106,6 +108,8 @@ public class Users {
     when(resultSet.getBoolean("blocked")).thenReturn(false);
     when(resultSet.getInt("score")).thenReturn(500);
     when(resultSet.getInt("max_score")).thenReturn(500);
+    when(resultSet.getString("most_popular_reaction")).thenReturn("★");
+    when(resultSet.getInt("most_popular_count")).thenReturn(500);
     when(resultSet.getString("name")).thenReturn("Sergey V. Udaltsov");
     when(resultSet.getString("passwd")).thenReturn("0vwkMky44u8kIqSasrH+X8mHao1a3jOC");
     when(resultSet.getString("photo")).thenReturn("5280.png");
@@ -128,6 +132,8 @@ public class Users {
     when(resultSet.getBoolean("blocked")).thenReturn(false);
     when(resultSet.getInt("score")).thenReturn(500);
     when(resultSet.getInt("max_score")).thenReturn(500);
+    when(resultSet.getString("most_popular_reaction")).thenReturn("★");
+    when(resultSet.getInt("most_popular_count")).thenReturn(500);
     when(resultSet.getString("name")).thenReturn("5 star");
     when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
     when(resultSet.getString("photo")).thenReturn(null);
@@ -150,6 +156,8 @@ public class Users {
     when(resultSet.getBoolean("blocked")).thenReturn(false);
     when(resultSet.getInt("score")).thenReturn(110);
     when(resultSet.getInt("max_score")).thenReturn(110);
+    when(resultSet.getString("most_popular_reaction")).thenReturn("★");
+    when(resultSet.getInt("most_popular_count")).thenReturn(110);
     when(resultSet.getString("name")).thenReturn("1 star");
     when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
     when(resultSet.getString("photo")).thenReturn(null);
@@ -216,6 +224,8 @@ public class Users {
     when(resultSet.getBoolean("blocked")).thenReturn(false);
     when(resultSet.getInt("score")).thenReturn(110);
     when(resultSet.getInt("max_score")).thenReturn(110);
+    when(resultSet.getString("most_popular_reaction")).thenReturn("★");
+    when(resultSet.getInt("most_popular_count")).thenReturn(110);
     when(resultSet.getString("name")).thenReturn("Defrosted");
     when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
     when(resultSet.getString("photo")).thenReturn(null);
@@ -239,6 +249,8 @@ public class Users {
     when(resultSet.getBoolean("blocked")).thenReturn(false);
     when(resultSet.getInt("score")).thenReturn(110);
     when(resultSet.getInt("max_score")).thenReturn(110);
+    when(resultSet.getString("most_popular_reaction")).thenReturn("★");
+    when(resultSet.getInt("most_popular_count")).thenReturn(110);
     when(resultSet.getString("name")).thenReturn("Frozen");
     when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
     when(resultSet.getString("photo")).thenReturn(null);

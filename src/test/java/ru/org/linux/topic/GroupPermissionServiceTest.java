@@ -54,7 +54,9 @@ public class GroupPermissionServiceTest {
       0,                    // unreadEvents
       null,                 // style
       null,                 // frozenUntil
-      true                  // activated
+      true,                 // activated,
+      null,
+      0
     );
   }
 

@@ -39,7 +39,52 @@ class UserDao(ds: DataSource) extends StrictLogging {
   private val namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.javaTemplate)
 
   private val queryChangeScore = "UPDATE users SET score=score+? WHERE id=?"
-  private val queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style,frozen_until FROM users where id=?"
+  private val queryAnonymous = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style,frozen_until, null as most_popular_reaction, 0 as most_popular_count FROM users where id=2"
+  private val queryUserById =
+    """
+      |with user_reactions as (
+      |    select
+      |        reaction,
+      |        count(*) as reaction_count,
+      |        row_number() over (order by count(*) desc) as rn
+      |    from reactions_log
+      |    join (
+      |        select id, userid from comments
+      |        union all
+      |        select id, userid from topics
+      |    ) posts on posts.id = coalesce(comment_id, topic_id)
+      |    where posts.userid = ?
+      |    group by reaction
+      |),
+      |reaction_stats as (
+      |    select
+      |        max(case when rn = 1 then reaction end) as most_popular_reaction,
+      |        max(case when rn = 1 then reaction_count end) as most_popular_count
+      |    from user_reactions
+      |)
+      |select
+      |    u.id,
+      |    u.nick,
+      |    u.score,
+      |    u.max_score,
+      |    u.candel,
+      |    u.canmod,
+      |    u.corrector,
+      |    u.passwd,
+      |    u.blocked,
+      |    u.activated,
+      |    u.photo,
+      |    u.email,
+      |    u.name,
+      |    u.unread_events,
+      |    u.style,
+      |    u.frozen_until,
+      |    rs.most_popular_reaction,
+      |    rs.most_popular_count
+      |from users u
+      |cross join reaction_stats rs
+      |where u.id = ?
+      |""".stripMargin
   private val queryUserIdByNick = "SELECT id FROM users where nick=?"
   private val updateUserStyle = "UPDATE users SET style=? WHERE id=?"
 
@@ -83,9 +128,15 @@ class UserDao(ds: DataSource) extends StrictLogging {
    */
   @throws(classOf[UserNotFoundException])
   def getUser(id: Int): User = {
-    val list = jdbcTemplate.queryAndMap(queryUserById, id) { (rs, _) =>
-      User.fromResultSet(rs)
-    }
+    val list =
+      if id != 2 then
+        jdbcTemplate.queryAndMap(queryUserById, id, id) { (rs, _) =>
+          User.fromResultSet(rs)
+        }
+      else
+        jdbcTemplate.queryAndMap(queryAnonymous) { (rs, _) =>
+          User.fromResultSet(rs)
+        }
 
     if (list.isEmpty) {
       throw new UserNotFoundException(id)

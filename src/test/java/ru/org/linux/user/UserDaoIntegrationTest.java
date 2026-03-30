@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 
 import static org.junit.Assert.*;
+import static ru.org.linux.user.UserConstants.ANONYMOUS_ID;
 
 @ContextHierarchy({
         @ContextConfiguration("classpath:database.xml"),
@@ -64,6 +65,16 @@ public class UserDaoIntegrationTest {
 
     assertFalse(user.isBlocked());
   }
+
+  @Test
+  public void testAnonymous() throws UserNotFoundException {
+    User user = userDao.getUser(ANONYMOUS_ID);
+
+    assertNotNull(user);
+
+    assertTrue(user.isAnonymous());
+  }
+  
   @Test
   public void testBlock() throws UserNotFoundException {
     User user = userDao.getUser(TEST_ID);
