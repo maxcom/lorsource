@@ -16,7 +16,6 @@ package ru.org.linux.topic
 
 import com.google.common.base.Strings
 import org.apache.commons.text.StringEscapeUtils
-import org.joda.time.DateTime
 import ru.org.linux.group.Group
 import ru.org.linux.reaction.{ReactionDao, Reactions}
 import ru.org.linux.section.Section
@@ -53,11 +52,11 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
    *
    * @return postdate для постмодерируемых и commitdate для премодерируемых, прошедших модерацию
    */
-  def getEffectiveDate: DateTime = if (commited && commitDate != null) {
-    new DateTime(commitDate.getTime)
-  } else {
-    new DateTime(postdate.getTime)
-  }
+  def getEffectiveDate: Instant = 
+    if commited && commitDate != null then
+      commitDate.toInstant
+    else 
+      postdate.toInstant
 
   def getLink: String =
     Section.getSectionLink(sectionId) + URLEncoder.encode(groupUrl, StandardCharsets.UTF_8) + '/' + id

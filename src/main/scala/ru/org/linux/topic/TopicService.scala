@@ -37,13 +37,14 @@ import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils
 
 import java.io.File
+import java.time.{Instant, OffsetDateTime}
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object TopicService {
   private def sendTagEventsNeeded(section: Section, oldMsg: Topic, commit: Boolean): Boolean = {
     val needCommit = section.isPremoderated && !oldMsg.commited
 
-    val fresh = oldMsg.getEffectiveDate.isAfter(DateTime.now.minusMonths(1))
+    val fresh = oldMsg.getEffectiveDate.isAfter(OffsetDateTime.now.minusMonths(1).toInstant)
 
     commit || (!needCommit && fresh)
   }

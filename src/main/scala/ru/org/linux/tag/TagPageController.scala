@@ -17,7 +17,7 @@ package ru.org.linux.tag
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.WordUtils
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{PathVariable, RequestMapping, RequestMethod}
+import org.springframework.web.bind.annotation.{PathVariable, RequestAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AnySession
@@ -31,7 +31,7 @@ import ru.org.linux.topic.TopicListDto.CommitMode
 import ru.org.linux.user.UserTagService
 
 import java.time
-import java.time.Instant
+import java.time.{Instant, ZoneId}
 import java.util.concurrent.CompletionStage
 import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -58,7 +58,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
                         imageService: ImageService, groupPermissionService: GroupPermissionService) extends StrictLogging {
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def tagPage(@PathVariable tag: String): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUser =>
+  def tagPage(@PathVariable tag: String, @RequestAttribute(name="timezone") timezone: ZoneId): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUser =>
     val deadline = TagPageController.Timeout.fromNow
 
     if (!TagName.isGoodTag(tag)) {
@@ -92,11 +92,11 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).asJava
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
-        val (news, newsDate) = getNewsSection(tag)
-        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.Forum, CommitMode.POSTMODERATED_ONLY)
+        val (news, newsDate) = getNewsSection(tag, timezone)
+        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.Forum, CommitMode.POSTMODERATED_ONLY, timezone)
         val gallery = getGallerySection(tag, tagInfo.id)
-        val (polls, _) = getTopicList(tag, tagInfo.id, Section.Polls, CommitMode.COMMITED_ONLY)
-        val (articles, _) = getTopicList(tag, tagInfo.id, Section.Articles, CommitMode.COMMITED_ONLY)
+        val (polls, _) = getTopicList(tag, tagInfo.id, Section.Polls, CommitMode.COMMITED_ONLY, timezone)
+        val (articles, _) = getTopicList(tag, tagInfo.id, Section.Articles, CommitMode.COMMITED_ONLY, timezone)
 
         val newsFirst = newsDate.isDefined && (newsDate.exists(isRecent) || newsDate.zip(forumDate).exists(p => p._1.isAfter(p._2)))
 
@@ -135,7 +135,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 }
 
-  private def getNewsSection(tag: String)(implicit currentUser: AnySession) = {
+  private def getNewsSection(tag: String, timezone: ZoneId)(using currentUser: AnySession) = {
     val newsSection = sectionService.getSection(Section.News)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
       TagPageController.TotalNewsCount, noTalks = false, tech = false)
@@ -148,7 +148,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val fullNews = prepareService.prepareTopics(fullNewsTopics, loadUserpics = false)
 
-    val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics)
+    val briefNewsByDate = TopicListTools.datePartition(briefNewsTopics, timezone)
 
     val more = if (newsTopics.size == TagPageController.TotalNewsCount) {
       Some("moreNews" -> TagTopicListController.tagListUrl(tag, newsSection))
@@ -189,7 +189,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     Map[String, AnyRef]("gallery" -> list) ++ add ++ more
   }
 
-  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode)(implicit currentUser: AnySession) = {
+  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode, timezone: ZoneId)
+                          (using currentUser: AnySession) = {
     val forumSection = sectionService.getSection(section)
 
     val topicListDto = new TopicListDto
@@ -199,7 +200,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     topicListDto.setLimit(TagPageController.ForumTopicCount)
 
     val forumTopics = topicListService.getTopics(topicListDto)
-    val topicByDate = TopicListTools.datePartition(forumTopics)
+    val topicByDate = TopicListTools.datePartition(forumTopics, timezone)
 
     val more = if (forumTopics.size == TagPageController.ForumTopicCount) {
       Some(forumSection.getUrlName+"More" -> TagTopicListController.tagListUrl(tag, forumSection))
@@ -213,7 +214,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    val newestDate = forumTopics.headOption.map(t => Instant.ofEpochMilli(t.getEffectiveDate.getMillis))
+    val newestDate = forumTopics.headOption.map(_.getEffectiveDate)
 
     (Map[String, AnyRef](
       forumSection.getUrlName -> TopicListTools.split(

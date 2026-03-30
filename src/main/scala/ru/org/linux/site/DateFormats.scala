@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit
 import java.util.{Date, Locale}
 
 object DateFormats:
-  private val RussianLocale = Locale.forLanguageTag("ru")
+  val RussianLocale = Locale.forLanguageTag("ru")
   private val Default = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm:ss z").withLocale(RussianLocale)
   private val Short = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm").withLocale(RussianLocale)
   private val Time = DateTimeFormatter.ofPattern("HH:mm").withLocale(RussianLocale)
