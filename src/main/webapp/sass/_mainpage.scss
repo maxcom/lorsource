@@ -14,8 +14,15 @@
  */
 
 #mainpage {
-  @include clearfix;
-  @include container;
+  width: 100%;
+  margin: 0;
+
+  @include respond-to(desktops) {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: 2%;
+    align-items: start;
+  }
 }
 
 #news {
@@ -23,7 +30,8 @@
   padding-bottom: 5px;
 
   @include respond-to(desktops) {
-    @include column(9, 3);
+    grid-column: 4 / 13;
+    grid-row: 1;
   }
 }
 
@@ -42,7 +50,8 @@
   }
 
   @include respond-to(desktops) {
-    @include column(3);
+    grid-column: 1 / 4;
+    grid-row: 1;
 
     font-size: 0.875em;
     display: block;
