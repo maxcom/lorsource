@@ -50,7 +50,7 @@ object UserService {
   val AnonymousUserId = 2
 
   private val NameCacheSize = 50000
-  private val UserCacheSize = 5000
+  private val UserCacheSize = 20000
 
   val CorrectorScore = 200
 
@@ -78,9 +78,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   // при массовом удалении сообщений кеш инвалидируется внутри
   // транзакции, из-за чего инвалидация не всегда достигает нужного результата.
-  // По этому держим в кеше не больше 5 минут
+  // По этому держим в кеше не больше 30 минут
   private[user] val idToUserCache: LoadingCache[Int, User] =
-    Caffeine.newBuilder().maximumSize(UserService.UserCacheSize).expireAfterWrite(5, TimeUnit.MINUTES).build(
+    Caffeine.newBuilder().maximumSize(UserService.UserCacheSize).expireAfterWrite(30, TimeUnit.MINUTES).build(
       (id: Int) => userDao.getUser(id)
     )
 
