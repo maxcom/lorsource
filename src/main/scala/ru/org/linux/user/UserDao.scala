@@ -49,9 +49,9 @@ class UserDao(ds: DataSource) extends StrictLogging {
       |        row_number() over (order by count(*) desc) as rn
       |    from reactions_log
       |    join (
-      |        select id, userid from comments
+      |        select id, userid from comments where postdate>'2022-01-01'
       |        union all
-      |        select id, userid from topics
+      |        select id, userid from topics where postdate>'2022-01-01'
       |    ) posts on posts.id = coalesce(comment_id, topic_id)
       |    where posts.userid = ?
       |    group by reaction
