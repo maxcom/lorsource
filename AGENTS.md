@@ -47,6 +47,22 @@ mvn integration-test -Pintegration-testing -Dit.test=TopicControllerIntegrationT
 mvn verify
 ```
 
+### Run application in development web server
+
+Run in backgroup shell:
+
+```bash
+mvn package jetty:run > server.log 2>&1 &
+```
+
+Stop server with:
+
+```bash
+mvn jetty:stop
+```
+
+Server starts at http://127.0.0.1:8080/
+
 ### Other Commands
 ```bash
 mvn clean                 # Clean target directory
