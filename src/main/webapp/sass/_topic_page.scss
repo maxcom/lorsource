@@ -14,8 +14,8 @@
  */
 
 #related-topics-list {
-  @include clearfix();
-  @include container();
+  width: 100%;
+  margin: 0;
 
   ul {
     margin-bottom: 0 !important;
@@ -23,10 +23,9 @@
   }
 
   @include respond-to(tablet-and-desktops) {
-    @include generate_grid_positions('ul', 6);
-
-    ul {
-      @include column(6);
-    }
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 2%;
+    align-items: start;
   }
 }
