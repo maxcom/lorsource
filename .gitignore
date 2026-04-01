@@ -15,3 +15,5 @@ docker/db/
 .bloop/
 .metals/
 .vscode/
+server.log
+trace.json
