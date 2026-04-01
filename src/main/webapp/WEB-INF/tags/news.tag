@@ -139,10 +139,10 @@
   out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
 
   if (moderateMode) {
-    String shortHost = URLUtil.extractShortHost(url).getOrElse(null);
+    scala.Option<String> shortHost = URLUtil.extractShortHost(url);
 
-    if (shortHost != null) {
-      out.append(" (" + shortHost + ")");
+    if (shortHost.isDefined()) {
+      out.append(" (" + shortHost.get() + ")");
     } else {
       out.append(" (Invalid URL, no host part!)");
     }
