@@ -18,7 +18,6 @@ package ru.org.linux.user
 import org.apache.pekko.actor.ActorSystem
 import cats.implicits.*
 import com.typesafe.scalalogging.StrictLogging
-import org.joda.time.DateTime
 import org.opensearch.client.json.JsonData
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch._types.FieldValue
@@ -32,7 +31,7 @@ import ru.org.linux.user.UserStatisticsService.*
 import ru.org.linux.util.RichFuture.RichFuture
 
 import java.sql.Timestamp
-import java.time.ZoneId
+import java.time.{Instant, ZoneId}
 import java.util.Date
 import scala.beans.BeanProperty
 import scala.concurrent.*
@@ -44,7 +43,7 @@ import scala.jdk.FutureConverters.*
 @Service
 class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sectionService: SectionService,
                             elastic: OpenSearchAsyncClient, actorSystem: ActorSystem) extends StrictLogging {
-  private implicit val pekko: ActorSystem = actorSystem
+  private given ActorSystem = actorSystem
 
   def getStats(user: User): Future[UserStats] = {
     val deadline = SearchTimeout.fromNow
@@ -73,8 +72,8 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
         incomplete = commentCount.isEmpty || topicStat.isEmpty,
         firstComment = firstComment,
         lastComment = lastComment,
-        firstTopic = topicStat.flatMap(_.firstTopic).map(_.toDate).orNull,
-        lastTopic = topicStat.flatMap(_.lastTopic).map(_.toDate).orNull,
+        firstTopic = topicStat.flatMap(_.firstTopic).map(Date.from).orNull,
+        lastTopic = topicStat.flatMap(_.lastTopic).map(Date.from).orNull,
         topicsBySection = topicsBySection.asJava)
     }
   }
@@ -160,7 +159,7 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
         val sectionsResult = response.aggregations.get("sections").sterms()
 
         val (firstTopic, lastTopic) = if (topicStatsResult.exists(_.count() > 0)) {
-          (Some(new DateTime(topicStatsResult.get.min().toLong)), Some(new DateTime(topicStatsResult.get.max().toLong)))
+          (Some(Instant.ofEpochMilli(topicStatsResult.get.min().toLong)), Some(Instant.ofEpochMilli(topicStatsResult.get.max().toLong)))
         } else {
           (None, None)
         }
@@ -174,13 +173,12 @@ class UserStatisticsService(userDao: UserDao, ignoreListDao: IgnoreListDao, sect
   }
 }
 
-object UserStatisticsService {
+object UserStatisticsService:
   private val SearchTimeout: FiniteDuration = 5.seconds
 
   private def formatTimeout(timeout: FiniteDuration): String = s"${timeout.toSeconds}s"
 
-  private case class TopicStats(firstTopic: Option[DateTime], lastTopic: Option[DateTime], sectionCount: Seq[(String, Long)])
-}
+  private case class TopicStats(firstTopic: Option[Instant], lastTopic: Option[Instant], sectionCount: Seq[(String, Long)])
 
 case class UserStats (
   @BeanProperty ignoreCount: Int,
@@ -190,10 +188,8 @@ case class UserStats (
   @BeanProperty lastComment: Timestamp,
   @BeanProperty firstTopic: Date,
   @BeanProperty lastTopic: Date,
-  @BeanProperty topicsBySection: java.util.List[PreparedUsersSectionStatEntry]
-)
+  @BeanProperty topicsBySection: java.util.List[PreparedUsersSectionStatEntry])
 
-case class PreparedUsersSectionStatEntry (
+case class PreparedUsersSectionStatEntry(
   @BeanProperty section: Section,
-  @BeanProperty count: Long
-)
+  @BeanProperty count: Long)

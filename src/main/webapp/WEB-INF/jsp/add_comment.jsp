@@ -1,3 +1,4 @@
+<%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="ru.org.linux.comment.PreparedComment" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>

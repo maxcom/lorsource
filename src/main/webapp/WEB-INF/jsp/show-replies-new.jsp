@@ -1,3 +1,4 @@
+<%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
