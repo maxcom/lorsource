@@ -1,3 +1,4 @@
+<%@ page session="false" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");

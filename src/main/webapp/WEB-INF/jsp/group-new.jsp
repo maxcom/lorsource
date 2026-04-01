@@ -1,3 +1,4 @@
+<%@ page session="false" %>
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
