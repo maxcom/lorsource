@@ -55,6 +55,8 @@ Run in backgroup shell:
 mvn package jetty:run > server.log 2>&1 &
 ```
 
+**Important:** The development web server must be restarted after any changes to the code.
+
 Stop server with:
 
 ```bash
