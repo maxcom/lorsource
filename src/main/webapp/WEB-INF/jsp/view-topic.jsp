@@ -80,8 +80,8 @@
 
 <c:set var="scroller"><c:if test="${topScroller}">
   <div class="nav">
-  <div class="grid-row">
-    <div class="grid-3-1">
+  <div class="scroller-row">
+    <div class="scroller-prev">
       <table>
         <tr valign=middle>
           <c:if test="${prevMessage != null}">
@@ -97,9 +97,9 @@
         </tr>
       </table>
     </div>
-    <div class="grid-3-2">
+    <div class="scroller-group">
     </div>
-    <div class="grid-3-3">
+    <div class="scroller-next">
       <c:if test="${nextMessage != null}">
         <table align="right">
           <tr valign=middle align=right>
@@ -121,8 +121,8 @@
 
 <c:set var="bottomScroller"><c:if test="${bottomScroller}">
   <div class="nav">
-  <div class="grid-row">
-    <div class="grid-3-1">
+  <div class="scroller-row">
+    <div class="scroller-prev">
       <table>
         <tr valign=middle>
           <c:if test="${prevMessage != null}">
@@ -138,13 +138,13 @@
         </tr>
       </table>
     </div>
-    <div class="grid-3-2">
+    <div class="scroller-group">
       <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
          href="${group.url}">
           ${preparedMessage.group.title}
       </a>
     </div>
-    <div class="grid-3-3">
+    <div class="scroller-next">
       <c:if test="${nextMessage != null}">
         <table align="right">
           <tr valign=middle align=right>
