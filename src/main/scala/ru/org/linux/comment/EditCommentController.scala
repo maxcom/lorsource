@@ -32,6 +32,7 @@ import ru.org.linux.user.IgnoreListDao
 import ru.org.linux.util.ServletParameterException
 
 import java.util
+import java.util.Date
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.MapHasAsJava
 
@@ -76,7 +77,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       formParams.put("comment", commentPrepareService.prepareCommentOnly(comment, topic, ignoreList))
 
-      topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
+      topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", Date.from(value)))
 
       new ModelAndView("edit_comment", formParams)
     } else {
@@ -126,7 +127,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
       val modelAndView = new ModelAndView("edit_comment", formParams)
       modelAndView.addObject("ipBlockInfo", ipBlockInfo)
       val deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal)
-      deadline.foreach(value => formParams.put("deadline", value.toDate))
+      deadline.foreach(value => formParams.put("deadline", Date.from(value)))
       modelAndView
     } else {
       commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr,

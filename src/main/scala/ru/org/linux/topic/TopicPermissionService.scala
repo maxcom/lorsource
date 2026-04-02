@@ -15,9 +15,7 @@
 package ru.org.linux.topic
 
 import ru.org.linux.user.UserConstants
-
 import com.google.common.base.Preconditions
-import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
 import ru.org.linux.auth.{AccessViolationException, AnySession, AuthorizedSession}
@@ -32,7 +30,7 @@ import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTS
 import ru.org.linux.user.{User, UserPermissionService, UserService}
 import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
-import java.time.Instant
+import java.time.{Duration, Instant}
 import java.time.temporal.ChronoUnit
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.MapHasAsJava
@@ -48,7 +46,7 @@ object TopicPermissionService {
 
   private val LinkFollowMinScore = 100
   private val ViewDeletedScore = 200
-  private val DeletePeriod = Duration.standardHours(3)
+  private val DeletePeriod = Duration.ofHours(3)
   private val ViewAfterDeleteDays = 14
 
   def getPostScoreInfo(postscore: Int): String = postscore match {
@@ -300,9 +298,9 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     checkCommentEditableNow(comment, session.userOpt.orNull, haveAnswers, topic, errors, markup)
   }
 
-  def getEditDeadline(comment: Comment): Option[DateTime] = {
+  def getEditDeadline(comment: Comment): Option[Instant] = {
     if (siteConfig.getCommentExpireMinutesForEdit != null && siteConfig.getCommentExpireMinutesForEdit != 0) {
-      val editDeadline = new DateTime(comment.postdate).plusMinutes(siteConfig.getCommentExpireMinutesForEdit)
+      val editDeadline = comment.postdate.toInstant.plus(Duration.ofMinutes(siteConfig.getCommentExpireMinutesForEdit.toLong))
 
       Some.apply(editDeadline)
     } else {
@@ -350,7 +348,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       /* проверка на то, что время редактирования не вышло */
       val maybeDeadline = getEditDeadline(comment)
 
-      if (maybeDeadline.isDefined && maybeDeadline.get.isBeforeNow) {
+      if (maybeDeadline.isDefined && maybeDeadline.get.isBefore(Instant.now)) {
         errors.reject(null, "Истек срок редактирования")
       }
 
@@ -392,9 +390,9 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
     val deleteByAuthor = currentUser.id == comment.userid
 
-    val deleteDeadline = new DateTime(comment.postdate).plus(TopicPermissionService.DeletePeriod)
+    val deleteDeadline = comment.postdate.toInstant.plus(TopicPermissionService.DeletePeriod)
 
-    currentUser.isModerator || (!topic.expired && deleteByAuthor && !haveAnswers && deleteDeadline.isAfterNow)
+    currentUser.isModerator || (!topic.expired && deleteByAuthor && !haveAnswers && deleteDeadline.isAfter(Instant.now))
   }
 
   /**

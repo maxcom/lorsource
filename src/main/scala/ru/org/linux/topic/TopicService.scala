@@ -16,7 +16,6 @@ package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
-import org.joda.time.DateTime
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager

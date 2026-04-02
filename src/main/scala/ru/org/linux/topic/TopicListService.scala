@@ -14,7 +14,6 @@
  */
 package ru.org.linux.topic
 
-import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
 import ru.org.linux.group.Group
@@ -27,6 +26,8 @@ import java.util.Calendar
 import java.util.Date
 import ru.org.linux.topic.TopicListDto.CommitMode.COMMITED_ONLY
 import ru.org.linux.topic.TopicListDto.CommitMode.POSTMODERATED_ONLY
+
+import java.time.{Instant, ZonedDateTime}
 
 @Service
 object TopicListService {
@@ -168,7 +169,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
    * @param tech     только технические
    * @return список топиков для RSS-ленты
    */
-  def getRssTopicsFeed(section: Section, group: Option[Group], fromDate: Date, noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
+  def getRssTopicsFeed(section: Section, group: Option[Group], fromDate: Instant, noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
     topicListDto.setSection(section.id)
@@ -178,7 +179,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     }
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
-    topicListDto.setFromDate(fromDate)
+    topicListDto.setFromDate(Date.from(fromDate))
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
     topicListDto.setLimit(30)
@@ -218,7 +219,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setLimit(count)
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
-    topicListDto.setFromDate(DateTime.now.minusMonths(3).toDate)
+    topicListDto.setFromDate(Date.from(ZonedDateTime.now.minusMonths(3).toInstant))
 
     if (session.profile.hasMiniNewsBoxlet) {
       topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR)

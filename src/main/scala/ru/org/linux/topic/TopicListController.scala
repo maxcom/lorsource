@@ -16,7 +16,6 @@
 package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
-import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -33,6 +32,7 @@ import ru.org.linux.topic.TopicListController.{ForumFilter, ForumFilters, calcul
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.{DateUtil, ServletParameterException}
 
+import java.time.ZonedDateTime
 import java.util.concurrent.CompletionStage
 import javax.annotation.Nullable
 import scala.jdk.FutureConverters.FutureOps
@@ -272,8 +272,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val notalks = forumFilter.contains(NoTalks)
     val tech = forumFilter.contains(Tech)
 
-    val fromDate = DateTime.now.minusMonths(3)
-    val messages = topicListService.getRssTopicsFeed(section, group, fromDate.toDate, notalks, tech)
+    val fromDate = ZonedDateTime.now.minusMonths(3)
+    val messages = topicListService.getRssTopicsFeed(section, group, fromDate.toInstant, notalks, tech)
 
     // не лучший вариант, так как включает комментарии
     // по хорошему тут надо учитывать только правки текста топика

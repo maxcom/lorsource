@@ -13,7 +13,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ page import="org.joda.time.DateTime" %>
+<%@ page import="java.time.ZonedDateTime" %>
 <%@ page import="ru.org.linux.user.UserService$" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -86,10 +86,10 @@
 
             if (window.matchMedia("(min-width: 768px)").matches) {
                 params['range'] = 12;
-                params['start'] = new Date("<%= DateTime.now().minusMonths(11).toString() %>")
+                params['start'] = new Date("<%= ZonedDateTime.now().minusMonths(11).toInstant().toString() %>")
             } else {
                 params['range'] = 6;
-                params['start'] = new Date("<%= DateTime.now().minusMonths(5).toString() %>")
+                params['start'] = new Date("<%= ZonedDateTime.now().minusMonths(5).toInstant().toString() %>")
             }
 
             cal.init(params);

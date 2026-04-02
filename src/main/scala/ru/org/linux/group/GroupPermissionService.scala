@@ -14,7 +14,6 @@
  */
 package ru.org.linux.group
 
-import org.joda.time.{DateTime, Duration}
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.msgbase.DeleteInfoDao
@@ -23,14 +22,14 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.{User, UserPermissionService}
 
-import java.time.Instant
+import java.time.{Duration, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
 import javax.annotation.Nullable
 
 @Service
 object GroupPermissionService {
-  private val DeletePeriod = Duration.standardDays(3)
-  private val EditPeriod = Duration.standardDays(14)
+  private val DeletePeriod = Duration.ofDays(3)
+  private val EditPeriod = Duration.ofDays(14)
   private val CreateTagScore = 200
 }
 
@@ -51,9 +50,9 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     } else if (section.isPremoderated && topic.commited) {
       false
     } else {
-      val deleteDeadline = new DateTime(topic.postdate).plus(DeletePeriod)
+      val deleteDeadline = topic.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(DeletePeriod).toInstant
 
-      deleteDeadline.isAfterNow && topic.commentCount == 0
+      deleteDeadline.isAfter(Instant.now) && topic.commentCount == 0
     }
   }
 
@@ -173,11 +172,11 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @return признак возможности удаления
     */
   private def isDeletableByModerator(topic: Topic, moderator: User, section: Section) = {
-    val deleteDeadline = new DateTime(topic.postdate).plusMonths(1)
+    val deleteDeadline = topic.postdate.toInstant.atZone(ZoneId.systemDefault()).plusMonths(1).toInstant
 
     if (section.isPremoderated && !topic.commited) {
       true
-    } else if (section.isPremoderated && topic.commited && deleteDeadline.isAfterNow) {
+    } else if (section.isPremoderated && topic.commited && deleteDeadline.isAfter(Instant.now)) {
       true
     } else if (!section.isPremoderated) {
       true
@@ -221,14 +220,14 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       } else if (message.draft) {
         true
       } else {
-        val editDeadline = new DateTime(message.postdate).plus(EditPeriod)
+        val editDeadline = message.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
 
-        editDeadline.isAfterNow
+        editDeadline.isAfter(Instant.now)
       }
     } else if (by.id == author.id && message.commited && section.id == Articles) {
-      val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
+      val editDeadline = message.commitDate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
 
-      editDeadline.isAfterNow
+      editDeadline.isAfter(Instant.now)
     } else {
       false
     }
@@ -265,14 +264,14 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       } else if (section.isPremoderated) {
         true
       } else {
-        val editDeadline = new DateTime(message.postdate).plus(EditPeriod)
+        val editDeadline = message.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
 
-        editDeadline.isAfterNow
+        editDeadline.isAfter(Instant.now)
       }
     } else if (by.id == author.id && message.commited && section.id == Articles) {
-      val editDeadline = new DateTime(message.commitDate).plus(EditPeriod)
+      val editDeadline = message.commitDate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
 
-      editDeadline.isAfterNow
+      editDeadline.isAfter(Instant.now)
     } else {
       false
     }

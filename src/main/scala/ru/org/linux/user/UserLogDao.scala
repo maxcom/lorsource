@@ -15,7 +15,6 @@
 
 package ru.org.linux.user
 
-import org.joda.time.DateTime
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
