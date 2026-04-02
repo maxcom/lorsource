@@ -354,7 +354,6 @@
 
             <!-- reason -->
             <div class="control-group">
-
                 <label class="control-label" for="reason-input">Причина</label>
                 <div class="controls">
                     <select name=reason_select
@@ -436,7 +435,7 @@
                 <div class="controls">
                     <select name="shift">
                         <c:forEach items="${freezeDurations}" var="shift">
-                            <option value="${shift.key}">${shift.value}</option>
+                            <option value="${shift}">${shift}</option>
                         </c:forEach>
                     </select>
                 </div>

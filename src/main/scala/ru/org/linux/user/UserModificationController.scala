@@ -28,8 +28,10 @@ import ru.org.linux.search.SearchQueueSender
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.sql.Timestamp
-import java.time.{Period, ZonedDateTime}
+import java.time.temporal.TemporalAmount
+import java.time.{Duration, Period, ZonedDateTime}
 import java.util.concurrent.ThreadLocalRandom
+import scala.collection.immutable.ListMap
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
 
@@ -44,11 +46,35 @@ object UserModificationController {
   // get 'now', add the duration and returns result;
   // the duration can be negative
   private def getUntil(shift: String): Timestamp = {
-    val d = Period.parse(shift)
+    val d = AllDurations(shift)
     val now = ZonedDateTime.now().plus(d)
     
     Timestamp.from(now.toInstant)
   }
+
+  val FreezeDurations: ListMap[String, TemporalAmount] = ListMap(
+    "30 минут" -> Duration.ofMinutes(30),
+    "час" -> Duration.ofHours(1),
+    "2 часа" -> Duration.ofHours(2),
+    "3 часа" -> Duration.ofHours(3),
+    "6 часов" -> Duration.ofHours(6),
+    "9 часов" -> Duration.ofHours(9),
+    "12 часов" -> Duration.ofHours(12),
+    "сутки" -> Period.ofDays(1),
+    "двое суток" -> Period.ofDays(2),
+    "3 дня" -> Period.ofDays(3),
+    "5 дней" -> Period.ofDays(5),
+    "неделя" -> Period.ofWeeks(1),
+    "две недели"  -> Period.ofWeeks(2))
+
+  val LongFreezeDurations: ListMap[String, TemporalAmount] = FreezeDurations ++ ListMap(
+    "месяц" -> Period.ofMonths(1),
+    "2 месяца" -> Period.ofMonths(2),
+    "3 месяца" -> Period.ofMonths(3))
+
+  val Unfreeze: ListMap[String, TemporalAmount] = ListMap("Разморозить" -> Duration.ZERO)
+
+  private val AllDurations: Map[String, TemporalAmount] = FreezeDurations ++ LongFreezeDurations ++ Unfreeze
 }
 
 @Controller
