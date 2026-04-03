@@ -46,7 +46,7 @@ object TagPageController {
 
   private val RecentPeriod: time.Duration = java.time.Duration.ofDays(365)
 
-  val Timeout: FiniteDuration = 1000.millis
+  val Timeout: FiniteDuration = 500.millis
 
   def isRecent(date: Instant): Boolean = date.isAfter(Instant.now().minus(RecentPeriod))
 }

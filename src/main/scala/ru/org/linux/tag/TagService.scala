@@ -15,6 +15,7 @@
 
 package ru.org.linux.tag
 
+import com.github.benmanes.caffeine.cache.{Cache, Caffeine}
 import org.apache.pekko.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
@@ -32,19 +33,24 @@ import ru.org.linux.util.RichFuture.RichFuture
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 import scala.collection.immutable.SortedMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Deadline
 import scala.concurrent.{Future, TimeoutException}
-import scala.jdk.CollectionConverters._
-import scala.jdk.FutureConverters._
+import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.*
+import scala.util.Success
 
 @Service
-class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: ActorSystem,
+class TagService(tagDao: TagDao, searchClient: OpenSearchAsyncClient, actorSystem: ActorSystem,
                  sectionService: SectionService, groupService: GroupService) extends StrictLogging {
-  private implicit val pekko: ActorSystem = actorSystem
+  private given ActorSystem = actorSystem
 
   import ru.org.linux.tag.TagService.*
+
+  private val activeTopTagsCache: Cache[ActiveTopTags, Seq[TagRef]] =
+    Caffeine.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build()
 
   private val sectionForum: Section = sectionService.getSection(Section.Forum)
   private val NonTechNames: Seq[String] =
@@ -97,7 +103,7 @@ class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: Ac
       .query(Query.of(q => q.bool(BoolQuery.of(b => b.filter(filters.asJava)))))
       .build()
 
-    elastic.count(request)
+    searchClient.count(request)
       .asScala
       .map(r => Some(r.count))
       .withTimeout(deadline.timeLeft)
@@ -133,7 +139,7 @@ class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: Ac
         ))
       .build()
 
-    elastic.search(request, classOf[Void])
+    searchClient.search(request, classOf[Void])
       .asScala
       .map { r =>
         val buckets = r.aggregations.get("related").sigsterms().buckets.array().asScala
@@ -143,69 +149,78 @@ class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: Ac
   }
 
   def getActiveTopTags(section: Section, group: Option[Group], filter: Option[ForumFilter],
-                       deadline: Deadline): Future[Seq[TagRef]] = {
-    if (group.exists(g => g.id == 4068)) {
+                       deadline: Deadline): Future[Seq[TagRef]] =
+    if group.exists(g => g.id == 4068) then
       Future.successful(Seq.empty)
-    } else {
-      val groupFilter = group.map(g => Query.of(q => q.term(TermQuery.of(t => t.field("group").value(FieldValue.of(g.urlName))))))
+    else
+      val request = ActiveTopTags(section, group, filter)
 
-      val additionalFilter = filter.collect {
-        case ForumFilter.Tech =>
-          Query.of(q => q.bool(BoolQuery.of(b => b
-            .filter(Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(sectionForum.getUrlName))))))
-            .mustNot(NonTechNames.map(n => Query.of(qq => qq.term(TermQuery.of(tt => tt.field("group").value(FieldValue.of(n)))))).asJava)
-          )))
-        case ForumFilter.NoTalks =>
-          Query.of(q => q.bool(BoolQuery.of(b => b
-            .mustNot(Query.of(q => q.term(TermQuery.of(t => t.field("group").value(FieldValue.of("talks"))))))
-          )))
-      }
+      val cached = activeTopTagsCache.getIfPresent(request)
 
-      val dateTwoYearsAgo = LocalDate.now().minus(2, java.time.temporal.ChronoUnit.YEARS).format(DateTimeFormatter.ISO_LOCAL_DATE)
-      val dateOneYearAgo = LocalDate.now().minus(1, java.time.temporal.ChronoUnit.YEARS).format(DateTimeFormatter.ISO_LOCAL_DATE)
+      if cached != null then
+        Future.successful(cached)
+      else
+        calcActiveTopTags(section, group, filter)
+          .andThen {
+            case Success(tags) => activeTopTagsCache.put(request, tags)
+          }.withTimeout(deadline.timeLeft)
+          .recover {
+            case ex: TimeoutException =>
+              logger.warn(s"Active top tags for ${section.getUrlName} / ${group.map(_.urlName)} / $filter search timed out (${ex.getMessage})")
+              Seq.empty
+            case ex =>
+              logger.warn("Unable to find active top tags", ex)
+              Seq.empty
+          }
 
-      val filters = Seq(
-        Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
-        Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(section.getUrlName))))),
-        Query.of(q => q.range(RangeQuery.of(r => r.field("postdate").gte(JsonData.of(dateOneYearAgo)))))
-      ) ++ groupFilter ++ additionalFilter
+  private def calcActiveTopTags(section: Section, group: Option[Group],
+                                filter: Option[ForumFilter]): Future[Seq[TagRef]] =
+    val groupFilter = group.map(g => Query.of(q => q.term(TermQuery.of(t => t.field("group").value(FieldValue.of(g.urlName))))))
 
-      val bgFilters = Seq(
-        Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
-        Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(section.getUrlName))))),
-        Query.of(q => q.range(RangeQuery.of(r => r.field("postdate").gte(JsonData.of(dateTwoYearsAgo)))))
-      )
-
-      val request = new SearchRequest.Builder()
-        .index(MessageIndex)
-        .size(0)
-        .query(Query.of(q => q.bool(BoolQuery.of(b => b.filter(filters.asJava)))))
-        .aggregations("active", a => a
-          .significantTerms(st => st
-            .field("tag")
-            .size(15)
-            .minDocCount(5)
-            .backgroundFilter(Query.of(q => q.bool(BoolQuery.of(bb => bb.filter(bgFilters.asJava)))))
-          ))
-        .build()
-
-      elastic.search(request, classOf[Void])
-        .asScala
-        .map { r =>
-          val buckets = r.aggregations.get("active").sigsterms().buckets.array().asScala
-          buckets.map(b => tagRef(b.key, section)).toVector.sorted
-        }
-        .withTimeout(deadline.timeLeft)
-        .recover {
-          case ex: TimeoutException =>
-            logger.warn(s"Active top tags for ${section.getUrlName} / ${group.map(_.urlName)} / $filter search timed out (${ex.getMessage})")
-            Seq.empty
-          case ex =>
-            logger.warn("Unable to find active top tags", ex)
-            Seq.empty
-        }
+    val additionalFilter = filter.collect {
+      case ForumFilter.Tech =>
+        Query.of(q => q.bool(BoolQuery.of(b => b
+          .filter(Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(sectionForum.getUrlName))))))
+          .mustNot(NonTechNames.map(n => Query.of(qq => qq.term(TermQuery.of(tt => tt.field("group").value(FieldValue.of(n)))))).asJava)
+        )))
+      case ForumFilter.NoTalks =>
+        Query.of(q => q.bool(BoolQuery.of(b => b
+          .mustNot(Query.of(q => q.term(TermQuery.of(t => t.field("group").value(FieldValue.of("talks"))))))
+        )))
     }
-  }
+
+    val dateTwoYearsAgo = LocalDate.now().minus(2, java.time.temporal.ChronoUnit.YEARS).format(DateTimeFormatter.ISO_LOCAL_DATE)
+    val dateOneYearAgo = LocalDate.now().minus(1, java.time.temporal.ChronoUnit.YEARS).format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+    val filters = Seq(
+      Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
+      Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(section.getUrlName))))),
+      Query.of(q => q.range(RangeQuery.of(r => r.field("postdate").gte(JsonData.of(dateOneYearAgo)))))
+    ) ++ groupFilter ++ additionalFilter
+
+    val bgFilters = Seq(
+      Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
+      Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(section.getUrlName))))),
+      Query.of(q => q.range(RangeQuery.of(r => r.field("postdate").gte(JsonData.of(dateTwoYearsAgo))))))
+
+    val request = new SearchRequest.Builder()
+      .index(MessageIndex)
+      .size(0)
+      .query(Query.of(q => q.bool(BoolQuery.of(b => b.filter(filters.asJava)))))
+      .aggregations("active", a => a
+        .significantTerms(st => st
+          .field("tag")
+          .size(15)
+          .minDocCount(5)
+          .backgroundFilter(Query.of(q => q.bool(BoolQuery.of(bb => bb.filter(bgFilters.asJava)))))
+        ))
+      .build()
+
+    searchClient.search(request, classOf[Void])
+      .asScala
+      .map: r =>
+        val buckets = r.aggregations.get("active").sigsterms().buckets.array().asScala
+        buckets.map(b => tagRef(b.key, section)).toVector.sorted
 
   /**
    * Получить список популярных тегов по префиксу.
@@ -238,7 +253,8 @@ class TagService(tagDao: TagDao, elastic: OpenSearchAsyncClient, actorSystem: Ac
 
   def getSynonymsFor(tagId: Int): Seq[TagRef] = tagDao.getSynonymsFor(tagId).map(name => TagRef(name, None))
 }
-object TagService {
+
+object TagService:
   def tagRef(tag: TagInfo, threshold: Int = 2): TagRef = TagRef(tag.name,
     if (TagName.isGoodTag(tag.name) && tag.topicCount >= threshold) {
       Some(TagTopicListController.tagListUrl(tag.name))
@@ -263,4 +279,6 @@ object TagService {
   def namesToRefs(tags:java.util.List[String]):java.util.List[TagRef] = tags.asScala.map(tagRef).asJava
 
   def tagsToString(tags: Seq[String]): String = tags.mkString(",")
-}
+
+  private case class ActiveTopTags(section: Section, group: Option[Group], filter: Option[ForumFilter])
+
