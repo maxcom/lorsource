@@ -88,10 +88,10 @@
       var ads = [
         {
           type: 'rimg',
-          img320: '/adv/320-100_Open Fix.jpg',
-          img730: '/adv/730-90_Open Fix.jpg',
-          img980: '/adv/980-120_Open Fix.jpg',
-          href: 'https://slc.tl/h24ik'
+          img320: '/adv/bare-metal-320x100.png',
+          img730: '/adv/bare-metal-730x90.png',
+          img980: '/adv/bare-metal-980x120.png',
+          href: 'https://forms.selectel.ru/s/cmmyzv559bknwtn01a18enalh'
         }
       ];
 
