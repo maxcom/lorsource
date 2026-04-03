@@ -82,37 +82,21 @@
   <div class="nav">
   <div class="scroller-row">
     <div class="scroller-prev">
-      <table>
-        <tr valign=middle>
-          <c:if test="${prevMessage != null}">
-            <td style="padding-right: 5px">
-              <a href="${fn:escapeXml(prevMessage.link)}">←</a>
-            </td>
-            <td align=left valign=top class="hideon-phone">
-              <a href="${fn:escapeXml(prevMessage.link)}">
-                <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
-              </a>
-            </td>
-          </c:if>
-        </tr>
-      </table>
+      <c:if test="${prevMessage != null}">
+        <a class="scroller-arrow" href="${fn:escapeXml(prevMessage.link)}">←</a>
+        <a class="scroller-title hideon-phone" href="${fn:escapeXml(prevMessage.link)}">
+          <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
+        </a>
+      </c:if>
     </div>
     <div class="scroller-group">
     </div>
     <div class="scroller-next">
       <c:if test="${nextMessage != null}">
-        <table align="right">
-          <tr valign=middle align=right>
-            <td class="hideon-phone">
-              <a href="${fn:escapeXml(nextMessage.link)}">
-                <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
-              </a>
-            </td>
-            <td align="right" valign="middle" style="padding-left: 5px">
-              <a href="${fn:escapeXml(nextMessage.link)}">→</a>
-            </td>
-          </tr>
-        </table>
+        <a class="scroller-title hideon-phone" href="${fn:escapeXml(nextMessage.link)}">
+          <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
+        </a>
+        <a class="scroller-arrow" href="${fn:escapeXml(nextMessage.link)}">→</a>
       </c:if>
     </div>
   </div>
@@ -123,20 +107,12 @@
   <div class="nav">
   <div class="scroller-row">
     <div class="scroller-prev">
-      <table>
-        <tr valign=middle>
-          <c:if test="${prevMessage != null}">
-            <td style="padding-right: 5px">
-              <a href="${fn:escapeXml(prevMessage.link)}">←</a>
-            </td>
-            <td align=left valign=top class="hideon-phone">
-              <a href="${fn:escapeXml(prevMessage.link)}">
-                <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
-              </a>
-            </td>
-          </c:if>
-        </tr>
-      </table>
+      <c:if test="${prevMessage != null}">
+        <a class="scroller-arrow" href="${fn:escapeXml(prevMessage.link)}">←</a>
+        <a class="scroller-title hideon-phone" href="${fn:escapeXml(prevMessage.link)}">
+          <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
+        </a>
+      </c:if>
     </div>
     <div class="scroller-group">
       <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
@@ -146,18 +122,10 @@
     </div>
     <div class="scroller-next">
       <c:if test="${nextMessage != null}">
-        <table align="right">
-          <tr valign=middle align=right>
-            <td class="hideon-phone">
-              <a href="${fn:escapeXml(nextMessage.link)}">
-                <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
-              </a>
-            </td>
-            <td align="right" valign="middle" style="padding-left: 5px">
-              <a href="${fn:escapeXml(nextMessage.link)}">→</a>
-            </td>
-          </tr>
-        </table>
+        <a class="scroller-title hideon-phone" href="${fn:escapeXml(nextMessage.link)}">
+          <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
+        </a>
+        <a class="scroller-arrow" href="${fn:escapeXml(nextMessage.link)}">→</a>
       </c:if>
     </div>
   </div>

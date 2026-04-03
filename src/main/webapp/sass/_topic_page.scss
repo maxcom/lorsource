@@ -31,20 +31,28 @@
 }
 
 .scroller-row {
-  @include clearfix;
-  @include container;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin: 0 1%;
 
   .scroller-prev {
-    vertical-align: middle;
-    @include column(4);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-align: left;
   }
 
   .scroller-group {
-    @include column(4, 4);
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .scroller-next {
-    @include column(4, 8);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    text-align: right;
   }
 }
