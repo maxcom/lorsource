@@ -129,7 +129,7 @@
         <h2>Новости</h2>
       </c:if>
 
-      <div class="container" id="tag-page-news">
+      <div id="tag-page-news">
         <c:forEach var="map" items="${briefNews}" varStatus="iter">
           <section>
             <c:forEach var="entry" items="${map}">
@@ -169,7 +169,7 @@
     <section>
       <h2>Форум</h2>
 
-      <div class="container" id="tag-page-forum">
+      <div id="tag-page-forum">
         <c:forEach var="map" items="${forum}">
           <section>
             <c:forEach var="entry" items="${map}">
@@ -215,7 +215,7 @@
   <section>
     <h2>Опросы</h2>
 
-    <div class="container" id="tag-page-polls">
+    <div id="tag-page-polls">
       <c:forEach var="map" items="${polls}">
         <section>
           <c:forEach var="entry" items="${map}">
@@ -288,7 +288,7 @@
   <section>
   <h2>Статьи</h2>
 
-  <div class="container" id="tag-page-articles">
+  <div id="tag-page-articles">
   <c:forEach var="map" items="${articles}">
     <section>
       <c:forEach var="entry" items="${map}">
