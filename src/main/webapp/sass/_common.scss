@@ -17,13 +17,6 @@
 @import "fontello-codes";
 @import "droidsansmono";
 @import "opensans";
-
-@import "grid";
-
-$total_width: 100%;
-$gutter_width: 2%;
-$container_margin: 0;
-
 @import "clearfix";
 
 @mixin respond-to($media) {
@@ -530,7 +523,7 @@ h1 {
 }
 
 .infoblock {
-  @include clearfix();
+  @include clearfix;
 
   padding: .5em;
   border: 1px solid;
@@ -683,8 +676,10 @@ section {
 a img { border: none; }
 
 .container {
-  @include container();
-  @include clearfix();
+	width: 100%;
+	margin: 0 0;
+
+  @include clearfix;
 }
 
 .stars {
