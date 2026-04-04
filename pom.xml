@@ -590,13 +590,9 @@
           <jswarn>false</jswarn>
           <encoding>utf-8</encoding>
           <excludes>
-            <exclude>**/jquery-ui-*/**/*.js</exclude>
-            <exclude>**/highlight.min.js</exclude>
-            <exclude>**/lor.js</exclude>
+            <exclude>**/*.js</exclude>
           </excludes>
           <aggregations>
-
-
             <aggregation>
               <removeIncluded>false</removeIncluded>
               <insertNewLine>true</insertNewLine>
@@ -683,6 +679,10 @@
               <encoding>UTF-8</encoding>
               <includes>
                 <include>lor.js</include>
+                <include>addComments.js</include>
+                <include>lor_view_diff_history.js</include>
+                <include>realtime.js</include>
+                <include>tagsAutocomplete.js</include>
               </includes>
               <skipMerge>true</skipMerge>
               <logLevel>all</logLevel>
@@ -727,6 +727,8 @@
             <phase>process-resources</phase>
             <configuration>
               <tasks>
+                <copy file="${basedir}/src/main/webapp/js/script.min.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${basedir}/src/main/webapp/js/jquery.hotkeys.js"
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${basedir}/src/main/webapp/js/jquery.validate.ru.js"
