@@ -917,95 +917,84 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-maven-plugin</artifactId>
+        <version>4.17.2</version>
+
+        <configuration>
+          <propertyFile>sql/liquibase.config</propertyFile>
+          <verbose>true</verbose>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>update</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.jetty.ee10</groupId>
+        <artifactId>jetty-ee10-maven-plugin</artifactId>
+        <version>${jetty.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>jetty-websocket-jetty-server</artifactId>
+            <version>${jetty.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>start-jetty</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop-jetty</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <stopKey>foo</stopKey>
+          <stopPort>9999</stopPort>
+          <stopWait>20</stopWait>
+          <webAppConfig>
+            <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
+          </webAppConfig>
+
+          <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
+
+          <useTestScope>true</useTestScope>
+          <systemProperties>
+            <systemProperty>
+              <name>java.net.preferIPv4Stack</name>
+              <value>true</value>
+            </systemProperty>
+          </systemProperties>
+
+          <connectors>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <port>8080</port>
+            </connector>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <port>8443</port>
+            </connector>
+          </connectors>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <profiles>
-    <profile>
-      <id>integration-testing</id>
-      <activation>
-        <property>
-          <name>!skipTests</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-maven-plugin</artifactId>
-            <version>4.17.2</version>
-
-            <configuration>
-              <propertyFile>sql/liquibase.config</propertyFile>
-              <verbose>true</verbose>
-            </configuration>
-            <executions>
-              <execution>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>update</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.eclipse.jetty.ee10</groupId>
-            <artifactId>jetty-ee10-maven-plugin</artifactId>
-            <version>${jetty.version}</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>jetty-websocket-jetty-server</artifactId>
-                <version>${jetty.version}</version>
-              </dependency>
-            </dependencies>
-            <executions>
-              <execution>
-                <id>start-jetty</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-jetty</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <stopKey>foo</stopKey>
-              <stopPort>9999</stopPort>
-              <stopWait>20</stopWait>
-              <webAppConfig>
-                <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
-              </webAppConfig>
-
-              <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
-
-              <useTestScope>true</useTestScope>
-              <systemProperties>
-                <systemProperty>
-                  <name>java.net.preferIPv4Stack</name>
-                  <value>true</value>
-                </systemProperty>
-              </systemProperties>
-
-              <connectors>
-                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                  <port>8080</port>
-                </connector>
-                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                  <port>8443</port>
-                </connector>
-              </connectors>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
     <profile>
       <id>production</id>
       <build>

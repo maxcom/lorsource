@@ -34,12 +34,12 @@ mvn test -Dtest=StringUtilTest#processTitle
 
 **Run integration tests:**
 ```bash
-mvn integration-test -Pintegration-testing
+mvn integration-test 
 ```
 
 **Run a single integration test:**
 ```bash
-mvn integration-test -Pintegration-testing -Dit.test=TopicControllerIntegrationTest
+mvn integration-test -Dit.test=TopicControllerIntegrationTest
 ```
 
 **Run all tests (unit + integration):**
@@ -49,10 +49,10 @@ mvn verify
 
 ### Run application in development web server
 
-Run in backgroup shell:
+Run in background shell:
 
 ```bash
-mvn package jetty:run > server.log 2>&1 &
+mvn -DskipTests package jetty:run > server.log 2>&1 &
 ```
 
 **Important:** The development web server must be restarted after any changes to the code.
@@ -69,7 +69,6 @@ Server starts at http://127.0.0.1:8080/
 ```bash
 mvn clean                 # Clean target directory
 mvn dependency:tree      # Show dependency tree
-mvn dependency:analyze   # Analyze dependencies
 ```
 
 ## Code Style Guidelines
