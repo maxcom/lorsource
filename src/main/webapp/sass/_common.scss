@@ -687,59 +687,6 @@ a img { border: none; }
   @include clearfix();
 }
 
-#tag-page-gallery {
-  @include clearfix();
-  @include container();
-
-  article {
-    margin-bottom: 1em;
-  }
-
-  @include respond-to(tablet-and-desktops) {
-    @include generate_grid_positions('article', 4);
-
-    article {
-      @include column(4);
-    }
-  }
-
-  article img {
-    width: 100%;
-    height: auto;
-    max-width: 1000px;
-  }
-
-  article h3 {
-    font-size: 1.2em;
-  }
-}
-
-.tag-page-buttons {
-  @include clearfix();
-  @include container();
-
-  div {
-    @include column(12);
-  }
-
-  margin-bottom: 1em;
-  margin-top: 1em;
-}
-
-#tag-page-forum, #tag-page-news, #tag-page-polls, #main-page-news, #tag-page-articles {
-  @include clearfix();
-  @include container();
-
-  @include respond-to(tablet-and-desktops) {
-    @include generate_grid_positions('section', 6);
-
-    section {
-      @include column(6);
-      margin-bottom: 0 !important;
-    }
-  }
-}
-
 .stars {
   color: #01F814;
   font-size: 0.7rem;
@@ -875,7 +822,6 @@ figure.medium-image {
   white-space: nowrap;
 }
 
-
 .poll-selected {
   border-radius: 3px;
   font-size: 0.8em;
@@ -890,5 +836,6 @@ figure.medium-image {
 @import "form";
 @import "mainpage";
 @import "topic_page";
+@import "tag_page";
 
 @import "reactions";
