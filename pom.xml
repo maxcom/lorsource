@@ -18,12 +18,12 @@
     <dependency.spring.version>6.2.17</dependency.spring.version>
     <spring.security.version>6.4.13</spring.security.version>
     <jdbc.postgresql.version>42.7.10</jdbc.postgresql.version>
-    <scala.version>3.8.2</scala.version>
+    <scala.version>3.8.3</scala.version>
     <scala.suffix>3</scala.suffix>
     <activemq.version>6.2.1</activemq.version>
     <jquery.validation.version>1.19.5</jquery.validation.version>
     <jquery.form.version>4.3.0</jquery.form.version>
-    <jetty.version>12.0.33</jetty.version>
+    <jetty.version>12.0.34</jetty.version>
     <pekko.version>1.4.0</pekko.version>
     <log4j.version>2.25.3</log4j.version>
     <d3js.version>5.9.7</d3js.version>
