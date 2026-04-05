@@ -13,30 +13,10 @@
  *    limitations under the License.
  */
 
-@use "sass:color";
 @use "../mixins" as *;
 
 @import "../common";
-
-$main_background: white;
-$a_color: #00A;
-$a_visit_color: #A0A;
-$back_color: #B0B0B0;
-$header_color: #aea6f2;
-$boxlet_back_color: #defefc;
-$nav_back: #f0f0f0;
-$main_color: white;
-$code_background: #DADADA;
-$group_label_color: $code_background;
-$site_title_color: #786AF2;
-$message_tr_color: #d8d8d8;
-$table_border_color: $header_color;
-$tracker_tag_color: $table_border_color;
-$table_link_color: $a_color;
-$text_color: $a_visit_color; // hack for new tracker
-$table_hover_background: #FFDDFF;
-$table_background_color: $nav_back;
-$unread_marker_color: #00A;
+@import "colors";
 
 body {
     font-family: sans-serif;
@@ -272,18 +252,8 @@ textarea {
   overflow-x: hidden;  
 }
 
-#bd .swiffy-slider {
-    --swiffy-slider-nav-light: #333;
-}
-
-.swiffy-slider .slider-indicators>* {
-    filter: invert(1);
-}
-
 @import "../responsive";
 
-$heatmap_max: color.adjust(#8ae234, $lightness: -15%);
-$heatmap_scale: -1.5;
 @import "../cal-heapmap";
 @import "../tracker";
 
