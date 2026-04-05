@@ -589,7 +589,7 @@ $grid_padding: 0.4em;
   &.event-unread-true {
     color: $table_link_color !important;
     border-left-style: solid;
-    border-left-color: $unread-marker-color;
+    border-left-color: $unread_marker_color;
   }
 
   @include respond-to(tablet-and-desktops) {
