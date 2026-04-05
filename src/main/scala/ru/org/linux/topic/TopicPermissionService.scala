@@ -91,9 +91,10 @@ object TopicPermissionService {
 
 @Service
 class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupService: GroupService,
-                             deleteInfoDao: DeleteInfoDao, userService: UserService) {
-  def allowViewDeletedComments(message: Topic)(using currentUser: AnySession): Boolean = {
-    if (!currentUser.moderator) {
+                             deleteInfoDao: DeleteInfoDao, userService: UserService,
+                             userPermissionService: UserPermissionService) {
+  def allowViewAllDeletedComments(message: Topic)(using currentUser: AnySession): Boolean = {
+    if !currentUser.moderator then
       val topicForbidden = message.expired || message.draft ||
           message.postscore == TopicPermissionService.POSTSCORE_MODERATORS_ONLY ||
           message.postscore == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
@@ -101,10 +102,12 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
       val userAllowed = currentUser.userOpt.exists(u => !u.anonymous && !u.isFrozen && u.score >= ViewDeletedScore)
 
-      !topicForbidden && userAllowed && (deleteInfoDao.scoreLoss(message.id) < 150)
-    } else {
+      def topicAllowedByScoreLoss = deleteInfoDao.scoreLoss(message.id) < 150
+      def userSlowMode = currentUser.userOpt.exists(userPermissionService.isSlowMode)
+
+      !topicForbidden && userAllowed && topicAllowedByScoreLoss && !userSlowMode
+    else
       true
-    }
   }
 
   @throws[MessageNotFoundException]
@@ -117,8 +120,8 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     if (!session.moderator) {
       val currentUser = session.userOpt.orNull
 
-      if (showDeleted && !allowViewDeletedComments(message)) {
-        throw new MessageNotFoundException(message.id, "вы не можете смотреть удаленные комментарии")
+      if (showDeleted && !allowViewAllDeletedComments(message)) {
+        throw new AccessViolationException("вы не можете смотреть удаленные комментарии")
       }
 
       val viewByAuthor = currentUser != null && currentUser.id == message.authorUserId
@@ -141,10 +144,10 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
           }
 
           if (currentUser.isFrozen) {
-            throw new MessageNotFoundException(message.id, "Сообщение удалено")
+            throw new AccessViolationException("Сообщение удалено")
           }
 
-          if (currentUser.score < TopicPermissionService.ViewDeletedScore) {
+          if (currentUser.score < TopicPermissionService.ViewDeletedScore || userPermissionService.isSlowMode(currentUser)) {
             throw new MessageNotFoundException(message.id, "Сообщение удалено")
           }
 
@@ -466,7 +469,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     assert(comment.topicId == topic.id)
     assert(comment.deleted)
 
-    allowViewDeletedComments(topic) ||
+    allowViewAllDeletedComments(topic) ||
       (currentUser.user.id == comment.userid && !currentUser.user.isFrozen &&
         deleteInfo.delDate.toInstant.isAfter(Instant.now.minus(TopicPermissionService.ViewAfterDeleteDays, ChronoUnit.DAYS)))
   }

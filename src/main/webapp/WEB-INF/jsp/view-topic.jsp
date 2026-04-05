@@ -299,6 +299,9 @@
       <c:when test="${preparedMessage.showRegisterInvite}">
         Для того чтобы оставить комментарий <a href="login.jsp">войдите</a> или <a href="register.jsp">зарегистрируйтесь</a>.
       </c:when>
+      <c:when test="${template.sessionAuthorized && currentUser.frozen}">
+        ⚠️${' '} Для вашей учетной записи установлен режим только для чтения до <lor:date date="${currentUser.frozenUntil}"/>.
+      </c:when>
       <c:otherwise>
         ${preparedMessage.postscoreInfo}
       </c:otherwise>

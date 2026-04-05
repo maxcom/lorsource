@@ -294,24 +294,21 @@
 
 </div>
 
-<c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
+<c:if test="${not lastmod and showDeleted and year==null and template.sessionAuthorized and hasNext and not currentUser.frozen}">
   <hr>
   <form action="${url}" method=POST>
     <lor:csrf/>
     <input type=hidden name=showDeleted value=true>
-    <input type=submit value="Показать удаленные сообщения">
+    <input type=hidden name=offset value="${nextPage}">
+    <input type=submit value="Показать еще удаленные">
   </form>
   <hr>
 </c:if>
-<c:if test="${not lastmod and showDeleted and year==null and template.sessionAuthorized and hasNext}">
-    <hr>
-    <form action="${url}" method=POST>
-        <lor:csrf/>
-      <input type=hidden name=showDeleted value=true>
-        <input type=hidden name=offset value="${nextPage}">
-        <input type=submit value="Показать еще удаленные">
-    </form>
-    <hr>
+
+<c:if test="${template.sessionAuthorized && currentUser.frozen}">
+  <div class="infoblock">
+    ⚠️${' '} Для вашей учетной записи установлен режим только для чтения до <lor:date date="${currentUser.frozenUntil}"/>.
+  </div>
 </c:if>
 
 <p>

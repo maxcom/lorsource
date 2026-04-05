@@ -295,7 +295,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     })
 
     params.put("showDeletedButton",
-      Boolean.box(permissionService.allowViewDeletedComments(topic) && !showDeleted))
+      Boolean.box(permissionService.allowViewAllDeletedComments(topic) && !showDeleted))
 
     params.put("dateJumps", prepareService.buildDateJumpSet(commentsFiltered, TopicController.JUMP_MIN_DURATION).map(Integer.valueOf).asJava)
 

@@ -135,6 +135,22 @@
 <h1>Информация о пользователе ${user.nick}</h1>
 </c:if>
 
+<c:if test="${moderatorOrCurrentUser}">
+  <c:if test="${slowMode}">
+    <div class="infoblock">
+      ⚠️${' '} Для учетной записи был автоматически установлен медленный режим. Он
+      будет снят автоматически в течении 3-х дней с момента установки при отсутствии
+      нарушений правил.
+    </div>
+  </c:if>
+
+  <c:if test="${isFrozen}">
+    <div class="infoblock">
+      ⚠️${' '} Для учетной записи установлен режим только для чтения до <lor:date date="${user.frozenUntil}"/>.
+    </div>
+  </c:if>
+</c:if>
+
 <div id="whois_userpic">
     <l:userpic userpic="${userpic}"/>
     <c:if test="${moderatorOrCurrentUser}">
@@ -159,8 +175,8 @@
 <div class="vcard">
     <b>Nick:</b> <span class="nickname">
         ${user.nick}
-        <c:if test="${isFrozen}"> ❄</c:if>
-        <c:if test="${slowMode}"> &#x1F40C;</c:if>
+        <c:if test="${isFrozen}"> <span title="заморозка">❄</span></c:if>
+        <c:if test="${slowMode}"> <span title="медленный режим">&#x1F40C;</span></c:if>
     </span><br>
     <c:if test="${not empty user.name}">
         <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
@@ -224,13 +240,14 @@
     <c:if test="${user.corrector}"> (корректор)</c:if>
     <c:if test="${user.blocked}"> (заблокирован)</c:if>
 
-    <c:if test="${isFrozen}">
-        <br>
-        <b>Заморожен</b>
-            до <lor:date date="${user.frozenUntil}"/>
+    <c:if test="${isFrozen && !viewByOwner}">
+      <br>
+        <b>Заморожен</b> до <lor:date date="${user.frozenUntil}"/>
+          <c:if test="${template.sessionAuthorized && !currentUser.frozen}">
             модератором <lor:user link="true" user="${freezer}"/>
             по причине <c:out escapeXml="true" value="${userInfo.freezingReason}"/>
-        <br>
+          </c:if>
+      <br>
     </c:if>
 
     <br>

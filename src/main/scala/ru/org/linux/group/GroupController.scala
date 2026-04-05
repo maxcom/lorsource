@@ -103,12 +103,16 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
             @RequestParam(defaultValue = "false") lastmod: Boolean, @RequestParam(required = false) tag: String,
             @RequestParam(defaultValue = "false") showDeleted: Boolean,
             @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
-            request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
+            request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit session =>
     val section = sectionService.getSection(Section.Forum)
     val group = groupService.getGroup(section, groupName)
 
-    if (showDeleted && !currentUserOpt.authorized) {
-      throw new AccessViolationException("Вы не авторизованы")
+    if (showDeleted) {
+      if !session.authorized then
+        throw new AccessViolationException("Вы не авторизованы")
+
+      if session.userOpt.exists(_.isFrozen) then
+        throw new AccessViolationException("Вы не можете смотреть удаленные сообщения")
     }
 
     if (showDeleted && !("POST" == request.getMethod)) {

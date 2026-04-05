@@ -149,7 +149,6 @@
   <lor:groupinfo group="${groupInfo}" activeTags="${activeTags}"/>
 </c:if>
 
-
 <div class=tracker>
     <c:forEach var="msg" items="${topicsList}">
       <c:if test="${lastmod}">
@@ -274,7 +273,7 @@
 
 <hr>
 
-<c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
+<c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized and not currentUser.frozen}">
   <form action="${url}" method=POST>
     <lor:csrf/>
     <input type=hidden name=showDeleted value=true>
@@ -282,7 +281,7 @@
   </form>
   <hr>
 </c:if>
-<c:if test="${not lastmod and showDeleted and year==null and template.sessionAuthorized and hasNext}">
+<c:if test="${not lastmod and showDeleted and year==null and template.sessionAuthorized and hasNext and not currentUser.frozen}">
   <hr>
   <form action="${url}" method=POST>
     <lor:csrf/>
@@ -291,6 +290,12 @@
     <input type=submit value="Показать еще удаленные">
   </form>
   <hr>
+</c:if>
+
+<c:if test="${template.sessionAuthorized && currentUser.frozen}">
+  <div class="infoblock">
+    ⚠️${' '} Для вашей учетной записи установлен режим только для чтения до <lor:date date="${currentUser.frozenUntil}"/>.
+  </div>
 </c:if>
 
 <p>
