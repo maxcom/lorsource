@@ -25,7 +25,6 @@ import ru.org.linux.user.UserPermissionService.*
 import java.time.temporal.ChronoUnit
 import java.time.{Duration, Instant}
 import javax.annotation.Nullable
-import scala.jdk.CollectionConverters.SetHasAsJava
 
 object UserPermissionService {
   private val MaxTotalInvites = 15
@@ -44,8 +43,6 @@ object UserPermissionService {
       Set(Lorcode, LorcodeUlb, Markdown)
     }
   }
-
-  def allowedFormatsJava(user: User): java.util.Set[MarkupType] = allowedFormats(user).asJava
 
   def checkBlockIP(block: IPBlockInfo, errors: Errors, @Nullable user: User): Unit = {
     if (block.isBlocked && (user == null || user.isAnonymousScore || !block.isAllowRegisteredPosting)) {

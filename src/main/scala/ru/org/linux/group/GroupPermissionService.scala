@@ -19,6 +19,7 @@ import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.section.Section.{Articles, Gallery, News}
 import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.topic.TopicPermissionService.POSTSCORE_NO_COMMENTS
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.{User, UserPermissionService}
 
@@ -206,7 +207,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       true
     } else if (message.expired && !message.draft) {
       false
-    } else if (!UserPermissionService.allowedFormatsJava(by).contains(topic.markupType)) {
+    } else if (!UserPermissionService.allowedFormats(by).contains(topic.markupType)) {
       false
     } else if (by.isModerator) {
       true
@@ -219,6 +220,8 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
         true
       } else if (message.draft) {
         true
+      } else if (message.postscore == POSTSCORE_NO_COMMENTS) {
+        false  
       } else {
         val editDeadline = message.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
 
