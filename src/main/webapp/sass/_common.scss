@@ -15,10 +15,10 @@
 
 @use "mixins" as *;
 
-@import "fontello";
-@import "fontello-codes";
-@import "droidsansmono";
-@import "opensans";
+@use "fontello";
+@use "fontello-codes";
+@use "droidsansmono";
+@use "opensans";
 
 /* document wide styles */
 
