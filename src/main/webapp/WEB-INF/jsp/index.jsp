@@ -120,7 +120,7 @@
 <section>
    <h2>Еще новости</h2>
 
-  <div class="container" id="main-page-news">
+  <div id="main-page-news">
     <c:forEach var="map" items="${briefNews}" varStatus="iter">
       <section>
         <c:forEach var="entry" items="${map}">
@@ -167,7 +167,6 @@
 </div>
 
 <aside id=boxlets>
-
   <c:if test="${template.sessionAuthorized}">
     <div class=boxlet>
       <h2>Добро пожаловать!</h2>
