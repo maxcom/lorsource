@@ -13,11 +13,11 @@
  *    limitations under the License.
  */
 
+@use "../mixins" as *;
+
 @import "../common";
 
 @import "reset";
-
-@import "../clearfix";
 
 @import "colors";
 

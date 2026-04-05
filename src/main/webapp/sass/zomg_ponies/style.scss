@@ -13,13 +13,13 @@
  *    limitations under the License.
  */
 
+@use "../mixins" as *;
+
 @import "../tango/reset";
 
 @import "../common";
 
 @import "reset";
-
-@import "../clearfix";
 
 @import "colors";
 

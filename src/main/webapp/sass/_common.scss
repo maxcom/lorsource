@@ -13,23 +13,12 @@
  *    limitations under the License.
  */
 
+@use "mixins" as *;
+
 @import "fontello";
 @import "fontello-codes";
 @import "droidsansmono";
 @import "opensans";
-@import "clearfix";
-
-@mixin respond-to($media) {
-  @if $media == widedesktop {
-    @media only screen and (min-width: 100em) { @content; }
-  }
-  @else if $media == desktops {
-    @media only screen and (min-width: 70em) { @content; }
-  }
-  @else if $media == tablet-and-desktops {
-    @media only screen and (min-width: 47em) { @content; }
-  }
-}
 
 /* document wide styles */
 

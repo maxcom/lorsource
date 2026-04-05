@@ -13,6 +13,8 @@
  *    limitations under the License.
  */
 
+@use "mixins" as *;
+
 label {
     display: block;
     margin-bottom: 0.33em;

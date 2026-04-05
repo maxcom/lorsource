@@ -13,6 +13,8 @@
  *    limitations under the License.
  */
 
+@use "mixins" as *;
+
 #related-topics-list {
   width: 100%;
   margin: 0;

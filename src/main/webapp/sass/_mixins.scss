@@ -24,3 +24,15 @@
     clear:both;
   }
 }
+
+@mixin respond-to($media) {
+  @if $media == widedesktop {
+    @media only screen and (min-width: 100em) { @content; }
+  }
+  @else if $media == desktops {
+    @media only screen and (min-width: 70em) { @content; }
+  }
+  @else if $media == tablet-and-desktops {
+    @media only screen and (min-width: 47em) { @content; }
+  }
+}
