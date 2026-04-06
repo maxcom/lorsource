@@ -15,9 +15,6 @@
 
 @use "../mixins" as *;
 
-@import "../common";
-@import "colors";
-
 body {
     font-family: sans-serif;
 }
@@ -251,10 +248,3 @@ textarea {
 #related-topics-list {
   overflow-x: hidden;  
 }
-
-@import "../responsive";
-
-@import "../cal-heapmap";
-@import "../tracker";
-
-@import "../spoilers";

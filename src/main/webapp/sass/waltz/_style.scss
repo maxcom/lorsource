@@ -15,15 +15,6 @@
 
 @use "../mixins" as *;
 
-@import "reset";
-
-@import "../common";
-
-@import "colors";
-
-@import "../cal-heapmap";
-@import "../tracker";
-
 body {
   font-family: "Arial", sans-serif;
   color: $text_color;
@@ -490,6 +481,3 @@ fieldset legend {
 .stars {
   color: $stars_color;
 }
-
-@import "../responsive";
-@import "../spoilers";

@@ -15,9 +15,6 @@
 
 /* (c) 1999 <maxcom@vinchi.ru> */
 
-@import "../common";
-@import "colors";
-
 BODY { 
     font-family: sans-serif;
     background: #000000;
@@ -257,10 +254,3 @@ blockquote {
 		margin-left: 0;
 	}
 }
-
-@import "../responsive";
-
-@import "../cal-heapmap";
-
-@import "../tracker";
-@import "../spoilers";

@@ -15,17 +15,6 @@
 
 @use "../mixins" as *;
 
-@import "reset";
-
-@import "../common";
-
-@import "colors";
-
-@import "../responsive";
-
-@import "../cal-heapmap";
-@import "../tracker";
-
 html, body {
   background-color: $main_background;
   background-image: url(/zomg_ponies/img/background.jpg);
@@ -727,6 +716,3 @@ fieldset legend {
 .messages .msg:target {
   border: 2px solid $targeted_message_border_color;
 }
-
-@import "../responsive";
-@import "../spoilers";
