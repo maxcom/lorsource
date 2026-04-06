@@ -111,7 +111,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
       if !session.authorized then
         throw new AccessViolationException("Вы не авторизованы")
 
-      if session.userOpt.exists(_.isFrozen) then
+      if !groupPermissionService.canViewAllDeletedTopics then
         throw new AccessViolationException("Вы не можете смотреть удаленные сообщения")
     }
 
@@ -146,6 +146,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
     val params = new util.HashMap[String, AnyRef]
 
     params.put("showDeleted", Boolean.box(showDeleted))
+    params.put("showDeletedButton", Boolean.box(!lastmod && yearMonth.isEmpty && groupPermissionService.canViewAllDeletedTopics))
 
     params.put("groupList", SectionController.groupsSorted(groupService.getGroups(section).asScala).asJava)
 

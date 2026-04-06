@@ -293,8 +293,16 @@
 </c:if>
 
 </div>
-
-<c:if test="${not lastmod and showDeleted and year==null and template.sessionAuthorized and hasNext and not currentUser.frozen}">
+<c:if test="${showDeletedButton && !showDeleted}">
+  <hr>
+  <form action="${url}" method=POST>
+    <lor:csrf/>
+    <input type=hidden name=showDeleted value=true>
+    <input type=submit value="Показать удаленные сообщения">
+  </form>
+  <hr>
+</c:if>
+<c:if test="${showDeleted and showDeletedButton and hasNext}">
   <hr>
   <form action="${url}" method=POST>
     <lor:csrf/>

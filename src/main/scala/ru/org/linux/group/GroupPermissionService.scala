@@ -35,7 +35,8 @@ object GroupPermissionService {
 }
 
 @Service
-class GroupPermissionService(sectionService: SectionService, deleteInfoDao: DeleteInfoDao) {
+class GroupPermissionService(sectionService: SectionService, deleteInfoDao: DeleteInfoDao,
+                             userPermissionService: UserPermissionService) {
   import GroupPermissionService.*
   /**
     * Проверка может ли пользователь удалить топик
@@ -150,7 +151,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isDeletable(topic: Topic)(implicit user: AuthorizedSession): Boolean = {
+  def isDeletable(topic: Topic)(using user: AuthorizedSession): Boolean = {
     if (user.administrator) {
       true
     } else {
@@ -192,7 +193,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @param topic тема
     * @return true если можно, false если нет
     */
-  def isEditable(topic: PreparedTopic)(implicit session: AnySession): Boolean = {
+  def isEditable(topic: PreparedTopic)(using session: AnySession): Boolean = {
     val by = session.userOpt.orNull
 
     val message = topic.message
@@ -242,7 +243,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     * @param topic тема
     * @return true если можно, false если нет
     */
-  def isTagsEditable(topic: PreparedTopic)(implicit session: AnySession): Boolean = {
+  def isTagsEditable(topic: PreparedTopic)(using session: AnySession): Boolean = {
     val by = session.userOpt.orNull
 
     val message = topic.message
@@ -280,7 +281,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def canCreateTag(section: Section)(implicit session: AnySession): Boolean = {
+  def canCreateTag(section: Section)(using session: AnySession): Boolean = {
     val user = session.userOpt.orNull
 
     if (section.isPremoderated && user!=null && !user.anonymous) {
@@ -290,6 +291,10 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def canCommit(topic: Topic)(implicit session: AnySession): Boolean =
+  def canCommit(topic: Topic)(using session: AnySession): Boolean =
     session.userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.id))
+
+  def canViewAllDeletedTopics(using session: AnySession): Boolean =
+    session.authorized && session.userOpt.exists(_.score >= 50)
+      && !session.userOpt.exists(u => u.isFrozen || userPermissionService.isSlowMode(u))
 }
