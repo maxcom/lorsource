@@ -15,28 +15,6 @@
 
 /* tablet */
 @media screen and (max-width: 60em) {
-    #interpage img {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .interpage img {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .hideon-tablet {
-        display: none;
-    }
-
-    span.hideon-desktop {
-        display: inline;
-    }
-
-    .hideon-desktop {
-        display: inherit;
-    }
-
     #commentForm textarea {
         width: 100%;
     }
