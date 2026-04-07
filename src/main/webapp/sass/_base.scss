@@ -826,7 +826,7 @@ figure.medium-image {
   display: none;
 
   @include respond-to(desktops) {
-    display: unset;
+    display: revert;
   }
 }
 
