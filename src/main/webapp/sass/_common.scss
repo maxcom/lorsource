@@ -817,6 +817,20 @@ figure.medium-image {
   vertical-align: text-top;
 }
 
+.visible-phone {
+  @include respond-to(tablet-and-desktops) {
+    display: none;
+  }
+}
+
+.hideon-phone {
+  display: none;
+
+  @include respond-to(tablet-and-desktops) {
+    display: unset;
+  }
+}
+
 @import "form";
 @import "mainpage";
 @import "topic_page";
