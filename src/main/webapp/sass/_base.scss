@@ -55,9 +55,13 @@ pre {
 
 #sitetitle {
   padding-left: 0.5rem;
+  font-size: 1.6em;
+  margin-right: 0;
 
   @include respond-to(tablet-and-desktops) {
     padding-left: 1.5rem;
+    float: left;
+    font-size: 2em;
   }
 }
 

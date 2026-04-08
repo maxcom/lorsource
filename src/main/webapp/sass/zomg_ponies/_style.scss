@@ -107,15 +107,18 @@ a:hover {
 }
 
 #sitetitle {
-  font-size: 32px;
   font-weight: bold;
   margin-right: 20px;
   text-decoration: none;
   display: inline-block;
-  float: left;
   color: $header_color;
   padding-top: 0;
   padding-left: 0;
+
+  @include respond-to(tablet-and-desktops) {
+    margin-right: 20px;
+    font-size: 32px;
+  }
 }
 
 #twilight_logo {
