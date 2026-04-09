@@ -149,9 +149,3 @@ src/
 
 - IntelliJ IDEA (has good Scala/Java support)
 - For VS Code: Use Java extension with null analysis mode set to "automatic"
-
-## Docker Development
-
-See `docker/README.md` for running the application in Docker containers:
-- Development: `docker-compose -f docker-compose.dev.yml up web`
-- Production: `docker-compose up web`

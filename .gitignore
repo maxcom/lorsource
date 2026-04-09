@@ -17,3 +17,4 @@ docker/db/
 .vscode/
 server.log
 trace.json
+src/main/webapp/WEB-INF/config.properties
