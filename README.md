@@ -38,7 +38,7 @@ devcontainer exec bash
 Юнит-тесты:
 
 ```bash
-devcontainer exec  mvn test
+devcontainer exec mvn test
 ```
 
 Интеграционные тесты:
@@ -55,7 +55,7 @@ devcontainer exec mvn -DskipTests package jetty:run
 
 Сервер доступен на хосте по адресу: **http://127.0.0.1:8080/**. Остановка через Ctrl-C.
 
-В БД пароли все пользователей установлены в `passwd`.
+В БД пароли всех пользователей установлены в `passwd`.
 
 ## Пересборка окружения
 
