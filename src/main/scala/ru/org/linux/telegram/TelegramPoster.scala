@@ -20,14 +20,13 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{Topic, TopicTagDao}
-import sttp.client3.*
-import sttp.shared.Identity
+import sttp.client4.*
 import io.circe.parser.*
 
 @Component
 class TelegramPoster(
     dao: TelegramPostsDao,
-    httpClient: SttpBackend[Identity, Any],
+    httpClient: SyncBackend,
     config: SiteConfig,
     topicTagDao: TopicTagDao)
     extends StrictLogging:

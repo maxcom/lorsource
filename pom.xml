@@ -32,7 +32,7 @@
     <swiffy-slider.version>1.6.0</swiffy-slider.version>
     <circe.version>0.14.15</circe.version>
     <twemoji.version>16.0.1</twemoji.version>
-    <sttp.version>3.11.0</sttp.version>
+    <sttp.version>4.0.21</sttp.version>
     <flexmark.version>0.64.8</flexmark.version>
     <jackson.version>2.21.2</jackson.version>
   </properties>
@@ -329,13 +329,13 @@
     </dependency>
 
     <dependency>
-      <groupId>com.softwaremill.sttp.client3</groupId>
+      <groupId>com.softwaremill.sttp.client4</groupId>
       <artifactId>core_${scala.suffix}</artifactId>
       <version>${sttp.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.softwaremill.sttp.client3</groupId>
+      <groupId>com.softwaremill.sttp.client4</groupId>
       <artifactId>circe_${scala.suffix}</artifactId>
       <version>${sttp.version}</version>
     </dependency>

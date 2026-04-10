@@ -16,7 +16,7 @@ package ru.org.linux.topic
 
 import munit.FunSuite
 import ru.org.linux.test.WebHelper
-import sttp.client3.*
+import sttp.client4.*
 import sttp.model.StatusCode
 
 class TopicListControllerWebTest extends FunSuite with WebHelper:

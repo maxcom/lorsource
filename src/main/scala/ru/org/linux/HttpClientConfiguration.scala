@@ -15,9 +15,10 @@
 package ru.org.linux
 
 import org.springframework.context.annotation.{Bean, Configuration}
-import sttp.client3.*
+import sttp.client4.*
+import sttp.client4.httpclient.HttpClientSyncBackend
 
 @Configuration
 class HttpClientConfiguration:
   @Bean
-  def syncClient(): SttpBackend[Identity, Any] = HttpClientSyncBackend()
+  def syncClient(): SyncBackend = HttpClientSyncBackend()

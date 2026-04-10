@@ -16,7 +16,7 @@ package ru.org.linux.topic
 
 import munit.FunSuite
 import ru.org.linux.test.WebHelper
-import sttp.client3.{UriContext, basicRequest}
+import sttp.client4.{UriContext, basicRequest}
 import sttp.model.StatusCode
 
 class ArchiveControllerWebTest extends FunSuite with WebHelper:

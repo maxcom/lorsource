@@ -19,7 +19,8 @@ import org.jsoup.Jsoup
 import org.junit.Assert
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
-import sttp.client3.*
+import sttp.client4.*
+import sttp.client4.httpclient.HttpClientSyncBackend
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
 trait WebHelper extends FunFixtures { self: BaseFunSuite =>
@@ -29,7 +30,7 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
   val TestUser = "Shaman007"
   val TestPassword = "passwd"
 
-  val backend: SttpBackend[Identity, Any] = HttpClientSyncBackend()
+  val backend: SyncBackend = HttpClientSyncBackend()
 
   def doLogin(user: String = TestUser, password: String = TestPassword): String = {
     val response = basicRequest

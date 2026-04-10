@@ -18,8 +18,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.circe.Decoder
 import io.circe.generic.semiauto._
 import org.springframework.stereotype.Service
-import sttp.client3._
-import sttp.client3.Identity
+import sttp.client4.*
 
 case class GeoLocation(
   country: Option[String],
@@ -51,7 +50,7 @@ object GeoLocation {
 }
 
 @Service
-class GeoLocationService(httpClient: SttpBackend[Identity, Any]) extends StrictLogging {
+class GeoLocationService(httpClient: SyncBackend) extends StrictLogging {
   def getLocation(ip: String): Either[String, GeoLocation] = {
     val response = basicRequest
       .get(uri"http://ipwho.is/$ip")

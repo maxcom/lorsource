@@ -19,7 +19,7 @@ import org.jsoup.Jsoup
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import ru.org.linux.test.WebHelper
-import sttp.client3.*
+import sttp.client4.*
 import sttp.model.StatusCode
 
 import scala.jdk.CollectionConverters._

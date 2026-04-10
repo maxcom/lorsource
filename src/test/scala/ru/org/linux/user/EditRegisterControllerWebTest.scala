@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy, TestContextManager}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.test.WebHelper
-import sttp.client3.*
+import sttp.client4.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
 object EditRegisterControllerWebTest:
