@@ -54,3 +54,5 @@ jdbc.password=linuxweb
 jdbc.poolSize=10
 
 telegram.token=false
+fallback.proxy.host=localhost
+fallback.proxy.port=3128

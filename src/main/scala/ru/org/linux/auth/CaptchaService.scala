@@ -17,6 +17,7 @@ package ru.org.linux.auth
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
 import jakarta.servlet.ServletRequest
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
 import ru.org.linux.spring.SiteConfig
@@ -26,7 +27,7 @@ import sttp.client4.*
 import scala.util.control.NonFatal
 
 @Service
-class CaptchaService(httpClient: SyncBackend, siteConfig: SiteConfig) extends StrictLogging {
+class CaptchaService(@Qualifier("directBackend") httpClient: SyncBackend, siteConfig: SiteConfig) extends StrictLogging {
   def checkCaptcha(request: ServletRequest, errors: Errors): Unit = {
     val captchaResponse = request.getParameter("h-captcha-response")
 

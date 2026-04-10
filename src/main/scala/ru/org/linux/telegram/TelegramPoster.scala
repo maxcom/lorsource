@@ -16,6 +16,7 @@
 package ru.org.linux.telegram
 
 import com.typesafe.scalalogging.StrictLogging
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.org.linux.spring.SiteConfig
@@ -23,13 +24,17 @@ import ru.org.linux.topic.{Topic, TopicTagDao}
 import sttp.client4.*
 import io.circe.parser.*
 
+import scala.util.{Failure, Success, Try}
+
 @Component
 class TelegramPoster(
     dao: TelegramPostsDao,
-    httpClient: SyncBackend,
+    @Qualifier("directBackend") httpClient: SyncBackend,
+    @Qualifier("proxyBackend") proxyBackend: SyncBackend,
     config: SiteConfig,
     topicTagDao: TopicTagDao)
     extends StrictLogging:
+
   @Scheduled(fixedDelay = 5 * 60 * 1000, initialDelay = 1 * 60 * 1000)
   def check(): Unit =
     dao.hotTopic match
@@ -52,15 +57,27 @@ class TelegramPoster(
             delete(toDelete, toDelete)
           case None =>
 
+  private def sendWithRetry(request: Request[Either[String, String]]): (Response[Either[String, String]], String) =
+    Try(request.send(httpClient)) match
+      case Success(response) if response.body.isRight =>
+        (response, "direct")
+      case Success(response) =>
+        logger.warn(s"Direct request failed with status ${response.code}, retrying via proxy")
+        (request.send(proxyBackend), "proxy")
+      case Failure(e) =>
+        logger.warn(s"Direct request failed with exception: ${e.getMessage}, retrying via proxy")
+        (request.send(proxyBackend), "proxy")
+
   private def post(topic: Topic, text: String): Unit =
     logger.debug(s"Posting topic ${topic.getLink}")
 
-    val response = basicRequest
+    val request = basicRequest
       .get(
         uri"https://api.telegram.org/bot${config.getTelegramToken}/sendMessage".addParams(
           "chat_id" -> "@best_of_lor",
           "text" -> text))
-      .send(httpClient)
+
+    val (response, via) = sendWithRetry(request)
 
     response.body match
       case Right(body) =>
@@ -68,28 +85,29 @@ class TelegramPoster(
 
         val telegramId = json.flatMap(_.hcursor.downField("result").downField("message_id").as[Int]).toTry.get
 
-        logger.info(s"Post success! ${topic.getLink} telegramId = $telegramId")
+        logger.info(s"Post success via $via! ${topic.getLink} telegramId = $telegramId")
 
         dao.storePost(topic, telegramId)
       case Left(error) =>
-        logger.error(s"Post failed! ${topic.getLink} status=${response.code} body=$error")
-        throw new TelegramBadStatusException("Post failed! status=${response.code}")
+        logger.error(s"Post failed via $via! ${topic.getLink} status=${response.code} body=$error")
+        throw new TelegramBadStatusException(s"Post failed via $via! status=${response.code}")
 
   private def delete(telegramId: Int, topicId: Int): Unit =
     logger.info("Deleting " + topicId)
 
-    val response = basicRequest
+    val request = basicRequest
       .get(
         uri"https://api.telegram.org/bot${config.getTelegramToken}/deleteMessage".addParams(
           "chat_id" -> "@best_of_lor",
           "message_id" -> topicId.toString))
-      .send(httpClient)
 
-    if response.isSuccess then
-      logger.info(s"Delete success! telegramId = $telegramId")
+    val (response, via) = sendWithRetry(request)
+
+    if response.body.isRight then
+      logger.info(s"Delete success via $via! telegramId = $telegramId")
       dao.storeDeletion(telegramId)
     else
-      logger.error(s"Failed to delete: status=${response.code} body=${response.body}")
-      throw new TelegramBadStatusException("Delete failed! status=${response.code}")
+      logger.error(s"Failed to delete via $via: status=${response.code} body=${response.body}")
+      throw new TelegramBadStatusException(s"Delete failed via $via! status=${response.code}")
 
 class TelegramBadStatusException(message: String) extends RuntimeException(message)

@@ -15,6 +15,7 @@
 package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.org.linux.user.EmailDomainsBlockDao
@@ -23,7 +24,7 @@ import sttp.client4.*
 import java.time.OffsetDateTime
 
 @Component
-class BlackListUpdater(httpClient: SyncBackend, dao: IPBlockDao,
+class BlackListUpdater(@Qualifier("directBackend") httpClient: SyncBackend, dao: IPBlockDao,
                        emailDomainsBlockDao: EmailDomainsBlockDao) extends StrictLogging {
   @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 30 * 60 * 1000)
   def updateTor(): Unit = {

@@ -15,10 +15,15 @@
 package ru.org.linux
 
 import org.springframework.context.annotation.{Bean, Configuration}
+import ru.org.linux.spring.SiteConfig
 import sttp.client4.*
 import sttp.client4.httpclient.HttpClientSyncBackend
 
 @Configuration
 class HttpClientConfiguration:
   @Bean
-  def syncClient(): SyncBackend = HttpClientSyncBackend()
+  def directBackend(): SyncBackend = HttpClientSyncBackend()
+
+  @Bean
+  def proxyBackend(config: SiteConfig): SyncBackend =
+    HttpClientSyncBackend(BackendOptions.httpProxy(config.getFallbackProxyHost, config.getFallbackProxyPort))

@@ -118,7 +118,12 @@ class TopicIntegrationTestConfiguration {
   }
 
   @Bean
-  def syncClient: SyncBackend = {
+  def directBackend: SyncBackend = {
+    Mockito.mock(classOf[SyncBackend])
+  }
+
+  @Bean
+  def proxyBackend: SyncBackend = {
     Mockito.mock(classOf[SyncBackend])
   }
 

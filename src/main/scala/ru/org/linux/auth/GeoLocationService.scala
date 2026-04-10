@@ -17,6 +17,7 @@ package ru.org.linux.auth
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Decoder
 import io.circe.generic.semiauto._
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import sttp.client4.*
 
@@ -50,7 +51,7 @@ object GeoLocation {
 }
 
 @Service
-class GeoLocationService(httpClient: SyncBackend) extends StrictLogging {
+class GeoLocationService(@Qualifier("directBackend") httpClient: SyncBackend) extends StrictLogging {
   def getLocation(ip: String): Either[String, GeoLocation] = {
     val response = basicRequest
       .get(uri"http://ipwho.is/$ip")

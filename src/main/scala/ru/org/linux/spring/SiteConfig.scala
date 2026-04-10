@@ -132,5 +132,9 @@ class SiteConfig(
 
   def getTelegramToken: String = properties.getProperty("telegram.token")
 
+  def getFallbackProxyHost: String = properties.getProperty("fallback.proxy.host")
+
+  def getFallbackProxyPort: Int = properties.getProperty("fallback.proxy.port").toInt
+
 object SiteConfig:
   private val ErrMsg = "Invalid MainUrl property: "
