@@ -301,15 +301,13 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     checkCommentEditableNow(comment, session.userOpt.orNull, haveAnswers, topic, errors, markup)
   }
 
-  def getEditDeadline(comment: Comment): Option[Instant] = {
-    if (siteConfig.getCommentExpireMinutesForEdit != null && siteConfig.getCommentExpireMinutesForEdit != 0) {
+  def getEditDeadline(comment: Comment): Option[Instant] = 
+    if siteConfig.getCommentExpireMinutesForEdit != 0 then
       val editDeadline = comment.postdate.toInstant.plus(Duration.ofMinutes(siteConfig.getCommentExpireMinutesForEdit.toLong))
 
       Some.apply(editDeadline)
-    } else {
+    else 
       Option.empty
-    }
-  }
 
   /**
    * Проверяем можно ли редактировать комментарий на текущий момент
