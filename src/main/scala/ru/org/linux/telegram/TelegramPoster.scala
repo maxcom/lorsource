@@ -73,6 +73,7 @@ class TelegramPoster(
         dao.storePost(topic, telegramId)
       case Left(error) =>
         logger.error(s"Post failed! ${topic.getLink} status=${response.code} body=$error")
+        throw new TelegramBadStatusException("Post failed! status=${response.code}")
 
   private def delete(telegramId: Int, topicId: Int): Unit =
     logger.info("Deleting " + topicId)
@@ -89,3 +90,6 @@ class TelegramPoster(
       dao.storeDeletion(telegramId)
     else
       logger.error(s"Failed to delete: status=${response.code} body=${response.body}")
+      throw new TelegramBadStatusException("Delete failed! status=${response.code}")
+
+class TelegramBadStatusException(message: String) extends RuntimeException(message)
