@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,11 +22,13 @@ public class Theme {
   private static final Theme WHITE2 = new Theme("white2", "white2/head-main.jsp", "white2/head-main.jsp", true);
   private static final Theme TANGO = new Theme("tango", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme TANGO_AUTO = new Theme("tango-auto", "tango/head-main.jsp", "tango/head-main.jsp");
+  private static final Theme TANGO_LIGHT = new Theme("tango-light", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme WALTZ = new Theme("waltz", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme ZOMG_PONIES = new Theme("zomg_ponies", "zomg_ponies/head-main.jsp", "zomg_ponies/head-main.jsp", true);
 
   public static final ImmutableList<Theme> THEMES = ImmutableList.of(
           TANGO,
+          TANGO_LIGHT,
           TANGO_AUTO,
           BLACK,
           WHITE2,

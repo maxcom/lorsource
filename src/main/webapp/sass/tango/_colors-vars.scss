@@ -13,42 +13,6 @@
  *    limitations under the License.
  */
 
-:root {
-  --main-background: #2e3436;
-  --text-color: #babdb6;
-  --link-color: #729fcf;
-  --site-title-color: #eeeeec;
-  --header-color: #d3d7cf;
-  --blockquote-color: #909090;
-
-  --table-border-color: #555753;
-  --table-link-color: #eeeeec;
-  --table-hover-background: #5c3566;
-
-  --tag-color: #fcaf3e;
-  --main-menu-color: #e9b96e;
-  --signature-user-color: #8ae234;
-  --signature-remark-color: #AAAAAA;
-  --article-background: #272C2D;
-
-  --button-border-color: #babdb6;
-  --button-selected-text-color: black;
-
-  --button-primary-background: #204a87;
-  --button-danger-background: #a40000;
-  --button-danger-text-color: #eeeeec;
-
-  --icon-button-active-color: #c17d11;
-
-  --tagpage-group-label-background: #8f5902;
-
-  --icon-reply-color: #729fcf;
-  --unread-marker-color: #729fcf;
-  --icon-pin-color: #e9b96e;
-
-  --preview-border-color: #c4a000;
-}
-
 $main_background: var(--main-background);
 $text_color: var(--text-color);
 $link_color: var(--link-color);
