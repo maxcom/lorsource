@@ -33,6 +33,7 @@ object UserPermissionService {
   private val InviteScore = 200
   private val MaxUnactivatedPerIp = 2
   private val MaxUserpicScoreLoss = 20
+  val DeprecatedFeaturesScore = 500
 
   def allowedFormats(user: User): Set[MarkupType] = {
     if (user==null) { // anonymous

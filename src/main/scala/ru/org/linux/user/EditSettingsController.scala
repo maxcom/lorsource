@@ -24,8 +24,10 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.site.{BadInputException, DefaultProfile, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
+import ru.org.linux.user.UserPermissionService.DeprecatedFeaturesScore
 
 import java.util
+import scala.collection.immutable.ListMap
 import scala.jdk.CollectionConverters.*
 
 @Controller
@@ -41,13 +43,12 @@ class EditSettingsController(profileDao: ProfileDao, userPermissionService: User
 
     val nonDeprecatedThemes = Theme.THEMES.asScala.view.filterNot(_.isDeprecated).map(_.getId).toVector
 
-    if (currentUser.user.score >= 500) {
+    if currentUser.user.score >= DeprecatedFeaturesScore then
       params.put("stylesList", Theme.THEMES.asScala.map(_.getId).asJava)
-    } else if (DefaultProfile.getTheme(currentUser.user.style).isDeprecated) {
+    else if (DefaultProfile.getTheme(currentUser.user.style).isDeprecated)
       params.put("stylesList", (nonDeprecatedThemes :+ currentUser.user.style).asJava)
-    } else {
+    else
       params.put("stylesList", nonDeprecatedThemes.asJava)
-    }
 
     params.put("trackerModes", TrackerFilterEnum.values.filter(_.isCanBeDefault))
 
@@ -56,8 +57,15 @@ class EditSettingsController(profileDao: ProfileDao, userPermissionService: User
 
     params.put("format_mode", currentUser.profile.formatMode.formId)
 
-    params.put("formatModes",
-      UserPermissionService.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
+    val allFormats = UserPermissionService.allowedFormats(currentUser.user)
+
+    val allowedFormats =
+      if currentUser.user.score >= DeprecatedFeaturesScore || currentUser.profile.formatMode.deprecated then
+        allFormats
+      else
+        allFormats.filterNot(_.deprecated)
+
+    params.put("formatModes", allowedFormats.toSeq.sortBy(_.order).view.map(m => m.formId -> m.title).to(ListMap).asJava)
 
     params.put("avatarsList", DefaultProfile.getAvatars.asJava)
 
