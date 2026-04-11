@@ -22,9 +22,15 @@
 
 <p id="ft-info">
   <a href="/about">О Сервере</a> -
-  <a href="/help/rules.md">Правила форума</a> -
-  <a href="/help/lorcode.md">Правила разметки (LORCODE)</a> -
-  <a href="/help/markdown.md">Правила разметки (Markdown)</a><br>
+  <a href="/help/rules.md">Правила форума</a>
+
+  <c:if test="${template.formatMode == 'lorcode'}">
+    - <a href="/help/lorcode.md">Разметка LORCODE</a>
+  </c:if>
+  <c:if test="${template.formatMode == 'markdown'}">
+    - <a href="/help/markdown.md">Разметка Markdown</a>
+  </c:if>
+  <br>
   <a href="https://github.com/maxcom/lorsource/issues">Сообщить об ошибке</a><br>
   <a href="${configuration.secureUrl}">${configuration.secureUrl}</a>
 </p>
@@ -36,7 +42,6 @@
     });
   </c:if>
 </script>
-
 
 </footer>
 </body></html>
