@@ -29,6 +29,8 @@ http://www.springframework.org/schema/security/spring-security-6.5.xsd">
     <http pattern="/img/**" security="none"/>
     <http pattern="/js/**" security="none"/>
     <http pattern="/tango/**" security="none"/>
+    <http pattern="/tango-auto/**" security="none"/>
+    <http pattern="/tango-light/**" security="none"/>
     <http pattern="/waltz/**" security="none"/>
     <http pattern="/white/**" security="none"/>
     <http pattern="/zomg_ponies/**" security="none"/>
