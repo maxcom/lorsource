@@ -13,8 +13,14 @@
  *    limitations under the License.
  */
 
-@import "colors-dark";
-@import "colors-auto";
+@use "colors";
+
+@include colors.dark;
+
+@media (prefers-color-scheme: light) {
+  @include colors.light;
+}
+
 @import "colors-vars";
 
 @import "reset";

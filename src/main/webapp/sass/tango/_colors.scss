@@ -15,10 +15,88 @@
 
 @use "sass:color";
 
-$heatmap_max: #73d216;
-$heatmap_scale: 1.5;
+@mixin dark {
+  $heatmap_max: #8ae234;
+  $heatmap_scale: 1.5;
 
-@media (prefers-color-scheme: light) {
+  :root {
+    --main-background: #2e3436;
+    --text-color: #babdb6;
+    --link-color: #729fcf;
+    --site-title-color: #eeeeec;
+    --header-color: #d3d7cf;
+    --blockquote-color: #909090;
+
+    --table-border-color: #555753;
+    --table-link-color: #eeeeec;
+    --table-hover-background: #5c3566;
+
+    --tag-color: #fcaf3e;
+    --main-menu-color: #e9b96e;
+    --signature-user-color: #8ae234;
+    --signature-remark-color: #AAAAAA;
+    --article-background: #272C2D;
+
+    --button-border-color: #babdb6;
+    --button-selected-text-color: black;
+
+    --button-primary-background: #204a87;
+    --button-danger-background: #a40000;
+    --button-danger-text-color: #eeeeec;
+
+    --icon-button-active-color: #c17d11;
+
+    --tagpage-group-label-background: #8f5902;
+
+    --icon-reply-color: #729fcf;
+    --unread-marker-color: #729fcf;
+    --icon-pin-color: #e9b96e;
+
+    --preview-border-color: #c4a000;
+
+    --heatmap-empty: #{color.grayscale(color.adjust($heatmap_max, $lightness: -20%*$heatmap_scale))};
+    --heatmap-q1: #{color.adjust($heatmap_max, $lightness: -20%*$heatmap_scale)};
+    --heatmap-q2: #{color.adjust($heatmap_max, $lightness: -15%*$heatmap_scale)};
+    --heatmap-q3: #{color.adjust($heatmap_max, $lightness: -10%*$heatmap_scale)};
+    --heatmap-q4: #{color.adjust($heatmap_max, $lightness: -5%*$heatmap_scale)};
+    --heatmap-max: #{$heatmap_max};
+
+    /*
+
+    Atom One Dark by Daniel Gamage
+    Original One Dark Syntax theme from https://github.com/atom/one-dark-syntax
+
+    base:    #282c34
+    mono-1:  #abb2bf
+    mono-2:  #818896
+    mono-3:  #5c6370
+    hue-1:   #56b6c2
+    hue-2:   #61aeee
+    hue-3:   #c678dd
+    hue-4:   #98c379
+    hue-5:   #e06c75
+    hue-5-2: #be5046
+    hue-6:   #d19a66
+    hue-6-2: #e6c07b
+
+    */
+
+    --syntax-mono-1: #abb2bf;
+    --syntax-mono-3: #5c6370;
+    --syntax-hue-1: #56b6c2;
+    --syntax-hue-2: #61aeee;
+    --syntax-hue-3: #c678dd;
+    --syntax-hue-4: #98c379;
+    --syntax-hue-5: #e06c75;
+    --syntax-hue-6: #d19a66;
+    --syntax-hue-6-2: #e6c07b;
+  }
+}
+
+@mixin light {
+  $heatmap_max: #73d216;
+  $heatmap_scale: 1.5;
+
   :root {
     --main-background: #d3d7cf;
     --text-color: #3b4245;

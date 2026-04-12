@@ -13,7 +13,10 @@
  *    limitations under the License.
  */
 
-@import "colors-light";
+@use "colors";
+
+@include colors.light;
+
 @import "colors-vars";
 
 @import "reset";
