@@ -190,9 +190,13 @@ h6 {
 }
 
 div.entry-userpic {
-  float: left;
+  float: right;
   text-align: center;
   width: 70px;
+
+  @include respond-to(tablet-and-desktops) {
+    float: left;
+  }
 }
 
 .messages H2 { margin-bottom: 5px; margin-top: 5px; }
@@ -308,13 +312,17 @@ div[itemprop="articleBody"] {
   }
 
   .userpic {
-    width: 100px;
+    width: 50px;
 
     img {
       max-width: 100px;
       max-height: 100px;
       height: auto;
       width: auto;
+    }
+
+    @include respond-to(tablet-and-desktops) {
+      width: 100px;
     }
   }
 }
@@ -394,8 +402,16 @@ code {
 
 .userpic {
     float: left;
-    width: 150px;
+    width: 50px;
     text-align: center;
+
+    @include respond-to(tablet-and-desktops) {
+      width: 100px;
+    }
+
+    @include respond-to(desktops) {
+      width: 150px;
+    }
 }
 
 input.error {
@@ -442,7 +458,15 @@ textarea.error {
 }
 
 .message-w-userpic {
+  padding-left: 60px;
+
+  @include respond-to(tablet-and-desktops) {
+    padding-left: 115px;
+  }
+
+  @include respond-to(desktops) {
     padding-left: 170px;
+  }
 }
 
 .news {

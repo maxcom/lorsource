@@ -23,14 +23,6 @@
         width: 100%;
     }
 
-    .userpic {
-        width: 100px;
-    }
-
-    .message-w-userpic {
-        padding-left: 115px;
-    }
-
     img.photo {
         max-width: 100%;
         height: auto;
@@ -69,10 +61,6 @@
 
 /* phone */
 @media screen and (max-width: 40em) {
-    div.entry-userpic {
-        float: right;
-    }
-
     div.entry-body {
         margin-left: 0;
     }
@@ -80,18 +68,6 @@
     img.photo {
         max-width: 100% !important;
         height: auto;
-    }
-
-    .userpic {
-        width: 50px;
-    }
-
-    .msg footer .userpic {
-        width: 50px;
-    }
-
-    .message-w-userpic {
-        padding-left: 60px;
     }
 
     .msg footer .sign {
