@@ -178,14 +178,18 @@ h6 {
 }
 
 .entry-body {
-  margin-left: 75px;
   padding-top: 5px;
+  margin-left: 0;
 
   .nav {
     border: none;
     padding-top: 0;
     padding-bottom: 0;
     margin-bottom: 1em;
+  }
+
+  @include respond-to(tablet-and-desktops) {
+    margin-left: 75px;
   }
 }
 
@@ -307,8 +311,14 @@ div[itemprop="articleBody"] {
   @include clearfix;
 
   .sign {
-    margin-left: 115px;
+    margin-left: 60px;
     margin-top: 0;
+  }
+
+  @include respond-to(tablet-and-desktops) {
+    .sign {
+      margin-left: 115px;
+    }
   }
 
   .userpic {
@@ -326,7 +336,7 @@ div[itemprop="articleBody"] {
 }
 
 .messages .msg:target {
-    border: red solid 1px;
+  border: red solid 1px;
 }
 
 .cloud0 { font-size: 0.5em; }
