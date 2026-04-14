@@ -414,6 +414,11 @@ code {
     }
 }
 
+img.photo {
+    max-width: 100%;
+    height: auto;
+}
+
 input.error {
     border: 1px solid #f00;
     padding-left: inherit;

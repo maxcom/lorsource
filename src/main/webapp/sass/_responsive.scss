@@ -23,11 +23,6 @@
         width: 100%;
     }
 
-    img.photo {
-        max-width: 100%;
-        height: auto;
-    }
-
     .penguin_progress {
         width: 90%;
     }
@@ -38,7 +33,6 @@
 
     .penguin_percent {
         width: 20%;
-
     }
 
     .penguin_progress span {
@@ -63,11 +57,6 @@
 @media screen and (max-width: 40em) {
     div.entry-body {
         margin-left: 0;
-    }
-
-    img.photo {
-        max-width: 100% !important;
-        height: auto;
     }
 
     .msg footer .sign {
