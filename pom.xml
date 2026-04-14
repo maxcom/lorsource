@@ -570,6 +570,8 @@
           <inputFolder>${basedir}/src/main/webapp/sass</inputFolder>
           <outputFolder>${project.build.directory}/${project.build.finalName}</outputFolder>
           <style>COMPRESSED</style>
+          <!-- use a fixed version of dart-saas to ensure reproducible builds -->
+          <version>1.99.0</version>
         </configuration>
       </plugin>
 
