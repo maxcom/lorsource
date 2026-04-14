@@ -14,10 +14,10 @@
  */
 
 @use "sass:color";
+@use "../mixins";
 
 @mixin dark {
-  $heatmap_max: #8ae234;
-  $heatmap_scale: 1.5;
+  @include mixins.heatmap-colors(#8ae234, 1.5);
 
   :root {
     --main-background: #2e3436;
@@ -54,13 +54,6 @@
 
     --preview-border-color: #c4a000;
 
-    --heatmap-empty: #{color.grayscale(color.adjust($heatmap_max, $lightness: -20%*$heatmap_scale))};
-    --heatmap-q1: #{color.adjust($heatmap_max, $lightness: -20%*$heatmap_scale)};
-    --heatmap-q2: #{color.adjust($heatmap_max, $lightness: -15%*$heatmap_scale)};
-    --heatmap-q3: #{color.adjust($heatmap_max, $lightness: -10%*$heatmap_scale)};
-    --heatmap-q4: #{color.adjust($heatmap_max, $lightness: -5%*$heatmap_scale)};
-    --heatmap-max: #{$heatmap_max};
-
     /*
 
     Atom One Dark by Daniel Gamage
@@ -94,8 +87,7 @@
 }
 
 @mixin light {
-  $heatmap_max: #73d216;
-  $heatmap_scale: 1.5;
+  @include mixins.heatmap-colors-inverted(#73d216, 1.5, #babdb6);
 
   :root {
     --main-background: #d3d7cf;
@@ -123,13 +115,6 @@
     --unread-marker-color: #3465a4;
     --icon-pin-color: #c4a000;
     --preview-border-color: #c4a000;
-
-    --heatmap-empty: #babdb6;
-    --heatmap-max: #{color.adjust($heatmap_max, $lightness: -20%*$heatmap_scale)};
-    --heatmap-q4: #{color.adjust($heatmap_max, $lightness: -15%*$heatmap_scale)};
-    --heatmap-q3: #{color.adjust($heatmap_max, $lightness: -10%*$heatmap_scale)};
-    --heatmap-q2: #{color.adjust($heatmap_max, $lightness: -5%*$heatmap_scale)};
-    --heatmap-q1: #{$heatmap_max};
 
     .swiffy-slider {
         --swiffy-slider-nav-light: #171b1c;

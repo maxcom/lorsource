@@ -13,6 +13,8 @@
  *    limitations under the License.
  */
 
+@use "sass:color";
+
 @mixin clearfix {
 // For modern browsers
   &:before,
@@ -34,5 +36,28 @@
   }
   @else if $media == tablet-and-desktops {
     @media only screen and (min-width: 47em) { @content; }
+  }
+}
+
+@mixin heatmap-colors($end, $scale) {
+  :root {
+    --heatmap-empty: #{color.grayscale(color.adjust($end, $lightness: -20%*$scale))};
+    --heatmap-q1: #{color.adjust($end, $lightness: -20%*$scale)};
+    --heatmap-q2: #{color.adjust($end, $lightness: -15%*$scale)};
+    --heatmap-q3: #{color.adjust($end, $lightness: -10%*$scale)};
+    --heatmap-q4: #{color.adjust($end, $lightness: -5%*$scale)};
+    --heatmap-max: #{$end};
+  }
+}
+
+@mixin heatmap-colors-inverted($start, $scale, $empty) {
+  :root {
+    --heatmap-empty: #{$empty};
+
+    --heatmap-q1: #{$start};
+    --heatmap-q2: #{color.adjust($start, $lightness: -5%*$scale)};
+    --heatmap-q3: #{color.adjust($start, $lightness: -10%*$scale)};
+    --heatmap-q4: #{color.adjust($start, $lightness: -15%*$scale)};
+    --heatmap-max: #{color.adjust($start, $lightness: -20%*$scale)};
   }
 }

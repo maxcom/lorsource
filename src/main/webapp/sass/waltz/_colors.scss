@@ -14,6 +14,7 @@
  */
 
 @use "sass:color";
+@use "../mixins";
 
 $main_background: #ECECEC;
 $text_color: #000;
@@ -50,8 +51,6 @@ $tagpage_group_label_background: #E7AF55;
 $tagpage_group_label_color: $table_link_color;
 $stars_color: #465A48;
 
-$heatmap_max: color.adjust(#8ae234, $lightness: -15%);
-$heatmap_scale: -1.5;
 $tracker_tag_color: $table_border_color;
 
 $code_background: $main_background;
@@ -65,4 +64,7 @@ $code_background: $main_background;
 }
 
 $unread_marker_color: #729fcf;
+
+@include mixins.heatmap-colors(color.adjust(#8ae234, $lightness: -15%), -1.5);
+
 

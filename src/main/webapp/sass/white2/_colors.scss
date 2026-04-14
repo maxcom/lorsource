@@ -14,6 +14,7 @@
  */
 
 @use "sass:color";
+@use "../mixins";
 
 $main_background: white;
 $a_color: #00A;
@@ -35,8 +36,7 @@ $table_hover_background: #FFDDFF;
 $table_background_color: $nav_back;
 $unread_marker_color: #00A;
 
-$heatmap_max: color.adjust(#8ae234, $lightness: -15%);
-$heatmap_scale: -1.5;
+@include mixins.heatmap-colors(color.adjust(#8ae234, $lightness: -15%), -1.5);
 
 #bd .swiffy-slider {
     --swiffy-slider-nav-light: #333;

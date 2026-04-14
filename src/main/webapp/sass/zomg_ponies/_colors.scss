@@ -14,6 +14,7 @@
  */
 
 @use "sass:color";
+@use "../mixins";
 
 $main_background: #FFDFFF;
 $text_color: #000;
@@ -53,8 +54,8 @@ $stars_color: #400040;
 
 $icon_button_active_color: $stars_color;
 
-$heatmap_max: color.adjust(#8ae234, $lightness: -15%);
-$heatmap_scale: -1.5;
+@include mixins.heatmap-colors(color.adjust(#8ae234, $lightness: -15%), -1.5);
+
 $tracker_tag_color: $tag_even_color;
 
 $code_background: #400040;
