@@ -15,6 +15,8 @@
 
 /* (c) 1999 <maxcom@vinchi.ru> */
 
+@use "../mixins" as *;
+
 BODY { 
     font-family: sans-serif;
     background: #000000;
@@ -143,7 +145,11 @@ DIV.notes
    }
 
 #head-main {
+  margin-left: 0;
+
+  @include respond-to(tablet-and-desktops) {
     margin-left: 270px;
+  }
 }
 
 #head-main A { text-decoration: none; color: white }
@@ -231,22 +237,11 @@ blockquote {
   margin-top: .75em;
 }
 
-@media screen and (max-width:360px) {
-	#head-main {
-		margin-left: 0;
-		float: none;
-	}
+#hd {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
 
-	#head-main .infoblock div {
-		margin-left: 0 !important
-	}
-
-	#bd, #hd {
-		padding-left: 0.5em;
-		padding-right: 0.5em
-	}
-
-	div.entry-userpic {
-		display: none;
-	}
+  @include respond-to(tablet-and-desktops) {
+    padding-left: 0;
+  }
 }
