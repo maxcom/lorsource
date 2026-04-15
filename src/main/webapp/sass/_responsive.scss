@@ -15,14 +15,6 @@
 
 /* tablet */
 @media screen and (max-width: 60em) {
-    #commentForm textarea {
-        width: 100%;
-    }
-
-    #commentForm input[type='text'] {
-        width: 100%;
-    }
-
     .penguin_progress {
         width: 90%;
     }
@@ -37,8 +29,6 @@
 
     .penguin_progress span {
         background-repeat: repeat-x;
-        /*background-color: #729fcf !important;
-          background-image: none !important;*/
         display: block;
         height: 19px;
     }
@@ -50,7 +40,6 @@
     code {
         white-space: pre-wrap;
     }
-
 }
 
 /* phone */
@@ -62,10 +51,6 @@
     .nav-buttons {
         float: none;
         text-align: left;
-    }
-
-    #commentForm textarea {
-        height: 10em;
     }
 
     div[itemprop="articleBody"] {
@@ -102,8 +87,6 @@
 
     .penguin_progress span {
         background-repeat: repeat-x;
-        /* background-color: #729fcf !important;
-           background-image: none !important;*/
         display: block;
         height: 19px;
     }

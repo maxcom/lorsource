@@ -457,16 +457,29 @@ textarea.error {
   font-size: 1rem;
 
   textarea {
-    width: 40em;
-    height: 20em;
+    height: 10em;
+    width: 100%;
   }
 
-  input[type="text"] {
-    width: 40em;
+  input[type='text'] {
+    width: 100%;
   }
 
   input[type="password"] {
     width: 40em;
+  }
+
+  @include respond-to(tablet-and-desktops) {
+    textarea {
+      height: 20em;
+      width: 40em;
+    }
+  }
+
+  @include respond-to(desktops) {
+    input[type="text"] {
+      width: 40em;
+    }
   }
 }
 
