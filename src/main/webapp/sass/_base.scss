@@ -33,12 +33,16 @@ body {
 }
 
 pre {
-    overflow: auto;
-    overflow-y: hidden;
-    white-space: pre-wrap; /* for Opera, Firefox, Safari, Chrome*/
-    word-wrap: break-word; /* IE 5.5+ */
+  overflow: auto;
+  overflow-y: hidden;
+  white-space: pre-wrap; /* for Opera, Firefox, Safari, Chrome*/
+  word-wrap: break-word; /* IE 5.5+ */
+  font-size: 1rem;
+  margin: 0;
+
+  @include respond-to(desktops) {
     margin: 0.5em 1em;
-    font-size: 1rem;
+  }
 }
 
 #bd {
@@ -374,10 +378,14 @@ blockquote {
 
 code {
   border: 0;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
   font-family: "Droid Sans Mono", monospace, sans-serif;
   font-size: 1em;
+  margin: 0;
+
+  @include respond-to(desktops) {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
 }
 
 .code {

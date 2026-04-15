@@ -13,17 +13,6 @@
  *    limitations under the License.
  */
 
-/* tablet */
-@media screen and (max-width: 60em) {
-    code, pre {
-        margin: 0;
-    }
-
-    code {
-        white-space: pre-wrap;
-    }
-}
-
 /* phone */
 @media screen and (max-width: 40em) {
     div[itemprop="articleBody"] {
@@ -43,9 +32,5 @@
 
     .form-horizontal .controls {
         margin-left: 0;
-    }
-
-    code, pre {
-        margin: 0;
     }
 }
