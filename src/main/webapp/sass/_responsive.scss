@@ -15,24 +15,6 @@
 
 /* tablet */
 @media screen and (max-width: 60em) {
-    .penguin_progress {
-        width: 90%;
-    }
-
-    .penguin_label {
-        width: 70%;
-    }
-
-    .penguin_percent {
-        width: 20%;
-    }
-
-    .penguin_progress span {
-        background-repeat: repeat-x;
-        display: block;
-        height: 19px;
-    }
-
     code, pre {
         margin: 0;
     }
@@ -70,25 +52,6 @@
 
     .form-horizontal .controls {
         margin-left: 0;
-    }
-
-    .penguin_progress {
-        width: 90%;
-    }
-
-    .penguin_label {
-        width: 70%;
-    }
-
-    .penguin_percent {
-        width: 20%;
-
-    }
-
-    .penguin_progress span {
-        background-repeat: repeat-x;
-        display: block;
-        height: 19px;
     }
 
     code, pre {

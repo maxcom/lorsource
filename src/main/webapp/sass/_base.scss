@@ -591,19 +591,29 @@ table.poll td {
 }
 
 .penguin_label {
-    font-size: 0.9em;
-    float: left;
-    display: block;
-    padding-right: 1em;
+  font-size: 0.9em;
+  float: left;
+  display: block;
+  padding-right: 1em;
+  padding-bottom: 0.5em;
+
+  width: 70%;
+
+  @include respond-to(desktops) {
     width: 200px;
-    padding-bottom: 0.5em;
+  }
 }
 
 .penguin_percent {
-    font-size: 0.9em;
-    float: left;
-    padding-right: 1em;
+  font-size: 0.9em;
+  float: left;
+  padding-right: 1em;
+
+  width: 20%;
+
+  @include respond-to(tablet-and-desktops) {
     width: 100px;
+  }
 }
 
 #bd .poll-result {
@@ -624,20 +634,25 @@ table.poll td {
 }
 
 .penguin_progress {
-  width: 320px;
   display: inline-block;
+
+  width: 90%;
 
   span {
     background-repeat: repeat-x;
+    display: block;
+    height: 19px;
     background-color: transparent !important;
     background-image: url("/tango/img/votes.png") !important;
     background-size: 18px;
-    display: block;
-    height: 19px;
   }
 
   span span {
     display: none;
+  }
+
+  @include respond-to(desktops) {
+    width: 320px;
   }
 }
 
