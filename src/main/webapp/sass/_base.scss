@@ -681,12 +681,21 @@ table.poll-result img {
 #warning-footer { clear: both; }
 
 .nav-buttons {
-   float: right;
+  float: none;
+  text-align: left;
+
+  @include respond-to(tablet-and-desktops) {
+    float: right;
+  }
 }
 
 #navPath {
-    text-align: left;
+  float: none;
+  text-align: left;
+
+  @include respond-to(tablet-and-desktops) {
     float: left;
+  }
 }
 
 /* HTML5 for FF3 & etc */
