@@ -51,14 +51,25 @@ select {
 }
 
 .form-horizontal .control-label {
+  float: none;
+  width: auto;
+  padding-top: 0;
+  text-align: left;
+  width: 16rem;
+
+  @include respond-to(tablet-and-desktops) {
     float: left;
-    width: 16rem;
     text-align: right;
+  }
 }
 
 .form-horizontal {
   .controls {
-    margin-left: 18rem;
+    margin-left: 0;
+
+    @include respond-to(tablet-and-desktops) {
+      margin-left: 18rem;
+    }
   }
 
   .btn {

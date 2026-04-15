@@ -289,9 +289,13 @@ DIV.sign {
 }
 
 div[itemprop="articleBody"] {
+  margin-right: 0;
+  margin-bottom: .5em;
+  margin-top: .5em;
+
+  @include respond-to(tablet-and-desktops) {
     margin-right: 4em;
-    margin-bottom: .5em;
-    margin-top: .5em;
+  }
 }
 
 .msg-container {
