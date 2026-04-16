@@ -20,16 +20,16 @@ body {
 }
 
 a {
-    color: $a_color;
+    color: var(--link-color);
     text-decoration: none;
 }
 
 a:visited {
-    color: $a_color;
+    color: var(--link-color);
 }
 
 .message-table a:visited {
-    color: $a_visit_color;
+    color: var(--text-color);
 }
 
 a:hover {
@@ -39,9 +39,9 @@ a:hover {
 /* info boxes on columns */
 DIV.boxlet H2 {
     text-align: center;
-    color: $main_color;
+    color: var(--boxlet-heading-color);
     font-size: medium;
-    background-color: $header_color;
+    background-color: var(--header-color);
     border: 1px;
     font-weight: bold;
     margin-top: 0;
@@ -56,7 +56,7 @@ DIV.boxlet {
     margin-bottom: 30px;
     padding-bottom: 5px;
     text-align: left;
-    background-color: $boxlet_back_color;
+    background-color: var(--boxlet-background);
     border: 1px;
 }
 
@@ -78,7 +78,7 @@ DIV.columnimg {
 }
 
 .nav {
-    background: $nav_back;
+    background: var(--nav-background);
     padding: 0;
 }
 
@@ -87,33 +87,33 @@ DIV.columnimg {
 }
 
 table.nav>tbody>tr>td {
-    border: $header_color 1px solid;
+    border: var(--header-color) 1px solid;
 }
 
 .message-table {
-    background: $header_color;
+    background: var(--header-color);
     border-spacing: 1px;
 }
 
 .message-table tbody {
-    background: $nav_back;
+    background: var(--nav-background);
 }
 
 DIV.messages .title {
-    background: $header_color;
+    background: var(--header-color);
 }
 
 .messages .comment .title {
-    background: $boxlet_back_color;
+    background: var(--boxlet-background);
 }
 
 .messages .msg {
-    background: $nav_back;
+    background: var(--nav-background);
     padding: 0;
 }
 
 .messages > .msg {
-    background: $nav_back;
+    background: var(--nav-background);
     padding: 0.25em 1em 1em;
 }
 
@@ -133,11 +133,11 @@ DIV.notes {
 }
 
 .bluehead {
-    background: $boxlet_back_color;
+    background: var(--boxlet-background);
 }
 
 .code {
-    background-color: $code_background;
+    background-color: var(--code-background);
     font-family: monospace !important;
 }
 
@@ -146,7 +146,7 @@ blockquote {
 }
 
 .message-table tbody tr:hover {
-    background: $message_tr_color;
+    background: var(--message-row-background);
 }
 
 .nav li:after {
@@ -161,7 +161,7 @@ blockquote {
     font-weight: bold;
     display: block;
     text-decoration: none;
-    color: $site_title_color !important;
+    color: var(--site-title-color) !important;
 
     @include respond-to(tablet-and-desktops) {
       padding-left: 0.2em;
@@ -177,7 +177,7 @@ blockquote {
 }
 
 #hd {
-    background-color: $boxlet_back_color;
+    background-color: var(--boxlet-background);
     margin-bottom: 0.4em;
 }
 
@@ -233,18 +233,18 @@ textarea {
     padding: 6px;
     &:hover,
     &:focus {
-        background-color: $site_title_color;
-        border: 1px solid $site_title_color;
+        background-color: var(--site-title-color);
+        border: 1px solid var(--site-title-color);
         color: white;
     }
 }
 
 .group-label {
-  background-color: $group_label_color;
+  background-color: var(--code-background);
 }
 
 .user-tag, .poll-selected {
-    background-color: $group_label_color;
+    background-color: var(--code-background);
 }
 
 #related-topics-list {

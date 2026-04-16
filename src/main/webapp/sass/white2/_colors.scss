@@ -38,6 +38,13 @@ $unread_marker_color: #00A;
 
 :root {
   --text-color: #{$text_color};
+  --link-color: #{$a_color};
+  --header-color: #{$header_color};
+  --boxlet-background: #{$boxlet_back_color};
+  --nav-background: #{$nav_back};
+  --site-title-color: #{$site_title_color};
+  --message-row-background: #{$message_tr_color};
+  --boxlet-heading-color: #{$main_color};
   --table-border-color: #{$table_border_color};
   --table-link-color: #{$table_link_color};
   --table-hover-background: #{$table_hover_background};

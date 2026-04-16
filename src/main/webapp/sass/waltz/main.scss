@@ -13,8 +13,8 @@
  *    limitations under the License.
  */
 
-@import "colors";
+@use "colors";
 
-@import "../reset";
-@import "../common";
-@import "style";
+@use "../reset";
+@use "../common";
+@use "style";

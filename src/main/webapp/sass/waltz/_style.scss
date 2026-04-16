@@ -17,7 +17,7 @@
 
 body {
   font-family: "Arial", sans-serif;
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #mainpage {
@@ -71,7 +71,7 @@ p {
 
   a {
     text-decoration: none;
-    color: $header_color;
+    color: var(--header-color);
   }
 }
 
@@ -89,7 +89,7 @@ p {
   }
 
   a {
-    color: $main_menu_color;
+    color: var(--main-menu-color);
   }
 }
 
@@ -97,9 +97,9 @@ p {
 	margin-bottom: 1em;
     border-top: none;
     padding: .5em;
-    border: 1px solid $article_border_color;
+    border: 1px solid var(--article-border-color);
     border-radius: .5em;
-    background: $article_background;
+    background: var(--article-background);
 
     .entry-body {
         padding-top: 0.5em;
@@ -134,9 +134,9 @@ p {
   margin-bottom: 0.5em;
 
   a {
-    color: $signature_user_color;
+    color: var(--signature-user-color);
     &:visited {
-      color: $signature_user_color;
+      color: var(--signature-user-color);
     }
   }
 }
@@ -145,8 +145,8 @@ p {
   padding-bottom: 1em;
   margin-bottom: 1em;
   border-radius: .5em;
-  border: 1px solid $article_border_color;
-  background-color: $article_background;
+  border: 1px solid var(--article-border-color);
+  background-color: var(--article-background);
 
   h2 {
     font-weight: bold;
@@ -173,32 +173,32 @@ p {
 
   table {
     th {
-      border-top: 1px solid $table_border_color;
-      border-bottom: 1px solid $table_border_color;
-      border-left: 1px solid $table_body_background_color;
+      border-top: 1px solid var(--table-border-color);
+      border-bottom: 1px solid var(--table-border-color);
+      border-left: 1px solid var(--article-background);
       &:first-child {
-        border-left: 1px solid $table_border_color;
+        border-left: 1px solid var(--table-border-color);
       }
       &:last-child {
-        border-right: 1px solid $table_border_color;
+        border-right: 1px solid var(--table-border-color);
       }
     }
 
     tbody {
-      background: $table_body_background_color;
+      background: var(--article-background);
     }
     tbody td {
       border: 1px solid;
-      border-color: $table_border_color;
+      border-color: var(--table-border-color);
 
       a {
         text-decoration: none;
-        color: $table_link_color;
+        color: var(--table-link-color);
         &:visited {
-          color: $text_color;
+          color: var(--text-color);
         }
         &:visited {
-          color: $text_color;
+          color: var(--text-color);
         }
       }
 
@@ -208,14 +208,14 @@ p {
     }
 
     thead {
-      background-color: $table_header_background;
+      background-color: var(--table-border-color);
       a {
-        color: $text_color;
+        color: var(--text-color);
       }
     }
 
     tbody tr:hover {
-      background-color: $table_hover_background;
+      background-color: var(--table-hover-background);
     }
   }
 }
@@ -233,7 +233,7 @@ p {
   }
 
   h1 a {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
@@ -251,7 +251,7 @@ p {
 
     &:visited {
       text-decoration: underline;
-      color: $link_color;
+      color: var(--link-color);
     }
   }
 }
@@ -271,9 +271,9 @@ p {
   margin-top: 0.5em;
 
   a {
-    color: $link_color !important;
+    color: var(--link-color) !important;
     &.do-logout {
-      color: $logout_link_color !important;
+      color: var(--logout-link-color) !important;
       text-decoration: none
     }
   }
@@ -291,14 +291,14 @@ input[type="checkbox"] {
 
 #whois_userpic {
   padding: 1em;
-  background: $article_background;
+  background: var(--article-background);
 }
 
 .infoblock {
   border-radius: .5em;
-  border: 1px solid $article_border_color;
+  border: 1px solid var(--article-border-color);
   margin-bottom: 1em;
-  background-color: $article_background;
+  background-color: var(--article-background);
 }
 
 blockquote {
@@ -308,7 +308,7 @@ blockquote {
 .page-number {
   border: solid 1px;
   border-radius: 5px;
-  background-color: $article_background;
+  background-color: var(--article-background);
 }
 
 .message-table {
@@ -316,12 +316,12 @@ blockquote {
     border-radius: 3px;
     font-size: 0.8em;
     padding: 2px 4px;
-    background-color: $table_border_color;
+    background-color: var(--table-border-color);
   }
 
   a.secondary {
     text-decoration: underline !important;
-    color: $text_color !important;
+    color: var(--text-color) !important;
   }
   td.dateinterval {
     text-align: left;
@@ -329,74 +329,74 @@ blockquote {
 }
 
 html, body {
-  background-color: $main_background;
+  background-color: var(--main-background);
 }
 
 a {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 #bd h2 * {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd h3 * {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd .tags a {
-  color: $tag_color;
+  color: var(--tag-color);
   &:visited {
-    color: $tag_color;
+    color: var(--tag-color);
   }
 }
 
 #bd header {
   a:visited {
-    color: $link_color;
+    color: var(--link-color);
   }
 
   h1 a {
-    color: $text_color;
+    color: var(--text-color);
     &:visited {
-      color: $text_color;
+      color: var(--text-color);
     }
   }
 }
 
 #bd a.tag {
-  color: $tag_color;
+  color: var(--tag-color);
   &.tag:visited {
-    color: $tag_color;
+    color: var(--tag-color);
   }
 }
 
 .messages .msg {
-  background:  $article_background;
-  border: 1px solid $article_border_color;
+  background:  var(--article-background);
+  border: 1px solid var(--article-border-color);
 }
 
 #bd a:visited {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd a.navLink:visited {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 #bd .nav a:visited {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 fieldset {
-  border: 1px solid $table_border_color;
+  border: 1px solid var(--table-border-color);
   padding: 5px;
 }
 
 fieldset legend {
   padding-left: 5px;
   padding-right: 5px;
-  color:$text_color;
+  color: var(--text-color);
 }
 
 #bd .nav li a {
@@ -413,19 +413,19 @@ fieldset legend {
   border-radius: 0.2em;
   zoom: 1;
 
-  border-color: $button_border_color;
-  background-color: $button_background;
-  color: $text_color;
+  border-color: var(--button-border-color);
+  background-color: var(--table-border-color);
+  color: var(--text-color);
 
   &:visited {
-    color: $text_color;
+    color: var(--text-color);
   }
   &:hover {
-    box-shadow: 0 0 1px 1px $link_color;
+    box-shadow: 0 0 1px 1px var(--link-color);
   }
   &.current {
-    background-color: $button_selected_background;
-    color: $button_selected_text_color !important;
+    background-color: var(--button-selected-background);
+    color: var(--button-selected-text-color) !important;
   }
 }
 
@@ -433,52 +433,52 @@ fieldset legend {
   border: 1px solid transparent;
   border-radius: .2em;
 
-  border-color: $button_border_color;
-  color: $button_text_color;
+  border-color: var(--button-border-color);
+  color: var(--table-link-color);
 
   &:visited {
-    color: $button_text_color;
+    color: var(--table-link-color);
   }
   &:hover {
-    box-shadow: 0 0 1px 1px $link_color;
+    box-shadow: 0 0 1px 1px var(--link-color);
   }
 }
 
 #bd .btn-primary {
-  background-color: $button_primary_background;
+  background-color: var(--button-primary-background);
 }
 
 #bd .btn-default {
-  background-color: $button_background;
+  background-color: var(--table-border-color);
 }
 
 .fav-buttons {
   .selected [class^="icon-"] {
-    color: $icon_button_active_color;
+    color: var(--icon-button-active-color);
   }
   a {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
 .user-remark {
-  color: $signature_remark_color;
+  color: var(--signature-remark-color);
 }
 
 .group-label {
-  background-color: $tagpage_group_label_background;
-  color: $tagpage_group_label_color;
+  background-color: var(--tagpage-group-label-background);
+  color: var(--table-link-color);
 }
 
 .user-tag, .poll-selected {
-  background-color: $button_background;
-  color: $tagpage_group_label_color;
+  background-color: var(--table-border-color);
+  color: var(--table-link-color);
 }
 
 .messages .msg:target {
-  border: 2px solid $targeted_message_border_color;
+  border: 2px solid var(--targeted-message-border-color);
 }
 
 .stars {
-  color: $stars_color;
+  color: var(--stars-color);
 }

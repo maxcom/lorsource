@@ -16,15 +16,15 @@
 @use "../mixins" as *;
 
 html, body {
-  background-color: $main_background;
+  background-color: var(--main-background);
   background-image: url(/zomg_ponies/img/background.jpg);
   background-size: cover;
   background-attachment: fixed;
-  color: $text_color;
+  color: var(--text-color);
   font-size: medium;
   footer {
-    background-color: $head_background;
-    color: $head_color;
+    background-color: var(--head-background);
+    color: var(--head-color);
     padding: 5px;
   }
 }
@@ -61,7 +61,7 @@ h2 {
 
 h2, h3, h4, #whois_userpic {
   background-color: transparent;
-  color: $text_color;
+  color: var(--text-color);
 }
 
 strong {
@@ -73,7 +73,7 @@ p {
 }
 
 a, .standardchange, .section-link{
-  color: $table_link_color;
+  color: var(--table-link-color);
 }
 
 a:hover {
@@ -88,13 +88,13 @@ a:hover {
 #hd {
   padding-left: 1em;
   margin-bottom: 5px;
-  background-color: $head_background;
-  color: $head_color;
+  background-color: var(--head-background);
+  color: var(--head-color);
   padding: 5px;
   border-bottom: 1px red solid;
 
   h1 {
-    color: $header_color;
+    color: var(--header-color);
   }
 
   .menu {
@@ -102,7 +102,7 @@ a:hover {
   }
 
   .menu a {
-    color: $main_menu_color;
+    color: var(--main-menu-color);
   }
 }
 
@@ -111,7 +111,7 @@ a:hover {
   margin-right: 20px;
   text-decoration: none;
   display: inline-block;
-  color: $header_color;
+  color: var(--header-color);
   padding-top: 0;
   padding-left: 0;
 
@@ -132,12 +132,12 @@ a:hover {
 .menu li a, #loginGreating a{
   text-decoration: none;
   font-size: 1em;
-  color: $header_color;
+  color: var(--header-color);
 }
 
 #sitetitle:hover, .menu li:hover, .menu a:hover {
-  background-color: $head_hover;
-  color: $header_color;
+  background-color: var(--head-hover);
+  color: var(--header-color);
   border-radius: 4px;
 }
 
@@ -146,7 +146,7 @@ a:hover {
 }
 
 #main_events_count {
-  background-color: $notification_bg;
+  background-color: var(--notification-background);
   border-radius: 15px;
   height: 24px;
   width: 24px;
@@ -159,7 +159,7 @@ a:hover {
 }
 
 article, .boxlet, #counter_block, .infoblock, #nav-menu, #p-lang, .messages .msg, #warning-text, #tag-page-forum, #tag-page-articles, fieldset, legend, #tag-page-news, #related-topics, .tags-first-letters{
-  background-color: $article_background;
+  background-color: var(--article-background);
   border-top-color: white;
   border-left-color: white;
   border-radius: 5px;
@@ -172,19 +172,19 @@ article, .boxlet, #counter_block, .infoblock, #nav-menu, #p-lang, .messages .msg
 
 div.msg-top-header{
   span {
-    background-color: $tag_even_color;
+    background-color: var(--tag-even-color);
     color: transparent;
   }
   a + * {
-    color: $text_color;
+    color: var(--text-color);
   }
   a {
-    color: $text_color;
+    color: var(--text-color);
     text-decoration: none;
   }
   a:nth-child(odd) {
-    background-color: $tag_color;
-    color: $text_color;
+    background-color: var(--tag-color);
+    color: var(--text-color);
   }
   a:after, a:before {
     max-width: 0;
@@ -194,14 +194,14 @@ div.msg-top-header{
     vertical-align: bottom;
   }
   a:nth-child(odd):after {
-    border-top: 10px solid $tag_even_color;
-    border-bottom: 10px solid $tag_even_color;
-    border-left: 10px solid $tag_color;
+    border-top: 10px solid var(--tag-even-color);
+    border-bottom: 10px solid var(--tag-even-color);
+    border-left: 10px solid var(--tag-color);
   }
   a:nth-child(2n+3):before {
-    border-top: 10px solid $tag_color;
-    border-bottom: 10px solid $tag_color;
-    border-left: 10px solid $tag_even_color;
+    border-top: 10px solid var(--tag-color);
+    border-bottom: 10px solid var(--tag-color);
+    border-left: 10px solid var(--tag-even-color);
   }
 }
 
@@ -229,9 +229,9 @@ div.msg-top-header{
     margin-bottom: 1em;
     border-top: none;
     padding: 5px 10px;
-    border: 1px solid $article_border_color;
+    border: 1px solid var(--article-border-color);
     border-radius: .5em;
-    background: $article_background;
+    background: var(--article-background);
     border-top: 1px solid white;
 
     h1 {
@@ -271,9 +271,9 @@ div.msg-top-header{
   margin-bottom: 0.5em;
 
   a {
-    color: $signature_user_color;
+    color: var(--signature-user-color);
     &:visited {
-      color: $signature_user_color;
+      color: var(--signature-user-color);
     }
   }
 }
@@ -301,8 +301,8 @@ div.msg-top-header{
 }
 
 .nav, #query, h1, h1 a, #whois_userpic + div, #bd > ul, #bd > form, #bd > ol, #bd > h3, body > a[href="/"]:after, .ui-menu-item, #user_menu {
-  background-color: $head_background;
-  color: $head_color;
+  background-color: var(--head-background);
+  color: var(--head-color);
   padding: 5px;
 }
 
@@ -311,13 +311,13 @@ div.msg-top-header{
 }
 
 .tag, .nav-buttons a, .tab-menu li, .group-label, .user-tag, .poll-selected {
-  background-color: $tag_color;
-  color: $text_color;
+  background-color: var(--tag-color);
+  color: var(--text-color);
   text-decoration: none;
 }
 
 .tag:nth-child(even), .nav-buttons li:nth-child(even) a, .tab-menu li:nth-child(even) {
-  background-color: $tag_even_color;
+  background-color: var(--tag-even-color);
 }
 
 code .tag, code .tag:nth-child(even) {
@@ -330,7 +330,7 @@ code .tag, code .tag:nth-child(even) {
 }
 
 .ui-state-focus {
-  background-color: $tag_even_color;
+  background-color: var(--tag-even-color);
 }
 
 .penguin_progress span {
@@ -344,16 +344,16 @@ code .tag, code .tag:nth-child(even) {
 }
 
 .code, pre, code {
-  background-color: $stars_color;
+  background-color: var(--stars-color);
   color: #FFFFDF;
 }
 
 .icon-tag, .stars {
-  color: $stars_color;
+  color: var(--stars-color);
 }
 
 .message, #items ol, #special, #login {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 .search-hl {
@@ -361,7 +361,7 @@ code .tag, code .tag:nth-child(even) {
 }
 
 .icon-comment{
-  color: $stars_color;
+  color: var(--stars-color);
   font-size: 0.75em;
 }
 
@@ -390,31 +390,31 @@ img[src="/img/good-penguin.png"] {
 
   table {
     th {
-      border-top: 1px solid $table_border_color;
-      border-bottom: 1px solid $table_border_color;
-      border-left: 1px solid $table_body_background_color;
+      border-top: 1px solid var(--table-border-color);
+      border-bottom: 1px solid var(--table-border-color);
+      border-left: 1px solid var(--article-background);
       &:first-child {
-        border-left: 1px solid $table_border_color;
+        border-left: 1px solid var(--table-border-color);
       }
       &:last-child {
-        border-right: 1px solid $table_border_color;
+        border-right: 1px solid var(--table-border-color);
       }
     }
 
     tbody {
-      background: $table_body_background_color;
+      background: var(--article-background);
     }
     tbody td {
-      border: 1px solid $table_border_color;
+      border: 1px solid var(--table-border-color);
 
       a {
         text-decoration: none;
-        color: $table_link_color;
+        color: var(--table-link-color);
         &:visited {
-          color: $text_color;
+          color: var(--text-color);
         }
         &:visited {
-          color: $text_color;
+          color: var(--text-color);
         }
       }
 
@@ -424,14 +424,14 @@ img[src="/img/good-penguin.png"] {
     }
 
     thead {
-      background-color: $table_header_background;
+      background-color: var(--table-header-background);
       a {
-        color: $text_color;
+        color: var(--text-color);
       }
     }
 
     tbody tr:hover {
-      background-color: $table_hover_background;
+      background-color: var(--table-hover-background);
     }
   }
 }
@@ -439,8 +439,8 @@ img[src="/img/good-penguin.png"] {
 #ft {
   padding: 1em;
   border-top: 1px dashed;
-  background-color: $head_background;
-  color: $head_color;
+  background-color: var(--head-background);
+  color: var(--head-color);
   padding: 5px;
 }
 
@@ -454,7 +454,7 @@ img[src="/img/good-penguin.png"] {
   }
 
   h1 a {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
@@ -472,7 +472,7 @@ img[src="/img/good-penguin.png"] {
 
     &:visited {
       text-decoration: underline;
-      color: $link_color;
+      color: var(--link-color);
     }
   }
 }
@@ -485,9 +485,9 @@ img[src="/img/good-penguin.png"] {
   margin-top: 0.5em;
 
   a {
-    color: $link_color !important;
+    color: var(--link-color) !important;
     &.do-logout {
-      color: $logout_link_color !important;
+      color: var(--logout-link-color) !important;
       text-decoration: none
     }
   }
@@ -505,7 +505,7 @@ input[type="checkbox"] {
 
 #whois_userpic {
   padding: 1em;
-  background: $article_background;
+  background: var(--article-background);
 }
 
 .infoblock {
@@ -522,7 +522,7 @@ blockquote {
 .page-number {
   border: 0;
   border-radius: 30px;
-  background-color: $page_number_background;
+  background-color: var(--page-number-background);
 }
 
 a.page-number {
@@ -552,92 +552,92 @@ span.page-number {
 
   a.secondary {
     text-decoration: underline !important;
-    color: $text_color !important;
+    color: var(--text-color) !important;
   }
   td.dateinterval {
     text-align: left;
   }
   tbody {
-    background-color: $table_body_background_color;
-    color: $text_color;
+    background-color: var(--article-background);
+    color: var(--text-color);
   }
   thead, tfoot {
-    color: $text_color;
+    color: var(--text-color);
   }
   tr:hover {
-    background-color: $table_hover_background;
+    background-color: var(--table-hover-background);
   }
   td, th {
-    border-color: $table_border_color;
-    color: $text_color;
+    border-color: var(--table-border-color);
+    color: var(--text-color);
   }
 }
 
 a {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 #bd h2 * {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd h3 * {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd .tags a {
-  color: $text_color;
+  color: var(--text-color);
   &:visited {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
 #bd header {
   a:visited {
-    color: $link_color;
+    color: var(--link-color);
   }
 
   h1 a {
-    color: $text_color;
+    color: var(--text-color);
     &:visited {
-      color: $text_color;
+      color: var(--text-color);
     }
   }
 }
 
 #bd a.tag {
-  color: $text_color;
+  color: var(--text-color);
   &.tag:visited {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
 .messages .msg {
-  background:  $article_background;
-  border: 1px solid $article_border_color;
+  background:  var(--article-background);
+  border: 1px solid var(--article-border-color);
 }
 
 #bd a:visited {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd a.navLink:visited {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 #bd .nav a:visited {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 fieldset {
-  border: 1px solid $table_border_color;
+  border: 1px solid var(--table-border-color);
   padding: 5px;
 }
 
 fieldset legend {
   padding-left: 5px;
   padding-right: 5px;
-  color:$text_color;
+  color: var(--text-color);
 }
 
 #bd .nav li a {
@@ -653,69 +653,69 @@ fieldset legend {
   border-radius: 0.2em;
   zoom: 1;
 
-  border: 1px solid $button_border_color;
-  background-color: $button_background;
-  color: $text_color;
+  border: 1px solid var(--button-border-color);
+  background-color: var(--button-background);
+  color: var(--text-color);
 
   &:visited {
-    color: $text_color;
+    color: var(--text-color);
   }
   &:hover {
-    box-shadow: 0 0 1px 1px $link_color;
+    box-shadow: 0 0 1px 1px var(--link-color);
   }
   &.current {
-    background-color: $button_selected_background;
-    color: $button_selected_text_color !important;
+    background-color: var(--button-selected-background);
+    color: var(--button-selected-text-color) !important;
   }
 }
 
 #bd .btn {
   border-radius: .2em;
 
-  border: 1px solid $button_border_color;
-  color: $button_text_color;
+  border: 1px solid var(--button-border-color);
+  color: var(--table-link-color);
 
   &:visited {
-    color: $button_text_color;
+    color: var(--table-link-color);
   }
   &:hover {
-    box-shadow: 0 0 1px 1px $link_color;
+    box-shadow: 0 0 1px 1px var(--link-color);
   }
 }
 
 #bd .btn-default, .tag-page-buttons a, .btn-primary {
-  background-color: $button_background;
+  background-color: var(--button-background);
   border-color: #7777FF;
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd .btn.btn-danger {
-  background-color: $stars_color;
+  background-color: var(--stars-color);
   color: white;
 }
 
 .fav-buttons {
   .selected [class^="icon-"] {
-    color: $icon_button_active_color;
+    color: var(--stars-color);
   }
   a {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
 .user-remark {
-  color: $signature_remark_color;
+  color: var(--signature-remark-color);
 }
 
 .group-label {
   border-radius: 3px;
   font-size: 0.8em;
   padding: 2px 4px;
-  background-color: $article_background !important;
-  color: $text_color;
+  background-color: var(--article-background) !important;
+  color: var(--text-color);
   white-space: nowrap;
 }
 
 .messages .msg:target {
-  border: 2px solid $targeted_message_border_color;
+  border: 2px solid var(--targeted-message-border-color);
 }

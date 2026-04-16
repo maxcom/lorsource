@@ -14,11 +14,8 @@
  */
 
 @use "colors";
+@use "../reset";
+@use "../common";
+@use "style";
 
 @include colors.light;
-
-@import "colors-vars";
-
-@import "../reset";
-@import "../common";
-@import "style";

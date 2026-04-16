@@ -92,6 +92,24 @@ hue-6-2: #e6c07b
 
 :root {
   --text-color: #{$text_color};
+  --link-color: #{$link_color};
+  --logout-link-color: #{$logout_link_color};
+  --header-color: #{$header_color};
+  --main-background: #{$main_background};
+  --main-menu-color: #{$main_menu_color};
+  --signature-user-color: #{$signature_user_color};
+  --signature-remark-color: #{$signature_remark_color};
+  --article-background: #{$article_background};
+  --article-border-color: #{$article_border_color};
+  --targeted-message-border-color: #{$targeted_message_border_color};
+  --tag-color: #{$tag_color};
+  --tag-even-color: #{$tag_even_color};
+  --head-background: #{$head_background};
+  --head-color: #{$head_color};
+  --head-hover: #{$head_hover};
+  --notification-background: #{$notification_bg};
+  --page-number-background: #{$page_number_background};
+  --table-header-background: #{$table_header_background};
   --table-border-color: #{$table_border_color};
   --table-link-color: #{$table_link_color};
   --table-hover-background: #{$table_hover_background};
@@ -99,6 +117,11 @@ hue-6-2: #e6c07b
   --tracker-tag-color: #{$tracker_tag_color};
   --unread-marker-color: #{$unread_marker_color};
   --code-background: #{$code_background};
+  --button-selected-background: #{$button_selected_background};
+  --button-background: #{$button_background};
+  --button-border-color: #{$button_border_color};
+  --button-selected-text-color: #{$button_selected_text_color};
+  --stars-color: #{$stars_color};
 
   --syntax-mono-1: #abb2bf;
   --syntax-mono-3: #5c6370;

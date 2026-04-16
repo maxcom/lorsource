@@ -20,12 +20,12 @@
 BODY { 
     font-family: sans-serif;
     background: #000000;
-    color: $text_color;
+    color: var(--text-color);
     max-width: 100%;
 }
 
 A {
-	color: $link_color;
+	color: var(--link-color);
 }
 
 A:visited {
@@ -120,7 +120,7 @@ TR.color2 { background: #000080; }
     background: #000080;
 
     tr:hover {
-      background: $table_hover_background;
+      background: var(--table-hover-background);
     }
   }
 }
@@ -182,7 +182,7 @@ DIV.notes
 }
 
 .code {
-    background: $code_background;
+    background: var(--code-background);
 }
 
 blockquote {
@@ -216,7 +216,7 @@ blockquote {
 #bd .btn {
   border: 1px solid darkgray;
   background: black;
-  color: $link_color;
+  color: var(--link-color);
 }
 
 .group-label {
