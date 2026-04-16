@@ -717,7 +717,6 @@
                 <include>jquery.popover-1.1.2.js</include>
               </includes>
               <skipMerge>true</skipMerge>
-              <compilationLevel>WHITESPACE_ONLY</compilationLevel>
               <closureLanguageOut>ECMASCRIPT_2016</closureLanguageOut>
               <outputFilename>#{path}/#{basename}.#{extension}</outputFilename>
             </configuration>
