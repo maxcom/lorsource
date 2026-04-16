@@ -91,6 +91,15 @@ hue-6-2: #e6c07b
 */
 
 :root {
+  --text-color: #{$text_color};
+  --table-border-color: #{$table_border_color};
+  --table-link-color: #{$table_link_color};
+  --table-hover-background: #{$table_hover_background};
+  --table-background-color: #{$table_background_color};
+  --tracker-tag-color: #{$tracker_tag_color};
+  --unread-marker-color: #{$unread_marker_color};
+  --code-background: #{$code_background};
+
   --syntax-mono-1: #abb2bf;
   --syntax-mono-3: #5c6370;
   --syntax-hue-1: #56b6c2;

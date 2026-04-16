@@ -30,6 +30,9 @@
     --table-border-color: #555753;
     --table-link-color: #eeeeec;
     --table-hover-background: #5c3566;
+    --table-background-color: var(--main-background);
+    --tracker-tag-color: var(--table-border-color);
+    --code-background: var(--main-background);
 
     --tag-color: #fcaf3e;
     --main-menu-color: #e9b96e;
@@ -99,6 +102,9 @@
     --table-border-color: #babdb6;
     --table-link-color: #171b1c;
     --table-hover-background: #ad7fa8;
+    --table-background-color: var(--main-background);
+    --tracker-tag-color: var(--table-border-color);
+    --code-background: var(--main-background);
     --tag-color: #ce5c00;
     --main-menu-color: #8f5902;
     --signature-user-color: #4e9a06;
