@@ -48,7 +48,7 @@
           }
         };
 
-      $("#messageForm").bind("submit", function() {
+      $("#messageForm").on("submit", function() {
           window.onbeforeunload = null;
       });
     });

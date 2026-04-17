@@ -28,7 +28,7 @@
 
   $script.ready("jqueryui", function() {
     $( "#tagName" )
-            .bind( "keydown", function( event ) {
+            .on( "keydown", function( event ) {
               if ( event.keyCode === $.ui.keyCode.TAB &&
                       $( this ).data( "autocomplete" ).menu.active ) {
                 event.preventDefault();

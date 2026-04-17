@@ -23,10 +23,10 @@ function initNextPrevKeys() {
       }
 
       if (typeof  jQuery.hotkeys !== 'undefined') {
-        $(document).bind('keydown', {combi: 'Ctrl+left', disableInInput: true}, function () {
+        $(document).on('keydown', {combi: 'Ctrl+left', disableInInput: true}, function () {
           jump(document.getElementById('PrevLink'))
         });
-        $(document).bind('keydown', {combi: 'Ctrl+right', disableInInput: true}, function () {
+        $(document).on('keydown', {combi: 'Ctrl+right', disableInInput: true}, function () {
           jump(document.getElementById('NextLink'))
         });
       }
@@ -169,14 +169,14 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
       el.removeClass('selected');
       el.attr('title', watch?"Отслеживать":"В избранное");
 
-      el.unbind("click", memories_remove);
-      el.bind("click", {watch: watch}, memories_add);
+      el.off("click", memories_remove);
+      el.on("click", {watch: watch}, memories_add);
     } else {
       el.addClass('selected');
       el.attr('title', watch?"Не отслеживать":"Удалить из избранного");
 
-      el.unbind("click", memories_add);
-      el.bind("click", {watch: watch, id: memId}, memories_remove);
+      el.off("click", memories_add);
+      el.on("click", {watch: watch, id: memId}, memories_remove);
     }
   }
 
@@ -245,7 +245,7 @@ function tag_memories_form_setup(tag, csrf_token) {
           });
     }
 
-    $("#tagFavAdd").bind("click", tag_filter);
+    $("#tagFavAdd").on("click", tag_filter);
   });
 
   $(function() {
@@ -287,7 +287,7 @@ function tag_memories_form_setup(tag, csrf_token) {
           });
     }
 
-    $("#tagIgnore").bind("click", tag_ignore);
+    $("#tagIgnore").on("click", tag_ignore);
   });
  
 }
@@ -344,7 +344,7 @@ function initLoginForm() {
 
       $('#regform').ajaxForm(options);
 
-      $('#loginbutton').bind('click', function (e) {
+      $('#loginbutton').on('click', function (e) {
         $("#regmenu").fadeOut("fast", function () {
           $("#regform").fadeIn("fast", function () {
             $("#regform input[name='nick']").focus();
@@ -353,7 +353,7 @@ function initLoginForm() {
         return false;
       });
 
-      $('#hide_loginbutton').bind('click', function (e) {
+      $('#hide_loginbutton').on('click', function (e) {
         $("#regform").fadeOut("fast", function () {
           $("#regmenu").fadeIn("fast");
         });
@@ -376,7 +376,7 @@ $(document).ready(function() {
         }
     }
 
-    $('textarea').bind('keypress', function(e) {
+    $('textarea').on('keypress', function(e) {
       ctrl_enter(e, e.target.form);
     });
   }
@@ -534,7 +534,7 @@ $(document).ready(function() {
 
   
   replace_state();
-  $(window).bind('hashchange', replace_state);
+  $(window).on('hashchange', replace_state);
 
   initCodeSpoilers();
   initReactionsUI();
