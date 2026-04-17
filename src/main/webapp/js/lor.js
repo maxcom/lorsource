@@ -37,28 +37,27 @@ function initNextPrevKeys() {
 function initStarPopovers() {
   $script.ready('plugins', function () {
     $(function () {
+      var favsTippy = tippy(document.getElementById('favs_button'), {
+        content: "Для добавления в избранное надо залогиниться!",
+        trigger: 'manual'
+      });
+      var memoriesTippy = tippy(document.getElementById('memories_button'), {
+        content: "Для добавления в отслеживаемое надо залогиниться!",
+        trigger: 'manual'
+      });
+
       $("#favs_button").click(function (event) {
         event.preventDefault();
         event.stopPropagation();
-        $("#memories_button").popover('hide');
-        $("#favs_button").popover('show');
-      });
-      $("#favs_button").popover({
-        content: "Для добавления в избранное надо залогиниться!",
-        autoReposition: false,
-        trigger: 'manual'
+        memoriesTippy.hide();
+        favsTippy.show();
       });
 
       $("#memories_button").click(function (event) {
         event.preventDefault();
         event.stopPropagation();
-        $("#favs_button").popover('hide');
-        $("#memories_button").popover('show');
-      });
-      $("#memories_button").popover({
-        content: "Для добавления в отслеживаемое надо залогиниться!",
-        autoReposition: false,
-        trigger: 'manual'
+        favsTippy.hide();
+        memoriesTippy.show();
       });
     })
   });
@@ -188,20 +187,25 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
 function tag_memories_form_setup(tag, csrf_token) {
   $script.ready('plugins', function() {
     $(function() {
+      var tagFavTippy = tippy(document.getElementById('tagFavNoth'), {
+        content: "Для добавления в избранное надо залогиниться!",
+        trigger: 'manual'
+      });
+      var tagIgnTippy = tippy(document.getElementById('tagIgnNoth'), {
+        content: "Для добавления в список игнорирования надо залогиниться!",
+        trigger: 'manual'
+      });
+
       $("#tagFavNoth").click(function(event) {
         event.preventDefault();
         event.stopPropagation();
-        $("#tagFavNoth").popover('show');
-      }).popover({
-        content: "Для добавления в избранное надо залогиниться!"
+        tagFavTippy.show();
       });
 
       $("#tagIgnNoth").click(function(event) {
         event.preventDefault();
         event.stopPropagation();
-        $("#tagIgnNoth").popover('show');
-      }).popover({
-        content: "Для добавления в список игнорирования надо залогиниться!"
+        tagIgnTippy.show();
       });
     });
   });
@@ -432,13 +436,15 @@ $(document).ready(function() {
     $script.ready('plugins', function() {
       twemoji.parse(document.body);
 
-      $(".reaction-anonymous").enable();
-      $(".reaction-anonymous").click(function (event) {
+      $(".reaction-anonymous").prop("disabled", false).each(function() {
+        tippy(this, {
+          content: "Для добавления реакции нужно залогиниться!",
+          trigger: 'manual'
+        });
+      }).on("click", function(event) {
         event.preventDefault();
         event.stopPropagation();
-        $(this).popover('show')
-      }).popover({
-        content: "Для добавления реакции нужно залогиниться!"
+        this._tippy.show();
       });
     });
 

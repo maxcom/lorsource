@@ -32,6 +32,8 @@
     <swiffy-slider.version>1.6.0</swiffy-slider.version>
     <circe.version>0.14.15</circe.version>
     <twemoji.version>16.0.1</twemoji.version>
+    <tippy.version>6.3.7</tippy.version>
+    <popperjs.version>2.11.8</popperjs.version>
     <sttp.version>4.0.21</sttp.version>
     <flexmark.version>0.64.8</flexmark.version>
     <jackson.version>2.21.2</jackson.version>
@@ -412,6 +414,35 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
+
+    </dependency>
+
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>popperjs__core</artifactId>
+      <version>${popperjs.version}</version>
+
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+
+    </dependency>
+
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>tippy.js</artifactId>
+      <version>${tippy.version}</version>
+
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+
     </dependency>
 
     <!-- MarkDown implementation -->
@@ -602,7 +633,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/tango/dark.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
@@ -613,7 +644,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/tango/auto.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
@@ -624,7 +655,7 @@
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/tango/light.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
@@ -714,7 +745,7 @@
                 <include>jquery.hotkeys.js</include>
                 <include>jquery.validate.ru.js</include>
                 <include>pattern.js</include>
-                <include>jquery.popover-1.1.2.js</include>
+
               </includes>
               <skipMerge>true</skipMerge>
               <closureLanguageOut>ECMASCRIPT_2016</closureLanguageOut>
@@ -746,8 +777,6 @@
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${basedir}/src/main/webapp/js/pattern.js"
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
-                <copy file="${basedir}/src/main/webapp/js/jquery.popover-1.1.2.js"
-                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch.js"
                       tofile="${project.build.directory}/${project.build.finalName}/js/diff_match_patch.js"/>
               </tasks>
@@ -768,7 +797,8 @@
                     <file name="META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/dist/jquery.validate.min.js"/>
                     <file name="jquery.validate.ru.js"/>
                     <file name="pattern.js"/>
-                    <file name="jquery.popover-1.1.2.js"/>
+                    <file name="META-INF/resources/webjars/popperjs__core/${popperjs.version}/dist/umd/popper.min.js"/>
+                    <file name="META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy-bundle.umd.min.js"/>
                     <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js"/>
                     <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js"/>
                     <file name="META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js"/>
@@ -923,6 +953,16 @@
                   <groupId>org.webjars.npm</groupId>
                   <artifactId>swiffy-slider</artifactId>
                   <version>${swiffy-slider.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>popperjs__core</artifactId>
+                  <version>${popperjs.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>tippy.js</artifactId>
+                  <version>${tippy.version}</version>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>
