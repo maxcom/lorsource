@@ -43,12 +43,12 @@
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml">
 <link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml">
 <script type="text/javascript">
-  $script.ready('plugins', function() {
-    $(document).ready(function() {
-      $('#reset_form').ajaxSubmit({
-        success: function() { $('#reset_form').hide(); },
-        url: "/notifications-reset"
-      });
+  $(document).ready(function() {
+    $.ajax({
+      url: "/notifications-reset",
+      type: 'POST',
+      data: $('#reset_form').serialize(),
+      success: function() { $('#reset_form').hide(); }
     });
   });
 </script>

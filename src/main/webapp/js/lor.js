@@ -346,7 +346,13 @@ function initLoginForm() {
         }
       };
 
-      $('#regform').ajaxForm(options);
+      $('#regform').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax($.extend(options, {
+          url: $(this).attr('action'),
+          data: $(this).serialize()
+        }));
+      });
 
       $('#loginbutton').on('click', function (e) {
         $("#regmenu").fadeOut("fast", function () {
@@ -422,11 +428,16 @@ $(document).ready(function() {
   }
 
   function initClearWarningForm() {
-    $script.ready('plugins', function() {
-      $('.clear-warning-form').ajaxForm({
-        success: function(responseText, statusText, xhr, form) {
+    $('.clear-warning-form').on('submit', function(e) {
+      e.preventDefault();
+      var form = $(this);
+      $.ajax({
+        url: form.attr('action'),
+        type: 'POST',
+        data: form.serialize(),
+        success: function() {
           form.hide();
-          form.parent().wrap("<s></s>")
+          form.parent().wrap("<s></s>");
         }
       });
     });
@@ -510,7 +521,12 @@ $(document).ready(function() {
           }
         };
 
-        $(this).parents('.reactions-form').ajaxSubmit(options);
+        var formData = $(this).parents('.reactions-form').serializeArray();
+        formData.push({ name: 'reaction', value: value });
+        $.ajax($.extend(options, {
+          type: 'POST',
+          data: $.param(formData)
+        }));
       });
     })
   }
