@@ -164,7 +164,7 @@ $script.ready(['jquery', 'hljs'], function() {
       showPreview();
     }
 
-    previewButton.click(function() {
+    previewButton.on("click", function() {
       previewButton.prop("disabled", true);
       var form = commentForm.serialize();
       form = form+"&preview=preview";
@@ -174,7 +174,7 @@ $script.ready(['jquery', 'hljs'], function() {
       $("div[error]").remove();
 
       $.ajax({
-        type: "POST",
+        method: "POST",
         url: "/add_comment_ajax",
         data: form,
         timeout: 10000
@@ -186,7 +186,7 @@ $script.ready(['jquery', 'hljs'], function() {
 
     var submitInProcess = false;
 
-    commentForm.submit(function() {
+    commentForm.on("submit", function() {
       if (!submitInProcess) {
         submitInProcess = true;
 
@@ -197,7 +197,7 @@ $script.ready(['jquery', 'hljs'], function() {
         $("div[error]").remove();
 
         $.ajax({
-          type: "POST",
+          method: "POST",
           url: "/add_comment_ajax",
           data: form,
           timeout: 30000

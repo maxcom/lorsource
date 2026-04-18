@@ -44,7 +44,7 @@
 </script>
 
 <script type="text/javascript">
-  $script('/webjars/jquery/2.2.4/jquery.min.js', 'jquery');
+  $script('/webjars/jquery/3.7.1/jquery.min.js', 'jquery');
 
   $script.ready('jquery', function() {
     $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');

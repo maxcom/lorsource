@@ -46,14 +46,14 @@ function initStarPopovers() {
         trigger: 'manual'
       });
 
-      $("#favs_button").click(function (event) {
+      $("#favs_button").on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
         memoriesTippy.hide();
         favsTippy.show();
       });
 
-      $("#memories_button").click(function (event) {
+      $("#memories_button").on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
         favsTippy.hide();
@@ -124,7 +124,7 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
 
     $.ajax({
       url: "/memories.jsp",
-      type: "POST",
+      method: "POST",
       data: { msgid : msgid, add: "add", watch: event.data.watch, csrf: csrf }
     }).done(function(t) {
        form_setup(t['id'], event.data.watch);
@@ -141,7 +141,7 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
 
     $.ajax({
       url: "/memories.jsp",
-      type: "POST",
+      method: "POST",
       data: { id : event.data.id, remove: "remove", csrf: csrf }
     }).done(function(t) {
       form_setup(0, event.data.watch);
@@ -196,13 +196,13 @@ function tag_memories_form_setup(tag, csrf_token) {
         trigger: 'manual'
       });
 
-      $("#tagFavNoth").click(function(event) {
+      $("#tagFavNoth").on("click", function(event) {
         event.preventDefault();
         event.stopPropagation();
         tagFavTippy.show();
       });
 
-      $("#tagIgnNoth").click(function(event) {
+      $("#tagIgnNoth").on("click", function(event) {
         event.preventDefault();
         event.stopPropagation();
         tagIgnTippy.show();
@@ -229,7 +229,7 @@ function tag_memories_form_setup(tag, csrf_token) {
 
       $.ajax({
         url: "/user-filter/favorite-tag",
-        type: "POST",
+        method: "POST",
         dataType: "json",
         data: data
       }).done(function (t) {
@@ -271,7 +271,7 @@ function tag_memories_form_setup(tag, csrf_token) {
 
       $.ajax({
         url: "/user-filter/ignore-tag",
-        type: "POST",
+        method: "POST",
         dataType: "json",
         data: data
       }).done(function (t) {
@@ -327,7 +327,7 @@ function initLoginForm() {
   $(function () {
     $script.ready('plugins', function () {
       var options = {
-        type: "post",
+        method: "post",
         dataType: "json",
         xhrFields: {
           withCredentials: true
@@ -380,7 +380,7 @@ $(document).ready(function() {
         if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey||e.metaKey)) {
           window.onbeforeunload = null;
 
-          $(form).submit();
+          $(form).trigger('submit');
 
           return false;
         }
@@ -392,7 +392,7 @@ $(document).ready(function() {
   }
 
   function initSamepageCommentNavigation() {
-    $("article.msg a[data-samepage=true]").click(function(event) {
+    $("article.msg a[data-samepage=true]").on("click", function(event) {
       event.preventDefault();
       location.hash = "comment-" + this.search.match(/cid=(\d+)/)[1];
     })
@@ -403,7 +403,7 @@ $(document).ready(function() {
 
     backButton.text("Вверх");
 
-    backButton.click(function() {
+    backButton.on("click", function() {
       $("html, body").animate({ scrollTop: 0 });
     });
 
@@ -433,7 +433,7 @@ $(document).ready(function() {
       var form = $(this);
       $.ajax({
         url: form.attr('action'),
-        type: 'POST',
+        method: 'POST',
         data: form.serialize(),
         success: function() {
           form.hide();
@@ -524,7 +524,7 @@ $(document).ready(function() {
         var formData = $(this).parents('.reactions-form').serializeArray();
         formData.push({ name: 'reaction', value: value });
         $.ajax($.extend(options, {
-          type: 'POST',
+          method: 'POST',
           data: $.param(formData)
         }));
       });
@@ -544,7 +544,7 @@ $(document).ready(function() {
     $('button.notifications-item').on('auxclick', function(event) {
       $(this).removeClass("event-unread-true").addClass("event-unread-false");
       $(this).parent().attr('target', '_blank');
-      $(this).parent().submit();
+      $(this).parent().trigger('submit');
     });
   }
 

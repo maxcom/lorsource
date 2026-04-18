@@ -46,7 +46,7 @@
   $(document).ready(function() {
     $.ajax({
       url: "/notifications-reset",
-      type: 'POST',
+      method: 'POST',
       data: $('#reset_form').serialize(),
       success: function() { $('#reset_form').hide(); }
     });
