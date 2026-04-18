@@ -21,7 +21,7 @@ function initNextPrevKeys() {
       }
     }
 
-    if (typeof  jQuery.hotkeys !== 'undefined') {
+    if (typeof jQuery.hotkeys !== 'undefined') {
       $(document).on('keydown', {combi: 'Ctrl+left', disableInInput: true}, function () {
         jump(document.getElementById('PrevLink'))
       });
@@ -34,84 +34,86 @@ function initNextPrevKeys() {
 
 function initStarPopovers() {
   $script.ready('plugins', function () {
-    const favsTippy = tippy(document.getElementById('favs_button'), {
-      content: "Для добавления в избранное надо залогиниться!",
-      trigger: 'manual'
-    });
-    const memoriesTippy = tippy(document.getElementById('memories_button'), {
-      content: "Для добавления в отслеживаемое надо залогиниться!",
-      trigger: 'manual'
-    });
+    $(function () {
+      const favsTippy = tippy(document.getElementById('favs_button'), {
+        content: "Для добавления в избранное надо залогиниться!",
+        trigger: 'manual'
+      });
+      const memoriesTippy = tippy(document.getElementById('memories_button'), {
+        content: "Для добавления в отслеживаемое надо залогиниться!",
+        trigger: 'manual'
+      });
 
-    $("#favs_button").on("click", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      memoriesTippy.hide();
-      favsTippy.show();
-    });
+      $("#favs_button").on("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        memoriesTippy.hide();
+        favsTippy.show();
+      });
 
-    $("#memories_button").on("click", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      favsTippy.hide();
-      memoriesTippy.show();
+      $("#memories_button").on("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        favsTippy.hide();
+        memoriesTippy.show();
+      });
     });
   });
 }
 
 function init_interpage_adv(ads) {
-    $(function() {
-      const img = $('<img>');
-      const anchor = $('<a>');
-      const ad = ads[Math.floor(Math.random() * ads.length)];
+  $(function () {
+    const img = $('<img>');
+    const anchor = $('<a>');
+    const ad = ads[Math.floor(Math.random() * ads.length)];
 
-      if (ad.type === 'img') {
-        anchor.attr('href', ad.href);
-        anchor.attr('target', '_blank');
+    if (ad.type === 'img') {
+      anchor.attr('href', ad.href);
+      anchor.attr('target', '_blank');
 
-        img.attr('src', ad.src);
-        if ('width' in ad) {
-          img.attr('width', ad.width);
-        } else {
-          img.attr('width', 728);
-        }
-
-        if ('height' in ad) {
-          img.attr('height', ad.height);
-        } else {
-          img.attr('height', 90);
-        }
-
-        anchor.append(img);
-        $('#interpage').append(anchor);
+      img.attr('src', ad.src);
+      if ('width' in ad) {
+        img.attr('width', ad.width);
+      } else {
+        img.attr('width', 728);
       }
 
-      if (ad.type === 'rimg') {
-        anchor.attr('href', ad.href);
-        anchor.attr('target', '_blank');
-
-        const interpage = $('#interpage');
-
-        if (interpage.width() > 1024) {
-          img.attr('width', 980);
-          img.attr('height', 120);
-          img.attr('src', ad.img980);
-        } else if (interpage.width() > 750) {
-          img.attr('width', 730);
-          img.attr('height', 90);
-          img.attr('src', ad.img730);
-          img.attr('style', "margin-top: 15px");
-        } else {
-          img.attr('width', 320);
-          img.attr('height', 100);
-          img.attr('style', "margin-top: 5px");
-          img.attr('src', ad.img320);
-        }
-
-        anchor.append(img);
-        interpage.append(anchor);
+      if ('height' in ad) {
+        img.attr('height', ad.height);
+      } else {
+        img.attr('height', 90);
       }
-    });
+
+      anchor.append(img);
+      $('#interpage').append(anchor);
+    }
+
+    if (ad.type === 'rimg') {
+      anchor.attr('href', ad.href);
+      anchor.attr('target', '_blank');
+
+      const interpage = $('#interpage');
+
+      if (interpage.width() > 1024) {
+        img.attr('width', 980);
+        img.attr('height', 120);
+        img.attr('src', ad.img980);
+      } else if (interpage.width() > 750) {
+        img.attr('width', 730);
+        img.attr('height', 90);
+        img.attr('src', ad.img730);
+        img.attr('style', "margin-top: 15px");
+      } else {
+        img.attr('width', 320);
+        img.attr('height', 100);
+        img.attr('style', "margin-top: 5px");
+        img.attr('src', ad.img320);
+      }
+
+      anchor.append(img);
+      interpage.append(anchor);
+    }
+  });
 }
 
 function topic_memories_form_setup(memId, watch, msgid, csrf) {
@@ -121,14 +123,14 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
     $.ajax({
       url: "/memories.jsp",
       method: "POST",
-      data: { msgid : msgid, add: "add", watch: event.data.watch, csrf: csrf }
-    }).done(function(t) {
-       form_setup(t['id'], event.data.watch);
-       if (event.data.watch) {
-         $('#memories_count').text(t['count']);
-       } else {
-         $('#favs_count').text(t['count']);
-       }
+      data: {msgid: msgid, add: "add", watch: event.data.watch, csrf: csrf}
+    }).done(function (t) {
+      form_setup(t['id'], event.data.watch);
+      if (event.data.watch) {
+        $('#memories_count').text(t['count']);
+      } else {
+        $('#favs_count').text(t['count']);
+      }
     });
   }
 
@@ -138,10 +140,10 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
     $.ajax({
       url: "/memories.jsp",
       method: "POST",
-      data: { id : event.data.id, remove: "remove", csrf: csrf }
-    }).done(function(t) {
+      data: {id: event.data.id, remove: "remove", csrf: csrf}
+    }).done(function (t) {
       form_setup(0, event.data.watch);
-      if (t>=0) {
+      if (t >= 0) {
         if (event.data.watch) {
           $('#memories_count').text(t);
         } else {
@@ -160,15 +162,15 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
       el = $('#favs_button');
     }
 
-    if (memId==0) {
+    if (memId == 0) {
       el.removeClass('selected');
-      el.attr('title', watch?"Отслеживать":"В избранное");
+      el.attr('title', watch ? "Отслеживать" : "В избранное");
 
       el.off("click", memories_remove);
       el.on("click", {watch: watch}, memories_add);
     } else {
       el.addClass('selected');
-      el.attr('title', watch?"Не отслеживать":"Удалить из избранного");
+      el.attr('title', watch ? "Не отслеживать" : "Удалить из избранного");
 
       el.off("click", memories_add);
       el.on("click", {watch: watch, id: memId}, memories_remove);
@@ -181,8 +183,8 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
 }
 
 function tag_memories_form_setup(tag, csrf_token) {
-  $script.ready('plugins', function() {
-    $(function() {
+  $script.ready('plugins', function () {
+    $(function () {
       const tagFavTippy = tippy(document.getElementById('tagFavNoth'), {
         content: "Для добавления в избранное надо залогиниться!",
         trigger: 'manual'
@@ -192,13 +194,13 @@ function tag_memories_form_setup(tag, csrf_token) {
         trigger: 'manual'
       });
 
-      $("#tagFavNoth").on("click", function(event) {
+      $("#tagFavNoth").on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
         tagFavTippy.show();
       });
 
-      $("#tagIgnNoth").on("click", function(event) {
+      $("#tagIgnNoth").on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
         tagIgnTippy.show();
@@ -207,7 +209,7 @@ function tag_memories_form_setup(tag, csrf_token) {
       function tag_filter(event) {
         event.preventDefault();
 
-        const data = { tagName: tag};
+        const data = {tagName: tag};
 
         const el = $('#tagFavAdd');
         const add = !el.hasClass("selected");
@@ -226,20 +228,20 @@ function tag_memories_form_setup(tag, csrf_token) {
           dataType: "json",
           data: data
         }).done(function (t) {
-              if (t.error) {
-                alert(t.error);
-              } else {
-                el.attr('title', add ? "Удалить из избранного" : "В избранное");
+          if (t.error) {
+            alert(t.error);
+          } else {
+            el.attr('title', add ? "Удалить из избранного" : "В избранное");
 
-                $('#favsCount').text(t['count']);
+            $('#favsCount').text(t['count']);
 
-                if (add) {
-                  el.addClass("selected");
-                } else {
-                  el.removeClass("selected");
-                }
-              }
-            });
+            if (add) {
+              el.addClass("selected");
+            } else {
+              el.removeClass("selected");
+            }
+          }
+        });
       }
 
       $("#tagFavAdd").on("click", tag_filter);
@@ -247,7 +249,7 @@ function tag_memories_form_setup(tag, csrf_token) {
       function tag_ignore(event) {
         event.preventDefault();
 
-        const data = { tagName: tag};
+        const data = {tagName: tag};
 
         const el = $('#tagIgnore');
         const add = !el.hasClass("selected");
@@ -266,20 +268,20 @@ function tag_memories_form_setup(tag, csrf_token) {
           dataType: "json",
           data: data
         }).done(function (t) {
-              if (t.error) {
-                alert(t.error);
-              } else {
-                el.attr('title', add ? "Перестать игнорировать" : "Игнорировать");
+          if (t.error) {
+            alert(t.error);
+          } else {
+            el.attr('title', add ? "Перестать игнорировать" : "Игнорировать");
 
-                $('#ignoreCount').text(t['count']);
+            $('#ignoreCount').text(t['count']);
 
-                if (add) {
-                  el.addClass("selected");
-                } else {
-                  el.removeClass("selected");
-                }
-              }
-            });
+            if (add) {
+              el.addClass("selected");
+            } else {
+              el.removeClass("selected");
+            }
+          }
+        });
       }
 
       $("#tagIgnore").on("click", tag_ignore);
@@ -337,7 +339,7 @@ function initLoginForm() {
         }
       };
 
-      $('#regform').on('submit', function(e) {
+      $('#regform').on('submit', function (e) {
         e.preventDefault();
         $.ajax($.extend(options, {
           url: $(this).attr('action'),
@@ -365,25 +367,25 @@ function initLoginForm() {
 }
 
 
-$(document).ready(function() {
+$(document).ready(function () {
   function initCtrlEnter() {
     function ctrl_enter(e, form) {
-        if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey||e.metaKey)) {
-          window.onbeforeunload = null;
+      if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey || e.metaKey)) {
+        window.onbeforeunload = null;
 
-          $(form).trigger('submit');
+        $(form).trigger('submit');
 
-          return false;
-        }
+        return false;
+      }
     }
 
-    $('textarea').on('keypress', function(e) {
+    $('textarea').on('keypress', function (e) {
       ctrl_enter(e, e.target.form);
     });
   }
 
   function initSamepageCommentNavigation() {
-    $("article.msg a[data-samepage=true]").on("click", function(event) {
+    $("article.msg a[data-samepage=true]").on("click", function (event) {
       event.preventDefault();
       location.hash = "comment-" + this.search.match(/cid=(\d+)/)[1];
     })
@@ -394,8 +396,8 @@ $(document).ready(function() {
 
     backButton.text("Вверх");
 
-    backButton.on("click", function() {
-      $("html, body").animate({ scrollTop: 0 });
+    backButton.on("click", function () {
+      $("html, body").animate({scrollTop: 0});
     });
 
     $('#ft').prepend(backButton);
@@ -409,24 +411,24 @@ $(document).ready(function() {
   }
 
   function initCodeSpoilers() {
-    $('div.code').each(function() {
+    $('div.code').each(function () {
       if (this.scrollHeight > this.clientHeight) {
         $(this)
-          .append($('<div class="spoiler-open"><span class="btn btn-small btn-default spoiler-button">Развернуть</span></div> ').on('click', spoilerShow))
-          .addClass('spoiled');
+            .append($('<div class="spoiler-open"><span class="btn btn-small btn-default spoiler-button">Развернуть</span></div> ').on('click', spoilerShow))
+            .addClass('spoiled');
       }
     });
   }
 
   function initClearWarningForm() {
-    $('.clear-warning-form').on('submit', function(e) {
+    $('.clear-warning-form').on('submit', function (e) {
       e.preventDefault();
       const form = $(this);
       $.ajax({
         url: form.attr('action'),
         method: 'POST',
         data: form.serialize(),
-        success: function() {
+        success: function () {
           form.hide();
           form.parent().wrap("<s></s>");
         }
@@ -435,22 +437,22 @@ $(document).ready(function() {
   }
 
   function initReactionsUI() {
-    $script.ready('plugins', function() {
+    $script.ready('plugins', function () {
       twemoji.parse(document.body);
 
-      $(".reaction-anonymous").prop("disabled", false).each(function() {
+      $(".reaction-anonymous").prop("disabled", false).each(function () {
         tippy(this, {
           content: "Для добавления реакции нужно залогиниться!",
           trigger: 'manual'
         });
-      }).on("click", function(event) {
+      }).on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
         this._tippy.show();
       });
     });
 
-    $('.reaction-show').on('click', function(event) {
+    $('.reaction-show').on('click', function (event) {
       event.preventDefault();
 
       const reactions = $(this).parents('.msg_body').find('.reactions');
@@ -472,7 +474,7 @@ $(document).ready(function() {
     })
 
     $script.ready('plugins', function () {
-      $('button.reaction').not(".reaction-anonymous").on('click', function(event) {
+      $('button.reaction').not(".reaction-anonymous").on('click', function (event) {
         event.preventDefault();
 
         const value = $(this).attr('value');
@@ -484,8 +486,8 @@ $(document).ready(function() {
 
         const options = {
           url: "/reactions/ajax",
-          data: { "reaction" : value },
-          success: function(response) {
+          data: {"reaction": value},
+          success: function (response) {
             reactions.parents(".zero-reactions").removeClass("zero-reactions")
 
             btn.find('.reaction-count').text(response.count);
@@ -504,16 +506,16 @@ $(document).ready(function() {
               btn.removeClass("btn-primary");
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             reactions.append(
-              $("<div class=error>")
-                  .text("Возможно, что превышен лимит реакций. Попробуйте снова через 10 минут. " + errorThrown)
+                $("<div class=error>")
+                    .text("Возможно, что превышен лимит реакций. Попробуйте снова через 10 минут. " + errorThrown)
             );
           }
         };
 
         const formData = $(this).parents('.reactions-form').serializeArray();
-        formData.push({ name: 'reaction', value: value });
+        formData.push({name: 'reaction', value: value});
         $.ajax($.extend(options, {
           method: 'POST',
           data: $.param(formData)
@@ -523,7 +525,7 @@ $(document).ready(function() {
   }
 
   function initNotificationsOpener() {
-    $('button.notifications-item').on('click', function(event) {
+    $('button.notifications-item').on('click', function (event) {
       if (event.ctrlKey || event.metaKey || event.shiftKey) {
         $(this).parent().attr('target', '_blank');
       } else {
@@ -532,7 +534,7 @@ $(document).ready(function() {
 
       $(this).removeClass("event-unread-true").addClass("event-unread-false");
     });
-    $('button.notifications-item').on('auxclick', function(event) {
+    $('button.notifications-item').on('auxclick', function (event) {
       $(this).removeClass("event-unread-true").addClass("event-unread-false");
       $(this).parent().attr('target', '_blank');
       $(this).parent().trigger('submit');
@@ -545,7 +547,7 @@ $(document).ready(function() {
   initScollupButton();
   initClearWarningForm();
 
-  
+
   replace_state();
   $(window).on('hashchange', replace_state);
 
@@ -555,14 +557,14 @@ $(document).ready(function() {
   initNotificationsOpener();
 
   // fix images on Pale Moon
-  $('.medium-image-container').each(function() {
+  $('.medium-image-container').each(function () {
     if ($(this).width() == 0) {
-        $(this).css('width', 'var(--image-width)')
+      $(this).css('width', 'var(--image-width)')
     }
   });
-  $('.slider-parent').each(function() {
+  $('.slider-parent').each(function () {
     if ($(this).height() <= 48) {
-        $(this).css('width', 'var(--image-width)')
+      $(this).css('width', 'var(--image-width)')
     }
   });
 
@@ -583,12 +585,12 @@ function fixTimezone(serverTz) {
   if (typeof tz !== 'undefined') {
     $script.ready('plugins', function () {
       if (Cookies.get('tz') !== tz) {
-        Cookies.set('tz', tz, { expires: 365 })
+        Cookies.set('tz', tz, {expires: 365})
       }
 
       if (tz !== serverTz) {
-        $(function() {
-          $("time[data-format]").each(function() {
+        $(function () {
+          $("time[data-format]").each(function () {
             const date = Date.parse($(this).attr("datetime"));
 
             const format = $(this).attr("data-format");
@@ -602,7 +604,7 @@ function fixTimezone(serverTz) {
             if (format === 'default') {
               $(this).text(moment(date).format("DD.MM.yy HH:mm:ss Z"));
             } else if (format === 'date') {
-                $(this).text(moment(date).format("DD.MM.yy"));
+              $(this).text(moment(date).format("DD.MM.yy"));
             } else if (format === 'compact-interval') {
               if (diff < 1000 * 60 * 60) {
                 $(this).text(Math.max(1, min) + "\xA0мин");
