@@ -15,51 +15,47 @@
 
 function initNextPrevKeys() {
   $script.ready('plugins', function () {
-    $(function () {
-      function jump(link) {
-        if (link && link.href) {
-          document.location = link.href;
-        }
+    function jump(link) {
+      if (link && link.href) {
+        document.location = link.href;
       }
+    }
 
-      if (typeof  jQuery.hotkeys !== 'undefined') {
-        $(document).on('keydown', {combi: 'Ctrl+left', disableInInput: true}, function () {
-          jump(document.getElementById('PrevLink'))
-        });
-        $(document).on('keydown', {combi: 'Ctrl+right', disableInInput: true}, function () {
-          jump(document.getElementById('NextLink'))
-        });
-      }
-    })
+    if (typeof  jQuery.hotkeys !== 'undefined') {
+      $(document).on('keydown', {combi: 'Ctrl+left', disableInInput: true}, function () {
+        jump(document.getElementById('PrevLink'))
+      });
+      $(document).on('keydown', {combi: 'Ctrl+right', disableInInput: true}, function () {
+        jump(document.getElementById('NextLink'))
+      });
+    }
   });
 }
 
 function initStarPopovers() {
   $script.ready('plugins', function () {
-    $(function () {
-      var favsTippy = tippy(document.getElementById('favs_button'), {
-        content: "Для добавления в избранное надо залогиниться!",
-        trigger: 'manual'
-      });
-      var memoriesTippy = tippy(document.getElementById('memories_button'), {
-        content: "Для добавления в отслеживаемое надо залогиниться!",
-        trigger: 'manual'
-      });
+    const favsTippy = tippy(document.getElementById('favs_button'), {
+      content: "Для добавления в избранное надо залогиниться!",
+      trigger: 'manual'
+    });
+    const memoriesTippy = tippy(document.getElementById('memories_button'), {
+      content: "Для добавления в отслеживаемое надо залогиниться!",
+      trigger: 'manual'
+    });
 
-      $("#favs_button").on("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        memoriesTippy.hide();
-        favsTippy.show();
-      });
+    $("#favs_button").on("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      memoriesTippy.hide();
+      favsTippy.show();
+    });
 
-      $("#memories_button").on("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        favsTippy.hide();
-        memoriesTippy.show();
-      });
-    })
+    $("#memories_button").on("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      favsTippy.hide();
+      memoriesTippy.show();
+    });
   });
 }
 
@@ -156,7 +152,7 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
   }
 
   function form_setup(memId, watch) {
-    var el;
+    let el;
 
     if (watch) {
       el = $('#memories_button');
@@ -187,11 +183,11 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
 function tag_memories_form_setup(tag, csrf_token) {
   $script.ready('plugins', function() {
     $(function() {
-      var tagFavTippy = tippy(document.getElementById('tagFavNoth'), {
+      const tagFavTippy = tippy(document.getElementById('tagFavNoth'), {
         content: "Для добавления в избранное надо залогиниться!",
         trigger: 'manual'
       });
-      var tagIgnTippy = tippy(document.getElementById('tagIgnNoth'), {
+      const tagIgnTippy = tippy(document.getElementById('tagIgnNoth'), {
         content: "Для добавления в список игнорирования надо залогиниться!",
         trigger: 'manual'
       });
@@ -207,93 +203,88 @@ function tag_memories_form_setup(tag, csrf_token) {
         event.stopPropagation();
         tagIgnTippy.show();
       });
+
+      function tag_filter(event) {
+        event.preventDefault();
+
+        const data = { tagName: tag};
+
+        const el = $('#tagFavAdd');
+        const add = !el.hasClass("selected");
+
+        if (add) {
+          data['add'] = 'add';
+        } else {
+          data['del'] = 'del';
+        }
+
+        data['csrf'] = csrf_token;
+
+        $.ajax({
+          url: "/user-filter/favorite-tag",
+          method: "POST",
+          dataType: "json",
+          data: data
+        }).done(function (t) {
+              if (t.error) {
+                alert(t.error);
+              } else {
+                el.attr('title', add ? "Удалить из избранного" : "В избранное");
+
+                $('#favsCount').text(t['count']);
+
+                if (add) {
+                  el.addClass("selected");
+                } else {
+                  el.removeClass("selected");
+                }
+              }
+            });
+      }
+
+      $("#tagFavAdd").on("click", tag_filter);
+
+      function tag_ignore(event) {
+        event.preventDefault();
+
+        const data = { tagName: tag};
+
+        const el = $('#tagIgnore');
+        const add = !el.hasClass("selected");
+
+        if (add) {
+          data['add'] = 'add';
+        } else {
+          data['del'] = 'del';
+        }
+
+        data['csrf'] = csrf_token;
+
+        $.ajax({
+          url: "/user-filter/ignore-tag",
+          method: "POST",
+          dataType: "json",
+          data: data
+        }).done(function (t) {
+              if (t.error) {
+                alert(t.error);
+              } else {
+                el.attr('title', add ? "Перестать игнорировать" : "Игнорировать");
+
+                $('#ignoreCount').text(t['count']);
+
+                if (add) {
+                  el.addClass("selected");
+                } else {
+                  el.removeClass("selected");
+                }
+              }
+            });
+      }
+
+      $("#tagIgnore").on("click", tag_ignore);
     });
   });
-
-  $(function() {
-    function tag_filter(event) {
-      event.preventDefault();
-
-      var data = { tagName: tag};
-
-      var el = $('#tagFavAdd');
-      var add = !el.hasClass("selected");
-
-      if (add) {
-        data['add'] = 'add';
-      } else {
-        data['del'] = 'del';
-      }
-
-      data['csrf'] = csrf_token;
-
-      $.ajax({
-        url: "/user-filter/favorite-tag",
-        method: "POST",
-        dataType: "json",
-        data: data
-      }).done(function (t) {
-            if (t.error) {
-              alert(t.error);
-            } else {
-              el.attr('title', add ? "Удалить из избранного" : "В избранное");
-
-              $('#favsCount').text(t['count']);
-
-              if (add) {
-                el.addClass("selected");
-              } else {
-                el.removeClass("selected");
-              }
-            }
-          });
-    }
-
-    $("#tagFavAdd").on("click", tag_filter);
-  });
-
-  $(function() {
-    function tag_ignore(event) {
-      event.preventDefault();
-
-      var data = { tagName: tag};
-
-      var el = $('#tagIgnore');
-      var add = !el.hasClass("selected");
-
-      if (add) {
-        data['add'] = 'add';
-      } else {
-        data['del'] = 'del';
-      }
-
-      data['csrf'] = csrf_token;
-
-      $.ajax({
-        url: "/user-filter/ignore-tag",
-        method: "POST",
-        dataType: "json",
-        data: data
-      }).done(function (t) {
-            if (t.error) {
-              alert(t.error);
-            } else {
-              el.attr('title', add ? "Перестать игнорировать" : "Игнорировать");
-
-              $('#ignoreCount').text(t['count']);
-
-              if (add) {
-                el.addClass("selected");
-              } else {
-                el.removeClass("selected");
-              }
-            }
-          });
-    }
-
-    $("#tagIgnore").on("click", tag_ignore);
-  });
- 
 }
 
 function replace_state() {
@@ -311,12 +302,12 @@ function replace_state() {
       return;
     }
 
-    var hash = document.location.hash.split('-');
+    const hash = document.location.hash.split('-');
     if (parseInt(hash[1]) > 0) {
       // OK, comment ID is valid
-      var p = document.location.pathname.split('/');
+      const p = document.location.pathname.split('/');
       // make sure that path doesn't contain /pagex or other parts
-      var pathname = [p[0], p[1], p[2], p[3]].join('/');
+      const pathname = [p[0], p[1], p[2], p[3]].join('/');
       // now replace state
       history.replaceState(null, document.title, pathname + '?cid=' + hash[1]);
     }
@@ -326,7 +317,7 @@ function replace_state() {
 function initLoginForm() {
   $(function () {
     $script.ready('plugins', function () {
-      var options = {
+      const options = {
         method: "post",
         dataType: "json",
         xhrFields: {
@@ -399,7 +390,7 @@ $(document).ready(function() {
   }
 
   function initScollupButton() {
-    var backButton = $('<button id="ft-back-button">');
+    const backButton = $('<button id="ft-back-button">');
 
     backButton.text("Вверх");
 
@@ -411,7 +402,7 @@ $(document).ready(function() {
   }
 
   function spoilerShow() {
-    var $this = $(this);
+    const $this = $(this);
     $(this).closest('.spoiled').removeClass('spoiled').addClass("unspoiled");
     $this.remove();
     return false;
@@ -430,7 +421,7 @@ $(document).ready(function() {
   function initClearWarningForm() {
     $('.clear-warning-form').on('submit', function(e) {
       e.preventDefault();
-      var form = $(this);
+      const form = $(this);
       $.ajax({
         url: form.attr('action'),
         method: 'POST',
@@ -462,7 +453,7 @@ $(document).ready(function() {
     $('.reaction-show').on('click', function(event) {
       event.preventDefault();
 
-      var reactions = $(this).parents('.msg_body').find('.reactions');
+      const reactions = $(this).parents('.msg_body').find('.reactions');
 
       if (reactions.is(":hidden") || reactions.find('.zero-reactions').is(":hidden")) {
         $('.zero-reactions').hide();
@@ -484,14 +475,14 @@ $(document).ready(function() {
       $('button.reaction').not(".reaction-anonymous").on('click', function(event) {
         event.preventDefault();
 
-        var value = $(this).attr('value');
-        var btn = $(this);
-        var form = $(this).parents(".reactions-form")
-        var reactions = $(this).parents('.msg_body').find('.reactions form');
+        const value = $(this).attr('value');
+        const btn = $(this);
+        const form = $(this).parents(".reactions-form")
+        const reactions = $(this).parents('.msg_body').find('.reactions form');
 
         $(reactions).find(".error").remove();
 
-        var options = {
+        const options = {
           url: "/reactions/ajax",
           data: { "reaction" : value },
           success: function(response) {
@@ -521,7 +512,7 @@ $(document).ready(function() {
           }
         };
 
-        var formData = $(this).parents('.reactions-form').serializeArray();
+        const formData = $(this).parents('.reactions-form').serializeArray();
         formData.push({ name: 'reaction', value: value });
         $.ajax($.extend(options, {
           method: 'POST',
