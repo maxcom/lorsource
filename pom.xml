@@ -631,29 +631,7 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/tango/dark.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/tango-auto/combined.css</output>
-              <includes>
                 <include>${project.build.directory}/${project.build.finalName}/tango/auto.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/tango-light/combined.css</output>
-              <includes>
-                <include>${project.build.directory}/${project.build.finalName}/tango/light.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>

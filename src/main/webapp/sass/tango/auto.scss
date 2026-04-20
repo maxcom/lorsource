@@ -23,3 +23,6 @@
 @media (prefers-color-scheme: light) {
   @include colors.light;
 }
+
+@include colors.dark('[data-theme="dark"]');
+@include colors.light('[data-theme="light"]');

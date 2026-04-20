@@ -20,9 +20,24 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <!DOCTYPE html>
-<html lang=ru>
+<c:choose>
+  <c:when test="${template.style == 'tango'}">
+    <html lang=ru data-theme="dark">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+  </c:when>
+  <c:when test="${template.style == 'tango-light'}">
+    <html lang=ru data-theme="light">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+  </c:when>
+  <c:when test="${template.style == 'tango-auto'}">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+  </c:when>
+  <c:otherwise>
+    <html lang=ru>
+    <link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
+  </c:otherwise>
+</c:choose>
 <head>
-<link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
 <link rel="preload" href="/js/lor.js?MAVEN_BUILD_TIMESTAMP" as="script">
 
 <link rel="yandex-tableau-widget" href="/manifest.json" />
