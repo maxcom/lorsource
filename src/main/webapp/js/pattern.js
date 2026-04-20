@@ -12,6 +12,8 @@
 * @name $.validator.methods.pattern
 * @type Boolean
 * @cat Plugins/Validate/Methods
+*
+* @suppress {misplacedTypeAnnotation}
 */
 $.validator.addMethod( "pattern", function( value, element, param ) {
 	if ( this.optional( element ) ) {
