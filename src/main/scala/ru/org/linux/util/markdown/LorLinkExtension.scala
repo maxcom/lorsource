@@ -58,7 +58,7 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
     }
   })
 
-  private val link = new NodeRenderingHandler[Link](classOf[Link], renderLink)
+  private val link = new NodeRenderingHandler[Link](classOf[Link], (node, context, html) => renderLink(node, context, html))
 
   private def renderLorUrl(node: AutoLink, html: HtmlWriter, url: LorURL, ctx: NodeRendererContext): Unit = {
     val canonical = url.canonize(siteConfig.getSecureURI)
