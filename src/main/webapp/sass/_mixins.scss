@@ -39,8 +39,8 @@
   }
 }
 
-@mixin heatmap-colors($end, $scale) {
-  :root {
+@mixin heatmap-colors($end, $scale, $selector: ':root') {
+  #{$selector} {
     --heatmap-empty: #{color.grayscale(color.adjust($end, $lightness: -20%*$scale))};
     --heatmap-q1: #{color.adjust($end, $lightness: -20%*$scale)};
     --heatmap-q2: #{color.adjust($end, $lightness: -15%*$scale)};
@@ -50,8 +50,8 @@
   }
 }
 
-@mixin heatmap-colors-inverted($start, $scale, $empty) {
-  :root {
+@mixin heatmap-colors-inverted($start, $scale, $empty, $selector: ':root') {
+  #{$selector} {
     --heatmap-empty: #{$empty};
 
     --heatmap-q1: #{$start};

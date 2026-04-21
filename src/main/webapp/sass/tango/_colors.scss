@@ -17,7 +17,7 @@
 @use "../mixins";
 
 @mixin dark($selector: ':root') {
-  @include mixins.heatmap-colors(#8ae234, 1.5);
+  @include mixins.heatmap-colors(#8ae234, 1.5, $selector);
 
   #{$selector} {
     --main-background: #2e3436;
@@ -90,7 +90,7 @@
 }
 
 @mixin light($selector: ':root') {
-  @include mixins.heatmap-colors-inverted(#73d216, 1.5, #babdb6);
+  @include mixins.heatmap-colors-inverted(#73d216, 1.5, #babdb6, $selector);
 
   #{$selector} {
     --main-background: #d3d7cf;
