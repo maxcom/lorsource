@@ -1,5 +1,6 @@
 <%@ page session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
@@ -36,6 +37,8 @@
     });
   </c:if>
 </script>
+
+<lor:themeIndicator/>
 
 </footer>
 </body>

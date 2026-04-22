@@ -30,6 +30,7 @@ body {
    max-width: 85em;
    margin: auto;
    line-height: 1.4;
+   transition: opacity 0.2s ease;
 }
 
 pre {
@@ -929,4 +930,8 @@ figure.medium-image {
 #interpage img {
   max-width: 100%;
   height: auto;
+}
+
+#theme-indicator {
+  display: none;
 }

@@ -28,6 +28,14 @@ $script.ready('plugins', function() {
     $("#profileForm").validate();
   });
 });
+
+$script.ready('jquery', function() {
+  $(function() {
+    $("#profileForm").on("submit", function() {
+      localStorage.removeItem('lor-theme');
+    });
+  });
+});
 </script>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>

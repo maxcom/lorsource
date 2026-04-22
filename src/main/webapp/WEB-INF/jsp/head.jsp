@@ -30,6 +30,7 @@
     <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
   </c:when>
   <c:when test="${template.style == 'tango-auto'}">
+    <html lang=ru data-theme="auto">
     <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
   </c:when>
   <c:otherwise>
@@ -38,6 +39,14 @@
   </c:otherwise>
 </c:choose>
 <head>
+<script>
+(function() {
+  var theme = localStorage.getItem('lor-theme');
+  if (theme === 'dark' || theme === 'light' || theme === 'auto') {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+})();
+</script>
 <link rel="preload" href="/js/lor.js?MAVEN_BUILD_TIMESTAMP" as="script">
 
 <link rel="yandex-tableau-widget" href="/manifest.json" />

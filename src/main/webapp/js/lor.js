@@ -541,11 +541,32 @@ $(document).ready(function () {
     });
   }
 
+  function initThemeSwitcher() {
+    const themes = ['dark', 'light', 'auto'];
+
+    $('#theme-indicator').on('click', function() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const idx = themes.indexOf(current);
+      if (idx === -1) return;
+
+      const next = themes[(idx + 1) % themes.length];
+
+      document.body.style.opacity = '0';
+      setTimeout(function() {
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('lor-theme', next);
+        document.body.style.opacity = '1';
+      }, 200);
+    });
+  }
+
   initCtrlEnter();
 
   initSamepageCommentNavigation();
   initScollupButton();
   initClearWarningForm();
+  initThemeSwitcher();
 
 
   replace_state();
