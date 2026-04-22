@@ -552,11 +552,11 @@ $(document).ready(function () {
 
       const next = themes[(idx + 1) % themes.length];
 
-      document.body.style.opacity = '0';
+      document.documentElement.style.filter = 'brightness(0)';
       setTimeout(function() {
         html.setAttribute('data-theme', next);
         localStorage.setItem('lor-theme', next);
-        document.body.style.opacity = '1';
+        document.documentElement.style.filter = 'brightness(1)';
       }, 200);
     });
   }
