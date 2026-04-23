@@ -573,13 +573,9 @@ fieldset legend {
   color: var(--text-color);
   cursor: pointer;
   transition: opacity 0.2s ease;
-  position: relative;
 
   span {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
+    display: none;
 
     svg {
       height: 2em;
@@ -589,16 +585,13 @@ fieldset legend {
 }
 
 html[data-theme="dark"] #theme-indicator .theme-indicator-dark {
-  opacity: 1;
-  pointer-events: auto;
+  display: inline;
 }
 
 html[data-theme="light"] #theme-indicator .theme-indicator-light {
-  opacity: 1;
-  pointer-events: auto;
+  display: inline;
 }
 
 html[data-theme="auto"] #theme-indicator .theme-indicator-auto {
-  opacity: 1;
-  pointer-events: auto;
+  display: inline;
 }
