@@ -42,22 +42,32 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title><l:title>${message.title}</l:title> — ${preparedMessage.group.title} — ${preparedMessage.section.title}</title>
-<meta property="og:title" content="<l:title>${message.title}</l:title>" >
+<meta property="og:title" content="<l:title>${message.title}</l:title>">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:type" content="article">
+<meta property="og:url" content="${configuration.secureUrlWithoutSlash}${message.link}">
+<meta property="article:section" content="${preparedMessage.section.title}: ${preparedMessage.group.title}">
+<meta property="article:published_time" content="${DateFormats.formatIso8601(preparedMessage.message.effectiveDateJsp)}">
+<c:if test="${editInfo.editCount > 0}">
+  <meta property="article:modified_time" content="${DateFormats.formatIso8601(editInfo.lastEditDate())}">
+</c:if>
 
 <c:if test="${preparedMessage.image != null}">
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
-  <meta name="twitter:card" content="summary_large_image">
 </c:if>
 <c:if test="${preparedMessage.image == null}">
   <meta property="og:image" content="${configuration.secureUrlWithoutSlash}/img/good-penguin.png">
-  <meta name="twitter:card" content="summary">
 </c:if>
-<meta name="twitter:site" content="@wwwlinuxorgru">
 <c:if test="${not empty ogDescription}">
   <meta property="og:description" content="${ogDescription}">
 </c:if>
 
-<meta property="og:url" content="${configuration.secureUrlWithoutSlash}${message.link}">
+<c:if test="${not empty preparedMessage.tags}">
+  <c:forEach var="tag" items="${preparedMessage.tags}">
+    <meta property="og:tag" content="${tag.name}">
+  </c:forEach>
+</c:if>
+
 
 <link rel="canonical" href="${configuration.secureUrlWithoutSlash}${message.getLinkPage(page)}">
 

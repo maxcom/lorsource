@@ -28,6 +28,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.sql.{ResultSet, Timestamp}
 import java.time.Instant
+import java.util.Date
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
@@ -57,6 +58,8 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
       commitDate.toInstant
     else 
       postdate.toInstant
+      
+  def getEffectiveDateJsp: Date = Date.from(getEffectiveDate)   
 
   def getLink: String =
     Section.getSectionLink(sectionId) + URLEncoder.encode(groupUrl, StandardCharsets.UTF_8) + '/' + id

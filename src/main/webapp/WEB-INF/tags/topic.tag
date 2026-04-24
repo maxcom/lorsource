@@ -211,7 +211,7 @@
     Последнее исправление: ${briefEditInfo.lastEditor()}<c:out value=" "/><lor:date
           date="${briefEditInfo.lastEditDate()}"/>
     <c:if test="${briefEditInfo.showHistory}">
-        (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount()}</a>)
+        (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount}</a>)
     </c:if>
     <c:if test="${not briefEditInfo.showHistory}">
         (всего исправлений: ${briefEditInfo.editCount()})

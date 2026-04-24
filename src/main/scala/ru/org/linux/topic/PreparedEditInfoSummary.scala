@@ -16,7 +16,7 @@
 package ru.org.linux.topic
 
 import java.util.Date
-import scala.beans.BooleanBeanProperty
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 
-case class PreparedEditInfoSummary(lastEditor: String, editCount: Int, lastEditDate: Date,
+case class PreparedEditInfoSummary(lastEditor: String, @BeanProperty editCount: Int, lastEditDate: Date,
                                    @BooleanBeanProperty showHistory: Boolean)
