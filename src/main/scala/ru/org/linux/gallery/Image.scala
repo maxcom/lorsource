@@ -41,9 +41,9 @@ object Image {
   private def main(name: String, id: Int): String = {
     name match {
       case GalleryName(base) =>
-        s"$base-${Sizes.head}px.jpg"
+        s"$base-${Sizes(1)}px.jpg"
       case ImagesName() =>
-        s"images/$id/${Sizes.head}px.jpg"
+        s"images/$id/${Sizes(1)}px.jpg"
       case _ =>
         throw new IllegalArgumentException(s"Not gallery path: $name")
     }
