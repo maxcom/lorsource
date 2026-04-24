@@ -67,8 +67,6 @@ case class Profile(style: String, formatMode: MarkupType, @BeanProperty messages
                    @BooleanBeanProperty showGalleryOnMain: Boolean, @BeanProperty avatarMode: String,
                    @BooleanBeanProperty oldTracker: Boolean, @BeanProperty trackerMode: TrackerFilterEnum,
                    @BooleanBeanProperty reactionNotification: Boolean, boxes: Seq[String]) {
-  def hasMiniNewsBoxlet: Boolean = boxes.contains("lastMiniNews")
-
   // java API
   def getBoxlets: util.List[String] = boxes.asJava
 }

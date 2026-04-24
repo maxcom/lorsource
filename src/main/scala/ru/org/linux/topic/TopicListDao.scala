@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository
 import ru.org.linux.auth.AnySession
 import ru.org.linux.section.SectionController
 import ru.org.linux.topic.TopicListDto.CommitMode.{COMMITED_ONLY, POSTMODERATED_ONLY, UNCOMMITED_ONLY}
-import ru.org.linux.topic.TopicListDto.{DateLimitType, MiniNewsMode}
+import ru.org.linux.topic.TopicListDto.DateLimitType
 import ru.org.linux.user.User
 
 import java.sql.ResultSet
@@ -100,13 +100,7 @@ object TopicListDao {
     if (request.isTech) {
       where.append(s" AND not topics.groupid in (${SectionController.NonTech.mkString(", ")})")
     }
-
-    request.getMiniNewsMode match {
-      case MiniNewsMode.MAJOR => where.append(" AND NOT minor")
-      case MiniNewsMode.MINOR => where.append(" AND minor")
-      case MiniNewsMode.ALL =>
-    }
-
+    
     if (request.getTag != 0) {
       paramsBuilder.put("tagId", Integer.valueOf(request.getTag))
       where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=:tagId)")

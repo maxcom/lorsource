@@ -220,11 +220,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
     topicListDto.setFromDate(Date.from(ZonedDateTime.now.minusMonths(3).toInstant))
-
-    if (session.profile.hasMiniNewsBoxlet) {
-      topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR)
-    }
-
+    
     topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
 
     if (session.profile.showGalleryOnMain) {

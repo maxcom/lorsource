@@ -70,7 +70,6 @@ object DefaultProfile:
       .put("top10", "Наиболее обсуждаемые темы этого месяца")
       .put("gallery", "Галерея")
       .put("tagcloud", "Облако тэгов")
-      .put("lastMiniNews", "Последние мининовости (не будут отображаться в ленте новостей на главной странице)")
       .build()
 
   private val AvatarTypes = Seq("empty", "identicon", "monsterid", "wavatar", "retro", "robohash")
