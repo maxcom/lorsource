@@ -206,7 +206,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     params.put("message", topic)
     params.put("preparedMessage", preparedMessage)
 
-    params.put("ogDescription", MessageTextService.trimPlainText(plainText, 250, encodeHtml = true))
+    params.put("ogDescription", MessageTextService.trimPlainText(plainText, 160, encodeHtml = true))
     params.put("page", Integer.valueOf(page))
     params.put("group", group)
     params.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
