@@ -149,3 +149,23 @@ src/
 
 - IntelliJ IDEA (has good Scala/Java support)
 - For VS Code: Use Java extension with null analysis mode set to "automatic"
+
+## Code Search Tools
+
+### Finding Symbol Usage (ast-grep recommended)
+
+For cross-language searches (Java↔Scala), use ast-grep instead of LSP:
+```bash
+# Find usage of a method
+ast-grep find code --pattern "StringUtil.checkLoginName" --lang scala
+# Find usage with YAML rule (more precise)
+ast-grep scan --inline-rules '
+id: find-checkLoginName
+language: scala
+rule:
+  pattern: StringUtil.checkLoginName
+'
+When to use which:
+- ast-grep: Find all usages of a symbol across Java/Scala boundary (recommended)
+- LSP findReferences: Find references within same file/type system (may miss cross-language)
+- grep: Quick text search fallback
