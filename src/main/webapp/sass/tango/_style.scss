@@ -15,10 +15,6 @@
 
 @use "../mixins" as *;
 
-html {
-  transition: filter 200ms ease-in-out;
-}
-
 body {
   font-family: "Arial", sans-serif;
   color: var(--text-color);
@@ -572,7 +568,6 @@ fieldset legend {
   height: 2em;
   color: var(--text-color);
   cursor: pointer;
-  transition: opacity 0.2s ease;
 
   span {
     display: none;

@@ -552,12 +552,8 @@ $(document).ready(function () {
 
       const next = themes[(idx + 1) % themes.length];
 
-      document.documentElement.style.filter = 'brightness(0)';
-      setTimeout(function() {
-        html.setAttribute('data-theme', next);
-        localStorage.setItem('lor-theme', next);
-        document.documentElement.style.filter = 'brightness(1)';
-      }, 200);
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('lor-theme', next);
     });
   }
 
