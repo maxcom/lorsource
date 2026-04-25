@@ -53,121 +53,103 @@ $script.ready('jquery', function() {
 <form method=POST id="profileForm" action="/people/${nick}/settings">
 <lor:csrf/>
 <table>
-<tr><td>Показывать фотографии</td>
-<td><input type="checkbox" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
-<tr><td>Показывать меньше рекламы (доступна пользователям начиная с одной зеленой звезды)</td>
-<td><input type="checkbox" <c:if test="${currentUser.score<100 && !template.prof.hideAdsense}">disabled</c:if> name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
-<tr><td>Показывать галерею в ленте на главной</td>
-<td><input type="checkbox" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
+<tr><td><label for="photos">Показывать фотографии</label></td>
+<td><input type="checkbox" id="photos" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
+<tr><td><label for="hideAdsense">Показывать меньше рекламы (доступна пользователям начиная с одной зеленой звезды)</label></td>
+<td><input type="checkbox" id="hideAdsense" <c:if test="${currentUser.score<100 && !template.prof.hideAdsense}">disabled</c:if> name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
+<tr><td><label for="mainGallery">Показывать галерею в ленте на главной</label></td>
+<td><input type="checkbox" id="mainGallery" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
   <tr>
-    <td>Старый вид трекера и форума</td>
-    <td><input type="checkbox" name="oldTracker"
+    <td><label for="oldTracker">Старый вид трекера и форума</label></td>
+    <td><input type="checkbox" id="oldTracker" name="oldTracker"
                <c:if test="${template.prof.oldTracker}">checked</c:if> ></td>
   </tr>
   <tr>
-    <td>Уведомлять о реакциях</td>
-    <td><input type="checkbox" name="reactionNotification"
+    <td><label for="reactionNotification">Уведомлять о реакциях</label></td>
+    <td><input type="checkbox" id="reactionNotification" name="reactionNotification"
                <c:if test="${template.prof.reactionNotification}">checked</c:if> ></td>
   </tr>
   <tr><td colspan=2><hr></td></tr>
 
 
 <tr>
-  <td valign=top>Тема</td>
+  <td valign=top><span id="style-label">Тема</span></td>
   <td>
     <c:set value="${template.style}" var="style"/>
 
-    <c:forEach var="s" items="${stylesList}">
-      <c:if test="${s == style}">
-          <label><input type=radio name=style value="${s}" checked>${s}</label>
-      </c:if>
-      <c:if test="${s != style}">
-          <label><input type=radio name=style value="${s}">${s}</label>
-      </c:if>
-    </c:forEach>
+    <div role="radiogroup" aria-labelledby="style-label">
+      <c:forEach var="s" items="${stylesList}" varStatus="status">
+        <label><input type=radio id="style-${status.index}" name=style value="${s}" <c:if test="${s == style}">checked</c:if>>${s}</label>
+      </c:forEach>
+    </div>
   </td>
 </tr>
 
   <tr><td colspan=2><hr></td></tr>
   <tr>
-    <td valign=top>Число тем форума на странице</td>
+    <td valign=top><span id="topics-label">Число тем форума на странице</span></td>
     <td>
       <c:set value="${template.prof.topics}" var="topics"/>
 
-      <c:forEach var="s" items="${topicsValues}">
-        <c:if test="${s == topics}">
-          <label><input type=radio name=topics value="${s}" checked>${s}</label>
-        </c:if>
-        <c:if test="${s != topics}">
-          <label><input type=radio name=topics value="${s}">${s}</label>
-        </c:if>
-      </c:forEach>
+      <div role="radiogroup" aria-labelledby="topics-label">
+        <c:forEach var="s" items="${topicsValues}" varStatus="status">
+          <label><input type=radio id="topics-${status.index}" name=topics value="${s}" <c:if test="${s == topics}">checked</c:if>>${s}</label>
+        </c:forEach>
+      </div>
     </td>
   </tr>
 
   <tr><td colspan=2><hr></td></tr>
   <tr>
-    <td valign=top>Число комментариев на странице</td>
+    <td valign=top><span id="messages-label">Число комментариев на странице</span></td>
     <td>
       <c:set value="${template.prof.messages}" var="messages"/>
 
-      <c:forEach var="s" items="${messagesValues}">
-        <c:if test="${s == messages}">
-          <label><input type=radio name=messages value="${s}" checked>${s}</label>
-        </c:if>
-        <c:if test="${s != messages}">
-          <label><input type=radio name=messages value="${s}">${s}</label>
-        </c:if>
-      </c:forEach>
+      <div role="radiogroup" aria-labelledby="messages-label">
+        <c:forEach var="s" items="${messagesValues}" varStatus="status">
+          <label><input type=radio id="messages-${status.index}" name=messages value="${s}" <c:if test="${s == messages}">checked</c:if>>${s}</label>
+        </c:forEach>
+      </div>
     </td>
   </tr>
 
   <tr><td colspan=2><hr></td></tr>
   <tr>
-    <td valign=top>Фильтр трекера по умолчанию</td>
-    <td>
-      <c:set value="${template.prof.trackerMode.value}" var="trackerMode"/>
+  <td valign=top><span id="trackerMode-label">Фильтр трекера по умолчанию</span></td>
+  <td>
+    <c:set value="${template.prof.trackerMode.value}" var="trackerMode"/>
 
-      <c:forEach var="s" items="${trackerModes}">
-        <c:if test="${s.value == trackerMode}">
-          <label><input type=radio name=trackerMode value="${s.value}" checked>${s.label}</label>
-        </c:if>
-        <c:if test="${s.value != trackerMode}">
-          <label><input type=radio name=trackerMode value="${s.value}">${s.label}</label>
-        </c:if>
+    <div role="radiogroup" aria-labelledby="trackerMode-label">
+      <c:forEach var="s" items="${trackerModes}" varStatus="status">
+        <label><input type=radio id="trackerMode-${status.index}" name=trackerMode value="${s.value}" <c:if test="${s.value == trackerMode}">checked</c:if>>${s.label}</label>
       </c:forEach>
-    </td>
-  </tr>
+    </div>
+  </td>
+</tr>
 
   <tr><td colspan="2"><hr></td></tr>
   <tr>
-    <td valign="top">При отсутствии аватара показывать</td>
-    <td>
-      <c:set value="${template.prof.avatarMode}" var="avatar"/>
+  <td valign="top"><span id="avatar-label">При отсутствии аватара показывать</span></td>
+  <td>
+    <c:set value="${template.prof.avatarMode}" var="avatar"/>
 
-      <c:forEach var="s" items="${avatarsList}">
-        <c:if test="${s == avatar}">
-            <label><input type=radio name=avatar value="${s}" checked>${s}</label>
-        </c:if>
-        <c:if test="${s != avatar}">
-            <label><input type=radio name=avatar value="${s}">${s}</label>
-        </c:if>
+    <div role="radiogroup" aria-labelledby="avatar-label">
+      <c:forEach var="s" items="${avatarsList}" varStatus="status">
+        <label><input type=radio id="avatar-${status.index}" name=avatar value="${s}" <c:if test="${s == avatar}">checked</c:if>>${s}</label>
       </c:forEach>
-    </td>
-  </tr>
+    </div>
+  </td>
+</tr>
 
   <tr><td colspan=2><hr></td></tr>
 <tr>
-  <td valign=top>Разметка текста</td>
+  <td valign=top><span id="format-mode-label">Разметка текста</span></td>
   <td>
-    <c:forEach var="s" items="${formatModes}">
-      <c:if test="${s.key == format_mode}">
-        <label><input type=radio name=format_mode value="${s.key}" checked>${s.value}</label>
-      </c:if>
-      <c:if test="${s.key != format_mode}">
-        <label><input type=radio name=format_mode value="${s.key}">${s.value}</label>
-      </c:if>
-    </c:forEach>
+    <div role="radiogroup" aria-labelledby="format-mode-label">
+      <c:forEach var="s" items="${formatModes}" varStatus="status">
+        <label><input type=radio id="format_mode-${status.index}" name=format_mode value="${s.key}" <c:if test="${s.key == format_mode}">checked</c:if>>${s.value}</label>
+      </c:forEach>
+    </div>
   </td>
 </tr>
 
