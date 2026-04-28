@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -50,15 +50,15 @@ class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao) {
   @RequestMapping(value = Array("/memories.jsp"), params = Array("remove"), method = Array(RequestMethod.POST))
   def remove(@RequestParam("id") id: Int): Json = AuthorizedOnly { currentUser =>
     memoriesDao.getMemoriesListItem(id).map { m =>
-      if (m.getUserid != currentUser.user.getId) {
+      if (m.userid != currentUser.user.id) {
         throw new AccessViolationException("Нельзя удалить чужую запись")
       }
 
       memoriesDao.delete(id)
 
-      val memoriesInfo = memoriesDao.getTopicInfo(m.getTopic, Some(currentUser.user))
+      val memoriesInfo = memoriesDao.getTopicInfo(m.topic, Some(currentUser.user))
 
-      if (m.isWatch) {
+      if (m.watch) {
         memoriesInfo.watchCount
       } else {
         memoriesInfo.favsCount

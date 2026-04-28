@@ -46,7 +46,7 @@ public class UserEventFeedView extends AbstractRomeView {
 
     Date lastModified;
     if (!list.isEmpty()) {
-      lastModified = list.get(0).getEvent().getEventDate();
+      lastModified = list.getFirst().getEvent().getEventDate();
     } else {
       lastModified = new Date();
     }

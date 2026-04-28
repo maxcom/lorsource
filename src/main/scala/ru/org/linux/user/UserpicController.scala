@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -40,7 +40,7 @@ object UserpicController {
 }
 
 @Controller
-class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: UserService,
+class UserpicController(siteConfig: SiteConfig, userService: UserService,
                         userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/addphoto.jsp"), method = Array(RequestMethod.GET))
   def showForm: ModelAndView = AuthorizedOnly { implicit currentUser =>
@@ -76,7 +76,7 @@ class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: U
         var done: Boolean = false
 
         while (!done) {
-          photoname = s"${currentUser.user.getId}:${random.nextInt}.$extension"
+          photoname = s"${currentUser.user.id}:${random.nextInt}.$extension"
           photofile = new File(siteConfig.getUploadPath + "/photos", photoname)
           done = !photofile.exists()
         }
@@ -84,13 +84,13 @@ class UserpicController(userDao: UserDao, siteConfig: SiteConfig, userService: U
         Files.move(uploadedFile, photofile.toPath)
         photofile.setReadable(true, false)
 
-        userDao.setPhoto(currentUser.user, photoname)
+        userService.setPhoto(currentUser.user, photoname)
 
-        logger.info("Установлена фотография пользователем {}", currentUser.user.getNick)
+        logger.info("Установлена фотография пользователем {}", currentUser.user.nick)
 
         val profileUri =
           UriComponentsBuilder
-            .fromUri(UserpicController.ProfileUriTemplate.expand(currentUser.user.getNick))
+            .fromUri(UserpicController.ProfileUriTemplate.expand(currentUser.user.nick))
             .queryParam("nocache", Integer.toString(random.nextInt))
             .build
             .encode

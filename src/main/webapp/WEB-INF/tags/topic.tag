@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -53,7 +53,6 @@
 
   <header>
     <div class="msg-top-header">
-    <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"></c:if>
 
     <span <c:if test="${enableSchema}">itemprop="articleSection"</c:if>>
       <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> —
@@ -91,6 +90,9 @@
     </div>
 
     <h1 <c:if test="${enableSchema}">itemprop="headline"</c:if>>
+      <c:if test="${message.resolved}">
+        <i class="icon-check" title="решено"></i>
+      </c:if>
       <a href="${message.link}"><l:title>${message.title}</l:title></a>
       <c:if test="${message.draft}"><span style="color:red">(черновик)</span></c:if>
     </h1>
@@ -209,7 +211,7 @@
     Последнее исправление: ${briefEditInfo.lastEditor()}<c:out value=" "/><lor:date
           date="${briefEditInfo.lastEditDate()}"/>
     <c:if test="${briefEditInfo.showHistory}">
-        (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount()}</a>)
+        (всего <a href="${message.link}/history">исправлений: ${briefEditInfo.editCount}</a>)
     </c:if>
     <c:if test="${not briefEditInfo.showHistory}">
         (всего исправлений: ${briefEditInfo.editCount()})

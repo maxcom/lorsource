@@ -23,7 +23,8 @@ import scala.concurrent.duration.Deadline
 
 @Component
 class SearchQueueListener(
-  indexService: ElasticsearchIndexService
+  indexService: OpenSearchIndexService,
+  indexCreationService: OpenSearchIndexCreationService
 ) extends StrictLogging {
   private var mappingsSet = false
   
@@ -67,7 +68,7 @@ class SearchQueueListener(
   }
 
   private def createIndex():Unit = {
-    indexService.createIndexIfNeeded()
+    indexCreationService.createIndexIfNeeded()
 
     mappingsSet = true
   }

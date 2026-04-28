@@ -1,0 +1,63 @@
+/*
+ * Copyright 1998-2026 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+@use "sass:color";
+
+@mixin clearfix {
+// For modern browsers
+  &:before,
+  &:after {
+    content:"";
+    display:table;
+  }
+  &:after {
+    clear:both;
+  }
+}
+
+@mixin respond-to($media) {
+  @if $media == widedesktop {
+    @media only screen and (min-width: 100em) { @content; }
+  }
+  @else if $media == desktops {
+    @media only screen and (min-width: 70em) { @content; }
+  }
+  @else if $media == tablet-and-desktops {
+    @media only screen and (min-width: 47em) { @content; }
+  }
+}
+
+@mixin heatmap-colors($end, $scale, $selector: ':root') {
+  #{$selector} {
+    --heatmap-empty: #{color.grayscale(color.adjust($end, $lightness: -20%*$scale))};
+    --heatmap-q1: #{color.adjust($end, $lightness: -20%*$scale)};
+    --heatmap-q2: #{color.adjust($end, $lightness: -15%*$scale)};
+    --heatmap-q3: #{color.adjust($end, $lightness: -10%*$scale)};
+    --heatmap-q4: #{color.adjust($end, $lightness: -5%*$scale)};
+    --heatmap-max: #{$end};
+  }
+}
+
+@mixin heatmap-colors-inverted($start, $scale, $empty, $selector: ':root') {
+  #{$selector} {
+    --heatmap-empty: #{$empty};
+
+    --heatmap-q1: #{$start};
+    --heatmap-q2: #{color.adjust($start, $lightness: -5%*$scale)};
+    --heatmap-q3: #{color.adjust($start, $lightness: -10%*$scale)};
+    --heatmap-q4: #{color.adjust($start, $lightness: -15%*$scale)};
+    --heatmap-max: #{color.adjust($start, $lightness: -20%*$scale)};
+  }
+}

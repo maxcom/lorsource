@@ -1,0 +1,161 @@
+/*
+ * Copyright 1998-2026 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+@use "sass:color";
+@use "../mixins";
+
+@mixin dark($selector: ':root') {
+  @include mixins.heatmap-colors(#8ae234, 1.5, $selector);
+
+  #{$selector} {
+    --main-background: #2e3436;
+    --text-color: #babdb6;
+    --link-color: #729fcf;
+    --site-title-color: #eeeeec;
+    --header-color: #d3d7cf;
+    --blockquote-color: #909090;
+
+    --table-border-color: #555753;
+    --table-link-color: #eeeeec;
+    --table-hover-background: #5c3566;
+    --table-background-color: var(--main-background);
+    --tracker-tag-color: var(--table-border-color);
+    --code-background: var(--main-background);
+
+    --tag-color: #fcaf3e;
+    --main-menu-color: #e9b96e;
+    --signature-user-color: #8ae234;
+    --signature-remark-color: #AAAAAA;
+    --article-background: #272C2D;
+
+    --button-border-color: #babdb6;
+    --button-selected-text-color: black;
+
+    --button-primary-background: #204a87;
+    --button-danger-background: #a40000;
+    --button-danger-text-color: #eeeeec;
+
+    --icon-button-active-color: #c17d11;
+
+    --tagpage-group-label-background: #8f5902;
+
+    --icon-reply-color: #729fcf;
+    --unread-marker-color: #729fcf;
+    --icon-pin-color: #e9b96e;
+
+    --preview-border-color: #c4a000;
+
+    /*
+
+    Atom One Dark by Daniel Gamage
+    Original One Dark Syntax theme from https://github.com/atom/one-dark-syntax
+
+    base:    #282c34
+    mono-1:  #abb2bf
+    mono-2:  #818896
+    mono-3:  #5c6370
+    hue-1:   #56b6c2
+    hue-2:   #61aeee
+    hue-3:   #c678dd
+    hue-4:   #98c379
+    hue-5:   #e06c75
+    hue-5-2: #be5046
+    hue-6:   #d19a66
+    hue-6-2: #e6c07b
+
+    */
+
+    --syntax-mono-1: #abb2bf;
+    --syntax-mono-3: #5c6370;
+    --syntax-hue-1: #56b6c2;
+    --syntax-hue-2: #61aeee;
+    --syntax-hue-3: #c678dd;
+    --syntax-hue-4: #98c379;
+    --syntax-hue-5: #e06c75;
+    --syntax-hue-6: #d19a66;
+    --syntax-hue-6-2: #e6c07b;
+  }
+}
+
+@mixin light($selector: ':root') {
+  @include mixins.heatmap-colors-inverted(#73d216, 1.5, #babdb6, $selector);
+
+  #{$selector} {
+    --main-background: #d3d7cf;
+    --text-color: #3b4245;
+    --link-color: #204a87;
+    --site-title-color: #171b1c;
+    --header-color: #232829;
+    --blockquote-color: #555753;
+    --table-border-color: #babdb6;
+    --table-link-color: #171b1c;
+    --table-hover-background: #ad7fa8;
+    --table-background-color: var(--main-background);
+    --tracker-tag-color: var(--table-border-color);
+    --code-background: var(--main-background);
+    --tag-color: #ce5c00;
+    --main-menu-color: #8f5902;
+    --signature-user-color: #4e9a06;
+    --signature-remark-color: #444444;
+    --article-background: #eeeeec;
+    --button-border-color: #171b1c;
+    --button-selected-text-color: white;
+    --button-primary-background: #729fcf;
+    --button-danger-background: #cc0000;
+    --button-danger-text-color: #d3d7cf;
+    --icon-button-active-color: #c17d11;
+    --tagpage-group-label-background: #e9b96e;
+    --icon-reply-color: #729fcf;
+    --unread-marker-color: #3465a4;
+    --icon-pin-color: #c4a000;
+    --preview-border-color: #c4a000;
+
+    .swiffy-slider {
+        --swiffy-slider-nav-light: #171b1c;
+    }
+
+    .swiffy-slider .slider-indicators>* {
+        filter: invert(1);
+    }
+    /*
+
+    Atom One Light by Daniel Gamage
+    Original One Light Syntax theme from https://github.com/atom/one-light-syntax
+
+    base:    #fafafa
+    mono-1:  #383a42
+    mono-2:  #686b77
+    mono-3:  #a0a1a7
+    hue-1:   #0184bb
+    hue-2:   #4078f2
+    hue-3:   #a626a4
+    hue-4:   #50a14f
+    hue-5:   #e45649
+    hue-5-2: #c91243
+    hue-6:   #986801
+    hue-6-2: #c18401
+
+    */
+    --syntax-mono-1: #383a42;
+    --syntax-mono-3: #a0a1a7;
+    --syntax-hue-1: #0184bb;
+    --syntax-hue-2: #4078f2;
+    --syntax-hue-3: #a626a4;
+    --syntax-hue-4: #50a14f;
+    --syntax-hue-5: #e45649;
+    --syntax-hue-6: #986801;
+    --syntax-hue-6-2: #c18401;
+  }
+}

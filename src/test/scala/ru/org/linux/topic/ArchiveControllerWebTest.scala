@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,30 +14,20 @@
  */
 package ru.org.linux.topic
 
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import munit.FunSuite
 import ru.org.linux.test.WebHelper
-import sttp.client3.{UriContext, basicRequest}
+import sttp.client4.{UriContext, basicRequest}
 import sttp.model.StatusCode
 
-@RunWith(classOf[JUnitRunner])
-class ArchiveControllerWebTest extends Specification {
-  "archive controller" should {
-    "open without slash" in {
-      val response = basicRequest
-        .get(uri"${WebHelper.MainUrl}news/archive")
-        .send(WebHelper.backend)
+class ArchiveControllerWebTest extends FunSuite with WebHelper:
+  test("archive controller opens without slash"):
+    val response = basicRequest
+      .get(uri"${MainUrl}news/archive")
+      .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      response.code must be equalTo StatusCode.Ok
-    }
-
-    "open with slash" in {
-      val response = basicRequest
-        .get(uri"${WebHelper.MainUrl}news/archive/")
-        .send(WebHelper.backend)
-
-      response.code must be equalTo StatusCode.Ok
-    }
-  }
-}
+  test("archive controller opens with slash"):
+    val response = basicRequest
+      .get(uri"${MainUrl}news/archive/")
+      .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")

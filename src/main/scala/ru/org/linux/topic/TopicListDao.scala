@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,6 +13,7 @@
  *    limitations under the License.
  */
 package ru.org.linux.topic
+import ru.org.linux.user.UserConstants
 
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Repository
 import ru.org.linux.auth.AnySession
 import ru.org.linux.section.SectionController
 import ru.org.linux.topic.TopicListDto.CommitMode.{COMMITED_ONLY, POSTMODERATED_ONLY, UNCOMMITED_ONLY}
-import ru.org.linux.topic.TopicListDto.{DateLimitType, MiniNewsMode}
+import ru.org.linux.topic.TopicListDto.DateLimitType
 import ru.org.linux.user.User
 
 import java.sql.ResultSet
@@ -58,7 +59,7 @@ object TopicListDao {
     }
 
     if (!request.isIncludeAnonymous) {
-      where.append(s" AND topics.userid != ${User.ANONYMOUS_ID}")
+      where.append(s" AND topics.userid != ${UserConstants.ANONYMOUS_ID}")
     }
 
     val dateField = if (request.getCommitMode == COMMITED_ONLY) "commitdate" else "postdate"
@@ -99,13 +100,7 @@ object TopicListDao {
     if (request.isTech) {
       where.append(s" AND not topics.groupid in (${SectionController.NonTech.mkString(", ")})")
     }
-
-    request.getMiniNewsMode match {
-      case MiniNewsMode.MAJOR => where.append(" AND NOT minor")
-      case MiniNewsMode.MINOR => where.append(" AND minor")
-      case MiniNewsMode.ALL =>
-    }
-
+    
     if (request.getTag != 0) {
       paramsBuilder.put("tagId", Integer.valueOf(request.getTag))
       where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=:tagId)")
@@ -168,7 +163,7 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
     val params = new mutable.HashMap[String, AnyRef]
 
     currentUser.userOpt.map { currentUser =>
-      params.put("userid", Integer.valueOf(currentUser.getId))
+      params.put("userid", Integer.valueOf(currentUser.id))
     }
 
     val sort = TopicListDao.makeSortOrder(topicListDto)
@@ -229,7 +224,7 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
     }
 
     if (!includeAnonymous) {
-      query.append("AND topics.userid != " + User.ANONYMOUS_ID + " ")
+      query.append("AND topics.userid != " + UserConstants.ANONYMOUS_ID + " ")
     }
 
     val queryParameters = mutable.ArrayBuffer[AnyRef]()
@@ -251,7 +246,7 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
       s"""SELECT topics.title as subj, nick, groups.section, topics.id as msgid, reason, topics.postdate,
          |  del_info.delDate, bonus FROM topics,groups,users,del_info
          | WHERE topics.userid=users.id AND topics.groupid=groups.id AND deleted AND del_info.msgid=topics.id
-         | AND delDate is not null AND topics.userid = ${user.getId}
+         | AND delDate is not null AND topics.userid = ${user.id}
          | ORDER BY del_info.delDate DESC LIMIT $topics""".stripMargin
 
     jdbcTemplate.queryAndMap(query) { (rs: ResultSet, _: Int) => DeletedTopic.apply(rs) }
@@ -261,6 +256,6 @@ class TopicListDao(ds: DataSource) extends StrictLogging {
     jdbcTemplate.queryForSeq[Int](
       """select distinct section from
         | groups join topics on topics.groupid=groups.id
-        | where topics.userid=? and not deleted and not draft ORDER BY section""".stripMargin, user.getId)
+        | where topics.userid=? and not deleted and not draft ORDER BY section""".stripMargin, user.id)
   }
 }

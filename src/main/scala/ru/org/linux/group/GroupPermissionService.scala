@@ -1,0 +1,300 @@
+/*
+ * Copyright 1998-2026 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+package ru.org.linux.group
+
+import org.springframework.stereotype.Service
+import ru.org.linux.auth.{AnySession, AuthorizedSession}
+import ru.org.linux.msgbase.DeleteInfoDao
+import ru.org.linux.section.Section.{Articles, Gallery, News}
+import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.topic.TopicPermissionService.POSTSCORE_NO_COMMENTS
+import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
+import ru.org.linux.user.{User, UserPermissionService}
+
+import java.time.{Duration, Instant, ZoneId}
+import java.time.temporal.ChronoUnit
+import javax.annotation.Nullable
+
+@Service
+object GroupPermissionService {
+  private val DeletePeriod = Duration.ofDays(3)
+  private val EditPeriod = Duration.ofDays(14)
+  private val CreateTagScore = 200
+}
+
+@Service
+class GroupPermissionService(sectionService: SectionService, deleteInfoDao: DeleteInfoDao,
+                             userPermissionService: UserPermissionService) {
+  import GroupPermissionService.*
+  /**
+    * Проверка может ли пользователь удалить топик
+    *
+    * @param user пользователь удаляющий сообщение
+    * @return признак возможности удаления
+    */
+  private def isDeletableByUser(topic: Topic, user: User, section: Section): Boolean = {
+    if (topic.authorUserId != user.id) {
+      false
+    } else if (topic.draft) {
+      true
+    } else if (section.isPremoderated && topic.commited) {
+      false
+    } else {
+      val deleteDeadline = topic.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(DeletePeriod).toInstant
+
+      deleteDeadline.isAfter(Instant.now) && topic.commentCount == 0
+    }
+  }
+
+  def isUndeletable(topic: Topic)(implicit user: AnySession): Boolean = {
+    if (!topic.deleted || !user.moderator) {
+      false
+    } else {
+      if (user.administrator) {
+        true
+      } else if (!topic.expired) {
+        true
+      } else {
+        deleteInfoDao.getDeleteInfo(topic.id)
+          .filter(_.delDate != null)
+          .map(_.delDate.toInstant)
+          .exists(_.isAfter(Instant.now.minus(14, ChronoUnit.DAYS)))
+      }
+    }
+  }
+
+  private def effectivePostscore(group: Group) = {
+    val section = sectionService.getSection(group.sectionId)
+
+    Math.max(group.topicRestriction, section.topicsRestriction)
+  }
+
+  def enableAllowAnonymousCheckbox(group: Group)(implicit currentUser: AnySession): Boolean = {
+    currentUser.authorized && !group.premoderated &&
+      Math.max(group.commentsRestriction,
+        Section.getCommentPostscore(group.sectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
+  }
+
+  def isTopicPostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean =
+    isTopicPostingAllowed(section.topicsRestriction, currentUser.userOpt.orNull)
+
+  def isTopicPostingAllowed(group: Group)(implicit currentUser: AnySession): Boolean =
+    isTopicPostingAllowed(effectivePostscore(group), currentUser.userOpt.orNull)
+
+  private def isTopicPostingAllowed(restriction: Int, @Nullable currentUser: User): Boolean = {
+    if (currentUser!=null && (currentUser.blocked || currentUser.isFrozen)) {
+      false
+    } else if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
+      true
+    } else if (currentUser == null || currentUser.anonymous) {
+      false
+    } else if (restriction == TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
+      currentUser.isModerator
+    } else if (restriction == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
+        restriction == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
+      false
+    } else {
+      currentUser.score >= restriction
+    }
+  }
+
+  def isImagePostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean = {
+    if (section.imagepost) {
+      true
+    } else if (currentUser.authorized &&
+        (currentUser.moderator || currentUser.corrector || currentUser.userOpt.exists(_.getScore >= 50))) {
+      section.imageAllowed
+    } else {
+      false
+    }
+  }
+
+  def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
+    if (isImagePostingAllowed(section)) {
+      section.id match {
+        case Articles | Gallery | News =>
+          3
+        case _ =>
+          0
+      }
+    } else {
+      0
+    }
+  }
+
+  def getPostScoreInfo(group: Group): String = {
+    val postscore = effectivePostscore(group)
+
+    postscore match {
+      case TopicPermissionService.POSTSCORE_UNRESTRICTED =>
+        ""
+      case 100 | 200 | 300 | 400 | 500 =>
+        s"<b>Ограничение на добавление сообщений</b>: ${User.getStars(postscore, postscore, true)}"
+      case TopicPermissionService.POSTSCORE_MODERATORS_ONLY =>
+        "<b>Ограничение на добавление сообщений</b>: только для модераторов"
+      case TopicPermissionService.POSTSCORE_REGISTERED_ONLY =>
+        "<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей"
+      case _ =>
+        s"<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей, score>=$postscore"
+    }
+  }
+
+  def isDeletable(topic: Topic)(using user: AuthorizedSession): Boolean = {
+    if (user.administrator) {
+      true
+    } else {
+      val section = sectionService.getSection(topic.sectionId)
+
+      val deletableByUser = isDeletableByUser(topic, user.user, section)
+
+      if (!deletableByUser && user.moderator) {
+        isDeletableByModerator(topic, user.user, section)
+      } else {
+        deletableByUser
+      }
+    }
+  }
+
+  /**
+    * Проверка, может ли модератор удалить топик
+    *
+    * @param moderator пользователь удаляющий сообщение
+    * @return признак возможности удаления
+    */
+  private def isDeletableByModerator(topic: Topic, moderator: User, section: Section) = {
+    val deleteDeadline = topic.postdate.toInstant.atZone(ZoneId.systemDefault()).plusMonths(1).toInstant
+
+    if (section.isPremoderated && !topic.commited) {
+      true
+    } else if (section.isPremoderated && topic.commited && deleteDeadline.isAfter(Instant.now)) {
+      true
+    } else if (!section.isPremoderated) {
+      true
+    } else {
+      false
+    }
+  }
+
+  /**
+    * Можно ли редактировать сообщения полностью
+    *
+    * @param topic тема
+    * @return true если можно, false если нет
+    */
+  def isEditable(topic: PreparedTopic)(using session: AnySession): Boolean = {
+    val by = session.userOpt.orNull
+
+    val message = topic.message
+    val section = topic.section
+    val author = topic.author
+
+    if (message.deleted) {
+      false
+    } else if (by == null || by.anonymous || by.blocked || by.isFrozen) {
+      false
+    } else if (by.isAdministrator) {
+      true
+    } else if (message.expired && !message.draft) {
+      false
+    } else if (!UserPermissionService.allowedFormats(by).contains(topic.markupType)) {
+      false
+    } else if (by.isModerator) {
+      true
+    } else if (by.canCorrect && section.isPremoderated) {
+      true
+    } else if (by.id == author.id && !message.commited) {
+      if (message.sticky) {
+        true
+      } else if (section.isPremoderated) {
+        true
+      } else if (message.draft) {
+        true
+      } else if (message.postscore == POSTSCORE_NO_COMMENTS) {
+        false  
+      } else {
+        val editDeadline = message.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
+
+        editDeadline.isAfter(Instant.now)
+      }
+    } else if (by.id == author.id && message.commited && section.id == Articles) {
+      val editDeadline = message.commitDate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
+
+      editDeadline.isAfter(Instant.now)
+    } else {
+      false
+    }
+  }
+
+  /**
+    * Можно ли редактировать теги сообщения
+    *
+    * @param topic тема
+    * @return true если можно, false если нет
+    */
+  def isTagsEditable(topic: PreparedTopic)(using session: AnySession): Boolean = {
+    val by = session.userOpt.orNull
+
+    val message = topic.message
+    val section = topic.section
+    val author = topic.author
+
+    if (message.deleted) {
+      false
+    } else if (by == null || by.anonymous || by.blocked || by.isFrozen) {
+      false
+    } else if (by.isAdministrator) {
+      true
+    } else if (by.isModerator) {
+      true
+    } else if (by.canCorrect) {
+      true
+    } else if (by.id == author.id && !message.commited) {
+      if (message.sticky) {
+        true
+      } else if (message.draft) {
+        true
+      } else if (section.isPremoderated) {
+        true
+      } else {
+        val editDeadline = message.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
+
+        editDeadline.isAfter(Instant.now)
+      }
+    } else if (by.id == author.id && message.commited && section.id == Articles) {
+      val editDeadline = message.commitDate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
+
+      editDeadline.isAfter(Instant.now)
+    } else {
+      false
+    }
+  }
+
+  def canCreateTag(section: Section)(using session: AnySession): Boolean = {
+    val user = session.userOpt.orNull
+
+    if (section.isPremoderated && user!=null && !user.anonymous) {
+      true
+    } else {
+      user != null && user.getScore >= CreateTagScore
+    }
+  }
+
+  def canCommit(topic: Topic)(using session: AnySession): Boolean =
+    session.userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.id))
+
+  def canViewAllDeletedTopics(using session: AnySession): Boolean =
+    session.authorized && session.userOpt.exists(_.score >= 50)
+      && !session.userOpt.exists(u => u.isFrozen || userPermissionService.isSlowMode(u))
+}

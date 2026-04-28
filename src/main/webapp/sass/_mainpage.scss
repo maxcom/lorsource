@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,9 +13,18 @@
  *    limitations under the License.
  */
 
+@use "mixins" as *;
+
 #mainpage {
-  @include clearfix;
-  @include container;
+  width: 100%;
+  margin: 0;
+
+  @include respond-to(desktops) {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: 2%;
+    align-items: start;
+  }
 }
 
 #news {
@@ -23,7 +32,8 @@
   padding-bottom: 5px;
 
   @include respond-to(desktops) {
-    @include column(9, 3);
+    grid-column: 4 / 13;
+    grid-row: 1;
   }
 }
 
@@ -42,7 +52,8 @@
   }
 
   @include respond-to(desktops) {
-    @include column(3);
+    grid-column: 1 / 4;
+    grid-row: 1;
 
     font-size: 0.875em;
     display: block;

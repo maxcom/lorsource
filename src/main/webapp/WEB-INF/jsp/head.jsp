@@ -1,5 +1,6 @@
+<%@ page session="false" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -19,9 +20,33 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <!DOCTYPE html>
-<html lang=ru>
+<c:choose>
+  <c:when test="${template.style == 'tango'}">
+    <html lang=ru data-theme="dark">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+  </c:when>
+  <c:when test="${template.style == 'tango-light'}">
+    <html lang=ru data-theme="light">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+  </c:when>
+  <c:when test="${template.style == 'tango-auto'}">
+    <html lang=ru data-theme="auto">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+  </c:when>
+  <c:otherwise>
+    <html lang=ru>
+    <link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
+  </c:otherwise>
+</c:choose>
 <head>
-<link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
+<script>
+(function() {
+  var theme = localStorage.getItem('lor-theme');
+  if (theme === 'dark' || theme === 'light' || theme === 'auto') {
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+})();
+</script>
 <link rel="preload" href="/js/lor.js?MAVEN_BUILD_TIMESTAMP" as="script">
 
 <link rel="yandex-tableau-widget" href="/manifest.json" />
@@ -43,7 +68,7 @@
 </script>
 
 <script type="text/javascript">
-  $script('/webjars/jquery/2.2.4/jquery.min.js', 'jquery');
+  $script('/webjars/jquery/3.7.1/jquery.min.js', 'jquery');
 
   $script.ready('jquery', function() {
     $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');

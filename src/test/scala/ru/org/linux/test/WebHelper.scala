@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,23 +14,23 @@
  */
 package ru.org.linux.test
 
+import munit.{BaseFunSuite, FunFixtures, FunSuite}
 import org.jsoup.Jsoup
 import org.junit.Assert
-import org.specs2.execute.{AsResult, Result}
-import org.specs2.specification.Fixture
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
-import sttp.client3.*
+import sttp.client4.*
+import sttp.client4.httpclient.HttpClientSyncBackend
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
-object WebHelper {
+trait WebHelper extends FunFixtures { self: BaseFunSuite =>
   val AuthCookie = "remember_me"
   val MainUrl: Uri = Uri.unsafeParse("http://127.0.0.1:8080/")
 
   val TestUser = "Shaman007"
   val TestPassword = "passwd"
 
-  val backend: SttpBackend[Identity, Any] = HttpClientSyncBackend()
+  val backend: SyncBackend = HttpClientSyncBackend()
 
   def doLogin(user: String = TestUser, password: String = TestPassword): String = {
     val response = basicRequest
@@ -48,15 +48,15 @@ object WebHelper {
   def createTopic(auth: String, groupId: Int, title: String): Either[String, Int] = {
     val response = basicRequest
       .body(Map(
-        "section" -> Section.SECTION_FORUM.toString,
+        "section" -> Section.Forum.toString,
         "group" -> groupId.toString,
         "csrf" -> "csrf",
         "title" -> title))
-      .cookie(WebHelper.AuthCookie, auth)
+      .cookie(AuthCookie, auth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
       .followRedirects(false)
-      .post(WebHelper.MainUrl.addPath("add.jsp"))
-      .send(WebHelper.backend)
+      .post(MainUrl.addPath("add.jsp"))
+      .send(backend)
 
     if (response.code == StatusCode.SeeOther && response.header(HeaderNames.Location).isDefined) {
       val parsed = Uri.parse(response.header(HeaderNames.Location).get)
@@ -69,11 +69,8 @@ object WebHelper {
     }
   }
 
-  def Authorized(user: String = TestUser, password: String = TestPassword): Fixture[String] = new Fixture[String] {
-    override def apply[R: AsResult](f: String => R): Result = {
-      val auth = doLogin(user, password)
-
-      AsResult(f(auth))
-    }
-  }
+  def authorized(user: String = TestUser, password: String = TestPassword): FunFixture[String] = FunFixture[String](
+    setup = { _ => doLogin(user, password) },
+    teardown = { s => },
+  )
 }

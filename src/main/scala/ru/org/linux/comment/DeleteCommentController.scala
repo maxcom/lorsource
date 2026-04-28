@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,16 +23,15 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.common.DeleteReasons
+import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.{BadParameterException, ScriptErrorException}
-import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, UserErrorException, UserService}
 
 import java.util
 import scala.collection.Seq
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOptional
 
 @Controller
 class DeleteCommentController(searchQueueSender: SearchQueueSender, commentService: CommentReadService,
@@ -64,7 +63,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val comments = commentService.getCommentList(topic, currentUser.moderator)
     val list = commentService.getCommentsSubtree(comments, msgid, Set.empty[Int])
 
-    val ignoreList = ignoreListDao.get(currentUser.user.getId)
+    val ignoreList = ignoreListDao.get(currentUser.user.id)
 
     new ModelAndView("delete_comment", Map[String, Any](
       "msgid" -> msgid,
@@ -104,7 +103,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
     val user = currentUser.user
 
     val deleted: Seq[Int] = if (currentUser.moderator) {
-      val effectiveBonus = if (user.getId != comment.userid) {
+      val effectiveBonus = if (user.id != comment.userid) {
         bonus
       } else {
         0
@@ -153,7 +152,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     if (currentUser.moderator && currentUser.user != author) {
       logger.info("Comment deleted by moderator {}: {}; {}",
-        currentUser.user.getNick, message, bigMessage.map(_._2).getOrElse("<none>"))
+        currentUser.user.nick, message, bigMessage.map(_._2).getOrElse("<none>"))
 
       new ModelAndView("comment-deleted-by-moderator", (Map[String, Any](
         "message" -> message,
@@ -163,7 +162,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
         "ua" -> comment.userAgentId
       ) ++ bigMessage).asJava)
     } else {
-      logger.info("Comment deleted by author {}: {}", currentUser.user.getNick, message)
+      logger.info("Comment deleted by author {}: {}", currentUser.user.nick, message)
 
       new ModelAndView("action-done", (Map(
         "message" -> message,
@@ -188,13 +187,13 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     val topic = topicDao.getById(comment.topicId)
 
-    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid).toScala
+    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
     if (!permissionService.isUndeletable(topic, comment, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")
     }
 
-    val ignoreList = ignoreListDao.get(currentUser.user.getId)
+    val ignoreList = ignoreListDao.get(currentUser.user.id)
 
     new ModelAndView("undelete_comment", Map[String, Any](
       "comment" -> prepareService.prepareCommentOnly(comment, topic, ignoreList),
@@ -206,7 +205,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
   def undelete(@RequestParam("msgid") msgid: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val comment = commentService.getById(msgid)
     val topic = topicDao.getById(comment.topicId)
-    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid).toScala
+    val deleteInfo = deleteInfoDao.getDeleteInfo(msgid)
 
     if (!permissionService.isUndeletable(topic, comment, deleteInfo)) {
       throw new AccessViolationException("этот комментарий нельзя восстановить")

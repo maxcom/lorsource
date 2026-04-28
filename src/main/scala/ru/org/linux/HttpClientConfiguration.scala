@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,15 +15,15 @@
 package ru.org.linux
 
 import org.springframework.context.annotation.{Bean, Configuration}
-import sttp.client3.*
-
-import scala.concurrent.Future
+import ru.org.linux.spring.SiteConfig
+import sttp.client4.*
+import sttp.client4.httpclient.HttpClientSyncBackend
 
 @Configuration
-class HttpClientConfiguration {
+class HttpClientConfiguration:
   @Bean
-  def syncClient(): SttpBackend[Identity, Any] = HttpClientSyncBackend()
+  def directBackend(): SyncBackend = HttpClientSyncBackend()
 
   @Bean
-  def asyncClient(): SttpBackend[Future, Any] = HttpClientFutureBackend()
-}
+  def proxyBackend(config: SiteConfig): SyncBackend =
+    HttpClientSyncBackend(BackendOptions.httpProxy(config.getFallbackProxyHost, config.getFallbackProxyPort))

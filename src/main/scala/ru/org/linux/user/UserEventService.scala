@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,6 +13,7 @@
  *    limitations under the License.
  */
 package ru.org.linux.user
+import ru.org.linux.user.UserConstants
 
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
-import ru.org.linux.spring.dao.DeleteInfoDao.InsertDeleteInfo
+import ru.org.linux.msgbase.InsertDeleteInfo
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEventFilterEnum.*
 import ru.org.linux.user.UserEventFilterEnum.DELETED
@@ -40,7 +41,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    */
   def addUserRefEvent(users: collection.Set[User], topicId: Int, commentId: Int): Unit = {
     for (user <- users) {
-      userEventDao.addEvent(REFERENCE.getType, user.getId, isPrivate = false, Some(topicId), Some(commentId), None)
+      userEventDao.addEvent(REFERENCE.getType, user.id, isPrivate = false, Some(topicId), Some(commentId), None)
     }
   }
 
@@ -65,7 +66,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    */
   def addReplyEvent(parentAuthor: User, topicId: Int, commentId: Int): Unit =
     transactional(propagation = Propagation.MANDATORY) { _ =>
-      userEventDao.addEvent(ANSWERS.getType, parentAuthor.getId, isPrivate = false, Some(topicId), Some(commentId), None)
+      userEventDao.addEvent(ANSWERS.getType, parentAuthor.id, isPrivate = false, Some(topicId), Some(commentId), None)
     }
 
   /**
@@ -87,12 +88,12 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     for (user <- users) {
       userEventDao.addEvent(
         eventType = WARNING.getType,
-        userId = user.getId,
+        userId = user.id,
         isPrivate = true,
         topicId = Some(topic.id),
         commentId = comment.map(_.id),
         message = Some(message),
-        originUser = Some(author.getId),
+        originUser = Some(author.id),
         warningId = Some(warningId))
     }
   }
@@ -135,15 +136,21 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
       None
     }
 
-    userEventDao.getRepliesForUser(user.getId, showPrivate, topics, offset, eventFilterType)
+    userEventDao.getRepliesForUser(user.id, showPrivate, topics, offset, eventFilterType)
   }
 
-  /**
+  def getEvent(id: Int): Option[UserEvent] = userEventDao.getEvent(id)
+
+   /**
    * Сброс уведомлений.
    *
    * @param user пользователь которому сбрасываем
    */
-  def resetUnreadReplies(user: User, topId: Int): Unit = userEventDao.resetUnreadReplies(user.getId, topId)
+  def resetUnreadEvents(user: User, topId: Int, eventType: Option[UserEventFilterEnum] = None): Unit =
+    userEventDao.resetUnreadEvents(user.id, topId, eventType)
+  def resetSingleEvent(user: User, eventId: Int): Unit = userEventDao.resetSingle(user.id, eventId)
+  def resetUnreadEvents(user: User, topId: Int, topicId: Int, eventType: UserEventFilterEnum): Unit =
+    userEventDao.resetUnreadEvents(user.id, topId, topicId, eventType)
 
   /**
    * Удаление уведомлений, относящихся к удаленным топикам
@@ -174,7 +181,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
     }
 
   def getEventTypes(user: User): Seq[UserEventFilterEnum] = {
-    val unsorted = userEventDao.getEventTypes(user.getId).toSet
+    val unsorted = userEventDao.getEventTypes(user.id).toSet
 
     if (unsorted.sizeIs > 1) {
       UserEventFilterEnum.values.view.filter(v => v == UserEventFilterEnum.ALL || unsorted(v)).toSeq
@@ -184,42 +191,42 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
   }
 
   def insertTopicDeleteNotification(topic: Topic, info: InsertDeleteInfo): Unit = {
-    assert(topic.id == info.msgid())
+    assert(topic.id == info.msgid)
 
-    if (info.deleteUser().getId != topic.authorUserId && topic.authorUserId != User.ANONYMOUS_ID) {
+    if (info.deleteUser.id != topic.authorUserId && topic.authorUserId != UserConstants.ANONYMOUS_ID) {
       userEventDao.addEvent(
         eventType = DELETED.getType,
         userId = topic.authorUserId,
         isPrivate = true,
         topicId = Some(topic.id),
         commentId = None,
-        message = Some(info.reason()))
+        message = Some(info.reason))
     }
   }
 
   def insertCommentDeleteNotification(comment: Comment, info: InsertDeleteInfo): Unit = {
-    assert(comment.id == info.msgid())
+    assert(comment.id == info.msgid)
 
-    if (info.deleteUser().getId != comment.userid && comment.userid != User.ANONYMOUS_ID) {
+    if (info.deleteUser.id != comment.userid && comment.userid != UserConstants.ANONYMOUS_ID) {
       userEventDao.addEvent(
         eventType = DELETED.getType,
         userId = comment.userid,
         isPrivate = true,
         topicId = Some(comment.topicId),
         commentId = Some(comment.id),
-        message = Some(info.reason()))
+        message = Some(info.reason))
     }
   }
 
   def insertTopicMassDeleteNotifications(topicsIds: Seq[Int], reason: String, deletedBy: User): Unit = {
     if (topicsIds.nonEmpty) {
-      userEventDao.insertTopicMassDeleteNotifications(topicsIds, reason, deletedBy.getId)
+      userEventDao.insertTopicMassDeleteNotifications(topicsIds, reason, deletedBy.id)
     }
   }
 
   def insertCommentMassDeleteNotifications(commentIds: Seq[Int], reason: String, deletedBy: User): Unit = {
     if (commentIds.nonEmpty) {
-      userEventDao.insertCommentMassDeleteNotifications(commentIds, reason, deletedBy.getId)
+      userEventDao.insertCommentMassDeleteNotifications(commentIds, reason, deletedBy.id)
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 package ru.org.linux.reaction
 
 import org.apache.pekko.actor.typed.ActorRef
-import org.joda.time.DateTimeZone
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
@@ -23,17 +22,18 @@ import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AnySession
 import ru.org.linux.comment.Comment
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.section.Section
 import ru.org.linux.site.DateFormats
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.{Topic, TopicDao}
-import ru.org.linux.user.{IgnoreListDao, ProfileDao, User, UserEventDao, UserService}
+import ru.org.linux.user.*
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.ZoneId
 import java.util.Date
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.immutable.TreeMap
@@ -58,7 +58,7 @@ case class PreparedReactions(reactions: Map[String, PreparedReaction],
 
 case class ReactionListItem(@BeanProperty user: User, @BeanProperty reaction: String, date: Option[Date]) {
   // for jsp
-  def dateFormatted(tz: DateTimeZone): String = date.map(d => DateFormats.getDefault(tz).print(d.getTime)).getOrElse("")
+  def dateFormatted(tz: ZoneId): String = date.map(d => DateFormats.formatDefault(tz, d)).getOrElse("")
 }
 
 case class PreparedReactionList(reactions: Seq[ReactionListItem]) {
@@ -106,7 +106,11 @@ object ReactionService {
     "\uD83E\uDD21" -> "лицо клоуна",
     "\u2615\u2615" -> "два чая этому господину!",
     "\uD83E\uDE97" -> "боян!!!1111",
+    "\uD83D\uDE22" -> "грусть-печаль",
+    "\uD83D\uDEAE" -> "не нужно!",
+    "\uD83C\uDF89" -> "хлопушка",
     "\uD83E\uDD2C" -> "нет слов, одни 5.1!")
+
 
   val AllowedReactions: Set[String] = DefinedReactions.keySet
 }
@@ -126,7 +130,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       !topic.deleted &&
       !topic.expired &&
       comment.forall(!_.deleted) &&
-      currentUser.forall(_.getId != authorId) &&
+      currentUser.forall(_.id != authorId) &&
       (comment.isEmpty || !topic.isCommentsHidden)
   }
 
@@ -151,7 +155,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
 
           val filteredUserIds = userIdsSet -- ignoreList
           val users = userService.getUsersCached(filteredUserIds)
-          val clicked = session.userOpt.map(_.getId).exists(userIdsSet.contains)
+          val clicked = session.userOpt.map(_.id).exists(userIdsSet.contains)
 
           r -> PreparedReaction(filteredUserIds.size, users.sortBy(-_.getScore).take(3).asJava,
             hasMore = users.sizeIs > 3, clicked = clicked, DefinedReactions.getOrElse(r, r))
@@ -171,7 +175,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(comment.userid)
 
-        if (!authorsIgnoreList.contains(user.getId) && comment.userid != User.ANONYMOUS_ID &&
+        if (!authorsIgnoreList.contains(user.id) && comment.userid != UserConstants.ANONYMOUS_ID &&
           isNotificationsEnabledFor(comment.userid)) {
           userEventDao.insertReactionNotification(user, topic, Some(comment))
         }
@@ -196,7 +200,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
       if (set) {
         val authorsIgnoreList = ignoreListDao.get(topic.authorUserId)
 
-        if (!authorsIgnoreList.contains(user.getId) && topic.authorUserId != User.ANONYMOUS_ID &&
+        if (!authorsIgnoreList.contains(user.id) && topic.authorUserId != UserConstants.ANONYMOUS_ID &&
           isNotificationsEnabledFor(topic.authorUserId)) {
           userEventDao.insertReactionNotification(user, topic, None)
         }
@@ -218,7 +222,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     val targetUserIds = items.view.map(_.targetUserId).distinct.toSeq
 
     val texts: Map[Int, MessageText] = msgbaseDao.getMessageText(textIds)
-    val targetUsers: Map[Int, User] = userService.getUsersCached(targetUserIds).view.map(u => u.getId -> u).toMap
+    val targetUsers: Map[Int, User] = userService.getUsersCached(targetUserIds).view.map(u => u.id -> u).toMap
 
     items.map { item =>
       val plainText = textService.extractPlainText(texts(item.item.commentId.getOrElse(item.item.topicId)))

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service
 import ru.org.linux.comment.Comment
 import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollNotFoundException}
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.topic.{PreparedImage, Topic, TopicTagService}
 import ru.org.linux.user.{User, UserService}

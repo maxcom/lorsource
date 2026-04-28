@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,10 +25,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.group.Group;
+import ru.org.linux.msgbase.MsgbaseDao;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.warning.RuleWarning;
@@ -36,7 +36,9 @@ import scala.Tuple2;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -126,12 +128,11 @@ public class TopicDao {
    * @return список топиков
    */
   public List<Integer> getMessageForMonth(int year, int month) {
-    Calendar calendar = Calendar.getInstance();
-    calendar.set(year, month, 1);
-    Timestamp ts_start = new Timestamp(calendar.getTimeInMillis());
-    calendar.add(Calendar.MONTH, 1);
-    Timestamp ts_end = new Timestamp(calendar.getTimeInMillis());
-    return jdbcTemplate.query(queryTopicsIdByTime, (resultSet, i) -> resultSet.getInt("id"), ts_start, ts_end);
+    ZonedDateTime start = LocalDate.of(year, month, 1).atStartOfDay().atZone(ZoneId.systemDefault());
+    ZonedDateTime end = start.plusMonths(1);
+
+    return jdbcTemplate.query(queryTopicsIdByTime, (resultSet, i) -> resultSet.getInt("id"),
+            start.toOffsetDateTime(), end.toOffsetDateTime());
   }
 
   public boolean delete(int msgid) {

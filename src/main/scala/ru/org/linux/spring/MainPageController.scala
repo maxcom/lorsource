@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,7 +17,7 @@ package ru.org.linux.spring
 
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.{RequestAttribute, RequestMapping}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupPermissionService
@@ -25,58 +25,69 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
 
+import java.time.ZoneId
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller
-class MainPageController(prepareService: TopicPrepareService, topicListService: TopicListService, topicDao: TopicDao,
-                         memoriesDao: MemoriesDao, groupPermissionService: GroupPermissionService,
-                         sectionService: SectionService, topicService: TopicService) {
+class MainPageController(
+    prepareService: TopicPrepareService,
+    topicListService: TopicListService,
+    topicDao: TopicDao,
+    memoriesDao: MemoriesDao,
+    groupPermissionService: GroupPermissionService,
+    sectionService: SectionService,
+    topicService: TopicService):
   @RequestMapping(path = Array("/", "/index.jsp"))
-  def mainPage(response: HttpServletResponse): ModelAndView = MaybeAuthorized { implicit session =>
-    response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
-    response.setDateHeader("Last-Modified", System.currentTimeMillis)
+  def mainPage(
+      response: HttpServletResponse,
+      @RequestAttribute(name = "timezone")
+      timezone: ZoneId): ModelAndView =
+    MaybeAuthorized { implicit session =>
+      response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
+      response.setDateHeader("Last-Modified", System.currentTimeMillis)
 
-    val allTopics = topicListService.getMainPageFeed(25)
+      val allTopics = topicListService.getMainPageFeed(25)
 
-    val (messages, titles) = allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) =>
-      if (big.count(!_.minor)<5) {
-        (big :+ topic, small)
-      } else {
-        (big, small :+ topic)
-      }
+      val (messages, titles) =
+        allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) =>
+          if big.count(!_.minor) < 5 then
+            (big :+ topic, small)
+          else
+            (big, small :+ topic)
+        }
+
+      val mv = new ModelAndView("index")
+
+      mv.getModel.put("news", prepareService.prepareTopics(messages, loadUserpics = false).asJava)
+
+      val briefNewsByDate = TopicListTools.datePartition(titles, timezone)
+
+      mv.getModel
+        .put(
+          "briefNews",
+          TopicListTools.split(
+            briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false))))
+
+      session
+        .userOpt
+        .foreach { user =>
+          mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(user)))
+          mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(user)))
+        }
+
+      if session.moderator || session.corrector then
+        val uncommitedCounts = topicService.getUncommitedCounts
+        val uncommited = uncommitedCounts.map(_._2).sum
+
+        mv.getModel.put("uncommited", Int.box(uncommited))
+        mv.getModel.put("uncommitedCounts", uncommitedCounts.asJava)
+
+      mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
+
+      val sectionNews = sectionService.getSection(Section.News)
+
+      if groupPermissionService.isTopicPostingAllowed(sectionNews) then
+        mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
+
+      mv
     }
-
-    val mv = new ModelAndView("index")
-
-    mv.getModel.put("news", prepareService.prepareTopics(messages, loadUserpics = false).asJava)
-
-    val briefNewsByDate = TopicListTools.datePartition(titles)
-
-    mv.getModel.put(
-      "briefNews",
-      TopicListTools.split(briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = false))))
-
-    session.userOpt.foreach { user =>
-      mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(user)))
-      mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(user)))
-    }
-
-    if (session.moderator || session.corrector) {
-      val uncommitedCounts = topicService.getUncommitedCounts
-      val uncommited = uncommitedCounts.map(_._2).sum
-
-      mv.getModel.put("uncommited", Int.box(uncommited))
-      mv.getModel.put("uncommitedCounts", uncommitedCounts.asJava)
-    }
-
-    mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
-
-    val sectionNews = sectionService.getSection(Section.SECTION_NEWS)
-
-    if (groupPermissionService.isTopicPostingAllowed(sectionNews)) {
-      mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
-    }
-
-    mv
-  }
-}

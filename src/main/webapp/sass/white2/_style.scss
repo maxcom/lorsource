@@ -1,0 +1,252 @@
+/*
+ * Copyright 1998-2026 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+@use "../mixins" as *;
+
+body {
+    font-family: sans-serif;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+a:visited {
+    color: var(--link-color);
+}
+
+.message-table a:visited {
+    color: var(--text-color);
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* info boxes on columns */
+DIV.boxlet H2 {
+    text-align: center;
+    color: var(--boxlet-heading-color);
+    font-size: medium;
+    background-color: var(--header-color);
+    border: 1px;
+    font-weight: bold;
+    margin-top: 0;
+}
+
+DIV.boxlet H3 {
+    font-size: x-small;
+}
+
+DIV.boxlet {
+    font-size: small;
+    margin-bottom: 30px;
+    padding-bottom: 5px;
+    text-align: left;
+    background-color: var(--boxlet-background);
+    border: 1px;
+}
+
+DIV.columnimg {
+    font-size: small;
+    margin-top: 30px;
+    text-align: center;
+}
+
+/* news items */
+.news H2 {
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.news DIV.nav {
+    text-align: left;
+    margin-top: 1em;
+}
+
+.nav {
+    background: var(--nav-background);
+    padding: 0;
+}
+
+.entry-body .nav {
+    background-color: inherit;
+}
+
+table.nav>tbody>tr>td {
+    border: var(--header-color) 1px solid;
+}
+
+.message-table {
+    background: var(--header-color);
+    border-spacing: 1px;
+}
+
+.message-table tbody {
+    background: var(--nav-background);
+}
+
+DIV.messages .title {
+    background: var(--header-color);
+}
+
+.messages .comment .title {
+    background: var(--boxlet-background);
+}
+
+.messages .msg {
+    background: var(--nav-background);
+    padding: 0;
+}
+
+.messages > .msg {
+    background: var(--nav-background);
+    padding: 0.25em 1em 1em;
+}
+
+/* comment signature */
+div.sig {
+    margin: 1ex 0 0 70%;
+    font-style: italic;
+}
+
+/* general */
+DIV.notes {
+    text-align: center;
+    font-style: italic;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    border: solid black;
+}
+
+.bluehead {
+    background: var(--boxlet-background);
+}
+
+.code {
+    background-color: var(--code-background);
+    font-family: monospace !important;
+}
+
+blockquote {
+    border-left-color: black;
+}
+
+.message-table tbody tr:hover {
+    background: var(--message-row-background);
+}
+
+.nav li:after {
+    content: "]";
+}
+
+.nav li:before {
+    content: "[";
+}
+
+#sitetitle {
+    font-weight: bold;
+    display: block;
+    text-decoration: none;
+    color: var(--site-title-color) !important;
+
+    @include respond-to(tablet-and-desktops) {
+      padding-left: 0.2em;
+      margin-right: 1em;
+    }
+}
+
+#loginGreating {
+    text-align: right;
+    float: right !important;
+    padding-left: 1em;
+    margin-right: 0.75em;
+}
+
+#hd {
+    background-color: var(--boxlet-background);
+    margin-bottom: 0.4em;
+}
+
+#hd .menu {
+    margin-bottom: 0.5em;
+    @include clearfix;
+}
+
+#hdtux {
+    height: 2.5em;
+    float: left;
+    padding: 0.2em;
+}
+
+#hd .menu li {
+    float: left;
+    margin-right: 0.5em;
+    list-style: none;
+}
+
+.tag a {
+    font-style: italic;
+}
+
+.message-table .tag:after {
+    content: "]";
+}
+
+.message-table .tag:before {
+    content: "[";
+}
+
+.fav-buttons .selected [class^="icon-"] {
+    color: orange;
+}
+
+textarea {
+    font-family: sans-serif !important;
+}
+
+.userpic {
+    margin-left: .25em;
+    margin-top: .25em;
+}
+
+.msg-container {
+    margin: 0;
+}
+
+#bd .btn {
+    color: black;
+    border: 1px solid black;
+    padding: 6px;
+    &:hover,
+    &:focus {
+        background-color: var(--site-title-color);
+        border: 1px solid var(--site-title-color);
+        color: white;
+    }
+}
+
+.group-label {
+  background-color: var(--code-background);
+}
+
+.user-tag, .poll-selected {
+    background-color: var(--code-background);
+}
+
+#related-topics-list {
+  overflow-x: hidden;  
+}

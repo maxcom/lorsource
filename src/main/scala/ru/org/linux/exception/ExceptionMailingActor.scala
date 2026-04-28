@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,8 +16,8 @@
 package ru.org.linux.exception
 
 import java.util.Date
-import javax.mail.internet.{AddressException, InternetAddress}
-import javax.mail.{Message, Transport}
+import jakarta.mail.internet.{AddressException, InternetAddress}
+import jakarta.mail.{Message, Transport}
 
 import org.apache.pekko.actor.{Actor, ActorLogging, Props, Timers}
 import ru.org.linux.email.EmailService

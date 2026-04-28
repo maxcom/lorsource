@@ -1,10 +1,11 @@
+<%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -53,7 +54,6 @@
         topic="${add.topic}"
         replyto="0"
         original="${add.original.id}"
-        msg="${add.msg}"
         form_action_url="${form_action_url}"
         cancel="true"
         postscoreInfo="${postscoreInfo}"/>

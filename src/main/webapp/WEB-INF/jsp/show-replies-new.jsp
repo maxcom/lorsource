@@ -1,6 +1,7 @@
+<%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -14,7 +15,6 @@
   ~    limitations under the License.
   --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.PreparedUserEvent>"--%>
@@ -41,16 +41,6 @@
 <title>${title}</title>
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml">
 <link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml">
-<script type="text/javascript">
-  $script.ready('plugins', function() {
-    $(document).ready(function() {
-      $('#reset_form').ajaxSubmit({
-        success: function() { $('#reset_form').hide(); },
-        url: "/notifications-reset"
-      });
-    });
-  });
-</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>${title}</h1>
@@ -92,7 +82,7 @@
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
         <lor:csrf/>
         <input type="hidden" name="topId" value="${topId}"/>
-        <button type="submit">Сбросить</button>
+        <button class="btn btn-small btn-default" style="margin-left: 1em" type="submit">Сбросить все</button>
       </form>
     </c:if>
   </div>
@@ -100,7 +90,12 @@
 
 <div class="notifications">
 <c:forEach var="topic" items="${topicsList}">
-<a href="${topic.link}" class="event-unread-${topic.event.unread} notifications-item">
+<form action="/notifications-click" method="POST">
+  <lor:csrf/>
+  <input type="hidden" name="lastId" value="${topic.lastId}"/>
+  <input type="hidden" name="firstId" value="${topic.event.id}"/>
+  <button type="submit" class="event-unread-${topic.event.unread} notifications-item">
+
   <div class="notifications-type">
     <p>
     <c:choose>
@@ -111,13 +106,13 @@
         <i class="icon-reply icon-reply-color" title="Ответ"></i>
       </c:when>
       <c:when test="${topic.event.eventType == 'REFERENCE'}">
-        <i class="icon-user icon-user-color"></i>
+         <span title="Упоминание">@️</span>
       </c:when>
       <c:when test="${topic.event.eventType == 'TAG'}">
         <i class="icon-tag icon-tag-color" title="Избранный тег"></i>
       </c:when>
       <c:when test="${topic.event.eventType == 'WARNING'}">
-         <span title="Избранный тег">⚠️</span>
+         <span title="Уведомление модератора">⚠️</span>
       </c:when>
     </c:choose>
     </p>
@@ -127,7 +122,6 @@
     <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
     <l:title>${topic.event.subj}</l:title>
     (${topic.section.name})
-    <c:if test="${topic.event.unread}">&nbsp;&bull;</c:if>
     </p>
   </div>
 
@@ -196,7 +190,8 @@
       </div>
     </c:if>
   </c:if>
-</a>
+</button>
+</form>
 </c:forEach>
 
 </div>

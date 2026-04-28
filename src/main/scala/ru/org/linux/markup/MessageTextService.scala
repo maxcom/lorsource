@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import com.google.common.base.Strings
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
 import ru.org.linux.markup.MarkupType.*
-import ru.org.linux.spring.dao.MessageText
+import ru.org.linux.msgbase.MessageText
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.bbcode.LorCodeService
@@ -145,17 +145,17 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
         s"""
            |$link
            |
-           |[i]Перемещено ${moveBy.getNick} из $moveFrom[/i]
+           |[i]Перемещено ${moveBy.nick} из $moveFrom[/i]
            |""".stripMargin
       case Html =>
         s"""
-           |$link<br><i>Перемещено ${moveBy.getNick} из $moveFrom</i>
+           |$link<br><i>Перемещено ${moveBy.nick} из $moveFrom</i>
            |""".stripMargin
       case Markdown =>
         s"""
            |$link
            |
-           |Перемещено ${moveBy.getNick} из $moveFrom
+           |Перемещено ${moveBy.nick} из $moveFrom
            |""".stripMargin
     }
   }

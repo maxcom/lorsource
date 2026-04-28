@@ -10,10 +10,14 @@
     <Logger name="org.apache.commons" level="info"/>
     <Logger name="org.springframework" level="info"/>
     <Logger name="org.apache.http" level="info"/>
+    <Logger name="org.apache.hc" level="info"/>
     <Logger name="org.elasticsearch" level="info"/>
     <Logger name="org.apache.commons.jexl2.JexlEngine" level="error"/>
     <Logger name="org.apache.activemq" level="info"/>
-    <Logger name="com.sksamuel.elastic4s" level="info"/>
+    <Logger name="com.github.dockerjava.zerodep.shaded.org.apache.hc" level="info"/>
+    <Logger name="com.zaxxer.hikari.pool" level="info"/>
+    <Logger name="com.github.dockerjava" level="info"/>
+    <Logger name="com.zaxxer.hikari" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="CONSOLE"/>

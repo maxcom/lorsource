@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -49,7 +49,7 @@
             &#128274;
           </c:if>
           <c:if test="${msg.resolved}">
-            <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
+            <i class="icon-check" title="решено"></i>
           </c:if>
 
           <l:title>${msg.title}</l:title>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -34,7 +34,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
   def favoriteAdd(user: User, tagName: String): Int = {
     val tagId = tagService.getTagId(tagName, skipZero = true)
 
-    userTagDao.addTag(user.getId, tagId, true)
+    userTagDao.addTag(user.id, tagId, true)
 
     tagId
   }
@@ -50,7 +50,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
   def favoriteDel(user: User, tagName: String): Int = {
     val tagId = tagService.getTagId(tagName)
 
-    userTagDao.deleteTag(user.getId, tagId, true)
+    userTagDao.deleteTag(user.id, tagId, true)
 
     tagId
   }
@@ -65,7 +65,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
   def ignoreAdd(user: User, tagName: String): Int = {
     val tagId = tagService.getTagId(tagName)
 
-    userTagDao.addTag(user.getId, tagService.getTagId(tagName), false)
+    userTagDao.addTag(user.id, tagService.getTagId(tagName), false)
 
     tagId
   }
@@ -80,7 +80,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
   def ignoreDel(user: User, tagName: String): Int = {
     val tagId = tagService.getTagId(tagName)
 
-    userTagDao.deleteTag(user.getId, tagService.getTagId(tagName), false)
+    userTagDao.deleteTag(user.id, tagService.getTagId(tagName), false)
 
     tagId
   }
@@ -92,7 +92,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @return список тегов пользователя
     */
   def favoritesGet(user: User): java.util.List[String] = {
-    userTagDao.getTags(user.getId, true)
+    userTagDao.getTags(user.id, true)
   }
 
   /**
@@ -102,7 +102,7 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @return список игнорированных тегов пользователя
     */
   def ignoresGet(user: User): java.util.List[String] = {
-    userTagDao.getTags(user.getId, false)
+    userTagDao.getTags(user.id, false)
   }
 
   /**

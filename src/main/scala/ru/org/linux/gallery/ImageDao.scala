@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -68,13 +68,13 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
    * @return список GalleryDto объектов
    */
   def getGalleryItems(countItems: Int): Seq[GalleryItem] = {
-    val gallery = sectionService.getSection(Section.SECTION_GALLERY)
+    val gallery = sectionService.getSection(Section.Gallery)
     val sql =
       s"""SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate
          |FROM
          |  (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
          |    FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
-         |     AND section=${Section.SECTION_GALLERY} AND NOT topics.deleted AND commitdate IS NOT NULL
+         |     AND section=${Section.Gallery} AND NOT topics.deleted AND commitdate IS NOT NULL
          |     ORDER BY commitdate DESC LIMIT ?) as t JOIN images ON t.msgid = images.topic
          |WHERE NOT images.deleted AND images.main ORDER BY commitdate DESC""".stripMargin
 
@@ -85,14 +85,14 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
    * Возвращает последние объекты галереи.
    */
   def getGalleryItems(countItems: Int, tagId: Int): Seq[GalleryItem] = {
-    val gallery = sectionService.getSection(Section.SECTION_GALLERY)
+    val gallery = sectionService.getSection(Section.Gallery)
 
     val sql =
       s"""SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate
          |FROM
          |  (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
          |    FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
-         |      AND section=${Section.SECTION_GALLERY} AND NOT topics.deleted AND commitdate IS NOT NULL AND
+         |      AND section=${Section.Gallery} AND NOT topics.deleted AND commitdate IS NOT NULL AND
          |      topics.id IN (SELECT msgid FROM tags WHERE tagid=?) ORDER BY commitdate DESC LIMIT ?) as t
          |  JOIN images ON t.msgid = images.topic
          |WHERE NOT images.deleted AND images.main""".stripMargin

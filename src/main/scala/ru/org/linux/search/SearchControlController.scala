@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,7 +14,6 @@
  */
 package ru.org.linux.search
 
-import jakarta.servlet.ServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -27,7 +26,7 @@ import java.util.Calendar
 @Controller
 class SearchControlController(searchQueueSender: SearchQueueSender, topicDao: TopicDao) {
   @RequestMapping(value = Array("/admin/search-reindex"), method = Array(RequestMethod.POST), params = Array("action=all"))
-  def reindexAll(request: ServletRequest): ModelAndView = AdministratorOnly { _ =>
+  def reindexAll(): ModelAndView = AdministratorOnly { _ =>
     val startDate = topicDao.getTimeFirstTopic
 
     val start = Calendar.getInstance
@@ -51,7 +50,7 @@ class SearchControlController(searchQueueSender: SearchQueueSender, topicDao: To
 
   @RequestMapping(value = Array("/admin/search-reindex"), method = Array(RequestMethod.POST),
     params = Array("action=current"))
-  def reindexCurrentMonth(request: ServletRequest): ModelAndView = AdministratorOnly { _ =>
+  def reindexCurrentMonth(): ModelAndView = AdministratorOnly { _ =>
     val current = Calendar.getInstance
 
     for (_ <- 0 until 3) {
@@ -63,7 +62,7 @@ class SearchControlController(searchQueueSender: SearchQueueSender, topicDao: To
   }
 
   @RequestMapping(value = Array("/admin/search-reindex"), method = Array(RequestMethod.GET))
-  def reindexAll = AdministratorOnly { _ =>
+  def reindex = AdministratorOnly { _ =>
     new ModelAndView("search-reindex")
   }
 }

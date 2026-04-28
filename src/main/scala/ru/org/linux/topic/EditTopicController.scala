@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,13 +28,13 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
-import ru.org.linux.group.{GroupDao, GroupPermissionService}
+import ru.org.linux.group.{GroupPermissionService, GroupService}
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.tag.{TagName, TagRef, TagService}
 import ru.org.linux.user.{User, UserErrorException, UserPermissionService, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
@@ -46,7 +46,7 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsSca
 
 @Controller
 class EditTopicController(searchQueueSender: SearchQueueSender, topicService: TopicService,
-                          prepareService: TopicPrepareService, groupDao: GroupDao, pollDao: PollDao,
+                          prepareService: TopicPrepareService, groupService: GroupService, pollDao: PollDao,
                           permissionService: GroupPermissionService, captcha: CaptchaService, msgbaseDao: MsgbaseDao,
                           editHistoryService: EditHistoryService, editTopicRequestValidator: EditTopicRequestValidator,
                           ipBlockDao: IPBlockDao, tagService: TagService, userService: UserService,
@@ -104,7 +104,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
     val group = preparedTopic.group
 
     params.put("group", group)
-    params.put("groups", groupDao.getGroups(preparedTopic.section))
+    params.put("groups", groupService.getGroups(preparedTopic.section))
     params.put("newMsg", message)
 
     val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)
@@ -157,7 +157,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       form.msg=messageText.text
     }
 
-    if (message.sectionId == Section.SECTION_NEWS || message.sectionId == Section.SECTION_ARTICLES) {
+    if (message.sectionId == Section.News || message.sectionId == Section.Articles) {
       form.minor=message.minor
     }
 
@@ -301,7 +301,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
 
     if (changeGroupId != null) {
       if (topic.groupId != changeGroupId) {
-        val changeGroup = groupDao.getGroup(changeGroupId)
+        val changeGroup = groupService.getGroup(changeGroupId)
         if (changeGroup.sectionId != topic.sectionId) {
           throw new AccessViolationException("Can't move topics between sections")
         }
@@ -320,7 +320,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       oldText
     }
 
-    if (!preview && !errors.hasErrors && ipBlockInfo.isCaptchaRequired) {
+    if (!preview && !errors.hasErrors && ipBlockInfo.captchaRequired) {
       captcha.checkCaptcha(request, errors)
     }
 

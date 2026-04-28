@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{NodeRenderer, NodeRenderingHandler}
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
-import com.vladsch.flexmark.util.options.{DataHolder, DataKey, MutableDataHolder}
+import com.vladsch.flexmark.util.data.{DataHolder, DataKey, MutableDataHolder}
 
 import scala.jdk.CollectionConverters._
 
@@ -45,7 +45,7 @@ class CutExtension extends Parser.ParserExtension with HtmlRenderer.HtmlRenderer
 }
 
 class CutRenderer(options: DataHolder) extends NodeRenderer {
-  override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[_ <: Node]] = Set(
+  override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[? <: Node]] = Set(
     new NodeRenderingHandler[CutNode](classOf[CutNode], (node, ctx, html) => {
       val id = ctx.getNodeId(node)
 
@@ -70,5 +70,5 @@ class CutRenderer(options: DataHolder) extends NodeRenderer {
         })
       }
 
-  })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[_]]]
+  })).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[?]]]
 }

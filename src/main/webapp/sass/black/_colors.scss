@@ -1,0 +1,41 @@
+/*
+ * Copyright 1998-2026 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+@use "../mixins";
+
+$main_background: black;
+$code_background: #000020;
+$text_color: #c8c8c8;
+$link_color: #fefefe;
+$tracker_tag_color: grey;
+$table_border_color: white;
+$table_link_color: $link_color;
+$table_hover_background:  #000060;
+$table_background_color: #000080;
+$unread_marker_color: #fefefe;
+
+:root {
+  --text-color: #{$text_color};
+  --link-color: #{$link_color};
+  --table-border-color: #{$table_border_color};
+  --table-link-color: #{$table_link_color};
+  --table-hover-background: #{$table_hover_background};
+  --table-background-color: #{$table_background_color};
+  --tracker-tag-color: #{$tracker_tag_color};
+  --unread-marker-color: #{$unread_marker_color};
+  --code-background: #{$code_background};
+}
+
+@include mixins.heatmap-colors(#8ae234, 1.5);

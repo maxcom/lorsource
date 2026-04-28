@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,13 +18,13 @@ import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
 import ru.org.linux.edithistory.EditInfoSummary
 import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
-import ru.org.linux.group.{GroupDao, GroupPermissionService, PreparedTopicsListItem, TopicsListItem}
+import ru.org.linux.group.{GroupPermissionService, GroupService, PreparedTopicsListItem, TopicsListItem}
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.{Poll, PollPrepareService, PreparedPoll}
 import ru.org.linux.reaction.ReactionService
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.tag.TagRef
 import ru.org.linux.user.*
 import ru.org.linux.util.StringUtil
@@ -34,7 +34,7 @@ import scala.jdk.CollectionConverters.*
 import scala.jdk.OptionConverters.RichOptional
 
 @Service
-class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, deleteInfoDao: DeleteInfoDao,
+class TopicPrepareService(sectionService: SectionService, groupService: GroupService, deleteInfoDao: DeleteInfoDao,
                           pollPrepareService: PollPrepareService, remarkDao: RemarkDao, textService: MessageTextService,
                           siteConfig: SiteConfig, userService: UserService,
                           topicPermissionService: TopicPermissionService,
@@ -56,11 +56,11 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val additionalImageObjects = additionalImages.map(_.toImage(main = false))
 
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
-      text, imageObject, additionalImageObjects, imageLazyLoad = false)(NonAuthorizedSession)
+      text, imageObject, additionalImageObjects, imageLazyLoad = false)(using NonAuthorizedSession)
   }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(implicit session: AnySession): PreparedEditInfoSummary = {
-    val lastEditor = userService.getUserCached(editInfo.editor).getNick
+    val lastEditor = userService.getUserCached(editInfo.editor).nick
     val editCount = editInfo.editCount
     val lastEditDate = editInfo.editdate
 
@@ -81,12 +81,12 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
                            text: MessageText, image: Option[Image], additionalImages: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty,
                            imageLazyLoad: Boolean)
                           (implicit session: AnySession): PreparedTopic = {
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
     val section = sectionService.getSection(topic.sectionId)
 
     val deleteInfo = if (topic.deleted) {
-      deleteInfoDao.getDeleteInfo(topic.id).toScala
+      deleteInfoDao.getDeleteInfo(topic.id)
     } else {
       None
     }
@@ -108,7 +108,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val url = s"${siteConfig.getSecureUrlWithoutSlash}${topic.getLink}"
     val processedMessage = textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(topic, author), url)
 
-    val (preparedImage, additionalPreparedImages) = if (section.isImagepost || section.isImageAllowed) {
+    val (preparedImage, additionalPreparedImages) = if (section.imagepost || section.imageAllowed) {
       val currentImages = if (topic.id != 0) {
         imageService.allImagesForTopic(topic)
       } else {
@@ -129,15 +129,20 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     }
 
     val ignoreList = session.userOpt.map { user =>
-      ignoreListDao.get(user.getId)
+      ignoreListDao.get(user.id)
     }.getOrElse(Set.empty[Int])
 
-    val postscore = topicPermissionService.getPostscore(group, topic)
+    lazy val postscore = topicPermissionService.getPostscore(group, topic)
 
     val showRegisterInvite = !session.authorized &&
-      (postscore <= 45 &&
-        postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED ||
-        userService.getAnonymous.isFrozen)
+      (userService.getAnonymous.isFrozen || postscore <= 45 &&
+        postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED)
+
+    val postscoreInfo = if (!topic.expired) {
+      TopicPermissionService.getPostScoreInfo(postscore)
+    } else {
+      ""
+    }
 
     val userAgent = if (session.moderator) {
       userAgentDao.getUserAgentById(topic.userAgentId).toScala
@@ -147,7 +152,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
-      TopicPermissionService.getPostScoreInfo(postscore), remark.orNull, showRegisterInvite, userAgent.orNull,
+      postscoreInfo, remark.orNull, showRegisterInvite, userAgent.orNull,
       reactionPrepareService.prepare(topic.reactions, ignoreList, topic, None),
       warningService.prepareWarning(warnings).asJava, additionalPreparedImages.asJava)
   }
@@ -190,7 +195,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
 
     messages.view.map { message =>
       prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, textMap(message.id),
-        image = None, imageLazyLoad = false)(NonAuthorizedSession)
+        image = None, imageLazyLoad = false)(using NonAuthorizedSession)
     }.toSeq
   }
 
@@ -200,7 +205,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
     val tagsEditable = groupPermissionService.isTagsEditable(topic)
 
     val (resolvable, deletable, undeletable) = session.opt.map  { implicit currentUser =>
-      val resolvable = (currentUser.moderator || (topic.author.getId == currentUser.user.getId)) &&
+      val resolvable = (currentUser.moderator || (topic.author.id == currentUser.user.id)) &&
         topic.group.resolvable
 
       val deletable = groupPermissionService.isDeletable(topic.message)
@@ -224,7 +229,7 @@ class TopicPrepareService(sectionService: SectionService, groupDao: GroupDao, de
   }
 
   def prepareBrief(topic: Topic, groupInTitle: Boolean): BriefTopicRef = {
-    val group = groupDao.getGroup(topic.groupId)
+    val group = groupService.getGroup(topic.groupId)
 
     val showComments = !topic.isCommentsHidden
 

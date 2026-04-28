@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,16 +24,18 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.site.{BadInputException, DefaultProfile, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
+import ru.org.linux.user.UserPermissionService.DeprecatedFeaturesScore
 
 import java.util
+import scala.collection.immutable.ListMap
 import scala.jdk.CollectionConverters.*
 
 @Controller
 @RequestMapping (path = Array ("/people/{nick}/settings") )
-class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermissionService: UserPermissionService) {
+class EditSettingsController(profileDao: ProfileDao, userPermissionService: UserPermissionService, userService: UserService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (!(currentUser.user.getNick == nick)) {
+    if (!(currentUser.user.nick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
 
@@ -41,25 +43,31 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
 
     val nonDeprecatedThemes = Theme.THEMES.asScala.view.filterNot(_.isDeprecated).map(_.getId).toVector
 
-    if (currentUser.user.getScore >= 500) {
+    if currentUser.user.score >= DeprecatedFeaturesScore then
       params.put("stylesList", Theme.THEMES.asScala.map(_.getId).asJava)
-    } else if (DefaultProfile.getTheme(currentUser.user.getStyle).isDeprecated) {
-      params.put("stylesList", (nonDeprecatedThemes :+ currentUser.user.getStyle).asJava)
-    } else {
+    else if (DefaultProfile.getTheme(currentUser.user.style).isDeprecated)
+      params.put("stylesList", (nonDeprecatedThemes :+ currentUser.user.style).asJava)
+    else
       params.put("stylesList", nonDeprecatedThemes.asJava)
-    }
 
     params.put("trackerModes", TrackerFilterEnum.values.filter(_.isCanBeDefault))
 
-    params.put("topicsValues", (DefaultProfile.TOPICS_VALUES.asScala + currentUser.profile.topics).toSeq.sorted.asJava)
-    params.put("messagesValues", (DefaultProfile.COMMENTS_VALUES.asScala + currentUser.profile.messages).toSeq.sorted.asJava)
+    params.put("topicsValues", (DefaultProfile.TopicsValues + currentUser.profile.topics).toSeq.sorted.asJava)
+    params.put("messagesValues", (DefaultProfile.CommentsValues + currentUser.profile.messages).toSeq.sorted.asJava)
 
     params.put("format_mode", currentUser.profile.formatMode.formId)
 
-    params.put("formatModes",
-      UserPermissionService.allowedFormats(currentUser.user).map(m => m.formId -> m.title).toMap.asJava)
+    val allFormats = UserPermissionService.allowedFormats(currentUser.user)
 
-    params.put("avatarsList", DefaultProfile.getAvatars)
+    val allowedFormats =
+      if currentUser.user.score >= DeprecatedFeaturesScore || currentUser.profile.formatMode.deprecated then
+        allFormats
+      else
+        allFormats.filterNot(_.deprecated)
+
+    params.put("formatModes", allowedFormats.toSeq.sortBy(_.order).view.map(m => m.formId -> m.title).to(ListMap).asJava)
+
+    params.put("avatarsList", DefaultProfile.getAvatars.asJava)
 
     params.put("canLoadUserpic", Boolean.box(userPermissionService.canLoadUserpic))
 
@@ -72,13 +80,13 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
                      @RequestParam("format_mode") formatMode: String,
                      @PathVariable nick: String
                  ): ModelAndView = AuthorizedOnly { currentUser =>
-    if (!(currentUser.user.getNick == nick)) {
+    if (!(currentUser.user.nick == nick)) {
       throw new AccessViolationException("Not authorized")
     }
-    if (!(DefaultProfile.TOPICS_VALUES.contains(topics) || topics == currentUser.profile.topics)) {
+    if (!(DefaultProfile.TopicsValues.contains(topics) || topics == currentUser.profile.topics)) {
       throw new BadInputException("некорректное число тем")
     }
-    if (!(DefaultProfile.COMMENTS_VALUES.contains(messages) || messages == currentUser.profile.messages)) {
+    if (!(DefaultProfile.CommentsValues.contains(messages) || messages == currentUser.profile.messages)) {
       throw new BadInputException("некорректное число комментариев")
     }
     if (!DefaultProfile.isStyle(request.getParameter("style"))) {
@@ -98,9 +106,9 @@ class EditSettingsController(userDao: UserDao, profileDao: ProfileDao, userPermi
     builder.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
     builder.setFormatMode(formatMode)
     builder.setStyle(request.getParameter("style"))
-    userDao.setStyle(currentUser.user, request.getParameter("style"))
+    userService.setStyle(currentUser.user, request.getParameter("style"))
     builder.setOldTracker("on" == request.getParameter("oldTracker"))
-    builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DEFAULT_TRACKER_MODE))
+    builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DefaultTrackerMode))
 
     val avatar = request.getParameter("avatar")
     if (!DefaultProfile.getAvatars.contains(avatar)) {

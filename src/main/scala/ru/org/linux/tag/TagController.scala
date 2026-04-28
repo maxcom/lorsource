@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -149,7 +149,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
     if (!errors.hasErrors) {
       tagModificationService.change(tagRequestChange.getOldTagName, tagRequestChange.getTagName)
 
-      logger.info("Тег '{}' изменен пользователем {}", tagRequestChange.getOldTagName, currentUser.user.getNick)
+      logger.info("Тег '{}' изменен пользователем {}", tagRequestChange.getOldTagName, currentUser.user.nick)
 
       redirectToListPage(tagRequestChange.getTagName)
     } else {
@@ -225,7 +225,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
         request.getTagName.substring(0, 1)
       }
 
-      logger.info("Тег '{}' удален пользователем {}", request.getOldTagName, currentUser.user.getNick)
+      logger.info("Тег '{}' удален пользователем {}", request.getOldTagName, currentUser.user.nick)
       redirectToListPage(firstLetter)
     } else {
       val firstLetter = request.getOldTagName.substring(0, 1)

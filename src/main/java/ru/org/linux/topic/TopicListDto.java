@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -42,13 +42,7 @@ public class TopicListDto {
     BETWEEN,
     FROM_DATE
   }
-
-  public enum MiniNewsMode {
-    ALL,
-    MAJOR,
-    MINOR
-  }
-
+  
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
   private ImmutableSet<Integer> sections = ImmutableSet.of();
@@ -67,9 +61,7 @@ public class TopicListDto {
 
   private boolean showDraft = false;
   private boolean includeAnonymous = true;
-
-  private MiniNewsMode miniNewsMode = MiniNewsMode.ALL;
-
+  
   public ImmutableSet<Integer> getSections() {
     return sections;
   }
@@ -188,14 +180,6 @@ public class TopicListDto {
 
   public void setShowDraft(boolean showDraft) {
     this.showDraft = showDraft;
-  }
-
-  public MiniNewsMode getMiniNewsMode() {
-    return miniNewsMode;
-  }
-
-  public void setMiniNewsMode(MiniNewsMode miniNewsMode) {
-    this.miniNewsMode = miniNewsMode;
   }
 
   public boolean isIncludeAnonymous() {

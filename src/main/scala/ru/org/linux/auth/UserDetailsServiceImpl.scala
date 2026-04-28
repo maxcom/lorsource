@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -28,7 +28,7 @@ object UserDetailsServiceImpl {
   private def retrieveUserAuthorities(user: User) = {
     val results = Vector.newBuilder[GrantedAuthority]
 
-    if (user.isActivated) {
+    if (user.activated) {
       results.addOne(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
 
       if (user.canCorrect) {
@@ -49,12 +49,12 @@ object UserDetailsServiceImpl {
 }
 
 @Component
-class UserDetailsServiceImpl(userDao: UserDao, userService: UserService) extends UserDetailsService {
+class UserDetailsServiceImpl(userService: UserService) extends UserDetailsService {
   @throws[UsernameNotFoundException]
   @throws[DataAccessException]
   override def loadUserByUsername(username: String): UserDetailsImpl = {
     val user: User = if (username.contains("@")) {
-      userDao.getByEmail(username, true)
+      userService.getByEmail(username, searchBlocked = true).getOrElse(throw new UsernameNotFoundException(username))
     } else {
       try {
         userService.getUser(username)
@@ -62,10 +62,6 @@ class UserDetailsServiceImpl(userDao: UserDao, userService: UserService) extends
         case _: UserNotFoundException =>
           throw new UsernameNotFoundException(username)
       }
-    }
-
-    if (user == null) {
-      throw new UsernameNotFoundException(username)
     }
 
     new UserDetailsImpl(user, UserDetailsServiceImpl.retrieveUserAuthorities(user).asJava, userService.getProfile(user))

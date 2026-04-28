@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,7 +14,6 @@
  */
 package ru.org.linux.user
 
-import org.joda.time.DateTime
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
@@ -23,6 +22,7 @@ import ru.org.linux.user.UserInvitesDao.ValidDays
 
 import java.security.SecureRandom
 import java.sql.Timestamp
+import java.time.{Instant, ZonedDateTime}
 import java.util.Base64
 import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
@@ -38,7 +38,7 @@ class UserInvitesDao(ds: DataSource) {
 
   private val jdbcTemplate = new JdbcTemplate(ds)
 
-  def createInvite(owner: User, email: String): (String, DateTime) = {
+  def createInvite(owner: User, email: String): (String, Instant) = {
     val random = new SecureRandom
 
     val value = new Array[Byte](16)
@@ -46,12 +46,12 @@ class UserInvitesDao(ds: DataSource) {
 
     val inviteCode = Base64.getEncoder.encodeToString(value)
 
-    val validUntil = DateTime.now().plusDays(ValidDays)
+    val validUntil = ZonedDateTime.now().plusDays(ValidDays).toInstant
 
     insert.execute(Map(
       "invite_code" -> inviteCode,
-      "owner" -> owner.getId,
-      "valid_until" -> new Timestamp(validUntil.getMillis),
+      "owner" -> owner.id,
+      "valid_until" -> Timestamp.from(validUntil),
       "email" -> email
     ).asJava)
 
@@ -81,7 +81,7 @@ class UserInvitesDao(ds: DataSource) {
   // returns total and user's counts
   def countValidInvites(user: User): (Int, Int) = {
     jdbcTemplate.queryForObjectAndMap(
-      "select count(*), count(*) filter (where owner=?) from user_invites where valid_until > CURRENT_TIMESTAMP", user.getId) { (row, _) =>
+      "select count(*), count(*) filter (where owner=?) from user_invites where valid_until > CURRENT_TIMESTAMP", user.id) { (row, _) =>
       (row.getInt(1), row.getInt(2))
     }.get
   }
@@ -89,7 +89,7 @@ class UserInvitesDao(ds: DataSource) {
   def getAllInvitedUsers(user: User): Seq[Int] =
     jdbcTemplate.queryForSeq[Int](
       "select invited_user from user_invites where owner = ? and invited_user is not null order by issue_date",
-      user.getId)
+      user.id)
 }
 
 object UserInvitesDao {

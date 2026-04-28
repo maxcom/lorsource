@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,7 +19,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
 import io.circe.syntax.*
 import jakarta.servlet.http.HttpServletRequest
-import org.joda.time.DateTimeZone
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -27,33 +26,32 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.spring.dao.DeleteInfoDao
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.util.bbcode.LorCodeService
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.{OffsetDateTime, ZoneId}
 import java.util.concurrent.CompletionStage
-import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.FutureOps
 
 @Controller
 class WhoisController(userStatisticsService: UserStatisticsService, userDao: UserDao, ignoreListDao: IgnoreListDao,
                       lorCodeService: LorCodeService, userTagService: UserTagService,
                       topicPermissionService: TopicPermissionService, userService: UserService, userLogDao: UserLogDao,
                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
-                      topicDao: TopicDao, userPermissionService: UserPermissionService,
-                      deleteInfoDao: DeleteInfoDao) extends StrictLogging {
+                      topicDao: TopicDao, userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def getInfoNew(@PathVariable nick: String): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
+  def getInfoNew(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
 
-    if (user.isBlocked && !currentUserOpt.authorized) {
+    if (user.blocked && !currentUserOpt.authorized) {
       throw new UserBanedException(user, userDao.getBanInfoClass(user))
     }
 
-    if (!user.isActivated && !currentUserOpt.moderator) {
+    if (!user.activated && !currentUserOpt.moderator) {
       throw new UserNotFoundException(user.getName)
     }
 
@@ -62,12 +60,18 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     val mv = new ModelAndView("whois")
 
     mv.getModel.put("user", user)
-    mv.getModel.put("userInfo", userDao.getUserInfoClass(user))
+    val userInfo = userDao.getUserInfo(user)
+    mv.getModel.put("userInfo", userInfo)
 
     mv.getModel.put("userpic", userService.getUserpic(user, currentUserOpt.profile.avatarMode, misteryMan = true))
 
-    if (user.isBlocked) {
-      mv.getModel.put("banInfo", userDao.getBanInfoClass(user))
+    if (user.blocked) {
+      val banInfo = userDao.getBanInfoClass(user)
+      mv.getModel.put("banInfo", banInfo)
+
+      if (banInfo != null && banInfo.moderator != 0) {
+        mv.getModel.put("bannedBy", userService.getUserCached(banInfo.moderator))
+      }
     }
 
     mv.getModel.put("blockable", currentUserOpt.opt.exists(by => userService.isBlockable(user = user, by = by.user)))
@@ -78,33 +82,33 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     // freezes the user, if frozen
     if (user.isFrozen) {
       mv.getModel.put("isFrozen", true)
-      val freezer = userService.getUserCached(user.getFrozenBy)
+      val freezer = userService.getUserCached(userInfo.frozenBy)
       mv.getModel.put("freezer", freezer)
     }
 
+    mv.getModel.put("freezeDurations", getFreezeDurations(user).asJava)
+
     if (currentUserOpt.moderator) {
-      val othersWithSameEmail = userDao.getAllByEmail(user.getEmail).asScala.filter(_.getId != user.getId)
+      val othersWithSameEmail = userService.getAllByEmail(user.email).filter(_.id != user.id)
 
       mv.getModel.put("otherUsers", othersWithSameEmail.asJava)
-
-      mv.getModel.put("recentScoreLoss", deleteInfoDao.getRecentScoreLoss(user))
     }
 
-    if (!user.isAnonymous) {
+    if (!user.anonymous) {
       mv.getModel.put("watchPresent", memoriesDao.isWatchPresetForUser(user))
       mv.getModel.put("favPresent", memoriesDao.isFavPresetForUser(user))
     }
 
-    val viewByOwner = currentUserOpt.userOpt.exists(_.getNick == nick)
+    val viewByOwner = currentUserOpt.userOpt.exists(_.nick == nick)
 
     mv.getModel.put("moderatorOrCurrentUser", viewByOwner || currentUserOpt.moderator)
     mv.getModel.put("viewByOwner", viewByOwner)
 
     currentUserOpt.userOpt.foreach { currentUser =>
       if (!viewByOwner) {
-        val ignoreList = ignoreListDao.get(currentUser.getId)
+        val ignoreList = ignoreListDao.get(currentUser.id)
 
-        mv.getModel.put("ignored", ignoreList.contains(user.getId))
+        mv.getModel.put("ignored", ignoreList.contains(user.id))
 
         remarkDao.getRemark(currentUser, user).foreach { remark =>
           mv.getModel.put("remark", remark)
@@ -120,7 +124,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       }
     }
 
-    val userinfo = userDao.getUserInfo(user)
+    val userinfo = userInfo.text
 
     if (!Strings.isNullOrEmpty(userinfo)) {
       mv.getModel.put("userInfoText",
@@ -132,13 +136,19 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     if (viewByOwner || currentUserOpt.moderator) {
       mv.addObject("ignoreTags", userTagService.ignoresGet(user))
 
-      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator).asScala
+      val logItems = userLogDao.getLogItems(user, currentUserOpt.moderator)
       if (logItems.nonEmpty) {
-        mv.addObject("userlog", userLogPrepareService.prepare(logItems).asJava)
+        val timezone = request.getAttribute("timezone").asInstanceOf[ZoneId]
+
+        mv.addObject("userlog", userLogPrepareService.prepare(logItems, timezone).asJava)
       }
 
       mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))
-      mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user))
+      mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user).asJava)
+
+      mv.getModel.put("slowMode", userPermissionService.isSlowMode(user))
+    } else {
+      mv.getModel.put("slowMode", false)
     }
 
     userStatsF.map { userStat =>
@@ -174,16 +184,32 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     mav
   }
 
+  private def getFreezeDurations(user: User): Seq[String] = {
+    val recentFreeze = user.frozenUntil != null && 
+      user.frozenUntil.toInstant.isAfter(OffsetDateTime.now().minusYears(2).toInstant)
+    
+    val baseFreezeDurations = 
+      if recentFreeze then
+        UserModificationController.LongFreezeDurations
+      else 
+        UserModificationController.FreezeDurations
+
+    (if user.isFrozen then
+      UserModificationController.Unfreeze ++ baseFreezeDurations
+    else 
+      baseFreezeDurations).keys.toSeq
+  }
+
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD), params = Array("year-stats"))
   @ResponseBody
   def yearStats(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[Json] = MaybeAuthorized { currentUser =>
     val user = userService.getUser(nick)
 
-    if (!currentUser.moderator && user.isBlocked) {
+    if (!currentUser.moderator && user.blocked) {
       throw new AccessViolationException("Пользователь заблокирован")
     }
 
-    val timezone = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
+    val timezone = request.getAttribute("timezone").asInstanceOf[ZoneId]
 
     userStatisticsService.getYearStats(user, timezone).map(_.asJson).asJava
   }

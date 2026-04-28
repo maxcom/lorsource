@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,18 +19,18 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.common.DeleteReasons
+import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.site.ScriptErrorException
-import ru.org.linux.spring.dao.DeleteInfoDao
-import ru.org.linux.spring.dao.DeleteInfoDao.InsertDeleteInfo
+import ru.org.linux.msgbase.InsertDeleteInfo
 import ru.org.linux.topic.{Topic, TopicDao}
-import ru.org.linux.user.{User, UserDao, UserEventService}
+import ru.org.linux.user.{User, UserEventService, UserService}
 
 import java.sql.Timestamp
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 @Service
-class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: UserEventService,
+class DeleteService(commentDao: CommentDao, userService: UserService, userEventService: UserEventService,
                     deleteInfoDao: DeleteInfoDao, commentService: CommentReadService, topicDao: TopicDao,
                     val transactionManager: PlatformTransactionManager) extends TransactionManagement {
   /**
@@ -131,15 +131,21 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
    * @return список удаленных комментариев
    */
   def deleteAllAndBlock(user: User, reason: String)
-                       (implicit currentUser: AuthorizedSession): DeleteCommentResult = transactional() { _ =>
-    assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
+                       (implicit currentUser: AuthorizedSession): DeleteCommentResult = {
+    val result = transactional() { _ =>
+      assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
 
-    userDao.block(user, currentUser.user, reason)
+      userService.block(user, currentUser.user, reason)
 
-    val topics = topicDao.getUserTopicForUpdate(user).asScala.map(_.toInt)
-    val comments = commentDao.getAllByUserForUpdate(user).asScala.map(_.toInt)
+      val topics = topicDao.getUserTopicForUpdate(user).asScala.map(_.toInt)
+      val comments = commentDao.getAllByUserForUpdate(user).asScala.map(_.toInt)
 
-    massDelete(currentUser.user, topics, comments, "Блокировка пользователя с удалением сообщений", notifyUser = false)
+      massDelete(currentUser.user, topics, comments, "Блокировка пользователя с удалением сообщений", notifyUser = false)
+    }
+
+    userService.invalidateCache(user)
+
+    result
   }
 
   def undeleteComment(comment: Comment)
@@ -148,8 +154,10 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(comment.id, true)
 
-    if (deleteInfo != null && deleteInfo.getBonus != 0) {
-      userDao.changeScore(comment.userid, -deleteInfo.getBonus)
+    deleteInfo.foreach { info =>
+      if (info.getBonus != 0) {
+        userService.changeScore(comment.userid, -info.getBonus)
+      }
     }
 
     commentDao.undeleteComment(comment)
@@ -163,8 +171,10 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(topic.id, true)
 
-    if (deleteInfo != null && deleteInfo.getBonus != 0) {
-      userDao.changeScore(topic.authorUserId, -deleteInfo.getBonus)
+    deleteInfo.foreach { info =>
+      if (info.getBonus != 0) {
+        userService.changeScore(topic.authorUserId, -info.getBonus)
+      }
     }
 
     topicDao.undelete(topic)
@@ -185,11 +195,11 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
     val deleted = commentDao.deleteComment(comment.id)
 
     if (deleted && scoreBonus != 0) {
-      userDao.changeScore(comment.userid, scoreBonus)
+      userService.changeScore(comment.userid, scoreBonus)
     }
 
     if (deleted) {
-      Some(new InsertDeleteInfo(comment.id, reason, scoreBonus, deleteBy))
+      Some(InsertDeleteInfo(comment.id, reason, scoreBonus, deleteBy))
     } else {
       None
     }
@@ -205,7 +215,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
     val deleted = commentDao.deleteComment(commentId)
 
     if (deleted) {
-      Some(new InsertDeleteInfo(commentId, reason, 0, deleteBy))
+      Some(InsertDeleteInfo(commentId, reason, 0, deleteBy))
     } else {
       None
     }
@@ -248,7 +258,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
     }
 
     if (deleteInfos.nonEmpty) {
-      deleteInfoDao.insert(deleteInfos.asJava)
+      deleteInfoDao.insert(deleteInfos.toSeq)
 
       commentDao.updateStatsAfterDelete(root.id, deleteInfos.size)
     }
@@ -267,10 +277,10 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
 
     if (deleted) {
       if (scoreBonus !=0) {
-        userDao.changeScore(topic.authorUserId, scoreBonus)
+        userService.changeScore(topic.authorUserId, scoreBonus)
       }
 
-      Some(new InsertDeleteInfo(topic.id, reason, scoreBonus, moderator))
+      Some(InsertDeleteInfo(topic.id, reason, scoreBonus, moderator))
     } else {
       None
     }
@@ -285,7 +295,7 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
       val deleted = topicDao.delete(mid)
 
       if (deleted) {
-        val info = new InsertDeleteInfo(mid, reason, 0, moderator)
+        val info = InsertDeleteInfo(mid, reason, 0, moderator)
         deletedTopicsBuilder.addOne(info)
       }
     }
@@ -316,7 +326,8 @@ class DeleteService(commentDao: CommentDao, userDao: UserDao, userEventService: 
     userEventService.processCommentsDeleted(deletedCommentIds)
 
     // common
-    deleteInfoDao.insert((deletedComments ++ deletedTopics).asJava)
+    val allDeleted = deletedComments.toSeq ++ deletedTopics
+    deleteInfoDao.insert(allDeleted)
 
     if (notifyUser) {
       userEventService.insertTopicMassDeleteNotifications(deletedTopics.map(_.msgid), reason, moderator)

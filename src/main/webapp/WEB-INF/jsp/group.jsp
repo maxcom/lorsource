@@ -1,11 +1,11 @@
-<%@ page contentType="text/html; charset=utf-8"%>
+<%@ page session="false" contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -293,8 +293,7 @@
 </c:if>
 
 </div>
-
-<c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
+<c:if test="${showDeletedButton && !showDeleted}">
   <hr>
   <form action="${url}" method=POST>
     <lor:csrf/>
@@ -303,15 +302,21 @@
   </form>
   <hr>
 </c:if>
-<c:if test="${not lastmod and showDeleted and year==null and template.sessionAuthorized and hasNext}">
-    <hr>
-    <form action="${url}" method=POST>
-        <lor:csrf/>
-      <input type=hidden name=showDeleted value=true>
-        <input type=hidden name=offset value="${nextPage}">
-        <input type=submit value="Показать еще удаленные">
-    </form>
-    <hr>
+<c:if test="${showDeleted and showDeletedButton and hasNext}">
+  <hr>
+  <form action="${url}" method=POST>
+    <lor:csrf/>
+    <input type=hidden name=showDeleted value=true>
+    <input type=hidden name=offset value="${nextPage}">
+    <input type=submit value="Показать еще удаленные">
+  </form>
+  <hr>
+</c:if>
+
+<c:if test="${template.sessionAuthorized && currentUser.frozen}">
+  <div class="infoblock">
+    ⚠️${' '} Для вашей учетной записи установлен режим только для чтения до <lor:date date="${currentUser.frozenUntil}"/>.
+  </div>
 </c:if>
 
 <p>

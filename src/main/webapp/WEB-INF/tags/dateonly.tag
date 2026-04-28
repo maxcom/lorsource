@@ -1,8 +1,8 @@
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %><%@
         tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag import="org.joda.time.DateTimeZone" %>
+<%@ tag import="java.time.ZoneId" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -18,6 +18,6 @@
         taglib tagdir="/WEB-INF/tags" prefix="lor" %><%@
         taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
         attribute name="itemprop" type="java.lang.String" required="false" %><%--
---%><time data-format="date" datetime="<%= DateFormats.Iso8601().print(date.getTime()) %>" <c:if test="${not empty itemprop}">itemprop="${itemprop}"</c:if>><%
-  out.print(DateFormats.date((DateTimeZone) request.getAttribute("timezone")).print(date.getTime()));
+--%><time data-format="date" datetime="<%= DateFormats.formatIso8601(date) %>" <c:if test="${not empty itemprop}">itemprop="${itemprop}"</c:if>><%
+  out.print(DateFormats.formatDateOnly((ZoneId) request.getAttribute("timezone"), date));
 %></time>

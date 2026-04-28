@@ -1,5 +1,6 @@
+<%@ page session="false" %>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -12,7 +13,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ page import="org.joda.time.DateTime" %>
+<%@ page import="java.time.ZonedDateTime" %>
 <%@ page import="ru.org.linux.user.UserService$" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -85,10 +86,10 @@
 
             if (window.matchMedia("(min-width: 768px)").matches) {
                 params['range'] = 12;
-                params['start'] = new Date("<%= DateTime.now().minusMonths(11).toString() %>")
+                params['start'] = new Date("<%= ZonedDateTime.now().minusMonths(11).toInstant().toString() %>")
             } else {
                 params['range'] = 6;
-                params['start'] = new Date("<%= DateTime.now().minusMonths(5).toString() %>")
+                params['start'] = new Date("<%= ZonedDateTime.now().minusMonths(5).toInstant().toString() %>")
             }
 
             cal.init(params);
@@ -134,6 +135,22 @@
 <h1>Информация о пользователе ${user.nick}</h1>
 </c:if>
 
+<c:if test="${moderatorOrCurrentUser}">
+  <c:if test="${slowMode}">
+    <div class="infoblock">
+      ⚠️${' '} Для учетной записи был автоматически установлен медленный режим. Он
+      будет снят автоматически в течение 3 дней с момента установки при отсутствии
+      нарушений правил.
+    </div>
+  </c:if>
+
+  <c:if test="${isFrozen}">
+    <div class="infoblock">
+      ⚠️${' '} Для учетной записи установлен режим только для чтения до <lor:date date="${user.frozenUntil}"/>.
+    </div>
+  </c:if>
+</c:if>
+
 <div id="whois_userpic">
     <l:userpic userpic="${userpic}"/>
     <c:if test="${moderatorOrCurrentUser}">
@@ -158,7 +175,8 @@
 <div class="vcard">
     <b>Nick:</b> <span class="nickname">
         ${user.nick}
-        <c:if test="${isFrozen}"> ❄</c:if>
+        <c:if test="${isFrozen}"> <span title="заморозка">❄</span></c:if>
+        <c:if test="${slowMode}"> <span title="медленный режим">&#x1F40C;</span></c:if>
     </span><br>
     <c:if test="${not empty user.name}">
         <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
@@ -222,29 +240,27 @@
     <c:if test="${user.corrector}"> (корректор)</c:if>
     <c:if test="${user.blocked}"> (заблокирован)</c:if>
 
-    <c:if test="${isFrozen}">
-        <br>
-        <b>Заморожен</b>
-            до <lor:date date="${user.frozenUntil}"/>
+    <c:if test="${isFrozen && !viewByOwner}">
+      <br>
+        <b>Заморожен</b> до <lor:date date="${user.frozenUntil}"/>
+          <c:if test="${template.sessionAuthorized && !currentUser.frozen}">
             модератором <lor:user link="true" user="${freezer}"/>
-            по причине <c:out escapeXml="true" value="${user.freezingReason}"/>
-        <br>
+            по причине <c:out escapeXml="true" value="${userInfo.freezingReason}"/>
+          </c:if>
+      <br>
     </c:if>
 
     <br>
     <c:if test="${banInfo != null}">
         Блокирован <lor:date date="${banInfo.date}"/>
-            <c:if test="${banInfo.moderator.id != user.id}">
-                модератором <lor:user link="true" user="${banInfo.moderator}"/>
+            <c:if test="${bannedBy.id != user.id}">
+                модератором <lor:user link="true" user="${bannedBy}"/>
             </c:if>
             по причине: <c:out escapeXml="true" value="${banInfo.reason}"/>
     </c:if>
 </div>
 <c:if test="${template.moderatorSession}">
     <b>Score:</b> ${user.score}${' '}MaxScore: ${user.maxScore}
-    <c:if test="${recentScoreLoss > 0}">
-      RecentScoreLoss: ${recentScoreLoss}
-    </c:if>
 </c:if>
 <c:if test="${viewByOwner and not template.moderatorSession}">
     <b>Score:</b> ${user.score}
@@ -355,7 +371,6 @@
 
             <!-- reason -->
             <div class="control-group">
-
                 <label class="control-label" for="reason-input">Причина</label>
                 <div class="controls">
                     <select name=reason_select
@@ -392,6 +407,9 @@
                         <option value="4.8 Дискуссия не на русском языке">
                             4.8 Дискуссия не на русском языке
                         </option>
+                        <option value="4.9 Оффтопик-лист, п. ">
+                            4.9 Оффтопик-лист, п. 
+                        </option>
                         <option value="5.1 Нецензурные выражения">
                             5.1 Нецензурные выражения
                         </option>
@@ -416,6 +434,9 @@
                         <option value="7.1 Ответ на некорректное сообщение">
                             7.1 Ответ на некорректное сообщение
                         </option>
+                        <option value="7.2 Чрезмерно исправленное сообщение">
+                            7.2 Чрезмерно исправленное сообщение
+                        </option>
                     </select>
                     <input id="reason-input" type="text" name="reason" required
                         placeholder="Остудись" value="" />
@@ -430,27 +451,9 @@
 
                 <div class="controls">
                     <select name="shift">
-                        <option value="-P1D">Разморозить</option>
-                        <option value="PT5M">5 минут</option>
-                        <option value="PT10M">10 минут</option>
-                        <option value="PT15M">15 минут</option>
-                        <option value="PT20M">20 минут</option>
-                        <option value="PT30M">30 минут</option>
-                        <option value="PT1H">час</option>
-                        <option value="PT2H">2 часа</option>
-                        <option value="PT3H">3 часа</option>
-                        <option value="PT6H">6 часов</option>
-                        <option value="PT9H">9 часов</option>
-                        <option value="PT12H">12 часов</option>
-                        <option value="P1D">сутки</option>
-                        <option value="P2D">двое суток</option>
-                        <option value="P3D">3 дня</option>
-                        <option value="P5D">5 дней</option>
-                        <option value="P7D">неделя</option>
-                        <option value="P14D">две недели</option>
-                        <option value="P30D">месяц</option>
-                        <option value="P60D">2 месяца</option>
-                        <option value="P90D">3 месяца</option>
+                        <c:forEach items="${freezeDurations}" var="shift">
+                            <option value="${shift}">${shift}</option>
+                        </c:forEach>
                     </select>
                 </div>
             </div>
@@ -658,9 +661,9 @@
                 <td>
                     <strong>${item.item.action.description}</strong>
                     <c:if test="${not item.self}">
-                        &emsp;<img src="/img/tuxlor.png"><lor:user user="${item.actionUser}"/>
+                        &emsp;@<lor:user user="${item.actionUser}"/>
                     </c:if><br>
-                    <c:if test="${not empty item.item.options}">
+                    <c:if test="${not empty item.options}">
                         <c:forEach items="${item.options}" var="option">
                             ${option.key}: ${option.value}<br>
                         </c:forEach>
@@ -668,7 +671,7 @@
                 </td>
 
                 <td>
-                    <lor:dateinterval date="${item.item.actionDate.toDate()}"/>
+                    <lor:dateinterval date="${item.actionDate}"/>
                 </td>
             </tr>
             </c:forEach>

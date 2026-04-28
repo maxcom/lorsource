@@ -1,3 +1,4 @@
+<%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -5,7 +6,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -87,10 +88,10 @@
       var ads = [
         {
           type: 'rimg',
-          img320: '/adv/photo_2025-09-08_22-46-59.jpg',
-          img730: '/adv/photo_2025-09-08_22-47-03.jpg',
-          img980: '/adv/photo_2025-09-08_22-47-06.jpg',
-          href: 'https://slc.tl/h24ik'
+          img320: '/adv/bare-metal-320x100.png',
+          img730: '/adv/bare-metal-730x90.png',
+          img980: '/adv/bare-metal-980x120.png',
+          href: 'https://forms.selectel.ru/s/cmmyzv559bknwtn01a18enalh'
         }
       ];
 
@@ -119,7 +120,7 @@
 <section>
    <h2>Еще новости</h2>
 
-  <div class="container" id="main-page-news">
+  <div id="main-page-news">
     <c:forEach var="map" items="${briefNews}" varStatus="iter">
       <section>
         <c:forEach var="entry" items="${map}">
@@ -166,7 +167,6 @@
 </div>
 
 <aside id=boxlets>
-
   <c:if test="${template.sessionAuthorized}">
     <div class=boxlet>
       <h2>Добро пожаловать!</h2>

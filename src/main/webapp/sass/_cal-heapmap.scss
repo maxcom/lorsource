@@ -1,11 +1,4 @@
-:root {
-  --heatmap-empty: #{grayscale(adjust-color($heatmap_max, $lightness: -20%*$heatmap_scale))};
-  --heatmap-q1: #{adjust-color($heatmap_max, $lightness: -20%*$heatmap_scale)};
-  --heatmap-q2: #{adjust-color($heatmap_max, $lightness: -15%*$heatmap_scale)};
-  --heatmap-q3: #{adjust-color($heatmap_max, $lightness: -10%*$heatmap_scale)};
-  --heatmap-q4: #{adjust-color($heatmap_max, $lightness: -5%*$heatmap_scale)};
-  --heatmap-max: #{$heatmap_max};
-}
+@use "sass:color";
 
 .cal-heatmap-container {
   display: block;

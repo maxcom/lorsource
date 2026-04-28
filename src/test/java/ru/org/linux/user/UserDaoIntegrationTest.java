@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,8 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.Cache;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -44,10 +42,6 @@ public class UserDaoIntegrationTest {
   @Autowired
   private UserDao userDao;
 
-  @Autowired
-  @Qualifier("usersCache")
-  private Cache cache;
-
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -62,11 +56,6 @@ public class UserDaoIntegrationTest {
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", TEST_ID);
   }
 
-  @Before
-  public void clearCache() {
-    cache.clear();
-  }
-
   @Test
   public void testUser() throws UserNotFoundException {
     User user = userDao.getUser(TEST_ID);
@@ -75,35 +64,6 @@ public class UserDaoIntegrationTest {
 
     assertFalse(user.isBlocked());
   }
-
-  @Test
-  public void testUserCached() throws UserNotFoundException {
-    User user = userDao.getUser(TEST_ID);
-
-    jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", TEST_ID);
-
-    User userCached = userDao.getUserCached(TEST_ID);
-
-    assertFalse(userCached.isBlocked());
-
-    User userNotCached = userDao.getUser(TEST_ID);
-
-    assertTrue(userNotCached.isBlocked());
-  }
-
-  @Test
-  public void testCachePutOnGet() throws UserNotFoundException {
-    cache.evict(TEST_ID);
-
-    User user = userDao.getUser(TEST_ID);
-
-    assertNotNull(user);
-
-    assertFalse(user.isBlocked());
-
-    assertNotNull(cache.get(user.getId()));
-  }
-
   @Test
   public void testBlock() throws UserNotFoundException {
     User user = userDao.getUser(TEST_ID);
@@ -111,17 +71,6 @@ public class UserDaoIntegrationTest {
     userDao.block(user, user, "");
 
     User userAfter = userDao.getUser(TEST_ID);
-
-    assertTrue(userAfter.isBlocked());
-  }
-
-  @Test
-  public void testCacheResetOnBlock() throws UserNotFoundException {
-    User user = userDao.getUser(TEST_ID);
-
-    userDao.block(user, user, "");
-
-    User userAfter = userDao.getUserCached(TEST_ID);
 
     assertTrue(userAfter.isBlocked());
   }

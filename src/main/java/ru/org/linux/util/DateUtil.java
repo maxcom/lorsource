@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,34 +25,21 @@ public final class DateUtil {
    * @param        month        1..12
    */
   public static String getMonth(int month) throws BadDateException {
-    switch (month - 1) {
-      case 0:
-        return "Январь";
-      case 1:
-        return "Февраль";
-      case 2:
-        return "Март";
-      case 3:
-        return "Апрель";
-      case 4:
-        return "Май";
-      case 5:
-        return "Июнь";
-      case 6:
-        return "Июль";
-      case 7:
-        return "Август";
-      case 8:
-        return "Сентябрь";
-      case 9:
-        return "Октябрь";
-      case 10:
-        return "Ноябрь";
-      case 11:
-        return "Декабрь";
-      default:
-        throw new BadDateException("Указан месяц " + month);
-    }
+    return switch (month - 1) {
+      case 0 -> "Январь";
+      case 1 -> "Февраль";
+      case 2 -> "Март";
+      case 3 -> "Апрель";
+      case 4 -> "Май";
+      case 5 -> "Июнь";
+      case 6 -> "Июль";
+      case 7 -> "Август";
+      case 8 -> "Сентябрь";
+      case 9 -> "Октябрь";
+      case 10 -> "Ноябрь";
+      case 11 -> "Декабрь";
+      default -> throw new BadDateException("Указан месяц " + month);
+    };
   }
 
 }

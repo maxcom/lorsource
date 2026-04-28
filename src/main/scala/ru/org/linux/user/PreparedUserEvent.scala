@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import scala.jdk.CollectionConverters.*
 
 case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option[String], @BeanProperty author: User,
                              bonus: Option[Int], @BeanProperty section: Section,
-                             group: Group, tags: Seq[String], lastId: Int, @BeanProperty date: Timestamp,
+                             group: Group, tags: Seq[String], @BeanProperty lastId: Int, @BeanProperty date: Timestamp,
                              commentId: Int, @BeanProperty count: Int = 1, authors: Set[User],
                              reactions: Seq[ReactionListItem]) {
   def withSimilarFav(event: UserEvent, author: User): PreparedUserEvent = {
@@ -42,7 +42,7 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
   def withSimilarReaction(similarEvent: UserEvent, originUser: User): PreparedUserEvent = {
     assume(event.cid == similarEvent.cid)
     assume(event.topicId == similarEvent.topicId)
-    assume(similarEvent.originUserId == originUser.getId)
+    assume(similarEvent.originUserId == originUser.id)
 
     if (event.unread) {
       copy(reactions = reactions :+ ReactionListItem(originUser, similarEvent.reaction, None), lastId = similarEvent.id)
@@ -60,9 +60,13 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
 
   def getLink: String = {
     if (event.eventType==UserEventFilterEnum.DELETED) {
-      s"${group.getUrl}${event.topicId}"
+      if (commentId > 0) {
+        s"/view-deleted?id=$commentId#comment-$commentId"
+      } else {
+        s"${group.getUrl}${event.topicId}"
+      }
     } else {
-      if (commentId>0) {
+      if (commentId > 0) {
         s"${group.getUrl}${event.topicId}?cid=$commentId"
       } else {
         s"${group.getUrl}${event.topicId}"
@@ -71,7 +75,7 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
   }
 
   def getAuthorsText: String = if (authors.sizeIs > 1) {
-    authors.toSeq.map(_.getNick).sorted.mkString("Комментарии ", ", ", "")
+    authors.toSeq.map(_.nick).sorted.mkString("Комментарии ", ", ", "")
   } else {
     ""
   }

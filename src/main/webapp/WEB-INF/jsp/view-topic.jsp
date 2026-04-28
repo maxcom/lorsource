@@ -1,3 +1,4 @@
+<%@ page session="false" %>
 <%@ page import="ru.org.linux.site.DateFormats" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -5,7 +6,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -41,22 +42,32 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title><l:title>${message.title}</l:title> — ${preparedMessage.group.title} — ${preparedMessage.section.title}</title>
-<meta property="og:title" content="<l:title>${message.title}</l:title>" >
+<meta property="og:title" content="<l:title>${message.title}</l:title>">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:type" content="article">
+<meta property="og:url" content="${configuration.secureUrlWithoutSlash}${message.link}">
+<meta property="article:section" content="${preparedMessage.section.title}: ${preparedMessage.group.title}">
+<meta property="article:published_time" content="${DateFormats.formatIso8601(preparedMessage.message.effectiveDateJsp)}">
+<c:if test="${editInfo.editCount > 0}">
+  <meta property="article:modified_time" content="${DateFormats.formatIso8601(editInfo.lastEditDate())}">
+</c:if>
 
-<c:if test="${preparedMessage.section.imagepost}">
+<c:if test="${preparedMessage.image != null}">
   <meta property="og:image" content="${preparedMessage.image.mediumName}">
-  <meta name="twitter:card" content="summary_large_image">
 </c:if>
-<c:if test="${not preparedMessage.section.imagepost}">
+<c:if test="${preparedMessage.image == null}">
   <meta property="og:image" content="${configuration.secureUrlWithoutSlash}/img/good-penguin.png">
-  <meta name="twitter:card" content="summary">
 </c:if>
-<meta name="twitter:site" content="@wwwlinuxorgru">
 <c:if test="${not empty ogDescription}">
   <meta property="og:description" content="${ogDescription}">
 </c:if>
 
-<meta property="og:url" content="${configuration.secureUrlWithoutSlash}${message.link}">
+<c:if test="${not empty preparedMessage.tags}">
+  <c:forEach var="tag" items="${preparedMessage.tags}">
+    <meta property="og:tag" content="${tag.name}">
+  </c:forEach>
+</c:if>
+
 
 <link rel="canonical" href="${configuration.secureUrlWithoutSlash}${message.getLinkPage(page)}">
 
@@ -79,39 +90,23 @@
 
 <c:set var="scroller"><c:if test="${topScroller}">
   <div class="nav">
-  <div class="grid-row">
-    <div class="grid-3-1">
-      <table>
-        <tr valign=middle>
-          <c:if test="${prevMessage != null}">
-            <td style="padding-right: 5px">
-              <a href="${fn:escapeXml(prevMessage.link)}">←</a>
-            </td>
-            <td align=left valign=top class="hideon-phone">
-              <a href="${fn:escapeXml(prevMessage.link)}">
-                <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
-              </a>
-            </td>
-          </c:if>
-        </tr>
-      </table>
+  <div class="scroller-row">
+    <div class="scroller-prev">
+      <c:if test="${prevMessage != null}">
+        <a class="scroller-arrow" href="${fn:escapeXml(prevMessage.link)}">←</a>
+        <a class="scroller-title hideon-phone" href="${fn:escapeXml(prevMessage.link)}">
+          <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
+        </a>
+      </c:if>
     </div>
-    <div class="grid-3-2">
+    <div class="scroller-group">
     </div>
-    <div class="grid-3-3">
+    <div class="scroller-next">
       <c:if test="${nextMessage != null}">
-        <table align="right">
-          <tr valign=middle align=right>
-            <td class="hideon-phone">
-              <a href="${fn:escapeXml(nextMessage.link)}">
-                <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
-              </a>
-            </td>
-            <td align="right" valign="middle" style="padding-left: 5px">
-              <a href="${fn:escapeXml(nextMessage.link)}">→</a>
-            </td>
-          </tr>
-        </table>
+        <a class="scroller-title hideon-phone" href="${fn:escapeXml(nextMessage.link)}">
+          <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
+        </a>
+        <a class="scroller-arrow" href="${fn:escapeXml(nextMessage.link)}">→</a>
       </c:if>
     </div>
   </div>
@@ -120,43 +115,27 @@
 
 <c:set var="bottomScroller"><c:if test="${bottomScroller}">
   <div class="nav">
-  <div class="grid-row">
-    <div class="grid-3-1">
-      <table>
-        <tr valign=middle>
-          <c:if test="${prevMessage != null}">
-            <td style="padding-right: 5px">
-              <a href="${fn:escapeXml(prevMessage.link)}">←</a>
-            </td>
-            <td align=left valign=top class="hideon-phone">
-              <a href="${fn:escapeXml(prevMessage.link)}">
-                <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
-              </a>
-            </td>
-          </c:if>
-        </tr>
-      </table>
+  <div class="scroller-row">
+    <div class="scroller-prev">
+      <c:if test="${prevMessage != null}">
+        <a class="scroller-arrow" href="${fn:escapeXml(prevMessage.link)}">←</a>
+        <a class="scroller-title hideon-phone" href="${fn:escapeXml(prevMessage.link)}">
+          <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
+        </a>
+      </c:if>
     </div>
-    <div class="grid-3-2">
+    <div class="scroller-group">
       <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
          href="${group.url}">
           ${preparedMessage.group.title}
       </a>
     </div>
-    <div class="grid-3-3">
+    <div class="scroller-next">
       <c:if test="${nextMessage != null}">
-        <table align="right">
-          <tr valign=middle align=right>
-            <td class="hideon-phone">
-              <a href="${fn:escapeXml(nextMessage.link)}">
-                <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
-              </a>
-            </td>
-            <td align="right" valign="middle" style="padding-left: 5px">
-              <a href="${fn:escapeXml(nextMessage.link)}">→</a>
-            </td>
-          </tr>
-        </table>
+        <a class="scroller-title hideon-phone" href="${fn:escapeXml(nextMessage.link)}">
+          <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
+        </a>
+        <a class="scroller-arrow" href="${fn:escapeXml(nextMessage.link)}">→</a>
       </c:if>
     </div>
   </div>
@@ -276,10 +255,10 @@
       var ads = [
         {
           type: 'rimg',
-          img320: '/adv/photo_2025-09-08_22-46-59.jpg',
-          img730: '/adv/photo_2025-09-08_22-47-03.jpg',
-          img980: '/adv/photo_2025-09-08_22-47-06.jpg',
-          href: 'https://slc.tl/h24ik'
+          img320: '/adv/bare-metal-320x100.png',
+          img730: '/adv/bare-metal-730x90.png',
+          img980: '/adv/bare-metal-980x120.png',
+          href: 'https://forms.selectel.ru/s/cmmyzv559bknwtn01a18enalh'
         }
       ];
 
@@ -308,7 +287,7 @@
 </c:if>
     <c:forEach var="comment" items="${commentsPrepared}">
       <c:if test="${dateJumps.contains(comment.id)}">
-        <div class="datejump">${DateFormats.dateLong(timezone).print(comment.postdate.time)}</div>
+        <div class="datejump">${DateFormats.formatDateLong(timezone, comment.postdate)}</div>
       </c:if>
 
       <lor:comment commentsAllowed="${messageMenu.commentsAllowed}" topic="${message}" showMenu="true"
@@ -329,6 +308,9 @@
       </c:when>
       <c:when test="${preparedMessage.showRegisterInvite}">
         Для того чтобы оставить комментарий <a href="login.jsp">войдите</a> или <a href="register.jsp">зарегистрируйтесь</a>.
+      </c:when>
+      <c:when test="${template.sessionAuthorized && currentUser.frozen}">
+        ⚠️${' '} Для вашей учетной записи установлен режим только для чтения до <lor:date date="${currentUser.frozenUntil}"/>.
       </c:when>
       <c:otherwise>
         ${preparedMessage.postscoreInfo}

@@ -1,5 +1,6 @@
+<%@ page session="false" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -104,41 +105,6 @@
   </c:if>
 </div>
 
-<c:if test="${showAdsense and counter>=5}">
-<style>
-  @media screen and (max-width: 480px) {
-    .yandex-adaptive {
-      min-height: 250px;
-      width: 100%;
-    }
-  }
-
-  @media screen and (min-width: 481px) {
-    .yandex-adaptive { min-height: 90px; width: 100%; max-height: 150px }
-  }
-</style>
-<!-- Yandex.RTB R-A-337082-4 -->
-<div id="yandex_rtb_R-A-337082-4" class="yandex-adaptive"></div>
-<script type="text/javascript">
-    (function(w, d, n, s, t) {
-        w[n] = w[n] || [];
-        w[n].push(function() {
-            Ya.Context.AdvManager.render({
-                blockId: "R-A-337082-4",
-                renderTo: "yandex_rtb_R-A-337082-4",
-                async: true
-            });
-        });
-        t = d.getElementsByTagName("script")[0];
-        s = d.createElement("script");
-        s.type = "text/javascript";
-        s.src = "//an.yandex.ru/system/context.js";
-        s.async = true;
-        t.parentNode.insertBefore(s, t);
-    })(this, this.document, "yandexContextAsyncCallbacks");
-</script>
-</c:if>
-
 <c:set var="newsSection">
   <c:if test="${not empty fullNews}">
     <section>
@@ -163,7 +129,7 @@
         <h2>Новости</h2>
       </c:if>
 
-      <div class="container" id="tag-page-news">
+      <div id="tag-page-news">
         <c:forEach var="map" items="${briefNews}" varStatus="iter">
           <section>
             <c:forEach var="entry" items="${map}">
@@ -203,7 +169,7 @@
     <section>
       <h2>Форум</h2>
 
-      <div class="container" id="tag-page-forum">
+      <div id="tag-page-forum">
         <c:forEach var="map" items="${forum}">
           <section>
             <c:forEach var="entry" items="${map}">
@@ -249,7 +215,7 @@
   <section>
     <h2>Опросы</h2>
 
-    <div class="container" id="tag-page-polls">
+    <div id="tag-page-polls">
       <c:forEach var="map" items="${polls}">
         <section>
           <c:forEach var="entry" items="${map}">
@@ -322,7 +288,7 @@
   <section>
   <h2>Статьи</h2>
 
-  <div class="container" id="tag-page-articles">
+  <div id="tag-page-articles">
   <c:forEach var="map" items="${articles}">
     <section>
       <c:forEach var="entry" items="${map}">

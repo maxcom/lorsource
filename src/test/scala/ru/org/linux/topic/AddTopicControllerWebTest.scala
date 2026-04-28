@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,87 +14,75 @@
  */
 package ru.org.linux.topic
 
+import munit.FunSuite
 import org.jsoup.Jsoup
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import ru.org.linux.test.WebHelper
-import ru.org.linux.test.WebHelper.{TestPassword, TestUser}
-import ru.org.linux.topic.AddTopicControllerWebTest.{TestGroup, TestTitle}
-import sttp.client3.*
+import sttp.client4.*
 import sttp.model.StatusCode
 
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
-object AddTopicControllerWebTest {
+object AddTopicControllerWebTest:
   private val TestGroup = 4068
   private val TestGroupNews = 2
   private val TestTitle = "Test Title"
-}
 
-@RunWith(classOf[JUnitRunner])
-class AddTopicControllerWebTest extends Specification {
-  "post form" should {
-    "open and have CSRF" in {
-      val response = basicRequest
-        .get(uri"${WebHelper.MainUrl}add-section.jsp?section=${Section.SECTION_NEWS}")
-        .send(WebHelper.backend)
+class AddTopicControllerWebTest extends FunSuite with WebHelper:
+  import AddTopicControllerWebTest.*
 
-      response.code must be equalTo StatusCode.Ok
+  test("post form opens and has CSRF"):
+    val response = basicRequest
+      .get(uri"${MainUrl}add-section.jsp?section=${Section.News}")
+      .send(backend)
 
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      doc.select("input[name=csrf]").asScala must not be empty
-    }
-  }
+    val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-  "post action" should {
-    "reject request without CSRF" in {
-      val response = basicRequest
-        .body(Map(
-          "section" -> Section.SECTION_FORUM.toString,
-          "group" -> AddTopicControllerWebTest.TestGroup.toString))
-        .post(WebHelper.MainUrl.addPath("add.jsp"))
-        .send(WebHelper.backend)
+    assert(doc.select("input[name=csrf]").asScala.nonEmpty, "csrf input should exist")
 
-      response.code must be equalTo StatusCode.Ok
+  test("post action rejects request without CSRF"):
+    val response = basicRequest
+      .body(Map(
+        "section" -> Section.Forum.toString,
+        "group" -> TestGroup.toString))
+      .post(MainUrl.addPath("add.jsp"))
+      .send(backend)
 
-      val doc = Jsoup.parse(response.body.merge, WebHelper.MainUrl.toString())
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      doc.select("#messageForm").asScala must not be empty
-      doc.select(".error").asScala must not be empty
-      doc.select("input[name=csrf]").asScala must not be empty
-    }
+    val doc = Jsoup.parse(response.body.merge, MainUrl.toString())
 
-    "perform post" in WebHelper.Authorized() { auth =>
-      WebHelper.createTopic(auth, TestGroup, TestTitle) must beRight
-    }
+    assert(doc.select("#messageForm").asScala.nonEmpty, "message form should exist")
+    assert(doc.select(".error").asScala.nonEmpty, "error should exist")
+    assert(doc.select("input[name=csrf]").asScala.nonEmpty, "csrf input should exist")
 
-    "post news without auth" in {
-      val response = basicRequest
-        .body(Map(
-          "nick" -> TestUser,
-          "password" -> TestPassword,
-          "h-captcha-response" -> "10000000-aaaa-bbbb-cccc-000000000001",
-          "section" -> Section.SECTION_NEWS.toString,
-          "group" -> AddTopicControllerWebTest.TestGroupNews.toString,
-          "csrf" -> "csrf",
-          "title" -> "Новость без аутентификации"))
-        .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
-        .post(WebHelper.MainUrl.addPath("add.jsp"))
-        .send(WebHelper.backend)
+  authorized().test("post action performs post"): auth =>
+    val result = createTopic(auth, TestGroup, TestTitle)
+    assert(result.isRight, "topic should be created successfully")
 
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+  test("post news without auth"):
+    val response = basicRequest
+      .body(Map(
+        "nick" -> TestUser,
+        "password" -> TestPassword,
+        "h-captcha-response" -> "10000000-aaaa-bbbb-cccc-000000000001",
+        "section" -> Section.News.toString,
+        "group" -> TestGroupNews.toString,
+        "csrf" -> "csrf",
+        "title" -> "Новость без аутентификации"))
+      .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
+      .post(MainUrl.addPath("add.jsp"))
+      .send(backend)
 
-      doc.select("#messageForm").asScala must be empty
+    val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      response.code must be equalTo StatusCode.Ok
+    assert(doc.select("#messageForm").asScala.isEmpty, "message form should be empty")
 
-      val finalDoc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      finalDoc.text must be contain "Вы поместили сообщение в защищенный раздел."
-    }
-  }
-}
+    val finalDoc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+
+    assert(finalDoc.text().contains("Вы поместили сообщение в защищенный раздел."), "should contain success message")

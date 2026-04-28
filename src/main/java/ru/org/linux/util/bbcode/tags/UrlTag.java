@@ -76,7 +76,7 @@ public class UrlTag extends Tag {
       return "";
     }
     // Внутри [url] только текст
-    TextNode txtNode = (TextNode) node.getChildren().iterator().next();
+    TextNode txtNode = (TextNode) node.getChildren().getFirst();
     String url;
     if (node.isParameter()) {
       // сюда никогда не должна попасть, обрабатывается специально в Parser

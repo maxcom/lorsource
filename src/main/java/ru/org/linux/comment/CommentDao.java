@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -242,7 +242,7 @@ public class CommentDao {
             "SELECT " +
                     "groups.title as gtitle, topics.title, topics.id as msgid, " +
                     "comdel.reason, COALESCE(comdel.delDate, topdel.delDate) deldate, comdel.bonus, " +
-                    "comments.id as cid, comments.postdate, topics.deleted topic_deleted " +
+                    "comments.id as cid, comments.postdate, topics.deleted topic_deleted, comments.deleted comment_deleted " +
                 "FROM groups JOIN topics ON groups.id=topics.groupid " +
                     "JOIN comments ON comments.topic=topics.id " +
                     "LEFT JOIN del_info comdel ON comdel.msgid=comments.id " +
@@ -258,7 +258,7 @@ public class CommentDao {
                             rs.getTimestamp("deldate"),
                             rs.getInt("bonus"),
                             rs.getInt("cid"),
-                            true,
+                            rs.getBoolean("comment_deleted"),
                             rs.getTimestamp("postdate"),
                             userId,
                             rs.getBoolean("topic_deleted")),

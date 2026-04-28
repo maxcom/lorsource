@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,16 +17,17 @@ package ru.org.linux.auth
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
 import jakarta.servlet.ServletRequest
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
 import ru.org.linux.spring.SiteConfig
-import sttp.client3.circe.*
-import sttp.client3.*
+import sttp.client4.circe.*
+import sttp.client4.*
 
 import scala.util.control.NonFatal
 
 @Service
-class CaptchaService(httpClient: SttpBackend[Identity, Any], siteConfig: SiteConfig) extends StrictLogging {
+class CaptchaService(@Qualifier("directBackend") httpClient: SyncBackend, siteConfig: SiteConfig) extends StrictLogging {
   def checkCaptcha(request: ServletRequest, errors: Errors): Unit = {
     val captchaResponse = request.getParameter("h-captcha-response")
 

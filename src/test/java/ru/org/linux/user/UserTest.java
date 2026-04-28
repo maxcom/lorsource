@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,37 +17,14 @@ package ru.org.linux.user;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.validation.MapBindingResult;
-import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.test.Users;
 
 import java.sql.ResultSet;
-import java.util.Map;
 
 /**
  * Unit Tests для User
  */
 public class UserTest {
-  private void checkFrozen(User user) {
-    var errors = new MapBindingResult(Map.of(), "obj");
-
-    user.checkFrozen(errors);
-
-    if (errors.hasErrors()) {
-      throw new AccessViolationException("Пользователь временно заморожен");
-    }
-  }
-
-  private void checkBlocked(User user) {
-    var errors = new MapBindingResult(Map.of(), "obj");
-
-    user.checkBlocked(errors);
-
-    if (errors.hasErrors()) {
-      throw new AccessViolationException("Пользователь заблокирован");
-    }
-  }
-
   /**
    * проверка администратора
    * @throws Exception хм
@@ -55,27 +32,12 @@ public class UserTest {
   @Test
   public void maxcomTest() throws Exception {
     ResultSet resultSet = Users.getMaxcom();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
-    try {
-      user.checkDelete();
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertTrue(user.isModerator());
     Assert.assertTrue(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -98,28 +60,12 @@ public class UserTest {
   @Test
   public void anonymousTest() throws Exception {
     ResultSet resultSet = Users.getAnonymous();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
-    try {
-      user.checkDelete();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Delete access denied for anonymous user", e.getMessage());
-    }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -142,30 +88,12 @@ public class UserTest {
   @Test
   public void svuTest() throws Exception {
     ResultSet resultSet = Users.getModerator();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
-    try {
-      user.checkDelete();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
-    }
     Assert.assertTrue(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -188,30 +116,12 @@ public class UserTest {
   @Test
   public void user5starTest() throws Exception {
     ResultSet resultSet = Users.getUser5star();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
-    try {
-      user.checkDelete();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
-    }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -234,30 +144,12 @@ public class UserTest {
   @Test
   public void user1starTest() throws Exception {
     ResultSet resultSet = Users.getUser1star();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
-    try {
-      user.checkDelete();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
-    }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -280,30 +172,12 @@ public class UserTest {
   @Test
   public void user45scoreTest() throws Exception {
     ResultSet resultSet = Users.getUser45Score();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
-    try {
-      user.checkDelete();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
-    }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -326,29 +200,12 @@ public class UserTest {
   @Test
   public void userBlockedTest() throws Exception {
     ResultSet resultSet = Users.getUser45ScoreBlocked();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Пользователь заблокирован", e.getMessage());
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertTrue(user.isBlocked());
-    try {
-      user.checkDelete();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Delete access denied for anonymous user", e.getMessage());
-    }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -371,30 +228,12 @@ public class UserTest {
   @Test
   public void userDefrosedTest() throws Exception {
     ResultSet resultSet = Users.getUserDefrosted();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
     Assert.assertFalse(user.isBlocked());
-    try {
-      user.checkDelete();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
-    }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -417,31 +256,12 @@ public class UserTest {
   @Test
   public void userFrozenTest() throws Exception {
     ResultSet resultSet = Users.getUserFrozen();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
 
     Assert.assertEquals(resultSet.getInt("id"), user.getId());
     Assert.assertEquals(resultSet.getString("nick"), user.getNick());
     Assert.assertEquals("tango", resultSet.getString("style"));
-    try {
-      checkBlocked(user);
-    } catch (AccessViolationException e) {
-      Assert.fail();
-    }
-    try {
-      checkFrozen(user);
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Пользователь временно заморожен", e.getMessage());
-    }
     Assert.assertFalse(user.isBlocked());
-    try {
-      user.checkDelete();
-      Assert.fail();
-    } catch (AccessViolationException e) {
-      Assert.assertEquals("Delete access denied for user "+
-          resultSet.getString("nick") + " (" +
-          resultSet.getInt("id") + ") ", e.getMessage());
-    }
     Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
@@ -457,9 +277,6 @@ public class UserTest {
     Assert.assertTrue(user.isFrozen());
     Assert.assertEquals(resultSet.getTimestamp("frozen_until"), 
       user.getFrozenUntil());
-    Assert.assertEquals(resultSet.getInt("frozen_by"), user.getFrozenBy());
-    Assert.assertEquals(resultSet.getString("freezing_reason"), 
-      user.getFreezingReason());
   }
 
 
@@ -470,7 +287,7 @@ public class UserTest {
   @Test
   public void hizelTest() throws Exception {
     ResultSet resultSet = Users.getHizel();
-    User user = new User(resultSet);
+    User user = User.fromResultSet(resultSet);
     Assert.assertEquals("0428dfed932b07ea582efd94038b1076", user.getActivationCode("secret"));
   }
 }

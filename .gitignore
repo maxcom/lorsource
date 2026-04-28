@@ -8,3 +8,13 @@ target
 .idea
 .DS_Store
 docker/db/
+.classpath
+.factorypath
+.project
+.settings/
+.bloop/
+.metals/
+.vscode/
+server.log
+trace.json
+src/main/webapp/WEB-INF/config.properties

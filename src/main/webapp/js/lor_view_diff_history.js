@@ -146,7 +146,7 @@ $(document).ready(function() {
     .attr("highlighted", "off")
     .addClass("toggleDiffHighlight")
     .appendTo($("#historyButtonBar"))
-    .click(function(obj){
+    .on("click", function(obj){
       toggleDiffHighlight(obj)
     });
 });

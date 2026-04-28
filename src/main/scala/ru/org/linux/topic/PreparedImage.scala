@@ -24,7 +24,7 @@ case class PreparedImage(@BeanProperty mediumName: String, @BeanProperty mediumI
                          @BeanProperty fullName: String, @BeanProperty fullInfo: ImageInfo, @BeanProperty image: Image,
                          @BeanProperty lazyLoad: Boolean) {
   def getSrcset: String = {
-    if (fullInfo.getWidth < Image.MaxScaledSize) {
+    if (fullInfo.getWidth <= Image.MaxScaledSize) {
       image.getSrcsetUpTo(fullInfo.getWidth) + ", " + fullName + " " + fullInfo.getWidth + "w"
     } else {
       image.getSrcset

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,9 +13,11 @@
  *    limitations under the License.
  */
 
+@use "../mixins" as *;
+
 body {
   font-family: "Arial", sans-serif;
-  color: $text_color;
+  color: var(--text-color);
 }
 
 textarea {
@@ -25,6 +27,10 @@ textarea {
 h1,h2,h3,h4,h5,h6 {
     font-weight: 600;
     font-family: "Open Sans", sans-serif;
+}
+
+h3, h4, h5, h6 {
+    font-size: 100%;
 }
 
 #bd h1,h2 {
@@ -53,14 +59,15 @@ p {
   font-weight: 600;
   font-family: "Open Sans", sans-serif;
   padding-top: 0.5rem;
-  font-size: 2em;
   display: block;
-  float: left;
   padding-right: 0.5em;
-  margin-right: 0.5em;
+
+  @include respond-to(tablet-and-desktops) {
+    margin-right: 0.5em;
+  }
 
   a {
-    color: $site_title_color;
+    color: var(--site-title-color);
     text-decoration: none;
   }
 }
@@ -79,7 +86,7 @@ p {
   }
 
   a {
-    color: $main_menu_color;
+    color: var(--main-menu-color);
   }
 }
 
@@ -120,9 +127,9 @@ p {
   margin-bottom: 0.5em;
 
   a {
-    color: $signature_user_color;
+    color: var(--signature-user-color);
     &:visited {
-      color: $signature_user_color;
+      color: var(--signature-user-color);
     }
   }
 }
@@ -131,7 +138,7 @@ p {
   padding-bottom: 1em;
   margin-bottom: 1em;
   border-radius: 1em;
-  background-color: $article_background;
+  background-color: var(--article-background);
 
   h2 {
     font-weight: bold;
@@ -154,26 +161,26 @@ p {
 #bd .forum {
   table {
     th {
-      border: 1px solid $table_border_color;
+      border: 1px solid var(--table-border-color);
     }
 
     tbody td {
       border: 1px solid;
-      border-color: $table_border_color;
+      border-color: var(--table-border-color);
 
       a {
         text-decoration: none;
-        color: $table_link_color;
+        color: var(--table-link-color);
         &:visited {
-          color: $text_color;
+          color: var(--text-color);
         }
 
         &.event-unread-false {
-          color: $text_color;
+          color: var(--text-color);
         }
 
         &.event-unread-true:visited {
-          color: $table_link_color;
+          color: var(--table-link-color);
         }
       }
 
@@ -183,16 +190,16 @@ p {
     }
 
     thead, tfoot {
-      background-color: $table_header_background;
-      color: $table_header_color;
+      background-color: var(--table-border-color);
+      color: var(--text-color);
 
       a {
-        color: $text_color;
+        color: var(--text-color);
       }
     }
 
     tbody tr:hover {
-      background-color: $table_hover_background;
+      background-color: var(--table-hover-background);
     }
   }
 }
@@ -210,8 +217,14 @@ p {
   }
 }
 
+#bd .msg {
+  a.mention:visited {
+    color: var(--link-color);
+  }
+}
+
 .code {
-    background-color: $main_background;
+    background-color: var(--main-background);
     border-radius: 3px;
     border: 1px dashed #777;
     overflow: auto;
@@ -225,7 +238,7 @@ p {
 
     &:visited {
       text-decoration: underline;
-      color: $link_color;
+      color: var(--link-color);
     }
   }
 }
@@ -237,7 +250,7 @@ p {
   margin-right: 0.8rem;
 
   a {
-    color: $hd_user_color !important;
+    color: var(--link-color) !important;
   }
 }
 
@@ -249,7 +262,7 @@ p {
   margin-top: 0.5em;
 
   a {
-    color: $hd_user_color !important;
+    color: var(--link-color) !important;
   }
 }
 
@@ -266,14 +279,14 @@ input[type="checkbox"] {
 #whois_userpic {
   border-radius: 1em;
   padding: 1em;
-  background: $article_background;
+  background: var(--article-background);
 }
 
 .infoblock {
   border-radius: 1em;
   border: 0;
   margin-bottom: 1em;
-  background-color: $article_background;
+  background-color: var(--article-background);
 }
 
 #realtime {
@@ -281,22 +294,22 @@ input[type="checkbox"] {
   padding: .5em 1em;
   vertical-align: middle;
 
-  background-color: $button_primary_background;
-  color: $button_primary_text;
+  background-color: var(--button-primary-background);
+  color: var(--table-link-color);
   &:visited {
-    color: $button_primary_text;
+    color: var(--table-link-color);
   }
 }
 
 blockquote {
-  border-left-color: $table_border_color;
-  color: $blockquote_color;
+  border-left-color: var(--table-border-color);
+  color: var(--blockquote-color);
 }
 
 .page-number {
   border: solid 1px;
   border-radius: 5px;
-  background-color: $article_background;
+  background-color: var(--article-background);
 }
 
 .message-table {
@@ -304,12 +317,12 @@ blockquote {
     border-radius: 3px;
     font-size: 0.8em;
     padding: 2px 4px;
-    background-color: $table_border_color;
+    background-color: var(--table-border-color);
   }
 
   a.secondary {
     text-decoration: underline !important;
-    color: $text_color !important;
+    color: var(--text-color) !important;
   }
 }
 
@@ -318,92 +331,92 @@ blockquote {
 }
 
 html, body {
-  background-color: $main_background;
+  background-color: var(--main-background);
 }
 
 a {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 #bd h2 * {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd h3 * {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd .tags a {
-  color: $tag_color;
+  color: var(--tag-color);
   &:visited {
-    color: $tag_color;
+    color: var(--tag-color);
   }
 }
 
 #bd h1, #bd h2 {
-  color: $header_color;
+  color: var(--header-color);
 }
 
 #bd h1 a, #bd header h1 a, #bd h2 a {
-  color: $header_color;
+  color: var(--header-color);
   &:visited {
-    color: $header_color;
+    color: var(--header-color);
   }
 }
 
 #bd header {
   a:visited {
-    color: $link_color;
+    color: var(--link-color);
   }
 }
 
 #bd a.tag {
-  color: $tag_color;
+  color: var(--tag-color);
   &.tag:visited {
-    color: $tag_color;
+    color: var(--tag-color);
   }
 }
 
 #bd .tags .tag {
-  color: $tag_color;
+  color: var(--tag-color);
   &.tag:visited {
-    color: $tag_color;
+    color: var(--tag-color);
   }
 }
 
 .msg .tag {
-  color: $tag_color;
+  color: var(--tag-color);
 }
 
 .news .tag {
-  color: $tag_color;
+  color: var(--tag-color);
 }
 
 .messages .msg {
-  background:  $article_background;
+  background:  var(--article-background);
 }
 
 #bd a:visited {
-  color: $text_color;
+  color: var(--text-color);
 }
 
 #bd a.navLink:visited {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 #bd .nav a:visited {
-  color: $link_color;
+  color: var(--link-color);
 }
 
 fieldset {
-  border: 1px solid $table_border_color;
+  border: 1px solid var(--table-border-color);
   padding: 5px;
 }
 
 fieldset legend {
   padding-left: 5px;
   padding-right: 5px;
-  color:$text_color;
+  color: var(--text-color);
 }
 
 #bd .nav li a {
@@ -419,41 +432,41 @@ fieldset legend {
   border-radius: 0.2em;
   zoom: 1;
 
-  border-color: $button_border_color;
-  background-color: $button_background;
-  color: $text_color;
+  border-color: var(--button-border-color);
+  background-color: var(--table-border-color);
+  color: var(--text-color);
 
   text-decoration: none;
 
   &:visited {
-    color: $text_color;
+    color: var(--text-color);
   }
   &:hover {
-    box-shadow: 0 0 1px 1px $link_color;
+    box-shadow: 0 0 1px 1px var(--link-color);
   }
   &.current {
-    background-color: $button_selected_background;
-    color: $button_selected_text_color !important;
+    background-color: var(--text-color);
+    color: var(--button-selected-text-color) !important;
   }
 }
 
 #bd .btn {
   border-radius: .2em;
-  border: 1px solid $button_border_color;
-  color: $button_text_color;
+  border: 1px solid var(--button-border-color);
+  color: var(--table-link-color);
   background-image: none; // https://bugzilla.mozilla.org/show_bug.cgi?id=763671
 
   &:visited {
-    color: $button_text_color;
+    color: var(--table-link-color);
   }
   &:hover {
-    box-shadow: 0 0 1px 1px $link_color;
+    box-shadow: 0 0 1px 1px var(--link-color);
   }
 }
 
 #bd .reaction {
   &:hover:enabled {
-    box-shadow: 0 0 1px 1px $link_color;
+    box-shadow: 0 0 1px 1px var(--link-color);
   }
 }
 
@@ -462,90 +475,118 @@ fieldset legend {
 }
 
 #bd .btn-primary {
-  background-color: $button_primary_background;
-  color: $button_primary_text;
+  background-color: var(--button-primary-background);
+  color: var(--table-link-color);
   &:visited {
-    color: $button_primary_text;
+    color: var(--table-link-color);
   }
 }
 
 #bd .btn-default {
-  background-color: $button_background;
+  background-color: var(--table-border-color);
 }
 
 #bd .btn-danger {
-  background-color: $button_danger_background;
-  color: $button_danger_text;
+  background-color: var(--button-danger-background);
+  color: var(--button-danger-text-color);
   &:visited {
-    color: $button_danger_text;
+    color: var(--button-danger-text-color);
   }
 }
 
 #bd .btn-selected {
-  background-color: $button_selected_background;
-  color: $button_selected_text_color;
+  background-color: var(--text-color);
+  color: var(--button-selected-text-color);
   &:visited {
-    color: $button_selected_text_color;
+    color: var(--button-selected-text-color);
   }
 }
 
 .fav-buttons {
   .selected [class^="icon-"] {
-    color: $icon_button_active_color;
+    color: var(--icon-button-active-color);
   }
   a {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
 .user-remark {
-  color: $signature_remark_color;
+  color: var(--signature-remark-color);
 }
 
 .group-label {
-  background-color: $tagpage_group_label_background;
-  color: $tagpage_group_label_color;
+  background-color: var(--tagpage-group-label-background);
+  color: var(--table-link-color);
 
   a:visited & {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
 .user-tag, .poll-selected {
-  background-color: $button_background;
-  color: $text_color;
+  background-color: var(--table-border-color);
+  color: var(--text-color);
   a:visited & {
-    color: $text_color;
+    color: var(--text-color);
   }
 }
 
 #bd .search-hl {
-  color: $button_selected_text_color;
-  background-color: $button_selected_background;
+  color: var(--button-selected-text-color);
+  background-color: var(--text-color);
   font-style: normal;
 }
 
 .icon-tag-color {
-  color: $icon_tag_color;
+  color: var(--tag-color);
 }
 
 .icon-reply-color {
-  color: $icon_reply_color;
+  color: var(--icon-reply-color);
 }
 
 .icon-pin-color {
-  color: $icon_pin_color;
+  color: var(--icon-pin-color);
 }
 
 .icon-user-color {
-  color: $icon_user_color;
+  color: var(--signature-user-color);
 }
 
 #commentPreview {
-  border: 1px solid $preview_border_color;
+  border: 1px solid var(--preview-border-color);
   padding: 0.3rem;
 }
 
 .stars {
-    color: $signature_user_color;
+    color: var(--signature-user-color);
+}
+
+#theme-indicator {
+  display: inline-block;
+  height: 2em;
+  color: var(--text-color);
+  cursor: pointer;
+
+  span {
+    display: none;
+
+    svg {
+      height: 2em;
+      width: auto;
+    }
+  }
+}
+
+html[data-theme="dark"] #theme-indicator .theme-indicator-dark {
+  display: inline;
+}
+
+html[data-theme="light"] #theme-indicator .theme-indicator-light {
+  display: inline;
+}
+
+html[data-theme="auto"] #theme-indicator .theme-indicator-auto {
+  display: inline;
 }

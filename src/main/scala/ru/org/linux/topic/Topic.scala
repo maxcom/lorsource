@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,11 +16,10 @@ package ru.org.linux.topic
 
 import com.google.common.base.Strings
 import org.apache.commons.text.StringEscapeUtils
-import org.joda.time.DateTime
 import ru.org.linux.group.Group
 import ru.org.linux.reaction.{ReactionDao, Reactions}
 import ru.org.linux.section.Section
-import ru.org.linux.section.Section.{SECTION_ARTICLES, SECTION_NEWS}
+import ru.org.linux.section.Section.{Articles, News}
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
 import ru.org.linux.util.{StringUtil, URLUtil}
@@ -29,6 +28,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.sql.{ResultSet, Timestamp}
 import java.time.Instant
+import java.util.Date
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
@@ -53,11 +53,13 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
    *
    * @return postdate для постмодерируемых и commitdate для премодерируемых, прошедших модерацию
    */
-  def getEffectiveDate: DateTime = if (commited && commitDate != null) {
-    new DateTime(commitDate.getTime)
-  } else {
-    new DateTime(postdate.getTime)
-  }
+  def getEffectiveDate: Instant = 
+    if commited && commitDate != null then
+      commitDate.toInstant
+    else 
+      postdate.toInstant
+      
+  def getEffectiveDateJsp: Date = Date.from(getEffectiveDate)   
 
   def getLink: String =
     Section.getSectionLink(sectionId) + URLEncoder.encode(groupUrl, StandardCharsets.UTF_8) + '/' + id
@@ -143,7 +145,7 @@ object Topic {
       commentCount = 0,
       commited = false,
       notop = false,
-      authorUserId = user.getId,
+      authorUserId = user.id,
       resolved = false,
       minor = false,
       draft = form.isDraftMode,
@@ -156,7 +158,7 @@ object Topic {
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
     val sectionId = group.sectionId
 
-    val minor: Boolean = if (sectionId == SECTION_NEWS || sectionId == SECTION_ARTICLES) {
+    val minor: Boolean = if (sectionId == News || sectionId == Articles) {
       form.minor
     } else {
       original.minor

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,13 +25,14 @@ import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.user.IgnoreListDao
 import ru.org.linux.util.ServletParameterException
 
 import java.util
+import java.util.Date
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.MapHasAsJava
 
@@ -72,11 +73,11 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
 
       val formParams = new util.HashMap[String, AnyRef]
 
-      val ignoreList = ignoreListDao.get(currentUser.user.getId)
+      val ignoreList = ignoreListDao.get(currentUser.user.id)
 
       formParams.put("comment", commentPrepareService.prepareCommentOnly(comment, topic, ignoreList))
 
-      topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", value.toDate))
+      topicPermissionService.getEditDeadline(comment).foreach(value => formParams.put("deadline", Date.from(value)))
 
       new ModelAndView("edit_comment", formParams)
     } else {
@@ -126,7 +127,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
       val modelAndView = new ModelAndView("edit_comment", formParams)
       modelAndView.addObject("ipBlockInfo", ipBlockInfo)
       val deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal)
-      deadline.foreach(value => formParams.put("deadline", value.toDate))
+      deadline.foreach(value => formParams.put("deadline", Date.from(value)))
       modelAndView
     } else {
       commentService.edit(commentRequest.getOriginal, comment, msg.text, request.getRemoteAddr,

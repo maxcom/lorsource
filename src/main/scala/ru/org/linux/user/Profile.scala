@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,17 +25,17 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 import DefaultProfile.*
 
 object Profile {
-  val DEFAULT: Profile = apply(new ProfileHashtable(DefaultProfile.getDefaultProfile, util.Map.of), null)
+  val DEFAULT: Profile = apply(new ProfileHashtable(DefaultProfile.defaultProfile, util.Map.of), null)
 
   def fixFormat(mode: String): MarkupType = if (MarkupType.AllFormIds.contains(mode)) {
     MarkupType.ofFormId(mode)
   } else {
-    MarkupType.ofFormId(DefaultProfile.getDefaultProfile.get("format.mode").asInstanceOf[String])
+    MarkupType.ofFormId(DefaultProfile.defaultProfile.get("format.mode").asInstanceOf[String])
   }
 
   def fixStyle(style: String): String = {
     if (!DefaultProfile.isStyle(style)) {
-      DefaultProfile.getDefaultProfile.get(STYLE_PROPERTY).asInstanceOf[String]
+      DefaultProfile.defaultProfile.get(StyleProperty).asInstanceOf[String]
     } else {
       style
     }
@@ -43,21 +43,21 @@ object Profile {
 
   def apply(p: ProfileHashtable, boxes: util.List[String]): Profile = {
     new Profile(
-      style = Profile.fixStyle(p.getString(STYLE_PROPERTY)),
-      formatMode = Profile.fixFormat(p.getString(FORMAT_MODE_PROPERTY)),
-      messages = p.getInt(MESSAGES_PROPERTY),
-      topics = p.getInt(TOPICS_PROPERTY),
-      showPhotos = p.getBoolean(PHOTOS_PROPERTY),
-      hideAdsense = p.getBoolean(HIDE_ADSENSE_PROPERTY),
-      showGalleryOnMain = p.getBoolean(MAIN_GALLERY_PROPERTY),
-      avatarMode = p.getString(AVATAR_PROPERTY),
-      trackerMode = TrackerFilterEnum.getByValue(p.getString(TRACKER_MODE)).filter(_.isCanBeDefault).orElse(DefaultProfile.DEFAULT_TRACKER_MODE),
-      oldTracker = p.getBoolean(OLD_TRACKER),
-      reactionNotification = p.getBoolean(REACTION_NOTIFICATION_PROPERTY),
+      style = Profile.fixStyle(p.getString(StyleProperty)),
+      formatMode = Profile.fixFormat(p.getString(FormatModeProperty)),
+      messages = p.getInt(MessagesProperty),
+      topics = p.getInt(TopicsProperty),
+      showPhotos = p.getBoolean(PhotosProperty),
+      hideAdsense = p.getBoolean(HideAdsenseProperty),
+      showGalleryOnMain = p.getBoolean(MainGalleryProperty),
+      avatarMode = p.getString(AvatarProperty),
+      trackerMode = TrackerFilterEnum.getByValue(p.getString(TrackerMode)).filter(_.isCanBeDefault).orElse(DefaultProfile.DefaultTrackerMode),
+      oldTracker = p.getBoolean(OldTracker),
+      reactionNotification = p.getBoolean(ReactionNotificationProperty),
       boxes = (if (boxes != null) {
         boxes
       } else {
-        DefaultProfile.getDefaultProfile.get(BOXES_MAIN2_PROPERTY).asInstanceOf[java.util.List[String]]
+        DefaultProfile.defaultProfile.get(BoxesMain2Property).asInstanceOf[java.util.List[String]]
       }).asScala.toVector)
   }
 }
@@ -67,8 +67,6 @@ case class Profile(style: String, formatMode: MarkupType, @BeanProperty messages
                    @BooleanBeanProperty showGalleryOnMain: Boolean, @BeanProperty avatarMode: String,
                    @BooleanBeanProperty oldTracker: Boolean, @BeanProperty trackerMode: TrackerFilterEnum,
                    @BooleanBeanProperty reactionNotification: Boolean, boxes: Seq[String]) {
-  def hasMiniNewsBoxlet: Boolean = getBoxlets.contains("lastMiniNews")
-
   // java API
   def getBoxlets: util.List[String] = boxes.asJava
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,14 +31,14 @@ class UserEventApiController(userEventService: UserEventService,
   @RequestMapping(value = Array("/notifications-count"), method = Array(RequestMethod.GET))
   def getEventsCount(response: HttpServletResponse): Json = AuthorizedOnly { currentUser =>
     response.setHeader("Cache-control", "no-cache")
-    currentUser.user.getUnreadEvents.asJson
+    currentUser.user.unreadEvents.asJson
   }
 
   @RequestMapping(value = Array("/notifications-reset"), method = Array(RequestMethod.POST))
   @ResponseBody
   def resetNotifications(@RequestParam topId: Int): Json = AuthorizedOnly { currentUser =>
-    userEventService.resetUnreadReplies(currentUser.user, topId)
-    RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.getId))
+    userEventService.resetUnreadEvents(currentUser.user, topId)
+    RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.id))
 
     "ok".asJson
   }
@@ -52,7 +52,7 @@ class UserEventApiController(userEventService: UserEventService,
         Map.empty[String, Int].asJson
       case Some(currentUser) =>
         response.setHeader("Cache-control", "no-cache")
-        Map("notifications" -> currentUser.user.getUnreadEvents).asJson
+        Map("notifications" -> currentUser.user.unreadEvents).asJson
     }
   }
 }

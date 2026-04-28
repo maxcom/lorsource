@@ -1,5 +1,6 @@
+<%@ page session="false" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -57,7 +58,7 @@
                 title="Только латинские буквы, цифры и знаки _-, в первом символе только буквы"
                 pattern="[a-zA-Z][a-zA-Z0-9_-]*"
                 autocapitalize="off"
-                autofocus="autofocus" maxlength="<%= Integer.toString(User.MAX_NICK_LENGTH) %>"/>
+                autofocus="autofocus" maxlength="<%= Integer.toString(ru.org.linux.user.UserConstants.MAX_NICK_LENGTH) %>"/>
     <form:errors path="nick" element="span" cssClass="error help-inline" for="nick"/>
     <div class="help-block">
       мы сохраняем регистр, в котором введён логин

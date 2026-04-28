@@ -32,7 +32,7 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
       throw new AccessViolationException("Вы не можете редактировать эту тему")
     }
 
-    if (topic.section.isImagepost && image.main) {
+    if (topic.section.imagepost && image.main) {
       throw new AccessViolationException("Нельзя удалить основное изображение")
     }
   }

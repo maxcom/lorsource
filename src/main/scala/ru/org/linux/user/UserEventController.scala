@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,8 @@
 package ru.org.linux.user
 
 import jakarta.servlet.http.HttpServletResponse
+import org.apache.pekko.actor.typed.ActorRef
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -22,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AuthUtil}
+import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.site.BadInputException
 import ru.org.linux.user.UserEvent.NoReaction
 import ru.org.linux.util.StringUtil
@@ -31,14 +34,49 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 class UserEventController(feedView: UserEventFeedView, userService: UserService, userEventService: UserEventService,
-                          prepareService: UserEventPrepareService, apiController: UserEventApiController) {
+                          prepareService: UserEventPrepareService,
+                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]) {
   @RequestMapping(value = Array("/notifications"), method = Array(RequestMethod.POST))
-  def resetNotifications(@RequestParam topId: Int): RedirectView = {
-    apiController.resetNotifications(topId)
+  def resetNotifications(@RequestParam topId: Int): RedirectView = AuthorizedOnly { currentUser =>
+    userEventService.resetUnreadEvents(currentUser.user, topId)
+    RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.id))
 
     val view = new RedirectView("/notifications")
     view.setExposeModelAttributes(false)
     view
+  }
+
+  @RequestMapping(value = Array("/notifications-click"), method = Array(RequestMethod.POST))
+  def clickNotifications(@RequestParam firstId: Int, @RequestParam lastId: Int): RedirectView = AuthorizedOnly { currentUser =>
+    val firstEventOpt = userEventService.getEvent(firstId)
+    val lastEventOpt = userEventService.getEvent(lastId)
+
+    if (firstEventOpt.isEmpty || lastEventOpt.isEmpty) {
+      new RedirectView("/notifications")
+    } else {
+      val firstEvent = firstEventOpt.get
+      val lastEvent = lastEventOpt.get
+
+      if (currentUser.user.id != firstEvent.userId || currentUser.user.id != lastEvent.userId) {
+        throw new AccessViolationException("event owner does not match")
+      }
+
+      if (lastEvent.unread) {
+        if (lastEvent.eventType == UserEventFilterEnum.FAVORITES || lastEvent.eventType == UserEventFilterEnum.REACTION) {
+          userEventService.resetUnreadEvents(currentUser.user, lastEvent.id, lastEvent.topicId, lastEvent.eventType)
+        } else {
+          userEventService.resetSingleEvent(currentUser.user, lastEvent.id)
+        }
+
+        RealtimeEventHub.notifyEvents(realtimeHubWS, Set(currentUser.user.id))
+      }
+
+      val preparedFirstEvent = prepareService.prepareSimple(Seq(firstEvent), withText = false).head
+
+      val view = new RedirectView(preparedFirstEvent.getLink)
+      view.setExposeModelAttributes(false)
+      view
+    }
   }
 
   /**
@@ -54,7 +92,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
                         @RequestParam(value = "offset", defaultValue = "0") offsetRaw: Int): ModelAndView =
     AuthorizedOnly { currentUser =>
       val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
-      val nick = currentUser.user.getNick
+      val nick = currentUser.user.nick
 
       val params = mutable.Map[String, Any]()
 
@@ -85,7 +123,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       params.put("topics", topics)
       params.put("offset", offset)
       params.put("disable_event_header", true)
-      params.put("unreadCount", currentUser.user.getUnreadEvents)
+      params.put("unreadCount", currentUser.user.unreadEvents)
       params.put("isMyNotifications", true)
 
       response.addHeader("Cache-Control", "no-cache")
@@ -128,7 +166,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         throw new BadInputException("некорректное имя пользователя")
       }
 
-      if (currentUser.user.getNick == nick) {
+      if (currentUser.user.nick == nick) {
         return new ModelAndView(new RedirectView("/notifications"))
       }
 
@@ -185,7 +223,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       throw new BadInputException("некорректное имя пользователя")
     }
 
-    val viewByOwner = currentUserOpt.userOpt.exists(_.getNick == nick)
+    val viewByOwner = currentUserOpt.userOpt.exists(_.nick == nick)
 
     val eventFilter = UserEventFilterEnum.fromNameOrDefault(filter)
 

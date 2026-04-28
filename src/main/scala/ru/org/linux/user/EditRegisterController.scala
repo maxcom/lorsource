@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,6 +15,7 @@
 package ru.org.linux.user
 
 import com.google.common.base.Strings
+import org.eclipse.angus.mail.smtp.SMTPAddressFailedException
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -35,8 +36,8 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
 
-import javax.mail.internet.AddressException
-import javax.mail.internet.InternetAddress
+import jakarta.mail.internet.AddressException
+import jakarta.mail.internet.InternetAddress
 import javax.validation.Valid
 
 @Controller
@@ -51,24 +52,24 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
   @RequestMapping(method = Array(RequestMethod.GET))
   def show(@ModelAttribute("form") form: EditRegisterRequest, @PathVariable("nick") nick: String,
            response: HttpServletResponse): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (currentUser.user.getNick != nick) {
+    if (currentUser.user.nick != nick) {
       throw new AccessViolationException("Not authorized")
     }
 
     val user = currentUser.user
 
-    val userInfo = userDao.getUserInfoClass(user)
+    val userInfo = userDao.getUserInfo(user)
 
     val mv = new ModelAndView("edit-reg")
 
     mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
     mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
 
-    form.setEmail(user.getEmail)
-    form.setUrl(userInfo.getUrl)
-    form.setTown(userInfo.getTown)
+    form.setEmail(user.email)
+    form.setUrl(userInfo.url)
+    form.setTown(userInfo.town)
     form.setName(user.getName)
-    form.setInfo(userDao.getUserInfo(user))
+    form.setInfo(userInfo.text)
 
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 
@@ -79,7 +80,7 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
   def edit(request: HttpServletRequest, response: HttpServletResponse, @PathVariable("nick") nick: String,
            @Valid @ModelAttribute("form") form: EditRegisterRequest,
            errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (currentUser.user.getNick != nick) {
+    if (currentUser.user.nick != nick) {
       throw new AccessViolationException("Not authorized")
     }
 
@@ -116,16 +117,21 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
     }
 
     val newEmail = mail.flatMap { mail =>
-      if (user.getEmail != null && user.getEmail == mail.getAddress.toLowerCase) {
+      if (user.email != null && user.email == mail.getAddress.toLowerCase) {
         None
       } else {
-        if (userDao.getByEmail(mail.getAddress.toLowerCase, false) != null) {
+        if (userDao.getByEmail(mail.getAddress.toLowerCase, false) != 0) {
           errors.rejectValue("email", null, "такой email уже используется")
         }
 
         Some(mail.getAddress.toLowerCase)
       }
     }
+
+    val mv = new ModelAndView("edit-reg")
+
+    mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
+    mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
 
     if (!errors.hasErrors) {
       if (userPermissionService.canEditProfileInfo) {
@@ -141,29 +147,31 @@ class EditRegisterController(rememberMeServices: RememberMeServices, authenticat
 
       newEmail match {
         case Some(newEmail) =>
-          emailService.sendRegistrationEmail(user.getNick, newEmail, isNew = false)
+          try {
+            emailService.sendRegistrationEmail(user.nick, newEmail, isNew = false)
 
-          val msg = s"Обновление регистрации прошло успешно. " +
-            s"Ожидайте письма на ${StringUtil.escapeHtml(newEmail)} с кодом активации смены email."
+            val msg = s"Обновление регистрации прошло успешно. " +
+              s"Ожидайте письма на ${StringUtil.escapeHtml(newEmail)} с кодом активации смены email."
 
-          new ModelAndView("action-done", "message", msg)
+            new ModelAndView("action-done", "message", msg)
+          } catch {
+            case ex: SMTPAddressFailedException =>
+              logger.warn("Failed to send email to {}", newEmail, ex)
+              errors.rejectValue("newEmail", "Отправка e-mail на указанный адрес не возможна: " + ex.getMessage)
+              mv
+          }
         case None =>
-          new ModelAndView(new RedirectView("/people/" + user.getNick + "/profile"))
+          new ModelAndView(new RedirectView("/people/" + user.nick + "/profile"))
       }
     } else {
-      val mv = new ModelAndView("edit-reg")
-
-      mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
-      mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
-
       mv
     }
   }
 
   private def updateAuthToken(request: HttpServletRequest, response: HttpServletResponse, user: User, newPassword: String): Unit = {
     try {
-      val token = new UsernamePasswordAuthenticationToken(user.getNick, newPassword)
-      val details = userDetailsService.loadUserByUsername(user.getNick)
+      val token = new UsernamePasswordAuthenticationToken(user.nick, newPassword)
+      val details = userDetailsService.loadUserByUsername(user.nick)
 
       token.setDetails(details)
 

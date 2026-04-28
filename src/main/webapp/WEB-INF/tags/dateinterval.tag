@@ -1,8 +1,8 @@
 <%@ tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag import="org.joda.time.DateTimeZone" %>
+<%@ tag import="java.time.ZoneId" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -20,11 +20,11 @@
   boolean comp = compact!=null && compact;
 
   if (comp) {
-    out.print("<time data-format=\"compact-interval\" datetime=\"" + DateFormats.Iso8601().print(date.getTime())+"\">");
-    out.print(DateFormats.formatCompactInterval(date, (DateTimeZone) request.getAttribute("timezone")));
+    out.print("<time data-format=\"compact-interval\" datetime=\"" + DateFormats.formatIso8601(date)+"\">");
+    out.print(DateFormats.formatCompactInterval(date, (ZoneId) request.getAttribute("timezone")));
   } else {
-    out.print("<time data-format=\"interval\" datetime=\"" + DateFormats.Iso8601().print(date.getTime())+"\">");
-    out.print(DateFormats.formatInterval(date, (DateTimeZone) request.getAttribute("timezone")));
+    out.print("<time data-format=\"interval\" datetime=\"" + DateFormats.formatIso8601(date)+"\">");
+    out.print(DateFormats.formatInterval(date, (ZoneId) request.getAttribute("timezone")));
   }
 
   out.print("</time>");

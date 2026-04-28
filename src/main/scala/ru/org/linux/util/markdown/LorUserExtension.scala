@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,16 +20,17 @@ import java.util.regex.Pattern
 
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{LinkType, NodeRenderer, NodeRenderingHandler}
-import com.vladsch.flexmark.parser.{InlineParser, InlineParserExtension, InlineParserExtensionFactory, Parser}
+import com.vladsch.flexmark.parser.{InlineParser, InlineParserExtension, InlineParserExtensionFactory, LightInlineParser, Parser}
 import com.vladsch.flexmark.util.ast.{DoNotDecorate, Node}
-import com.vladsch.flexmark.util.options.MutableDataHolder
+import com.vladsch.flexmark.util.data.MutableDataHolder
 import com.vladsch.flexmark.util.sequence.BasedSequence
 import ru.org.linux.user.UserService
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
 import scala.jdk.CollectionConverters.*
 
-class LorUserExtension(userService: UserService, toHtmlFormatter: ToHtmlFormatter) extends Parser.ParserExtension with HtmlRenderer.HtmlRendererExtension {
+class LorUserExtension(userService: UserService, toHtmlFormatter: ToHtmlFormatter)
+    extends Parser.ParserExtension with HtmlRenderer.HtmlRendererExtension {
   override def parserOptions(options: MutableDataHolder): Unit = {}
 
   override def extend(parserBuilder: Parser.Builder): Unit = {
@@ -49,13 +50,13 @@ object LorUserParserExtension {
   val LorUser: Pattern = Pattern.compile("^(@)([a-z][a-z_\\d-]{0,80})", Pattern.CASE_INSENSITIVE)
 
   class Factory extends InlineParserExtensionFactory {
-    override def getAfterDependents: util.Set[? <: Class[?]] = null
+    override def getAfterDependents: util.Set[Class[?]] = null
 
     override def getCharacters: String = "@"
 
-    override def getBeforeDependents: util.Set[? <: Class[?]] = null
+    override def getBeforeDependents: util.Set[Class[?]] = null
 
-    override def create(inlineParser: InlineParser): LorUserParserExtension = new LorUserParserExtension(inlineParser)
+    override def apply(inlineParser: LightInlineParser): LorUserParserExtension = new LorUserParserExtension()
 
     override def affectsGlobalScope = false
   }
@@ -73,14 +74,14 @@ class LorUser(openingMarker: BasedSequence, text: BasedSequence)
   }
 }
 
-class LorUserParserExtension(val inlineParser: InlineParser) extends InlineParserExtension {
+class LorUserParserExtension extends InlineParserExtension {
   override def finalizeDocument(inlineParser: InlineParser): Unit = {
   }
 
   override def finalizeBlock(inlineParser: InlineParser): Unit = {
   }
 
-  override def parse(inlineParser: InlineParser): Boolean = {
+  override def parse(inlineParser: LightInlineParser): Boolean = {
     val index = inlineParser.getIndex
 
     val possible = index == 0 || {
@@ -117,33 +118,23 @@ class LorUserRenderer(userService: UserService, toHtmlFormatter: ToHtmlFormatter
       maybeUser match {
         case Some(user) =>
           val resolvedLink = ctx.resolveLink(LinkType.LINK, toHtmlFormatter.memberURL(user), null)
-          val tuxLink = ctx.resolveLink(LinkType.LINK, "/img/tuxlor.png", null)
 
           html
             .withAttr()
             .attr("style", "white-space: nowrap")
             .tag("span")
 
-          html
-            .attr("src", "/img/tuxlor.png")
-            .withAttr(tuxLink)
-            .attr("alt", "@")
-            .attr("title", "@")
-            .attr("width", "7")
-            .attr("height", "16")
-            .tagVoid("img")
-
-          if (user.isBlocked) {
+          if (user.blocked) {
             html.tag("s")
           }
 
           html
-            .attr("style", "text-decoration: none")
             .attr("href", resolvedLink.getUrl)
             .withAttr(resolvedLink)
-            .tag("a", false, false, () => html.text(nick))
+            .attr("class", "mention")
+            .tag("a", false, false, () => html.text("@" + nick))
 
-          if (user.isBlocked) {
+          if (user.blocked) {
             html.closeTag("s")
           }
 

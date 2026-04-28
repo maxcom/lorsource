@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,66 +14,48 @@
  */
 package ru.org.linux.group
 
+import munit.FunSuite
 import org.jsoup.Jsoup
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
-import org.specs2.specification.Scope
 import ru.org.linux.test.WebHelper
-import sttp.client3.*
+import sttp.client4.*
 import sttp.model.StatusCode
 
-@RunWith(classOf[JUnitRunner])
-class GroupControllerWebTest extends Specification {
-  class AuthenticatedUser(user: String) extends Scope {
-    val auth: String = WebHelper.doLogin(user, "passwd")
-  }
+class GroupControllerWebTest extends FunSuite with WebHelper:
+  test("talks page contains info"):
+    val response = basicRequest
+      .get(MainUrl.addPath("forum", "talks"))
+      .send(backend)
 
-  "talks page" should {
-    "contain info" in {
-      val response = basicRequest
-        .get(WebHelper.MainUrl.addPath("forum", "talks"))
-        .send(WebHelper.backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      response.code must be equalTo StatusCode.Ok
+    val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+    assert(doc.select(".infoblock").text().nonEmpty, "infoblock should have text")
 
-      doc.select(".infoblock").text must not be empty
-    }
+  authorized("maxcom").test("talks page contains info and edit link for moderator"): auth =>
+    val response = basicRequest
+      .get(MainUrl.addPath("forum", "talks"))
+      .cookie(AuthCookie, auth)
+      .send(backend)
 
-    "contain info and edit link for moderator" in new AuthenticatedUser("maxcom") {
-      val response = basicRequest
-        .get(WebHelper.MainUrl.addPath("forum", "talks"))
-        .cookie(WebHelper.AuthCookie, auth)
-        .send(WebHelper.backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      response.code must be equalTo StatusCode.Ok
+    val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
+    assert(doc.select(".infoblock").text().nonEmpty, "infoblock should have text")
 
-      doc.select(".infoblock").text must not be empty
+    assertEquals("[править]", doc.select(".infoblock p").last.text(), "last paragraph should be edit link")
 
-      // у модератора в последнем абзаце groupInfo ссылка на изменение groupinfo
-      doc.select(".infoblock p").last.text must be equalTo "[править]"
+    assertEquals("groupmod.jsp?group=8404", doc.select(".infoblock p").last.select("a").attr("href"), "edit link href")
 
-      doc.select(".infoblock p").last.select("a").attr("href") must be equalTo "groupmod.jsp?group=8404"
-    }
-  }
+  authorized("maxcom").test("job page contains empty info for moderator"): auth =>
+    val response = basicRequest
+      .get(MainUrl.addPath("forum", "job"))
+      .cookie(AuthCookie, auth)
+      .send(backend)
 
-  "job page" should {
-    "contain empty info for moderator" in new AuthenticatedUser("maxcom")  {
-      val response = basicRequest
-        .get(WebHelper.MainUrl.addPath("forum", "job"))
-        .cookie(WebHelper.AuthCookie, auth)
-        .send(WebHelper.backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      response.code must be equalTo StatusCode.Ok
+    val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-      val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
-
-      // кстати, у форумов без userinfo кнопочки нет (
-      doc.select(".infoblock").text must not contain("править")
-    }
-  }
-}
+    assert(!doc.select(".infoblock").text().contains("править"), "infoblock should not contain edit link")

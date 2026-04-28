@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,33 +16,34 @@ package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
-import org.joda.time.DateTime
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
+import org.springframework.web.multipart.MultipartFile
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.gallery.{Image, ImageDao, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{PollDao, PollVariant}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{MessageText, MsgbaseDao}
 import ru.org.linux.tag.TagName
 import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils
 
 import java.io.File
+import java.time.{Instant, OffsetDateTime}
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object TopicService {
   private def sendTagEventsNeeded(section: Section, oldMsg: Topic, commit: Boolean): Boolean = {
     val needCommit = section.isPremoderated && !oldMsg.commited
 
-    val fresh = oldMsg.getEffectiveDate.isAfter(DateTime.now.minusMonths(1))
+    val fresh = oldMsg.getEffectiveDate.isAfter(OffsetDateTime.now.minusMonths(1).toInstant)
 
     commit || (!needCommit && fresh)
   }
@@ -52,7 +53,7 @@ object TopicService {
 class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: SectionService,
                    imageService: ImageService, pollDao: PollDao, userEventService: UserEventService,
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
-                   userDao: UserDao, textService: MessageTextService, editHistoryDao: EditHistoryDao,
+                   textService: MessageTextService, editHistoryDao: EditHistoryDao,
                    imageDao: ImageDao, siteConfig: SiteConfig, permissionService: GroupPermissionService,
                    val transactionManager: PlatformTransactionManager) extends TransactionManagement with StrictLogging {
 
@@ -61,7 +62,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                  previewMsg: Topic): (Int, Set[Int]) = transactional() { _ =>
     val section = sectionService.getSection(group.sectionId)
 
-    if (section.isImagepost && image.isEmpty) {
+    if (section.imagepost && image.isEmpty) {
       throw new ScriptErrorException("scrn is empty?!")
     }
 
@@ -87,9 +88,9 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     val notified = if (!previewMsg.draft) {
       if (section.isPremoderated) {
-        sendEvents(message, msgid, Seq.empty, user.getId)
+        sendEvents(message, msgid, Seq.empty, user.id)
       } else {
-        sendEvents(message, msgid, tags, user.getId)
+        sendEvents(message, msgid, tags, user.id)
       }
     } else {
       Set.empty[Int]
@@ -113,11 +114,11 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     val notifiedUsers = userEventService.getNotifiedUsers(msgid)
 
     var userRefs = textService.mentions(message)
-    userRefs = userRefs.filterNot(p => userService.isIgnoring(p.getId, author))
+    userRefs = userRefs.filterNot(p => userService.isIgnoring(p.id, author))
 
     // оповещение пользователей по тегам
     val userIdListByTags = userTagService.getUserIdListByTags(author, tags)
-    val userRefIds = userRefs.view.map(_.getId).filterNot(notifiedUsers.contains).toSet
+    val userRefIds = userRefs.view.map(_.id).filterNot(notifiedUsers.contains).toSet
 
     // Не оповещать пользователей, которые ранее были оповещены через упоминание
     val tagUsers = userIdListByTags.filterNot(u => userRefIds.contains(u) || notifiedUsers.contains(u))
@@ -134,7 +135,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                                     additionalImages: Seq[UploadedImagePreview]): Boolean = {
     var editHistoryRecord = EditHistoryRecord(
       msgid = oldMsg.id,
-      editor = user.getId,
+      editor = user.id,
       objectType = EditHistoryObjectTypeEnum.TOPIC)
 
     val oldText = msgbaseDao.getMessageText(oldMsg.id).text
@@ -249,7 +250,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
 
     if (modified) {
-      logger.info(s"сообщение ${oldMsg.id} исправлено ${user.getNick}")
+      logger.info(s"сообщение ${oldMsg.id} исправлено ${user.nick}")
     }
 
     (modified, notified)
@@ -282,10 +283,10 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     topicDao.commit(msg, commiter)
 
-    userDao.changeScore(msg.authorUserId, bonus)
+    userService.changeScore(msg.authorUserId, bonus)
 
     for ((key, delta) <- editorBonus) {
-      userDao.changeScore(key.getId, delta)
+      userService.changeScore(key.id, delta)
     }
   }
 
@@ -294,7 +295,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                     (implicit postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
     val section = sectionService.getSection(group.sectionId)
 
-    val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty)
+    val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty[MultipartFile])
     val additionalImagesLimit = Math.max(0, permissionService.additionalImageLimit(section) - currentAdditionalCount)
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
@@ -304,7 +305,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
         val additionalImagePreviews =
           Option(form.additionalUploadedImages)
-            .getOrElse(Array.empty)
+            .getOrElse(Array.empty[String])
             .view
             .zipAll(additionalImagesNonNull, null, null)
             .take(additionalImagesLimit)
@@ -322,7 +323,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     form.additionalUploadedImages = (additionalImagePreviews.map(_.mainFile.getName) ++
       Vector.fill(additionalImagesLimit - additionalImagePreviews.size)(null)).toArray
 
-    if (section.isImagepost && imagePreview.isEmpty && !hasImage) {
+    if (section.imagepost && imagePreview.isEmpty && !hasImage) {
       errors.reject(null, "Изображение отсутствует")
     }
 

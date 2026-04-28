@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, CorrectorOrModerator}
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.common.DeleteReasons
-import ru.org.linux.group.{Group, GroupDao}
+import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
@@ -42,12 +42,12 @@ class PostWarningRequest(@BeanProperty var topic: Topic, @BeanProperty var comme
 
 @Controller
 class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService,
-                        topicPermissionService: TopicPermissionService, groupDao: GroupDao, userService: UserService,
+                        topicPermissionService: TopicPermissionService, groupService: GroupService, userService: UserService,
                         topicPrepareService: TopicPrepareService, commentPrepareService: CommentPrepareService) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
   def showForm(@ModelAttribute(value = "request") request: PostWarningRequest,
                errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val group = groupDao.getGroup(request.topic.groupId)
+    val group = groupService.getGroup(request.topic.groupId)
 
     checkRequest(group, request, errors)
 
@@ -95,7 +95,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.POST))
   def post(@ModelAttribute(value = "request") request: PostWarningRequest,
            errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val group = groupDao.getGroup(request.topic.groupId)
+    val group = groupService.getGroup(request.topic.groupId)
 
     checkRequest(group, request, errors)
 

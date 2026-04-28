@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -86,7 +86,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
 
-    val effectiveBonus = if (currentUser.moderator && currentUser.user.getId != topic.authorUserId && !topic.draft) {
+    val effectiveBonus = if (currentUser.moderator && currentUser.user.id != topic.authorUserId && !topic.draft) {
       bonus
     } else {
       0
@@ -94,7 +94,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
 
     deleteService.deleteTopic(topic, reason, effectiveBonus)
 
-    logger.info(s"Удалено сообщение $msgid пользователем ${currentUser.user.getNick} по причине `$reason'")
+    logger.info(s"Удалено сообщение $msgid пользователем ${currentUser.user.nick} по причине `$reason'")
 
     searchQueueSender.updateMessage(msgid, true)
 
@@ -120,7 +120,7 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     if (topic.deleted) {
       deleteService.undeleteTopic(topic)
 
-      logger.info(s"Восстановлено сообщение $msgid пользователем ${currentUser.user.getNick}")
+      logger.info(s"Восстановлено сообщение $msgid пользователем ${currentUser.user.nick}")
 
       searchQueueSender.updateMessage(msgid, true)
     }

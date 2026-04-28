@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,9 +31,9 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.{AccessViolationException, AuthUtil, IPBlockDao, IPBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.MessageText
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.UserService
 import ru.org.linux.util.{ServletParameterException, StringUtil}
@@ -102,10 +102,10 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(postingUser)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(using postingUser)
     }
 
-    if (textService.isEmpty(MessageText.apply(add.getMsg, sessionUserOpt.profile.formatMode))) {
+    if (textService.isEmpty(MessageText(add.getMsg, sessionUserOpt.profile.formatMode))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
@@ -121,9 +121,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
         Map.empty
       }
 
-      add.setMsg(StringUtil.escapeForceHtml(add.getMsg))
-
-      new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic)(sessionUserOpt) ++ info).asJava)
+      new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic)(using sessionUserOpt) ++ info).asJava)
     } else {
       val (msgid, mentions) = commentService.create(user, comment, msg, remoteAddress = request.getRemoteAddr,
         xForwardedFor = Option(request.getHeader("X-Forwarded-For")), userAgent = Option(request.getHeader("user-agent")))
@@ -151,7 +149,7 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(postingUser)
+      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(using postingUser)
     }
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,7 +14,6 @@
  */
 package ru.org.linux.topic
 
-import org.joda.time.DateTime
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
 import ru.org.linux.group.Group
@@ -27,6 +26,8 @@ import java.util.Calendar
 import java.util.Date
 import ru.org.linux.topic.TopicListDto.CommitMode.COMMITED_ONLY
 import ru.org.linux.topic.TopicListDto.CommitMode.POSTMODERATED_ONLY
+
+import java.time.{Instant, ZonedDateTime}
 
 @Service
 object TopicListService {
@@ -71,7 +72,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
 
-    topicListDto.setSection(section.getId)
+    topicListDto.setSection(section.id)
 
     if (section.isPremoderated) {
       topicListDto.setCommitMode(COMMITED_ONLY)
@@ -128,12 +129,12 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setLimit(20)
     topicListDto.setOffset(offset)
     topicListDto.setCommitMode(CommitMode.ALL)
-    topicListDto.setUserId(user.getId)
+    topicListDto.setUserId(user.id)
     topicListDto.setUserFavs(favorites)
     topicListDto.setUserWatches(watches)
 
     section.foreach { section =>
-      topicListDto.setSection(section.getId)
+      topicListDto.setSection(section.id)
     }
 
     topicListDao.getTopics(topicListDto, NonAuthorizedSession)
@@ -152,7 +153,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setLimit(20)
     topicListDto.setOffset(offset)
     topicListDto.setCommitMode(CommitMode.ALL)
-    topicListDto.setUserId(user.getId)
+    topicListDto.setUserId(user.id)
     topicListDto.setShowDraft(true)
 
     topicListDao.getTopics(topicListDto, NonAuthorizedSession)
@@ -168,17 +169,17 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
    * @param tech     только технические
    * @return список топиков для RSS-ленты
    */
-  def getRssTopicsFeed(section: Section, group: Option[Group], fromDate: Date, noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
+  def getRssTopicsFeed(section: Section, group: Option[Group], fromDate: Instant, noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
-    topicListDto.setSection(section.getId)
+    topicListDto.setSection(section.id)
 
     group.foreach { group =>
       topicListDto.setGroup(group.id)
     }
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
-    topicListDto.setFromDate(fromDate)
+    topicListDto.setFromDate(Date.from(fromDate))
     topicListDto.setNotalks(noTalks)
     topicListDto.setTech(tech)
     topicListDto.setLimit(30)
@@ -198,7 +199,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setCommitMode(CommitMode.UNCOMMITED_ONLY)
 
     section.foreach { section =>
-      topicListDto.setSection(section.getId)
+      topicListDto.setSection(section.id)
     }
 
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
@@ -218,18 +219,14 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setLimit(count)
     topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
 
-    topicListDto.setFromDate(DateTime.now.minusMonths(3).toDate)
-
-    if (session.profile.hasMiniNewsBoxlet) {
-      topicListDto.setMiniNewsMode(TopicListDto.MiniNewsMode.MAJOR)
-    }
-
+    topicListDto.setFromDate(Date.from(ZonedDateTime.now.minusMonths(3).toInstant))
+    
     topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
 
     if (session.profile.showGalleryOnMain) {
-      topicListDto.setSection(Section.SECTION_NEWS, Section.SECTION_GALLERY)
+      topicListDto.setSection(Section.News, Section.Gallery)
     } else {
-      topicListDto.setSection(Section.SECTION_NEWS)
+      topicListDto.setSection(Section.News)
     }
 
     topicListDao.getTopics(topicListDto, NonAuthorizedSession)

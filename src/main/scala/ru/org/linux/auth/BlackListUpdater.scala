@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,15 +15,16 @@
 package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.org.linux.user.EmailDomainsBlockDao
-import sttp.client3.*
+import sttp.client4.*
 
 import java.time.OffsetDateTime
 
 @Component
-class BlackListUpdater(httpClient: SttpBackend[Identity, Any], dao: IPBlockDao,
+class BlackListUpdater(@Qualifier("directBackend") httpClient: SyncBackend, dao: IPBlockDao,
                        emailDomainsBlockDao: EmailDomainsBlockDao) extends StrictLogging {
   @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 30 * 60 * 1000)
   def updateTor(): Unit = {
@@ -36,7 +37,7 @@ class BlackListUpdater(httpClient: SttpBackend[Identity, Any], dao: IPBlockDao,
         logger.debug("Updating TOR exit node list")
 
         body.linesIterator.foreach { ip =>
-          dao.blockIP(ip, 0, "TOR Exit Node", OffsetDateTime.now().plusMonths(1), true, false)
+          dao.blockIP(ip, 0, "TOR Exit Node", Some(OffsetDateTime.now().plusMonths(1)), true, false)
         }
       case Left(error) =>
         logger.warn(s"Can't update TOR exit node list: $error")

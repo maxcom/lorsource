@@ -1,6 +1,6 @@
-<%@ page contentType="text/html; charset=utf-8"%>
+<%@ page session="false" contentType="text/html; charset=utf-8"%>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -56,14 +56,14 @@
 </p>
 
 <p>
-Конфигурация
+Конфигурация:
 </p>
 <ul>
   <li>Supermicro 6016T-UF;</li>
   <li>2 x Intel Xeon X5675 12M Cache, 3.06 GHz, 6 ядер;</li>
   <li>96 GB DDR3, ECC, REG;</li>
-  <li>2x 960Gb Samsung PM883 (RAID1 mdadm).</li>
-  <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm);</li>
+  <li>2x 960Gb Samsung PM883 (RAID1 mdadm);</li>
+  <li>2x 1Tb Seagate Constellation ES.3 (RAID1 mdadm).</li>
 </ul>
 
 <h1>Софт</h1>
@@ -73,12 +73,12 @@
     <ul>
       <li>AlmaLinux OS 9.x;</li>
       <li>СУБД PostgreSQL 16;</li>
-      <li>OpenJDK 21;</li>
-      <li>Scala 2.13;</li>
+      <li>OpenJDK 25;</li>
+      <li>Scala 3;</li>
       <li>Apache Tomcat 10.1;</li>
       <li>ActiveMQ 6.x;</li>
       <li>Spring 6.x;</li>
-      <li>OpenSearch 2.x;</li>
+      <li>OpenSearch 3.x;</li>
       <li>Nginx 1.x.</li>
     </ul>
 
@@ -95,14 +95,14 @@
   принадлежат <a href="https://www.mckusick.com/beastie/mainpage/copyright.html">Marshall Kirk McKusick</a>.
 
   <h2>Twemoji</h2>
-  На сайте используется изображения Emoji, созданные проектом <a href="https://github.com/jdecked/twemoji">Twemoji</a>.
+  На сайте используются изображения Emoji, созданные проектом <a href="https://github.com/jdecked/twemoji">Twemoji</a>.
 
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
   <ul>
   <li><a href="/people/maxcom/profile">Максим Валянский</a> (maxcom)&nbsp;&#8212; <i>координатор
   проекта</i>:
-  разработка, поддержка, дизайн, новости, информационное наполнение;
+  разработка, поддержка, дизайн, новости, информационное наполнение.
 
 <%--
   <li><a href="/people/green/profile">Олег Дрокин</a> (green)&nbsp;&#8212; администрирование сервера, железо;

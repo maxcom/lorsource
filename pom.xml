@@ -12,33 +12,40 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>6.2.12</dependency.spring.version>
-    <spring.security.version>6.3.9</spring.security.version>
-    <jdbc.postgresql.version>42.7.8</jdbc.postgresql.version>
-    <elastic4s.version>7.17.4</elastic4s.version>
-    <scala.version>2.13.16</scala.version>
-    <scala.suffix>2.13</scala.suffix>
-    <activemq.version>6.1.7</activemq.version>
-    <slf4j.version>1.7.22</slf4j.version>
-    <jquery.validation.version>1.19.5</jquery.validation.version>
-    <jquery.form.version>4.3.0</jquery.form.version>
-    <jetty.version>12.0.13</jetty.version>
-    <pekko.version>1.2.0</pekko.version>
-    <log4j.version>2.23.1</log4j.version>
+    <dependency.spring.version>6.2.17</dependency.spring.version>
+    <spring.security.version>6.5.9</spring.security.version>
+    <jdbc.postgresql.version>42.7.10</jdbc.postgresql.version>
+    <scala.version>3.8.3</scala.version>
+    <scala.suffix>3</scala.suffix>
+    <activemq.version>6.2.4</activemq.version>
+    <jquery.validation.version>1.22.0</jquery.validation.version>
+
+    <jetty.version>12.0.34</jetty.version>
+    <pekko.version>1.4.0</pekko.version>
+    <log4j.version>2.25.4</log4j.version>
     <d3js.version>5.9.7</d3js.version>
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
     <swiffy-slider.version>1.6.0</swiffy-slider.version>
-    <circe.version>0.14.13</circe.version>
+    <circe.version>0.14.15</circe.version>
     <twemoji.version>16.0.1</twemoji.version>
-    <sttp.version>3.11.0</sttp.version>
-    <flexmark.version>0.42.14</flexmark.version>
+    <tippy.version>6.3.7</tippy.version>
+    <popperjs.version>2.11.8</popperjs.version>
+    <sttp.version>4.0.21</sttp.version>
+    <flexmark.version>0.64.8</flexmark.version>
+    <jackson.version>2.21.2</jackson.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala3-library_${scala.suffix}</artifactId>
+      <version>${scala.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.pekko</groupId>
       <artifactId>pekko-actor-typed_${scala.suffix}</artifactId>
@@ -58,12 +65,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.sksamuel.elastic4s</groupId>
-      <artifactId>elastic4s-client-esjava_${scala.suffix}</artifactId>
-      <version>${elastic4s.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-analyzers-common</artifactId>
       <version>7.7.0</version>
@@ -78,27 +79,20 @@
     <dependency>
       <groupId>com.typesafe.scala-logging</groupId>
       <artifactId>scala-logging_${scala.suffix}</artifactId>
-      <version>3.9.5</version>
+      <version>3.9.6</version>
     </dependency>
 
     <dependency>
-      <groupId>org.specs2</groupId>
-      <artifactId>specs2-core_${scala.suffix}</artifactId>
-      <version>4.21.0</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.specs2</groupId>
-      <artifactId>specs2-junit_${scala.suffix}</artifactId>
-      <version>4.21.0</version>
+      <groupId>org.scalameta</groupId>
+      <artifactId>munit_${scala.suffix}</artifactId>
+      <version>1.2.4</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.14.0</version>
+      <version>1.15.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -114,12 +108,12 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.20.0</version>
+      <version>2.21.0</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.4.0-jre</version>
+      <version>33.5.0-jre</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -228,9 +222,9 @@
       <version>3.0.2</version>
     </dependency>
     <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>1.6.2</version>
+      <groupId>org.eclipse.angus</groupId>
+      <artifactId>angus-mail</artifactId>
+      <version>2.0.5</version>
     </dependency>
     <dependency>
       <groupId>com.rometools</groupId>
@@ -238,13 +232,8 @@
       <version>1.18.0</version>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
       <version>${log4j.version}</version>
       <scope>runtime</scope>
     </dependency>
@@ -271,7 +260,7 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>3.2.2</version>
+      <version>3.2.3</version>
     </dependency>
 
     <dependency>
@@ -301,25 +290,19 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.14.3</version>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-scala_${scala.suffix}</artifactId>
-      <version>2.14.3</version>
-    </dependency>
-
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.14.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.joda</groupId>
-      <artifactId>joda-convert</artifactId>
-      <version>1.7</version>
+      <version>${jackson.version}</version>
     </dependency>
 
     <!-- Spring Security -->
@@ -348,13 +331,13 @@
     </dependency>
 
     <dependency>
-      <groupId>com.softwaremill.sttp.client3</groupId>
+      <groupId>com.softwaremill.sttp.client4</groupId>
       <artifactId>core_${scala.suffix}</artifactId>
       <version>${sttp.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.softwaremill.sttp.client3</groupId>
+      <groupId>com.softwaremill.sttp.client4</groupId>
       <artifactId>circe_${scala.suffix}</artifactId>
       <version>${sttp.version}</version>
     </dependency>
@@ -380,7 +363,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.21.2</version>
+      <version>1.22.1</version>
     </dependency>
 
     <dependency>
@@ -392,7 +375,7 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery</artifactId>
-      <version>2.2.4</version>
+      <version>3.7.1</version>
     </dependency>
 
     <dependency>
@@ -431,6 +414,35 @@
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
+
+    </dependency>
+
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>popperjs__core</artifactId>
+      <version>${popperjs.version}</version>
+
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+
+    </dependency>
+
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>tippy.js</artifactId>
+      <version>${tippy.version}</version>
+
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+
     </dependency>
 
     <!-- MarkDown implementation -->
@@ -465,9 +477,15 @@
     </dependency>
 
     <dependency>
+      <groupId>org.opensearch.client</groupId>
+      <artifactId>opensearch-java</artifactId>
+      <version>3.7.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.opensearch</groupId>
       <artifactId>opensearch-testcontainers</artifactId>
-      <version>2.1.3</version>
+      <version>4.1.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -477,7 +495,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>4.9.2</version>
+        <version>4.9.10</version>
         <configuration>
           <args>
             <arg>-deprecation</arg>
@@ -486,10 +504,13 @@
 <!--
             <arg>-Xfatal-warnings</arg>
 -->
-            <arg>-Xlint</arg>
             <arg>-language:postfixOps</arg>
-            <arg>-release:21</arg>
-            <arg>-Xsource:3</arg>
+            <arg>-release:25</arg>
+<!--
+            <arg>-rewrite</arg>
+            <arg>-source</arg>
+            <arg>3.7-migration</arg>
+-->
           </args>
           <recompileMode>incremental</recompileMode>
         </configuration>
@@ -539,8 +560,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.10.1</version>
         <configuration>
-          <source>21</source>
-          <target>21</target>
+          <source>25</source>
+          <target>25</target>
           <compilerArgument>-Xlint:deprecation</compilerArgument>
           <compilerArgument>-Xlint:unchecked</compilerArgument>
           <parameters>true</parameters>
@@ -548,36 +569,40 @@
       </plugin>
 
       <plugin>
-        <groupId>nl.geodienstencentrum.maven</groupId>
-        <artifactId>sass-maven-plugin</artifactId>
-        <version>3.6.0</version>
+        <groupId>org.eclipse.jetty.ee10 </groupId>
+        <artifactId>jetty-ee10-jspc-maven-plugin</artifactId>
+        <version>${jetty.version}</version>
         <executions>
           <execution>
+            <id>jspc</id>
             <goals>
-              <goal>update-stylesheets</goal>
+              <goal>jspc</goal>
+            </goals>
+            <configuration>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>io.github.cleydyr</groupId>
+        <artifactId>dart-sass-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <executions>
+          <execution>
+            <id>generate-css-using-sass</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>compile-sass</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <sassOptions>
-            <unix_newlines>true</unix_newlines>
-            <cache>true</cache>
-            <always_update>true</always_update>
-            <cache_location>'${project.build.directory}/sass_cache'</cache_location>
-            <style>:compressed</style>
-          </sassOptions>
-          <resources>
-            <resource>
-              <source>
-                <directory>${basedir}/src/main/webapp/sass</directory>
-                <includes>
-                  <include>**/scss</include>
-                </includes>
-              </source>
-              <destination>${project.build.directory}/${project.build.finalName}</destination>
-              <relativeOutputDirectory>..</relativeOutputDirectory>
-            </resource>
-          </resources>
+          <inputFolder>${basedir}/src/main/webapp/sass</inputFolder>
+          <outputFolder>${project.build.directory}/${project.build.finalName}</outputFolder>
+          <style>COMPRESSED</style>
+          <!-- use a fixed version of dart-saas to ensure reproducible builds -->
+          <version>1.99.0</version>
         </configuration>
       </plugin>
 
@@ -598,64 +623,17 @@
           <jswarn>false</jswarn>
           <encoding>utf-8</encoding>
           <excludes>
-            <exclude>**/jquery-ui-*/**/*.js</exclude>
-            <exclude>**/highlight.min.js</exclude>
-            <exclude>**/lor.js</exclude>
+            <exclude>**/*.js</exclude>
           </excludes>
           <aggregations>
             <aggregation>
               <removeIncluded>false</removeIncluded>
               <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/js/diff_match_patch.js</output>
-              <includes>
-                <include>
-                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch_uncompressed.js
-                </include>
-              </includes>
-            </aggregation>
-
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/js/plugins.js</output>
-              <includes>
-                <include>
-                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-form/${jquery.form.version}/dist/jquery.form.min.js
-                </include>
-                <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys.js</include>
-                <include>
-                  ${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/dist/jquery.validate.min.js
-                </include>
-                <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/pattern.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/jquery.popover-1.1.2.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/twemoji__api/${twemoji.version}/dist/twemoji.min.js</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/js/swiffy-slider.min.js</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/tango-auto/combined.css</output>
-              <includes>
-                <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/popover.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/auto.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
@@ -664,7 +642,7 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/qrerror/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/tango/main.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/tango/dark.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -672,7 +650,7 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/zomg_ponies/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/style.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
@@ -682,7 +660,7 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/waltz/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/waltz/style.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/waltz/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
@@ -692,7 +670,7 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/black/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/black/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
@@ -702,7 +680,7 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
               <includes>
-                <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/white2/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
@@ -714,7 +692,7 @@
       <plugin>
         <groupId>com.github.blutorange</groupId>
         <artifactId>closure-compiler-maven-plugin</artifactId>
-        <version>2.31.0</version>
+        <version>2.32.0</version>
         <executions>
           <execution>
             <id>default-minify</id>
@@ -722,6 +700,10 @@
               <encoding>UTF-8</encoding>
               <includes>
                 <include>lor.js</include>
+                <include>addComments.js</include>
+                <include>lor_view_diff_history.js</include>
+                <include>realtime.js</include>
+                <include>tagsAutocomplete.js</include>
               </includes>
               <skipMerge>true</skipMerge>
               <logLevel>all</logLevel>
@@ -733,6 +715,24 @@
             </goals>
             <phase>generate-resources</phase>
           </execution>
+          <execution>
+            <id>minify-plugins-individual</id>
+            <configuration>
+              <encoding>UTF-8</encoding>
+              <includes>
+                <include>jquery.hotkeys.js</include>
+                <include>pattern.js</include>
+
+              </includes>
+              <skipMerge>true</skipMerge>
+              <closureLanguageOut>ECMASCRIPT_2016</closureLanguageOut>
+              <outputFilename>#{path}/#{basename}.#{extension}</outputFilename>
+            </configuration>
+            <goals>
+              <goal>minify</goal>
+            </goals>
+            <phase>process-resources</phase>
+          </execution>
         </executions>
       </plugin>
 
@@ -741,6 +741,51 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.7</version>
         <executions>
+          <execution>
+            <id>copy-local-js</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <tasks>
+                <copy file="${basedir}/src/main/webapp/js/script.min.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
+                <copy file="${basedir}/src/main/webapp/js/jquery.hotkeys.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
+                <copy file="${basedir}/src/main/webapp/js/pattern.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
+                <copy file="${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch.js"
+                      tofile="${project.build.directory}/${project.build.finalName}/js/diff_match_patch.js"/>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>concat-plugins-js</id>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/js/plugins.js" fixlastline="true">
+                  <filelist dir="${project.build.directory}/${project.build.finalName}/js">
+                    <file name="jquery.hotkeys.js"/>
+                    <file name="META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/dist/jquery.validate.min.js"/>
+                    <file name="META-INF/resources/webjars/jquery-validation/${jquery.validation.version}/dist/localization/messages_ru.min.js"/>
+                    <file name="pattern.js"/>
+                    <file name="META-INF/resources/webjars/popperjs__core/${popperjs.version}/dist/umd/popper.min.js"/>
+                    <file name="META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy-bundle.umd.min.js"/>
+                    <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js"/>
+                    <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js"/>
+                    <file name="META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js"/>
+                    <file name="META-INF/resources/webjars/twemoji__api/${twemoji.version}/dist/twemoji.min.js"/>
+                    <file name="META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/js/swiffy-slider.min.js"/>
+                  </filelist>
+                </concat>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
           <execution>
             <id>create-temp-storage</id>
             <phase>generate-test-resources</phase>
@@ -791,57 +836,40 @@
       </plugin>
 
       <plugin>
-        <!-- Separates the unit tests from the integration tests. -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.19.1</version>
         <configuration>
-          <!--<skipTests>true</skipTests>-->
-          <!-- Skip the default running of this plug-in (or everything is run twice...see below) -->
-          <skip>true</skip>
-          <!-- Show 100% of the lines from the stack trace (doesn't work) -->
           <trimStackTrace>false</trimStackTrace>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+          <excludes>
+            <exclude>**/*IntegrationTest.java</exclude>
+            <exclude>**/*WebTest.java</exclude>
+          </excludes>
+          <parallel>classes</parallel>
+          <threadCount>2</threadCount>
+          <perCoreThreadCount>true</perCoreThreadCount>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.19.1</version>
         <executions>
-          <execution>
-            <id>unit-tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-            <configuration>
-              <!-- Never skip running the tests when the test phase is invoked -->
-              <skip>false</skip>
-              <includes>
-                <!-- Include unit tests within integration-test phase. -->
-                <include>**/*Test.java</include>
-                <include>**/*Spec.java</include>
-              </includes>
-              <excludes>
-                <!-- Exclude integration tests within (unit) test phase. -->
-                <exclude>**/*IntegrationTest.java</exclude>
-                <exclude>**/*IntegrationSpec.java</exclude>
-                <exclude>**/*WebTest.java</exclude>
-              </excludes>
-              <parallel>classes</parallel>
-              <threadCount>2</threadCount>
-              <perCoreThreadCount>true</perCoreThreadCount>
-            </configuration>
-          </execution>
           <execution>
             <id>integration-tests</id>
             <phase>integration-test</phase>
             <goals>
-              <goal>test</goal>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
             </goals>
             <configuration>
-              <!-- Never skip running the tests when the integration-test phase is invoked -->
-              <skip>false</skip>
               <includes>
-                <!-- Include integration tests within integration-test phase. -->
                 <include>**/*IntegrationTest.java</include>
-                <include>**/*IntegrationSpec.java</include>
                 <include>**/*WebTest.java</include>
               </includes>
             </configuration>
@@ -866,12 +894,6 @@
                   <groupId>org.webjars.npm</groupId>
                   <artifactId>jquery-validation</artifactId>
                   <version>${jquery.validation.version}</version>
-                  <includes>**/*.js</includes>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.webjars.npm</groupId>
-                  <artifactId>jquery-form</artifactId>
-                  <version>${jquery.form.version}</version>
                   <includes>**/*.js</includes>
                 </artifactItem>
                 <artifactItem>
@@ -900,102 +922,100 @@
                   <artifactId>swiffy-slider</artifactId>
                   <version>${swiffy-slider.version}</version>
                 </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>popperjs__core</artifactId>
+                  <version>${popperjs.version}</version>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.webjars.npm</groupId>
+                  <artifactId>tippy.js</artifactId>
+                  <version>${tippy.version}</version>
+                </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/${project.build.finalName}/js/</outputDirectory>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-maven-plugin</artifactId>
+        <version>4.17.2</version>
+
+        <configuration>
+          <propertyFile>sql/liquibase.config</propertyFile>
+          <verbose>true</verbose>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>update</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.jetty.ee10</groupId>
+        <artifactId>jetty-ee10-maven-plugin</artifactId>
+        <version>${jetty.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>jetty-websocket-jetty-server</artifactId>
+            <version>${jetty.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <id>start-jetty</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop-jetty</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <stopKey>foo</stopKey>
+          <stopPort>9999</stopPort>
+          <stopWait>20</stopWait>
+          <webAppConfig>
+            <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
+          </webAppConfig>
+
+          <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
+
+          <useTestScope>true</useTestScope>
+          <systemProperties>
+            <systemProperty>
+              <name>java.net.preferIPv4Stack</name>
+              <value>true</value>
+            </systemProperty>
+          </systemProperties>
+
+          <connectors>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <port>8080</port>
+            </connector>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <port>8443</port>
+            </connector>
+          </connectors>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <profiles>
-    <profile>
-      <id>integration-testing</id>
-      <activation>
-        <property>
-          <name>!skipTests</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-maven-plugin</artifactId>
-            <version>4.17.2</version>
-
-            <configuration>
-              <propertyFile>sql/liquibase.config</propertyFile>
-              <verbose>true</verbose>
-            </configuration>
-            <executions>
-              <execution>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>update</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.eclipse.jetty.ee10</groupId>
-            <artifactId>jetty-ee10-maven-plugin</artifactId>
-            <version>${jetty.version}</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>jetty-websocket-jetty-server</artifactId>
-                <version>${jetty.version}</version>
-              </dependency>
-            </dependencies>
-            <executions>
-              <execution>
-                <id>start-jetty</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-jetty</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <stopKey>foo</stopKey>
-              <stopPort>9999</stopPort>
-              <stopWait>10</stopWait>
-
-              <webAppConfig>
-                <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
-              </webAppConfig>
-
-              <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
-
-              <useTestScope>true</useTestScope>
-              <systemProperties>
-                <systemProperty>
-                  <name>java.net.preferIPv4Stack</name>
-                  <value>true</value>
-                </systemProperty>
-              </systemProperties>
-
-              <connectors>
-                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                  <port>8080</port>
-                </connector>
-                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                  <port>8443</port>
-                </connector>
-              </connectors>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
     <profile>
       <id>production</id>
       <build>
@@ -1012,33 +1032,10 @@
           <plugin>
             <groupId>net.alchim31.maven</groupId>
             <artifactId>scala-maven-plugin</artifactId>
-            <version>4.8.1</version>
+            <version>4.9.10</version>
             <configuration>
               <recompileMode>all</recompileMode>
             </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>CI</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.eclipse.jetty.ee10 </groupId>
-            <artifactId>jetty-ee10-jspc-maven-plugin</artifactId>
-            <version>${jetty.version}</version>
-            <executions>
-              <execution>
-                <id>jspc</id>
-                <goals>
-                  <goal>jspc</goal>
-                </goals>
-                <configuration>
-                </configuration>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

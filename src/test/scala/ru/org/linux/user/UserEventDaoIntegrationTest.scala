@@ -34,10 +34,10 @@ object UserEventDaoIntegrationTest {
 @Transactional
 class UserEventDaoIntegrationTest {
   @Autowired
-  var userEventDao: UserEventDao = _
+  var userEventDao: UserEventDao = scala.compiletime.uninitialized
 
   @Autowired
-  var userDao: UserDao = _
+  var userDao: UserDao = scala.compiletime.uninitialized
 
   @Test
   def testAdd(): Unit = {
@@ -83,11 +83,11 @@ class UserEventDaoIntegrationTest {
   @Test
   def testRecalc(): Unit = {
     createSimpleEvent()
-    assertEquals(1, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).getUnreadEvents)
+    assertEquals(1, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents)
     val affected = userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId))
     assertEquals(1, affected.size)
-    assertEquals(1, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).getUnreadEvents)
+    assertEquals(1, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents)
     userEventDao.recalcEventCount(Seq(UserEventDaoIntegrationTest.TestUserId))
-    assertEquals(0, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).getUnreadEvents)
+    assertEquals(0, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents)
   }
 }

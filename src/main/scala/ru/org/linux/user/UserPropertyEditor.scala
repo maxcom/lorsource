@@ -35,7 +35,7 @@ class UserPropertyEditor(userService: UserService) extends PropertyEditorSupport
     if (getValue == null) {
       ""
     } else {
-      getValue.asInstanceOf[User].getNick
+      getValue.asInstanceOf[User].nick
     }
   }
 }
@@ -59,7 +59,7 @@ class UserIdPropertyEditor (userService: UserService) extends PropertyEditorSupp
     if (getValue == null) {
       ""
     } else {
-      getValue.asInstanceOf[User].getId.toString
+      getValue.asInstanceOf[User].id.toString
     }
   }
 }

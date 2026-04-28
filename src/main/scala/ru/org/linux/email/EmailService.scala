@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,12 +15,13 @@
 
 package ru.org.linux.email
 
-import org.apache.pekko.actor.ActorRef
 import com.google.common.net.HttpHeaders
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.mail.internet.{InternetAddress, MimeMessage}
+import jakarta.mail.{Message, MessagingException, Session, Transport}
 import jakarta.servlet.RequestDispatcher
 import jakarta.servlet.http.HttpServletRequest
-import org.joda.time.{DateTime, DateTimeZone}
+import org.apache.pekko.actor.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import ru.org.linux.email.EmailService.createMessage
@@ -31,10 +32,9 @@ import ru.org.linux.user.User
 
 import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
+import java.time.{Instant, ZoneId}
 import java.util.{Date, Properties}
 import javax.annotation.Nullable
-import javax.mail.internet.{InternetAddress, MimeMessage}
-import javax.mail.{Message, MessagingException, Session, Transport}
 import scala.jdk.CollectionConverters.*
 
 @Service
@@ -97,12 +97,12 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     sendRegistrationMail(email, text.toString())
   }
 
-  def sendInviteEmail(inviteUser: User, email: String, inviteCode: String, validUntil: DateTime): Unit = {
+  def sendInviteEmail(inviteUser: User, email: String, inviteCode: String, validUntil: Instant): Unit = {
     val text =
       s"""
          |Здравствуйте!
          |
-         |Участник https://www.linux.org.ru/, ${inviteUser.getNick} (https://www.linux.org.ru/people/${inviteUser.getNick}/profile),
+         |Участник https://www.linux.org.ru/, ${inviteUser.nick} (https://www.linux.org.ru/people/${inviteUser.nick}/profile),
          |пригласил вас зарегистрироваться на форуме.\n
          |
          |Если вы не понимаете, о чем идет речь - просто проигнорируйте это сообщение!
@@ -112,7 +112,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |https://www.linux.org.ru/register.jsp?invite=${URLEncoder.encode(inviteCode, "utf-8")}
          |
          |Эта ссылка позволяет зарегистрировать только одну учетную запись. Ссылка действует
-         |до ${DateFormats.getDefault(DateTimeZone.getDefault).print(validUntil)}.
+         |до ${DateFormats.formatDefault(ZoneId.systemDefault(), Date.from(validUntil))}.
          |
          |До встречи!
          |
@@ -167,7 +167,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
     text.append(s"IP: ${request.getRemoteAddr}\n")
 
     if (currentUser != null) {
-      text.append(s"Current user: ${currentUser.getNick}\n")
+      text.append(s"Current user: ${currentUser.nick}\n")
     }
 
     text.append("Headers: ")
@@ -191,7 +191,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
   def sendPasswordReset(user: User, resetCode: String): Unit = {
     val msg = createMessage
     msg.setFrom(new InternetAddress("no-reply@linux.org.ru"))
-    msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail))
+    msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user.email))
     msg.setSubject("Your password @linux.org.ru")
     msg.setSentDate(new Date)
 
@@ -200,7 +200,7 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
          |
          |Для сброса вашего пароля перейдите по ссылке https://www.linux.org.ru/reset-password
          |
-         |Ваш ник ${user.getNick}, код подтверждения: $resetCode
+         |Ваш ник ${user.nick}, код подтверждения: $resetCode
          |
          |Если это были не вы, то просто игнорируйте это письмо.
          |

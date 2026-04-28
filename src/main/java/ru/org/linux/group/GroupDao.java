@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,8 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -50,7 +48,6 @@ public class GroupDao {
    * @return объект группы
    * @throws GroupNotFoundException если группа не существует
    */
-  @Cacheable("Groups")
   public Group getGroup(int id) throws GroupNotFoundException {
     try {
       return jdbcTemplate.queryForObject(
@@ -144,7 +141,6 @@ public class GroupDao {
    * @param resolvable можно ли ставить темам признак "тема решена"
    * @param urlName    имя группы в URL
    */
-  @CacheEvict(value="Groups", key="#group.id")
   public void setParams(final Group group, final String title, final String info, final String longInfo, final boolean resolvable, final String urlName) {
     jdbcTemplate.execute(
       "UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?",

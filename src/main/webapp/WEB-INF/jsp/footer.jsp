@@ -1,7 +1,9 @@
+<%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -21,9 +23,15 @@
 
 <p id="ft-info">
   <a href="/about">О Сервере</a> -
-  <a href="/help/rules.md">Правила форума</a> -
-  <a href="/help/lorcode.md">Правила разметки (LORCODE)</a> -
-  <a href="/help/markdown.md">Правила разметки (Markdown)</a><br>
+  <a href="/help/rules.md">Правила форума</a>
+
+  <c:if test="${template.formatMode == 'lorcode'}">
+    - <a href="/help/lorcode.md">Разметка LORCODE</a>
+  </c:if>
+  <c:if test="${template.formatMode == 'markdown'}">
+    - <a href="/help/markdown.md">Разметка Markdown</a>
+  </c:if>
+  <br>
   <a href="https://github.com/maxcom/lorsource/issues">Сообщить об ошибке</a><br>
   <a href="${configuration.secureUrl}">${configuration.secureUrl}</a>
 </p>
@@ -36,6 +44,7 @@
   </c:if>
 </script>
 
+<lor:themeIndicator/>
 
 </footer>
 </body></html>

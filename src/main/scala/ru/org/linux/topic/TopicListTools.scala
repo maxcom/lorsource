@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,41 +15,39 @@
 
 package ru.org.linux.topic
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import org.apache.commons.lang3.StringUtils
+import ru.org.linux.site.DateFormats
 
-import scala.jdk.CollectionConverters._
+import java.time.format.{DateTimeFormatter, TextStyle}
+import java.time.temporal.ChronoUnit
+import java.time.{Instant, Month, ZoneId}
 import scala.collection.Seq
+import scala.jdk.CollectionConverters.*
 
 object TopicListTools {
-  private val OldYearFormat = DateTimeFormat.forPattern("YYYY")
+  private val OldYearFormat = DateTimeFormatter.ofPattern("yyyy", DateFormats.RussianLocale)
+  
+  def partitionOf(date: Instant, timezone: ZoneId, now: Instant) =
+    def startOfToday = now.atZone(timezone).truncatedTo(ChronoUnit.DAYS)
+    def startOfYesterday = now.atZone(timezone).truncatedTo(ChronoUnit.DAYS).minusDays(1)
+    def yearAgo = now.atZone(timezone).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS).minusYears(1)
 
-  // в локали месяца не в том склонении :-(
-  private val Months = IndexedSeq(
-    "Январь", "Февраль",
-    "Март", "Апрель", "Май",
-    "Июнь", "Июль", "Август",
-    "Сентябрь", "Октябрь", "Ноябрь",
-    "Декабрь")
+    date match
+      case date if date.isAfter(startOfToday.toInstant) =>
+        "Сегодня"
+      case date if date.isAfter(startOfYesterday.toInstant) =>
+        "Вчера"
+      case date if date.isAfter(yearAgo.toInstant) =>
+        val zonedDateTime = date.atZone(timezone)
+        val month = Month.of(zonedDateTime.getMonthValue).getDisplayName(TextStyle.FULL_STANDALONE, DateFormats.RussianLocale)
 
-  def datePartition(topics: Seq[Topic]): Seq[(String, Topic)] = {
-    val startOfToday = DateTime.now.withTimeAtStartOfDay
-    val startOfYesterday = DateTime.now.minusDays(1).withTimeAtStartOfDay
-    val yearAgo = DateTime.now.withDayOfMonth(1).minusMonths(12).withTimeAtStartOfDay
+        s"${StringUtils.capitalize(month)} ${zonedDateTime.getYear}"
+      case date =>
+        OldYearFormat.format(date.atZone(timezone))
 
-    topics.map { topic =>
-      val key = topic.getEffectiveDate match {
-                case date if date.isAfter(startOfToday)     => "Сегодня"
-                case date if date.isAfter(startOfYesterday) => "Вчера"
-                case date if date.isAfter(yearAgo)          => s"${monthName(date)} ${date.getYear}"
-                case date                                   => OldYearFormat.print(date)
-              }
-
-      key -> topic
-    }
-  }
-
-  def monthName(date: DateTime): String = Months(date.getMonthOfYear - date.getChronology.monthOfYear().getMinimumValue)
+  def datePartition(topics: Seq[Topic], timezone: ZoneId): Seq[(String, Topic)] =
+    topics.map: topic =>
+      partitionOf(topic.getEffectiveDate, timezone, Instant.now) -> topic
 
   private def grouped[T](seq: Seq[(String, T)]):java.util.List[(String, java.util.List[T])] = {
     val start = (Vector.empty[(String, java.util.List[T])], "", Vector.empty[T])

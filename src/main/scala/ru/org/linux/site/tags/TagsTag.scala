@@ -29,7 +29,7 @@ import scala.jdk.CollectionConverters.ListHasAsScala
  * tags tag
  */
 class TagsTag extends TagSupport {
-  private var list: collection.Seq[TagRef] = _
+  private var list: collection.Seq[TagRef] = scala.compiletime.uninitialized
   private var deletable: Boolean = false
 
   def setList(list: util.List[TagRef]): Unit = this.list = list.asScala

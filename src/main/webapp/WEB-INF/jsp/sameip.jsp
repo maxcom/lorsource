@@ -1,9 +1,10 @@
+<%@ page session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -121,14 +122,13 @@
       $script.ready("jquery", function () {
           $.ajax({
               method: 'GET',
-              contentType: 'application/json',
-              url: 'https://ipwhois.app/json/${ip}',
+              url: '/admin/geoip?ip=${ip}',
               dataType: 'json',
               success: function (json) {
-                  if (json.success) {
-                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city + " (" + json.org + ")")
+                  if (json.error) {
+                      $('#geolookup').text("rejected - " + json.error)
                   } else {
-                      $('#geolookup').text("rejected - " + json.message)
+                      $('#geolookup').text(json.country + " / " + json.region + " / " + json.city + " (" + json.org + ")")
                   }
               }
           });

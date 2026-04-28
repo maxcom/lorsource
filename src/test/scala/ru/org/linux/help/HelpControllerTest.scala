@@ -62,9 +62,9 @@ class HelpControllerTestConfig {
 
 trait MVCTest {
   @Autowired
-  var wac: WebApplicationContext = _
+  var wac: WebApplicationContext = scala.compiletime.uninitialized
 
-  var mockMvc: MockMvc = _
+  var mockMvc: MockMvc = scala.compiletime.uninitialized
 
   @Before
   def setup(): Unit = {

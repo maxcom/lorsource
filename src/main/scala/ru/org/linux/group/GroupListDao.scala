@@ -145,7 +145,7 @@ class GroupListDao(ds: DataSource) {
 
   def getSectionListTopics(section: Section, offset: Int, tagId: Int)
                           (implicit session: AnySession): collection.Seq[TopicsListItem] = {
-    val partFilter = s" AND section = ${section.getId}"
+    val partFilter = s" AND section = ${section.id}"
     val tagFilter = s" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=$tagId) "
 
     load(
@@ -223,7 +223,7 @@ class GroupListDao(ds: DataSource) {
       partIgnored = GroupListDao.QueryPartIgnored
       tagIgnored = GroupListDao.QueryPartTagIgnored
 
-      parameter.addValue("userid", session.userOpt.get.getId)
+      parameter.addValue("userid", session.userOpt.get.id)
     } else {
       partIgnored = ""
       commentIgnored = ""

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
-import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -24,7 +23,7 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.group.{Group, GroupDao, GroupNotFoundException, GroupPermissionService}
+import ru.org.linux.group.{Group, GroupNotFoundException, GroupPermissionService, GroupService}
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.tag.{TagPageController, TagService}
@@ -33,6 +32,7 @@ import ru.org.linux.topic.TopicListController.{ForumFilter, ForumFilters, calcul
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.{DateUtil, ServletParameterException}
 
+import java.time.ZonedDateTime
 import java.util.concurrent.CompletionStage
 import javax.annotation.Nullable
 import scala.jdk.FutureConverters.FutureOps
@@ -44,18 +44,18 @@ object TopicListController {
   private def calculatePTitle(section: Section, groupOpt: Option[Group], topicListForm: TopicListRequest): String = {
     groupOpt match {
       case Some(group) =>
-        s"${section.getName} - ${group.title}"
+        s"${section.name} - ${group.title}"
       case None =>
         if (topicListForm.yearMonth.isEmpty) {
-          section.getName + topicListForm.filter.map(f => s" (${f.title})").getOrElse("")
+          section.name + topicListForm.filter.map(f => s" (${f.title})").getOrElse("")
         } else {
-          s"Архив: ${section.getName}, ${topicListForm.getYear.get}, ${DateUtil.getMonth(topicListForm.getMonth.get)}"
+          s"Архив: ${section.name}, ${topicListForm.getYear.get}, ${DateUtil.getMonth(topicListForm.getMonth.get)}"
         }
     }
   }
 
   private def calculateNavTitle(section: Section, group: Option[Group], topicListForm: TopicListRequest): String = {
-    val navTitle = new StringBuilder(section.getName)
+    val navTitle = new StringBuilder(section.name)
 
     group.foreach { group =>
       navTitle.append(s" «${group.title}»")
@@ -98,7 +98,7 @@ object TopicListController {
 @Controller
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
-                          groupDao: GroupDao, groupPermissionService: GroupPermissionService) extends StrictLogging {
+                          groupService: GroupService, groupPermissionService: GroupPermissionService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
                                     group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
@@ -124,9 +124,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("section", section)
     modelAndView.addObject("archiveLink", section.getArchiveLink)
 
-    if (section.getId != Section.SECTION_FORUM) {
+    if (section.id != Section.Forum) {
       modelAndView.addObject("groupList",
-        SectionController.groupsSorted(groupDao.getGroups(section).asScala).asJava)
+        SectionController.groupsSorted(groupService.getGroups(section).asScala).asJava)
     } else {
       modelAndView.addObject("filters", ForumFilters.asJava)
       modelAndView.addObject("filter", topicListForm.filter.getOrElse(""))
@@ -172,7 +172,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       modelAndView.addObject("url", section.getNewsViewerLink)
-      modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
+      modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}")
     }.asJava
   }
 
@@ -184,17 +184,17 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   @RequestMapping(path = Array("/forum/lenta"))
   def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int,
             @RequestParam(value = "filter", required = false) filter: String): CompletionStage[ModelAndView] = {
-    val section = sectionService.getSection(Section.SECTION_FORUM)
+    val section = sectionService.getSection(Section.Forum)
 
     val topicListForm = TopicListRequest.ofOffset(offset).copy(filter = parseFilter(filter))
 
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       if (filter==null) {
         modelAndView.addObject("url", section.getNewsViewerLink)
-        modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}")
+        modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}")
       } else {
         modelAndView.addObject("url", section.getNewsViewerLink + s"?filter=$filter")
-        modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.getId}&filter=$filter")
+        modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}&filter=$filter")
       }
     }.asJava
   }
@@ -205,7 +205,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
                     @PathVariable("group") groupName: String): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
 
-    val group = groupDao.getGroup(section, groupName)
+    val group = groupService.getGroup(section, groupName)
 
     val topicListForm = TopicListRequest.ofOffset(offset)
 
@@ -245,10 +245,10 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val forumFilter = parseFilter(filter)
 
     val section = sectionService.getSection(sectionId)
-    var ptitle = section.getName
+    var ptitle = section.name
 
     val group = if (groupId != 0) {
-      val g = groupDao.getGroup(groupId)
+      val g = groupService.getGroup(groupId)
       ptitle += " - " + g.title
       Some(g)
     } else {
@@ -272,8 +272,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val notalks = forumFilter.contains(NoTalks)
     val tech = forumFilter.contains(Tech)
 
-    val fromDate = DateTime.now.minusMonths(3)
-    val messages = topicListService.getRssTopicsFeed(section, group, fromDate.toDate, notalks, tech)
+    val fromDate = ZonedDateTime.now.minusMonths(3)
+    val messages = topicListService.getRssTopicsFeed(section, group, fromDate.toInstant, notalks, tech)
 
     // не лучший вариант, так как включает комментарии
     // по хорошему тут надо учитывать только правки текста топика
@@ -294,8 +294,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
 
     group foreach { group =>
-      if (group.sectionId != section.getId) {
-        throw new ScriptErrorException(s"группа #${group.id} не принадлежит разделу #${section.getId}")
+      if (group.sectionId != section.id) {
+        throw new ScriptErrorException(s"группа #${group.id} не принадлежит разделу #${section.id}")
       }
     }
   }

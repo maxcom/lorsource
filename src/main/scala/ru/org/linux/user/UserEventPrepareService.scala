@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,18 +16,16 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Service
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.reaction.ReactionListItem
 import ru.org.linux.section.SectionService
-import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao}
 import ru.org.linux.topic.TopicTagService
-
-import scala.jdk.OptionConverters.RichOptional
 
 @Service
 class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: MessageTextService, userService: UserService,
-                              deleteInfoDao: DeleteInfoDao, sectionService: SectionService, groupDao: GroupDao,
+                              deleteInfoDao: DeleteInfoDao, sectionService: SectionService, groupService: GroupService,
                               tagService: TopicTagService) {
   /**
    * @param events      список событий
@@ -66,7 +64,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
       None
     }
 
-    val group = groupDao.getGroup(event.groupId)
+    val group = groupService.getGroup(event.groupId)
 
     val topicAuthor = users(event.topicAuthor)
 
@@ -97,7 +95,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
     (if ("DEL" == event.eventType.getType) {
       val msgid = if (event.isComment) event.cid else event.topicId
 
-      deleteInfoDao.getDeleteInfo(msgid).toScala
+      deleteInfoDao.getDeleteInfo(msgid)
     } else {
       None
     }).map(_.getBonus)
@@ -115,7 +113,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
             None
           }
 
-          val group = groupDao.getGroup(event.groupId)
+          val group = groupService.getGroup(event.groupId)
 
           val topicAuthor = users(event.topicAuthor)
 
@@ -204,6 +202,6 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
     val otherPrepared = other.view.map(event => prepare(event, withText = false, users, tags))
 
     (groupedFavorities ++ otherPrepared ++ groupedReactions)
-      .toSeq.sorted(Ordering.by((_: PreparedUserEvent).date).reverse)
+      .toSeq.sorted(using Ordering.by((_: PreparedUserEvent).date).reverse)
   }
 }

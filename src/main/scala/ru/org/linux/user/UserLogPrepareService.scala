@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,48 +15,54 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Service
-import ru.org.linux.spring.dao.UserAgentDao
-
+import ru.org.linux.msgbase.UserAgentDao
+import ru.org.linux.site.DateFormats
 import ru.org.linux.user.UserLogDao.*
 import ru.org.linux.util.StringUtil.escapeHtml
 
-import scala.jdk.CollectionConverters.{MapHasAsJava, MapHasAsScala}
+import java.time.{Instant, ZoneId}
+import java.util.Date
 
 object UserLogPrepareService {
   private val OptionDescription: Map[String, String] =
-    Map(OPTION_BONUS -> "Изменение score",
-        OPTION_NEW_EMAIL -> "Новый email",
-        OPTION_NEW_USERPIC -> "Новая фотография",
-        OPTION_OLD_EMAIL -> "Старый email",
-        OPTION_OLD_INFO -> "Старый текст информации",
-        OPTION_OLD_USERPIC -> "Старая фотография",
-        OPTION_REASON -> "Причина")
+    Map(OptionBonus -> "Изменение score",
+        OptionNewEmail -> "Новый email",
+        OptionNewUserpic -> "Новая фотография",
+        OptionOldEmail -> "Старый email",
+        OptionOldInfo -> "Старый текст информации",
+        OptionOldUserpic -> "Старая фотография",
+        OptionReason -> "Причина",
+        OptionUntil -> "Срок действия")
 }
 
 @Service
 class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao) {
-  def prepare(items: collection.Seq[UserLogItem]): Seq[PreparedUserLogItem] = {
+  def prepare(items: collection.Seq[UserLogItem], timezone: ZoneId): Seq[PreparedUserLogItem] = {
     items.view.map((item: UserLogItem) => {
-      val options = for ((rawKey, rawValue) <- item.getOptions.asScala) yield {
+      val options = for ((rawKey, rawValue) <- item.options) yield {
         val key = UserLogPrepareService.OptionDescription.getOrElse(rawKey, escapeHtml(rawKey))
 
         val value = rawKey match {
-          case OPTION_OLD_USERPIC | OPTION_NEW_USERPIC =>
+          case OptionOldUserpic | OptionNewUserpic =>
             s"<a href=\"/photos/${escapeHtml(rawValue)}\">${escapeHtml(rawValue)}</a>"
-          case OPTION_IP =>
+          case OptionIp =>
             s"<a href=\"/sameip.jsp?ip=${escapeHtml(rawValue)}\">${escapeHtml(rawValue)}</a>"
-          case OPTION_INVITED_BY =>
+          case OptionInvitedBy =>
             val user = userService.getUserCached(rawValue.toInt)
-            s"<a href=\"/people/${user.getNick}/profile\">${user.getNick}</a>"
-          case OPTION_USER_AGENT =>
+            s"<a href=\"/people/${user.nick}/profile\">${user.nick}</a>"
+          case OptionUserAgent =>
             val id = rawValue.toInt
-            val ip = item.getOptions.getOrDefault(OPTION_IP, "")
+            val ip = item.options.getOrElse(OptionIp, "")
 
             if (id != 0) {
               s"<a href=\"/sameip.jsp?ua=$id&ip=$ip&mask=0\">${userAgentDao.getUserAgentById(id).orElse(escapeHtml("<не найден>"))}</a>"
             } else {
               escapeHtml("<нет>")
             }
+          case OptionUntil =>
+            val until = Instant.parse(rawValue)
+
+            DateFormats.formatDefault(timezone, Date.from(until))
           case _ =>
             escapeHtml(rawValue)
         }
@@ -64,7 +70,7 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
         key -> value
       }
 
-      new PreparedUserLogItem(item, userService.getUserCached(item.getActionUser), options.asJava)
+      PreparedUserLogItem(item, userService.getUserCached(item.actionUser), options)
     }).toVector
   }
 }

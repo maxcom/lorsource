@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,43 +15,45 @@
 
 package ru.org.linux.search
 
-import java.util.concurrent.TimeUnit
-import org.apache.pekko.actor.Scheduler
-import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import com.google.common.cache.CacheBuilder
-import com.sksamuel.elastic4s.ElasticDsl.*
-import com.sksamuel.elastic4s.ElasticClient
-import com.sksamuel.elastic4s.requests.common.DocumentRef
-import com.sksamuel.elastic4s.requests.searches.SearchHit
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
+import org.apache.pekko.actor.Scheduler
+import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
+import org.opensearch.client.opensearch.OpenSearchAsyncClient
+import org.opensearch.client.opensearch._types.FieldValue
+import org.opensearch.client.opensearch._types.query_dsl.*
+import org.opensearch.client.opensearch.core.SearchRequest
+import org.opensearch.client.opensearch.core.search.{Hit, SourceConfig, SourceFilter}
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.search.ElasticsearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
+import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
-import java.time.ZoneId
+import java.time.{Instant, ZoneId}
+import java.util.concurrent.TimeUnit
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters.*
+import scala.collection.Seq as MSeq
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future, TimeoutException}
+import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.*
 import scala.util.control.NonFatal
-import scala.collection.Seq as MSeq
 
 @Service
 class MoreLikeThisService(
-  elastic: ElasticClient,
+  client: OpenSearchAsyncClient,
   sectionService: SectionService,
   scheduler: Scheduler
 ) extends StrictLogging {
-  import ru.org.linux.search.MoreLikeThisService.*
+  import MoreLikeThisService.*
 
   private type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
 
@@ -71,21 +73,31 @@ class MoreLikeThisService(
   breaker.onOpen { logger.warn("Similar topics lookup disabled") }
   breaker.onClose { logger.warn("Similar topics lookup enabled") }
 
-  def searchSimilar(topic: Topic, tags: collection.Seq[TagRef]): Future[Result] = {
+  def searchSimilar(topic: Topic, tags: MSeq[TagRef]): Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.id))
 
     cachedValue.map(Future.successful).getOrElse {
       breaker.withCircuitBreaker {
-        val searchResult = elastic execute makeQuery(topic, tags)
+        val request = makeQuery(topic, tags)
 
-        val result: Future[Result] = searchResult.map(_.result).map(result => if (result.hits.nonEmpty) {
-          val half = result.hits.hits.length / 2 + result.hits.hits.length % 2
+        val result: Future[Result] = client.search(request, classOf[MessageIndexDocument])
+          .asScala
+          .map { response =>
+            val hits = response.hits.hits.asScala
+            if (hits.nonEmpty) {
+              val half = hits.size / 2 + hits.size % 2
 
-          result.hits.hits.map(processHit).grouped(half).map(_.toVector.asJava).toVector.asJava
-        } else Seq().asJava)
+              val grouped: Iterator[Vector[MoreLikeThisTopic]] = hits.map(processHit).grouped(half).map(_.toVector)
+              val listOfLists: Result = grouped.map(_.asJava).toVector.asJava
 
-        result.foreach {
-          v => cache.put(topic.id, v)
+              listOfLists
+            } else {
+              Seq().asJava
+            }
+          }
+
+        result.foreach { v =>
+          cache.put(topic.id, v)
         }
 
         result
@@ -93,18 +105,34 @@ class MoreLikeThisService(
     }
   }
 
-  private def makeQuery(topic: Topic, tags: MSeq[TagRef]) = {
+  private def makeQuery(topic: Topic, tags: MSeq[TagRef]): SearchRequest = {
     val tagsQ = if (tags.nonEmpty) {
       Seq(tagsQuery(tags.map(_.name)))
     } else Seq.empty
 
     val queries = Seq(titleQuery(topic), textQuery(topic.id)) ++ tagsQ
 
-    val rootFilters = Seq(termQuery("is_comment", "false"), termQuery(COLUMN_TOPIC_AWAITS_COMMIT, "false"))
+    val filterQueries = Seq(
+      Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
+      Query.of(q => q.term(TermQuery.of(t => t.field(COLUMN_TOPIC_AWAITS_COMMIT).value(FieldValue.of("false")))))
+    )
 
-    search(MessageIndex).query {
-      boolQuery().should(queries*).filter(rootFilters).minimumShouldMatch(1).not(idsQuery(topic.id.toString))
-    }.fetchSource(true).sourceInclude("title", "postdate", "section", "group")
+    new SearchRequest.Builder()
+      .index(MessageIndex)
+      .query(Query.of(q => q
+        .bool(BoolQuery.of(b => {
+          queries.foreach(q => b.should(q))
+          b.filter(filterQueries.asJava)
+          b.minimumShouldMatch("1")
+          b.mustNot(Query.of(q => q.ids(ids => ids.values(topic.id.toString))))
+        })
+      )))
+      .source(new SourceConfig.Builder()
+        .filter(new SourceFilter.Builder()
+          .includes(java.util.List.of("title", "postdate", "section", "group"))
+          .build())
+        .build())
+      .build()
   }
 
   def resultsOrNothing(topic: Topic, featureResult: Future[Result], deadline: Deadline): Result = {
@@ -113,7 +141,7 @@ class MoreLikeThisService(
         Await.result(featureResult, deadline.timeLeft)
       } catch {
         case _: CircuitBreakerOpenException =>
-          logger.debug(s"Similar topics circuit breaker is open")
+          logger.debug("Similar topics circuit breaker is open")
           Option(cache.getIfPresent(topic.id)).getOrElse(Seq().asJava)
         case ex: TimeoutException =>
           logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
@@ -125,16 +153,17 @@ class MoreLikeThisService(
     }
   }
 
-  private def processHit(hit: SearchHit): MoreLikeThisTopic = {
-    val section = SearchResultsService.section(hit)
-    val group = SearchResultsService.group(hit)
+  private def processHit(hit: Hit[MessageIndexDocument]): MoreLikeThisTopic = {
+    val source = hit.source
+    val section = source.section
+    val group = source.group
 
     val builder = UriComponentsBuilder.fromPath("/{section}/{group}/{msgid}")
     val link = builder.buildAndExpand(section, group, Integer.parseInt(hit.id)).toUriString
 
-    val postdate = SearchResultsService.postdate(hit)
+    val postdate = Instant.parse(source.postdate)
 
-    val title = hit.sourceAsMap("title").asInstanceOf[String]
+    val title = source.title.getOrElse("")
 
     MoreLikeThisTopic(
       title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
@@ -143,25 +172,40 @@ class MoreLikeThisService(
       sectionService.getSectionByName(section).getTitle)
   }
 
-  private def titleQuery(topic:Topic) = {
-    moreLikeThisQuery("title")
-      .likeTexts(topic.getTitleUnescaped)
-      .minTermFreq(1)
-      .minDocFreq(2)
-      .stopWords(StopWords)
-      .maxDocFreq(5000)
+  private def titleQuery(topic: Topic): Query = {
+    Query.of(q => q
+      .moreLikeThis(MoreLikeThisQuery.of(m => m
+        .fields("title")
+        .like(Like.of(l => l.text(topic.getTitleUnescaped)))
+        .minTermFreq(1)
+        .minDocFreq(2)
+        .stopWords(StopWords.asJava)
+        .maxDocFreq(5000)
+      ))
+    )
   }
 
-  private def textQuery(id: Int) = {
-    moreLikeThisQuery("message")
-      .likeDocs(Seq(DocumentRef(MessageIndex, id.toString)))
-      .minTermFreq(1)
-      .stopWords(StopWords)
-      .minWordLength(3)
-      .maxDocFreq(100000)
+  private def textQuery(id: Int): Query = {
+    Query.of(q => q
+      .moreLikeThis(MoreLikeThisQuery.of(m => m
+        .fields("message")
+        .like(Like.of(l => l.document(d => d.index(MessageIndex).id(id.toString))))
+        .minTermFreq(1)
+        .stopWords(StopWords.asJava)
+        .minWordLength(3)
+        .maxDocFreq(100000)
+      ))
+    )
   }
 
-  private def tagsQuery(tags: MSeq[String]) = termsQuery("tag", tags)
+  private def tagsQuery(tags: MSeq[String]): Query = {
+    Query.of(q => q
+      .terms(TermsQuery.of(t => t
+        .field("tag")
+        .terms(ts => ts.value(tags.map(v => FieldValue.of(v)).asJava))
+      ))
+    )
+  }
 }
 
 object MoreLikeThisService {
@@ -185,8 +229,8 @@ object MoreLikeThisService {
 }
 
 case class MoreLikeThisTopic(
-  @BeanProperty title:String,
-  @BeanProperty link:String,
-  @BeanProperty year:Int,
-  @BeanProperty section:String
+  @BeanProperty title: String,
+  @BeanProperty link: String,
+  @BeanProperty year: Int,
+  @BeanProperty section: String
 )

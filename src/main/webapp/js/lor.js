@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,108 +15,105 @@
 
 function initNextPrevKeys() {
   $script.ready('plugins', function () {
-    $(function () {
-      function jump(link) {
-        if (link && link.href) {
-          document.location = link.href;
-        }
+    function jump(link) {
+      if (link && link.href) {
+        document.location = link.href;
       }
+    }
 
-      if (typeof  jQuery.hotkeys !== 'undefined') {
-        $(document).bind('keydown', {combi: 'Ctrl+left', disableInInput: true}, function () {
-          jump(document.getElementById('PrevLink'))
-        });
-        $(document).bind('keydown', {combi: 'Ctrl+right', disableInInput: true}, function () {
-          jump(document.getElementById('NextLink'))
-        });
-      }
-    })
+    if (typeof jQuery.hotkeys !== 'undefined') {
+      $(document).on('keydown', {combi: 'Ctrl+left', disableInInput: true}, function () {
+        jump(document.getElementById('PrevLink'))
+      });
+      $(document).on('keydown', {combi: 'Ctrl+right', disableInInput: true}, function () {
+        jump(document.getElementById('NextLink'))
+      });
+    }
   });
 }
 
 function initStarPopovers() {
   $script.ready('plugins', function () {
     $(function () {
-      $("#favs_button").click(function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        $("#memories_button").popover('hide');
-        $("#favs_button").popover('show');
-      });
-      $("#favs_button").popover({
+      const favsTippy = tippy(document.getElementById('favs_button'), {
         content: "Для добавления в избранное надо залогиниться!",
-        autoReposition: false,
+        trigger: 'manual'
+      });
+      const memoriesTippy = tippy(document.getElementById('memories_button'), {
+        content: "Для добавления в отслеживаемое надо залогиниться!",
         trigger: 'manual'
       });
 
-      $("#memories_button").click(function (event) {
+      $("#favs_button").on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
-        $("#favs_button").popover('hide');
-        $("#memories_button").popover('show');
+        memoriesTippy.hide();
+        favsTippy.show();
       });
-      $("#memories_button").popover({
-        content: "Для добавления в отслеживаемое надо залогиниться!",
-        autoReposition: false,
-        trigger: 'manual'
+
+      $("#memories_button").on("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        favsTippy.hide();
+        memoriesTippy.show();
       });
-    })
+    });
   });
 }
 
 function init_interpage_adv(ads) {
-    $(function() {
-      const img = $('<img>');
-      const anchor = $('<a>');
-      const ad = ads[Math.floor(Math.random() * ads.length)];
+  $(function () {
+    const img = $('<img>');
+    const anchor = $('<a>');
+    const ad = ads[Math.floor(Math.random() * ads.length)];
 
-      if (ad.type === 'img') {
-        anchor.attr('href', ad.href);
-        anchor.attr('target', '_blank');
+    if (ad.type === 'img') {
+      anchor.attr('href', ad.href);
+      anchor.attr('target', '_blank');
 
-        img.attr('src', ad.src);
-        if ('width' in ad) {
-          img.attr('width', ad.width);
-        } else {
-          img.attr('width', 728);
-        }
-
-        if ('height' in ad) {
-          img.attr('height', ad.height);
-        } else {
-          img.attr('height', 90);
-        }
-
-        anchor.append(img);
-        $('#interpage').append(anchor);
+      img.attr('src', ad.src);
+      if ('width' in ad) {
+        img.attr('width', ad.width);
+      } else {
+        img.attr('width', 728);
       }
 
-      if (ad.type === 'rimg') {
-        anchor.attr('href', ad.href);
-        anchor.attr('target', '_blank');
-
-        const interpage = $('#interpage');
-
-        if (interpage.width() > 1024) {
-          img.attr('width', 980);
-          img.attr('height', 120);
-          img.attr('src', ad.img980);
-        } else if (interpage.width() > 750) {
-          img.attr('width', 730);
-          img.attr('height', 90);
-          img.attr('src', ad.img730);
-          img.attr('style', "margin-top: 15px");
-        } else {
-          img.attr('width', 320);
-          img.attr('height', 100);
-          img.attr('style', "margin-top: 5px");
-          img.attr('src', ad.img320);
-        }
-
-        anchor.append(img);
-        interpage.append(anchor);
+      if ('height' in ad) {
+        img.attr('height', ad.height);
+      } else {
+        img.attr('height', 90);
       }
-    });
+
+      anchor.append(img);
+      $('#interpage').append(anchor);
+    }
+
+    if (ad.type === 'rimg') {
+      anchor.attr('href', ad.href);
+      anchor.attr('target', '_blank');
+
+      const interpage = $('#interpage');
+
+      if (interpage.width() > 1024) {
+        img.attr('width', 980);
+        img.attr('height', 120);
+        img.attr('src', ad.img980);
+      } else if (interpage.width() > 750) {
+        img.attr('width', 730);
+        img.attr('height', 90);
+        img.attr('src', ad.img730);
+        img.attr('style', "margin-top: 15px");
+      } else {
+        img.attr('width', 320);
+        img.attr('height', 100);
+        img.attr('style', "margin-top: 5px");
+        img.attr('src', ad.img320);
+      }
+
+      anchor.append(img);
+      interpage.append(anchor);
+    }
+  });
 }
 
 function topic_memories_form_setup(memId, watch, msgid, csrf) {
@@ -125,15 +122,15 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
 
     $.ajax({
       url: "/memories.jsp",
-      type: "POST",
-      data: { msgid : msgid, add: "add", watch: event.data.watch, csrf: csrf }
-    }).done(function(t) {
-       form_setup(t['id'], event.data.watch);
-       if (event.data.watch) {
-         $('#memories_count').text(t['count']);
-       } else {
-         $('#favs_count').text(t['count']);
-       }
+      method: "POST",
+      data: {msgid: msgid, add: "add", watch: event.data.watch, csrf: csrf}
+    }).done(function (t) {
+      form_setup(t['id'], event.data.watch);
+      if (event.data.watch) {
+        $('#memories_count').text(t['count']);
+      } else {
+        $('#favs_count').text(t['count']);
+      }
     });
   }
 
@@ -142,11 +139,11 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
 
     $.ajax({
       url: "/memories.jsp",
-      type: "POST",
-      data: { id : event.data.id, remove: "remove", csrf: csrf }
-    }).done(function(t) {
+      method: "POST",
+      data: {id: event.data.id, remove: "remove", csrf: csrf}
+    }).done(function (t) {
       form_setup(0, event.data.watch);
-      if (t>=0) {
+      if (t >= 0) {
         if (event.data.watch) {
           $('#memories_count').text(t);
         } else {
@@ -157,7 +154,7 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
   }
 
   function form_setup(memId, watch) {
-    var el;
+    let el;
 
     if (watch) {
       el = $('#memories_button');
@@ -165,18 +162,18 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
       el = $('#favs_button');
     }
 
-    if (memId==0) {
+    if (memId == 0) {
       el.removeClass('selected');
-      el.attr('title', watch?"Отслеживать":"В избранное");
+      el.attr('title', watch ? "Отслеживать" : "В избранное");
 
-      el.unbind("click", memories_remove);
-      el.bind("click", {watch: watch}, memories_add);
+      el.off("click", memories_remove);
+      el.on("click", {watch: watch}, memories_add);
     } else {
       el.addClass('selected');
-      el.attr('title', watch?"Не отслеживать":"Удалить из избранного");
+      el.attr('title', watch ? "Не отслеживать" : "Удалить из избранного");
 
-      el.unbind("click", memories_add);
-      el.bind("click", {watch: watch, id: memId}, memories_remove);
+      el.off("click", memories_add);
+      el.on("click", {watch: watch, id: memId}, memories_remove);
     }
   }
 
@@ -186,116 +183,116 @@ function topic_memories_form_setup(memId, watch, msgid, csrf) {
 }
 
 function tag_memories_form_setup(tag, csrf_token) {
-  $script.ready('plugins', function() {
-    $(function() {
-      $("#tagFavNoth").click(function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        $("#tagFavNoth").popover('show');
-      }).popover({
-        content: "Для добавления в избранное надо залогиниться!"
+  $script.ready('plugins', function () {
+    $(function () {
+      const tagFavTippy = tippy(document.getElementById('tagFavNoth'), {
+        content: "Для добавления в избранное надо залогиниться!",
+        trigger: 'manual'
+      });
+      const tagIgnTippy = tippy(document.getElementById('tagIgnNoth'), {
+        content: "Для добавления в список игнорирования надо залогиниться!",
+        trigger: 'manual'
       });
 
-      $("#tagIgnNoth").click(function(event) {
+      $("#tagFavNoth").on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
-        $("#tagIgnNoth").popover('show');
-      }).popover({
-        content: "Для добавления в список игнорирования надо залогиниться!"
+        tagFavTippy.show();
       });
+
+      $("#tagIgnNoth").on("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        tagIgnTippy.show();
+      });
+
+      function tag_filter(event) {
+        event.preventDefault();
+
+        const data = {tagName: tag};
+
+        const el = $('#tagFavAdd');
+        const add = !el.hasClass("selected");
+
+        if (add) {
+          data['add'] = 'add';
+        } else {
+          data['del'] = 'del';
+        }
+
+        data['csrf'] = csrf_token;
+
+        $.ajax({
+          url: "/user-filter/favorite-tag",
+          method: "POST",
+          dataType: "json",
+          data: data
+        }).done(function (t) {
+          if (t.error) {
+            alert(t.error);
+          } else {
+            el.attr('title', add ? "Удалить из избранного" : "В избранное");
+
+            $('#favsCount').text(t['count']);
+
+            if (add) {
+              el.addClass("selected");
+            } else {
+              el.removeClass("selected");
+            }
+          }
+        });
+      }
+
+      $("#tagFavAdd").on("click", tag_filter);
+
+      function tag_ignore(event) {
+        event.preventDefault();
+
+        const data = {tagName: tag};
+
+        const el = $('#tagIgnore');
+        const add = !el.hasClass("selected");
+
+        if (add) {
+          data['add'] = 'add';
+        } else {
+          data['del'] = 'del';
+        }
+
+        data['csrf'] = csrf_token;
+
+        $.ajax({
+          url: "/user-filter/ignore-tag",
+          method: "POST",
+          dataType: "json",
+          data: data
+        }).done(function (t) {
+          if (t.error) {
+            alert(t.error);
+          } else {
+            el.attr('title', add ? "Перестать игнорировать" : "Игнорировать");
+
+            $('#ignoreCount').text(t['count']);
+
+            if (add) {
+              el.addClass("selected");
+            } else {
+              el.removeClass("selected");
+            }
+          }
+        });
+      }
+
+      $("#tagIgnore").on("click", tag_ignore);
     });
   });
-
-  $(function() {
-    function tag_filter(event) {
-      event.preventDefault();
-
-      var data = { tagName: tag};
-
-      var el = $('#tagFavAdd');
-      var add = !el.hasClass("selected");
-
-      if (add) {
-        data['add'] = 'add';
-      } else {
-        data['del'] = 'del';
-      }
-
-      data['csrf'] = csrf_token;
-
-      $.ajax({
-        url: "/user-filter/favorite-tag",
-        type: "POST",
-        dataType: "json",
-        data: data
-      }).done(function (t) {
-            if (t.error) {
-              alert(t.error);
-            } else {
-              el.attr('title', add ? "Удалить из избранного" : "В избранное");
-
-              $('#favsCount').text(t['count']);
-
-              if (add) {
-                el.addClass("selected");
-              } else {
-                el.removeClass("selected");
-              }
-            }
-          });
-    }
-
-    $("#tagFavAdd").bind("click", tag_filter);
-  });
-
-  $(function() {
-    function tag_ignore(event) {
-      event.preventDefault();
-
-      var data = { tagName: tag};
-
-      var el = $('#tagIgnore');
-      var add = !el.hasClass("selected");
-
-      if (add) {
-        data['add'] = 'add';
-      } else {
-        data['del'] = 'del';
-      }
-
-      data['csrf'] = csrf_token;
-
-      $.ajax({
-        url: "/user-filter/ignore-tag",
-        type: "POST",
-        dataType: "json",
-        data: data
-      }).done(function (t) {
-            if (t.error) {
-              alert(t.error);
-            } else {
-              el.attr('title', add ? "Перестать игнорировать" : "Игнорировать");
-
-              $('#ignoreCount').text(t['count']);
-
-              if (add) {
-                el.addClass("selected");
-              } else {
-                el.removeClass("selected");
-              }
-            }
-          });
-    }
-
-    $("#tagIgnore").bind("click", tag_ignore);
-  });
- 
 }
 
 function replace_state() {
   if (typeof (history.replaceState) !== 'function') return;
 
-  if (document.location.hash.indexOf('#comment-') === 0) {
+  if (document.location.hash.indexOf('#comment-') === 0 && !document.location.pathname.startsWith("/view-deleted")) {
     // Yes, we are viewing a comment
 
     // exit if no such target
@@ -307,12 +304,12 @@ function replace_state() {
       return;
     }
 
-    var hash = document.location.hash.split('-');
+    const hash = document.location.hash.split('-');
     if (parseInt(hash[1]) > 0) {
       // OK, comment ID is valid
-      var p = document.location.pathname.split('/');
+      const p = document.location.pathname.split('/');
       // make sure that path doesn't contain /pagex or other parts
-      var pathname = [p[0], p[1], p[2], p[3]].join('/');
+      const pathname = [p[0], p[1], p[2], p[3]].join('/');
       // now replace state
       history.replaceState(null, document.title, pathname + '?cid=' + hash[1]);
     }
@@ -322,8 +319,8 @@ function replace_state() {
 function initLoginForm() {
   $(function () {
     $script.ready('plugins', function () {
-      var options = {
-        type: "post",
+      const options = {
+        method: "post",
         dataType: "json",
         xhrFields: {
           withCredentials: true
@@ -342,9 +339,15 @@ function initLoginForm() {
         }
       };
 
-      $('#regform').ajaxForm(options);
+      $('#regform').on('submit', function (e) {
+        e.preventDefault();
+        $.ajax($.extend(options, {
+          url: $(this).attr('action'),
+          data: $(this).serialize()
+        }));
+      });
 
-      $('#loginbutton').bind('click', function (e) {
+      $('#loginbutton').on('click', function (e) {
         $("#regmenu").fadeOut("fast", function () {
           $("#regform").fadeIn("fast", function () {
             $("#regform input[name='nick']").focus();
@@ -353,7 +356,7 @@ function initLoginForm() {
         return false;
       });
 
-      $('#hide_loginbutton').bind('click', function (e) {
+      $('#hide_loginbutton').on('click', function (e) {
         $("#regform").fadeOut("fast", function () {
           $("#regmenu").fadeIn("fast");
         });
@@ -364,88 +367,95 @@ function initLoginForm() {
 }
 
 
-$(document).ready(function() {
+$(document).ready(function () {
   function initCtrlEnter() {
     function ctrl_enter(e, form) {
-        if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey||e.metaKey)) {
-          window.onbeforeunload = null;
+      if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey || e.metaKey)) {
+        window.onbeforeunload = null;
 
-          $(form).submit();
+        $(form).trigger('submit');
 
-          return false;
-        }
+        return false;
+      }
     }
 
-    $('textarea').bind('keypress', function(e) {
+    $('textarea').on('keypress', function (e) {
       ctrl_enter(e, e.target.form);
     });
   }
 
   function initSamepageCommentNavigation() {
-    $("article.msg a[data-samepage=true]").click(function(event) {
+    $("article.msg a[data-samepage=true]").on("click", function (event) {
       event.preventDefault();
       location.hash = "comment-" + this.search.match(/cid=(\d+)/)[1];
     })
   }
 
   function initScollupButton() {
-    var backButton = $('<button id="ft-back-button">');
+    const backButton = $('<button id="ft-back-button">');
 
     backButton.text("Вверх");
 
-    backButton.click(function() {
-      $("html, body").animate({ scrollTop: 0 });
+    backButton.on("click", function () {
+      $("html, body").animate({scrollTop: 0});
     });
 
     $('#ft').prepend(backButton);
   }
 
   function spoilerShow() {
-    var $this = $(this);
+    const $this = $(this);
     $(this).closest('.spoiled').removeClass('spoiled').addClass("unspoiled");
     $this.remove();
     return false;
   }
 
   function initCodeSpoilers() {
-    $('div.code').each(function() {
+    $('div.code').each(function () {
       if (this.scrollHeight > this.clientHeight) {
         $(this)
-          .append($('<div class="spoiler-open"><span class="btn btn-small btn-default spoiler-button">Развернуть</span></div> ').on('click', spoilerShow))
-          .addClass('spoiled');
+            .append($('<div class="spoiler-open"><span class="btn btn-small btn-default spoiler-button">Развернуть</span></div> ').on('click', spoilerShow))
+            .addClass('spoiled');
       }
     });
   }
 
   function initClearWarningForm() {
-    $script.ready('plugins', function() {
-      $('.clear-warning-form').ajaxForm({
-        success: function(responseText, statusText, xhr, form) {
+    $('.clear-warning-form').on('submit', function (e) {
+      e.preventDefault();
+      const form = $(this);
+      $.ajax({
+        url: form.attr('action'),
+        method: 'POST',
+        data: form.serialize(),
+        success: function () {
           form.hide();
-          form.parent().wrap("<s></s>")
+          form.parent().wrap("<s></s>");
         }
       });
     });
   }
 
   function initReactionsUI() {
-    $script.ready('plugins', function() {
+    $script.ready('plugins', function () {
       twemoji.parse(document.body);
 
-      $(".reaction-anonymous").enable();
-      $(".reaction-anonymous").click(function (event) {
+      $(".reaction-anonymous").prop("disabled", false).each(function () {
+        tippy(this, {
+          content: "Для добавления реакции нужно залогиниться!",
+          trigger: 'manual'
+        });
+      }).on("click", function (event) {
         event.preventDefault();
         event.stopPropagation();
-        $(this).popover('show')
-      }).popover({
-        content: "Для добавления реакции нужно залогиниться!"
+        this._tippy.show();
       });
     });
 
-    $('.reaction-show').on('click', function(event) {
+    $('.reaction-show').on('click', function (event) {
       event.preventDefault();
 
-      var reactions = $(this).parents('.msg_body').find('.reactions');
+      const reactions = $(this).parents('.msg_body').find('.reactions');
 
       if (reactions.is(":hidden") || reactions.find('.zero-reactions').is(":hidden")) {
         $('.zero-reactions').hide();
@@ -464,20 +474,20 @@ $(document).ready(function() {
     })
 
     $script.ready('plugins', function () {
-      $('button.reaction').not(".reaction-anonymous").on('click', function(event) {
+      $('button.reaction').not(".reaction-anonymous").on('click', function (event) {
         event.preventDefault();
 
-        var value = $(this).attr('value');
-        var btn = $(this);
-        var form = $(this).parents(".reactions-form")
-        var reactions = $(this).parents('.msg_body').find('.reactions form');
+        const value = $(this).attr('value');
+        const btn = $(this);
+        const form = $(this).parents(".reactions-form")
+        const reactions = $(this).parents('.msg_body').find('.reactions form');
 
         $(reactions).find(".error").remove();
 
-        var options = {
+        const options = {
           url: "/reactions/ajax",
-          data: { "reaction" : value },
-          success: function(response) {
+          data: {"reaction": value},
+          success: function (response) {
             reactions.parents(".zero-reactions").removeClass("zero-reactions")
 
             btn.find('.reaction-count').text(response.count);
@@ -496,17 +506,55 @@ $(document).ready(function() {
               btn.removeClass("btn-primary");
             }
           },
-          error: function(jqXHR, textStatus, errorThrown) {
+          error: function (jqXHR, textStatus, errorThrown) {
             reactions.append(
-              $("<div class=error>")
-                  .text("Возможно, что превышен лимит реакций. Попробуйте снова через 10 минут. " + errorThrown)
+                $("<div class=error>")
+                    .text("Возможно, что превышен лимит реакций. Попробуйте снова через 10 минут. " + errorThrown)
             );
           }
         };
 
-        $(this).parents('.reactions-form').ajaxSubmit(options);
+        const formData = $(this).parents('.reactions-form').serializeArray();
+        formData.push({name: 'reaction', value: value});
+        $.ajax($.extend(options, {
+          method: 'POST',
+          data: $.param(formData)
+        }));
       });
     })
+  }
+
+  function initNotificationsOpener() {
+    $('button.notifications-item').on('click', function (event) {
+      if (event.ctrlKey || event.metaKey || event.shiftKey) {
+        $(this).parent().attr('target', '_blank');
+      } else {
+        $(this).parent().removeAttr('target');
+      }
+
+      $(this).removeClass("event-unread-true").addClass("event-unread-false");
+    });
+    $('button.notifications-item').on('auxclick', function (event) {
+      $(this).removeClass("event-unread-true").addClass("event-unread-false");
+      $(this).parent().attr('target', '_blank');
+      $(this).parent().trigger('submit');
+    });
+  }
+
+  function initThemeSwitcher() {
+    const themes = ['dark', 'light', 'auto'];
+
+    $('#theme-indicator').on('click', function() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const idx = themes.indexOf(current);
+      if (idx === -1) return;
+
+      const next = themes[(idx + 1) % themes.length];
+
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('lor-theme', next);
+    });
   }
 
   initCtrlEnter();
@@ -514,23 +562,26 @@ $(document).ready(function() {
   initSamepageCommentNavigation();
   initScollupButton();
   initClearWarningForm();
+  initThemeSwitcher();
 
-  
+
   replace_state();
-  $(window).bind('hashchange', replace_state);
+  $(window).on('hashchange', replace_state);
 
   initCodeSpoilers();
   initReactionsUI();
 
+  initNotificationsOpener();
+
   // fix images on Pale Moon
-  $('.medium-image-container').each(function() {
+  $('.medium-image-container').each(function () {
     if ($(this).width() == 0) {
-        $(this).css('width', 'var(--image-width)')
+      $(this).css('width', 'var(--image-width)')
     }
   });
-  $('.slider-parent').each(function() {
+  $('.slider-parent').each(function () {
     if ($(this).height() <= 48) {
-        $(this).css('width', 'var(--image-width)')
+      $(this).css('width', 'var(--image-width)')
     }
   });
 
@@ -551,32 +602,32 @@ function fixTimezone(serverTz) {
   if (typeof tz !== 'undefined') {
     $script.ready('plugins', function () {
       if (Cookies.get('tz') !== tz) {
-        Cookies.set('tz', tz, { expires: 365 })
+        Cookies.set('tz', tz, {expires: 365})
       }
 
       if (tz !== serverTz) {
-        $(function() {
-          $("time[data-format]").each(function() {
+        $(function () {
+          $("time[data-format]").each(function () {
             const date = Date.parse($(this).attr("datetime"));
 
             const format = $(this).attr("data-format");
 
             const diff = Date.now() - date;
-            const today = new Date().setHours(0)
-            const yesterday = new Date()
-            yesterday.setDate(yesterday.getDate() - 1)
+            const today = new Date().setHours(0, 0, 0, 0);
+            const yesterdayTs = new Date(today);
+            yesterdayTs.setDate(yesterdayTs.getDate() - 1);
             const min = Math.floor(diff / (1000 * 60))
 
             if (format === 'default') {
               $(this).text(moment(date).format("DD.MM.yy HH:mm:ss Z"));
             } else if (format === 'date') {
-                $(this).text(moment(date).format("DD.MM.yy"));
+              $(this).text(moment(date).format("DD.MM.yy"));
             } else if (format === 'compact-interval') {
               if (diff < 1000 * 60 * 60) {
                 $(this).text(Math.max(1, min) + "\xA0мин");
               } else if (diff < 1000 * 60 * 60 * 4 || date >= today) {
                 $(this).text(moment(date).format("HH:mm"));
-              } else if (date >= yesterday) {
+              } else if (date >= yesterdayTs) {
                 $(this).text("вчера")
               } else {
                 $(this).text(moment(date).format("DD.MM.yy"));
@@ -594,7 +645,7 @@ function fixTimezone(serverTz) {
                 }
               } else if (date >= today) {
                 $(this).text("сегодня " + moment(date).format("HH:mm"));
-              } else if (date >= yesterday) {
+              } else if (date >= yesterdayTs) {
                 $(this).text("вчера " + moment(date).format("HH:mm"));
               } else {
                 $(this).text(moment(date).format("DD.MM.yy HH:mm"));

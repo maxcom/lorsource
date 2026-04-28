@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,8 +14,7 @@
  */
 package ru.org.linux.user
 
-import com.google.common.cache.{CacheBuilder, CacheLoader}
-import com.google.common.util.concurrent.UncheckedExecutionException
+import com.github.benmanes.caffeine.cache.{Caffeine, LoadingCache}
 import com.typesafe.scalalogging.StrictLogging
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException
 import org.jasypt.util.password.BasicPasswordEncryptor
@@ -24,9 +23,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.markup.MarkupType
+import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.site.DefaultProfile
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.UserAgentDao
 import ru.org.linux.user.UserService.*
 import ru.org.linux.util.image.{ImageInfo, ImageParam, ImageUtil}
 import ru.org.linux.util.{BadImageException, StringUtil}
@@ -34,13 +33,11 @@ import ru.org.linux.util.{BadImageException, StringUtil}
 import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
 import java.time.{Duration, Instant}
-import java.util
-import java.util.Optional
+import java.util.concurrent.{CompletionException, TimeUnit}
 import javax.annotation.Nullable
-import javax.mail.internet.InternetAddress
+import jakarta.mail.internet.InternetAddress
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
 import scala.util.{Failure, Success, Try}
 
 object UserService {
@@ -52,7 +49,8 @@ object UserService {
 
   val AnonymousUserId = 2
 
-  private val NameCacheSize = 10000
+  private val NameCacheSize = 50000
+  private val UserCacheSize = 5000
 
   val CorrectorScore = 200
 
@@ -60,7 +58,7 @@ object UserService {
 
   def matchPassword(user: User, password: String): Boolean = {
     try {
-      UserPasswordEncryptor.checkPassword(password, user.getPassword)
+      UserPasswordEncryptor.checkPassword(password, user.password)
     } catch {
       case _: EncryptionOperationNotPossibleException =>
         false
@@ -73,11 +71,17 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
                   profileDao: ProfileDao, val transactionManager: PlatformTransactionManager)
     extends StrictLogging with TransactionManagement {
-  private val nameToIdCache =
-    CacheBuilder.newBuilder().maximumSize(UserService.NameCacheSize).build[String, Integer](
-      new CacheLoader[String, Integer] {
-        override def load(nick: String): Integer = userDao.findUserId(nick)
-      }
+  private val nameToIdCache: LoadingCache[String, Int] =
+    Caffeine.newBuilder().maximumSize(UserService.NameCacheSize).build(
+      (nick: String) => userDao.findUserId(nick)
+    )
+
+  // при массовом удалении сообщений кеш инвалидируется внутри
+  // транзакции, из-за чего инвалидация не всегда достигает нужного результата.
+  // По этому держим в кеше не больше 5 минут
+  private[user] val idToUserCache: LoadingCache[Int, User] =
+    Caffeine.newBuilder().maximumSize(UserService.UserCacheSize).expireAfterWrite(5, TimeUnit.MINUTES).build(
+      (id: Int) => userDao.getUser(id)
     )
 
   @throws(classOf[UserErrorException])
@@ -130,19 +134,19 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       avatarStyle
     }
 
-    val userpic = if (user.isAnonymous && misteryMan) {
+    val userpic = if (user.anonymous && misteryMan) {
       Some(Userpic(gravatar("anonymous@linux.org.ru", avatarMode, 150), 150, 150))
-    } else if (user.getPhoto != null && user.getPhoto.nonEmpty) {
+    } else if (user.photo != null && user.photo.nonEmpty) {
       Try {
-        val info = new ImageInfo(s"${siteConfig.getUploadPath}/photos/${user.getPhoto}").scale(150)
+        val info = new ImageInfo(s"${siteConfig.getUploadPath}/photos/${user.photo}").scale(150)
 
-        Userpic(s"/photos/${user.getPhoto}", info.getWidth, info.getHeight)
+        Userpic(s"/photos/${user.photo}", info.getWidth, info.getHeight)
       } match {
         case Failure(e: FileNotFoundException) =>
-          logger.warn(s"Userpic not found for ${user.getNick}: ${e.getMessage}")
+          logger.warn(s"Userpic not found for ${user.nick}: ${e.getMessage}")
           None
         case Failure(e) =>
-          logger.warn(s"Bad userpic for ${user.getNick}", e)
+          logger.warn(s"Bad userpic for ${user.nick}", e)
           None
         case Success(u) =>
           Some(u)
@@ -155,7 +159,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       if (avatarMode == "empty" || !user.hasEmail) {
         UserService.DisabledUserpic
       } else {
-        Userpic(gravatar(user.getEmail, avatarMode, 150), 150, 150)
+        Userpic(gravatar(user.email, avatarMode, 150), 150, 150)
       }
     }
   }
@@ -170,67 +174,79 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     userLogDao.logSentPasswordReset(forUser, byUser, email)
   }
 
-  def getUsersCached(ids: Iterable[Int]): Seq[User] = ids.map(x => userDao.getUserCached(x)).toSeq
+  def getUsersCached(ids: Iterable[Int]): Seq[User] = ids.view.map(x => getUserCached(x)).toVector
 
   def getUsersCachedMap(userIds: Iterable[Int]): Map[Int, User] =
-    getUsersCached(userIds.toSet).view.map(u => u.getId -> u).toMap
+    getUsersCached(userIds.toSet).view.map(u => u.id -> u).toMap
 
-  def getUsersCachedJava(ids: java.lang.Iterable[Integer]): util.List[User] =
-    getUsersCached(ids.asScala.map(i => i)).asJava
+  def getNewUsers: Seq[User] = getUsersCached(userDao.getNewUserIds)
 
-  def getNewUsers: util.List[User] = getUsersCachedJava(userDao.getNewUserIds)
-
-  def getNewUsersByUAIp(ip: Option[String], @Nullable userAgent: Integer): util.List[(User, Timestamp, Timestamp)] =
-    userDao.getNewUsersByIP(ip.orNull, userAgent).asScala.map { case (id, regdate, lastlogin) =>
+  def getNewUsersByUAIp(ip: Option[String], @Nullable userAgent: Integer): Seq[(User, Timestamp, Timestamp)] =
+    userDao.getNewUsersByIP(ip.orNull, userAgent).map { case (id, regdate, lastlogin) =>
       (getUserCached(id), regdate, lastlogin)
-    }.asJava
+    }
 
-  private def prepareUserWithActivity(users: util.List[(Integer, Optional[Instant])],
+  private def prepareUserWithActivity(users: Seq[(Int, Option[Instant])],
                                       activityDays: Int) = {
     val recentSeenDate = Instant.now().minus(Duration.ofDays(activityDays))
 
-    users.asScala.map { case (userId, lastlogin) =>
+    users.map { case (userId, lastlogin) =>
       val user = getUserCached(userId)
-      (user, lastlogin.toScala.exists(_.isAfter(recentSeenDate)))
+      (user, lastlogin.exists(_.isAfter(recentSeenDate)))
     }
   }
 
-  def getFrozenUsers: collection.Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getFrozenUserIds, activityDays = 1)
+  def getFrozenUsers: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getFrozenUserIds, activityDays = 1)
 
-  def getUnFrozenUsers: collection.Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getUnFrozenUserIds, activityDays = 1)
+  def getUnFrozenUsers: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getUnFrozenUserIds, activityDays = 1)
 
-  def getRecentlyBlocked: collection.Seq[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER)).asScala
+  def getRecentlyBlocked: Seq[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER))
 
-  def getRecentlyUnBlocked: collection.Seq[User] = getUsersCachedJava(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER)).asScala
+  def getRecentlyUnBlocked: Seq[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER))
 
-  def getModerators: collection.Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getModerators, activityDays = 30)
+  def getModerators: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getModerators, activityDays = 30)
 
-  def getCorrectors: collection.Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getCorrectors, activityDays = 30)
+  def getCorrectors: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getCorrectors, activityDays = 30)
 
   def getRecentUserpics: Seq[(User, Userpic)] = {
-    val userIds = userLogDao.getRecentlyHasEvent(UserLogAction.SET_USERPIC).asScala.map(_.toInt).toSeq.distinct
+    val userIds = userLogDao.getRecentlyHasEvent(UserLogAction.SET_USERPIC).distinct
 
     getUsersCached(userIds).map { user =>
       user -> getUserpic(user, "empty", misteryMan = false)
     }.filterNot(_._2 == DisabledUserpic)
   }
 
-  private def findUserIdCached(nick: String) = try nameToIdCache.get(nick) catch {
-    case ex: UncheckedExecutionException => throw ex.getCause
-  }
+  private def findUserIdCached(nick: String): Int =
+    try {
+      nameToIdCache.get(nick)
+    } catch {
+      case ex: CompletionException => throw ex.getCause
+    }
 
-  def getUserCached(nick: String): User = userDao.getUserCached(findUserIdCached(nick))
+  def getUserCached(nick: String): User = getUserCached(findUserIdCached(nick))
 
-  def findUserCached(nick: String): Option[User] = try Some(userDao.getUserCached(findUserIdCached(nick))) catch {
+  def findUserCached(nick: String): Option[User] = try Some(getUserCached(findUserIdCached(nick))) catch {
     case _: UserNotFoundException =>
       None
   }
 
-  def getUserCached(id: Int): User = userDao.getUserCached(id)
+  def getUserCached(id: Int): User = try {
+    idToUserCache.get(id)
+  } catch {
+    case ex: CompletionException => throw ex.getCause
+  }
 
-  def getUser(nick: String): User = userDao.getUser(findUserIdCached(nick))
+  def getUser(nick: String): User = {
+    val user = userDao.getUser(findUserIdCached(nick))
 
-  def getAnonymous: User = try userDao.getUserCached(UserService.AnonymousUserId) catch {
+    idToUserCache.put(user.id, user)
+
+    user
+  }
+
+  def getAnonymous: User = try {
+    getUserCached(UserService.AnonymousUserId)
+  } catch {
     case e: UserNotFoundException =>
       throw new RuntimeException("Anonymous not found!?", e)
   }
@@ -250,7 +266,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
       val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
 
-      userLogDao.logRegister(newUserId, ip, inviteOwner.map(Integer.valueOf).toJava, userAgentId, language.toJava)
+      userLogDao.logRegister(newUserId, ip, inviteOwner, userAgentId, language)
 
       newUserId
     }
@@ -261,100 +277,284 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     result
   }
 
-  def getAllInvitedUsers(user: User): util.List[User] =
-    userInvitesDao.getAllInvitedUsers(user).map(userDao.getUserCached).asJava
+  def getAllInvitedUsers(user: User): Seq[User] =
+    userInvitesDao.getAllInvitedUsers(user).map(getUserCached)
 
   def wasRecentlyBlocker(user: User): Boolean =
     userLogDao.hasRecentModerationEvent(user, Duration.ofDays(14), UserLogAction.BLOCK_USER)
 
-  def removeUserInfo(user: User, moderator: User): Unit = transactional() { _ =>
-    val userInfo = userDao.getUserInfo(user)
+  def removeUserInfo(user: User, moderator: User): Unit = {
+    transactional() { _ =>
+      val userInfo = userDao.getUserInfo(user)
 
-    if ((userInfo != null) && userInfo.trim.nonEmpty) {
-      userDao.updateUserInfo(user.getId, null)
-      userDao.changeScore(user.getId, -10)
-      userLogDao.logResetInfo(user, moderator, userInfo, -10)
+      if ((userInfo.text != null) && userInfo.text.trim.nonEmpty) {
+        userDao.updateUserInfo(user.id, null)
+        userDao.changeScore(user.id, -10)
+        userLogDao.logResetInfo(user, moderator, userInfo.text, -10)
+      }
     }
+
+    idToUserCache.invalidate(user.id)
   }
 
-  def removeTown(user: User, moderator: User): Unit = transactional() { _ =>
-    val userInfo = userDao.getUserInfoClass(user)
+  def removeTown(user: User, moderator: User): Unit = {
+    transactional() { _ =>
+      val userInfo = userDao.getUserInfo(user)
 
-    if (userInfo.getTown != null && userInfo.getTown.trim.nonEmpty) {
-      userDao.removeTown(user)
-      userLogDao.logResetTown(user, moderator, userInfo.getTown, -10)
-      userDao.changeScore(user.getId, -10)
+      if (userInfo.town != null && userInfo.town.trim.nonEmpty) {
+        userDao.removeTown(user)
+        userLogDao.logResetTown(user, moderator, userInfo.town, -10)
+        userDao.changeScore(user.id, -10)
+      }
     }
+
+    idToUserCache.invalidate(user.id)
   }
 
-  def removeUrl(user: User, moderator: User): Unit = transactional() { _ =>
-    val userInfo = userDao.getUserInfoClass(user)
+  def removeUrl(user: User, moderator: User): Unit = {
+    transactional() { _ =>
+      val userInfo = userDao.getUserInfo(user)
 
-    if (userInfo.getUrl != null || userInfo.getUrl.trim.nonEmpty) {
-      userDao.removeUrl(user)
-      userLogDao.logResetUrl(user, moderator, userInfo.getUrl, 0)
-      userDao.changeScore(user.getId, 0)
+      if (userInfo.url != null || userInfo.url.trim.nonEmpty) {
+        userDao.removeUrl(user)
+        userLogDao.logResetUrl(user, moderator, userInfo.url, 0)
+        userDao.changeScore(user.id, 0)
+      }
     }
+
+    idToUserCache.invalidate(user.id)
   }
 
   def updateUser(user: User, name: String, url: String, newEmail: Option[String], town: String,
-                 password: Option[String], info: String, ip: String): Unit = transactional() { _ =>
-    val changed = mutable.Map[String, String]()
+                 password: Option[String], info: String, ip: String): Unit = {
+    transactional() { _ =>
+      val changed = mutable.Map[String, String]()
 
-    if (userDao.updateName(user, name)) changed += "name" -> name
+      if (userDao.updateName(user, name)) changed += "name" -> name
 
-    if (userDao.updateUrl(user, url)) changed += "url" -> url
+      if (userDao.updateUrl(user, url)) changed += "url" -> url
 
-    if (userDao.updateTown(user, town)) changed += "town" -> town
+      if (userDao.updateTown(user, town)) changed += "town" -> town
 
-    if (userDao.updateUserInfo(user.getId, info)) changed += "info" -> info
+      if (userDao.updateUserInfo(user.id, info)) changed += "info" -> info
 
-    updateEmailPasswd(user, newEmail, password, ip)
+      updateEmailPasswd(user, newEmail, password, ip)
 
-    if (changed.nonEmpty) {
-      userLogDao.logSetUserInfo(user, changed.asJava)
+      if (changed.nonEmpty) {
+        userLogDao.logSetUserInfo(user, changed.asJava)
+      }
     }
+
+    idToUserCache.invalidate(user.id)
   }
 
   def updateEmailPasswd(user: User, newEmail: Option[String], password: Option[String],
-                        ip: String): Unit = transactional() { _ =>
-    password.foreach { password =>
-      userDao.setPassword(user, password)
-      userLogDao.logSetPassword(user, ip)
+                        ip: String): Unit = {
+    transactional() { _ =>
+      password.foreach { password =>
+        userDao.setPassword(user, password)
+        userLogDao.logSetPassword(user, ip)
+      }
+
+      newEmail.foreach(userDao.setNewEmail(user, _))
     }
 
-    newEmail.foreach(userDao.setNewEmail(user, _))
+    idToUserCache.invalidate(user.id)
   }
 
   def isBlockable(user: User, by: User): Boolean =
-    !user.isAnonymous && by.isModerator && (!user.isModerator || by.isAdministrator)
+    !user.anonymous && by.isModerator && (!user.isModerator || by.isAdministrator)
 
   def isFreezable(user: User, by: User): Boolean = by.isModerator && !user.isModerator
 
-  def getUsersWithAgent(ip: Option[String], userAgent: Option[Int], limit: Int): util.List[UserAndAgent] =
-    userDao.getUsersWithAgent(ip.orNull, userAgent.map(Integer.valueOf).orNull, limit)
+  def getUsersWithAgent(ip: Option[String], userAgent: Option[Int], limit: Int): Seq[UserAndAgent] =
+    userDao.getUsersWithAgent(ip, userAgent, limit)
 
-  def deregister(user: User, remoteAddr: String): Unit = transactional() { _ =>
-    userDao.resetUserpic(user, user)
+  def deregister(user: User): Unit = {
+    transactional() { _ =>
+      userDao.resetUserpic(user)
 
-    updateUser(user, "", "", None, "", None, "", remoteAddr)
+      userDao.updateName(user, "")
+      userDao.updateUrl(user, "")
+      userDao.updateTown(user, "")
+      userDao.updateUserInfo(user.id, "")
 
-    userDao.block(user, user, "самостоятельная блокировка аккаунта")
+      userDao.block(user, user, "самостоятельная блокировка аккаунта")
+      userLogDao.logBlockUser(user, user, "самостоятельная блокировка аккаунта")
+    }
+
+    idToUserCache.invalidate(user.id)
   }
 
   def getProfile(user: User): Profile = {
-    val profile = profileDao.readProfile(user.getId)
+    val profile = profileDao.readProfile(user.id)
 
     val mode = profile.formatMode
 
     val modeFixed = if (UserPermissionService.allowedFormats(user).contains(mode)) {
       mode
     } else {
-      MarkupType.ofFormId(DefaultProfile.getDefaultProfile.get("format.mode").asInstanceOf[String])
+      MarkupType.ofFormId(DefaultProfile.defaultProfile.get("format.mode").asInstanceOf[String])
     }
 
     val boxletsFixed = profile.boxes.filter(DefaultProfile.isBox)
 
     profile.copy(formatMode = modeFixed, boxes = boxletsFixed)
+  }
+
+  def freezeUser(user: User, moderator: User, reason: String, until: Timestamp): Unit = {
+    transactional() { _ =>
+      userDao.freezeUser(user, moderator, reason, until)
+      userLogDao.logFreezeUser(user, moderator, reason, until.toInstant)
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
+  def setPhoto(user: User, photo: String): Unit = {
+    transactional() { _ =>
+      userDao.setPhoto(user, photo)
+      userLogDao.logSetUserpic(user, photo)
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
+  def setStyle(user: User, style: String): Unit =
+    transactional() { _ =>
+      userDao.setStyle(user, style)
+    }
+
+  def changeScore(userId: Int, delta: Int): Unit = {
+    transactional() { _ =>
+      userDao.changeScore(userId, delta)
+    }
+
+    idToUserCache.invalidate(userId)
+  }
+
+  def block(user: User, moderator: User, reason: String): Unit = {
+    transactional() { _ =>
+      userDao.block(user, moderator, reason)
+      userLogDao.logBlockUser(user, moderator, reason)
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
+  def invalidateCache(user: User): Unit = {
+    idToUserCache.invalidate(user.id)
+  }
+
+  def score50(user: User, moderator: User): Unit = {
+    transactional() { _ =>
+      if (userDao.score50(user)) {
+        userLogDao.logScore50(user, moderator)
+      }
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
+  def unblock(user: User, moderator: User): Unit = {
+    transactional() { _ =>
+      userDao.unblock(user)
+      userLogDao.logUnblockUser(user, moderator)
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
+  def toggleCorrector(user: User, moderator: User): Unit = {
+    if (user.corrector) {
+      transactional() { _ =>
+        userDao.unsetCorrector(user)
+        userLogDao.unsetCorrector(user, moderator)
+      }
+    } else {
+      transactional() { _ =>
+        userDao.setCorrector(user)
+        userLogDao.setCorrector(user, moderator)
+      }
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
+  def resetPassword(user: User): String = transactional() { _ =>
+    val newPassword = StringUtil.generatePassword
+
+    userDao.setPassword(user, newPassword)
+    userLogDao.logResetPassword(user, user)
+
+    newPassword
+  }
+
+  def resetPassword(user: User, moderator: User): Unit = transactional() { _ =>
+    userDao.setPassword(user, StringUtil.generatePassword)
+    userLogDao.logResetPassword(user, moderator)
+  }
+
+  def activateUser(user: User): Unit = {
+    transactional() { _ =>
+      userDao.activateUser(user)
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
+  def acceptNewEmail(user: User, newEmail: String): Unit = {
+    transactional() { _ =>
+      userDao.acceptNewEmail(user, newEmail)
+      userLogDao.logAcceptNewEmail(user, newEmail)
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
+  def resetUserpic(user: User, cleaner: User): Boolean = {
+    val result = transactional() { _ =>
+      val cleaned = userDao.resetUserpic(user)
+
+      if (cleaned) {
+        // Обрезать score у пользователя если его чистит модератор и пользователь не модератор
+        if (cleaner.isModerator && cleaner.id != user.id && !user.isModerator) {
+          changeScore(user.id, -10)
+          userLogDao.logResetUserpic(user, cleaner, -10)
+        } else {
+          userLogDao.logResetUserpic(user, cleaner, 0)
+        }
+      }
+
+      cleaned
+    }
+
+    idToUserCache.invalidate(user.id)
+
+    result
+  }
+
+  def getByEmail(email: String, searchBlocked: Boolean): Option[User] = {
+    val id = userDao.getByEmail(email, searchBlocked)
+
+    if (id != 0) {
+      Some(getUserCached(id))
+    } else {
+      None
+    }
+  }
+
+  def getAllByEmail(email: String): Seq[User] = {
+    if (email == null || email.isEmpty) {
+      Seq.empty
+    } else {
+      getUsersCached(userDao.getAllByEmail(email))
+    }
+  }
+
+  def updateLastLogin(user: User, force: Boolean): Unit = {
+    if (userDao.updateLastlogin(user, force)) {
+      idToUserCache.invalidate(user.id)
+    }
   }
 }

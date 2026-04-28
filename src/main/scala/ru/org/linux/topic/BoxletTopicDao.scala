@@ -50,7 +50,7 @@ class BoxletTopicDao(sectionService: SectionService, dataSource: DataSource) {
          |from topics join groups on groups.id = topics.groupid
          |where not deleted and not notop and moderate and commitdate is not null and
          |topics.postscore is distinct from ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS} and
-         |section=${Section.SECTION_ARTICLES} order by commitdate desc, msgid limit 10""".stripMargin
+         |section=${Section.Articles} order by commitdate desc, msgid limit 10""".stripMargin
 
     jdbcTemplate.queryAndMap(sql)(rsToTopic(commentsPerPage))
   }

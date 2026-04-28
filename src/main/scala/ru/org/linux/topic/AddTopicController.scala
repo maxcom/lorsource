@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -31,12 +31,12 @@ import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
 import ru.org.linux.gallery.UploadedImagePreview
-import ru.org.linux.group.{Group, GroupDao, GroupPermissionService}
+import ru.org.linux.group.{Group, GroupPermissionService, GroupService}
+import ru.org.linux.msgbase.MessageText
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.spring.dao.MessageText
 import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
 import ru.org.linux.user.{User, UserPermissionService, UserPropertyEditor, UserService}
@@ -63,14 +63,14 @@ object AddTopicController {
 
   def getAddUrl(section: Section, tag: String): String = {
     val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
-    builder.queryParam("section", section.getId)
+    builder.queryParam("section", section.id)
     builder.queryParam("tag", tag)
     builder.build.toUriString
   }
 
   def getAddUrl(section: Section): String = {
     val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
-    builder.queryParam("section", section.getId)
+    builder.queryParam("section", section.id)
     builder.build.toUriString
   }
 
@@ -90,7 +90,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
                          permissionService: GroupPermissionService, addTopicRequestValidator: AddTopicRequestValidator,
                          topicService: TopicService,
                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-                         renderService: MarkdownFormatter, groupDao: GroupDao, dupeProtector: FloodProtector,
+                          renderService: MarkdownFormatter, groupService: GroupService, dupeProtector: FloodProtector,
                          ipBlockDao: IPBlockDao, servletContext: ServletContext) {
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
@@ -121,14 +121,14 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
                           (implicit currentUser: AnySession): Map[String, AnyRef] = {
     val params = Map.newBuilder[String, AnyRef]
 
-    val helpResource = servletContext.getResource("/help/new-topic-" + Section.getUrlName(section.getId) + ".md")
+    val helpResource = servletContext.getResource("/help/new-topic-" + Section.getUrlName(section.id) + ".md")
     if (helpResource != null) {
       val helpRawText = IOUtils.toString(helpResource, StandardCharsets.UTF_8)
       val addInfo = renderService.renderToHtml(helpRawText, nofollow = false)
       params.addOne("addportal" -> addInfo)
     }
 
-    params.addOne("sectionId" -> Integer.valueOf(section.getId))
+    params.addOne("sectionId" -> Integer.valueOf(section.id))
     params.addOne("section" -> section)
 
     group.foreach { group =>
@@ -149,20 +149,20 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val group = form.group
     val section = sectionService.getSection(group.sectionId)
 
-    val params = prepareModel(Some(group), section)(sessionUserOpt).to(mutable.HashMap)
+    val params = prepareModel(Some(group), section)(using sessionUserOpt).to(mutable.HashMap)
 
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
-    user.checkFrozen(errors)
+    UserPermissionService.checkFrozen(user, errors)
 
     UserPermissionService.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
-    if (!permissionService.isTopicPostingAllowed(group)(postingUser)) {
+    if (!permissionService.isTopicPostingAllowed(group)(using postingUser)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
     }
 
-    if (!permissionService.enableAllowAnonymousCheckbox(group)(postingUser)) {
+    if (!permissionService.enableAllowAnonymousCheckbox(group)(using postingUser)) {
       form.allowAnonymous=true
     }
 
@@ -180,7 +180,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val (imagePreview, additionalImagePreviews) = postingUser.opt match {
       case Some(authorized) =>
-        topicService.processUploads(form, group, errors)(authorized)
+        topicService.processUploads(form, group, errors)(using authorized)
       case None =>
         (None, Seq.empty)
     }
@@ -195,7 +195,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     val tagNames = TagName.parseAndSanitizeTags(form.tags)
 
-    if (!permissionService.canCreateTag(section)(postingUser)) {
+    if (!permissionService.canCreateTag(section)(using postingUser)) {
       val newTags = tagService.getNewTags(tagNames)
 
       if (newTags.nonEmpty) {
@@ -208,14 +208,14 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     params.put("message", preparedTopic)
 
-    val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)(sessionUserOpt)
+    val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)(using sessionUserOpt)
     params.put("topicMenu", topicMenu)
 
     if (!form.isPreviewMode && !errors.hasErrors) {
       CSRFProtectionService.checkCSRF(request, errors)
     }
 
-    if (!form.isPreviewMode && !errors.hasErrors && !sessionUserOpt.authorized || ipBlockInfo.isCaptchaRequired) {
+    if (!form.isPreviewMode && !errors.hasErrors && !sessionUserOpt.authorized || ipBlockInfo.captchaRequired) {
       captcha.checkCaptcha(request, errors)
     }
 
@@ -262,7 +262,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       TagName.checkTag(tag)
     }
 
-    val groups = groupDao.getGroups(section)
+    val groups = groupService.getGroups(section)
 
     if (groups.size == 1) {
       new ModelAndView(new RedirectView(AddTopicController.getAddUrl(groups.get(0), tag)))
@@ -283,7 +283,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def initBinder(binder: WebDataBinder): Unit = {
     binder.registerCustomEditor(classOf[Group], new PropertyEditorSupport() {
       override def setAsText(text: String): Unit = {
-        setValue(groupDao.getGroup(text.toInt))
+        setValue(groupService.getGroup(text.toInt))
       }
 
       override def getAsText: String = {

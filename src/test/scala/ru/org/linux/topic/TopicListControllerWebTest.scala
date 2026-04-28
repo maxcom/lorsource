@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,22 +14,20 @@
  */
 package ru.org.linux.topic
 
-import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import munit.FunSuite
 import ru.org.linux.test.WebHelper
-import sttp.client3.*
+import sttp.client4.*
 import sttp.model.StatusCode
 
-@RunWith(classOf[JUnitRunner])
-class TopicListControllerWebTest extends Specification {
-  "TopicListController" should {
-    "load archive with 200 code" in {
-      val response = basicRequest
-        .get(WebHelper.MainUrl.addPath("news", "archive", "2007", "5"))
-        .send(WebHelper.backend)
+class TopicListControllerWebTest extends FunSuite with WebHelper:
+  test("TopicListController loads archive with 200 code"):
+    val response = basicRequest
+      .get(MainUrl.addPath("news", "archive", "2007", "5"))
+      .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")
 
-      response.code must be equalTo StatusCode.Ok
-    }
-  }
-}
+  test("polls section loads with 200 code"):
+    val response = basicRequest
+      .get(uri"${MainUrl}polls/")
+      .send(backend)
+    assertEquals(response.code, StatusCode.Ok, "status code")

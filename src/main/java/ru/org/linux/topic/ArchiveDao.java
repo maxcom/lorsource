@@ -62,7 +62,7 @@ public class ArchiveDao {
     List<Integer> res = jdbcTemplate.queryForList("SELECT c FROM monthly_stats WHERE groupid=? AND year=? AND month=?", Integer.class, groupid, year, month);
 
     if (!res.isEmpty()) {
-      return res.get(0);
+      return res.getFirst();
     } else {
       return 0;
     }

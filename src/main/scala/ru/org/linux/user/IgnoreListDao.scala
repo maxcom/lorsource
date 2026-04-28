@@ -32,11 +32,11 @@ class IgnoreListDao(ds: DataSource) extends StrictLogging {
     }
 
     jdbcTemplate.update("INSERT INTO ignore_list (userid,ignored) VALUES(?,?) ON CONFLICT DO NOTHING",
-      listOwner.getId, userToIgnore.getId)
+      listOwner.id, userToIgnore.id)
   }
 
   def remove(listOwner: User, userToIgnore: User): Unit =
-    jdbcTemplate.update ("DELETE FROM ignore_list WHERE userid=? AND ignored=?", listOwner.getId, userToIgnore.getId)
+    jdbcTemplate.update ("DELETE FROM ignore_list WHERE userid=? AND ignored=?", listOwner.id, userToIgnore.id)
 
   /**
    * Получить список игнорируемых
@@ -53,7 +53,7 @@ class IgnoreListDao(ds: DataSource) extends StrictLogging {
   def getIgnoreCount(ignoredUser: User): Int =
     jdbcTemplate.queryForObject[Integer](
       "SELECT count(*) as inum FROM ignore_list JOIN users ON ignore_list.userid = users.id" +
-        " WHERE ignored=? AND not blocked", ignoredUser.getId).get
+        " WHERE ignored=? AND not blocked", ignoredUser.id).get
 
   def isIgnored(byUserId: Int, commentId: Int): Boolean =
     jdbcTemplate.queryForObject[Boolean](

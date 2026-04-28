@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,12 +26,12 @@ import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.IPBlockDao
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.gallery.{ImageDao, ImageService}
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.{GroupDao, GroupService}
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.PollDao
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.spring.dao.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
 import ru.org.linux.topic.TopicDaoIntegrationTest.*
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, UserDao, UserInvitesDao, UserLogDao, UserService}
 import ru.org.linux.util.bbcode.LorCodeService
@@ -42,7 +42,7 @@ import javax.sql.DataSource
 @ContextConfiguration (classes = Array (classOf[TopicDaoIntegrationTestConfiguration] ) )
 class TopicDaoIntegrationTest {
   @Autowired
-  var topicDao: TopicDao = _
+  var topicDao: TopicDao = scala.compiletime.uninitialized
 
   @Test
   def testLoadTopic(): Unit = {
@@ -75,6 +75,9 @@ class TopicDaoIntegrationTestConfiguration {
   def groupDao = new GroupDao()
 
   @Bean
+  def groupService(groupDao: GroupDao) = new GroupService(groupDao)
+
+  @Bean
   def sectionService(sectionDao: SectionDao) = new SectionService(sectionDao)
 
   @Bean
@@ -84,7 +87,7 @@ class TopicDaoIntegrationTestConfiguration {
   def topicDao = new TopicDao()
 
   @Bean
-  def userDao(userLogDao: UserLogDao, dataSource: DataSource) = new UserDao(userLogDao, dataSource)
+  def userDao(dataSource: DataSource) = new UserDao(dataSource)
 
   @Bean
   def userInvitesDao(ds: DataSource) = new UserInvitesDao(ds)

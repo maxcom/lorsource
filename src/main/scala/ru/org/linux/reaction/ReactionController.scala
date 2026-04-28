@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.reaction.ReactionController.ReactionsLimit
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.{IgnoreListDao, UserService}
@@ -38,7 +38,7 @@ object ReactionController {
 @Controller
 @RequestMapping(path = Array("/reactions"))
 class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionService: TopicPermissionService,
-                         groupDao: GroupDao, userService: UserService, commentPrepareService: CommentPrepareService,
+                         groupService: GroupService, userService: UserService, commentPrepareService: CommentPrepareService,
                          ignoreListDao: IgnoreListDao, topicPrepareService: TopicPrepareService,
                          reactionService: ReactionService, reactionsDao: ReactionDao) {
   @RequestMapping(params = Array("comment"), method = Array(RequestMethod.GET))
@@ -54,7 +54,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
           throw new AccessViolationException("Сообщение не доступно")
         }
 
-        val ignoreList = ignoreListDao.get(currentUser.user.getId)
+        val ignoreList = ignoreListDao.get(currentUser.user.id)
         val reactionLog = reactionsDao.getLogByComment(comment)
 
         new ModelAndView("reaction-comment", Map[String, Any](
@@ -119,7 +119,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
       case None =>
         new ModelAndView(new RedirectView(topic.getLink))
       case Some(currentUser) =>
-        val group = groupDao.getGroup(topic.groupId)
+        val group = groupService.getGroup(topic.groupId)
         val topicAuthor = userService.getUserCached(topic.authorUserId)
 
         permissionService.checkView(group, topic, topicAuthor, showDeleted = false)
@@ -128,7 +128,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
           throw new AccessViolationException("Сообщение не доступно")
         }
 
-        val ignoreList = ignoreListDao.get(currentUser.user.getId)
+        val ignoreList = ignoreListDao.get(currentUser.user.id)
         val reactionLog = reactionsDao.getLogByTopic(topic)
 
         new ModelAndView("reaction-topic", Map(

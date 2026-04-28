@@ -1,0 +1,31 @@
+{
+  "name": "Linux.org.ru Dev Environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+
+  "postCreateCommand": ".devcontainer/init-db.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "scala-lang.scala",
+        "scalameta.metals",
+        "redhat.java",
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-maven"
+      ],
+      "settings": {
+        "java.configuration.detectJdksAtStart": false,
+        "maven.executable.path": "/usr/share/maven/bin/mvn"
+      }
+    }
+  },
+
+  "remoteEnv": {
+    "PGHOST": "postgres",
+    "PGUSER": "postgres",
+    "PGPASSWORD": "postgres",
+    "TESTCONTAINERS_HOST_OVERRIDE": "host.docker.internal"
+  }
+}

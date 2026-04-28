@@ -42,7 +42,7 @@ object TagTopicListController {
   def tagListUrl(tag: String): String = TagUriTemplate.expand(tag).toString
 
   def tagListUrl(tag: String, section: Section): String =
-    TagUriSectionTemplate.expand(tag, Integer.valueOf(section.getId)).toString
+    TagUriSectionTemplate.expand(tag, Integer.valueOf(section.id)).toString
 
   def tagsUrl(letter: Char): String = TagsUriTemplate.expand(letter.toString).toString
 
@@ -67,7 +67,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
                              topicTagDao: TopicTagDao, groupListDao: GroupListDao,
                              groupPermissionService: GroupPermissionService) {
 
-  private def getTitle(tag: String, section: Section) = s"${tag.capitalize} (${section.getName})"
+  private def getTitle(tag: String, section: Section) = s"${tag.capitalize} (${section.name})"
 
   @RequestMapping(
     value = Array("/tag/{tag}"),
@@ -87,7 +87,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
 
     (tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
-        val forumMode = section.getId == Section.SECTION_FORUM
+        val forumMode =         section.id == Section.Forum
 
         val modelAndView = new ModelAndView(if (forumMode) "tag-topics-forum-new" else "tag-topics")
 

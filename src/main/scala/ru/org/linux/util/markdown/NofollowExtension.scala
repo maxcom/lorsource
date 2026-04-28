@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2018 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -19,22 +19,22 @@ import com.vladsch.flexmark.ast.{AutoLink, Link}
 import com.vladsch.flexmark.html.renderer.{AttributablePart, LinkResolverContext}
 import com.vladsch.flexmark.html.{AttributeProvider, HtmlRenderer, IndependentAttributeProviderFactory}
 import com.vladsch.flexmark.util.ast.Node
-import com.vladsch.flexmark.util.html.Attributes
-import com.vladsch.flexmark.util.options.MutableDataHolder
+import com.vladsch.flexmark.util.html.MutableAttributes
+import com.vladsch.flexmark.util.data.MutableDataHolder
 
 class NofollowExtension extends HtmlRenderer.HtmlRendererExtension {
   override def rendererOptions(options: MutableDataHolder): Unit = {}
 
   override def extend(rendererBuilder: HtmlRenderer.Builder, rendererType: String): Unit = {
     rendererBuilder.attributeProviderFactory(new IndependentAttributeProviderFactory {
-      override def create(context: LinkResolverContext): AttributeProvider =
+      override def apply(context: LinkResolverContext): AttributeProvider =
         new NofollowAttributeProvider
     })
   }
 }
 
 class NofollowAttributeProvider extends AttributeProvider {
-  override def setAttributes(node: Node, part: AttributablePart, attributes: Attributes): Unit = {
+  override def setAttributes(node: Node, part: AttributablePart, attributes: MutableAttributes): Unit = {
     node match {
       case _: Link if part == AttributablePart.LINK =>
         attributes.addValue("rel", "nofollow")

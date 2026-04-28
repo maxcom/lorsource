@@ -1,7 +1,8 @@
+<%@ page session="false" %>
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -148,7 +149,6 @@
   <lor:groupinfo group="${groupInfo}" activeTags="${activeTags}"/>
 </c:if>
 
-
 <div class=tracker>
     <c:forEach var="msg" items="${topicsList}">
       <c:if test="${lastmod}">
@@ -185,7 +185,7 @@
               &#128274;
             </c:if>
             <c:if test="${msg.resolved}">
-              <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15>
+              <i class="icon-check" title="решено"></i>
             </c:if>
 
             <l:title>${msg.title}</l:title>
@@ -273,23 +273,29 @@
 
 <hr>
 
-<c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
+<c:if test="${showDeletedButton && !showDeleted}">
   <form action="${url}" method=POST>
     <lor:csrf/>
     <input type=hidden name=showDeleted value=true>
-    <input type=submit value="Показать удаленные сообщения">
+    <input type=submit class="btn btn-default" value="Показать удаленные сообщения">
   </form>
   <hr>
 </c:if>
-<c:if test="${not lastmod and showDeleted and year==null and template.sessionAuthorized and hasNext}">
+<c:if test="${showDeleted and showDeletedButton and hasNext}">
   <hr>
   <form action="${url}" method=POST>
     <lor:csrf/>
     <input type=hidden name=showDeleted value=true>
     <input type=hidden name=offset value="${nextPage}">
-    <input type=submit value="Показать еще удаленные">
+    <input type=submit class="btn btn-default" value="Показать еще удаленные">
   </form>
   <hr>
+</c:if>
+
+<c:if test="${template.sessionAuthorized && currentUser.frozen}">
+  <div class="infoblock">
+    ⚠️${' '} Для вашей учетной записи установлен режим только для чтения до <lor:date date="${currentUser.frozenUntil}"/>.
+  </div>
 </c:if>
 
 <p>

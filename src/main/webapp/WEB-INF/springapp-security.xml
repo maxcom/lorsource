@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,12 +23,14 @@
 http://www.springframework.org/schema/beans
 http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/security
-http://www.springframework.org/schema/security/spring-security-6.3.xsd">
+http://www.springframework.org/schema/security/spring-security-6.5.xsd">
 
     <http pattern="/css/**" security="none"/>
     <http pattern="/img/**" security="none"/>
     <http pattern="/js/**" security="none"/>
     <http pattern="/tango/**" security="none"/>
+    <http pattern="/tango-auto/**" security="none"/>
+    <http pattern="/tango-light/**" security="none"/>
     <http pattern="/waltz/**" security="none"/>
     <http pattern="/white/**" security="none"/>
     <http pattern="/zomg_ponies/**" security="none"/>
@@ -36,6 +38,7 @@ http://www.springframework.org/schema/security/spring-security-6.3.xsd">
     <http pattern="/black/**" security="none"/>
     <http pattern="/adv/**" security="none"/>
     <http pattern="/fontello/**" security="none"/>
+    <http pattern="/font/**" security="none"/>
     <http pattern="*.css" security="none"/>
     <http pattern="/*.ico" security="none"/>
 

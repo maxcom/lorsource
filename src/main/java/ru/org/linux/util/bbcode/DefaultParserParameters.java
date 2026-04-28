@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -89,13 +89,13 @@ public class DefaultParserParameters implements ParserParameters{
   public DefaultParserParameters() {
     List<Tag> allTags = new ArrayList<>();
     { // <br/>
-      HtmlEquivTag tag = new HtmlEquivTag("br", ImmutableSet.<String>of(), "p", this, "br");
+      HtmlEquivTag tag = new HtmlEquivTag("br", ImmutableSet.of(), "p", this, "br");
       tag.setSelfClosing(true);
       //tag.setDiscardable(true);
       allTags.add(tag);
     }
     { // <br/>, but can adapt during render ?
-      SoftBrTag tag = new SoftBrTag(ImmutableSet.<String>of(), this);
+      SoftBrTag tag = new SoftBrTag(ImmutableSet.of(), this);
       tag.setSelfClosing(true);
       tag.setDiscardable(true);
       allTags.add(tag);

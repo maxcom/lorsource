@@ -1,9 +1,10 @@
+<%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8"  %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2017 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -57,7 +58,7 @@
         <form action="<c:url value="/user-filter/ignore-user"/>" method="POST">
           <lor:csrf/>
           <input type="hidden" name="id" value="${item.key}">
-          <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><lor:user user="${item.value}" link="true"/> </span>
+          <span style="white-space: nowrap">@<lor:user user="${item.value}" link="true"/> </span>
           <c:if test="${not empty ignoreRemarks[item.key]}">
             <c:out escapeXml="true" value="${ignoreRemarks[item.key].text}"/>
           </c:if>

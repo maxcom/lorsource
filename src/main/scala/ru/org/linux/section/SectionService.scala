@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service
 class SectionService(sectionDao: SectionDao) {
   val sections: Seq[Section] = sectionDao.getAllSections
   val nameToSection: Map[String, Section] = sections.map(section => section.getUrlName -> section).toMap
-  val idToSection: Map[Int, Section] = sections.map(section => section.getId -> section).toMap
+  val idToSection: Map[Int, Section] = sections.map(section => section.id -> section).toMap
 
   val fuzzyNameToSection: Map[String, Section] = nameToSection ++ idToSection.map { case (k, v) => k.toString -> v }
 
@@ -49,5 +49,5 @@ class SectionService(sectionDao: SectionDao) {
    * @return тип "листания" между страницами
    * @throws SectionNotFoundException
    */
-  def getScrollMode(sectionId: Int): SectionScrollModeEnum = getSection(sectionId).getScrollMode
+  def getScrollMode(sectionId: Int): SectionScrollModeEnum = getSection(sectionId).scrollMode
 }

@@ -1,0 +1,44 @@
+/*
+ * Copyright 1998-2026 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+package ru.org.linux.user
+
+import java.sql.{ResultSet, Timestamp}
+import javax.annotation.Nullable
+import scala.beans.BeanProperty
+
+case class UserInfo(
+  @BeanProperty url: String,
+  @BeanProperty town: String,
+  @BeanProperty lastLogin: Timestamp,
+  @BeanProperty registrationDate: Timestamp,
+  @Nullable @BeanProperty freezingReason: String,
+  @BeanProperty frozenBy: Int,
+  @Nullable @BeanProperty text: String
+)
+
+object UserInfo {
+  def apply(rs: ResultSet): UserInfo = {
+    new UserInfo(
+      url = rs.getString("url"),
+      town = rs.getString("town"),
+      lastLogin = rs.getTimestamp("lastlogin"),
+      registrationDate = rs.getTimestamp("regdate"),
+      freezingReason = rs.getString("freezing_reason"),
+      frozenBy = rs.getInt("frozen_by"),
+      text = rs.getString("userinfo")
+    )
+  }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2019 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -35,7 +35,7 @@ object MarkupType {
     override val id = "BBCODE_TEX"
     override val title: String = "LORCODE"
     override val formId: String = "lorcode"
-    override val order: Int = 1
+    override val order: Int = 2
   }
 
   case object LorcodeUlb extends MarkupType {
@@ -50,7 +50,7 @@ object MarkupType {
     override val id = "MARKDOWN"
     override val title: String = "Markdown"
     override val formId: String = "markdown"
-    override val order: Int = 2
+    override val order: Int = 1
   }
 
   def of(v: String): MarkupType = v match {

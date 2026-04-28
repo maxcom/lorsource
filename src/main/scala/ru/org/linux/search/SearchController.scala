@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,19 +15,12 @@
 package ru.org.linux.search
 
 import com.google.common.base.Strings
-import com.google.common.collect.ImmutableSortedMap
-import com.sksamuel.elastic4s.ElasticClient
-import jakarta.servlet.http.HttpServletRequest
-import org.joda.time.DateTimeZone
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation.InitBinder
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import ru.org.linux.group.GroupDao
+import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestAttribute, RequestMapping, RequestMethod}
+import ru.org.linux.group.GroupService
 import ru.org.linux.search.SearchEnums.SearchInterval
 import ru.org.linux.search.SearchEnums.SearchRange
 import ru.org.linux.section.SectionService
@@ -37,98 +30,68 @@ import ru.org.linux.user.UserService
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
-import scala.collection.immutable.{SortedMap, VectorMap}
-import scala.jdk.CollectionConverters.{IterableHasAsJava, MapHasAsJava}
+import java.time.ZoneId
+import scala.collection.immutable.VectorMap
+import scala.jdk.CollectionConverters.*
 
 @Controller
-class SearchController(sectionService: SectionService, userService: UserService, groupDao: GroupDao,
-                       client: ElasticClient, resultsService: SearchResultsService) {
+class SearchController(sectionService: SectionService, userService: UserService, groupService: GroupService,
+                       searchService: SearchService) {
   @ModelAttribute("sorts")
   def getSorts: java.util.Map[String, String] = {
     // VectorMap preserves order!
-    SearchOrder.values.map(v => v.id -> v.name).to(VectorMap).asJava
+    SearchOrder.values.view.map(v => v.id -> v.name).to(VectorMap).asJava
   }
 
   @ModelAttribute("intervals")
   def getIntervals: java.util.Map[SearchInterval, String] = {
-    val builder = ImmutableSortedMap.naturalOrder[SearchInterval, String]
-
-    for (value <- SearchInterval.values) {
-      builder.put(value, value.getTitle)
-    }
-
-    SearchInterval.values.view.map(v => v -> v.getTitle).to(SortedMap).asJava
+    SearchInterval.values.view.map(v => v -> v.getTitle).to(VectorMap).asJava
   }
 
   @ModelAttribute("ranges")
   def getRanges: java.util.Map[SearchEnums.SearchRange, String] = {
-    SearchRange.values().view.map(v => v -> v.getTitle).to(SortedMap).asJava
+    SearchRange.values().view.map(v => v -> v.getTitle).to(VectorMap).asJava
   }
 
   @RequestMapping(value = Array("/search.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def search(model: Model, @ModelAttribute("query") query: SearchRequest, bindingResult: BindingResult,
-             request: HttpServletRequest): String = {
+  def search(model: Model, @ModelAttribute("query") query: SearchServiceRequest, bindingResult: BindingResult,
+             @RequestAttribute(name="timezone") tz: ZoneId): String = {
     val params = model.asMap
 
     if (!query.isInitial && !bindingResult.hasErrors) {
       sanitizeQuery(query)
 
-      val sv = new SearchViewer(query, client)
-      val tz = request.getAttribute("timezone").asInstanceOf[DateTimeZone]
+      val response = searchService.performSearch(query, tz)
 
-      val response = sv.performSearch(tz)
-      val current = System.currentTimeMillis
-
-      val res = resultsService.prepareAll(response.hits.hits)
-
-      if (response.aggregations != null) {
-        val countFacet = response.aggregations.filter("sections")
-        val sectionsFacet = countFacet.terms("sections")
-
-        if (sectionsFacet.buckets.size > 1 || !Strings.isNullOrEmpty(query.getSection)) {
-          params.put("sectionFacet", resultsService.buildSectionFacet(countFacet, Option.apply(Strings.emptyToNull(query.getSection))))
-
-          if (!Strings.isNullOrEmpty(query.getSection)) {
-            val selectedSection = sectionsFacet.bucketOpt(query.getSection)
-
-            if (!Strings.isNullOrEmpty(query.getGroup)) {
-              params.put("groupFacet", resultsService.buildGroupFacet(selectedSection, Some(query.getSection -> query.getGroup)))
-            } else {
-              params.put("groupFacet", resultsService.buildGroupFacet(selectedSection, None))
-            }
-          }
-        } else if (Strings.isNullOrEmpty(query.getSection) && sectionsFacet.buckets.size == 1) {
-          val onlySection = sectionsFacet.buckets.head
-
-          query.setSection(onlySection.key)
-
-          params.put("groupFacet", resultsService.buildGroupFacet(Some(onlySection), None))
-        }
-
-        params.put("tags", resultsService.foundTags(response.aggregations))
+      response.sectionFacet.foreach { facet =>
+        params.put("sectionFacet", facet.asJava)
       }
 
-      val time = System.currentTimeMillis - current
+      response.groupFacet.foreach { facet =>
+        params.put("groupFacet", facet.asJava)
+      }
 
-      params.put("result", res.asJavaCollection)
+      response.foundTags.foreach { facet =>
+        params.put("tags", facet.asJava)
+      }
+
+      params.put("result", response.hits.asJava)
       params.put("searchTime", response.took)
       params.put("numFound", response.totalHits)
 
-      if (response.totalHits > query.getOffset + SearchViewer.SearchRows) {
-        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset + SearchViewer.SearchRows))
+      if (response.totalHits > query.getOffset + SearchService.SearchRows) {
+        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset + SearchService.SearchRows))
       }
 
-      if (query.getOffset - SearchViewer.SearchRows >= 0) {
-        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset - SearchViewer.SearchRows))
+      if (query.getOffset - SearchService.SearchRows >= 0) {
+        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset - SearchService.SearchRows))
       }
-
-      params.put("time", time)
     }
 
     "search"
   }
 
-  private def sanitizeQuery(query: SearchRequest): Unit = {
+  private def sanitizeQuery(query: SearchServiceRequest): Unit = {
     if (!Strings.isNullOrEmpty(query.getSection)) {
       val section = sectionService.fuzzyNameToSection.get(query.getSection)
 
@@ -136,7 +99,7 @@ class SearchController(sectionService: SectionService, userService: UserService,
         query.setSection(section.get.getUrlName)
 
         if (!Strings.isNullOrEmpty(query.getGroup)) {
-          val group = groupDao.getGroupOpt(section.get, query.getGroup, true)
+          val group = groupService.getGroupOpt(section.get, query.getGroup, true)
 
           if (group.isEmpty) {
             query.setGroup("")

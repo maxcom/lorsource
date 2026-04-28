@@ -74,7 +74,7 @@ public class MemberTag extends Tag {
     if (node.lengthChildren() == 0) {
       return "";
     }
-    TextNode txtNode = (TextNode) node.getChildren().iterator().next();
+    TextNode txtNode = (TextNode) node.getChildren().getFirst();
     String memberName = Parser.escape(txtNode.getText()).trim();
     TagNode tagNode = (TagNode)node;
     RootNode rootNode = tagNode.getRootNode();

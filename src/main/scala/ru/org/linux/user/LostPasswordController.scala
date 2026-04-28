@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -24,11 +24,11 @@ import ru.org.linux.email.EmailService
 import ru.org.linux.site.BadInputException
 
 import java.sql.Timestamp
-import javax.mail.internet.AddressException
+import jakarta.mail.internet.AddressException
 
 @Controller
 @RequestMapping(Array("/lostpwd.jsp"))
-class LostPasswordController(userDao: UserDao, userService: UserService, emailService: EmailService,
+class LostPasswordController(userService: UserService, emailService: EmailService,
                              userPermissionService: UserPermissionService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm: ModelAndView = new ModelAndView("lostpwd-form")
@@ -38,10 +38,8 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
   def sendPassword(@RequestParam("email") email: String): ModelAndView = MaybeAuthorized { currentUser =>
     if (Strings.isNullOrEmpty(email)) throw new BadInputException("email не задан")
 
-    val user = userDao.getByEmail(email, true)
-    if (user == null) {
-      throw new BadInputException("Этот email не зарегистрирован!")
-    }
+    val user = userService.getByEmail(email, searchBlocked = true)
+      .getOrElse(throw new BadInputException("Этот email не зарегистрирован!"))
 
     if (!userPermissionService.canResetPasswordByCode(user)) {
       throw new AccessViolationException("Пароль этого пользователя нельзя сбросить через email")
@@ -58,11 +56,11 @@ class LostPasswordController(userDao: UserDao, userService: UserService, emailSe
     val now = new Timestamp(System.currentTimeMillis)
 
     try {
-      val resetCode = userService.getResetCode(user.getNick, user.getEmail, now)
+      val resetCode = userService.getResetCode(user.nick, user.email, now)
 
       emailService.sendPasswordReset(user, resetCode)
 
-      userService.updateResetDate(user, currentUser.userOpt.orNull, user.getEmail, now)
+      userService.updateResetDate(user, currentUser.userOpt.orNull, user.email, now)
 
       new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email")
     } catch {

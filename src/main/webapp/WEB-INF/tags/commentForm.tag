@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -23,7 +23,6 @@
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="replyto" required="false" type="java.lang.Integer" %>
 <%@ attribute name="original" required="false" type="java.lang.Integer" %>
-<%@ attribute name="msg" required="false" type="java.lang.String" %>
 <%@ attribute name="form_action_url" required="true" type="java.lang.String" %>
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
@@ -58,7 +57,7 @@
 
   <div class="control-group">
     <label for="msg">Сообщение</label>
-    <textarea id="msg" required name="msg"><%= msg == null ? "" : StringUtil.escapeHtml(msg) %></textarea><br>
+    <form:textarea id="msg" required="true" name="msg" path="msg"/><br>
     <div class="help-block">Пустая строка (два раза Enter) начинает новый абзац.
                  Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования.<br>
       <c:if test="${template.formatMode == 'lorcode'}">

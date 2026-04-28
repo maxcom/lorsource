@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -20,21 +20,21 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 
 @Controller
-class ResolveController(messageDao: TopicDao, groupDao: GroupDao) {
+class ResolveController(messageDao: TopicDao, groupService: GroupService) {
   @RequestMapping(Array("/resolve.jsp"))
   def resolve(@RequestParam("msgid") msgid: Int,
               @RequestParam("resolve") resolved: String): RedirectView = AuthorizedOnly { currentUser =>
     val message = messageDao.getById(msgid)
-    val group = groupDao.getGroup(message.groupId)
+    val group = groupService.getGroup(message.groupId)
 
     if (!group.resolvable) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные")
     }
 
-    if (!currentUser.moderator && currentUser.user.getId != message.authorUserId) {
+    if (!currentUser.moderator && currentUser.user.id != message.authorUserId) {
       throw new AccessViolationException("У Вас нет прав на решение данной темы")
     }
 

@@ -1,5 +1,6 @@
+<%@ page session="false" %>
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -45,7 +46,13 @@
           <s>
         </c:if>
 
+        <c:if test="${item.deleted}">
+          <a href="/view-deleted?id=${item.commentId}#comment-${item.commentId}"><l:title>${item.title}</l:title></a>
+        </c:if>
+
+        <c:if test="${not item.deleted}">
           <a href="jump-message.jsp?msgid=${item.msgid}&cid=${item.commentId}"><l:title>${item.title}</l:title></a>
+        </c:if>
 
         <c:if test="${item.topicDeleted}">
           </s>

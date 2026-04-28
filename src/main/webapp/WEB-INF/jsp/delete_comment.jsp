@@ -1,8 +1,9 @@
+<%@ page session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -36,7 +37,7 @@
   // -->
 </script>
 <h1>Удаление комментария</h1>
-Вы можете удалить свой комментарий в течении трех часов с момента
+Вы можете удалить свой комментарий в течение трех часов с момента
 его помещения, если на него еще нет ответов.
 <form method=POST action="delete_comment.jsp" class="form-horizontal">
   <lor:csrf/>

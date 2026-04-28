@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -22,11 +22,11 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
-import ru.org.linux.group.GroupDao
+import ru.org.linux.group.GroupService
 import ru.org.linux.markup.MessageTextService
+import ru.org.linux.msgbase.MsgbaseDao
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.spring.dao.MsgbaseDao
 import ru.org.linux.user.{UserErrorException, UserService}
 
 import scala.jdk.CollectionConverters.*
@@ -34,7 +34,7 @@ import scala.jdk.OptionConverters.RichOption
 
 @Controller
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
-                                  sectionService: SectionService, groupDao: GroupDao,
+                                  sectionService: SectionService, groupService: GroupService,
                                   userService: UserService, searchQueueSender: SearchQueueSender,
                                   msgbaseDao: MsgbaseDao, textService: MessageTextService) extends StrictLogging {
 
@@ -44,7 +44,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     new ModelAndView("setpostscore", Map(
       "message" -> message,
-      "group" -> groupDao.getGroup(message.groupId)
+      "group" -> groupService.getGroup(message.groupId)
     ).asJava)
   }
 
@@ -73,7 +73,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     val out = new StringBuilder
     if (topic.postscore != postscore) {
       out.append("Установлен новый уровень записи: ").append(postScoreInfoFull(postscore)).append("<br>")
-      logger.info(s"Установлен новый уровень записи $postscore для $msgid пользователем ${currentUser.user.getNick}")
+      logger.info(s"Установлен новый уровень записи $postscore для $msgid пользователем ${currentUser.user.nick}")
 
       searchQueueSender.updateMessage(topic.id, true)
     }
@@ -103,7 +103,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       throw new AccessViolationException("Сообщение удалено")
     }
 
-    val newGrp = groupDao.getGroup(newgr)
+    val newGrp = groupService.getGroup(newgr)
 
     if (msg.groupId != newGrp.id) {
       val moveInfo = if (!newGrp.linksAllowed) {
@@ -119,7 +119,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       }
 
       messageDao.moveTopic(msg, newGrp, moveInfo.toJava)
-      logger.info(s"topic ${msg.id} moved by ${currentUser.user.getNick} from news/forum ${msg.groupUrl} to forum ${newGrp.title}")
+      logger.info(s"topic ${msg.id} moved by ${currentUser.user.nick} from news/forum ${msg.groupUrl} to forum ${newGrp.title}")
     }
 
     searchQueueSender.updateMessage(msg.id, true)
@@ -130,10 +130,10 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   @RequestMapping(value = Array("/mt.jsp"), method = Array(RequestMethod.GET))
   def moveToForumForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
     val topic = messageDao.getById(msgid)
-    val sections = Seq(sectionService.getSection(Section.SECTION_FORUM),
-      sectionService.getSection(Section.SECTION_ARTICLES))
+    val sections = Seq(sectionService.getSection(Section.Forum),
+      sectionService.getSection(Section.Articles))
 
-    val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
+    val groups = sections.flatMap(g => groupService.getGroups(g).asScala)
 
     new ModelAndView("mtn", Map (
       "message" -> topic,
@@ -154,7 +154,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
       Seq(currentSection)
     }
 
-    val groups = sections.flatMap(g => groupDao.getGroups(g).asScala)
+    val groups = sections.flatMap(g => groupService.getGroups(g).asScala)
 
     new ModelAndView("mtn", Map(
       "message" -> topic,
@@ -185,7 +185,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     searchQueueSender.updateMessage(topic.id, true)
 
-    logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${currentUser.user.getNick}")
+    logger.info(s"Отменено подтверждение сообщения $msgid пользователем ${currentUser.user.nick}")
 
     new ModelAndView("action-done",
       Map("message" -> "Подтверждение отменено", "link" -> topic.getLink).asJava)

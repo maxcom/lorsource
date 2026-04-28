@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -76,7 +76,7 @@ $script.ready(['jquery', 'hljs'], function() {
     }
 
     $('div.reply').each(function() {
-      $('a[href^="comment-message.jsp"]', this).bind("click", function() {
+      $('a[href^="comment-message.jsp"]', this).on("click", function() {
         sh(0, 0, false);
         return false;
       });
@@ -85,7 +85,7 @@ $script.ready(['jquery', 'hljs'], function() {
       if (lnk.length>0) {
         var buff = lnk.attr('href').match(/\d+/g);
         var idr = buff[1];
-        lnk.bind("click", function() {
+        lnk.on("click", function() {
           sh(1, idr, lnk.attr('data-author-readonly')=="true");
           return false;
         });
@@ -98,11 +98,11 @@ $script.ready(['jquery', 'hljs'], function() {
       }
     };
 
-    commentForm.bind("submit", function() {
+    commentForm.on("submit", function() {
       window.onbeforeunload = null;
     });
 
-    commentForm.bind("reset", function() {
+    commentForm.on("reset", function() {
       commentFormContainer.slideUp('slow');
       commentPreview.hide();
       commentPreview.html('');
@@ -164,7 +164,7 @@ $script.ready(['jquery', 'hljs'], function() {
       showPreview();
     }
 
-    previewButton.click(function() {
+    previewButton.on("click", function() {
       previewButton.prop("disabled", true);
       var form = commentForm.serialize();
       form = form+"&preview=preview";
@@ -174,7 +174,7 @@ $script.ready(['jquery', 'hljs'], function() {
       $("div[error]").remove();
 
       $.ajax({
-        type: "POST",
+        method: "POST",
         url: "/add_comment_ajax",
         data: form,
         timeout: 10000
@@ -186,7 +186,7 @@ $script.ready(['jquery', 'hljs'], function() {
 
     var submitInProcess = false;
 
-    commentForm.submit(function() {
+    commentForm.on("submit", function() {
       if (!submitInProcess) {
         submitInProcess = true;
 
@@ -197,7 +197,7 @@ $script.ready(['jquery', 'hljs'], function() {
         $("div[error]").remove();
 
         $.ajax({
-          type: "POST",
+          method: "POST",
           url: "/add_comment_ajax",
           data: form,
           timeout: 30000
