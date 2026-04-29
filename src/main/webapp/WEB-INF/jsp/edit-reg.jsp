@@ -50,7 +50,7 @@ $script.ready("plugins", function() {
     <lor:csrf/>
     <form:errors element="label" cssClass="error"/>
     <dl>
-        <dt><label for="name">Полное имя</label></dt>
+        <dt><label for="name">Имя</label></dt>
         <dd>
             <form:input readonly="${not canEditInfo}" path="name" size="40" cssErrorClass="error" maxlength="255"/>
             <form:errors path="name" element="label" cssClass="error" for="name"/>

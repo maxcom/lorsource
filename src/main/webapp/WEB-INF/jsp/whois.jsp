@@ -179,7 +179,7 @@
         <c:if test="${slowMode}"> <span title="медленный режим">&#x1F40C;</span></c:if>
     </span><br>
     <c:if test="${not empty user.name}">
-        <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
+        <b>Имя:</b> <span class="fn">${user.name}</span><br>
     </c:if>
     <b>ID:</b> ${user.id}<br>
     <c:if test="${template.sessionAuthorized and !viewByOwner}">
