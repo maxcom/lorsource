@@ -414,7 +414,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	@throws(classOf[DataAccessException])
 	def queryAndExtract[T](sql: String, args: Any*)
 	                      (resultSetExtractor: ResultSet => T): T = {
-		javaTemplate.query(sql, asInstanceOfAnyRef(args).toArray, resultSetExtractor)
+		javaTemplate.query(sql, resultSetExtractor, asInstanceOfAnyRef(args) *)
 	}
 
 	/**
@@ -482,7 +482,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	@throws(classOf[DataAccessException])
 	def queryAndProcess(sql: String, args: Any*)(rowProcessor: ResultSet => Unit):Unit = {
 		javaTemplate
-				.query(sql, asInstanceOfAnyRef(args).toArray, asRowCallbackHandler(rowProcessor))
+				.query(sql, asRowCallbackHandler(rowProcessor), asInstanceOfAnyRef(args) *)
 	}
 
 	/**
@@ -551,7 +551,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	@throws(classOf[DataAccessException])
 	def queryAndMap[T](sql: String, args: Any*)
 	                  (rowMapper: (ResultSet, Int) => T): immutable.Seq[T] = {
-		javaTemplate.query(sql, asInstanceOfAnyRef(args).toArray, new VectorExtractor(rowMapper))
+		javaTemplate.query(sql, new VectorExtractor(rowMapper), asInstanceOfAnyRef(args) *)
 	}
 
 	/**
@@ -594,7 +594,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	@throws(classOf[DataAccessException])
 	def queryForObjectAndMap[T](sql: String, args: Any*)
 	                           (rowMapper: (ResultSet, Int) => T): Option[T] = {
-		Option(javaTemplate.queryForObject(sql, asInstanceOfAnyRef(args).toArray, rowMapper))
+		Option(javaTemplate.queryForObject(sql, rowMapper, asInstanceOfAnyRef(args) *))
 	}
 
 	/**
@@ -643,8 +643,8 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	@throws(classOf[DataAccessException])
 	def queryForObject[T: ClassTag](sql: String, args: Any*): Option[T] = {
 		Option(javaTemplate.queryForObject(sql,
-		                                   asInstanceOfAnyRef(args).toArray,
-		                                   typeToClass[T]))
+		                                   typeToClass[T],
+		                                   asInstanceOfAnyRef(args) *))
 	}
 
 	/**
@@ -1039,7 +1039,7 @@ class JdbcTemplate(val javaTemplate: org.springframework.jdbc.core.JdbcTemplate)
 	// Private helpers
 	//-------------------------------------------------------------------------
 	private def asInstanceOfAny(map: java.util.Map[String, AnyRef]): Map[String, Any] = {
-		map.asScala.toMap.mapValues(_.asInstanceOf[Any]).toMap
+		map.asScala.toMap.view.mapValues(_.asInstanceOf[Any]).toMap
 	}
 
 	private def asInstanceOfAnyRef(seq: Seq[Any]): scala.collection.immutable.Seq[AnyRef] = {
