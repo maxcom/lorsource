@@ -155,6 +155,7 @@ src/
 ### Finding Symbol Usage (ast-grep recommended)
 
 For cross-language searches (Java↔Scala), use ast-grep instead of LSP:
+
 ```bash
 # Find usage of a method
 ast-grep find code --pattern "StringUtil.checkLoginName" --lang scala
@@ -165,7 +166,13 @@ language: scala
 rule:
   pattern: StringUtil.checkLoginName
 '
+```
+
 When to use which:
 - ast-grep: Find all usages of a symbol across Java/Scala boundary (recommended)
 - LSP findReferences: Find references within same file/type system (may miss cross-language)
 - grep: Quick text search fallback
+
+## Git & Commit Rules
+
+* **Wait for Approval:** Do not commit or push changes without explicit user confirmation.
