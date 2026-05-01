@@ -46,11 +46,11 @@ class MainPageController(
       response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
       response.setDateHeader("Last-Modified", System.currentTimeMillis)
 
-      val allTopics = topicListService.getMainPageFeed(25)
+      val allTopics = topicListService.getMainPageFeed(30)
 
       val (messages, titles) =
         allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) =>
-          if big.count(!_.minor) < 5 then
+          if big.count(!_.minor) < 10 then
             (big :+ topic, small)
           else
             (big, small :+ topic)
