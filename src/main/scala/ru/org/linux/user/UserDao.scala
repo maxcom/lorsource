@@ -39,9 +39,8 @@ class UserDao(ds: DataSource) extends StrictLogging {
   private val namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.javaTemplate)
 
   private val queryChangeScore = "UPDATE users SET score=score+? WHERE id=?"
-  private val queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style,frozen_until FROM users where id=?"
+  private val queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,frozen_until FROM users where id=?"
   private val queryUserIdByNick = "SELECT id FROM users where nick=?"
-  private val updateUserStyle = "UPDATE users SET style=? WHERE id=?"
 
   private val queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?"
 
@@ -272,13 +271,6 @@ class UserDao(ds: DataSource) extends StrictLogging {
     if (user.corrector) {
       jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.id)
     }
-
-  /**
-   * Смена стиля\темы пользователя
-   * @param user пользователь у которого меняется стиль\тема
-   */
-  def setStyle(user: User, theme: String): Unit =
-    jdbcTemplate.update(updateUserStyle, theme, user.id)
 
   def setPassword(user: User, password: String): Unit = {
     val encryptor: PasswordEncryptor = new BasicPasswordEncryptor()

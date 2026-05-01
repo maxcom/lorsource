@@ -420,11 +420,6 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     idToUserCache.invalidate(user.id)
   }
 
-  def setStyle(user: User, style: String): Unit =
-    transactional() { _ =>
-      userDao.setStyle(user, style)
-    }
-
   def changeScore(userId: Int, delta: Int): Unit = {
     transactional() { _ =>
       userDao.changeScore(userId, delta)

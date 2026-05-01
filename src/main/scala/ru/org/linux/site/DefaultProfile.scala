@@ -85,4 +85,4 @@ object DefaultProfile:
 
   def getTheme(id: String): Theme = Themes.getOrElse(id, getDefaultTheme)
 
-  def getDefaultTheme: Theme = Theme.THEMES.getFirst
+  def getDefaultTheme: Theme = Themes.getOrElse(defaultProfile.get(StyleProperty).asInstanceOf[String], Theme.THEMES.getFirst)

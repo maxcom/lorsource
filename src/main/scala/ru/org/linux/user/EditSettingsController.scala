@@ -45,8 +45,8 @@ class EditSettingsController(profileDao: ProfileDao, userPermissionService: User
 
     if currentUser.user.score >= DeprecatedFeaturesScore then
       params.put("stylesList", Theme.THEMES.asScala.map(_.getId).asJava)
-    else if (DefaultProfile.getTheme(currentUser.user.style).isDeprecated)
-      params.put("stylesList", (nonDeprecatedThemes :+ currentUser.user.style).asJava)
+    else if (DefaultProfile.getTheme(currentUser.profile.style).isDeprecated)
+      params.put("stylesList", (nonDeprecatedThemes :+ currentUser.profile.style).asJava)
     else
       params.put("stylesList", nonDeprecatedThemes.asJava)
 
@@ -106,7 +106,6 @@ class EditSettingsController(profileDao: ProfileDao, userPermissionService: User
     builder.setShowGalleryOnMain("on" == request.getParameter("mainGallery"))
     builder.setFormatMode(formatMode)
     builder.setStyle(request.getParameter("style"))
-    userService.setStyle(currentUser.user, request.getParameter("style"))
     builder.setOldTracker("on" == request.getParameter("oldTracker"))
     builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).orElse(DefaultProfile.DefaultTrackerMode))
 

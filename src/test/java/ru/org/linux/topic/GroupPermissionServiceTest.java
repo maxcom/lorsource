@@ -52,7 +52,6 @@ public class GroupPermissionServiceTest {
       null,                 // email
       null,                 // fullName
       0,                    // unreadEvents
-      null,                 // style
       null,                 // frozenUntil
       true                  // activated
     );

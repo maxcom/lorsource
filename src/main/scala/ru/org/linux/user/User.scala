@@ -36,7 +36,6 @@ case class User(
   @Nullable @BeanProperty email: String,
   @Nullable @BeanProperty fullName: String,
   @BeanProperty unreadEvents: Int,
-  @Nullable @BeanProperty style: String,
   @Nullable @BeanProperty frozenUntil: Timestamp,
   @BooleanBeanProperty activated: Boolean
 ) {
@@ -123,7 +122,6 @@ object User {
     val photo = rs.getString("photo")
     val email = rs.getString("email")
     val unreadEvents = rs.getInt("unread_events")
-    val style = rs.getString("style")
     val frozenUntil = rs.getTimestamp("frozen_until")
 
     new User(
@@ -141,7 +139,6 @@ object User {
       email = email,
       fullName = fullName,
       unreadEvents = unreadEvents,
-      style = style,
       frozenUntil = frozenUntil,
       activated = activated
     )
