@@ -213,7 +213,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDao.getDeletedTopics(sectionId, skipBadReason, includeAnonymous)
 
   def getMainPageFeed(count: Int)
-                     (implicit session: AnySession): collection.Seq[Topic] = {
+                     (using session: AnySession): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
     topicListDto.setLimit(count)
@@ -223,11 +223,10 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     
     topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
 
-    if (session.profile.showGalleryOnMain) {
+    if session.profile.showGalleryOnMain then
       topicListDto.setSection(Section.News, Section.Gallery, Section.Polls, Section.Articles)
-    } else {
+    else 
       topicListDto.setSection(Section.News)
-    }
 
     topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
