@@ -15,7 +15,6 @@
 
 package ru.org.linux.spring
 
-import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestAttribute, RequestMapping}
 import org.springframework.web.servlet.ModelAndView
@@ -38,14 +37,8 @@ class MainPageController(
     sectionService: SectionService,
     topicService: TopicService):
   @RequestMapping(path = Array("/", "/index.jsp"))
-  def mainPage(
-      response: HttpServletResponse,
-      @RequestAttribute(name = "timezone")
-      timezone: ZoneId): ModelAndView =
+  def mainPage(@RequestAttribute(name = "timezone") timezone: ZoneId): ModelAndView =
     MaybeAuthorized { implicit session =>
-      response.setDateHeader("Expires", System.currentTimeMillis - 20 * 3600 * 1000)
-      response.setDateHeader("Last-Modified", System.currentTimeMillis)
-
       val allTopics = topicListService.getMainPageFeed(30)
 
       val (messages, titles) =
