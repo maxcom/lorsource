@@ -224,7 +224,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
 
     if (session.profile.showGalleryOnMain) {
-      topicListDto.setSection(Section.News, Section.Gallery)
+      topicListDto.setSection(Section.News, Section.Gallery, Section.Polls, Section.Articles)
     } else {
       topicListDto.setSection(Section.News)
     }

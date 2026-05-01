@@ -118,7 +118,13 @@
 
 <c:if test="${not empty briefNews}">
 <section>
-   <h2>Еще новости</h2>
+   <c:if test="${not template.prof.showGalleryOnMain}">
+     <h2>Еще новости</h2>
+   </c:if>
+
+   <c:if test="${template.prof.showGalleryOnMain}">
+     <h2>Еще топики</h2>
+   </c:if>
 
   <div id="main-page-news">
     <c:forEach var="map" items="${briefNews}" varStatus="iter">

@@ -57,7 +57,7 @@ $script.ready('jquery', function() {
 <td><input type="checkbox" id="photos" name="photos" <c:if test="${template.prof.showPhotos}">checked</c:if> ></td></tr>
 <tr><td><label for="hideAdsense">Показывать меньше рекламы (доступна пользователям начиная с одной зеленой звезды)</label></td>
 <td><input type="checkbox" id="hideAdsense" <c:if test="${currentUser.score<100 && !template.prof.hideAdsense}">disabled</c:if> name="hideAdsense" <c:if test="${template.prof.hideAdsense}">checked</c:if> ></td></tr>
-<tr><td><label for="mainGallery">Показывать галерею в ленте на главной</label></td>
+<tr><td><label for="mainGallery">Показывать галерею, опросы и статьи в ленте на главной</label></td>
 <td><input type="checkbox" id="mainGallery" name="mainGallery" <c:if test="${template.prof.showGalleryOnMain}">checked</c:if> ></td></tr>
   <tr>
     <td><label for="oldTracker">Старый вид трекера и форума</label></td>
