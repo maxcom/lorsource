@@ -21,7 +21,6 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.{User, UserPermissionService}
 
 import java.time.{Duration, Instant}
-import java.util.concurrent.TimeUnit
 import javax.annotation.Nullable
 
 object FloodProtector {
@@ -41,7 +40,7 @@ object FloodProtector {
 @Component
 class FloodProtector(siteConfig: SiteConfig, userPermissionService: UserPermissionService) {
   final private val performedActions: Cache[String, Instant] =
-    CacheBuilder.newBuilder.expireAfterWrite(30, TimeUnit.MINUTES).build
+    CacheBuilder.newBuilder.expireAfterWrite(Duration.ofMinutes(30)).build
 
   // for tests
   private val enabled: Boolean = siteConfig.getMainURI.getHost != "127.0.0.1"

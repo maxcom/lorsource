@@ -35,8 +35,7 @@ import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
 import ru.org.linux.util.StringUtil
 
-import java.time.{Instant, ZoneId}
-import java.util.concurrent.TimeUnit
+import java.time.{Duration, Instant, ZoneId}
 import scala.beans.BeanProperty
 import scala.collection.Seq as MSeq
 import scala.collection.mutable.ArrayBuffer
@@ -60,7 +59,7 @@ class MoreLikeThisService(
   private val cache = CacheBuilder
     .newBuilder()
     .maximumSize(CacheSize)
-    .expireAfterWrite(1, TimeUnit.HOURS)
+    .expireAfterWrite(Duration.ofHours(1))
     .build[Integer, Result]()
 
   private val breaker = new CircuitBreaker(
