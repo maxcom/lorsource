@@ -66,7 +66,7 @@ class MainPageController(
         .put(
           "briefNews",
           TopicListTools.split(
-            briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, groupInTitle = session.profile.showGalleryOnMain))))
+            briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, sectionInTitle = session.profile.showGalleryOnMain))))
 
       session
         .userOpt

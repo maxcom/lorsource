@@ -228,21 +228,24 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
       showComments = showComments, warningsAllowed = topicPermissionService.canPostWarning(topic.message, comment = None))
   }
 
-  def prepareBrief(topic: Topic, groupInTitle: Boolean): BriefTopicRef = {
-    val group = groupService.getGroup(topic.groupId)
-
+  def prepareBrief(topic: Topic, groupInTitle: Boolean = false, sectionInTitle: Boolean = false): BriefTopicRef =
     val showComments = !topic.isCommentsHidden
 
-    val commentCount = if (showComments) topic.commentCount else 0
+    val commentCount = if showComments then topic.commentCount else 0
 
-    val groupTitle = if (groupInTitle) {
-      Some(group.title)
-    } else {
-      None
-    }
+    val groupTitle = 
+      if sectionInTitle then
+        val section = sectionService.getSection(topic.sectionId)
+
+        Some(section.getTitle)
+      else if groupInTitle then
+        val group = groupService.getGroup(topic.groupId)
+
+        Some(group.title)
+      else
+        None
 
     BriefTopicRef(topic.getLink, StringUtil.processTitle(topic.title), commentCount, groupTitle)
-  }
 
   def prepareListItem(item: TopicsListItem)(implicit session: AnySession): PreparedTopicsListItem = {
     val author = userService.getUserCached(item.topicAuthor)
