@@ -90,19 +90,31 @@ p {
   }
 }
 
-.news {
-	margin-bottom: 2em;
+#bd .news {
+  padding: 0.5em;
+  border-radius: 1em;
+  background-color: var(--article-background);
+
+	margin-bottom: 1em;
+
+	h1 {
+    margin-top: 0;
+  }
 
   .entry-body {
-      padding-top: 0.5em;
+    padding-top: 0.5em;
   }
 
   .entry-userpic {
-      padding-top: 0.5em;
+    padding-top: 0.5em;
   }
 
   .nav {
-      text-align: left;
+    text-align: left;
+  }
+
+  .tag {
+    color: var(--tag-color);
   }
 }
 
@@ -384,10 +396,6 @@ a {
 }
 
 .msg .tag {
-  color: var(--tag-color);
-}
-
-.news .tag {
   color: var(--tag-color);
 }
 
