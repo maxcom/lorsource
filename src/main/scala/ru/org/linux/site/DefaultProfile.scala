@@ -15,7 +15,6 @@
 
 package ru.org.linux.site
 
-import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.tracker.TrackerFilterEnum
@@ -31,7 +30,6 @@ object DefaultProfile:
   val PhotosProperty = "photos"
   val MainGalleryProperty = "mainGallery"
   val AvatarProperty = "avatar"
-  val BoxesMain2Property = "main2"
   val TrackerMode = "trackerMode"
   val OldTracker = "oldTracker"
   val ReactionNotificationProperty = "reactionNotification"
@@ -58,26 +56,10 @@ object DefaultProfile:
 
     builder.put("DebugMode", java.lang.Boolean.FALSE)
 
-    builder.put(BoxesMain2Property, ImmutableList.of("poll", "articles", "top10", "gallery", "tagcloud"))
-
     builder.build()
-
-  private val BoxLegend: ImmutableMap[String, String] =
-    ImmutableMap
-      .builder[String, String]()
-      .put("poll", "Текущий опрос")
-      .put("articles", "Новые статьи")
-      .put("top10", "Наиболее обсуждаемые темы этого месяца")
-      .put("gallery", "Галерея")
-      .put("tagcloud", "Облако тэгов")
-      .build()
 
   private val AvatarTypes = Seq("empty", "identicon", "monsterid", "wavatar", "retro", "robohash")
   private val Themes: Map[String, Theme] = Theme.THEMES.asScala.view.map(t => t.getId -> t).toMap
-
-  def getAllBoxes: ImmutableMap[String, String] = BoxLegend
-
-  def isBox(name: String): Boolean = BoxLegend.containsKey(name)
 
   def isStyle(style: String): Boolean = Themes.contains(style)
 

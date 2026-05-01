@@ -397,9 +397,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       MarkupType.ofFormId(DefaultProfile.defaultProfile.get("format.mode").asInstanceOf[String])
     }
 
-    val boxletsFixed = profile.boxes.filter(DefaultProfile.isBox)
-
-    profile.copy(formatMode = modeFixed, boxes = boxletsFixed)
+    profile.copy(formatMode = modeFixed)
   }
 
   def freezeUser(user: User, moderator: User, reason: String, until: Timestamp): Unit = {

@@ -21,10 +21,7 @@ import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.util.ProfileHashtable;
 
 import javax.sql.DataSource;
-import java.sql.Array;
 import java.sql.PreparedStatement;
-import java.sql.Types;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,27 +36,15 @@ public class ProfileDao {
 
   public Profile readProfile(int userId) {
     List<Profile> profiles = jdbcTemplate.query(
-            "SELECT settings, main FROM user_settings WHERE id=?",
-            (resultSet, i) -> {
-              Array boxes = resultSet.getArray("main");
-
-              if (boxes != null) {
-                return Profile.apply(
-                        new ProfileHashtable(DefaultProfile.defaultProfile(), (Map<String, String>) resultSet.getObject("settings")),
-                        Arrays.asList((String[]) boxes.getArray())
-                );
-              } else {
-                return Profile.apply(
-                        new ProfileHashtable(DefaultProfile.defaultProfile(), (Map<String, String>) resultSet.getObject("settings")),
-                        null
-                );
-              }
-            },
+            "SELECT settings FROM user_settings WHERE id=?",
+            (resultSet, i) -> Profile.apply(
+                    new ProfileHashtable(DefaultProfile.defaultProfile(), (Map<String, String>) resultSet.getObject("settings"))
+            ),
             userId
     );
 
     if (profiles.isEmpty()) {
-      return Profile.apply(new ProfileHashtable(DefaultProfile.defaultProfile(), new HashMap<>()), null);
+      return Profile.apply(new ProfileHashtable(DefaultProfile.defaultProfile(), new HashMap<>()));
     } else {
       return profiles.getFirst();
     }
@@ -70,45 +55,18 @@ public class ProfileDao {
   }
 
   public void writeProfile(User user, ProfileBuilder profile) {
-    String[] boxlets = null;
-
-    List<String> customBoxlets = profile.getCustomBoxlets();
-
-    if (customBoxlets !=null) {
-      boxlets = customBoxlets.toArray(new String[0]);
-    }
-
-    final String[] finalBoxlets = boxlets;
     if (jdbcTemplate.update(
             con -> {
-              PreparedStatement st = con.prepareStatement("UPDATE user_settings SET settings=?, main=? WHERE id=?");
-
+              PreparedStatement st = con.prepareStatement("UPDATE user_settings SET settings=? WHERE id=?");
               st.setObject(1, profile.getSettings());
-
-              if (finalBoxlets!=null) {
-                st.setArray(2, con.createArrayOf("text", finalBoxlets));
-              } else {
-                st.setNull(2, Types.ARRAY);
-              }
-
-              st.setInt(3, user.getId());
-
+              st.setInt(2, user.getId());
               return st;
-            })==0) {
+            }) == 0) {
       jdbcTemplate.update(
               con -> {
-                PreparedStatement st = con.prepareStatement("INSERT INTO user_settings (id, settings, main) VALUES (?,?,?)");
-
+                PreparedStatement st = con.prepareStatement("INSERT INTO user_settings (id, settings) VALUES (?,?)");
                 st.setInt(1, user.getId());
-
                 st.setObject(2, profile.getSettings());
-
-                if (finalBoxlets!=null) {
-                  st.setArray(3, con.createArrayOf("text", finalBoxlets));
-                } else {
-                  st.setNull(3, Types.ARRAY);
-                }
-
                 return st;
               }
       );

@@ -164,7 +164,6 @@ $script.ready('jquery', function() {
   <li><a href="/addphoto.jsp">Добавить фотографию</a></li>
 </c:if>
 <li><a href="/people/${nick}/edit">Изменение регистрации</a></li>
-<li><a href="/edit-boxes.jsp">Настройка главной страницы</a>
 <li><a href="<c:url value="/user-filter"/>">Настройка фильтрации сообщений</a>
 <c:if test="${currentUser.score >= 100 && !template.moderatorSession && !currentUser.administrator && !currentUser.frozen}">
   <li><a href="/deregister.jsp">Удаление аккаунта</a>

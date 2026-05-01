@@ -19,8 +19,6 @@ import ru.org.linux.markup.MarkupType
 import ru.org.linux.site.DefaultProfile
 import ru.org.linux.tracker.TrackerFilterEnum
 import ru.org.linux.util.ProfileHashtable
-import scala.jdk.CollectionConverters.*
-
 import java.util as ju
 
 class ProfileBuilder(profile: Profile):
@@ -35,8 +33,6 @@ class ProfileBuilder(profile: Profile):
   private var oldTracker: Boolean = profile.oldTracker
   private var trackerMode: TrackerFilterEnum = profile.trackerMode
   private var reactionNotification: Boolean = profile.reactionNotification
-
-  private var boxes: Seq[String] = profile.boxes
 
   def getSettings: ju.Map[String, String] =
     val p = new ProfileHashtable(DefaultProfile.defaultProfile, new ju.HashMap[String, String]())
@@ -74,9 +70,5 @@ class ProfileBuilder(profile: Profile):
   def setOldTracker(oldTracker: Boolean): Unit = this.oldTracker = oldTracker
 
   def setTrackerMode(trackerMode: TrackerFilterEnum): Unit = this.trackerMode = trackerMode
-
-  def getCustomBoxlets: ju.List[String] = boxes.asJava
-
-  def setBoxlets(list: collection.Seq[String]): Unit = boxes = list.toVector
 
   def setReactionNotification(reactionNotification: Boolean): Unit = this.reactionNotification = reactionNotification

@@ -21,11 +21,11 @@ import ru.org.linux.util.ProfileHashtable
 
 import java.util
 import scala.beans.{BeanProperty, BooleanBeanProperty}
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+
 import DefaultProfile.*
 
 object Profile {
-  val DEFAULT: Profile = apply(new ProfileHashtable(DefaultProfile.defaultProfile, util.Map.of), null)
+  val DEFAULT: Profile = apply(new ProfileHashtable(DefaultProfile.defaultProfile, util.Map.of))
 
   def fixFormat(mode: String): MarkupType = if (MarkupType.AllFormIds.contains(mode)) {
     MarkupType.ofFormId(mode)
@@ -41,7 +41,7 @@ object Profile {
     }
   }
 
-  def apply(p: ProfileHashtable, boxes: util.List[String]): Profile = {
+  def apply(p: ProfileHashtable): Profile = {
     new Profile(
       style = Profile.fixStyle(p.getString(StyleProperty)),
       formatMode = Profile.fixFormat(p.getString(FormatModeProperty)),
@@ -53,12 +53,7 @@ object Profile {
       avatarMode = p.getString(AvatarProperty),
       trackerMode = TrackerFilterEnum.getByValue(p.getString(TrackerMode)).filter(_.isCanBeDefault).orElse(DefaultProfile.DefaultTrackerMode),
       oldTracker = p.getBoolean(OldTracker),
-      reactionNotification = p.getBoolean(ReactionNotificationProperty),
-      boxes = (if (boxes != null) {
-        boxes
-      } else {
-        DefaultProfile.defaultProfile.get(BoxesMain2Property).asInstanceOf[java.util.List[String]]
-      }).asScala.toVector)
+      reactionNotification = p.getBoolean(ReactionNotificationProperty))
   }
 }
 
@@ -66,7 +61,9 @@ case class Profile(style: String, formatMode: MarkupType, @BeanProperty messages
                    @BooleanBeanProperty showPhotos: Boolean, @BooleanBeanProperty hideAdsense: Boolean,
                    @BooleanBeanProperty showGalleryOnMain: Boolean, @BeanProperty avatarMode: String,
                    @BooleanBeanProperty oldTracker: Boolean, @BeanProperty trackerMode: TrackerFilterEnum,
-                   @BooleanBeanProperty reactionNotification: Boolean, boxes: Seq[String]) {
+                   @BooleanBeanProperty reactionNotification: Boolean) {
   // java API
-  def getBoxlets: util.List[String] = boxes.asJava
+  def getBoxlets: util.List[String] =
+    if (showGalleryOnMain) util.List.of("top10", "tagcloud")
+    else util.List.of("poll", "articles", "top10", "gallery", "tagcloud")
 }
