@@ -23,7 +23,7 @@ public class Theme {
   private static final Theme TANGO = new Theme("tango", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme TANGO_AUTO = new Theme("tango-auto", "tango/head-main.jsp", "tango/head-main.jsp");
   private static final Theme TANGO_LIGHT = new Theme("tango-light", "tango/head-main.jsp", "tango/head-main.jsp");
-  private static final Theme WALTZ = new Theme("waltz", "tango/head-main.jsp", "tango/head-main.jsp");
+  private static final Theme WALTZ = new Theme("waltz", "tango/head-main.jsp", "tango/head-main.jsp", true);
   private static final Theme ZOMG_PONIES = new Theme("zomg_ponies", "zomg_ponies/head-main.jsp", "zomg_ponies/head-main.jsp", true);
 
   public static final ImmutableList<Theme> THEMES = ImmutableList.of(

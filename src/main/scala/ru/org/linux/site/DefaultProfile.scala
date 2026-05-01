@@ -44,7 +44,7 @@ object DefaultProfile:
   val defaultProfile: ImmutableMap[String, Object] =
     val builder = ImmutableMap.builder[String, Object]()
 
-    builder.put(StyleProperty, "tango")
+    builder.put(StyleProperty, "tango-auto")
     builder.put(FormatModeProperty, MarkupType.Markdown.formId)
     builder.put(TopicsProperty, Int.box(30))
     builder.put(MessagesProperty, Int.box(50))
