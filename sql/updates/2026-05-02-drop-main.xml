@@ -20,6 +20,9 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
   <changeSet id="2026050103" author="Maxim Valyanskiy">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="user_settings" columnName="main"/>
+    </preConditions>
     <comment>Drop user_settings.main column (boxlet composition now determined by mainGallery setting)</comment>
     <sql>
       ALTER TABLE user_settings DROP COLUMN main;
