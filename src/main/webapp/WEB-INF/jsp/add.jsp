@@ -112,21 +112,21 @@
       <label for="nick">
         Имя
       </label>
-      <input id="nick" type=text required value="anonymous" name="nick" style="width: 40em">
+      <input id="nick" type=text required value="anonymous" name="nick">
     </div>
 
     <div class="control-group">
       <label for="password">
         Пароль
       </label>
-      <input id="password" type=password name=password style="width: 40em">
+      <input id="password" type=password name=password>
     </div>
   </c:if>
 
   <form:hidden path="group"/>
   <div class="control-group">
     <label for="title">Заглавие</label>
-    <form:input path="title" required="required" style="width: 40em" autofocus="autofocus"/>
+    <form:input path="title" required="required" autofocus="autofocus"/>
   </div>
 
   <c:if test="${imagepost}">
@@ -173,7 +173,7 @@
 
 <div class="control-group">
   <label for="form_msg">Сообщение</label>
-    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
+    <form:textarea path="msg" rows="20" id="form_msg"/>
 
     <div class="help-block">
       <c:if test="${template.formatMode == 'lorcode'}">
@@ -223,13 +223,13 @@
   <label for="linktext">
     Текст ссылки
   </label>
-  <form:input path="linktext" style="width: 40em"/>
+  <form:input path="linktext"/>
 </div>
 
 <div class="control-group">
   <label for="url">
     Ссылка (не забудьте <b>http://</b>)</label>
-    <form:input placeholder="http://" path="url" type="url" style="width: 40em"/>
+    <form:input placeholder="http://" path="url" type="url"/>
 </div>
 </c:if>
 
@@ -243,7 +243,7 @@
       <a href="/tags" target="_blank">Метки</a> (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>)
     </c:if>
   </label>
-  <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
+  <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags"/>
 </div>
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 

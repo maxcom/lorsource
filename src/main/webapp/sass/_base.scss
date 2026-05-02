@@ -464,21 +464,25 @@ textarea.error {
     padding:0;
 }
 
-#commentForm {
+#commentForm, #messageForm {
   margin-top: 0.5em;
   font-size: 1rem;
 
   textarea {
     height: 10em;
     width: 100%;
+    box-sizing: border-box;
   }
 
-  input[type='text'] {
+  input[type='text'],
+  input[type='url'] {
     width: 100%;
+    box-sizing: border-box;
   }
 
   input[type="password"] {
-    width: 40em;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   @include respond-to(tablet-and-desktops) {
@@ -489,7 +493,8 @@ textarea.error {
   }
 
   @include respond-to(desktops) {
-    input[type="text"] {
+    input[type="text"],
+    input[type="url"] {
       width: 40em;
     }
   }
