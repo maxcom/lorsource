@@ -74,15 +74,6 @@
   String image = preparedMessage.getGroup().getImage();
   Group group = preparedMessage.getGroup();
 %>
-<h1>
-  <c:if test="${message.resolved}">
-   <i class="icon-check" title="решено"></i>
-  </c:if>
-
-  <a href="${fn:escapeXml(message.link)}">
-    <l:title>${message.title}</l:title>
-  </a>
-</h1>
 
 <c:if test="${multiPortal}">
 <div class="group">
@@ -92,6 +83,16 @@
   </c:if>
 </div>
 </c:if>
+
+<h1>
+  <c:if test="${message.resolved}">
+   <i class="icon-check" title="решено"></i>
+  </c:if>
+
+  <a href="${fn:escapeXml(message.link)}">
+    <l:title>${message.title}</l:title>
+  </a>
+</h1>
 
 <c:if test="${fn:length(preparedMessage.allImages) == 1}">
   <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.allImages[0]}" sizes="(min-width: 47em) 40vw, 100vw"
