@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,17 +13,14 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.user;
+package ru.org.linux.user
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.{Bean, Configuration}
 
-import javax.sql.DataSource;
+import javax.sql.DataSource
 
 @Configuration
-public class ProfileDaoIntegrationTestConfiguration {
+class ProfileDaoIntegrationTestConfiguration {
   @Bean
-  public ProfileDao profileDao(DataSource ds) {
-    return new ProfileDao(ds);
-  }
+  def profileDao(ds: DataSource): ProfileDao = new ProfileDao(ds)
 }
