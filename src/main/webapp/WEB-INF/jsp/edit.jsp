@@ -121,11 +121,11 @@
 
   <c:if test="${group.pollPostAllowed}">
     <c:forEach var="v" items="${form.poll}" varStatus="i">
-      <label>Вариант #${i.index}: <form:input path="poll[${v.key}]" size="40"/></label><br>
+      <label>Вариант #${i.index}: <form:input path="poll[${v.key}]" size="80"/></label><br>
     </c:forEach>
 
     <c:forEach var="v" items="${form.newPoll}" varStatus="i">
-      <label>Новый #${i.index}: <form:input path="newPoll[${i.index}]" size="40"/></label><br>
+      <label>Новый #${i.index}: <form:input path="newPoll[${i.index}]" size="80"/></label><br>
     </c:forEach>
 
     <label>Мультивыбор: <form:checkbox path="multiselect" size="40"/></label>
