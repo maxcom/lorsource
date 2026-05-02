@@ -467,7 +467,7 @@ fieldset legend {
 
 #bd .btn {
   border-radius: .2em;
-  border: 1px solid var(--button-border-color);
+  border: none;
   color: var(--table-link-color);
   background-image: none; // https://bugzilla.mozilla.org/show_bug.cgi?id=763671
 
