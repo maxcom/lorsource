@@ -93,6 +93,13 @@ mvn dependency:tree      # Show dependency tree
 - Follow `.scalafmt.conf` configuration (version 3.10.7, Scala 3 dialect)
 - Use strict logging: `com.typesafe.scalalogging.StrictLogging`
 - Use Akka/Pekko for async operations
+- Use `if then` / `if then else` instead of `if () {}` / `if () {} else {}`
+- Use `match` with indentation-based syntax instead of curly braces where appropriate
+- Use `end` markers for significant indentation blocks when clarity benefits
+- Prefer `given`/`using` over `implicit`
+- Use `extension` methods instead of implicit classes
+- Prefer enums over sealed trait hierarchies for ADTs
+- Use optional braces (significant indentation) consistently
 
 ### Naming Conventions
 
@@ -116,7 +123,7 @@ mvn dependency:tree      # Show dependency tree
 - Use MUnit for Scala tests
 - Follow AAA pattern (Arrange/Act/Assert or Given/When/Then)
 - Place test classes in same package under `src/test/java` or `src/test/scala`
-- Integration tests require database (use testcontainers if needed)
+- Integration tests require database
 
 ### Database Access
 
@@ -176,3 +183,4 @@ When to use which:
 ## Git & Commit Rules
 
 * **Wait for Approval:** Do not commit or push changes without explicit user confirmation.
+* Update copyright year in all modified files to 2026
