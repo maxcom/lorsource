@@ -20,8 +20,15 @@ body {
   color: var(--text-color);
 }
 
-textarea {
-  background: white;
+textarea, input, select {
+  background-color: var(--article-background);
+  color: var(--text-color);
+  border: 1px solid var(--table-border-color);
+}
+
+textarea:focus, input:focus, select:focus {
+  border: 1px solid var(--link-color);
+  outline: none;
 }
 
 h1,h2,h3,h4,h5,h6 {
