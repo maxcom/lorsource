@@ -24,6 +24,17 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title><l:title>${add.topic.title}</l:title> - ${preparedMessage.group.title} - ${preparedMessage.section.title}</title>
+<script type="text/javascript">
+  $script.ready("jquery", function() {
+    $(function() {
+      window.onbeforeunload = function() {
+        if ($("#msg").val()!='') {
+          return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+        }
+      };
+    });
+  });
+</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
   <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${add.topic}" showMenu="false"/>
