@@ -44,16 +44,17 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.markdown.MarkdownFormatter
 
 import java.beans.PropertyEditorSupport
-import scala.beans.BeanProperty
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
+import scala.jdk.CollectionConverters.*
 
 @Controller
 object AddTopicController {
-  case class SectionChoice(@BeanProperty section: Section, @BeanProperty url: String)
+  case class SectionChoice(@BeanProperty section: Section, @BeanProperty url: String, @BooleanBeanProperty postable: Boolean, @BeanProperty postScoreInfo: String)
+  case class GroupChoice(@BeanProperty group: Group, @BeanProperty addUrl: String, @BooleanBeanProperty postable: Boolean, @BeanProperty postScoreInfo: String)
 
   private val MaxMessageLengthAnonymous = 8196
   private val MaxMessageLength = 65536
@@ -267,11 +268,37 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val groups = groupService.getGroups(section)
 
     if groups.size == 1 then
-      new ModelAndView(new RedirectView(AddTopicController.getAddUrl(groups.get(0), tag)))
+      val group = groups.get(0)
+      if permissionService.isTopicPostingAllowed(group) then
+        new ModelAndView(new RedirectView(AddTopicController.getAddUrl(group, tag)))
+      else
+        val params = prepareModel(None, section).to(mutable.HashMap)
+
+        params.put("groups", Seq(AddTopicController.GroupChoice(
+          group,
+          AddTopicController.getAddUrl(group, tag),
+          false,
+          permissionService.getPostScoreInfo(group)
+        )).asJava)
+
+        if tag != null then
+          params.put("tag", tag)
+
+        new ModelAndView("add-section", params.asJava)
     else
       val params = prepareModel(None, section).to(mutable.HashMap)
 
-      params.put("groups", groups)
+      val groupChoices = groups.asScala.toSeq.map { group =>
+        val postable = permissionService.isTopicPostingAllowed(group)
+        AddTopicController.GroupChoice(
+          group,
+          AddTopicController.getAddUrl(group, tag),
+          postable,
+          if postable then "" else permissionService.getPostScoreInfo(group)
+        )
+      }
+
+      params.put("groups", groupChoices.asJava)
 
       if tag != null then
         params.put("tag", tag)
@@ -280,9 +307,17 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   }
 
   @RequestMapping(path = Array("/add-section.jsp"), params = Array("!section"))
-  def showFormNoSection(@RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { implicit currentUser =>
+  def showFormAllSections(@RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val sectionList = sectionService.sections.map { section =>
       val groups = groupService.getGroups(section)
+      val postable = if groups.size == 1 then
+        permissionService.isTopicPostingAllowed(groups.get(0))
+      else
+        permissionService.isTopicPostingAllowed(section)
+      val postScoreInfo = if groups.size == 1 then
+        permissionService.getPostScoreInfo(groups.get(0))
+      else
+        permissionService.getPostScoreInfo(section)
       val url = if groups.size == 1 then
         AddTopicController.getAddUrl(groups.get(0), tag)
       else
@@ -290,7 +325,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
         builder.queryParam("section", section.id)
         if tag != null then builder.queryParam("tag", tag)
         builder.build.toUriString
-      AddTopicController.SectionChoice(section, url)
+      AddTopicController.SectionChoice(section, url, postable, postScoreInfo)
     }
 
     val params = mutable.HashMap[String, AnyRef]("sectionList" -> sectionList.asJava)

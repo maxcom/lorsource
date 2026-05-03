@@ -137,7 +137,14 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   def getPostScoreInfo(group: Group): String = {
     val postscore = effectivePostscore(group)
 
-    postscore match {
+    getPostScoreInfo(postscore)
+  }
+
+  def getPostScoreInfo(section: Section): String = {
+    getPostScoreInfo(section.topicsRestriction)
+  }
+
+  private def getPostScoreInfo(postscore: Int): String = postscore match {
       case TopicPermissionService.POSTSCORE_UNRESTRICTED =>
         ""
       case 100 | 200 | 300 | 400 | 500 =>
@@ -149,7 +156,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       case _ =>
         s"<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей, score>=$postscore"
     }
-  }
 
   def isDeletable(topic: Topic)(using user: AuthorizedSession): Boolean = {
     if (user.administrator) {

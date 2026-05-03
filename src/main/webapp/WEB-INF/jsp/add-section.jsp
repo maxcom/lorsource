@@ -32,18 +32,20 @@
 
 Доступные группы:
 <ul>
-<c:forEach var="group" items="${groups}">
+<c:forEach var="choice" items="${groups}">
   <li>
-    <c:if test="${not empty tag}">
-      <a href="add.jsp?group=${group.id}&amp;tags=${tag}&amp;noinfo=1">${group.title}</a> (<a href="${group.url}">просмотр...</a>)
-    </c:if>
-    <c:if test="${empty tag}">
-      <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="${group.url}">просмотр...</a>)
-    </c:if>
-
-    <c:if test="${group.info != null}">
-      - <em><c:out value="${group.info}" escapeXml="false"/></em>
-    </c:if>
+    <c:choose>
+    <c:when test="${choice.postable}">
+      <a href="${choice.addUrl}">${choice.group.title}</a>
+      <c:if test="${choice.group.info != null}">
+        - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
+      </c:if>
+    </c:when>
+    <c:otherwise>
+      &#128274; ${choice.group.title} - <c:out value="${choice.postScoreInfo}" escapeXml="false"/>
+    </c:otherwise>
+    </c:choose>
+    (<a href="${choice.group.url}">просмотр...</a>)
   </li>
 </c:forEach>
 </ul>
@@ -57,7 +59,7 @@
 <p>Выберите раздел:</p>
 <ul>
 <c:forEach var="choice" items="${sectionList}">
-  <li><a href="${choice.url}">${choice.section.title}</a></li>
+  <li><c:choose><c:when test="${choice.postable}"><a href="${choice.url}">${choice.section.title}</a></c:when><c:otherwise>&#128274; ${choice.section.title} (<c:out value="${choice.postScoreInfo}" escapeXml="false"/>)</c:otherwise></c:choose></li>
 </c:forEach>
 </ul>
 </c:otherwise>
