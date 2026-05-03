@@ -14,106 +14,104 @@
  */
 
 $script.ready(['jquery', 'hljs'], function() {
-  $(document).ready(function() {
+  'use strict';
+
+  $(function() {
+    const REPLY_TYPE = 1;
+    const TOPIC_TYPE = 0;
+
     function getCookie(name) {
-      return(document.cookie.match('(^|; )'+name+'=([^;]*)')||0)[2];
+      const match = document.cookie.match(new RegExp(`(^|; )${name}=([^;]*)`));
+      return match ? match[2] : null;
     }
 
-    var commentForm = $("#commentForm");
-    commentForm.append($("<div id=commentPreview>").hide());
-    var commentPreview = $('#commentPreview');
+    const commentForm = $("#commentForm");
+    commentForm.append($('<div id="commentPreview">').hide());
+    const commentPreview = $('#commentPreview');
+    const commentFormContainer = commentForm.parent();
 
-    var commentFormContainer = commentForm.parent();
+    const csrf = (getCookie("CSRF_TOKEN") || '').replace(/(^")|("$)/g, "");
 
-    var csrf = '';
-
-    if (getCookie("CSRF_TOKEN")) {
-      csrf = getCookie("CSRF_TOKEN").replace(/(^")|("$)/g, "");
+    function updateCsrf() {
+      if (csrf) {
+        $("input[name='csrf']", commentForm).val(csrf);
+      }
     }
 
-    function sh(type, id, authorReadonly) {
-      if (csrf.length>0) {
-        $("input[name='csrf']").attr('value', csrf);
+    function updateAuthorReadonlyNote(authorReadonly) {
+      $('#author-readonly-note').text(
+        authorReadonly
+          ? "Внимание! Вы отвечаете на комментарий, автор которого не может создавать новые комментарии в этом топике."
+          : ""
+      );
+    }
+
+    function moveAndShowForm(selector, replyToValue) {
+      const replyTo = $("input[name='replyto']", commentFormContainer);
+      if (replyTo.val() !== String(replyToValue)) {
+        commentFormContainer.hide();
       }
 
-      if (authorReadonly) {
-        $('#author-readonly-note').text("Внимание! Вы отвечаете на комментарий, автор которого не может создавать новые комментарии в этом топике.")
+      if (commentFormContainer.is(':hidden')) {
+        const reply = $('div.reply', $('div.msg_body', $(selector)));
+        reply.after(commentFormContainer);
+        replyTo.val(replyToValue);
+        commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
       } else {
-        $('#author-readonly-note').text("")
+        commentFormContainer.slideUp('slow');
       }
+    }
 
-      if (type == 1) {
-        var reply_to = $("input[name='replyto']", commentFormContainer);
-        if (reply_to.attr('value') != id) {
-          commentFormContainer.hide();
-        }
+    function toggleCommentForm(type, id, authorReadonly) {
+      updateCsrf();
+      updateAuthorReadonlyNote(authorReadonly);
 
-        if (commentFormContainer.is(':hidden')) {
-          var reply = $('div.reply', $('div.msg_body', $('#comment-' + id)));
-          reply.after(commentFormContainer);
-          reply_to.attr('value', id);
-          commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
-        } else {
-          commentFormContainer.slideUp('slow');
-        }
-      } else if (type == 0) {
-        var topic_id = $("input[name='topic']", commentFormContainer).attr('value');
-
-        reply_to = $("input[name='replyto']", commentFormContainer);
-        if (reply_to.attr('value') != 0) {
-          commentFormContainer.hide();
-        }
-
-        if (commentFormContainer.is(':hidden')) {
-          var reply = $('div.reply', $('div.msg_body', $('#topic-' + topic_id)));
-          reply.after(commentFormContainer);
-          reply_to.attr('value', '0');
-          commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
-        } else {
-          commentFormContainer.slideUp('slow');
-        }
+      if (type === REPLY_TYPE) {
+        moveAndShowForm('#comment-' + id, id);
+      } else if (type === TOPIC_TYPE) {
+        const topicId = $("input[name='topic']", commentFormContainer).val();
+        moveAndShowForm('#topic-' + topicId, 0);
       }
     }
 
     $('div.reply').each(function() {
-      $('a[href^="comment-message.jsp"]', this).on("click", function() {
-        sh(0, 0, false);
-        return false;
+      const container = this;
+
+      $('a[href^="comment-message.jsp"]', container).on("click", function(e) {
+        e.preventDefault();
+        toggleCommentForm(TOPIC_TYPE, 0, false);
       });
 
-      var lnk = $('a[href^="add_comment.jsp"]', this);
-      if (lnk.length>0) {
-        var buff = lnk.attr('href').match(/\d+/g);
-        var idr = buff[1];
-        lnk.on("click", function() {
-          sh(1, idr, lnk.attr('data-author-readonly')=="true");
-          return false;
+      const lnk = $('a[href^="add_comment.jsp"]', container);
+      if (lnk.length > 0) {
+        const ids = lnk.attr('href').match(/\d+/g);
+        const commentId = ids[1];
+        lnk.on("click", function(e) {
+          e.preventDefault();
+          toggleCommentForm(REPLY_TYPE, commentId, lnk.attr('data-author-readonly') === "true");
         });
       }
     });
 
-    window.onbeforeunload = function() {
-      if ($("#msg").val()!='' && ! $("#commentForm").parent().is(":hidden")) {
-        return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+    function warnOnUnload(e) {
+      if ($("#msg").val() !== '' && !commentFormContainer.is(":hidden")) {
+        e.returnValue = "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+        return e.returnValue;
       }
-    };
+    }
 
-    commentForm.on("submit", function() {
-      window.onbeforeunload = null;
-    });
+    window.addEventListener('beforeunload', warnOnUnload);
 
     commentForm.on("reset", function() {
       commentFormContainer.slideUp('slow');
-      commentPreview.hide();
-      commentPreview.html('');
+      commentPreview.hide().empty();
     });
 
-    var previewButton = commentForm.find("button[name=preview]");
+    const previewButton = commentForm.find("button[name=preview]");
     previewButton.attr("type", "button");
 
     function startSpinner() {
-      var spinner = $("<i class='icon-spin spinner' style='margin-left: 0.5em'>");
-
+      const spinner = $("<i class='icon-spin spinner' style='margin-left: 0.5em'>");
       commentForm.find(".form-actions button").last().after(spinner);
     }
 
@@ -121,98 +119,102 @@ $script.ready(['jquery', 'hljs'], function() {
       commentForm.find(".spinner").remove();
     }
 
-    function showPreview() {
+    function scrollToPreview() {
       commentPreview.show();
 
-      var visible_area_start = $(window).scrollTop();
-      var visible_area_end = visible_area_start + window.innerHeight;
+      const scrollTop = $(window).scrollTop();
+      const viewportBottom = scrollTop + window.innerHeight;
+      const previewTop = commentPreview.offset().top;
 
-      var offset = commentPreview.offset().top;
-
-      if(offset < visible_area_start || offset > visible_area_end) {
-        $('html,body').animate({scrollTop: offset - window.innerHeight/3}, 500);
-        return false;
+      if (previewTop < scrollTop || previewTop > viewportBottom) {
+        $('html,body').animate({scrollTop: previewTop - window.innerHeight / 3}, 500);
       }
     }
 
     function displayPreview(data) {
-      var title = "Предпросмотр";
-
-      commentPreview.html("<h2>"+title+"</h2>"+data['preview']);
-      $('pre code', commentPreview).each(function(i, block) {
+      commentPreview.html(`<h2>Предпросмотр</h2>${data['preview']}`);
+      $('pre code', commentPreview).each(function(_i, block) {
         hljs.highlightBlock(block);
       });
 
       if (data['errors']) {
-        var errors = $("<div class=error>");
-        $.each(data['errors'], function(idx, v) {
+        const errors = $('<div class="error">');
+        $.each(data['errors'], function(_idx, v) {
           errors.append($("<span>").text(v));
           errors.append($("<br>"));
         });
-
         commentPreview.prepend(errors);
       }
 
-      showPreview();
+      scrollToPreview();
     }
 
     function ajaxError(jqXHR, textStatus, errorThrown) {
       commentPreview.empty().append(
-          $("<div class=error>")
-              .text("Не удалось выполнить запрос, попробуйте повторить еще раз. " + errorThrown)
+        $('<div class="error">')
+          .text("Не удалось выполнить запрос, попробуйте повторить еще раз. " + errorThrown)
       );
-      showPreview();
+      scrollToPreview();
+    }
+
+    function clearErrors() {
+      $("div[error]").remove();
     }
 
     previewButton.on("click", function() {
       previewButton.prop("disabled", true);
-      var form = commentForm.serialize();
-      form = form+"&preview=preview";
+      const form = commentForm.serialize() + "&preview=preview";
 
       startSpinner();
-
-      $("div[error]").remove();
+      clearErrors();
 
       $.ajax({
         method: "POST",
         url: "/add_comment_ajax",
         data: form,
         timeout: 10000
-      }).always(function () {
+      }).always(function() {
         previewButton.prop("disabled", false);
         stopSpinner();
       }).fail(ajaxError).done(displayPreview);
     });
 
-    var submitInProcess = false;
+    let submitInProcess = false;
 
-    commentForm.on("submit", function() {
-      if (!submitInProcess) {
-        submitInProcess = true;
+    commentForm.on("submit", function(e) {
+      e.preventDefault();
 
-        var form = commentForm.serialize();
-
-        startSpinner();
-
-        $("div[error]").remove();
-
-        $.ajax({
-          method: "POST",
-          url: "/add_comment_ajax",
-          data: form,
-          timeout: 30000
-        }).always(function() { submitInProcess = false; stopSpinner(); })
-            .fail(ajaxError)
-            .done(function(data) {
-              if (data['url']) {
-                window.location.href = data['url'];
-              } else {
-                displayPreview(data);
-              }
-            });
+      if (submitInProcess) {
+        return;
       }
 
-      return false;
+      submitInProcess = true;
+      window.removeEventListener('beforeunload', warnOnUnload);
+
+      const form = commentForm.serialize();
+
+      startSpinner();
+      clearErrors();
+
+      $.ajax({
+        method: "POST",
+        url: "/add_comment_ajax",
+        data: form,
+        timeout: 30000
+      }).always(function() {
+        submitInProcess = false;
+        stopSpinner();
+      }).fail(function() {
+        window.addEventListener('beforeunload', warnOnUnload);
+        ajaxError.apply(this, arguments);
+      }).done(function(data) {
+        if (data['url']) {
+          window.location.href = data['url'];
+        } else {
+          window.addEventListener('beforeunload', warnOnUnload);
+          displayPreview(data);
+        }
+      });
     });
   });
 });
