@@ -469,6 +469,7 @@ textarea.error {
   font-size: 1rem;
 
   textarea {
+    height: 20em;
     width: 100%;
     max-width: 60em;
     box-sizing: border-box;
@@ -483,17 +484,7 @@ textarea.error {
   }
 }
 
-#commentForm textarea {
-  height: 10em;
-
-  @include respond-to(tablet-and-desktops) {
-    height: 20em;
-  }
-}
-
 #messageForm textarea {
-  height: 20em;
-
   @include respond-to(tablet-and-desktops) {
     height: 30em;
   }
