@@ -995,10 +995,8 @@
 
           <useTestScope>true</useTestScope>
           <systemProperties>
-            <systemProperty>
-              <name>java.net.preferIPv4Stack</name>
-              <value>true</value>
-            </systemProperty>
+            <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
+            <log4j2.configurationFile>${project.basedir}/src/test/resources/log4j2-test.xml</log4j2.configurationFile>
           </systemProperties>
 
           <httpConnector>
