@@ -28,10 +28,6 @@
   <h2>Выберите группу</h2>
 </c:if>
 
-<c:if test="${addportal==null}">
-  <h1>${section.title}: добавление</h1>
-</c:if>
-
 Доступные группы:
 <ul>
 <c:forEach var="group" items="${groups}">
