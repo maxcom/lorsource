@@ -109,7 +109,7 @@
 
   <c:forEach var="item" items="${uncommitedCounts}">
     <c:if test="${(template.prof.showGalleryOnMain or item._1().id==1 or template.moderatorSession or template.correctorSession) and (item._2() > 0)}">
-      <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">Неподтверждённые ${item._1().name.toLowerCase()}: ${item._2()}</a>
+      <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">${item._1().uncommitedName()}: ${item._2()}</a>
     </c:if>
   </c:forEach>
 </nav>

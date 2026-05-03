@@ -308,7 +308,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
   @RequestMapping(path = Array("/add-section.jsp"), params = Array("!section"))
   def showFormAllSections(@RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { implicit currentUser =>
-    val sectionList = sectionService.sections.map { section =>
+    val sectionList = sectionService.sections.filter(_.moderate).map { section =>
       val groups = groupService.getGroups(section)
       val postable = if groups.size == 1 then
         permissionService.isTopicPostingAllowed(groups.get(0))

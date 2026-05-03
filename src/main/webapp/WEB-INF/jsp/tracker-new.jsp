@@ -56,7 +56,7 @@
 
   <c:if test="${(template.moderatorSession or template.correctorSession) and (not empty uncommitedCounts)}">
       <c:forEach var="item" items="${uncommitedCounts}">
-        <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">неподтв. ${item._1().name.toLowerCase()}: ${item._2()}</a>
+        <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">${item._1().uncommitedNameShort()}: ${item._2()}</a>
       </c:forEach>
   </c:if>
 </nav>

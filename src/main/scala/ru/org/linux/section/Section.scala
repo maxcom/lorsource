@@ -62,6 +62,16 @@ class Section(
       Section.getSectionLink(id)
 
   def getSectionLink: String = Section.getSectionLink(id)
+  
+  def uncommitedName: String =
+    id match
+      case Section.Gallery => "Неподтверждённые галереи"
+      case _ => "Неподтверждённые " + name.toLowerCase
+
+  def uncommitedNameShort: String =
+    id match
+      case Section.Gallery => "неподтв. галереи"
+      case _ => "неподтв. " + name.toLowerCase
 
 object Section:
   final val Forum = 2
