@@ -68,12 +68,11 @@ class MainPageController(
           mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(user)))
         }
 
-      if session.moderator || session.corrector then
-        val uncommitedCounts = topicService.getUncommitedCounts
-        val uncommited = uncommitedCounts.map(_._2).sum
+      val uncommitedCounts = topicService.getUncommitedCounts
+      val uncommited = uncommitedCounts.map(_._2).sum
 
-        mv.getModel.put("uncommited", Int.box(uncommited))
-        mv.getModel.put("uncommitedCounts", uncommitedCounts.asJava)
+      mv.getModel.put("uncommited", Int.box(uncommited))
+      mv.getModel.put("uncommitedCounts", uncommitedCounts.asJava)
 
       mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
 

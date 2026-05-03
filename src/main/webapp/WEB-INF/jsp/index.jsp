@@ -99,17 +99,17 @@
     });
   </script>
 
-<c:if test="${(template.moderatorSession or template.correctorSession) and (uncommited > 0)}">
 <nav>
-    <c:if test="${uncommitedCounts.size() > 1}">
-      <a class="btn btn-default" href="view-all.jsp">Неподтверждённых: ${uncommited}</a>
-    </c:if>
+  <c:if test="${not empty addNews}">
+    <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
+  </c:if>
 
-    <c:forEach var="item" items="${uncommitedCounts}">
+  <c:forEach var="item" items="${uncommitedCounts}">
+    <c:if test="${(template.prof.showGalleryOnMain or item._1().id==1 or template.moderatorSession or template.correctorSession) and (item._2() > 0)}">
       <a class="btn btn-default" href="view-all.jsp?section=${item._1().id}">Неподтверждённые ${item._1().name.toLowerCase()}: ${item._2()}</a>
-    </c:forEach>
+    </c:if>
+  </c:forEach>
 </nav>
-</c:if>
 
 <c:forEach var="msg" items="${news}">
   <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}"
@@ -150,11 +150,7 @@
 </c:if>
 
 <nav>
-  <c:if test="${not empty addNews}">
-    <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
-  </c:if>
   <a href="/news/" class="btn btn-default">Все новости</a>
-  <a class="btn btn-default" href="/view-all.jsp?section=1">Неподтверждённые новости</a>
 </nav>
 
   <p>
