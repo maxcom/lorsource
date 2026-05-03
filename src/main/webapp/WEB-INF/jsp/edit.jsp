@@ -86,7 +86,7 @@
 
   <div class="control-group">
     <label for="title">Заглавие</label>
-    <form:input path="title" required="required" style="width: 40em"/>
+    <form:input path="title" required="required"/>
   </div>
 
   <c:if test="${imagepost}">
@@ -139,7 +139,7 @@
 
   <div class="control-group">
     <label for="form_msg">Сообщение</label>
-    <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/>
+    <form:textarea path="msg" rows="20" id="form_msg"/>
     <div class="help-block"><b>Внимание:</b> прочитайте описание разметки
       <a target="_blank" href="/help/markdown.md">Markdown</a> или <a href="/help/lorcode.md" target="_blank">LORCODE</a>.</div>
   </div>
@@ -147,12 +147,12 @@
     <c:if test="${preparedMessage.group.linksAllowed}">
       <div class="control-group">
         <label for="linktext">Текст ссылки</label>
-        <form:input path="linktext" style="width: 40em"/>
+        <form:input path="linktext"/>
       </div>
 
       <div class="control-group">
         <label for="url">Ссылка (не забудьте <b>http://</b>)</label>
-        <form:input placeholder="http://" path="url" type="url" style="width: 40em"/>
+        <form:input placeholder="http://" path="url" type="url"/>
       </div>
     </c:if>
   </c:if>
@@ -162,7 +162,7 @@
       <label for="tags">
         Метки (разделенные запятой, не более <%= TagName.MaxTagsPerTopic() %>)
       </label>
-      <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags" style="width: 40em"/>
+      <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags"/>
     </div>
 
   </c:if>
