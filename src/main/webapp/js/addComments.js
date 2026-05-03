@@ -56,7 +56,40 @@ $script.ready(['jquery', 'hljs'], function() {
         const reply = $('div.reply', $('div.msg_body', $(selector)));
         reply.after(commentFormContainer);
         replyTo.val(replyToValue);
-        commentFormContainer.slideDown('slow', function() { $("#msg").focus(); });
+        commentFormContainer.slideDown('slow', function() {
+          const formTop = commentFormContainer.offset().top;
+          const formHeight = commentFormContainer.outerHeight();
+          const viewportHeight = window.innerHeight;
+
+          const formBottom = formTop + formHeight;
+          const currentScrollTop = $(window).scrollTop();
+          const currentViewportBottom = currentScrollTop + viewportHeight;
+
+          let needsScroll;
+
+          if (formHeight <= viewportHeight) {
+            needsScroll = formTop < currentScrollTop || formBottom + 32 > currentViewportBottom;
+          } else {
+            const msgTop = $("#msg").offset().top;
+            needsScroll = msgTop < currentScrollTop || msgTop > currentViewportBottom;
+          }
+
+          if (needsScroll) {
+            let targetScrollTop;
+            if (formHeight <= viewportHeight) {
+              targetScrollTop = formBottom - viewportHeight + 32;
+            } else {
+              targetScrollTop = formTop - 16;
+            }
+            targetScrollTop = Math.max(0, targetScrollTop);
+
+            $('html,body').animate({scrollTop: targetScrollTop}, 300, function() {
+              $("#msg").focus();
+            });
+          } else {
+            $("#msg").focus();
+          }
+        });
       } else {
         commentFormContainer.slideUp('slow');
       }
