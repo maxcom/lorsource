@@ -44,14 +44,17 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.markdown.MarkdownFormatter
 
 import java.beans.PropertyEditorSupport
+import scala.beans.BeanProperty
 import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.MapHasAsJava
+import scala.jdk.CollectionConverters.{MapHasAsJava, SeqHasAsJava}
 
 @Controller
 object AddTopicController {
+  case class SectionChoice(@BeanProperty section: Section, @BeanProperty url: String)
+
   private val MaxMessageLengthAnonymous = 8196
   private val MaxMessageLength = 65536
 
@@ -253,30 +256,49 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
   }
 
-  @RequestMapping(path = Array("/add-section.jsp"))
-  def showForm(@RequestParam("section") sectionId: Int,
-               @RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { implicit currentUser =>
+  @RequestMapping(path = Array("/add-section.jsp"), params = Array("section"))
+  def showFormWithSection(@RequestParam("section") sectionId: Int,
+                           @RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val section = sectionService.getSection(sectionId)
 
-    if (tag != null) {
+    if tag != null then
       TagName.checkTag(tag)
-    }
 
     val groups = groupService.getGroups(section)
 
-    if (groups.size == 1) {
+    if groups.size == 1 then
       new ModelAndView(new RedirectView(AddTopicController.getAddUrl(groups.get(0), tag)))
-    } else {
+    else
       val params = prepareModel(None, section).to(mutable.HashMap)
 
       params.put("groups", groups)
 
-      if (tag != null) {
+      if tag != null then
         params.put("tag", tag)
-      }
 
       new ModelAndView("add-section", params.asJava)
+  }
+
+  @RequestMapping(path = Array("/add-section.jsp"), params = Array("!section"))
+  def showFormNoSection(@RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { implicit currentUser =>
+    val sectionList = sectionService.sections.map { section =>
+      val groups = groupService.getGroups(section)
+      val url = if groups.size == 1 then
+        AddTopicController.getAddUrl(groups.get(0), tag)
+      else
+        val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
+        builder.queryParam("section", section.id)
+        if tag != null then builder.queryParam("tag", tag)
+        builder.build.toUriString
+      AddTopicController.SectionChoice(section, url)
     }
+
+    val params = mutable.HashMap[String, AnyRef]("sectionList" -> sectionList.asJava)
+
+    if tag != null then
+      params.put("tag", tag)
+
+    new ModelAndView("add-section", params.asJava)
   }
 
   @InitBinder

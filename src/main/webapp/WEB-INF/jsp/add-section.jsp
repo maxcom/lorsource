@@ -18,6 +18,8 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
+<c:choose>
+<c:when test="${not empty section}">
 <title>${section.title}: добавление</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
@@ -45,5 +47,20 @@
   </li>
 </c:forEach>
 </ul>
+</c:when>
+<c:otherwise>
+<title>Добавить сообщение</title>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+
+<h1>Добавить сообщение</h1>
+
+<p>Выберите раздел:</p>
+<ul>
+<c:forEach var="choice" items="${sectionList}">
+  <li><a href="${choice.url}">${choice.section.title}</a></li>
+</c:forEach>
+</ul>
+</c:otherwise>
+</c:choose>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
