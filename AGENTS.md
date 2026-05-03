@@ -52,7 +52,7 @@ mvn verify
 Run in background shell:
 
 ```bash
-mvn -DskipTests package jetty:run > server.log 2>&1 &
+mvn -DskipTests package jetty:run-war > server.log 2>&1 &
 ```
 
 **Important:** The development web server must be restarted after any changes to the code.

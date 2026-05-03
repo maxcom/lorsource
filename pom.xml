@@ -973,7 +973,7 @@
             <id>start-jetty</id>
             <phase>pre-integration-test</phase>
             <goals>
-              <goal>start</goal>
+              <goal>start-war</goal>
             </goals>
           </execution>
           <execution>
@@ -988,11 +988,10 @@
           <stopKey>foo</stopKey>
           <stopPort>9999</stopPort>
           <stopWait>20</stopWait>
-          <webAppConfig>
+          <webApp>
+            <war>${project.build.directory}/${project.build.finalName}</war>
             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
-          </webAppConfig>
-
-          <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
+          </webApp>
 
           <useTestScope>true</useTestScope>
           <systemProperties>
@@ -1002,14 +1001,9 @@
             </systemProperty>
           </systemProperties>
 
-          <connectors>
-            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-              <port>8080</port>
-            </connector>
-            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-              <port>8443</port>
-            </connector>
-          </connectors>
+          <httpConnector>
+            <port>8080</port>
+          </httpConnector>
         </configuration>
       </plugin>
     </plugins>

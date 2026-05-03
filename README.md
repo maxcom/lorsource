@@ -50,7 +50,7 @@ devcontainer exec mvn verify
 ## Запуск dev server
 
 ```bash
-devcontainer exec mvn -DskipTests package jetty:run
+devcontainer exec mvn -DskipTests package jetty:run-war
 ```
 
 Сервер доступен на хосте по адресу: **http://127.0.0.1:8080/**. Остановка через Ctrl-C.
