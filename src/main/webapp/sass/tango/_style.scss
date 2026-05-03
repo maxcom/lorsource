@@ -24,11 +24,22 @@ textarea, input, select {
   background-color: var(--article-background);
   color: var(--text-color);
   border: 1px solid var(--table-border-color);
+  border-radius: .2em;
+}
+
+textarea {
+  padding: 0.5em;
+}
+
+input, select {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  line-height: 1.4;
 }
 
 textarea:focus, input:focus, select:focus {
-  border: 1px solid var(--link-color);
-  outline: none;
+  border: none;
+  outline: 2px solid var(--link-color);
 }
 
 h1,h2,h3,h4,h5,h6 {
