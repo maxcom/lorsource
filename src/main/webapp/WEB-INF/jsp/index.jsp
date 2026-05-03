@@ -151,6 +151,11 @@
 
 <nav>
   <a href="/news/" class="btn btn-default">Все новости</a>
+  <c:if test="${template.prof.showGalleryOnMain}">
+    <a href="/gallery/" class="btn btn-default">Вся галерея</a>
+    <a href="/polls/" class="btn btn-default">Все опросы</a>
+    <a href="/articles/" class="btn btn-default">Все статьи</a>
+  </c:if>
 </nav>
 
   <p>
