@@ -3,7 +3,6 @@ Disallow: /edit.jsp
 Disallow: /view-all.jsp
 Disallow: /delete.jsp
 Disallow: /add.jsp
-Disallow: /add2.jsp
 Disallow: /search.jsp
 Disallow: /register.jsp
 Disallow: /people/*/edit
@@ -22,7 +21,6 @@ Disallow: /addphoto.jsp
 Disallow: /dw.jsp
 Disallow: /activate.jsp
 Disallow: /delete_image
-Disallow: /add-section.jsp
 Disallow: /api/
 Disallow: /reactions
 Disallow: /*/*/*/thread

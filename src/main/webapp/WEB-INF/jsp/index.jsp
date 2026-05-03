@@ -100,8 +100,11 @@
   </script>
 
 <nav>
-  <c:if test="${not empty addNews}">
+  <c:if test="${not template.prof.showGalleryOnMain}">
     <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
+  </c:if>
+  <c:if test="${template.prof.showGalleryOnMain}">
+    <a href="/add-section.jsp" class="btn btn-primary">Добавить</a>
   </c:if>
 
   <c:forEach var="item" items="${uncommitedCounts}">
