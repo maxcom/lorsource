@@ -19,6 +19,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.util.StringUtil;
 
+import com.vladsch.flexmark.util.ast.Node;
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.util.data.MutableDataSet;
+
 import java.util.List;
 
 /**
@@ -110,14 +115,20 @@ public class PreparedPoll {
    * @return html табличку результатов голосования
    */
   public String renderPoll()  {
+    MutableDataSet options = new MutableDataSet();
+    Parser parser = Parser.builder(options).build();
+    HtmlRenderer renderer = HtmlRenderer.builder(options).build();
+
     StringBuilder out = new StringBuilder();
     out.append("<table>");
     int total = 0;
     for (PollVariantResult var : variants) {
       //                      label      votes     imgTag
       String formatRow = "<tr><td>%s</td><td>%d</td></tr>";
+      Node document = parser.parse(var.getLabel());
+      String html = renderer.render(document);
       int votes = var.getVotes();
-      String row = String.format(formatRow, StringUtil.escapeHtml(var.getLabel()), votes);
+      String row = String.format(formatRow, StringUtil.escapeHtml(html), votes);
       out.append(row);
       total += votes;
     }
