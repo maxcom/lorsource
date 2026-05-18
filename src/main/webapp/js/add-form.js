@@ -287,7 +287,7 @@ $script.ready('jquery', function() {
           clippedRange.setEnd(bodyRange.endContainer, bodyRange.endOffset);
         }
 
-        const normalizedText = clippedRange.toString().replace(/\r\n?/g, '\n').trim();
+        const normalizedText = clippedRange.toString().replace(/\r\n?/g, '\n').replace(/\n+/g, '\n\n').trim();
         if (!normalizedText) return null;
         const lines = normalizedText.split('\n');
         return lines.map(line => '> ' + line).join('\n');
