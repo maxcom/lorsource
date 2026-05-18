@@ -49,7 +49,7 @@ object DefaultProfile:
     builder.put(PhotosProperty, java.lang.Boolean.TRUE)
     builder.put(AvatarProperty, "empty")
     builder.put(HideAdsenseProperty, java.lang.Boolean.TRUE)
-    builder.put(MainGalleryProperty, java.lang.Boolean.FALSE)
+    builder.put(MainGalleryProperty, java.lang.Boolean.TRUE)
     builder.put(TrackerMode, DefaultTrackerMode.value)
     builder.put(OldTracker, java.lang.Boolean.FALSE)
     builder.put(ReactionNotificationProperty, java.lang.Boolean.TRUE)
