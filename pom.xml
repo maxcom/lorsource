@@ -921,6 +921,7 @@
                 <include>**/*IntegrationTest.java</include>
                 <include>**/*WebTest.java</include>
               </includes>
+              <redirectTestOutputToFile>true</redirectTestOutputToFile>
             </configuration>
           </execution>
         </executions>

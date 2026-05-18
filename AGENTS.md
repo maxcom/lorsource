@@ -234,3 +234,9 @@ When to use which:
 
 * **Wait for Approval:** Do not commit or push changes without explicit user confirmation.
 * Update copyright year in all modified files to 2026
+
+## To LLM
+
+Update this file if the changes you have done are worth updating here. The intent of this file is to give you 
+a rough idea of the project, from where you can explore further, if needed.
+
