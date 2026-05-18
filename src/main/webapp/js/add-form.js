@@ -268,7 +268,32 @@ $script.ready('jquery', function() {
       const REPLY_TYPE = 1;
       const TOPIC_TYPE = 0;
 
-      const moveAndShowForm = (selector, replyToValue) => {
+      const getQuoteText = (element) => {
+        if (!element) return null;
+        const bodyEl = element.querySelector('.msg-text') || element;
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return null;
+        const selectionRange = selection.getRangeAt(0);
+        const bodyRange = document.createRange();
+        bodyRange.selectNodeContents(bodyEl);
+
+        if (!selectionRange.intersectsNode(bodyEl)) return null;
+
+        const clippedRange = selectionRange.cloneRange();
+        if (clippedRange.compareBoundaryPoints(Range.START_TO_START, bodyRange) < 0) {
+          clippedRange.setStart(bodyRange.startContainer, bodyRange.startOffset);
+        }
+        if (clippedRange.compareBoundaryPoints(Range.END_TO_END, bodyRange) > 0) {
+          clippedRange.setEnd(bodyRange.endContainer, bodyRange.endOffset);
+        }
+
+        const normalizedText = clippedRange.toString().replace(/\r\n?/g, '\n').trim();
+        if (!normalizedText) return null;
+        const lines = normalizedText.split('\n');
+        return lines.map(line => '> ' + line).join('\n');
+      };
+
+      const moveAndShowForm = (selector, replyToValue, quoteText) => {
         const replyTo = $("input[name='replyto']", commentFormContainer);
         if (replyTo.val() !== String(replyToValue)) {
           commentForm.find("#msg").val('');
@@ -285,6 +310,22 @@ $script.ready('jquery', function() {
           if (!commentForm[0].dataset.previewTabsInitialized) {
             initPreviewTabs(commentForm[0]);
             commentForm[0].dataset.previewTabsInitialized = 'true';
+          }
+
+          let quoteCursorPos = null;
+          if (quoteText) {
+            const textarea = document.getElementById('msg');
+            if (textarea) {
+              const currentValue = textarea.value;
+              let newValue;
+              if (currentValue.trim()) {
+                newValue = currentValue.trimEnd() + '\n\n' + quoteText + '\n\n';
+              } else {
+                newValue = quoteText + '\n\n';
+              }
+              textarea.value = newValue;
+              quoteCursorPos = newValue.length;
+            }
           }
 
           loadCaptcha();
@@ -306,6 +347,15 @@ $script.ready('jquery', function() {
               needsScroll = msgTop < currentScrollTop || msgTop > currentViewportBottom;
             }
 
+            const focusTextarea = () => {
+              const msgEl = document.getElementById('msg');
+              if (!msgEl) return;
+              msgEl.focus();
+              if (quoteCursorPos !== null) {
+                msgEl.setSelectionRange(quoteCursorPos, quoteCursorPos);
+              }
+            };
+
             if (needsScroll) {
               let targetScrollTop;
               if (formHeight <= viewportHeight) {
@@ -315,11 +365,9 @@ $script.ready('jquery', function() {
               }
               targetScrollTop = Math.max(0, targetScrollTop);
 
-              $('html,body').animate({scrollTop: targetScrollTop}, 300, () => {
-                $("#msg").focus();
-              });
+              $('html,body').animate({scrollTop: targetScrollTop}, 300, focusTextarea);
             } else {
-              $("#msg").focus();
+              focusTextarea();
             }
           });
         } else {
@@ -327,22 +375,25 @@ $script.ready('jquery', function() {
         }
       };
 
-      const toggleCommentForm = (type, id, authorReadonly) => {
+      const toggleCommentForm = (type, id, authorReadonly, quoteText) => {
         updateCsrf();
         updateAuthorReadonlyNote(authorReadonly);
 
         if (type === REPLY_TYPE) {
-          moveAndShowForm(`#comment-${id}`, id);
+          moveAndShowForm(`#comment-${id}`, id, quoteText);
         } else if (type === TOPIC_TYPE) {
           const topicId = $("input[name='topic']", commentFormContainer).val();
-          moveAndShowForm(`#topic-${topicId}`, 0);
+          moveAndShowForm(`#topic-${topicId}`, 0, quoteText);
         }
       };
 
       $('div.reply').each((_i, container) => {
         $('a[href^="comment-message.jsp"]', container).on("click", (e) => {
           e.preventDefault();
-          toggleCommentForm(TOPIC_TYPE, 0, false);
+          const topicId = $("input[name='topic']", commentFormContainer).val();
+          const topicEl = document.getElementById('topic-' + topicId);
+          const quoteText = getQuoteText(topicEl);
+          toggleCommentForm(TOPIC_TYPE, 0, false, quoteText);
         });
 
         const lnk = $('a[href^="add_comment.jsp"]', container);
@@ -351,7 +402,9 @@ $script.ready('jquery', function() {
           const commentId = ids[1];
           lnk.on("click", (e) => {
             e.preventDefault();
-            toggleCommentForm(REPLY_TYPE, commentId, lnk.attr('data-author-readonly') === "true");
+            const commentEl = document.getElementById('comment-' + commentId);
+            const quoteText = getQuoteText(commentEl);
+            toggleCommentForm(REPLY_TYPE, commentId, lnk.attr('data-author-readonly') === "true", quoteText);
           });
         }
       });

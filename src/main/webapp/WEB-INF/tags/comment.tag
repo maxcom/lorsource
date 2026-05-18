@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -61,11 +61,13 @@
     </c:if>
 
     <div class="msg_body ${body_style}">
-      <c:if test="${comment.title!=null}">
-        <h1><l:title><c:out value="${comment.title}" escapeXml="true"/></l:title></h1>
-      </c:if>
+      <div class="msg-text">
+        <c:if test="${comment.title!=null}">
+          <h1><l:title><c:out value="${comment.title}" escapeXml="true"/></l:title></h1>
+        </c:if>
 
-      ${comment.processedMessage}
+        ${comment.processedMessage}
+      </div>
 
       <div class="sign">
         <lor:sign user="${comment.author}" postdate="${comment.postdate}"/>

@@ -138,7 +138,7 @@
       </div>
     </c:if>
 
-    <div <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
+    <div class="msg-text" <c:if test="${enableSchema}">itemprop="articleBody"</c:if>>
       ${preparedMessage.processedMessage}
       <c:if test="${preparedMessage.section.pollPostAllowed}">
         <c:choose>
