@@ -268,18 +268,13 @@ $script.ready('jquery', function() {
       const REPLY_TYPE = 1;
       const TOPIC_TYPE = 0;
 
-      const getQuoteText = (element) => {
-        if (!element) return null;
-        const bodyEl = element.querySelector('.msg-text') || element;
-        const selection = window.getSelection();
-        if (!selection || !selection.rangeCount) return null;
-        const selectionRange = selection.getRangeAt(0);
+      const extractQuoteFromRange = (range, bodyEl) => {
+        if (!range.intersectsNode(bodyEl)) return null;
+
         const bodyRange = document.createRange();
         bodyRange.selectNodeContents(bodyEl);
 
-        if (!selectionRange.intersectsNode(bodyEl)) return null;
-
-        const clippedRange = selectionRange.cloneRange();
+        const clippedRange = range.cloneRange();
         if (clippedRange.compareBoundaryPoints(Range.START_TO_START, bodyRange) < 0) {
           clippedRange.setStart(bodyRange.startContainer, bodyRange.startOffset);
         }
@@ -287,10 +282,34 @@ $script.ready('jquery', function() {
           clippedRange.setEnd(bodyRange.endContainer, bodyRange.endOffset);
         }
 
-        const normalizedText = clippedRange.toString().replace(/\r\n?/g, '\n').replace(/\n+/g, '\n\n').trim();
-        if (!normalizedText) return null;
-        const lines = normalizedText.split('\n');
-        return lines.map(line => '> ' + line).join('\n');
+        const text = clippedRange.toString().replace(/\r\n?/g, '\n').replace(/\n+/g, '\n\n').trim();
+        if (!text) return null;
+        return text.split('\n').map(line => '> ' + line).join('\n');
+      };
+
+      const getQuoteText = (element) => {
+        if (!element) return null;
+        const bodyEl = element.querySelector('.msg-text') || element;
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return null;
+        const quote = extractQuoteFromRange(selection.getRangeAt(0), bodyEl);
+        return quote;
+      };
+
+      const bindReplyLink = (link, getElement, onClick) => {
+        let pendingQuoteText = null;
+
+        link.on('pointerdown', () => {
+          pendingQuoteText = getQuoteText(getElement());
+        });
+
+        link.on('click', (e) => {
+          e.preventDefault();
+          const element = getElement();
+          const quoteText = getQuoteText(element) || (e.originalEvent?.detail ? pendingQuoteText : null);
+          pendingQuoteText = null;
+          onClick(quoteText);
+        });
       };
 
       const moveAndShowForm = (selector, replyToValue, quoteText) => {
@@ -388,22 +407,23 @@ $script.ready('jquery', function() {
       };
 
       $('div.reply').each((_i, container) => {
-        $('a[href^="comment-message.jsp"]', container).on("click", (e) => {
-          e.preventDefault();
-          const topicId = $("input[name='topic']", commentFormContainer).val();
-          const topicEl = document.getElementById('topic-' + topicId);
-          const quoteText = getQuoteText(topicEl);
-          toggleCommentForm(TOPIC_TYPE, 0, false, quoteText);
-        });
+        const topicLink = $('a[href^="comment-message.jsp"]', container);
+        bindReplyLink(
+          topicLink,
+          () => {
+            const topicId = $("input[name='topic']", commentFormContainer).val();
+            return document.getElementById('topic-' + topicId);
+          },
+          (quoteText) => {
+            toggleCommentForm(TOPIC_TYPE, 0, false, quoteText);
+          }
+        );
 
         const lnk = $('a[href^="add_comment.jsp"]', container);
         if (lnk.length > 0) {
           const ids = lnk.attr('href').match(/\d+/g);
           const commentId = ids[1];
-          lnk.on("click", (e) => {
-            e.preventDefault();
-            const commentEl = document.getElementById('comment-' + commentId);
-            const quoteText = getQuoteText(commentEl);
+          bindReplyLink(lnk, () => document.getElementById('comment-' + commentId), (quoteText) => {
             toggleCommentForm(REPLY_TYPE, commentId, lnk.attr('data-author-readonly') === "true", quoteText);
           });
         }
