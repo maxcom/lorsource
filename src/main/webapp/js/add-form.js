@@ -187,6 +187,8 @@ function initPreviewTabs(formElement) {
     e.preventDefault();
     switchTab(tab.dataset.tab);
   });
+
+  formElement._switchTab = switchTab;
 }
 
 $script.ready('jquery', function() {
@@ -318,6 +320,7 @@ $script.ready('jquery', function() {
           commentForm.find("#msg").val('');
           clearErrors(commentForm);
           resetCaptcha();
+          commentForm[0]._switchTab?.('editor');
           commentFormContainer.hide();
         }
 
@@ -453,6 +456,7 @@ $script.ready('jquery', function() {
       commentForm.on("reset", (e) => {
         e.preventDefault();
         clearErrors(commentForm);
+        commentForm[0]._switchTab?.('editor');
         commentFormContainer.slideUp('slow');
       });
     }
