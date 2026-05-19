@@ -119,7 +119,7 @@ function initPreviewTabs(formElement) {
 
   let textareaHeight = 0;
 
-  const switchTab = (tabName) => {
+  const switchTab = (tabName, options = {}) => {
     textareaHeight = textarea.offsetHeight;
 
     nav.querySelectorAll('.markup-tabs__tab').forEach(t => t.classList.remove('active'));
@@ -129,7 +129,9 @@ function initPreviewTabs(formElement) {
       editorTab.classList.add('active');
       editorPanel.classList.add('active');
       previewContent.style.minHeight = '';
-      textarea.focus();
+      if (options.focus !== false) {
+        textarea.focus();
+      }
     } else if (tabName === 'preview') {
       previewTab.classList.add('active');
       previewPanel.classList.add('active');
@@ -219,6 +221,8 @@ $script.ready('jquery', function() {
 
     const commentFormContainer = commentForm.parent();
     const isInline = commentFormContainer.is(':hidden');
+    const INLINE_FORM_CLASS = 'comment-form-inline';
+    const INLINE_FORM_VISIBLE_CLASS = 'comment-form-inline-visible';
 
     const csrf = getCsrf();
 
@@ -258,7 +262,112 @@ $script.ready('jquery', function() {
       }
     };
 
+    let closeInlineForm = () => {};
+
     if (isInline) {
+      let inlineFormTransitionListener = null;
+      let inlineFormAnimationFrame = null;
+
+      const prepareInlineFormContainer = () => {
+        const container = commentFormContainer[0];
+        if (!container) {
+          return;
+        }
+
+        commentFormContainer.addClass(INLINE_FORM_CLASS);
+        container.hidden = true;
+        container.style.removeProperty('display');
+        container.style.maxHeight = '0px';
+      };
+
+      const removeInlineTransitionListener = () => {
+        const container = commentFormContainer[0];
+        if (!container || !inlineFormTransitionListener) {
+          return;
+        }
+
+        container.removeEventListener('transitionend', inlineFormTransitionListener);
+        inlineFormTransitionListener = null;
+      };
+
+      const cancelInlineAnimationFrame = () => {
+        if (inlineFormAnimationFrame === null) {
+          return;
+        }
+
+        cancelAnimationFrame(inlineFormAnimationFrame);
+        inlineFormAnimationFrame = null;
+      };
+
+      const isInlineFormVisible = () => commentFormContainer.hasClass(INLINE_FORM_VISIBLE_CLASS);
+
+      const openInlineForm = () => {
+        const container = commentFormContainer[0];
+        if (!container) {
+          return;
+        }
+
+        removeInlineTransitionListener();
+        cancelInlineAnimationFrame();
+        container.hidden = false;
+        const targetHeight = container.scrollHeight;
+        commentFormContainer.addClass(INLINE_FORM_VISIBLE_CLASS);
+
+        inlineFormTransitionListener = (event) => {
+          if (event.target !== container || event.propertyName !== 'max-height' || !isInlineFormVisible()) {
+            return;
+          }
+
+          container.style.maxHeight = 'none';
+          removeInlineTransitionListener();
+        };
+
+        container.addEventListener('transitionend', inlineFormTransitionListener);
+        inlineFormAnimationFrame = requestAnimationFrame(() => {
+          inlineFormAnimationFrame = null;
+          container.style.maxHeight = targetHeight + 'px';
+        });
+
+        return targetHeight;
+      };
+
+      closeInlineForm = ({immediate = false} = {}) => {
+        const container = commentFormContainer[0];
+        if (!container) {
+          return;
+        }
+
+        removeInlineTransitionListener();
+        cancelInlineAnimationFrame();
+
+        if (immediate) {
+          commentFormContainer.removeClass(INLINE_FORM_VISIBLE_CLASS);
+          container.hidden = true;
+          container.style.maxHeight = '0px';
+          return;
+        }
+
+        inlineFormTransitionListener = (event) => {
+          if (event.target !== container || event.propertyName !== 'max-height' || isInlineFormVisible()) {
+            return;
+          }
+
+          container.hidden = true;
+          container.style.maxHeight = '0px';
+          removeInlineTransitionListener();
+        };
+
+        container.addEventListener('transitionend', inlineFormTransitionListener);
+        container.style.maxHeight = container.scrollHeight + 'px';
+        inlineFormAnimationFrame = requestAnimationFrame(() => {
+          inlineFormAnimationFrame = null;
+          commentFormContainer.removeClass(INLINE_FORM_VISIBLE_CLASS);
+          container.style.maxHeight = '0px';
+        });
+      };
+
+      prepareInlineFormContainer();
+
       const updateAuthorReadonlyNote = (authorReadonly) => {
         $('#author-readonly-note').text(
           authorReadonly
@@ -320,11 +429,11 @@ $script.ready('jquery', function() {
           commentForm.find("#msg").val('');
           clearErrors(commentForm);
           resetCaptcha();
-          commentForm[0]._switchTab?.('editor');
-          commentFormContainer.hide();
+          commentForm[0]._switchTab?.('editor', {focus: false});
+          closeInlineForm({immediate: true});
         }
 
-        if (commentFormContainer.is(':hidden')) {
+        if (!isInlineFormVisible()) {
           const reply = $('div.reply', $('div.msg_body', $(selector)));
           reply.after(commentFormContainer);
           replyTo.val(replyToValue);
@@ -351,49 +460,50 @@ $script.ready('jquery', function() {
           }
 
           loadCaptcha();
-          commentFormContainer.slideDown('slow', () => {
-            const formTop = commentFormContainer.offset().top;
-            const formHeight = commentFormContainer.outerHeight();
-            const viewportHeight = window.innerHeight;
+          const formHeight = openInlineForm();
 
-            const formBottom = formTop + formHeight;
-            const currentScrollTop = $(window).scrollTop();
-            const currentViewportBottom = currentScrollTop + viewportHeight;
-
-            let needsScroll;
-
-            if (formHeight <= viewportHeight) {
-              needsScroll = formTop < currentScrollTop || formBottom + 32 > currentViewportBottom;
-            } else {
-              const msgTop = $("#msg").offset().top;
-              needsScroll = msgTop < currentScrollTop || msgTop > currentViewportBottom;
-            }
-
-            const focusTextarea = () => {
-              const msgEl = document.getElementById('msg');
-              if (!msgEl) return;
+          const msgEl = document.getElementById('msg');
+          if (msgEl) {
+            try {
+              msgEl.focus({preventScroll: true});
+            } catch (_error) {
               msgEl.focus();
-              if (quoteCursorPos !== null) {
-                msgEl.setSelectionRange(quoteCursorPos, quoteCursorPos);
-              }
-            };
-
-            if (needsScroll) {
-              let targetScrollTop;
-              if (formHeight <= viewportHeight) {
-                targetScrollTop = formBottom - viewportHeight + 32;
-              } else {
-                targetScrollTop = formTop - 16;
-              }
-              targetScrollTop = Math.max(0, targetScrollTop);
-
-              $('html,body').animate({scrollTop: targetScrollTop}, 300, focusTextarea);
-            } else {
-              focusTextarea();
             }
-          });
+
+            if (quoteCursorPos !== null) {
+              msgEl.setSelectionRange(quoteCursorPos, quoteCursorPos);
+            }
+          }
+
+          const formTop = commentFormContainer.offset().top;
+          const viewportHeight = window.innerHeight;
+
+          const formBottom = formTop + formHeight;
+          const currentScrollTop = $(window).scrollTop();
+          const currentViewportBottom = currentScrollTop + viewportHeight;
+
+          let needsScroll;
+
+          if (formHeight <= viewportHeight) {
+            needsScroll = formTop < currentScrollTop || formBottom + 32 > currentViewportBottom;
+          } else {
+            const msgTop = $("#msg").offset().top;
+            needsScroll = msgTop < currentScrollTop || msgTop > currentViewportBottom;
+          }
+
+          if (needsScroll) {
+            let targetScrollTop;
+            if (formHeight <= viewportHeight) {
+              targetScrollTop = formBottom - viewportHeight + 32;
+            } else {
+              targetScrollTop = formTop - 16;
+            }
+            targetScrollTop = Math.max(0, targetScrollTop);
+
+            $('html,body').animate({scrollTop: targetScrollTop}, 300);
+          }
         } else {
-          commentFormContainer.slideUp('slow');
+          closeInlineForm();
         }
       };
 
@@ -442,7 +552,7 @@ $script.ready('jquery', function() {
 
     const warnOnUnloadComment = (e) => {
       const hasContent = $("#msg").val() !== '';
-      const isVisible = isInline ? !commentFormContainer.is(":hidden") : true;
+      const isVisible = isInline ? commentFormContainer.hasClass(INLINE_FORM_VISIBLE_CLASS) : true;
       if (hasContent && isVisible) {
         e.preventDefault();
         e.returnValue = UNSAVED_WARNING;
@@ -456,8 +566,8 @@ $script.ready('jquery', function() {
       commentForm.on("reset", (e) => {
         e.preventDefault();
         clearErrors(commentForm);
-        commentForm[0]._switchTab?.('editor');
-        commentFormContainer.slideUp('slow');
+        commentForm[0]._switchTab?.('editor', {focus: false});
+        closeInlineForm();
       });
     }
 

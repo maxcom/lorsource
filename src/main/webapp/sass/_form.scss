@@ -123,6 +123,19 @@ form .error {
     color: #f00;
 }
 
+.comment-form-inline {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+
+  &.comment-form-inline-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 .markup-tabs {
   margin-bottom: 0;
   display: flex;
@@ -197,6 +210,7 @@ form .error {
 
 .markup-tabs:focus-within {
   outline: 2px solid var(--link-color);
+  outline-offset: -2px;
 }
 
 .markup-tabs__panel[data-panel="editor"] textarea:focus {
