@@ -248,7 +248,7 @@
   <p>
 </c:if>
 --%>
-<%--
+
 <div style="text-align: center; margin-top: 0.5em; height: 125px; margin-bottom: 0.5em" id="interpage">
 </div>
 <script type="text/javascript">
@@ -256,17 +256,16 @@
       var ads = [
         {
           type: 'rimg',
-          img320: '/adv/bare-metal-320x100.png',
-          img730: '/adv/bare-metal-730x90.png',
-          img980: '/adv/bare-metal-980x120.png',
-          href: 'https://forms.selectel.ru/s/cmmyzv559bknwtn01a18enalh'
+          img320: '/adv/bare-metal-new-320x100.png',
+          img730: '/adv/bare-metal-new-730x90.png',
+          img980: '/adv/bare-metal-new-980x120.png',
+          href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linuxorg&utm_medium=banner&utm_campaign=auction'
         }
       ];
 
     init_interpage_adv(ads);
   });
 </script>
---%>
 
 <c:if test="${threadMode}">
   <div class=nav>
