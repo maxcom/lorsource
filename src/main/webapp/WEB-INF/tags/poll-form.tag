@@ -1,6 +1,6 @@
 <%@ tag pageEncoding="UTF-8" %>
 <%--
-  ~ Copyright 1998-2015 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -35,19 +35,16 @@
   </c:set>
   <div class="${lineClass}">
     <label>
-
       <c:choose>
         <c:when test="${not empty votedVariants}">
           <c:choose>
             <c:when test="${!variant.userVoted}">
               <c:choose>
                 <c:when test="${poll.multiSelect}">
-                  <input type="checkbox"
-                         <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                  <input type="checkbox" <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
                 </c:when>
                 <c:otherwise>
-                  <input type="radio"
-                         <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
+                  <input type="radio" <c:if test="${not enabled}">disabled</c:if> name="vote" value="${variant.id}">
                 </c:otherwise>
               </c:choose>
             </c:when>
