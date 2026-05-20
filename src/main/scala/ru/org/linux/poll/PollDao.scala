@@ -14,8 +14,6 @@
  */
 package ru.org.linux.poll
 
-import com.google.common.base.Strings
-import com.google.common.collect.ImmutableList
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.scala.transaction.support.TransactionManagement
@@ -25,7 +23,6 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.User
 
 import javax.sql.DataSource
-import scala.jdk.CollectionConverters.*
 
 @Repository
 class PollDao(ds: DataSource, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
@@ -74,11 +71,10 @@ class PollDao(ds: DataSource, val transactionManager: PlatformTransactionManager
    * @param pollId идентификатор голосования
    * @return список вариантов голосования
    */
-  private def getVoteVariants(pollId: Int): java.util.List[PollVariant] = {
+  private def getVoteVariants(pollId: Int): Seq[PollVariant] =
     jdbcTemplate.queryAndMap(QueryPollVariants, pollId) { (rs, _) =>
-      new PollVariant(rs.getInt("id"), rs.getString("label"))
-    }.asJava
-  }
+      PollVariant(rs.getInt("id"), rs.getString("label"))
+    }.toSeq
 
   /**
    * Возвращает кол-во проголосовавших пользователей в голосовании.
@@ -154,7 +150,7 @@ class PollDao(ds: DataSource, val transactionManager: PlatformTransactionManager
     if !rs.next then
       throw new PollNotFoundException
 
-    Poll.apply(
+    Poll(
       pollId,
       rs.getInt("topic"),
       rs.getBoolean("multiselect"),
@@ -186,9 +182,8 @@ class PollDao(ds: DataSource, val transactionManager: PlatformTransactionManager
    * @param poll опрос
    * @return неизменяемый список вариантов опроса
    */
-  def getPollResults(poll: Poll): ImmutableList[PollVariantResult] = {
+  def getPollResults(poll: Poll): Seq[PollVariantResult] =
     getPollResults(poll, Poll.OrderId, null)
-  }
 
   /**
    * Варианты опроса для кокретного пользователя
@@ -198,7 +193,7 @@ class PollDao(ds: DataSource, val transactionManager: PlatformTransactionManager
    * @param user  для какого пользователя отдаем
    * @return неизменяемый список вариантов опроса
    */
-  def getPollResults(poll: Poll, order: Int, user: User): ImmutableList[PollVariantResult] = {
+  def getPollResults(poll: Poll, order: Int, user: User): Seq[PollVariantResult] =
     val q = if order == Poll.OrderId then
       QueryPollResultsOrderById
     else if order == Poll.OrderVotes then
@@ -208,12 +203,9 @@ class PollDao(ds: DataSource, val transactionManager: PlatformTransactionManager
 
     val userId = if user != null then user.id else 0
 
-    val result = jdbcTemplate.queryAndMap(q, userId, poll.id) { (rs, _) =>
-      new PollVariantResult(rs.getInt("id"), rs.getString("label"), rs.getInt("votes"), rs.getBoolean("userVoted"))
-    }
-
-    ImmutableList.copyOf(result.asJava)
-  }
+    jdbcTemplate.queryAndMap(q, userId, poll.id) { (rs, _) =>
+      PollVariantResult(rs.getInt("id"), rs.getString("label"), rs.getInt("votes"), rs.getBoolean("userVoted"))
+    }.toSeq
 
   /**
    * Создать голосование.
@@ -223,21 +215,20 @@ class PollDao(ds: DataSource, val transactionManager: PlatformTransactionManager
    * @param msgid       - идентификатор темы.
    */
   // call in @Transactional
-  def createPoll(pollList: java.util.List[String], multiSelect: Boolean, msgid: Int): Unit = {
+  def createPoll(pollList: Seq[String], multiSelect: Boolean, msgid: Int): Unit =
     val voteid = getNextPollId
 
     jdbcTemplate.update(InsertPoll, voteid, multiSelect, msgid)
 
     try {
       val poll = getPoll(voteid)
-      for variant <- pollList.asScala do
+      for variant <- pollList do
         if !variant.trim.isEmpty then
           addNewVariant(poll, variant)
     } catch {
       case e: PollNotFoundException =>
         throw new RuntimeException(e)
     }
-  }
 
   /**
    * Получить идентификатор будущего голосования
@@ -295,26 +286,26 @@ class PollDao(ds: DataSource, val transactionManager: PlatformTransactionManager
   }
 
   @throws[PollNotFoundException]
-  def updatePoll(poll: Poll, newVariants: java.util.List[PollVariant], multiselect: Boolean): Boolean = transactional() { _ =>
+  def updatePoll(poll: Poll, newVariants: Seq[PollVariant], multiselect: Boolean): Boolean = transactional() { _ =>
     var modified = false
 
     val oldVariants = poll.variants
 
-    val newMap = PollVariant.toMap(newVariants)
+    val newMap = newVariants.map(v => v.id -> v.label).toMap
 
     for oldVar <- oldVariants do
-      val label = newMap.get(Integer.valueOf(oldVar.id))
+      val label = newMap.get(oldVar.id)
 
-      if !TopicDao.equalStrings(oldVar.label, if label != null then label else null) then
+      if !TopicDao.equalStrings(oldVar.label, label.orNull) then
         modified = true
 
-      if Strings.isNullOrEmpty(label) then
+      if label.isEmpty || label.get.isEmpty then
         removeVariant(oldVar)
       else
-        updateVariant(oldVar, label)
+        updateVariant(oldVar, label.get)
 
-    for newVar <- newVariants.asScala do
-      if newVar.id == 0 && !Strings.isNullOrEmpty(newVar.label) then
+    for newVar <- newVariants do
+      if newVar.id == 0 && newVar.label != null && newVar.label.nonEmpty then
         modified = true
         addNewVariant(poll, newVar.label)
 

@@ -14,7 +14,6 @@
  */
 package ru.org.linux.poll
 
-import com.google.common.collect.ImmutableList
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +45,7 @@ class PollDaoIntegrationTest {
   @Test
   @Transactional
   def voteCreateAndRunningPollTest(): Unit = {
-    val pollList = java.util.Arrays.asList("Case 1", "Case 2", "Case 3")
+    val pollList = Seq("Case 1", "Case 2", "Case 3")
 
     pollDao.createPoll(pollList, true, PollDaoIntegrationTest.TestTopicId)
     val poll = pollDao.getPollByTopicId(PollDaoIntegrationTest.TestTopicId)
@@ -60,8 +59,8 @@ class PollDaoIntegrationTest {
     pollVariants = pollDao.getPollResults(poll)
     assertEquals(4, pollVariants.size)
 
-    val next = pollVariants.get(0)
-    pollDao.removeVariant(new PollVariant(next.id, next.label))
+    val next = pollVariants.head
+    pollDao.removeVariant(PollVariant(next.id, next.label))
     pollVariants = pollDao.getPollResults(poll)
     assertEquals(3, pollVariants.size)
   }

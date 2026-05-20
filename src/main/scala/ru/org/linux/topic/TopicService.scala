@@ -79,7 +79,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
 
     if (section.isPollPostAllowed) {
-      pollDao.createPoll(form.poll.toSeq.asJava, form.multiSelect, msgid)
+      pollDao.createPoll(form.poll.toSeq, form.multiSelect, msgid)
     }
 
     val tags = TagName.parseAndSanitizeTags(form.tags)
@@ -204,7 +204,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     pollVariants.foreach { newPollVariants =>
       val oldPoll = pollDao.getPollByTopicId(oldMsg.id)
 
-      if (pollDao.updatePoll(oldPoll, newPollVariants.asJava, multiselect)) {
+      if (pollDao.updatePoll(oldPoll, newPollVariants, multiselect)) {
         editHistoryRecord = editHistoryRecord.copy(oldPoll = Some(oldPoll))
         modified = true
       }
