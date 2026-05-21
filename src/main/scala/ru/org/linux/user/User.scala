@@ -86,6 +86,8 @@ case class User(
 
   def isAnonymousScore: Boolean = anonymous || blocked || score < AnonymousLevelScore
 
+  def getGreenStars: Int = User.getGreenStars(score)
+
   def hasEmail: Boolean = email != null
 
   @Nullable
@@ -147,7 +149,7 @@ object User {
   def getActivationCode(base: String, nick: String, email: String): String =
     StringUtil.md5hash(s"$base:$nick:$email")
 
-  private def getGreenStars(score: Int): Int = {
+  def getGreenStars(score: Int): Int = {
     var s = if (score < 0) 0 else score
     if (s >= 600) {
       s = 599

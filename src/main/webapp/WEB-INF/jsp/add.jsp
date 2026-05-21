@@ -76,6 +76,17 @@
   <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
 
+  <c:if test="${topicLimitInfo != null and not topicLimitInfo.exempt}">
+    <c:choose>
+      <c:when test="${topicLimitInfo.reached}">
+        <div class="error">Вы можете разместить не более <lor:topic-count count="${topicLimitInfo.limit}"/> за 24 часа. Сейчас вы можете подготовить текст и сохранить его черновик</div>
+      </c:when>
+      <c:when test="${topicLimitInfo.currentCount > 0}">
+        <div class="infoblock">Вы разместили <lor:topic-count count="${topicLimitInfo.currentCount}"/> из ${topicLimitInfo.limit} за 24 часа</div>
+      </c:when>
+    </c:choose>
+  </c:if>
+
   <form:hidden path="noinfo"/>
 
   <c:if test="${not template.sessionAuthorized}">
@@ -233,7 +244,14 @@
 </c:if>
 
 <div class="form-actions">
-  <button type=submit class="btn-primary btn">Поместить</button>
+  <c:choose>
+    <c:when test="${topicLimitInfo != null and not topicLimitInfo.exempt and topicLimitInfo.reached}">
+      <button type=submit class="btn-primary btn" disabled>Поместить</button>
+    </c:when>
+    <c:otherwise>
+      <button type=submit class="btn-primary btn">Поместить</button>
+    </c:otherwise>
+  </c:choose>
   <button type=submit name=preview class="btn btn-default">Предпросмотр</button>
 <c:if test="${template.sessionAuthorized && !section.pollPostAllowed}">
   <button type=submit name=draft class="btn btn-default">Сохранить в черновики</button>

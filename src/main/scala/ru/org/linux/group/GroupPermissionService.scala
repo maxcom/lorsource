@@ -19,9 +19,11 @@ import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.section.Section.{Articles, Gallery, News}
 import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.topic.{PreparedTopic, Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_NO_COMMENTS
-import ru.org.linux.topic.{PreparedTopic, Topic, TopicPermissionService}
 import ru.org.linux.user.{User, UserPermissionService}
+
+import scala.beans.BeanProperty
 
 import java.time.{Duration, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
@@ -32,11 +34,18 @@ object GroupPermissionService {
   private val DeletePeriod = Duration.ofDays(3)
   private val EditPeriod = Duration.ofDays(14)
   private val CreateTagScore = 200
+
+  case class TopicLimitInfo(
+    @BeanProperty limit: Int,
+    @BeanProperty currentCount: Int,
+    @BeanProperty reached: Boolean,
+    @BeanProperty exempt: Boolean
+  )
 }
 
 @Service
 class GroupPermissionService(sectionService: SectionService, deleteInfoDao: DeleteInfoDao,
-                             userPermissionService: UserPermissionService) {
+                              userPermissionService: UserPermissionService, topicDao: TopicDao) {
   import GroupPermissionService.*
   /**
     * Проверка может ли пользователь удалить топик
@@ -303,4 +312,17 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
   def canViewAllDeletedTopics(using session: AnySession): Boolean =
     session.authorized && session.userOpt.exists(_.score >= 50)
       && !session.userOpt.exists(u => u.isFrozen || userPermissionService.isSlowMode(u))
+
+  def topicLimit(user: User): Int = user.getGreenStars + 2
+
+  def topicLimitInfo(section: Section)(using currentUser: AnySession): GroupPermissionService.TopicLimitInfo =
+    currentUser.userOpt match
+      case Some(user) if user.isModerator || user.canCorrect =>
+        GroupPermissionService.TopicLimitInfo(limit = 0, currentCount = 0, reached = false, exempt = true)
+      case Some(user) =>
+        val limit = topicLimit(user)
+        val count = topicDao.countRecentTopics(user.id, section.id)
+        GroupPermissionService.TopicLimitInfo(limit = limit, currentCount = count, reached = count >= limit, exempt = false)
+      case None =>
+        GroupPermissionService.TopicLimitInfo(limit = 0, currentCount = 0, reached = false, exempt = true)
 }

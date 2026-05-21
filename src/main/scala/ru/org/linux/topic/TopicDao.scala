@@ -339,6 +339,26 @@ class TopicDao(dataSource: DataSource):
     else
       0
 
+  def countRecentTopics(userId: Int, sectionId: Int): Int = {
+    val count = jdbcTemplate.queryForObject(
+      """SELECT COUNT(*) FROM topics t
+        |LEFT JOIN del_info di ON di.msgid = t.id
+        |WHERE t.userid = ?
+        |AND t.postdate >= (CURRENT_TIMESTAMP - '24 hours'::interval)
+        |AND NOT t.draft
+        |AND NOT (t.deleted AND (di.msgid IS NULL OR di.delby = t.userid))
+        |AND EXISTS (SELECT 1 FROM groups g WHERE g.id = t.groupid AND g.section = ?)""".stripMargin,
+      classOf[Integer],
+      userId.asInstanceOf[AnyRef],
+      sectionId.asInstanceOf[AnyRef]
+    )
+
+    if count != null then
+      count.intValue()
+    else
+      0
+  }
+
   def hasDrafts(author: User): Boolean =
     val res = jdbcTemplate.queryForList(
       "select id FROM topics WHERE draft AND userid=? LIMIT 1",

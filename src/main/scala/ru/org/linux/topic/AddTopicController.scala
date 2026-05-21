@@ -119,7 +119,9 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
       val params = prepareModel(Some(form.group), section)
 
-      new ModelAndView("add", params.asJava)
+      val topicLimitInfo = permissionService.topicLimitInfo(section)
+
+      new ModelAndView("add", (params + ("topicLimitInfo" -> topicLimitInfo)).asJava)
     }
   }
 
@@ -166,6 +168,9 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     if (!permissionService.isTopicPostingAllowed(group)(using postingUser)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
     }
+
+    val topicLimitInfo = permissionService.topicLimitInfo(section)(using postingUser)
+    params.put("topicLimitInfo", topicLimitInfo)
 
     if (!permissionService.enableAllowAnonymousCheckbox(group)(using postingUser)) {
       form.allowAnonymous=true
@@ -228,7 +233,9 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       dupeProtector.checkRateLimit(FloodProtector.AddTopic, request.getRemoteAddr, postingUser.userOpt.orNull, errors)
     }
 
-    if (!form.isPreviewMode && !errors.hasErrors) {
+    val topicLimitReached = !form.isDraftMode && !topicLimitInfo.exempt && topicLimitInfo.reached
+
+    if (!form.isPreviewMode && !errors.hasErrors && !topicLimitReached) {
       createNewTopic(request, form, group, params, section, user, message, imagePreview, additionalImagePreviews, previewMsg)
     } else {
       new ModelAndView("add", params.asJava)
