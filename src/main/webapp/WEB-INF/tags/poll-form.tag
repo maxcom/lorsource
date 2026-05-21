@@ -19,6 +19,7 @@
 <%@ attribute name="poll" required="true" type="ru.org.linux.poll.Poll" %>
 <%@ attribute name="enabled" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="votedVariants" required="false" type="java.util.List" %>
+<%@ attribute name="commited" required="false" type="java.lang.Boolean" %>
 
 <c:if test="${enabled}">
   <form action="/vote.jsp" method="POST" style="margin-bottom: 1em">
@@ -77,4 +78,15 @@
 <c:if test="${enabled}">
   <button type="submit" class="btn btn-small btn-default">Голосовать</button>
   </form>
+</c:if>
+
+<c:if test="${not enabled}">
+  <c:choose>
+    <c:when test="${not empty commited and not commited}">
+      <div class="infoblock">Опрос ожидает подтверждения.</div>
+    </c:when>
+    <c:when test="${commited and not template.sessionAuthorized}">
+      <div class="infoblock">Для участия в опросе <a href="login.jsp">войдите</a> или <a href="register.jsp">зарегистрируйтесь</a>.</div>
+    </c:when>
+  </c:choose>
 </c:if>

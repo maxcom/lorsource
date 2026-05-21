@@ -143,7 +143,7 @@
       <c:if test="${preparedMessage.section.pollPostAllowed}">
         <c:choose>
           <c:when test="${not message.commited}">
-            <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
+            <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false" commited="false"/>
           </c:when>
           <c:otherwise>
             <c:choose>
@@ -151,7 +151,7 @@
                 <lor:poll poll="${preparedMessage.poll}"/>
               </c:when>
               <c:otherwise>
-                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${currentUser!=null}"/>
+                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${currentUser!=null}" commited="true"/>
                 <c:if test="${not param.results == 'true'}">
                   <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
                 </c:if>
