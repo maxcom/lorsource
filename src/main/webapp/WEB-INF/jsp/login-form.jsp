@@ -38,7 +38,10 @@
   <lor:csrf/>
   <label>Имя/email:<br><input autofocus autocapitalize="off" type=text name=nick size=40></label>
   <label>Пароль:<br><input type=password name=passwd size=40></label>
-  <button type=submit class="btn btn-primary">Вход</button>
+
+  <div class="form-actions">
+    <button type=submit class="btn btn-primary">Вход</button>
+  </div>
 </form>
 
 <div style="font-size: smaller">
