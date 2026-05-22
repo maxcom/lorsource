@@ -108,7 +108,9 @@ object ReactionService {
     "\uD83E\uDE97" -> "боян!!!1111",
     "\uD83D\uDE22" -> "грусть-печаль",
     "\uD83D\uDEAE" -> "не нужно!",
-    "\uD83C\uDF89" -> "хлопушка")
+    "\uD83C\uDF89" -> "хлопушка",
+    "\uD83E\uDD2C" -> "нет слов, одни 5.1!")
+
 
   val AllowedReactions: Set[String] = DefinedReactions.keySet
 }
