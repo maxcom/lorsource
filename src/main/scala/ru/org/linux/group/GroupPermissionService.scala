@@ -313,7 +313,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     session.authorized && session.userOpt.exists(_.score >= 50)
       && !session.userOpt.exists(u => u.isFrozen || userPermissionService.isSlowMode(u))
 
-  def topicLimit(user: User): Int = user.getGreenStars + 2
+  private def topicLimit(user: User): Int = Math.max(user.getGreenStars, 2)
 
   def topicLimitInfo(section: Section)(using currentUser: AnySession): GroupPermissionService.TopicLimitInfo =
     currentUser.userOpt match
