@@ -76,7 +76,7 @@
 </c:forEach>
 
 <c:if test="${enabled}">
-  <button type="submit" class="btn btn-small btn-default">Голосовать</button>
+  <button type="submit" class="btn btn-default">Голосовать</button>
   </form>
 </c:if>
 
