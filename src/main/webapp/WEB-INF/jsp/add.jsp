@@ -166,43 +166,7 @@
     </div>
 
     <div class="help-block">
-      <c:if test="${template.formatMode == 'lorcode'}">
-        <b>Внимание:</b> прочитайте описание разметки <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
-
-[b]жирный текст[/b]
-
-[i]курсив[/i]
-
-[u]подчёркнутый текст[/u]
-
-[s]зачёркнутый текст[/s]
-
-[em]emphasis[/em]
-
-[strong]stronger emphasis[/strong]
-
-[pre]preformatted text[/pre]
-
-[user]maxcom[/user] - ссылка на профиль пользователя.
-При использовании этого тега упомянутому пользователю приходит уведомление
-
-[code]код[/code]
-
-[inline]Строчное оформление кода[/inline]
-
-Цитата:
-[quote]цитата[/quote] или
-[quote='название цитаты']цитата[/quote] или
->>цитата
-
-Ссылка:
-[url]http://www.linux.org.ru/[/url]
-можно с параметром, например:
-[url=http://www.example.com/]Сюда![/url]">LORCODE</a>.
-      </c:if>
-      <c:if test="${template.formatMode == 'markdown'}">
-        <b>Внимание:</b> прочитайте описание разметки <a target="_blank" href="/help/markdown.md">Markdown</a>.
-      </c:if>
+      <lor:markup-help mode="${template.formatMode}"/>
 
         Обратите внимание на то, как <a target=_blank href="/forum/linux-org-ru/15431459">правильно копировать вывод терминала</a>.
     </div>

@@ -137,8 +137,7 @@
         </div>
       </div>
     </div>
-    <div class="help-block"><b>Внимание:</b> прочитайте описание разметки
-      <a target="_blank" href="/help/markdown.md">Markdown</a> или <a href="/help/lorcode.md" target="_blank">LORCODE</a>.</div>
+    <div class="help-block"><lor:markup-help mode="${modeFormId}"/></div>
   </div>
 
     <c:if test="${preparedMessage.group.linksAllowed}">
