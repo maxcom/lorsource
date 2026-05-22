@@ -87,13 +87,14 @@ object Section:
   private val sections: Map[Int, String] =
     Map(News -> "news", Forum -> "forum", Gallery -> "gallery", Polls -> "polls", Articles -> "articles")
 
-  def getCommentPostscore(id: Int): Int =
-    if id == News || id == Forum then
-      TopicPermissionService.POSTSCORE_UNRESTRICTED
-    else if id == Articles || id == Gallery then
-      45
-    else
-      50
+  def getCommentPostscore(id: Int): Int = 
+    id match
+      case Forum | News =>
+        TopicPermissionService.POSTSCORE_UNRESTRICTED
+      case Articles | Gallery | Polls =>
+        45
+      case _ =>
+        50
 
   def fromResultSet(rs: ResultSet): Section =
     new Section(
