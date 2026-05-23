@@ -22,12 +22,11 @@ import ru.org.linux.spring.SiteConfig
 class HstsInterceptor(config: SiteConfig) extends HandlerInterceptor {
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any) = {
     if (request.isSecure && config.enableHsts()) {
-      response.addHeader("Strict-Transport-Security", "max-age=7776000")
+      response.addHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
     }
 
     response.addHeader("X-Content-Type-Options", "nosniff")
     response.addHeader("X-Frame-Options", "SAMEORIGIN")
-
 
     true
   }
