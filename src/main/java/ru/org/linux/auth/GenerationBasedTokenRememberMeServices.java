@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -29,8 +29,6 @@ public class GenerationBasedTokenRememberMeServices extends TokenBasedRememberMe
   public GenerationBasedTokenRememberMeServices(String key, UserDetailsService userDetailsService, UserDao userDao) {
     super(key, userDetailsService);
 
-    setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
-
     this.userDao = userDao;
   }
 
@@ -43,15 +41,12 @@ public class GenerationBasedTokenRememberMeServices extends TokenBasedRememberMe
        data += ":" + String.format("%d", tokenGeneration);
     }
 
-    MessageDigest digest;
     try {
-      digest = MessageDigest.getInstance("MD5");
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      return new String(Hex.encode(digest.digest(data.getBytes())));
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("No SHA-256 algorithm available!");
     }
-    catch (NoSuchAlgorithmException e) {
-      throw new IllegalStateException("No MD5 algorithm available!");
-    }
-
-    return new String(Hex.encode(digest.digest(data.getBytes())));
   }
 
   @Override
@@ -67,8 +62,7 @@ public class GenerationBasedTokenRememberMeServices extends TokenBasedRememberMe
     try {
       MessageDigest digest = MessageDigest.getInstance(algorithm.getDigestAlgorithm());
       return new String(Hex.encode(digest.digest(data.getBytes())));
-    }
-    catch (NoSuchAlgorithmException ex) {
+    } catch (NoSuchAlgorithmException ex) {
       throw new IllegalStateException("No " + algorithm.name() + " algorithm available!");
     }
   }
