@@ -45,6 +45,11 @@ public class CSRFProtectionService {
     Cookie cookie = new Cookie(CSRF_COOKIE, token);
     cookie.setMaxAge(TWO_YEARS);
     cookie.setPath("/");
+    
+    if (request.isSecure()) {
+      cookie.setSecure(true);
+    }
+    
     response.addCookie(cookie);
 
     request.setAttribute(CSRF_ATTRIBUTE, token);
