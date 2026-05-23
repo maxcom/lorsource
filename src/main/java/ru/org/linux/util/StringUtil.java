@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,12 +21,12 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class StringUtil {
-  private static final Random random = new Random();
+  private static final SecureRandom random = new SecureRandom();
 
   private StringUtil() {
   }
@@ -82,7 +82,7 @@ public final class StringUtil {
   public static String generatePassword() {
     StringBuilder builder = new StringBuilder();
 
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<12; i++) {
       int r = Math.abs(random.nextInt());
 
       builder.append((char) (33 + r%(126-33)));
