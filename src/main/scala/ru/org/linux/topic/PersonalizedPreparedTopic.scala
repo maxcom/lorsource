@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,23 +12,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.topic
 
-package ru.org.linux.topic;
+import scala.beans.BeanProperty
 
-public class PersonalizedPreparedTopic {
-  private final PreparedTopic preparedTopic;
-  private final TopicMenu topicMenu;
-
-  public PersonalizedPreparedTopic(PreparedTopic preparedTopic, TopicMenu topicMenu) {
-    this.preparedTopic = preparedTopic;
-    this.topicMenu = topicMenu;
-  }
-
-  public PreparedTopic getPreparedTopic() {
-    return preparedTopic;
-  }
-
-  public TopicMenu getTopicMenu() {
-    return topicMenu;
-  }
-}
+case class PersonalizedPreparedTopic(
+    @BeanProperty
+    preparedTopic: PreparedTopic,
+    @BeanProperty
+    topicMenu: TopicMenu)

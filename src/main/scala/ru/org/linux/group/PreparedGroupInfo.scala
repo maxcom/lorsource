@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,31 +12,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.group
 
-package ru.org.linux.group;
+import scala.beans.BeanProperty
 
-public class PreparedGroupInfo {
-  private final Group group;
-  private final String longInfo;
-
-  public PreparedGroupInfo(Group group, String longInfo) {
-    this.group = group;
-    this.longInfo = longInfo;
-  }
-
-  public Group getGroup() {
-    return group;
-  }
-
-  public String getLongInfo() {
-    return longInfo;
-  }
-
-  public String getInfo() {
-    return group.getInfo();
-  }
-
-  public int getId() {
-    return group.getId();
-  }
-}
+case class PreparedGroupInfo(
+    @BeanProperty
+    group: Group,
+    @BeanProperty
+    longInfo: String):
+  def getInfo: String = group.info
+  def getId: Int = group.id

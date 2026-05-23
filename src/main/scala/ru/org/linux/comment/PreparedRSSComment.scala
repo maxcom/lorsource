@@ -12,18 +12,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.group
+package ru.org.linux.comment
 
-import org.springframework.stereotype.Service
-import ru.org.linux.util.bbcode.LorCodeService
+import ru.org.linux.user.User
 
-@Service
-class GroupInfoPrepareService(lorCodeService: LorCodeService):
-  def prepareGroupInfo(group: Group): PreparedGroupInfo =
-    val longInfo =
-      if group.longInfo != null then
-        lorCodeService.parseComment(group.longInfo, nofollow = false, LorCodeService.Plain)
-      else
-        null
+import scala.beans.BeanProperty
 
-    PreparedGroupInfo(group, longInfo)
+case class PreparedRSSComment(
+    @BeanProperty
+    comment: Comment,
+    @BeanProperty
+    author: User,
+    @BeanProperty
+    processedMessage: String)

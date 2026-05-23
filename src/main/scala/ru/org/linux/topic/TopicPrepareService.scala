@@ -176,7 +176,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
         textMap(message.id), image = None, imageLazyLoad = idx >= 2)
 
       val topicMenu = getTopicMenu(preparedMessage, loadUserpics)
-      new PersonalizedPreparedTopic(preparedMessage, topicMenu)
+      PersonalizedPreparedTopic(preparedMessage, topicMenu)
     }
   }
 
