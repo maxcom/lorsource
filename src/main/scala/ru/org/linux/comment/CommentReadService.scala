@@ -21,9 +21,7 @@ import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
 
-import java.util
-import scala.collection.mutable.ArrayBuffer
-import scala.jdk.CollectionConverters.*
+import scala.collection.mutable
 
 @Service
 class CommentReadService(commentDao: CommentDao) {
@@ -84,21 +82,21 @@ class CommentReadService(commentDao: CommentDao) {
     if (filterChain == CommentFilter.FILTER_NONE) {
       Set.empty[Int]
     } else {
-      val hideSet = new util.HashSet[Integer]
+      val hideSet = mutable.HashSet.empty[Int]
 
       /* hide ignored */
       if ((filterChain & CommentFilter.FILTER_IGNORED) > 0 && ignoreList.nonEmpty) {
-        comments.root.hideIgnored(hideSet, ignoreList.map(Integer.valueOf).asJava)
+        comments.root.hideIgnored(hideSet, ignoreList)
       }
 
-      hideSet.asScala.view.map(_.toInt).toSet
+      hideSet.toSet
     }
   }
 
   def getCommentsSubtree(comments: CommentList, parentId: Int, hideSet: Set[Int]): Seq[Comment] = {
     val parentNode = comments.getNode(parentId)
 
-    val childList = new ArrayBuffer[Comment]()
+    val childList = new mutable.ArrayBuffer[Comment]()
 
     parentNode.foreach((comment: Comment) => {
       if (!hideSet.contains(comment.id)) {

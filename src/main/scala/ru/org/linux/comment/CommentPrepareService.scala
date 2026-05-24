@@ -27,7 +27,7 @@ import ru.org.linux.user.*
 import ru.org.linux.warning.{Warning, WarningService}
 
 import java.time.Duration
-import scala.jdk.CollectionConverters.*
+
 import scala.jdk.OptionConverters.*
 
 @Service
@@ -49,7 +49,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
           case None => // ответ на удаленный комментарий
             Some(new ReplyInfo(comment.replyTo, true))
           case Some(replyNode) =>
-            val reply = replyNode.getComment
+            val reply = replyNode.comment
             val samePage = samePageComments.contains(reply.id)
             val replyAuthor = userService.getUserCached(reply.userid).nick
             Some(new ReplyInfo(reply.id, replyAuthor, Strings.emptyToNull(reply.title.trim), reply.postdate, samePage, false))
@@ -59,7 +59,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
       }
 
       val node = comments.get.getNode(comment.id)
-      val replysFiltered = node.childs.asScala.filter(commentNode => !hideSet.contains(commentNode.getComment.id))
+      val replysFiltered = node.childNodes.filter(commentNode => !hideSet.contains(commentNode.comment.id))
 
       val answerCount = replysFiltered.size
 
@@ -72,12 +72,12 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
         (Some(link), false, answerCount, replyInfo, true)
       } else if (answerCount == 1) {
-        val answerSamepage = samePageComments.contains(replysFiltered.head.getComment.id)
+        val answerSamepage = samePageComments.contains(replysFiltered.head.comment.id)
 
         val link = if (!filterShow) {
-          s"${topic.getLink}?cid=${replysFiltered.head.getComment.id}"
+          s"${topic.getLink}?cid=${replysFiltered.head.comment.id}"
         } else {
-          s"${topic.getLink}?filter=show&cid=${replysFiltered.head.getComment.id}"
+          s"${topic.getLink}?filter=show&cid=${replysFiltered.head.comment.id}"
         }
 
         (Some(link), answerSamepage, 1, replyInfo, true)

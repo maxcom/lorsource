@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,7 +18,7 @@ import ru.org.linux.reaction.{ReactionDao, Reactions}
 
 import java.sql.{ResultSet, Timestamp}
 import java.time.Instant
-import java.util
+
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
@@ -26,7 +26,7 @@ case class Comment(@BeanProperty id: Int, @BeanProperty title: String, @BeanProp
                    @BeanProperty replyTo: Int, @BeanProperty topicId: Int, @BooleanBeanProperty deleted: Boolean,
                    @BeanProperty postdate: Timestamp, userAgentId: Int, @Nullable @BeanProperty postIP: String,
                    editorId: Int, @Nullable editDate: Timestamp, editCount: Int, reactions: Reactions) {
-  def isIgnored(ignoreList: util.Set[Integer]): Boolean = ignoreList != null && ignoreList.contains(userid)
+  def isIgnored(ignoreList: Set[Int]): Boolean = ignoreList.contains(userid)
 }
 
 object Comment {

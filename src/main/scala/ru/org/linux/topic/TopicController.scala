@@ -433,9 +433,9 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       throw new MessageNotFoundException(topic, cid, s"Сообщение #$cid было удалено или не существует")
     }
 
-    val pagenum = if (deleted) 0 else comments.getCommentPage(node.getComment, session.profile.messages)
+    val pagenum = if (deleted) 0 else comments.getCommentPage(node.comment, session.profile.messages)
 
-    var redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum).lastmod(session.profile.messages).comment(node.getComment.id)
+    var redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum).lastmod(session.profile.messages).comment(node.comment.id)
 
     if (deleted) redirectUrl = redirectUrl.showDeleted
 
@@ -443,7 +443,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       val ignoreList = ignoreListDao.get(session.userOpt.get.id)
       val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(ignoreList.isEmpty), ignoreList)
 
-      if (hideSet.contains(node.getComment.id)) {
+      if (hideSet.contains(node.comment.id)) {
         redirectUrl = redirectUrl.filterShow()
       }
     }

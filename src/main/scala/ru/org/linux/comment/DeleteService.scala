@@ -27,7 +27,7 @@ import ru.org.linux.user.{User, UserEventService, UserService}
 
 import java.sql.Timestamp
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Service
 class DeleteService(commentDao: CommentDao, userService: UserService, userEventService: UserEventService,
@@ -343,8 +343,8 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
 
 object DeleteService {
   private def getAllReplys(node: CommentNode, depth: Int): Seq[CommentAndDepth] = {
-    node.childs.asScala.view.flatMap { r =>
-      getAllReplys(r, depth + 1) :+ CommentAndDepth(r.getComment, depth)
+    node.childNodes.view.flatMap { r =>
+      getAllReplys(r, depth + 1) :+ CommentAndDepth(r.comment, depth)
     }.toVector
   }
 

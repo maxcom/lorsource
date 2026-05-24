@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -18,43 +18,20 @@ import ru.org.linux.site.MessageNotFoundException
 
 import java.time.Instant
 import scala.collection.immutable.HashMap
-import scala.collection.mutable
-import scala.jdk.CollectionConverters.ListHasAsScala
 
 class CommentList(val comments: Vector[Comment], val lastmod: Instant) {
-  val root: CommentNode = {
-    val tempIndex = new mutable.HashMap[Int, CommentNodeBuilder]()
-    val rootBuilder = new CommentNodeBuilder
+  val root: RootCommentNode = RootCommentNode.build(comments)
 
-    for (comment <- comments) {
-      val node = new CommentNodeBuilder(comment)
-
-      tempIndex.put(comment.id, node)
-
-      if (comment.replyTo == 0) {
-        rootBuilder.addChild(node)
-      } else {
-        tempIndex.get(comment.replyTo) match {
-          case Some(parent) =>
-            parent.addChild(node)
-          case None =>
-           rootBuilder.addChild(node)
-        }
-      }
-    }
-
-    rootBuilder.build
-  }
-
-  private val nodeIndex: Map[Int, CommentNode] = {
-    val builder = HashMap.newBuilder[Int, CommentNode]
+  private val nodeIndex: Map[Int, ReplyCommentNode] = {
+    val builder = HashMap.newBuilder[Int, ReplyCommentNode]
 
     def buildIndex(root: CommentNode): Unit = {
-      if (root.getComment != null) {
-        builder.addOne(root.getComment.id -> root)
-      }
+      root match
+        case _: RootCommentNode =>
+        case r: ReplyCommentNode =>
+          builder.addOne(r.comment.id -> r)
 
-      for (child <- root.childs.asScala) {
+      for (child <- root.childNodes) {
         buildIndex(child)
       }
     }
@@ -64,9 +41,9 @@ class CommentList(val comments: Vector[Comment], val lastmod: Instant) {
     builder.result()
   }
 
-  def getNode(msgid: Int): CommentNode = nodeIndex.getOrElse(msgid,throw new MessageNotFoundException(msgid))
+  def getNode(msgid: Int): ReplyCommentNode = nodeIndex.getOrElse(msgid,throw new MessageNotFoundException(msgid))
 
-  def getNodeOpt(msgid: Int): Option[CommentNode] = nodeIndex.get(msgid)
+  def getNodeOpt(msgid: Int): Option[ReplyCommentNode] = nodeIndex.get(msgid)
 
   def getCommentPage(comment: Comment, messages: Int): Int = {
     val index = comments.indexOf(comment)
