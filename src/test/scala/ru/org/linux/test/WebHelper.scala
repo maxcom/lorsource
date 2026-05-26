@@ -69,6 +69,20 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
     }
   }
 
+  def deleteTopic(auth: String, topicId: Int, reason: String = "test cleanup"): Unit = {
+    basicRequest
+      .body(Map(
+        "msgid" -> topicId.toString,
+        "reason" -> reason,
+        "bonus" -> "0",
+        "csrf" -> "csrf"))
+      .cookie(AuthCookie, auth)
+      .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
+      .followRedirects(false)
+      .post(MainUrl.addPath("delete.jsp"))
+      .send(backend)
+  }
+
   def authorized(user: String = TestUser, password: String = TestPassword): FunFixture[String] = FunFixture[String](
     setup = { _ => doLogin(user, password) },
     teardown = { s => },

@@ -30,8 +30,9 @@ class CommentWebTest extends FunSuite with WebHelper:
   import CommentWebTest.*
 
   authorized().test("post and edit"): auth =>
-    val topicId = createTopic(auth, TestGroup, TestTitle).fold(v => throw new RuntimeException(v), identity)
+    val topicId = createTopic(auth, TestGroup, TestTitle).fold(v => fail(v), identity)
 
+    try {
     val postResponse = basicRequest
       .body(Map(
         "section" -> Section.Forum.toString,
@@ -72,3 +73,6 @@ class CommentWebTest extends FunSuite with WebHelper:
     val editDoc = Jsoup.parse(editResponse.body.merge, MainUrl.toString())
 
     assert(editDoc.select(".error").text().isEmpty, "no errors in edit")
+    } finally {
+      deleteTopic(auth, topicId)
+    }

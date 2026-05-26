@@ -60,8 +60,8 @@ class AddTopicControllerWebTest extends FunSuite with WebHelper:
     assert(doc.select("input[name=csrf]").asScala.nonEmpty, "csrf input should exist")
 
   authorized().test("post action performs post"): auth =>
-    val result = createTopic(auth, TestGroup, TestTitle)
-    assert(result.isRight, "topic should be created successfully")
+    val topicId = createTopic(auth, TestGroup, TestTitle).fold(v => fail(v), identity)
+    deleteTopic(auth, topicId)
 
   test("post news without auth"):
     val response = basicRequest
@@ -79,6 +79,7 @@ class AddTopicControllerWebTest extends FunSuite with WebHelper:
 
     val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
+    assert(doc.select(".error").asScala.isEmpty, doc.select(".error").text())
     assert(doc.select("#messageForm").asScala.isEmpty, "message form should be empty")
 
     assertEquals(response.code, StatusCode.Ok, "status code")

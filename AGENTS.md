@@ -72,7 +72,6 @@ All users in test development database has password 'passwd'. Use following user
 
 * maxcom: administrator, full permissions
 * svu: moderator
-* Shaman007: corrector
 * edo: user (score >= 50)
 
 ### Test/Development Database
