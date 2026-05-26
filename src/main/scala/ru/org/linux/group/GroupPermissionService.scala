@@ -17,14 +17,13 @@ package ru.org.linux.group
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.msgbase.DeleteInfoDao
-import ru.org.linux.section.Section.{Articles, Gallery, News}
+import ru.org.linux.section.Section.{Articles, Gallery, News, Polls}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_NO_COMMENTS
 import ru.org.linux.user.{User, UserPermissionService}
 
 import scala.beans.BeanProperty
-
 import java.time.{Duration, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
 import javax.annotation.Nullable
