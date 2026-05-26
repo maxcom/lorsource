@@ -23,35 +23,37 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <article class="msg" id="comment-${comment.id}">
-  <div class="title">
-    <c:if test="${comment.deleted}">
-      <strong>Сообщение удалено
-        <c:if test="${comment.deleteInfo != null}">
-          ${comment.deleteInfo.nick} по причине <c:out value="${comment.deleteInfo.reason}" escapeXml="true"/>
-        </c:if>
-      </strong>
-
-      <c:if test="${comment.undeletable}">
-        &emsp;[<a href="/undelete_comment?msgid=${comment.id}">Восстановить</a>]
-      </c:if>
-
-      <br>
-    </c:if>
-
-    <c:if test="${comment.reply!=null}">
-      Ответ на:
-      <c:if test="${comment.reply.deleted}">удаленный комментарий</c:if>
-      <c:if test="${not comment.reply.deleted}">
-        <a href="${topic.link}?cid=${comment.reply.id}" data-samepage="${comment.reply.samePage}">
-          <c:if test="${comment.reply.title!=null}">
-            <l:title>${comment.reply.title}</l:title>
+  <c:if test="${comment.deleted or comment.reply!=null}">
+    <div class="title">
+      <c:if test="${comment.deleted}">
+        <strong>Сообщение удалено
+          <c:if test="${comment.deleteInfo != null}">
+            ${comment.deleteInfo.nick} по причине <c:out value="${comment.deleteInfo.reason}" escapeXml="true"/>
           </c:if>
-          <c:if test="${comment.reply.title==null}">комментарий</c:if>
-        </a>
-        от ${comment.reply.author}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
+        </strong>
+
+        <c:if test="${comment.undeletable}">
+          &emsp;[<a href="/undelete_comment?msgid=${comment.id}">Восстановить</a>]
+        </c:if>
+
+        <br>
       </c:if>
-    </c:if>
-  </div>
+
+      <c:if test="${comment.reply!=null}">
+        Ответ на:
+        <c:if test="${comment.reply.deleted}">удаленный комментарий</c:if>
+        <c:if test="${not comment.reply.deleted}">
+          <a href="${topic.link}?cid=${comment.reply.id}" data-samepage="${comment.reply.samePage}">
+            <c:if test="${comment.reply.title!=null}">
+              <l:title>${comment.reply.title}</l:title>
+            </c:if>
+            <c:if test="${comment.reply.title==null}">комментарий</c:if>
+          </a>
+          от ${comment.reply.author}<c:out value=" "/><lor:date date="${comment.reply.postdate}"/>
+        </c:if>
+      </c:if>
+    </div>
+  </c:if>
 
   <div class="msg-container">
     <c:set var="body_style" value=""/>
