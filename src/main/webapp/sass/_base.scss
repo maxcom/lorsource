@@ -27,9 +27,13 @@ html {
 }
 
 body {
-   max-width: 75em;
-   margin: auto;
-   line-height: 1.4;
+  max-width: 75em;
+  margin: auto;
+  line-height: 1.4;
+
+  @include respond-to(tablet-and-desktops) {
+    line-height: 1.5;
+  }
 }
 
 pre {
