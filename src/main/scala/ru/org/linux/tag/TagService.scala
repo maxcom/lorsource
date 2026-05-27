@@ -29,7 +29,7 @@ import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, M
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.topic.TagTopicListController
 import ru.org.linux.topic.TopicListController.ForumFilter
-import ru.org.linux.util.RichFuture.RichFuture
+import ru.org.linux.util.RichFuture.withTimeout
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

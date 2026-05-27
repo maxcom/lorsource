@@ -39,15 +39,15 @@ case class IpWhoIsResponse(
   connection: Option[Connection])
 
 object Connection {
-  implicit val decoder: Decoder[Connection] = deriveDecoder[Connection]
+  given Decoder[Connection] = deriveDecoder[Connection]
 }
 
 object IpWhoIsResponse {
-  implicit val decoder: Decoder[IpWhoIsResponse] = deriveDecoder[IpWhoIsResponse]
+  given Decoder[IpWhoIsResponse] = deriveDecoder[IpWhoIsResponse]
 }
 
 object GeoLocation {
-  implicit val decoder: Decoder[GeoLocation] = deriveDecoder[GeoLocation]
+  given Decoder[GeoLocation] = deriveDecoder[GeoLocation]
 }
 
 @Service

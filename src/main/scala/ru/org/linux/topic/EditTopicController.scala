@@ -93,7 +93,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
   }
 
   private def prepareModel(preparedTopic: PreparedTopic)
-                          (implicit currentUser: AuthorizedSession): mutable.HashMap[String, AnyRef] = {
+                          (using currentUser: AuthorizedSession): mutable.HashMap[String, AnyRef] = {
     val params = mutable.HashMap[String, AnyRef]()
 
     val message = preparedTopic.message
@@ -132,7 +132,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
   }
 
   private def initForm(preparedTopic: PreparedTopic, form: EditTopicRequest)
-                      (implicit session: AuthorizedSession): Unit = {
+                      (using session: AuthorizedSession): Unit = {
     val message = preparedTopic.message
 
     val editInfoList = editHistoryService.getEditInfo(message.id, EditHistoryObjectTypeEnum.TOPIC)

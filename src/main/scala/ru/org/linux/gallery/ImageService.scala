@@ -47,7 +47,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   private val galleryPath = new File(siteConfig.getUploadPath + "/images")
   private val htmlPath = siteConfig.getUploadPath
 
-  def deleteImage(image: Image)(implicit session: AuthorizedSession): Unit = {
+  def deleteImage(image: Image)(using session: AuthorizedSession): Unit = {
     transactional() { _ =>
       val info = if (image.main) {
         EditHistoryRecord(
@@ -175,7 +175,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   }
 
   def processUpload(uploadedImage: Option[String], imageUpload: MultipartFile, errors: Errors)
-                   (implicit currentUser: AuthorizedSession): Option[UploadedImagePreview] = {
+                   (using currentUser: AuthorizedSession): Option[UploadedImagePreview] = {
     val image = saveToTempFile(imageUpload)
 
     image match {

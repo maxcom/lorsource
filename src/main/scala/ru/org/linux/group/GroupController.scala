@@ -134,7 +134,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
 
   private def forum(section: Section, group: Group, offset: Int, lastmod: Boolean,
                     yearMonth: Option[(Int, Int)], tagInfo: Option[TagInfo], showDeleted: Boolean,
-                    showIgnored: Boolean)(implicit currentUser: AnySession): CompletionStage[ModelAndView] = {
+                    showIgnored: Boolean)(using currentUser: AnySession): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val firstPage = isFirstPage(offset)

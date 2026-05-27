@@ -73,7 +73,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
   }
 
   private def prepareView(request: PostWarningRequest, mv: ModelAndView, types: Seq[WarningType])
-                         (implicit currentUser: AuthorizedSession): Unit = {
+                          (using currentUser: AuthorizedSession): Unit = {
     if (request.comment == null) {
       val preparedTopic = topicPrepareService.prepareTopic(request.topic)
       mv.addObject("preparedTopic", preparedTopic)
@@ -159,7 +159,7 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
   }
 
   private def checkRequest(group: Group, request: PostWarningRequest, errors: Errors)
-                          (implicit currentUser: AuthorizedSession): Unit = {
+                         (using currentUser: AuthorizedSession): Unit = {
     assert(request.topic.groupId == group.id)
     assert(request.comment == null || request.comment.topicId == request.topic.id)
 

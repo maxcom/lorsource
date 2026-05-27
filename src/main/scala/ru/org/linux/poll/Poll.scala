@@ -32,8 +32,8 @@ object Poll {
     Poll(id, topic, multiSelect, variants.asScala.toSeq)
 
 
-  implicit val encoder: Encoder[Poll] = deriveEncoder[Poll]
-  implicit val decoder: Decoder[Poll] = deriveDecoder[Poll]
+  given Encoder[Poll] = deriveEncoder[Poll]
+  given Decoder[Poll] = deriveDecoder[Poll]
 }
 
 case class Poll(@BeanProperty id: Int, @BeanProperty topic: Int, @BooleanBeanProperty multiSelect: Boolean,
@@ -45,8 +45,8 @@ object PollVariant {
   def toMap(list: java.lang.Iterable[PollVariant]): util.Map[Integer, String] =
     list.asScala.map(v => Integer.valueOf(v.id) -> v.label).to(TreeMap).asJava
 
-  implicit val encoder: Encoder[PollVariant] = deriveEncoder[PollVariant]
-  implicit val decoder: Decoder[PollVariant] = deriveDecoder[PollVariant]
+  given Encoder[PollVariant] = deriveEncoder[PollVariant]
+  given Decoder[PollVariant] = deriveDecoder[PollVariant]
 }
 
 case class PollVariant(@BeanProperty id: Int, @BeanProperty label: String)

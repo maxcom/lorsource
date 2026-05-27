@@ -185,5 +185,5 @@ class AddCommentController(ipBlockDao: IPBlockDao, commentPrepareService: Commen
 case class CommentPreview(errors: Seq[String], preview: Option[String])
 
 object CommentPreview {
-  implicit val encoder: Encoder[CommentPreview] = deriveEncoder[CommentPreview]
+  given Encoder[CommentPreview] = deriveEncoder[CommentPreview]
 }

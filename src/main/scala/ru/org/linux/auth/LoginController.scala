@@ -39,7 +39,7 @@ import scala.util.{Random, Try}
 case class LoginStatus(success: Boolean, username: String)
 
 object LoginStatus {
-  implicit val encoder: Encoder[LoginStatus] = Encoder.forProduct1("loggedIn")(_.success)
+  given Encoder[LoginStatus] = Encoder.forProduct1("loggedIn")(_.success)
 }
 
 @Controller

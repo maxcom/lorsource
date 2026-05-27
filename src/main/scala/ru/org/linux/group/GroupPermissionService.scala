@@ -66,7 +66,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isUndeletable(topic: Topic)(implicit user: AnySession): Boolean = {
+  def isUndeletable(topic: Topic)(using user: AnySession): Boolean = {
     if (!topic.deleted || !user.moderator) {
       false
     } else {
@@ -89,16 +89,16 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     Math.max(group.topicRestriction, section.topicsRestriction)
   }
 
-  def enableAllowAnonymousCheckbox(group: Group)(implicit currentUser: AnySession): Boolean = {
+  def enableAllowAnonymousCheckbox(group: Group)(using currentUser: AnySession): Boolean = {
     currentUser.authorized && !group.premoderated &&
       Math.max(group.commentsRestriction,
         Section.getCommentPostscore(group.sectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
   }
 
-  def isTopicPostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean =
+  def isTopicPostingAllowed(section: Section)(using currentUser: AnySession): Boolean =
     isTopicPostingAllowed(section.topicsRestriction, currentUser.userOpt.orNull)
 
-  def isTopicPostingAllowed(group: Group)(implicit currentUser: AnySession): Boolean =
+  def isTopicPostingAllowed(group: Group)(using currentUser: AnySession): Boolean =
     isTopicPostingAllowed(effectivePostscore(group), currentUser.userOpt.orNull)
 
   private def isTopicPostingAllowed(restriction: Int, @Nullable currentUser: User): Boolean = {
@@ -118,7 +118,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def isImagePostingAllowed(section: Section)(implicit currentUser: AnySession): Boolean = {
+  def isImagePostingAllowed(section: Section)(using currentUser: AnySession): Boolean = {
     if (section.imagepost) {
       true
     } else if (currentUser.authorized &&
@@ -129,7 +129,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  def additionalImageLimit(section: Section)(implicit currentUser: AnySession): Int = {
+  def additionalImageLimit(section: Section)(using currentUser: AnySession): Int = {
     if (isImagePostingAllowed(section)) {
       section.id match {
         case Articles | Gallery | News | Polls =>

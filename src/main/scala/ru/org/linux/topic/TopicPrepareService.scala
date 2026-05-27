@@ -42,12 +42,12 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
                           msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao,
                           reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao,
                           warningService: WarningService) {
-  def prepareTopic(message: Topic)(implicit session: AnySession): PreparedTopic =
+  def prepareTopic(message: Topic)(using session: AnySession): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None,
       msgbaseDao.getMessageText(message.id), image = None, imageLazyLoad = false)
 
   def prepareTopic(message: Topic, tags: collection.Seq[TagRef], text: MessageText,
-                   warnings: Seq[Warning])(implicit session: AnySession): PreparedTopic =
+                   warnings: Seq[Warning])(using session: AnySession): PreparedTopic =
     prepareTopic(message, tags, minimizeCut = false, None, text, None, Seq.empty, warnings, imageLazyLoad = false)
 
   def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
@@ -59,7 +59,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
       text, imageObject, additionalImageObjects, imageLazyLoad = false)(using NonAuthorizedSession)
   }
 
-  def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(implicit session: AnySession): PreparedEditInfoSummary = {
+  def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(using session: AnySession): PreparedEditInfoSummary = {
     val lastEditor = userService.getUserCached(editInfo.editor).nick
     val editCount = editInfo.editCount
     val lastEditDate = editInfo.editdate
@@ -80,7 +80,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
   private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
                            text: MessageText, image: Option[Image], additionalImages: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty,
                            imageLazyLoad: Boolean)
-                          (implicit session: AnySession): PreparedTopic = {
+                           (using session: AnySession): PreparedTopic = {
     val group = groupService.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
     val section = sectionService.getSection(topic.sectionId)
@@ -167,7 +167,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
    * @return список подготовленных топиков
    */
   def prepareTopics(messages: collection.Seq[Topic], loadUserpics: Boolean)
-                   (implicit user: AnySession): collection.Seq[PersonalizedPreparedTopic] = {
+                   (using user: AnySession): collection.Seq[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
@@ -200,7 +200,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
   }
 
   def getTopicMenu(topic: PreparedTopic, loadUserpics: Boolean)
-                  (implicit session: AnySession): TopicMenu = {
+                  (using session: AnySession): TopicMenu = {
     val topicEditable = groupPermissionService.isEditable(topic)
     val tagsEditable = groupPermissionService.isTagsEditable(topic)
 
@@ -247,7 +247,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
 
     BriefTopicRef(topic.getLink, StringUtil.processTitle(topic.title), commentCount, groupTitle)
 
-  def prepareListItem(item: TopicsListItem)(implicit session: AnySession): PreparedTopicsListItem = {
+  def prepareListItem(item: TopicsListItem)(using session: AnySession): PreparedTopicsListItem = {
     val author = userService.getUserCached(item.topicAuthor)
     val msgid = item.topicId
     val stat1 = item.commentCount

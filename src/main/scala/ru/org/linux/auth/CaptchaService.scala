@@ -66,6 +66,6 @@ class CaptchaService(@Qualifier("directBackend") httpClient: SyncBackend, siteCo
 case class CaptchaResponse(success: Boolean, errorCodes: Option[Seq[String]])
 
 object CaptchaResponse {
-  implicit val decoder: Decoder[CaptchaResponse] =
+  given Decoder[CaptchaResponse] =
     Decoder.forProduct2("success", "error-codes")(CaptchaResponse.apply)
 }

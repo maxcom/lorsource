@@ -170,7 +170,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ more ++ addNews, newestDate)
   }
 
-  private def getGallerySection(tag: String, tagId: Int)(implicit  currentUser: AnySession) = {
+  private def getGallerySection(tag: String, tagId: Int)(using currentUser: AnySession) = {
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId).asJava)
     val section = sectionService.getSection(Section.Gallery)
 

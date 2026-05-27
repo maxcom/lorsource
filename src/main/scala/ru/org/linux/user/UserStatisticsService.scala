@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service
 import ru.org.linux.search.OpenSearchIndexService.MessageIndex
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.UserStatisticsService.*
-import ru.org.linux.util.RichFuture.RichFuture
+import ru.org.linux.util.RichFuture.withTimeout
 
 import java.sql.Timestamp
 import java.time.{Instant, ZoneId}

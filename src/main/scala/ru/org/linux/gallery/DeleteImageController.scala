@@ -27,7 +27,7 @@ import ru.org.linux.topic.*
 @RequestMapping(Array("/delete_image"))
 class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topicDao: TopicDao,
                             prepareService: TopicPrepareService, permissionService: GroupPermissionService) {
-  private def checkDelete(topic: PreparedTopic, image: Image)(implicit user: AuthorizedSession): Unit = {
+  private def checkDelete(topic: PreparedTopic, image: Image)(using user: AuthorizedSession): Unit = {
     if (!permissionService.isEditable(topic)) {
       throw new AccessViolationException("Вы не можете редактировать эту тему")
     }

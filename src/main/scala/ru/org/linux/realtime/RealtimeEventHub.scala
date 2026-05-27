@@ -223,11 +223,11 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef[Protoco
                                actorSystem: ActorSystem) extends TextWebSocketHandler
   with StrictLogging {
 
-  private implicit val Timeout: Timeout = 30.seconds
+  private given Timeout: Timeout = 30.seconds
 
   import org.apache.pekko.actor.typed.scaladsl.adapter.*
 
-  private implicit val scheduler: Scheduler = actorSystem.toTyped.scheduler
+  private given Scheduler = actorSystem.toTyped.scheduler
 
   override def afterConnectionEstablished(session: WebSocketSession): Unit = {
     try {

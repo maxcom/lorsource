@@ -292,7 +292,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
   def processUploads(form: ImageTopicRequest, group: Group, errors: Errors, currentAdditionalCount: Int = 0,
                      hasImage: Boolean = false)
-                    (implicit postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
+                    (using postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
     val section = sectionService.getSection(group.sectionId)
 
     val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty[MultipartFile])

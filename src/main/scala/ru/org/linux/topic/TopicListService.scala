@@ -66,7 +66,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
    * @return список топиков
    */
   def getTopicsFeed(section: Section, group: Option[Group], tag: Option[String], offset: Int, yearMonth: Option[(Int, Int)],
-                    count: Int, noTalks: Boolean, tech: Boolean)(implicit currentUser: AnySession): collection.Seq[Topic] = {
+                    count: Int, noTalks: Boolean, tech: Boolean)(using currentUser: AnySession): collection.Seq[Topic] = {
     val topicListDto = new TopicListDto
 
     topicListDto.setNotalks(noTalks)
@@ -230,7 +230,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
     topicListDao.getTopics(topicListDto, NonAuthorizedSession)
   }
 
-  def getTopics(topicListDto: TopicListDto)(implicit currentUser: AnySession): collection.Seq[Topic] =
+  def getTopics(topicListDto: TopicListDto)(using currentUser: AnySession): collection.Seq[Topic] =
     topicListDao.getTopics(topicListDto, currentUser)
 
   def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] =

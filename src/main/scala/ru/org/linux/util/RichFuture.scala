@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -21,16 +21,14 @@ import org.apache.pekko.pattern.after
 import scala.concurrent.*
 import scala.concurrent.duration.FiniteDuration
 
-object RichFuture {
-  implicit class RichFuture[T](val future: Future[T]) extends AnyVal {
-    def withTimeout(duration: FiniteDuration)(implicit system: ActorSystem, executor: ExecutionContext): Future[T] = {
-      if (future.isCompleted) {
+object RichFuture:
+  extension [T](future: Future[T])
+    def withTimeout(duration: FiniteDuration)(using system: ActorSystem, executor: ExecutionContext): Future[T] =
+      if future.isCompleted then
         future
-      } else {
-        Future firstCompletedOf Seq(
-          future,
-          after(duration, system.scheduler)(Future.failed(new TimeoutException(s"Timed out after ${duration.toMillis}ms"))))
-      }
-    }
-  }
-}
+      else
+        Future firstCompletedOf
+          Seq(
+            future,
+            after(duration, system.scheduler)(
+              Future.failed(new TimeoutException(s"Timed out after ${duration.toMillis}ms"))))

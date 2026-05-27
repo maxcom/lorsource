@@ -189,7 +189,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
   }
 
   private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic])
-                                        (implicit currentUser: AnySession): Unit = {
+                                        (using currentUser: AnySession): Unit = {
     if (rss) {
       modelAndView.addObject("messages", prepareService.prepareTopicForRSS(messages).asJava)
       modelAndView.setViewName("section-rss")

@@ -40,7 +40,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], topic: Topic, hideSet: Set[Int], samePageComments: Set[Int],
                              group: Group, ignoreList: Set[Int], filterShow: Boolean, warnings: Seq[Warning])
-                            (implicit session: AnySession) = {
+                            (using session: AnySession) = {
     val processedMessage = textService.renderCommentText(messageText, !topicPermissionService.followAuthorLinks(author))
 
     val (answerLink, answerSamepage, answerCount, replyInfo, hasAnswers) = if (comments.isDefined) {
@@ -139,7 +139,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
   }
 
   def prepareCommentOnly(comment: Comment, topic: Topic, ignoreList: Set[Int])
-                        (implicit currentUser: AnySession): PreparedComment = {
+                        (using currentUser: AnySession): PreparedComment = {
     assert(comment.topicId == topic.id)
 
     val messageText = msgbaseDao.getMessageText(comment.id)
@@ -172,7 +172,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
   def prepareCommentList(comments: CommentList, list: Seq[Comment], topic: Topic, hideSet: Set[Int],
                          ignoreList: Set[Int], filterShow: Boolean)
-                        (implicit currentUser: AnySession): Seq[PreparedComment] = {
+                        (using currentUser: AnySession): Seq[PreparedComment] = {
     if (list.isEmpty) {
       Seq.empty
     } else {

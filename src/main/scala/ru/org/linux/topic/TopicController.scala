@@ -60,7 +60,7 @@ object TopicController {
   }
 
   private def buildPages(topic: Topic, filterModeShow: Boolean, currentPage: Int)
-                        (implicit session: AnySession): PagesInfo = {
+                        (using session: AnySession): PagesInfo = {
     val messagesPerPage = session.profile.messages
     var base = TopicLinkBuilder.baseLink(topic).lastmod(messagesPerPage)
 
@@ -155,7 +155,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
   private def getMessage(topic: Topic, section: Section, webRequest: WebRequest, request: HttpServletRequest,
                          response: HttpServletResponse, page: Int, filter: String, groupName: String,
                          threadRoot: Int, showDeleted: Boolean)
-                        (implicit session: AnySession): ModelAndView = {
+                         (using session: AnySession): ModelAndView = {
     val deadline = TopicController.MoreLikeThisTimeout.fromNow
 
     val tags = topicTagService.getTagRefs(topic).asScala
@@ -311,7 +311,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
   }
 
   private def getCommentsForPage(commentList: CommentList, page: Int, hideSet: Set[Int])
-                                (implicit session: AnySession): Seq[Comment] = {
+                                (using session: AnySession): Seq[Comment] = {
     val comments = commentList.comments
 
     if (page != -1) {

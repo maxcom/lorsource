@@ -67,7 +67,7 @@ class GalleryPermissionInterceptor(imageDao: ImageDao, topicService: TopicServic
     continue
   }
 
-  private def visible(topic: Topic, image: Image)(implicit session: AnySession): Boolean = {
+  private def visible(topic: Topic, image: Image)(using session: AnySession): Boolean = {
     try {
       topicPermissionService.checkView(groupService.getGroup(topic.groupId), topic,
         userService.getUserCached(topic.authorUserId), showDeleted = false)

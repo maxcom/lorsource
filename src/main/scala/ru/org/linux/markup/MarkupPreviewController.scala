@@ -63,7 +63,7 @@ class MarkupPreviewController(textService: MessageTextService) {
 case class MarkupPreviewResponse(error: Option[String], html: Option[String])
 
 object MarkupPreviewResponse {
-  implicit val encoder: Encoder[MarkupPreviewResponse] = Encoder.instance { response =>
+  given Encoder[MarkupPreviewResponse] = Encoder.instance { response =>
     val fields = List.newBuilder[(String, Json)]
     response.error.foreach(e => fields += ("error" -> Json.fromString(e)))
     response.html.foreach(h => fields += ("html" -> Json.fromString(h)))

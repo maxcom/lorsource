@@ -145,7 +145,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
   }
 
   def prepare(reactions: Reactions, ignoreList: Set[Int], topic: Topic, comment: Option[Comment])
-             (implicit session: AnySession): PreparedReactions = {
+             (using session: AnySession): PreparedReactions = {
     PreparedReactions(allZeros ++
       reactions.reactions
         .groupMap(_._2)(_._1)

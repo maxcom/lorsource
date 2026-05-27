@@ -41,7 +41,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    * @param scoreBonus   дельта изменения score автора топика
    */
   def deleteTopic(topic: Topic, reason: String, scoreBonus: Int)
-                 (implicit currentUser: AuthorizedSession): Unit = transactional() { _ =>
+                   (using currentUser: AuthorizedSession): Unit = transactional() { _ =>
     assert(scoreBonus <= 20 && scoreBonus >= 0, "Некорректное значение bonus")
     assert(scoreBonus == 0 || currentUser.moderator, "Только модератор может менять score")
 
@@ -63,7 +63,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
   def deleteComment(comment: Comment, reason: String, scoreBonus: Int, checkForReply: Boolean)
-                   (implicit currentUser: AuthorizedSession): Boolean = transactional() { _ =>
+                   (using currentUser: AuthorizedSession): Boolean = transactional() { _ =>
     assert(scoreBonus == 0 || currentUser.moderator, "Только модератор может менять score")
     assert(checkForReply || currentUser.moderator, "Только модератор может удалять без ответов")
 
@@ -92,7 +92,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    * @return список идентификационных номеров удалённых комментариев
    */
   def deleteCommentWithReplys(topic: Topic, comment: Comment, reason: String, scoreBonus: Int)
-                             (implicit currentUser: AuthorizedSession): Seq[Int] = transactional() { _ =>
+                             (using currentUser: AuthorizedSession): Seq[Int] = transactional() { _ =>
     assert(currentUser.moderator, "Только модератор может удалять с ответами")
 
     val commentList = commentService.getCommentList(topic, showDeleted = false)
@@ -113,7 +113,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    * @return список id удаленных сообщений
    */
   def deleteByIPAddress(ip: String, timeDelta: Timestamp, reason: String)
-                       (implicit currentUser: AuthorizedSession): DeleteCommentResult = transactional() { _ =>
+                       (using currentUser: AuthorizedSession): DeleteCommentResult = transactional() { _ =>
     assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
 
     val topics = topicDao.getAllByIPForUpdate(ip, timeDelta)
@@ -131,7 +131,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    * @return список удаленных комментариев
    */
   def deleteAllAndBlock(user: User, reason: String)
-                       (implicit currentUser: AuthorizedSession): DeleteCommentResult = {
+                       (using currentUser: AuthorizedSession): DeleteCommentResult = {
     val result = transactional() { _ =>
       assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
 
@@ -149,7 +149,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
   }
 
   def undeleteComment(comment: Comment)
-                     (implicit currentUser: AuthorizedSession): Unit = transactional() { _ =>
+                 (using currentUser: AuthorizedSession): Unit = transactional() { _ =>
     assert(currentUser.moderator, "Только модератор может восстанавливать")
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(comment.id, true)
@@ -166,7 +166,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
   }
 
   def undeleteTopic(topic: Topic)
-                   (implicit currentUser: AuthorizedSession): Unit = transactional() { _ =>
+                     (using currentUser: AuthorizedSession): Unit = transactional() { _ =>
     assert(currentUser.moderator, "Только модератор может восстанавливать")
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(topic.id, true)
