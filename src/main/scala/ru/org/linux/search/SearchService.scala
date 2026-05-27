@@ -21,11 +21,10 @@ import org.jsoup.safety.Safelist
 import org.opensearch.client.json.JsonData
 import org.opensearch.client.opensearch.OpenSearchClient
 import org.opensearch.client.opensearch._types.{FieldValue, SortOptions, SortOrder}
-import org.opensearch.client.opensearch._types.aggregations.{Aggregate, SignificantTermsAggregation, StringTermsBucket,
-  TermsAggregation}
+import org.opensearch.client.opensearch._types.aggregations.{Aggregate, SignificantTermsAggregation, StringTermsBucket, TermsAggregation}
 import org.opensearch.client.opensearch._types.query_dsl.*
 import org.opensearch.client.opensearch.core.{SearchRequest, SearchResponse}
-import org.opensearch.client.opensearch.core.search.{HighlightField, Hit}
+import org.opensearch.client.opensearch.core.search.{BuiltinHighlighterType, HighlightField, HighlighterType, Hit}
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.group.GroupService
@@ -159,7 +158,11 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
         .requireFieldMatch(false)
         .fields("title", HighlightField.of(hf => hf.numberOfFragments(0)))
         .fields("topicTitle", HighlightField.of(hf => hf.numberOfFragments(0)))
-        .fields("message", HighlightField.of(hf => hf.numberOfFragments(1).fragmentSize(MessageFragment)))
+        .fields("message", HighlightField.of(hf =>
+          hf
+            .`type`(HighlighterType.of(ht => ht.builtin(BuiltinHighlighterType.FastVector)))
+            .numberOfFragments(1)
+            .fragmentSize(MessageFragment)))
       )
       .size(SearchRows)
       .from(query.getOffset)
