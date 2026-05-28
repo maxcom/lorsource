@@ -75,24 +75,24 @@ public class MemberTagTest {
   @Test
   public void testExtraLines() {
     //user
-    assertEquals(lorCodeService.parseComment("[user]splinter[/user]", false, LorCodeService.Plain$.MODULE$),
-            lorCodeService.parseComment("\n\n[user]\n\nsplinter\n\n[/user]\n\n", false, LorCodeService.Plain$.MODULE$));
+    assertEquals(lorCodeService.parseComment("[user]splinter[/user]", false, LorCodeService.Plain()),
+            lorCodeService.parseComment("\n\n[user]\n\nsplinter\n\n[/user]\n\n", false, LorCodeService.Plain()));
   }
 
   @Test
   public void splinterTest1() { // http://www.linux.org.ru/forum/linux-org-ru/6448266
     assertEquals("<p><a href=\"http://www.fishing.org/\">http://www.fishing.org/</a> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/splinter/profile\">splinter</a></span></p>",
-            lorCodeService.parseComment("[url=http://www.fishing.org/][user]splinter[/user][/url]", false, LorCodeService.Plain$.MODULE$));
+            lorCodeService.parseComment("[url=http://www.fishing.org/][user]splinter[/user][/url]", false, LorCodeService.Plain()));
   }
 
   @Test
   public void userTest() {
     assertEquals("<p> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>",
-            lorCodeService.parseComment("[user]maxcom[/user]", false, LorCodeService.Plain$.MODULE$));
+            lorCodeService.parseComment("[user]maxcom[/user]", false, LorCodeService.Plain()));
     assertEquals("<p> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/isden/profile\">isden</a></s></span></p>",
-            lorCodeService.parseComment("[user]isden[/user]", false, LorCodeService.Plain$.MODULE$));
+            lorCodeService.parseComment("[user]isden[/user]", false, LorCodeService.Plain()));
     assertEquals("<p> <s>hizel</s></p>",
-            lorCodeService.parseComment("[user]hizel[/user]", false, LorCodeService.Plain$.MODULE$));
+            lorCodeService.parseComment("[user]hizel[/user]", false, LorCodeService.Plain()));
   }
 
   @Test
@@ -108,11 +108,11 @@ public class MemberTagTest {
   @Test
   public void userTest2() {
     assertEquals("<p> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>",
-            lorCodeService.parseComment("[user]maxcom[/USER]", false, LorCodeService.Plain$.MODULE$));
+            lorCodeService.parseComment("[user]maxcom[/USER]", false, LorCodeService.Plain()));
     assertEquals("<p> <span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/isden/profile\">isden</a></s></span></p>",
-            lorCodeService.parseComment("[USER]isden[/USER]", false, LorCodeService.Plain$.MODULE$));
+            lorCodeService.parseComment("[USER]isden[/USER]", false, LorCodeService.Plain()));
     assertEquals("<p> <s>hizel</s></p>",
-            lorCodeService.parseComment("[user]hizel[/USER]", false, LorCodeService.Plain$.MODULE$));
+            lorCodeService.parseComment("[user]hizel[/USER]", false, LorCodeService.Plain()));
   }
 
   @Test

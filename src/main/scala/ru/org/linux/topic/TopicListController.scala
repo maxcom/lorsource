@@ -27,7 +27,6 @@ import ru.org.linux.group.{Group, GroupNotFoundException, GroupPermissionService
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.tag.{TagPageController, TagService}
-import ru.org.linux.topic.TopicListController.ForumFilter.{NoTalks, Tech}
 import ru.org.linux.topic.TopicListController.{ForumFilter, ForumFilters, calculatePTitle}
 import ru.org.linux.user.UserErrorException
 import ru.org.linux.util.{DateUtil, ServletParameterException}
@@ -72,27 +71,14 @@ object TopicListController {
     navTitle.toString
   }
 
-  sealed trait ForumFilter {
-    def id: String
-    def title: String
+  enum ForumFilter(val id: String, val title: String):
+    case NoTalks extends ForumFilter("notalks", "без talks")
+    case Tech    extends ForumFilter("tech", "тех. форум")
 
-    final def getId: String = id
-    final def getTitle: String = title
-  }
+    def getId: String = id
+    def getTitle: String = title
 
-  object ForumFilter {
-    case object NoTalks extends ForumFilter {
-      override val id = "notalks"
-      override val title = "без talks"
-    }
-
-    case object Tech extends ForumFilter {
-      override val id = "tech"
-      override val title = "тех. форум"
-    }
-  }
-
-  private val ForumFilters = Seq(NoTalks, Tech)
+  private val ForumFilters = Seq(ForumFilter.NoTalks, ForumFilter.Tech)
 }
 
 @Controller
@@ -136,7 +122,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("navtitle", TopicListController.calculateNavTitle(section, group, topicListForm))
 
     val messages = topicListService.getTopicsFeed(section, group, None, topicListForm.offset,
-      topicListForm.yearMonth, 20, topicListForm.filter.contains(NoTalks), topicListForm.filter.contains(Tech))
+      topicListForm.yearMonth, 20, topicListForm.filter.contains(ForumFilter.NoTalks), topicListForm.filter.contains(ForumFilter.Tech))
 
     modelAndView.addObject(
       "messages",
@@ -274,8 +260,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("section", section)
     modelAndView.addObject("ptitle", ptitle)
 
-    val notalks = forumFilter.contains(NoTalks)
-    val tech = forumFilter.contains(Tech)
+    val notalks = forumFilter.contains(ForumFilter.NoTalks)
+    val tech = forumFilter.contains(ForumFilter.Tech)
 
     val fromDate = ZonedDateTime.now.minusMonths(3)
     val messages = topicListService.getRssTopicsFeed(section, group, fromDate.toInstant, notalks, tech)

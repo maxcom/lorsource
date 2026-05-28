@@ -128,7 +128,7 @@ class SearchController(sectionService: SectionService, userService: UserService,
         s match {
           case "1" => setValue(SearchOrder.Relevance) // for old links
           case "2" => setValue(SearchOrder.Date)
-          case _ => setValue(SearchOrder.valueOf(s))
+          case _ => setValue(SearchOrder.fromId(s))
         }
       }
     })

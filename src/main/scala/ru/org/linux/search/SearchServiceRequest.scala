@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets
 import java.time.{Instant, ZoneId}
 import java.time.temporal.ChronoUnit
 import scala.beans.{BeanProperty, BooleanBeanProperty}
+import scala.compiletime.uninitialized
 
 class SearchServiceRequest:
   @BeanProperty
@@ -36,7 +37,7 @@ class SearchServiceRequest:
   @BeanProperty
   var sort: SearchOrder = SearchOrder.Relevance
   @BeanProperty
-  var group: String = _
+  var group: String = uninitialized
   @BeanProperty
   var interval: SearchInterval = SearchInterval.ALL
   @BeanProperty

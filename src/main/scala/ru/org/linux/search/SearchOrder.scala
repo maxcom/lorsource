@@ -15,29 +15,11 @@
 
 package ru.org.linux.search
 
-sealed trait SearchOrder {
-  def name: String
-  def id: String
-}
+enum SearchOrder(val name: String, val id: String):
+  case Relevance extends SearchOrder("по релевантности", "RELEVANCE")
+  case Date extends SearchOrder("по дате: от новых к старым", "DATE")
+  case DateReverse extends SearchOrder("по дате: от старых к новым", "DATE_OLD_TO_NEW")
 
-object SearchOrder {
-  case object Relevance extends SearchOrder {
-    override val name = "по релевантности"
-    override val id = "RELEVANCE"
-  }
-
-  case object Date extends SearchOrder {
-    override val name = "по дате: от новых к старым"
-    override val id = "DATE"
-  }
-
-  case object DateReverse extends SearchOrder {
-    override val name = "по дате: от старых к новым"
-    override val id = "DATE_OLD_TO_NEW"
-  }
-
-  val values: Seq[SearchOrder] = Seq(Relevance, Date, DateReverse)
-
-  def valueOf(str: String): SearchOrder =
+object SearchOrder:
+  def fromId(str: String): SearchOrder =
     values.find(_.id == str).getOrElse(throw new IllegalArgumentException(s"bad order $str"))
-}
