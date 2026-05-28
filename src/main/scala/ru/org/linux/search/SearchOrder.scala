@@ -38,6 +38,6 @@ object SearchOrder {
 
   val values: Seq[SearchOrder] = Seq(Relevance, Date, DateReverse)
 
-  def valueOf(str: String): Object =
-    values.find(_.id == str).getOrElse(new IllegalArgumentException(s"bad order $str"))
+  def valueOf(str: String): SearchOrder =
+    values.find(_.id == str).getOrElse(throw new IllegalArgumentException(s"bad order $str"))
 }

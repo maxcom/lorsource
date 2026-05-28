@@ -93,21 +93,21 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
   }
 
   def performSearch(query: SearchServiceRequest, tz: ZoneId): SearchServiceResponse = {
-    val typeFilter = Option(query.getRange.getValue) map { value =>
-      Query.of(q => q.term(TermQuery.of(t => t.field(query.getRange.getColumn).value(FieldValue.of(value)))))
+    val typeFilter = Option(query.range.getValue) map { value =>
+      Query.of(q => q.term(TermQuery.of(t => t.field(query.range.getColumn).value(FieldValue.of(value)))))
     }
     val selectedDateFilter = Query.of(q => q.range(RangeQuery.of(r => r
-      .field(query.getInterval.getColumn)
+      .field(query.interval.getColumn)
       .gte(JsonData.of(query.atStartOfDaySelected(tz).toString))
       .lt(JsonData.of(query.atEndOfDaySelected(tz).toString))
     )))
 
-    val dateFilter = Option(query.getInterval.getRange) map { range =>
-      Query.of(q => q.range(RangeQuery.of(r => r.field(query.getInterval.getColumn).gt(JsonData.of(range)))))
+    val dateFilter = Option(query.interval.getRange) map { range =>
+      Query.of(q => q.range(RangeQuery.of(r => r.field(query.interval.getColumn).gt(JsonData.of(range)))))
     }
 
-    val userFilter = Option(query.getUser) map { user =>
-      if (query.isUsertopic) {
+    val userFilter = Option(query.user) map { user =>
+      if (query.usertopic) {
         Query.of(q => q.term(TermQuery.of(t => t.field("topic_author").value(FieldValue.of(user.nick)))))
       } else {
         Query.of(q => q.term(TermQuery.of(t => t.field("author").value(FieldValue.of(user.nick)))))
@@ -116,19 +116,19 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
 
     val queryFilters = (typeFilter ++ (if (query.isDateSelected) Option(selectedDateFilter) else dateFilter) ++ userFilter).toSeq
 
-    val esQuery = wrapQuery(boost(processQueryString(query.getQ)), queryFilters)
+    val esQuery = wrapQuery(boost(processQueryString(query.q)), queryFilters)
 
-    val sectionFilter = Option(query.getSection) filter (_.nonEmpty) map { section =>
+    val sectionFilter = Option(query.section) filter (_.nonEmpty) map { section =>
       Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(section)))))
     }
 
-    val groupFilter = Option(query.getGroup) filter (_.nonEmpty) map { group =>
+    val groupFilter = Option(query.group) filter (_.nonEmpty) map { group =>
       Query.of(q => q.term(TermQuery.of(t => t.field("group").value(FieldValue.of(group)))))
     }
 
     val postFilters = (sectionFilter ++ groupFilter).toSeq
 
-    val order = query.getSort match {
+    val order = query.sort match {
       case SearchOrder.Relevance =>
         Seq(
           SortOptions.of(s => s.score(sc => sc.order(SortOrder.Desc))),
@@ -165,7 +165,7 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
             .fragmentSize(MessageFragment)))
       )
       .size(SearchRows)
-      .from(query.getOffset)
+      .from(query.offset)
       .postFilter(andFilters(postFilters))
       .timeout(s"${SearchTimeout.toSeconds}s")
       .trackTotalHits(t => t.enabled(true))
@@ -185,24 +185,24 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
       val sectionsTerms = sectionsAgg.sterms()
       val sectionsBucketsSeq = sectionsTerms.buckets.array().asScala
 
-      if (sectionsBucketsSeq.size > 1 || !Strings.isNullOrEmpty(query.getSection)) {
-        sectionFacetResponse = Some(buildSectionFacet(sectionsAgg, Option.apply(Strings.emptyToNull(query.getSection))))
+      if (sectionsBucketsSeq.size > 1 || !Strings.isNullOrEmpty(query.section)) {
+        sectionFacetResponse = Some(buildSectionFacet(sectionsAgg, Option.apply(Strings.emptyToNull(query.section))))
 
-        if (!Strings.isNullOrEmpty(query.getSection)) {
-          val selectedSection = sectionsBucketsSeq.find(b => b.key == query.getSection)
+        if (!Strings.isNullOrEmpty(query.section)) {
+          val selectedSection = sectionsBucketsSeq.find(b => b.key == query.section)
 
-          if (!Strings.isNullOrEmpty(query.getGroup)) {
-            groupFacetResponse = buildGroupFacet(selectedSection, Some(query.getSection -> query.getGroup))
+          if (!Strings.isNullOrEmpty(query.group)) {
+            groupFacetResponse = buildGroupFacet(selectedSection, Some(query.section -> query.group))
           } else {
             groupFacetResponse = buildGroupFacet(selectedSection, None)
           }
         }
 
 
-      } else if (Strings.isNullOrEmpty(query.getSection) && sectionsBucketsSeq.size == 1) {
+      } else if (Strings.isNullOrEmpty(query.section) && sectionsBucketsSeq.size == 1) {
         val onlySection = sectionsBucketsSeq.head
 
-        query.setSection(onlySection.key)
+        query.section = onlySection.key
 
         groupFacetResponse = buildGroupFacet(Some(onlySection), None)
       }

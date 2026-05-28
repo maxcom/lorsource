@@ -79,13 +79,13 @@ class SearchController(sectionService: SectionService, userService: UserService,
       params.put("searchTime", response.took)
       params.put("numFound", response.totalHits)
 
-      val nextOffset = query.getOffset + SearchService.SearchRows
+      val nextOffset = query.offset + SearchService.SearchRows
       if nextOffset < SearchService.MaxOffset && response.totalHits > nextOffset then {
         params.put("nextLink", "/search.jsp?" + query.getQuery(nextOffset))
       }
 
-      if (query.getOffset - SearchService.SearchRows >= 0) {
-        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset - SearchService.SearchRows))
+      if (query.offset - SearchService.SearchRows >= 0) {
+        params.put("prevLink", "/search.jsp?" + query.getQuery(query.offset - SearchService.SearchRows))
       }
     }
 
@@ -93,30 +93,30 @@ class SearchController(sectionService: SectionService, userService: UserService,
   }
 
   private def sanitizeQuery(query: SearchServiceRequest): Unit = {
-    if (!Strings.isNullOrEmpty(query.getSection)) {
-      val section = sectionService.fuzzyNameToSection.get(query.getSection)
+    if (!Strings.isNullOrEmpty(query.section)) {
+      val section = sectionService.fuzzyNameToSection.get(query.section)
 
       if (section.isDefined) {
-        query.setSection(section.get.getUrlName)
+        query.section = section.get.getUrlName
 
-        if (!Strings.isNullOrEmpty(query.getGroup)) {
-          val group = groupService.getGroupOpt(section.get, query.getGroup, true)
+        if (!Strings.isNullOrEmpty(query.group)) {
+          val group = groupService.getGroupOpt(section.get, query.group, true)
 
           if (group.isEmpty) {
-            query.setGroup("")
+            query.group = ""
           } else {
-            query.setGroup(group.get.urlName)
+            query.group = group.get.urlName
           }
         } else {
-          query.setGroup("")
+          query.group = ""
         }
       } else {
-        query.setSection("")
-        query.setGroup("")
+        query.section = ""
+        query.group = ""
       }
     } else {
-      query.setGroup("")
-      query.setSection("")
+      query.group = ""
+      query.section = ""
     }
   }
 
