@@ -87,3 +87,11 @@ class AddTopicControllerWebTest extends FunSuite with WebHelper:
     val finalDoc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
     assert(finalDoc.text().contains("Вы поместили сообщение в защищенный раздел."), "should contain success message")
+
+    val topicLink = finalDoc.select("a[href]").asScala
+      .find(_.text().contains("Перейти к сообщению"))
+      .getOrElse(fail("topic link not found"))
+    val topicId = topicLink.attr("href").split("/").last.toInt
+
+    val auth = doLogin()
+    deleteTopic(auth, topicId)
