@@ -170,12 +170,6 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       if (!session.authorized && message.openWarnings > TopicMaxWarnings) {
         throw new MessageNotFoundException(message.id, "Сообщение скрыто")
       }
-
-      val viewByCorrector = currentUser != null && currentUser.canCorrect
-
-      if (group.premoderated && !message.commited && topicAuthor.anonymous && !viewByCorrector) {
-        throw new AccessViolationException("Это сообщение нельзя посмотреть")
-      }
     }
   }
 
