@@ -508,6 +508,26 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[3.9.13,)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
         <version>4.9.10</version>
@@ -551,7 +571,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.5.1</version>
         <configuration>
           <warSourceExcludes>**/*.css,**/js/*.js,**/js/lor/</warSourceExcludes>
         </configuration>
@@ -573,7 +593,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.15.0</version>
         <configuration>
           <source>25</source>
           <target>25</target>
@@ -781,13 +801,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
+        <version>3.2.0</version>
         <executions>
           <execution>
             <id>copy-local-js</id>
             <phase>process-resources</phase>
             <configuration>
-              <tasks>
+              <target>
                 <copy file="${basedir}/src/main/webapp/js/script.min.js"
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${basedir}/src/main/webapp/js/jquery.hotkeys.js"
@@ -796,7 +816,7 @@
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch.js"
                       tofile="${project.build.directory}/${project.build.finalName}/js/diff_match_patch.js"/>
-              </tasks>
+              </target>
             </configuration>
             <goals>
               <goal>run</goal>
@@ -806,7 +826,7 @@
             <id>concat-plugins-js</id>
             <phase>compile</phase>
             <configuration>
-              <tasks>
+              <target>
                 <concat destfile="${project.build.directory}/${project.build.finalName}/js/plugins.js" fixlastline="true">
                   <filelist dir="${project.build.directory}/${project.build.finalName}/js">
                     <file name="jquery.hotkeys.js"/>
@@ -823,7 +843,7 @@
                     <file name="META-INF/resources/webjars/github-com-tarekraafat-autocomplete-js/${autocomplete.version}/autoComplete.min.js"/>
                   </filelist>
                 </concat>
-              </tasks>
+              </target>
             </configuration>
             <goals>
               <goal>run</goal>
@@ -833,7 +853,7 @@
             <id>create-temp-storage</id>
             <phase>generate-test-resources</phase>
             <configuration>
-              <tasks>
+              <target>
                 <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
                 <mkdir dir="${project.build.directory}/uploads/gallery"/>
                 <mkdir dir="${project.build.directory}/uploads/images"/>
@@ -843,7 +863,7 @@
                       todir="${project.build.directory}/${project.build.finalName}/qrerror/"/>
                 <copy file="${basedir}/src/main/webapp/js/highlight.min.js"
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
-              </tasks>
+              </target>
             </configuration>
             <goals>
               <goal>run</goal>
@@ -855,7 +875,7 @@
       <plugin>
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
-        <version>1.5.1</version>
+        <version>1.5.3</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -887,7 +907,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19.1</version>
+        <version>3.5.6</version>
         <configuration>
           <trimStackTrace>false</trimStackTrace>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
@@ -907,7 +927,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.19.1</version>
+        <version>3.5.6</version>
         <executions>
           <execution>
             <id>integration-tests</id>
@@ -930,7 +950,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.11.0</version>
         <executions>
           <execution>
             <id>unpack</id>
