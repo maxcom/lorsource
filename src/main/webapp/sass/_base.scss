@@ -169,16 +169,23 @@ h6 {
     margin-bottom: 1em;
     width: 100%;
     max-width: 100%;
+
+    border: 1px solid var(--table-border-color);
   }
 
   th {
     font-weight: bold;
-    border-bottom: 2px solid;
+    border-bottom: 1px solid var(--table-border-color);
   }
 
   td, th {
     padding: 0.75em;
-    border-top: 1px solid;
+  }
+
+  hr {
+    border: none;
+    height: 1px;
+    background-color: var(--table-border-color);
   }
 }
 
