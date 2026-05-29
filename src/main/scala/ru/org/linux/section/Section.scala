@@ -15,6 +15,7 @@
 
 package ru.org.linux.section
 
+import org.apache.commons.lang3.StringUtils
 import ru.org.linux.topic.TopicPermissionService
 
 import java.sql.ResultSet
@@ -76,6 +77,8 @@ case class Section(
         "неподтв. галереи"
       case _ =>
         "неподтв. " + name.toLowerCase
+
+  def uncommitedNameShortCap: String = StringUtils.capitalize(uncommitedNameShort)
 
 object Section:
   final val Forum = 2
