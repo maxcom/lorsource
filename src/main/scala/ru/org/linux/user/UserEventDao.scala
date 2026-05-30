@@ -178,6 +178,16 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
     recalcEventCount(Seq(userId))
   }
 
+  def resetUnreadReactionGroup(userId: Int, firstEventId: Int, lastEventId: Int,
+                               topicId: Int, commentId: Int): Unit = transactional() { _ =>
+    jdbcTemplate.update(
+      "UPDATE user_events SET unread=false WHERE userid=? AND unread AND id BETWEEN ? AND ? " +
+        "AND type = 'REACTION' AND message_id = ? AND coalesce(comment_id, 0) = ?",
+      userId, firstEventId, lastEventId, topicId, commentId)
+
+    recalcEventCount(Seq(userId))
+  }
+
   /**
    * Сброс уведомлений.
    *

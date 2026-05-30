@@ -80,5 +80,7 @@ case class PreparedUserEvent(@BeanProperty event: UserEvent, messageText: Option
     ""
   }
 
+  def getUnreadDelta: Int = count.max(reactions.size)
+
   def getReactionsList: java.util.List[ReactionListItem] = reactions.asJava
 }

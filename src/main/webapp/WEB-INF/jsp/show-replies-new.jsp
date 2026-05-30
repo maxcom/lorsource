@@ -62,21 +62,23 @@
 </nav>
 
 <c:if test="${unreadCount > 0}">
-  <div id="counter_block" class="infoblock">
-    <c:choose>
-      <c:when test="${unreadCount == 1 || (unreadCount>20 && unreadCount%10==1) }">
-        У вас ${unreadCount} непрочитанное уведомление
-      </c:when>
-      <c:when test="${unreadCount == 2 || (unreadCount>20 && unreadCount%10==2)}">
-        У вас ${unreadCount} непрочитанных уведомления
-      </c:when>
-      <c:when test="${unreadCount == 3 || (unreadCount>20 && unreadCount%10==3)}">
-        У вас ${unreadCount} непрочитанных уведомления
-      </c:when>
-      <c:otherwise>
-        У вас ${unreadCount} непрочитанных уведомлений
-      </c:otherwise>
-    </c:choose>
+  <div id="counter_block" class="infoblock" data-unread-count="${unreadCount}">
+    <span id="counter_text">
+      <c:choose>
+        <c:when test="${unreadCount == 1 || (unreadCount>20 && unreadCount%10==1) }">
+          У вас ${unreadCount} непрочитанное уведомление
+        </c:when>
+        <c:when test="${unreadCount == 2 || (unreadCount>20 && unreadCount%10==2)}">
+          У вас ${unreadCount} непрочитанных уведомления
+        </c:when>
+        <c:when test="${unreadCount == 3 || (unreadCount>20 && unreadCount%10==3)}">
+          У вас ${unreadCount} непрочитанных уведомления
+        </c:when>
+        <c:otherwise>
+          У вас ${unreadCount} непрочитанных уведомлений
+        </c:otherwise>
+      </c:choose>
+    </span>
 
     <c:if test="${enableReset}">
       <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
@@ -94,7 +96,7 @@
   <lor:csrf/>
   <input type="hidden" name="lastId" value="${topic.lastId}"/>
   <input type="hidden" name="firstId" value="${topic.event.id}"/>
-  <button type="submit" class="event-unread-${topic.event.unread} notifications-item">
+  <button type="submit" class="event-unread-${topic.event.unread} notifications-item" data-unread-delta="${topic.unreadDelta}">
 
   <div class="notifications-type">
     <p>

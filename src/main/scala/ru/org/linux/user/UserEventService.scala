@@ -151,6 +151,8 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
   def resetSingleEvent(user: User, eventId: Int): Unit = userEventDao.resetSingle(user.id, eventId)
   def resetUnreadEvents(user: User, topId: Int, topicId: Int, eventType: UserEventFilterEnum): Unit =
     userEventDao.resetUnreadEvents(user.id, topId, topicId, eventType)
+  def resetUnreadReactionGroup(user: User, firstEventId: Int, lastEventId: Int, topicId: Int, commentId: Int): Unit =
+    userEventDao.resetUnreadReactionGroup(user.id, firstEventId, lastEventId, topicId, commentId)
 
   /**
    * Удаление уведомлений, относящихся к удаленным топикам

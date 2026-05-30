@@ -14,6 +14,7 @@
  */
 package ru.org.linux.user
 
+import io.circe.Json
 import jakarta.servlet.http.HttpServletResponse
 import org.apache.pekko.actor.typed.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
-import ru.org.linux.auth.{AccessViolationException, AuthUtil}
+import ru.org.linux.auth.{AccessViolationException, AuthUtil, AuthorizedSession}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.site.BadInputException
 import ru.org.linux.user.UserEvent.NoReaction
@@ -31,6 +32,24 @@ import ru.org.linux.util.StringUtil
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
+
+object UserEventController {
+  private[user] def isValidClickRange(firstEvent: UserEvent, lastEvent: UserEvent): Boolean =
+    if (firstEvent.id > lastEvent.id || firstEvent.unread != lastEvent.unread) {
+      false
+    } else {
+      lastEvent.eventType match {
+        case UserEventFilterEnum.FAVORITES =>
+          firstEvent.eventType == UserEventFilterEnum.FAVORITES && firstEvent.topicId == lastEvent.topicId
+        case UserEventFilterEnum.REACTION =>
+          firstEvent.eventType == UserEventFilterEnum.REACTION &&
+            firstEvent.topicId == lastEvent.topicId &&
+            firstEvent.cid == lastEvent.cid
+        case _ =>
+          firstEvent.id == lastEvent.id && firstEvent.eventType == lastEvent.eventType
+      }
+    }
+}
 
 @Controller
 class UserEventController(feedView: UserEventFeedView, userService: UserService, userEventService: UserEventService,
@@ -48,11 +67,25 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
   @RequestMapping(value = Array("/notifications-click"), method = Array(RequestMethod.POST))
   def clickNotifications(@RequestParam firstId: Int, @RequestParam lastId: Int): RedirectView = AuthorizedOnly { currentUser =>
+    val url = processClickNotifications(firstId, lastId, currentUser)
+    val view = new RedirectView(url)
+    view.setExposeModelAttributes(false)
+    view
+  }
+
+  @RequestMapping(value = Array("/notifications-click/ajax"), method = Array(RequestMethod.POST), produces = Array("application/json"))
+  @ResponseBody
+  def clickNotificationsAjax(@RequestParam firstId: Int, @RequestParam lastId: Int): Json = AuthorizedOnly { currentUser =>
+    val url = processClickNotifications(firstId, lastId, currentUser)
+    Json.obj("url" -> Json.fromString(url))
+  }
+
+  private def processClickNotifications(firstId: Int, lastId: Int, currentUser: AuthorizedSession): String = {
     val firstEventOpt = userEventService.getEvent(firstId)
     val lastEventOpt = userEventService.getEvent(lastId)
 
     if (firstEventOpt.isEmpty || lastEventOpt.isEmpty) {
-      new RedirectView("/notifications")
+      "/notifications"
     } else {
       val firstEvent = firstEventOpt.get
       val lastEvent = lastEventOpt.get
@@ -62,8 +95,15 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       }
 
       if (lastEvent.unread) {
-        if (lastEvent.eventType == UserEventFilterEnum.FAVORITES || lastEvent.eventType == UserEventFilterEnum.REACTION) {
+        if (!UserEventController.isValidClickRange(firstEvent, lastEvent)) {
+          throw new BadInputException("invalid notification click range")
+        }
+
+        if (lastEvent.eventType == UserEventFilterEnum.FAVORITES) {
           userEventService.resetUnreadEvents(currentUser.user, lastEvent.id, lastEvent.topicId, lastEvent.eventType)
+        } else if (lastEvent.eventType == UserEventFilterEnum.REACTION) {
+          userEventService.resetUnreadReactionGroup(currentUser.user, firstEvent.id, lastEvent.id,
+            lastEvent.topicId, lastEvent.cid)
         } else {
           userEventService.resetSingleEvent(currentUser.user, lastEvent.id)
         }
@@ -72,10 +112,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       }
 
       val preparedFirstEvent = prepareService.prepareSimple(Seq(firstEvent), withText = false).head
-
-      val view = new RedirectView(preparedFirstEvent.getLink)
-      view.setExposeModelAttributes(false)
-      view
+      preparedFirstEvent.getLink
     }
   }
 
@@ -126,7 +163,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       params.put("unreadCount", currentUser.user.unreadEvents)
       params.put("isMyNotifications", true)
 
-      response.addHeader("Cache-Control", "no-cache")
+      response.addHeader("Cache-Control", "no-store")
 
       val list = userEventService.getUserEvents(currentUser.user, showPrivate = true,
         OldEventsCleaner.MaxEventsPerUser, 0, eventFilter
