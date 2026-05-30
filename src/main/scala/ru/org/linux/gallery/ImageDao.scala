@@ -17,7 +17,7 @@ package ru.org.linux.gallery
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.org.linux.gallery.ImageDao.galleryItemRowMapper
+import ru.org.linux.gallery.galleryItemRowMapper
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
 
@@ -108,7 +108,7 @@ class ImageDao(private val sectionService: SectionService, dataSource: DataSourc
   def getImage(id: Int): Image =
     jdbcTemplate.queryAndMap(
       "SELECT id, topic, extension, deleted, main FROM images WHERE id=?", id
-    )(ImageDao.imageRowMapper).headOption.getOrElse(throw new RuntimeException("Image not found: " + id))
+    )(ImageDao.imageRowMapper).headOption.getOrElse(throw ImageNotFoundException(id))
 
   def saveImage(topicId: Int, extension: String, main: Boolean): Int = {
     val dataMap: Map[String, Any] = Map("topic" -> topicId, "extension" -> extension, "main" -> main)

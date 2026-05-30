@@ -474,12 +474,12 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
   def handleMessageNotFoundException(ex: MessageNotFoundException): ModelAndView = {
     logger.debug("Not found", ex)
 
-    if (ex.getTopic != null) {
+    if (ex.topic != null) {
       val mav = new ModelAndView("errors/good-penguin")
-      val topic = ex.getTopic
+      val topic = ex.topic
       mav.addObject("msgTitle", "Ошибка: сообщения не существует")
       mav.addObject("msgHeader", "Сообщение удалено или не существует")
-      mav.addObject("msgMessage", String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует", ex.getId, topic.getLink, topic.title))
+      mav.addObject("msgMessage", String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует", ex.id, topic.getLink, topic.title))
       mav
     } else {
       new ModelAndView("errors/code404")

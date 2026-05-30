@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,8 +14,9 @@
  */
 package ru.org.linux.gallery
 
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
+import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestMethod, RequestParam, ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
@@ -67,4 +68,8 @@ class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topi
 
     new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build)
   }
+
+  @ExceptionHandler(Array(classOf[ImageNotFoundException]))
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  def handleImageNotFoundException(): ModelAndView = new ModelAndView("errors/code404")
 }
