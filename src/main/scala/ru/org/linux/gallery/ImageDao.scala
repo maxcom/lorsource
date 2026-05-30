@@ -17,7 +17,7 @@ package ru.org.linux.gallery
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.org.linux.gallery.galleryItemRowMapper
+import ru.org.linux.gallery.ImageDao.galleryItemRowMapper
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
 
