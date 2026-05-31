@@ -52,7 +52,12 @@ class UserEventDaoIntegrationTest:
   def testAdd(): Unit =
     createSimpleEvent()
 
-    val events = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, showPrivate = true, 50, 0, None)
+    val events = userEventDao.getRepliesForUser(
+      UserEventDaoIntegrationTest.TestUserId,
+      showPrivate = true,
+      50,
+      0,
+      UserEventFilterEnum.ALL)
 
     assertEquals(1, events.size)
 
@@ -73,7 +78,7 @@ class UserEventDaoIntegrationTest:
 
   private def createSimpleEvent(): Unit =
     userEventDao.addEvent(
-      eventType = UserEventFilterEnum.TAG.toString,
+      eventType = UserEventFilterEnum.TAG.getType,
       userId = UserEventDaoIntegrationTest.TestUserId,
       isPrivate = false,
       topicId = Some(UserEventDaoIntegrationTest.TestTopicId),
@@ -84,7 +89,7 @@ class UserEventDaoIntegrationTest:
   @Test
   def testAddRemove(): Unit =
     createSimpleEvent()
-    val events = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, showPrivate = true, 50, 0, None)
+    val events = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, showPrivate = true, 50, 0, UserEventFilterEnum.ALL)
     assertEquals(1, events.size)
     userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId))
     val eventsAfterDelete = userEventDao.getRepliesForUser(
@@ -92,7 +97,7 @@ class UserEventDaoIntegrationTest:
       showPrivate = true,
       50,
       0,
-      None)
+      UserEventFilterEnum.ALL)
     assertEquals(0, eventsAfterDelete.size)
 
   @Test
@@ -128,7 +133,7 @@ class UserEventDaoIntegrationTest:
     val maxEventIdBefore = jdbcTemplate.queryForObject[Int]("SELECT coalesce(max(id), 0) FROM user_events").get
 
     userEventDao.addEvent(
-      UserEventFilterEnum.REACTION.toString,
+      UserEventFilterEnum.REACTION.getType,
       UserEventDaoIntegrationTest.TestUserId,
       isPrivate = false,
       topicId = Some(topicId),
@@ -137,7 +142,7 @@ class UserEventDaoIntegrationTest:
       originUser = Some(userDao.findUserId("maxcom"))
     )
     userEventDao.addEvent(
-      UserEventFilterEnum.REACTION.toString,
+      UserEventFilterEnum.REACTION.getType,
       UserEventDaoIntegrationTest.TestUserId,
       isPrivate = false,
       topicId = Some(topicId),
@@ -146,7 +151,7 @@ class UserEventDaoIntegrationTest:
       originUser = Some(userDao.findUserId("svu"))
     )
     userEventDao.addEvent(
-      UserEventFilterEnum.REACTION.toString,
+      UserEventFilterEnum.REACTION.getType,
       UserEventDaoIntegrationTest.TestUserId,
       isPrivate = false,
       topicId = Some(topicId),

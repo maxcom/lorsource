@@ -13,23 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.user;
+package ru.org.linux.user
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.transaction.PlatformTransactionManager
 
-import javax.sql.DataSource;
+import javax.sql.DataSource
 
 @Configuration
-public class UserEventDaoIntegrationTestConfiguration {
+class UserEventDaoIntegrationTestConfiguration:
   @Bean
-  public UserEventDao userEventDao(DataSource ds, PlatformTransactionManager transactionManager) {
-    return new UserEventDao(ds, transactionManager);
-  }
+  def userEventDao(ds: DataSource, transactionManager: PlatformTransactionManager): UserEventDao =
+    new UserEventDao(ds, transactionManager)
 
   @Bean
-  public UserDao userDao(DataSource dataSource) {
-    return new UserDao(dataSource);
-  }
-}
+  def userDao(dataSource: DataSource): UserDao = new UserDao(dataSource)

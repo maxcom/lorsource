@@ -263,10 +263,10 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
    * @return список уведомлений
    */
   def getRepliesForUser(userId: Int, showPrivate: Boolean, topics: Int, offset: Int,
-                        eventFilterType: Option[String]): Seq[UserEvent] = {
+                        eventFilterType: UserEventFilterEnum): Seq[UserEvent] = {
     val queryString = if (showPrivate) {
-      val queryPart = if (eventFilterType.isDefined) {
-        s" AND type = '${eventFilterType.get}' "
+      val queryPart = if (eventFilterType != UserEventFilterEnum.ALL) {
+        s" AND type = '${eventFilterType.getType}' "
       } else {
         ""
       }
@@ -294,7 +294,9 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
 
     val groupId = resultSet.getInt("groupid")
     val msgid = resultSet.getInt("msgid")
-    val `type` = UserEventFilterEnum.valueOfByType(resultSet.getString("type"))
+    val `type` = UserEventFilterEnum.valueOfByType(resultSet.getString("type")).getOrElse(
+      throw new IllegalArgumentException(s"Unknown event type: ${resultSet.getString("type")}")
+    )
     val eventMessage = resultSet.getString("ev_msg")
     val unread = resultSet.getBoolean("unread")
 
@@ -380,7 +382,7 @@ class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionMa
   def getEventTypes(userId: Int): Seq[UserEventFilterEnum] = {
     jdbcTemplate.queryAndMap("select distinct(type) from user_events where userid=?", userId) { (rs, _) =>
       UserEventFilterEnum.valueOfByType(rs.getString("type"))
-    }
+    }.flatten
   }
 
   def insertTopicMassDeleteNotifications(topicsIds: Seq[Int], reason: String, deletedBy: Int): Unit = {
