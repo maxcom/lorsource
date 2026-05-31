@@ -14,84 +14,62 @@
  */
 package ru.org.linux.user
 
-import org.springframework.dao.EmptyResultDataAccessException
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.user.UserInvitesDao.ValidDays
+import scalikejdbc.*
 
 import java.security.SecureRandom
 import java.sql.Timestamp
 import java.time.{Instant, ZonedDateTime}
 import java.util.Base64
-import javax.sql.DataSource
-import scala.jdk.CollectionConverters.*
 
 @Repository
-class UserInvitesDao(ds: DataSource) {
-  private val insert = {
-    val i = new SimpleJdbcInsert(ds)
-    i.setTableName("user_invites")
-    i.setColumnNames(Seq("invite_code", "owner", "valid_until", "email").asJava)
-    i
-  }
-
-  private val jdbcTemplate = new JdbcTemplate(ds)
-
-  def createInvite(owner: User, email: String): (String, Instant) = {
-    val random = new SecureRandom
-
+class UserInvitesDao(springDB: SpringDB):
+  def createInvite(owner: User, email: String): (String, Instant) =
+    val random = SecureRandom()
     val value = new Array[Byte](16)
     random.nextBytes(value)
-
     val inviteCode = Base64.getEncoder.encodeToString(value)
-
     val validUntil = ZonedDateTime.now().plusDays(ValidDays).toInstant
 
-    insert.execute(Map(
-      "invite_code" -> inviteCode,
-      "owner" -> owner.id,
-      "valid_until" -> Timestamp.from(validUntil),
-      "email" -> email
-    ).asJava)
+    springDB.run:
+      sql"insert into user_invites (invite_code, owner, valid_until, email) values ($inviteCode, ${owner
+          .id}, ${Timestamp.from(validUntil)}, $email)".update.apply()
 
     (inviteCode, validUntil)
-  }
 
-  def emailFromValidInvite(inviteCode: String): Option[String] = {
-    try {
-      jdbcTemplate.queryForObject[String](
-        "select email from user_invites where invite_code=? and " +
-          "invited_user is null and valid_until>CURRENT_TIMESTAMP and owner not in (select id from users where blocked)",
-        inviteCode)
-    } catch {
-      case _: EmptyResultDataAccessException =>
-        None
-    }
-  }
+  def emailFromValidInvite(inviteCode: String): Option[String] =
+    springDB.run:
+      sql"""select email from user_invites where invite_code=$inviteCode and
+            invited_user is null and valid_until>CURRENT_TIMESTAMP and owner not in (select id from users where blocked)"""
+        .map(rs => rs.string("email"))
+        .single
+        .apply()
 
   def ownerOfInvite(inviteCode: String): Option[Int] =
-    jdbcTemplate.queryForObject[Int]("select owner from user_invites where invite_code=?", inviteCode)
+    springDB.run:
+      sql"select owner from user_invites where invite_code=$inviteCode".map(rs => rs.int("owner")).single.apply()
 
-  def markUsed(token: String, newUserId: Int): Boolean = {
-    jdbcTemplate.update("update user_invites set invited_user=? where invite_code=? and invited_user is null and valid_until>CURRENT_TIMESTAMP",
-      newUserId, token) > 0
-  }
+  def markUsed(token: String, newUserId: Int): Boolean =
+    springDB.run:
+      sql"update user_invites set invited_user=$newUserId where invite_code=$token and invited_user is null and valid_until>CURRENT_TIMESTAMP"
+        .update
+        .apply() > 0
 
-  // returns total and user's counts
-  def countValidInvites(user: User): (Int, Int) = {
-    jdbcTemplate.queryForObjectAndMap(
-      "select count(*), count(*) filter (where owner=?) from user_invites where valid_until > CURRENT_TIMESTAMP", user.id) { (row, _) =>
-      (row.getInt(1), row.getInt(2))
-    }.get
-  }
+  def countValidInvites(user: User): (Int, Int) =
+    springDB.run:
+      sql"select count(*), count(*) filter (where owner=${user
+          .id}) from user_invites where valid_until > CURRENT_TIMESTAMP"
+        .map(rs => (rs.int(1), rs.int(2)))
+        .single
+        .apply()
+        .get
 
   def getAllInvitedUsers(user: User): Seq[Int] =
-    jdbcTemplate.queryForSeq[Int](
-      "select invited_user from user_invites where owner = ? and invited_user is not null order by issue_date",
-      user.id)
-}
+    springDB.run:
+      sql"select invited_user from user_invites where owner = ${user
+          .id} and invited_user is not null order by issue_date".map(rs => rs.int("invited_user")).list.apply()
 
-object UserInvitesDao {
+object UserInvitesDao:
   val ValidDays = 3
-}

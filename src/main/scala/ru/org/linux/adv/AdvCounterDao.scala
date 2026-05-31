@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,19 +14,13 @@
  */
 package ru.org.linux.adv
 
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-
-import javax.sql.DataSource
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
 @Repository
-class AdvCounterDao(ds: DataSource) {
-  private val jdbcTemplate = new JdbcTemplate(ds)
-
-  def count(path: String, increment: Long): Unit = {
-    jdbcTemplate.update(
-      "INSERT INTO adv_counts (path, day, counter) VALUES (?, CURRENT_DATE, ?) " +
-        "ON CONFLICT (path, day) DO UPDATE SET counter = adv_counts.counter + excluded.counter",
-      path, increment)
-  }
-}
+class AdvCounterDao(springDB: SpringDB):
+  def count(path: String, increment: Long): Unit =
+    springDB.run:
+      sql"""INSERT INTO adv_counts (path, day, counter) VALUES ($path, CURRENT_DATE, $increment)
+            ON CONFLICT (path, day) DO UPDATE SET counter = adv_counts.counter + excluded.counter""".update.apply()

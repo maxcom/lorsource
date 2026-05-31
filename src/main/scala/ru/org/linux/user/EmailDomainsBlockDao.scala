@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,23 +15,24 @@
 
 package ru.org.linux.user
 
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
 import java.time.OffsetDateTime
-import javax.sql.DataSource
 
 @Service
-class EmailDomainsBlockDao(ds: DataSource) {
-  private val jdbcTemplate = new JdbcTemplate(ds)
-
+class EmailDomainsBlockDao(springDB: SpringDB):
   def isBlocked(domain: String): Boolean =
-    jdbcTemplate.queryForObject[Boolean]("select exists (select block_until from email_domains_block where domain = ? and block_until > CURRENT_TIMESTAMP)", domain).get
+    springDB.run:
+      sql"select exists (select block_until from email_domains_block where domain = $domain and block_until > CURRENT_TIMESTAMP)"
+        .map(rs => rs.boolean(1))
+        .single
+        .apply()
+        .getOrElse(false)
 
-  def blockDomains(domains: Seq[String], blockUntil: OffsetDateTime): Unit = {
-    jdbcTemplate.batchUpdate(
-      "insert into email_domains_block (domain, block_until) values (?, ?) " +
-        "on conflict (domain) do update set block_until = excluded.block_until",
-      domains.map(domain => Seq(domain, blockUntil)))
-  }
-}
+  def blockDomains(domains: Seq[String], blockUntil: OffsetDateTime): Unit =
+    springDB.run:
+      sql"insert into email_domains_block (domain, block_until) values ({domain}, {blockUntil}) on conflict (domain) do update set block_until = excluded.block_until"
+        .batchByName(domains.map(d => Seq("domain" -> d, "blockUntil" -> blockUntil))*)
+        .apply()

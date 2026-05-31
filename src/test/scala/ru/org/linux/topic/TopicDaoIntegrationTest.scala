@@ -97,7 +97,7 @@ class TopicDaoIntegrationTestConfiguration {
   def userDao(dataSource: DataSource) = new UserDao(dataSource)
 
   @Bean
-  def userInvitesDao(ds: DataSource) = new UserInvitesDao(ds)
+  def userInvitesDao(springDB: SpringDB) = new UserInvitesDao(springDB)
 
   @Bean
   def imageDao(sectionService: SectionService, ds: DataSource) = new ImageDao(sectionService, ds)
@@ -109,7 +109,7 @@ class TopicDaoIntegrationTestConfiguration {
   def imageService = Mockito.mock(classOf[ImageService])
 
   @Bean
-  def ignoreListDao(ds: DataSource) = new IgnoreListDao(ds)
+  def ignoreListDao(springDB: SpringDB) = new IgnoreListDao(springDB)
 
   @Bean
   def profileDao(ds: DataSource) = new ProfileDao(ds)

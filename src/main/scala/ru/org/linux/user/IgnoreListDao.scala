@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,49 +14,40 @@
  */
 package ru.org.linux.user
 
-import com.typesafe.scalalogging.StrictLogging
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.auth.AccessViolationException
-
-import javax.sql.DataSource
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
 @Repository
-class IgnoreListDao(ds: DataSource) extends StrictLogging {
-  private val jdbcTemplate = new JdbcTemplate(ds)
-
+class IgnoreListDao(springDB: SpringDB):
   @throws[AccessViolationException]
-  def addUser(listOwner: User, userToIgnore: User): Unit = {
-    if (userToIgnore.isModerator) {
-      throw new AccessViolationException ("Нельзя игнорировать модератора")
-    }
+  def addUser(listOwner: User, userToIgnore: User): Unit =
+    if userToIgnore.isModerator then
+      throw AccessViolationException("Нельзя игнорировать модератора")
 
-    jdbcTemplate.update("INSERT INTO ignore_list (userid,ignored) VALUES(?,?) ON CONFLICT DO NOTHING",
-      listOwner.id, userToIgnore.id)
-  }
+    springDB.run:
+      sql"INSERT INTO ignore_list (userid,ignored) VALUES(${listOwner.id},${userToIgnore.id}) ON CONFLICT DO NOTHING"
+        .update
+        .apply()
 
   def remove(listOwner: User, userToIgnore: User): Unit =
-    jdbcTemplate.update ("DELETE FROM ignore_list WHERE userid=? AND ignored=?", listOwner.id, userToIgnore.id)
+    springDB.run:
+      sql"DELETE FROM ignore_list WHERE userid=${listOwner.id} AND ignored=${userToIgnore.id}".update.apply()
 
-  /**
-   * Получить список игнорируемых
-   *
-   * @param user пользователь который игнорирует
-   * @return список игнорируемых
-   */
-  def get(user: Int): Set[Int] = {
-    jdbcTemplate.queryAndMap("SELECT a.ignored FROM ignore_list a WHERE a.userid=?", user) { (resultSet, _) =>
-      resultSet.getInt("ignored")
-    }.toSet
-  }
+  def get(user: Int): Set[Int] =
+    springDB.run:
+      sql"SELECT a.ignored FROM ignore_list a WHERE a.userid=$user".map(rs => rs.int("ignored")).list.apply().toSet
 
   def getIgnoreCount(ignoredUser: User): Int =
-    jdbcTemplate.queryForObject[Integer](
-      "SELECT count(*) as inum FROM ignore_list JOIN users ON ignore_list.userid = users.id" +
-        " WHERE ignored=? AND not blocked", ignoredUser.id).get
+    springDB.run:
+      sql"SELECT count(*) as inum FROM ignore_list JOIN users ON ignore_list.userid = users.id WHERE ignored=${ignoredUser
+          .id} AND not blocked".map(rs => rs.int("inum")).single.apply().getOrElse(0)
 
   def isIgnored(byUserId: Int, commentId: Int): Boolean =
-    jdbcTemplate.queryForObject[Boolean](
-      "select exists (select ignored from ignore_list where userid=? intersect select get_branch_authors(?))",
-      byUserId, commentId).get
-}
+    springDB.run:
+      sql"select exists (select ignored from ignore_list where userid=$byUserId intersect select get_branch_authors($commentId))"
+        .map(rs => rs.boolean(1))
+        .single
+        .apply()
+        .getOrElse(false)
