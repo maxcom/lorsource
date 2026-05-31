@@ -15,13 +15,12 @@
 
 package ru.org.linux.auth
 
-import java.sql.ResultSet
-import java.sql.SQLException
 import java.sql.Timestamp
 import java.util.Date
 import javax.annotation.Nullable
 import scala.beans.BeanProperty
 import scala.beans.BooleanBeanProperty
+import scalikejdbc.WrappedResultSet
 
 case class IPBlockInfo(
   @BooleanBeanProperty initialized: Boolean,
@@ -49,14 +48,13 @@ object IPBlockInfo {
     allowPosting = false,
     captchaRequired = false)
 
-  @throws[SQLException]
-  def fromResultSet(rs: ResultSet): IPBlockInfo = IPBlockInfo(
+  def fromWrappedResultSet(rs: WrappedResultSet): IPBlockInfo = IPBlockInfo(
     initialized = true,
-    ip = rs.getString("ip"),
-    reason = rs.getString("reason"),
-    banDate = rs.getTimestamp("ban_date"),
-    originalDate = rs.getTimestamp("date"),
-    moderator = rs.getInt("mod_id"),
-    allowPosting = rs.getBoolean("allow_posting"),
-    captchaRequired = rs.getBoolean("captcha_required"))
+    ip = rs.string("ip"),
+    reason = rs.stringOpt("reason").orNull,
+    banDate = rs.timestampOpt("ban_date").orNull,
+    originalDate = rs.timestampOpt("date").orNull,
+    moderator = rs.int("mod_id"),
+    allowPosting = rs.boolean("allow_posting"),
+    captchaRequired = rs.boolean("captcha_required"))
 }

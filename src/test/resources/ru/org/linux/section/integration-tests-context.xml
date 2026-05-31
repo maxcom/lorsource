@@ -22,6 +22,10 @@
     <import resource="classpath:database.xml"/>
     <import resource="classpath:common.xml"/>
 
+    <bean class="ru.org.linux.scalikejdbc.ScalikeJdbcInitializer" id="scalikeJdbcInitializer">
+        <constructor-arg ref="datasource"/>
+    </bean>
+
     <bean class="ru.org.linux.section.SectionDaoImpl" id="sectionDao"/>
 
 </beans>

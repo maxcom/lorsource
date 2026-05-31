@@ -34,6 +34,7 @@
     <Logger name="ru.org.linux.auth.GenerationBasedTokenRememberMeServices" level="debug"/>
     <Logger name="org.springframework.web.socket.server.support.DefaultHandshakeHandler" level="off"/>
     <Logger name="com.zaxxer.hikari.pool" level="info"/>
+    <Logger name="scalikejdbc" level="info"/>
 
     <Root level="debug">
       <AppenderRef ref="A1" level="INFO"/>

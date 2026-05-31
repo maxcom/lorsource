@@ -52,8 +52,8 @@ class TagService(tagDao: TagDao, searchClient: OpenSearchAsyncClient, actorSyste
   private val activeTopTagsCache: Cache[ActiveTopTags, Seq[TagRef]] =
     Caffeine.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).build()
 
-  private val sectionForum: Section = sectionService.getSection(Section.Forum)
-  private val NonTechNames: Seq[String] =
+  private lazy val sectionForum: Section = sectionService.getSection(Section.Forum)
+  private lazy val NonTechNames: Seq[String] =
     groupService.getGroups(sectionForum).filter(g => SectionController.NonTech.contains(g.id)).map(_.urlName).toSeq
 
   /**

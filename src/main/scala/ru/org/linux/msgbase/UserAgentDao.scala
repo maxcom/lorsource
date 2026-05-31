@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,34 +14,29 @@
  */
 package ru.org.linux.msgbase
 
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
 import java.util.Optional
-import javax.sql.DataSource
 import scala.jdk.OptionConverters.RichOption
 
-/**
- * Информация о UA пользователей
- */
 @Repository
-class UserAgentDao(dataSource: DataSource) {
-  private val jdbcTemplate = new JdbcTemplate(dataSource)
+class UserAgentDao:
 
-  /**
-   * получить UA по его id
-   *
-   * @param id id UA
-   * @return название UA или null если отсутствует
-   */
-  def getUserAgentById(id: Int): Optional[String] = {
-    (if (id == 0) {
-      None
-    } else {
-      jdbcTemplate.queryForObject[String]("SELECT name FROM user_agents WHERE id=?", id)
-    }).toJava
-  }
+  def getUserAgentById(id: Int): Optional[String] =
+    if id == 0 then
+      Optional.empty[String]
+    else
+      SpringDB
+        .run:
+          sql"SELECT name FROM user_agents WHERE id = $id".map(rs => rs.string("name")).single.apply()
+        .toJava
 
   def createOrGetId(userAgent: String): Int =
-    jdbcTemplate.queryForObject[Integer]("SELECT create_user_agent(?)", userAgent).get
-}
+    SpringDB.run:
+      sql"SELECT create_user_agent($userAgent)".map(rs => rs.int(1)).single.apply().getOrElse(
+        throw new IllegalStateException(s"create_user_agent returned no result for: $userAgent")
+      )
+
+end UserAgentDao

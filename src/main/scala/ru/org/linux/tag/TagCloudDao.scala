@@ -14,46 +14,49 @@
  */
 package ru.org.linux.tag
 
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
-import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
 import scala.math.log
 
 @Repository
-class TagCloudDao(ds: DataSource) {
-  private val jdbcTemplate = new JdbcTemplate(ds)
+class TagCloudDao:
 
-  def getTags(tagcount: Int): java.util.List[TagCloudDao.TagDTO] = {
-    val sql = "select value,counter from tags_values where counter>=10 order by counter desc limit ?"
-    var maxc = 1.0
-    var minc = -1.0
+  def getTags(tagcount: Int): java.util.List[TagCloudDao.TagDTO] =
+    val result = SpringDB.run:
+      sql"SELECT value, counter FROM tags_values WHERE counter >= 10 ORDER BY counter DESC LIMIT $tagcount"
+        .map(rs => (rs.string("value"), rs.int("counter")))
+        .list
+        .apply()
 
-    val result = jdbcTemplate.queryAndMap(sql, tagcount) { (rs, _) =>
-      val tag = new TagCloudDao.TagDTO
-      tag.setValue(rs.getString("value"))
-      val counter = log(rs.getInt("counter"))
-      tag.setCounter(counter)
+    if result.isEmpty then
+      java.util.Collections.emptyList[TagCloudDao.TagDTO]
+    else
+      val logCounts = result.map(_._2.toDouble).map(log)
+      val maxc = logCounts.max
+      val minc =
+        if maxc == logCounts.min then
+          maxc - 1
+        else
+          logCounts.min
 
-      if maxc < counter then maxc = counter
-      if minc < 0 || counter < minc then minc = counter
+      val tags = result.map: (value, counter) =>
+        val tag = new TagCloudDao.TagDTO
+        tag.setValue(value)
+        tag.setCounter(log(counter))
+        tag
 
-      tag
-    }
+      tags.foreach: tag =>
+        tag.setWeight(math.round(10 * (tag.getCounter - minc) / (maxc - minc)).toInt)
 
-    if minc < 0 then minc = 0
+      tags.sortBy(_.getValue).asJava
 
-    result.foreach(tag => tag.setWeight(math.round(10 * (tag.getCounter - minc)
-      / (maxc - minc)).toInt))
+end TagCloudDao
 
-    val sorted = result.sortBy(_.getValue)
-    sorted.asJava
-  }
-}
-
-object TagCloudDao {
-  class TagDTO extends Comparable[TagDTO] with java.io.Serializable {
+object TagCloudDao:
+  class TagDTO extends Comparable[TagDTO] with java.io.Serializable:
     private var weight: Int = 0
     private var value: String = null
     private var counter: Double = 0.0
@@ -66,5 +69,3 @@ object TagCloudDao {
     def setCounter(counter: Double): Unit = this.counter = counter
 
     override def compareTo(o: TagDTO): Int = value.compareTo(o.value)
-  }
-}

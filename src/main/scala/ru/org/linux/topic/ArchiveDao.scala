@@ -14,16 +14,27 @@
  */
 package ru.org.linux.topic
 
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.group.Group
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.Section
+import scalikejdbc.*
+
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
 import javax.annotation.Nullable
 
-case class ArchiveStats(@BeanProperty section: Section, @Nullable @BeanProperty group: Group,
-                        @BeanProperty year: Int, @BeanProperty month: Int, @BeanProperty count: Int):
+case class ArchiveStats(
+    @BeanProperty
+    section: Section,
+    @Nullable @BeanProperty
+    group: Group,
+    @BeanProperty
+    year: Int,
+    @BeanProperty
+    month: Int,
+    @BeanProperty
+    count: Int):
 
   @BeanProperty
   def getLink: String =
@@ -33,27 +44,25 @@ case class ArchiveStats(@BeanProperty section: Section, @Nullable @BeanProperty 
       section.getArchiveLink(year, month)
 
 @Repository
-class ArchiveDao(ds: javax.sql.DataSource):
-  private val jdbcTemplate = JdbcTemplate(ds)
+class ArchiveDao:
 
   def getArchiveStats(section: Section, group: Option[Group]): java.util.List[ArchiveStats] =
-    group match
-      case None =>
-        jdbcTemplate.queryAndMap(
-          "select year, month, c from monthly_stats where section=? and groupid is null order by year, month",
-          section.id
-        )((rs, _) => ArchiveStats(section, null, rs.getInt("year"), rs.getInt("month"), rs.getInt("c"))).asJava
-      case Some(g) =>
-        jdbcTemplate.queryAndMap(
-          "select year, month, c from monthly_stats where section=? and groupid=? order by year, month",
-          section.id,
-          g.id
-        )((rs, _) => ArchiveStats(section, g, rs.getInt("year"), rs.getInt("month"), rs.getInt("c"))).asJava
+    val result = SpringDB.run:
+      val groupIdClause = group.map(g => sqls"groupid = ${g.id}").getOrElse(sqls"groupid IS NULL")
+
+      sql"SELECT year, month, c FROM monthly_stats WHERE section = ${section.id} AND $groupIdClause ORDER BY year, month"
+        .map(rs => ArchiveStats(section, group.orNull, rs.int("year"), rs.int("month"), rs.int("c")))
+        .list
+        .apply()
+
+    result.asJava
 
   def getArchiveCount(groupid: Int, year: Int, month: Int): Int =
-    jdbcTemplate.queryForObject[Int](
-      "SELECT c FROM monthly_stats WHERE groupid=? AND year=? AND month=?",
-      groupid,
-      year,
-      month
-    ).getOrElse(0)
+    SpringDB.run:
+      sql"SELECT c FROM monthly_stats WHERE groupid = $groupid AND year = $year AND month = $month"
+        .map(rs => rs.int("c"))
+        .single
+        .apply()
+        .getOrElse(0)
+
+end ArchiveDao

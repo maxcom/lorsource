@@ -12,23 +12,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.section
 
-import org.springframework.stereotype.Repository
-import ru.org.linux.scalikejdbc.SpringDB
-import scalikejdbc.*
+package ru.org.linux.scalikejdbc
 
-trait SectionDao:
-  def getAllSections: Seq[Section]
+import scalikejdbc.GlobalSettings
 
-@Repository
-class SectionDaoImpl extends SectionDao:
+import javax.sql.DataSource
 
-  override def getAllSections: Seq[Section] =
-    SpringDB.run:
-      sql"SELECT id, name, imagepost, imageallowed, vote, moderate, scroll_mode, restrict_topics FROM sections ORDER BY id"
-        .map(Section.fromWrappedResultSet)
-        .list
-        .apply()
+class ScalikeJdbcInitializer(dataSource: DataSource):
+  SpringDB.setDataSource(dataSource)
+  GlobalSettings.jtaDataSourceCompatible = true
 
-end SectionDaoImpl
+end ScalikeJdbcInitializer

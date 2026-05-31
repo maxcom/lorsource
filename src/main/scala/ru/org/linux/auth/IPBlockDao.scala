@@ -15,63 +15,59 @@
 
 package ru.org.linux.auth
 
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
 import java.time.OffsetDateTime
-import javax.sql.DataSource
-import scala.jdk.CollectionConverters.*
 
 @Repository
-class IPBlockDao(ds: DataSource) {
-  private val jdbcTemplate = new JdbcTemplate(ds)
+class IPBlockDao:
 
-  def getBlockInfo(addr: String): IPBlockInfo = {
-    val list = jdbcTemplate.query(
-      "SELECT ip, reason, ban_date, date, mod_id, allow_posting, captcha_required FROM b_ips WHERE ip = ?::inet",
-      (rs, _) => IPBlockInfo.fromResultSet(rs),
-      addr
-    )
+  def getBlockInfo(addr: String): IPBlockInfo = SpringDB.run(getBlockInfoInternal(addr))
 
-    if (list.isEmpty) {
-      IPBlockInfo(addr)
-    } else {
-      list.getFirst
-    }
-  }
+  def blockIP(
+      ip: String,
+      moderatorId: Int,
+      reason: String,
+      banUntil: Option[OffsetDateTime],
+      allowPosting: Boolean,
+      captchaRequired: Boolean): Unit =
+    SpringDB.run:
+      sql"""INSERT INTO b_ips (ip, mod_id, date, reason, ban_date, allow_posting, captcha_required)
+            VALUES ($ip::inet, $moderatorId, CURRENT_TIMESTAMP, $reason, $banUntil, $allowPosting, $captchaRequired)
+            ON CONFLICT (ip) DO UPDATE SET
+              mod_id = EXCLUDED.mod_id,
+              date = CURRENT_TIMESTAMP,
+              reason = EXCLUDED.reason,
+              ban_date = EXCLUDED.ban_date,
+              allow_posting = EXCLUDED.allow_posting,
+              captcha_required = EXCLUDED.captcha_required"""
+        .update
+        .apply()
 
-  def blockIP(ip: String, moderatorId: Int, reason: String, banUntil: Option[OffsetDateTime],
-              allowPosting: Boolean, captchaRequired: Boolean): Unit = {
-    val blockInfo = getBlockInfo(ip)
+  def getRecentlyBlocked: Seq[String] = SpringDB.run(getRecentlyBlockedInternal)
 
-    if (!blockInfo.initialized) {
-      jdbcTemplate.update(
-        "INSERT INTO b_ips (ip, mod_id, date, reason, ban_date, allow_posting, captcha_required)" +
-          " VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)",
-        ip,
-        Int.box(moderatorId),
-        reason,
-        banUntil.orNull,
-        Boolean.box(allowPosting),
-        Boolean.box(captchaRequired))
-    } else {
-      jdbcTemplate.update(
-        "UPDATE b_ips SET mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=?, allow_posting=?, captcha_required=?" +
-          " WHERE ip=?::inet",
-        Int.box(moderatorId),
-        reason,
-        banUntil.orNull,
-        Boolean.box(allowPosting),
-        Boolean.box(captchaRequired),
-        ip)
-    }
-  }
+  def getRecentlyUnBlocked: Seq[String] = SpringDB.run(getRecentlyUnBlockedInternal)
 
-  def getRecentlyBlocked: scala.collection.Seq[String] =
-    jdbcTemplate.queryForList("select ip from b_ips " +
-      "where date>CURRENT_TIMESTAMP - interval '3 days' and ban_date > CURRENT_TIMESTAMP and mod_id != 0 order by date", classOf[String]).asScala
+  private def getBlockInfoInternal(addr: String)(using DBSession): IPBlockInfo =
+    sql"""SELECT ip, reason, ban_date, date, mod_id, allow_posting, captcha_required
+          FROM b_ips WHERE ip = $addr::inet"""
+      .map(IPBlockInfo.fromWrappedResultSet)
+      .single
+      .apply()
+      .getOrElse(IPBlockInfo(addr))
 
-  def getRecentlyUnBlocked: scala.collection.Seq[String] =
-    jdbcTemplate.queryForList("select ip from b_ips " +
-      "where ban_date < CURRENT_TIMESTAMP and ban_date > CURRENT_TIMESTAMP - interval '3 days' and mod_id !=0 order by ban_date", classOf[String]).asScala
-}
+  private def getRecentlyBlockedInternal(using DBSession): Seq[String] =
+    sql"""SELECT ip FROM b_ips
+          WHERE date > CURRENT_TIMESTAMP - interval '3 days'
+          AND ban_date > CURRENT_TIMESTAMP AND mod_id != 0
+          ORDER BY date""".map(rs => rs.string("ip")).list.apply()
+
+  private def getRecentlyUnBlockedInternal(using DBSession): Seq[String] =
+    sql"""SELECT ip FROM b_ips
+          WHERE ban_date < CURRENT_TIMESTAMP
+          AND ban_date > CURRENT_TIMESTAMP - interval '3 days' AND mod_id != 0
+          ORDER BY ban_date""".map(rs => rs.string("ip")).list.apply()
+
+end IPBlockDao

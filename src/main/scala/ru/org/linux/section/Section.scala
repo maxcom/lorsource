@@ -17,8 +17,8 @@ package ru.org.linux.section
 
 import org.apache.commons.lang3.StringUtils
 import ru.org.linux.topic.TopicPermissionService
+import scalikejdbc.WrappedResultSet
 
-import java.sql.ResultSet
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class Section(
@@ -99,20 +99,16 @@ object Section:
       case _ =>
         50
 
-  def fromResultSet(rs: ResultSet): Section =
+  def fromWrappedResultSet(rs: WrappedResultSet): Section =
     new Section(
-      rs.getString("name"),
-      rs.getBoolean("imagepost"),
-      rs.getBoolean("moderate"),
-      rs.getInt("id"),
-      rs.getBoolean("vote"),
-      SectionScrollModeEnum.valueOf(rs.getString("scroll_mode")),
-      if !rs.wasNull() then
-        rs.getInt("restrict_topics")
-      else
-        TopicPermissionService.POSTSCORE_UNRESTRICTED
-      ,
-      rs.getBoolean("imageallowed")
+      rs.string("name"),
+      rs.boolean("imagepost"),
+      rs.boolean("moderate"),
+      rs.int("id"),
+      rs.boolean("vote"),
+      SectionScrollModeEnum.valueOf(rs.string("scroll_mode")),
+      rs.intOpt("restrict_topics").getOrElse(TopicPermissionService.POSTSCORE_UNRESTRICTED),
+      rs.boolean("imageallowed")
     )
 
   def getSectionLink(section: Int): String = "/" + getUrlName(section) + "/"
