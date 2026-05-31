@@ -16,28 +16,16 @@
 package ru.org.linux.scalikejdbc
 
 import org.springframework.jdbc.datasource.DataSourceUtils
-import scalikejdbc.{DB, DBSession}
+import org.springframework.stereotype.Component
+import scalikejdbc.{DBSession, SettingsProvider}
 
-import java.util.concurrent.atomic.AtomicReference
 import javax.sql.DataSource
 
-object SpringDB:
-
-  private val dataSourceRef = new AtomicReference[DataSource]()
-
-  def setDataSource(dataSource: DataSource): Unit = dataSourceRef.set(dataSource)
-
-  private def ensureInitialized(): DataSource =
-    val ds = dataSourceRef.get()
-    if ds != null then
-      ds
-    else
-      throw new IllegalStateException("ScalikeJdbcInitializer has not been initialized yet")
+@Component
+class SpringDB(dataSource: DataSource):
+  private val settings = SettingsProvider.default.copy(jtaDataSourceCompatible = _ => true)
 
   def run[A](f: DBSession ?=> A): A =
-    val ds = ensureInitialized()
-    val conn = DataSourceUtils.getConnection(ds)
-    try DB(conn).autoClose(false).withinTx(f(using _))
-    finally DataSourceUtils.releaseConnection(conn, ds)
-
-end SpringDB
+    val conn = DataSourceUtils.getConnection(dataSource)
+    try f(using DBSession(conn, settings = settings))
+    finally DataSourceUtils.releaseConnection(conn, dataSource)

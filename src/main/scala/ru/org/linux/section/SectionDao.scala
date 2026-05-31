@@ -22,10 +22,10 @@ trait SectionDao:
   def getAllSections: Seq[Section]
 
 @Repository
-class SectionDaoImpl extends SectionDao:
+class SectionDaoImpl(springDB: SpringDB) extends SectionDao:
 
   override def getAllSections: Seq[Section] =
-    SpringDB.run:
+    springDB.run:
       sql"SELECT id, name, imagepost, imageallowed, vote, moderate, scroll_mode, restrict_topics FROM sections ORDER BY id"
         .map(Section.fromWrappedResultSet)
         .list

@@ -30,7 +30,7 @@ import ru.org.linux.group.{GroupDao, GroupService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.PollDao
-import ru.org.linux.scalikejdbc.ScalikeJdbcInitializer
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDaoIntegrationTest.*
@@ -88,11 +88,8 @@ class TopicDaoIntegrationTestConfiguration {
   def sectionService(sectionDao: SectionDao) = new SectionService(sectionDao)
 
   @Bean
-  def sectionDao = new SectionDaoImpl
-
-  @Bean
-  def scalikeJdbcInitializer(dataSource: DataSource) = new ScalikeJdbcInitializer(dataSource)
-
+  def sectionDao(springDB: SpringDB) = new SectionDaoImpl(springDB)
+  
   @Bean
   def topicDao(ds: DataSource) = new TopicDao(ds)
 
@@ -106,7 +103,7 @@ class TopicDaoIntegrationTestConfiguration {
   def imageDao(sectionService: SectionService, ds: DataSource) = new ImageDao(sectionService, ds)
 
   @Bean
-  def ipBlockDao = new IPBlockDao
+  def ipBlockDao(springDB: SpringDB) = new IPBlockDao(springDB)
 
   @Bean
   def imageService = Mockito.mock(classOf[ImageService])

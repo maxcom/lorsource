@@ -30,7 +30,6 @@ import org.springframework.test.context.{ContextConfiguration, TestContextManage
 import munit.FunSuite
 import ru.org.linux.PekkoConfiguration
 import ru.org.linux.auth.FloodProtector
-import ru.org.linux.scalikejdbc.ScalikeJdbcInitializer
 import ru.org.linux.search.OpenSearchIndexService.MessageIndex
 import ru.org.linux.spring.SiteConfig
 
@@ -64,10 +63,6 @@ class OpenSearchIndexServiceIntegrationTest extends FunSuite:
   includeFilters = Array(
     new ComponentScan.Filter(`type` = FilterType.ANNOTATION, value = Array(classOf[Service], classOf[Repository]))))
 class SearchIntegrationTestConfiguration {
-  @Bean
-  def scalikeJdbcInitializer(dataSource: javax.sql.DataSource): ScalikeJdbcInitializer =
-    new ScalikeJdbcInitializer(dataSource)
-
   @Bean
   def openSearchContainer: OpenSearchContainer[Nothing] = {
     val container = new OpenSearchContainer("opensearchproject/opensearch:3.5.0")

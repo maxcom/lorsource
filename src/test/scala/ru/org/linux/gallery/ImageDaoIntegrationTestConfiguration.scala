@@ -16,7 +16,7 @@
 package ru.org.linux.gallery
 
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
-import ru.org.linux.scalikejdbc.ScalikeJdbcInitializer
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.user.UserDao
 
@@ -33,10 +33,7 @@ class ImageDaoIntegrationTestConfiguration:
   def sectionService(sectionDao: SectionDao): SectionService = new SectionService(sectionDao)
 
   @Bean
-  def sectionDao: SectionDao = new SectionDaoImpl
-
-  @Bean
-  def scalikeJdbcInitializer(dataSource: DataSource): ScalikeJdbcInitializer = new ScalikeJdbcInitializer(dataSource)
+  def sectionDao(springDB: SpringDB): SectionDao = new SectionDaoImpl(springDB)
 
   @Bean
   def userDao(dataSource: DataSource): UserDao = new UserDao(dataSource)

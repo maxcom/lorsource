@@ -22,9 +22,9 @@ import scalikejdbc.*
 import java.time.OffsetDateTime
 
 @Repository
-class IPBlockDao:
+class IPBlockDao(springDB: SpringDB):
 
-  def getBlockInfo(addr: String): IPBlockInfo = SpringDB.run(getBlockInfoInternal(addr))
+  def getBlockInfo(addr: String): IPBlockInfo = springDB.run(getBlockInfoInternal(addr))
 
   def blockIP(
       ip: String,
@@ -33,7 +33,7 @@ class IPBlockDao:
       banUntil: Option[OffsetDateTime],
       allowPosting: Boolean,
       captchaRequired: Boolean): Unit =
-    SpringDB.run:
+    springDB.run:
       sql"""INSERT INTO b_ips (ip, mod_id, date, reason, ban_date, allow_posting, captcha_required)
             VALUES ($ip::inet, $moderatorId, CURRENT_TIMESTAMP, $reason, $banUntil, $allowPosting, $captchaRequired)
             ON CONFLICT (ip) DO UPDATE SET
@@ -46,9 +46,9 @@ class IPBlockDao:
         .update
         .apply()
 
-  def getRecentlyBlocked: Seq[String] = SpringDB.run(getRecentlyBlockedInternal)
+  def getRecentlyBlocked: Seq[String] = springDB.run(getRecentlyBlockedInternal)
 
-  def getRecentlyUnBlocked: Seq[String] = SpringDB.run(getRecentlyUnBlockedInternal)
+  def getRecentlyUnBlocked: Seq[String] = springDB.run(getRecentlyUnBlockedInternal)
 
   private def getBlockInfoInternal(addr: String)(using DBSession): IPBlockInfo =
     sql"""SELECT ip, reason, ban_date, date, mod_id, allow_posting, captcha_required

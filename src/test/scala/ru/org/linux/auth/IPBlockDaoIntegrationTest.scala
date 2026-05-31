@@ -23,7 +23,7 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.ScalikeJdbcInitializer
+import ru.org.linux.scalikejdbc.SpringDB
 
 import javax.sql.DataSource
 
@@ -117,9 +117,6 @@ end IPBlockDaoIntegrationTest
 class IPBlockDaoIntegrationTestConfiguration:
 
   @Bean
-  def ipBlockDao: IPBlockDao = new IPBlockDao
-
-  @Bean
-  def scalikeJdbcInitializer(dataSource: DataSource): ScalikeJdbcInitializer = new ScalikeJdbcInitializer(dataSource)
-
+  def ipBlockDao(springDB: SpringDB) = new IPBlockDao(springDB)
+  
 end IPBlockDaoIntegrationTestConfiguration

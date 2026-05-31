@@ -44,10 +44,10 @@ case class ArchiveStats(
       section.getArchiveLink(year, month)
 
 @Repository
-class ArchiveDao:
+class ArchiveDao(springDB: SpringDB):
 
   def getArchiveStats(section: Section, group: Option[Group]): java.util.List[ArchiveStats] =
-    val result = SpringDB.run:
+    val result = springDB.run:
       val groupIdClause = group.map(g => sqls"groupid = ${g.id}").getOrElse(sqls"groupid IS NULL")
 
       sql"SELECT year, month, c FROM monthly_stats WHERE section = ${section.id} AND $groupIdClause ORDER BY year, month"
@@ -58,7 +58,7 @@ class ArchiveDao:
     result.asJava
 
   def getArchiveCount(groupid: Int, year: Int, month: Int): Int =
-    SpringDB.run:
+    springDB.run:
       sql"SELECT c FROM monthly_stats WHERE groupid = $groupid AND year = $year AND month = $month"
         .map(rs => rs.int("c"))
         .single

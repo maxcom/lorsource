@@ -22,19 +22,18 @@ import java.util.Optional
 import scala.jdk.OptionConverters.RichOption
 
 @Repository
-class UserAgentDao:
-
+class UserAgentDao(springDB: SpringDB):
   def getUserAgentById(id: Int): Optional[String] =
     if id == 0 then
       Optional.empty[String]
     else
-      SpringDB
+      springDB
         .run:
           sql"SELECT name FROM user_agents WHERE id = $id".map(rs => rs.string("name")).single.apply()
         .toJava
 
   def createOrGetId(userAgent: String): Int =
-    SpringDB.run:
+    springDB.run:
       sql"SELECT create_user_agent($userAgent)".map(rs => rs.int(1)).single.apply().getOrElse(
         throw new IllegalStateException(s"create_user_agent returned no result for: $userAgent")
       )

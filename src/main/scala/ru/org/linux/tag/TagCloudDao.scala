@@ -22,10 +22,10 @@ import scala.jdk.CollectionConverters.*
 import scala.math.log
 
 @Repository
-class TagCloudDao:
+class TagCloudDao(springDB: SpringDB):
 
   def getTags(tagcount: Int): java.util.List[TagCloudDao.TagDTO] =
-    val result = SpringDB.run:
+    val result = springDB.run:
       sql"SELECT value, counter FROM tags_values WHERE counter >= 10 ORDER BY counter DESC LIMIT $tagcount"
         .map(rs => (rs.string("value"), rs.int("counter")))
         .list

@@ -36,10 +36,9 @@ case class BoxletTopic(
     pages: Int)
 
 @Repository
-class BoxletTopicDao(sectionService: SectionService):
-
+class BoxletTopicDao(sectionService: SectionService, springDB: SpringDB):
   def top10(commentsPerPage: Int): Seq[BoxletTopic] =
-    SpringDB.run:
+    springDB.run:
       sql"""SELECT topics.id AS msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 AS c
            FROM topics JOIN groups ON groups.id = topics.groupid
            WHERE topics.postdate > (CURRENT_TIMESTAMP - '1 month 1 day'::interval)
@@ -48,7 +47,7 @@ class BoxletTopicDao(sectionService: SectionService):
            ORDER BY c DESC, msgid LIMIT 10""".map(rsToTopic(commentsPerPage)).list.apply()
 
   def articles(commentsPerPage: Int): Seq[BoxletTopic] =
-    SpringDB.run:
+    springDB.run:
       sql"""SELECT topics.id AS msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 AS c
            FROM topics JOIN groups ON groups.id = topics.groupid
            WHERE NOT deleted AND NOT notop AND moderate AND commitdate IS NOT NULL
