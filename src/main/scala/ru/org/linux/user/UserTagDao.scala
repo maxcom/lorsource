@@ -14,174 +14,71 @@
  */
 package ru.org.linux.user
 
-import com.typesafe.scalalogging.StrictLogging
-import org.springframework.dao.DuplicateKeyException
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-
-import javax.sql.DataSource
-import scala.jdk.CollectionConverters.*
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
 @Repository
-class UserTagDao(ds: DataSource) extends StrictLogging {
-  private val jdbcTemplate = new JdbcTemplate(ds)
-  private val namedJdbcTemplate = new NamedParameterJdbcTemplate(ds)
+class UserTagDao(springDB: SpringDB):
+  def addTag(userId: Int, tagId: Int, isFavorite: Boolean): Unit =
+    springDB.run:
+      sql"INSERT INTO user_tags (user_id, tag_id, is_favorite) VALUES ($userId, $tagId, $isFavorite) ON CONFLICT DO NOTHING"
+        .update
+        .apply()
 
-  /**
-   * Добавление тега к пользователю.
-   *
-   * @param userId     идентификационный номер пользователя
-   * @param tagId      идентификационный номер тега
-   * @param isFavorite выбирать фаворитные теги (true) или игнорируемые (false)
-   */
-  def addTag(userId: Int, tagId: Int, isFavorite: Boolean): Unit = {
-    val parameters = Map[String, Any](
-      "user_id" -> userId,
-      "tag_id" -> tagId,
-      "is_favorite" -> isFavorite
-    )
+  def deleteTag(userId: Int, tagId: Int, isFavorite: Boolean): Unit =
+    springDB.run:
+      sql"DELETE FROM user_tags WHERE user_id=$userId AND tag_id=$tagId AND is_favorite=$isFavorite".update.apply()
 
-    try {
-      namedJdbcTemplate.update(
-        "INSERT INTO user_tags (user_id, tag_id, is_favorite) VALUES(:user_id, :tag_id, :is_favorite)",
-        parameters.asJava
-      )
-    } catch {
-      case ex: DuplicateKeyException =>
-        logger.debug("Tag already added to favs", ex)
-    }
-  }
+  def deleteTags(tagId: Int): Unit =
+    springDB.run:
+      sql"DELETE FROM user_tags WHERE tag_id=$tagId".update.apply()
 
-  /**
-   * Удаление тега у пользователя.
-   *
-   * @param userId     идентификационный номер пользователя
-   * @param tagId      идентификационный номер тега
-   * @param isFavorite выбирать фаворитные теги (true) или игнорируемые (false)
-   */
-  def deleteTag(userId: Int, tagId: Int, isFavorite: Boolean): Unit = {
-    val parameters = Map[String, Any](
-      "user_id" -> userId,
-      "tag_id" -> tagId,
-      "is_favorite" -> isFavorite
-    )
+  def getTags(userId: Int, isFavorite: Boolean): List[String] =
+    springDB.run:
+      sql"""SELECT tags_values.value FROM user_tags, tags_values WHERE
+            user_tags.user_id=$userId AND tags_values.id=user_tags.tag_id AND user_tags.is_favorite=$isFavorite
+            ORDER BY value""".map(rs => rs.string("value")).list.apply()
 
-    namedJdbcTemplate.update(
-      "DELETE FROM user_tags WHERE user_id=:user_id and tag_id=:tag_id and is_favorite=:is_favorite",
-      parameters.asJava
-    )
-  }
-
-  /**
-   * Удаление тега у всех пользователей.
-   *
-   * @param tagId идентификационный номер тега
-   */
-  def deleteTags(tagId: Int): Unit = {
-    val parameters = Map[String, Any](
-      "tag_id" -> tagId
-    )
-
-    namedJdbcTemplate.update("DELETE FROM user_tags WHERE tag_id=:tag_id", parameters.asJava)
-  }
-
-  /**
-   * Получить список всех тегов для пользователя.
-   *
-   * @param userId     идентификационный номер пользователя
-   * @param isFavorite выбирать фаворитные теги (true) или игнорируемые (false)
-   * @return список тегов пользователя
-   */
-  def getTags(userId: Int, isFavorite: Boolean): List[String] = {
-    val parameters = Map[String, Any](
-      "user_id" -> userId,
-      "is_favorite" -> isFavorite
-    )
-
-    namedJdbcTemplate.query(
-      "SELECT tags_values.value FROM user_tags, tags_values WHERE " +
-        "user_tags.user_id=:user_id AND tags_values.id=user_tags.tag_id AND user_tags.is_favorite=:is_favorite " +
-        "ORDER BY value",
-      parameters.asJava,
-      (rs, _) => rs.getString("value")
-    ).asScala.toList
-  }
-
-  /**
-   * Получить список ID пользователей, у которых в профиле есть перечисленные фаворитные теги.
-   *
-   * @param userId идентификационный номер пользователя, которому не нужно слать оповещение
-   * @param tags   список фаворитных тегов
-   * @return список ID пользователей
-   */
-  def getUserIdListByTags(userId: Int, tags: Seq[Int]): List[Int] = {
-    if (tags.isEmpty) {
+  def getUserIdListByTags(userId: Int, tags: Seq[Int]): List[Int] =
+    if tags.isEmpty then
       List.empty
-    } else {
-      val parameters = Map[String, Any](
-        "values" -> tags.asJava,
-        "user_id" -> userId
-      )
+    else
+      springDB.run:
+        sql"""select distinct user_id from user_tags where tag_id in ($tags)
+              AND is_favorite = true
+              AND user_id not in (
+                select userid from ignore_list where ignored=$userId union
+                select $userId union
+                select user_id from user_tags where tag_id in ($tags) and is_favorite = false)"""
+          .map(rs => rs.int("user_id"))
+          .list
+          .apply()
 
-      namedJdbcTemplate.queryForList(
-        "select distinct user_id from user_tags where tag_id in (:values) " +
-          "AND is_favorite = true " +
-          "AND user_id not in (" +
-          "select userid from ignore_list where ignored=:user_id union " +
-          "select :user_id union " +
-          "select user_id from user_tags where tag_id in (:values) and is_favorite = false)",
-        parameters.asJava,
-        classOf[Integer]
-      ).asScala.map(_.intValue()).toList
-    }
-  }
+  def replaceTag(oldTagId: Int, newTagId: Int): Unit =
+    springDB.run:
+      sql"UPDATE user_tags SET tag_id=$newTagId WHERE tag_id=$oldTagId AND user_id NOT IN (SELECT user_id FROM user_tags WHERE tag_id=$newTagId)"
+        .update
+        .apply()
 
-  /**
-   * Замена тега у пользователей другим тегом.
-   *
-   * @param oldTagId идентификационный номер старого тега
-   * @param newTagId идентификационный номер нового тега
-   */
-  def replaceTag(oldTagId: Int, newTagId: Int): Unit = {
-    val parameters = Map[String, Any](
-      "new_tag_id" -> newTagId,
-      "old_tag_id" -> oldTagId
-    )
+  def countFavs(tagId: Int): Int =
+    springDB.run:
+      sql"SELECT count(*) FROM user_tags WHERE tag_id=$tagId AND is_favorite"
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .getOrElse(0)
 
-    namedJdbcTemplate.update(
-      "UPDATE user_tags SET tag_id=:new_tag_id WHERE tag_id=:old_tag_id " +
-        "AND user_id NOT IN (SELECT user_id FROM user_tags WHERE tag_id=:new_tag_id)",
-      parameters.asJava
-    )
-  }
+  def countIgnore(tagId: Int): Int =
+    springDB.run:
+      sql"SELECT count(*) FROM user_tags WHERE tag_id=$tagId AND NOT is_favorite"
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .getOrElse(0)
 
-  /**
-   * Показывает количество пользователей у которых тег в избранном
-   *
-   * @param tagId
-   * @return
-   */
-  def countFavs(tagId: Int): Int = {
-    val count: Integer = namedJdbcTemplate.queryForObject(
-      "SELECT count(*) FROM user_tags WHERE tag_id=:tagId AND is_favorite",
-      Map("tagId" -> tagId).asJava,
-      classOf[Integer]
-    )
-    count
-  }
-
-  def countIgnore(tagId: Int): Int = {
-    val count: Integer = namedJdbcTemplate.queryForObject(
-      "SELECT count(*) FROM user_tags WHERE tag_id=:tagId AND NOT is_favorite",
-      Map("tagId" -> tagId).asJava,
-      classOf[Integer]
-    )
-    count
-  }
-
-  def deleteUnusedTags(): Int = {
-    jdbcTemplate.update("delete from user_tags where not exists " +
-      "(select * from tags join topics on topics.id=tags.msgid where tagid=user_tags.tag_id and not deleted)")
-  }
-}
+  def deleteUnusedTags(): Int =
+    springDB.run:
+      sql"delete from user_tags where not exists (select * from tags join topics on topics.id=tags.msgid where tagid=user_tags.tag_id and not deleted)"
+        .update
+        .apply()

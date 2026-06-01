@@ -17,9 +17,11 @@ package ru.org.linux.scalikejdbc
 
 import org.springframework.jdbc.datasource.DataSourceUtils
 import org.springframework.stereotype.Component
-import scalikejdbc.{DBSession, SettingsProvider}
+import scalikejdbc.{DBSession, ParameterBinderFactory, SettingsProvider, TypeBinder}
 
 import javax.sql.DataSource
+import java.sql.PreparedStatement
+import java.util as ju
 
 @Component
 class SpringDB(dataSource: DataSource):
@@ -29,3 +31,15 @@ class SpringDB(dataSource: DataSource):
     val conn = DataSourceUtils.getConnection(dataSource)
     try f(using DBSession(conn, settings = settings))
     finally DataSourceUtils.releaseConnection(conn, dataSource)
+
+object SpringDB:
+  given hstorePbf: ParameterBinderFactory[ju.Map[String, String]] =
+    ParameterBinderFactory[ju.Map[String, String]] { value => (stmt: PreparedStatement, idx: Any) =>
+      stmt.setObject(idx.asInstanceOf[Int], value)
+    }
+
+  given hstoreTypeBinder: TypeBinder[ju.Map[String, String]] with
+    def apply(rs: java.sql.ResultSet, label: String): ju.Map[String, String] =
+      rs.getObject(label).asInstanceOf[ju.Map[String, String]]
+    def apply(rs: java.sql.ResultSet, idx: Int): ju.Map[String, String] =
+      rs.getObject(idx).asInstanceOf[ju.Map[String, String]]

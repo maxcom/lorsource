@@ -15,102 +15,63 @@
 
 package ru.org.linux.user
 
-import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-
-import java.sql.ResultSet
-import javax.sql.DataSource
-import scala.jdk.CollectionConverters.*
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
 @Repository
-class RemarkDao(ds: DataSource) {
-  private val jdbcTemplate = new JdbcTemplate(ds)
-  private val namedTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.javaTemplate)
+class RemarkDao(springDB: SpringDB):
+  def remarkCount(user: User): Int =
+    springDB.run:
+      sql"SELECT count(*) as c FROM user_remarks WHERE user_id=${user.id}"
+        .map(rs => rs.int("c"))
+        .single
+        .apply()
+        .getOrElse(0)
 
-  def remarkCount(user: User):Int = {
-    val count:Option[Int] = jdbcTemplate.queryForObject[Integer](
-      "SELECT count(*) as c FROM user_remarks WHERE user_id=?",
-      user.id).map(_.toInt)
+  def hasRemarks(user: User): Boolean = remarkCount(user) > 0
 
-    count.getOrElse(0)
-  }
+  def getRemark(user: User, ref: User): Option[Remark] =
+    springDB.run:
+      sql"SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=${user.id} AND ref_user_id=${ref.id}"
+        .map(rs => Remark(rs.underlying))
+        .single
+        .apply()
 
-  def hasRemarks(user: User):Boolean = remarkCount(user) > 0
-
-  /**
-   * Получить комментарий пользователя user о ref
-   * @param user logged user
-   * @param ref  user
-   */
-  def getRemark(user: User, ref: User): Option[Remark] = {
-    jdbcTemplate.queryAndMap("SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=? AND ref_user_id=?", user.id, ref.id) { (rs, _) =>
-      Remark(rs)
-    }.headOption
-  }
-
-  def getRemarks(user: User, refs: Iterable[User]): Map[Int, Remark] = {
-    val r: Map[Int, Remark] = if (refs.isEmpty) {
+  def getRemarks(user: User, refs: Iterable[User]): Map[Int, Remark] =
+    if refs.isEmpty then
       Map.empty
-    } else {
-      namedTemplate.query(
-        "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=:user AND ref_user_id IN (:list)",
-        Map("list" -> refs.map(_.id).toSeq.asJavaCollection, "user" -> user.id).asJava,
-        new RowMapper[(Int, Remark)]() {
-          override def mapRow(rs: ResultSet, rowNum: Int) = {
-            val remark = Remark(rs)
-            remark.refUserId -> remark
+    else
+      val refIds = refs.map(_.id).toSeq
+      springDB.run:
+        sql"SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=${user.id} AND ref_user_id IN ($refIds)"
+          .map { rs =>
+            val r = Remark(rs.underlying)
+            r.refUserId -> r
           }
-        }
-      ).asScala.toMap
-    }
+          .list
+          .apply()
+          .toMap
 
-    r
-  }
+  def setOrUpdateRemark(user: User, ref: User, text: String): Unit =
+    if text.isEmpty then
+      springDB.run:
+        sql"DELETE FROM user_remarks WHERE user_id=${user.id} AND ref_user_id=${ref.id}".update.apply()
+    else
+      springDB.run:
+        sql"""INSERT INTO user_remarks (user_id, ref_user_id, remark_text) VALUES (${user.id}, ${ref.id}, $text)
+              ON CONFLICT (user_id, ref_user_id) DO UPDATE SET remark_text=$text""".update.apply()
 
-  private def setRemark(user: User, ref: User, text: String):Unit = {
-    if (text.nonEmpty) {
-      jdbcTemplate.update("INSERT INTO user_remarks (user_id,ref_user_id,remark_text) VALUES (?,?,?)", user.id, ref.id, text)
-    }
-  }
-
-  private def updateRemark(id: Int, text: String):Unit = {
-    if (text.isEmpty) {
-      jdbcTemplate.update("DELETE FROM user_remarks WHERE id=?", id)
-    } else {
-      jdbcTemplate.update("UPDATE user_remarks SET remark_text=? WHERE id=?", text, id)
-    }
-  }
-
-  /**
-   * Сохранить или обновить комментарий пользователя user о ref.
-   * Если комментарий нулевой длины - он удаляется из базы
-   *
-   * @param user logged user
-   * @param ref  user
-   * @param text текст комментария
-   */
-  def setOrUpdateRemark(user: User, ref: User, text: String): Unit = {
-    getRemark(user, ref) match {
-      case Some(remark) => updateRemark(remark.id, text)
-      case None         => setRemark(user, ref, text)
-    }
-  }
-
-  /**
-   * Получить комментарии пользователя user
-   * @param user logged user
-   */
-  def getRemarkList(user: User, offset: Int, sortorder: Int, limit: Int): Seq[Remark] = {
-    val qs = if (sortorder == 1) {
-      "SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=? ORDER BY remark_text ASC LIMIT ? OFFSET ?"
-    } else {
-      "SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text FROM user_remarks, users WHERE user_remarks.user_id=? AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT ? OFFSET ?"
-    }
-
-    jdbcTemplate.queryAndMap(qs, user.id, limit, offset) { (rs, _) =>
-      Remark(rs)
-    }
-  }
-}
+  def getRemarkList(user: User, offset: Int, sortorder: Int, limit: Int): Seq[Remark] =
+    if sortorder == 1 then
+      springDB.run:
+        sql"SELECT id, ref_user_id, remark_text FROM user_remarks WHERE user_id=${user
+            .id} ORDER BY remark_text ASC LIMIT $limit OFFSET $offset".map(rs => Remark(rs.underlying)).list.apply()
+    else
+      springDB.run:
+        sql"""SELECT user_remarks.id as id, user_remarks.user_id as user_id, user_remarks.ref_user_id as ref_user_id, user_remarks.remark_text as remark_text
+              FROM user_remarks, users WHERE user_remarks.user_id=${user
+            .id} AND users.id = user_remarks.ref_user_id ORDER BY users.nick ASC LIMIT $limit OFFSET $offset"""
+          .map(rs => Remark(rs.underlying))
+          .list
+          .apply()

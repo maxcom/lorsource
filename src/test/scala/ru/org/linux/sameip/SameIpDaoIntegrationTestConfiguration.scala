@@ -13,13 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.user
+package ru.org.linux.sameip
 
 import org.springframework.context.annotation.{Bean, Configuration}
 import ru.org.linux.scalikejdbc.SpringDB
 
 @Configuration
-class ProfileDaoIntegrationTestConfiguration {
+class SameIpDaoIntegrationTestConfiguration:
   @Bean
-  def profileDao(springDB: SpringDB): ProfileDao = new ProfileDao(springDB)
-}
+  def sameIpDao(springDB: SpringDB): SameIpDao = new SameIpDao(springDB)

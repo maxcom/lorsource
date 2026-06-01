@@ -44,7 +44,7 @@ class SameIpService(userService: UserService, msgbaseDao: MsgbaseDao, textServic
         title = item.title,
         deleted = item.deleted,
         textPreview = textPreview,
-        reason = item.reason,
+        reason = item.reason.orNull,
         postdate = item.postdate,
         comment = item.commentId.isDefined)
     }

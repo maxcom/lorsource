@@ -112,7 +112,7 @@ class TopicDaoIntegrationTestConfiguration {
   def ignoreListDao(springDB: SpringDB) = new IgnoreListDao(springDB)
 
   @Bean
-  def profileDao(ds: DataSource) = new ProfileDao(ds)
+  def profileDao(springDB: SpringDB) = new ProfileDao(springDB)
 
   @Bean
   def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
