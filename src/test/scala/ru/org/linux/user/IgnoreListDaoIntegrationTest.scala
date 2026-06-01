@@ -55,11 +55,11 @@ class IgnoreListDaoIntegrationTest:
     val owner = mockUser(1)
     val ignored = mockUser(2)
 
+    val initialSize = ignoreListDao.get(1).size
     ignoreListDao.addUser(owner, ignored)
+    assertEquals("Should have one more entry", initialSize + 1, ignoreListDao.get(1).size)
     ignoreListDao.addUser(owner, ignored)
-
-    val result = ignoreListDao.get(1)
-    assertEquals("Should have exactly one entry", 1, result.size)
+    assertEquals("Should not add duplicate", initialSize + 1, ignoreListDao.get(1).size)
 
   @Test
   def testRemoveIgnored(): Unit =
