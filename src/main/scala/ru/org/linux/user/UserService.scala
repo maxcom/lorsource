@@ -251,22 +251,14 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
       throw new RuntimeException("Anonymous not found!?", e)
   }
 
-  def createUser(nick: String, password: String, mail: InternetAddress, ip: String, invite: Option[String],
+  def createUser(nick: String, password: String, mail: InternetAddress, ip: String,
                  userAgent: Option[String], language: Option[String]): Int = {
     val result = transactional() { _ =>
       val newUserId = userDao.createUser("", nick, password, null, mail, null)
-
-      invite.foreach { token =>
-        val marked = userInvitesDao.markUsed(token, newUserId)
-
-        if (!marked) throw new AccessViolationException("Инвайт уже использован")
-      }
-
-      val inviteOwner = invite.flatMap(userInvitesDao.ownerOfInvite)
-
+      
       val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
 
-      userLogDao.logRegister(newUserId, ip, inviteOwner, userAgentId, language)
+      userLogDao.logRegister(userid = newUserId, ip = ip, userAgent = userAgentId, language = language)
 
       newUserId
     }

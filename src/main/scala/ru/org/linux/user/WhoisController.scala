@@ -121,7 +121,6 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       currentUserOpt.opt.foreach { implicit authorized =>
         mv.getModel.put("hasRemarks", remarkDao.hasRemarks(user))
         mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
-        mv.getModel.put("canInvite", userPermissionService.canInvite)
       }
     }
 

@@ -43,34 +43,22 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMeServices,
-                         @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
-                         userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
-                         siteConfig: SiteConfig, userService: UserService, invitesDao: UserInvitesDao,
-                         emailDomainsBlockDao: EmailDomainsBlockDao,
-                         userPermissionService: UserPermissionService) extends StrictLogging {
+                          @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
+                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
+                          siteConfig: SiteConfig, userService: UserService,
+                          emailDomainsBlockDao: EmailDomainsBlockDao,
+                          userPermissionService: UserPermissionService) extends StrictLogging {
   private val registerRequestValidator = new RegisterRequestValidator(emailDomainsBlockDao)
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,
-               request: HttpServletRequest, @RequestParam(required = false) invite: String): ModelAndView = {
+               request: HttpServletRequest): ModelAndView = {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 
-    if (invite!=null) {
-      val emailOpt = invitesDao.emailFromValidInvite(invite)
-
-      emailOpt match {
-        case None =>
-          throw new AccessViolationException("Код приглашения не действителен")
-        case Some(email) =>
-          form.setEmail(email)
-      }
-      new ModelAndView("register", "invite", invite)
+    if (userPermissionService.canRegister(request.getRemoteAddr)) {
+      new ModelAndView("register", "permit", makePermit)
     } else {
-      if (userPermissionService.canRegister(request.getRemoteAddr)) {
-        new ModelAndView("register", "permit", makePermit)
-      } else {
-        new ModelAndView("no-register")
-      }
+      new ModelAndView("no-register")
     }
   }
 
@@ -101,59 +89,43 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
   def doRegister(request: HttpServletRequest, @Valid @ModelAttribute("form") form: RegisterRequest,
-                 errors: Errors, @RequestParam(required = false) invite: String,
-                 @RequestParam(required = false) permit: String): ModelAndView = {
-    if (invite==null && permit == null) {
-      return new ModelAndView("no-register")
+                 errors: Errors, @RequestParam(required = false) permit: String): ModelAndView = {
+    if (permit == null || !checkPermit(permit)) {
+      new ModelAndView("no-register")
     } else {
-      if (invite!=null) {
-        val emailOpt = invitesDao.emailFromValidInvite(invite)
-
-        emailOpt match {
-          case None =>
-            throw new AccessViolationException("Код приглашения не действителен")
-          case Some(email) =>
-            form.setEmail(email)
-        }
-      } else if (!checkPermit(permit)) {
-        return new ModelAndView("no-register")
-      }
-    }
-
-    if (!errors.hasErrors) {
-      if (invite==null) {
+      if (!errors.hasErrors) {
         captcha.checkCaptcha(request, errors)
-      }
 
-      if (userDao.isUserExists(form.getNick) || userDao.hasSimilarUsers(form.getNick)) {
-        errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
-      }
+        if (userDao.isUserExists(form.getNick) || userDao.hasSimilarUsers(form.getNick)) {
+          errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
+        }
 
-      userService.getByEmail(form.getEmail, searchBlocked = true).foreach { byEmail =>
-        if (!byEmail.blocked || userService.wasRecentlyBlocker(byEmail)) {
-          errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
-            "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
+        userService.getByEmail(form.getEmail, searchBlocked = true).foreach { byEmail =>
+          if (!byEmail.blocked || userService.wasRecentlyBlocker(byEmail)) {
+            errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
+              "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
+          }
         }
       }
-    }
 
-    if (!errors.hasErrors) {
-      val mail = new InternetAddress(form.getEmail.toLowerCase)
-      val userid = userService.createUser(nick = form.getNick, password = form.getPassword, mail = mail,
-        ip = request.getRemoteAddr, invite = Option(invite), userAgent = Option(request.getHeader("user-agent")),
-        language = Option(request.getHeader("accept-language")))
+      if (!errors.hasErrors) {
+        val mail = new InternetAddress(form.getEmail.toLowerCase)
+        val userid = userService.createUser(nick = form.getNick, password = form.getPassword, mail = mail,
+          ip = request.getRemoteAddr, userAgent = Option(request.getHeader("user-agent")),
+          language = Option(request.getHeader("accept-language")))
 
-      logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
+        logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
 
-      emailService.sendRegistrationEmail(form.getNick, mail.getAddress, isNew = true)
+        emailService.sendRegistrationEmail(form.getNick, mail.getAddress, isNew = true)
 
-      new ModelAndView(
-        "action-done",
-        "message",
-        "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.")
-    } else {
-      val params = Map("invite" -> invite, "permit" -> permit)
-      new ModelAndView("register", params.asJava)
+        new ModelAndView(
+          "action-done",
+          "message",
+          "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.")
+      } else {
+        val params = Map("permit" -> permit)
+        new ModelAndView("register", params.asJava)
+      }
     }
   }
 
@@ -259,37 +231,5 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   def requestValidator(binder: WebDataBinder):Unit = {
     binder.setValidator(registerRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
-  }
-
-  @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.GET))
-  def createInviteForm(): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (!userPermissionService.canInvite) {
-      throw new AccessViolationException("Вы не можете пригласить нового пользователя")
-    }
-
-    new ModelAndView("create-invite")
-  }
-
-  @RequestMapping(value = Array("create-invite"), method = Array(RequestMethod.POST))
-  def createInvite(@RequestParam email: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (!userPermissionService.canInvite) {
-      throw new AccessViolationException("Вы не можете пригласить нового пользователя")
-    }
-
-    if (userDao.getByEmail(email, false) != 0) {
-      throw new AccessViolationException("Пользователь с этим адресом уже зарегистрирован")
-    }
-
-    val parsedEmail = new InternetAddress(email)
-
-    if (!registerRequestValidator.isGoodDomainEmail(parsedEmail)) {
-      throw new AccessViolationException("Некорректный email домен")
-    }
-
-    val (token, validUntil) = invitesDao.createInvite(currentUser.user, email)
-
-    emailService.sendInviteEmail(currentUser.user, email, token, validUntil)
-
-    new ModelAndView("action-done", "message", s"Приглашение отправлено по адресу $email")
   }
 }

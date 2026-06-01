@@ -27,10 +27,6 @@ import java.time.{Duration, Instant}
 import javax.annotation.Nullable
 
 object UserPermissionService {
-  private val MaxTotalInvites = 15
-  private val MaxUserInvites = 1
-  private val MaxInviteScoreLoss = 10
-  private val InviteScore = 200
   private val MaxUnactivatedPerIp = 2
   private val MaxUserpicScoreLoss = 20
   val DeprecatedFeaturesScore = 500
@@ -59,21 +55,11 @@ object UserPermissionService {
 }
 
 @Service
-class UserPermissionService(userLogDao: UserLogDao, userInvitesDao: UserInvitesDao, deleteInfoDao: DeleteInfoDao,
+class UserPermissionService(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
                             ipBlockDao: IPBlockDao, userDao: UserDao) {
   def canResetPassword(user: User): Boolean = {
     !userLogDao.hasRecentSelfEvent(user, Duration.ofDays(7), UserLogAction.SENT_PASSWORD_RESET)
   }
-
-  def canInvite(implicit session: AuthorizedSession): Boolean = false /*session.moderator || {
-    lazy val (totalInvites, userInvites) = userInvitesDao.countValidInvites(session.user)
-    lazy val userScoreLoss = deleteInfoDao.getRecentScoreLoss(session.user)
-
-    !session.user.isFrozen && session.user.getScore > InviteScore &&
-      totalInvites < MaxTotalInvites &&
-      userInvites < MaxUserInvites &&
-      userScoreLoss < MaxInviteScoreLoss
-  }*/
 
   def canRegister(remoteAddr: String): Boolean = !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
     userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp

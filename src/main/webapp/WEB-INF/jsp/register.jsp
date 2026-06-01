@@ -67,7 +67,7 @@
 
   <div class="control-group">
     <label for="email">E-mail</label>
-    <form:input readonly="${invite!=null}" path="email" type="email" required="required" cssClass="email" size="40" cssErrorClass="error"/>
+    <form:input path="email" type="email" required="required" cssClass="email" size="40" cssErrorClass="error"/>
     <form:errors path="email" element="span" cssClass="error help-inline" for="email"/>
     <div class="help-block">
       позже этот e-mail пригодится для восстановления<br>
@@ -87,17 +87,11 @@
     <form:errors path="password2" element="span" cssClass="error help-inline" for="password"/>
   </div>
 
-  <c:if test="${invite==null}">
-    <div class="control-group">
+  <div class="control-group">
       <lor:captcha/>
     </div>
-  </c:if>
 
-  <c:if test="${invite!=null}">
-    <input type="hidden" name="invite" value="${fn:escapeXml(invite)}">
-  </c:if>
-
-  <c:if test="${permit!=null}">
+    <c:if test="${permit!=null}">
     <input type="hidden" name="permit" value="${fn:escapeXml(permit)}">
   </c:if>
 

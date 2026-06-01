@@ -278,13 +278,12 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
     )
   }
 
-  def logRegister(userid: Int, ip: String, invitedBy: Option[Int], userAgent: Int, language: Option[String]): Unit = transactional() { _ =>
+  def logRegister(userid: Int, ip: String, userAgent: Int, language: Option[String]): Unit = transactional() { _ =>
     var map = Map[String, String]()
 
     map = map + (UserLogDao.OptionIp -> ip)
     map = map + (UserLogDao.OptionUserAgent -> Integer.toString(userAgent))
     language.foreach(lang => map = map + (UserLogDao.OptionAcceptLanguage -> lang))
-    invitedBy.foreach(user => map = map + (UserLogDao.OptionInvitedBy -> user.toString))
 
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
