@@ -69,8 +69,25 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
     }
   }
 
+  def deleteComment(auth: String, commentId: Int, reason: String = "test cleanup"): Unit = {
+    val response = basicRequest
+      .body(Map(
+        "msgid" -> commentId.toString,
+        "reason" -> reason,
+        "bonus" -> "0",
+        "delete_replys" -> "false",
+        "csrf" -> "csrf"))
+      .cookie(AuthCookie, auth)
+      .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
+      .followRedirects(false)
+      .post(MainUrl.addPath("delete_comment.jsp"))
+      .send(backend)
+
+    Assert.assertTrue(s"Delete comment $commentId failed: ${response.code}", response.code == StatusCode.Ok)
+  }
+
   def deleteTopic(auth: String, topicId: Int, reason: String = "test cleanup"): Unit = {
-    basicRequest
+    val response = basicRequest
       .body(Map(
         "msgid" -> topicId.toString,
         "reason" -> reason,
@@ -81,6 +98,8 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
       .followRedirects(false)
       .post(MainUrl.addPath("delete.jsp"))
       .send(backend)
+
+    Assert.assertTrue(s"Delete topic $topicId failed: ${response.code}", response.code == StatusCode.Ok)
   }
 
   def authorized(user: String = TestUser, password: String = TestPassword): FunFixture[String] = FunFixture[String](

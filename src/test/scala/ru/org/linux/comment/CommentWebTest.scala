@@ -32,6 +32,8 @@ class CommentWebTest extends FunSuite with WebHelper:
   authorized().test("post and edit"): auth =>
     val topicId = createTopic(auth, TestGroup, TestTitle).fold(v => fail(v), identity)
 
+    var commentId = 0
+
     try {
     val postResponse = basicRequest
       .body(Map(
@@ -52,7 +54,7 @@ class CommentWebTest extends FunSuite with WebHelper:
 
     assert(postDoc.select(".error").text().isEmpty, "no errors in post")
 
-    val commentId = postResponse.header(HeaderNames.Location).map(Uri.parse).flatMap(_.toOption)
+    commentId = postResponse.header(HeaderNames.Location).map(Uri.parse).flatMap(_.toOption)
       .flatMap(_.params.get("cid")).map(_.toInt).getOrElse(0)
 
     val editResponse = basicRequest
@@ -74,5 +76,8 @@ class CommentWebTest extends FunSuite with WebHelper:
 
     assert(editDoc.select(".error").text().isEmpty, "no errors in edit")
     } finally {
+      if (commentId > 0) {
+        deleteComment(auth, commentId)
+      }
       deleteTopic(auth, topicId)
     }
