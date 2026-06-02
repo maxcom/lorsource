@@ -14,126 +14,88 @@
  */
 package ru.org.linux.user
 
-import javax.sql.DataSource
-import com.google.common.collect.ImmutableMap
-import org.springframework.dao.DuplicateKeyException
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.{Propagation, Transactional}
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.topic.Topic
+import scalikejdbc.*
 
+import java.util as ju
 import scala.jdk.OptionConverters.RichOption
 
 @Repository
-class MemoriesDao(ds: DataSource) {
-  private val jdbcTemplate = new JdbcTemplate(ds)
-  private val insertTemplate = {
-    new SimpleJdbcInsert(ds)
-      .withTableName("memories")
-      .usingGeneratedKeyColumns("id")
-      .usingColumns("userid", "topic", "watch")
-  }
+class MemoriesDao(springDB: SpringDB):
 
-  def addToMemories(user: User, topic: Topic, watch: Boolean): Int = try {
-    doAddToMemories(user, topic, watch)
-  } catch {
-    case _: DuplicateKeyException =>
-      getId(user, topic.id, watch)
-  }
+  def addToMemories(user: User, topic: Topic, watch: Boolean): Int =
+    springDB.run:
+      sql"""INSERT INTO memories (userid, topic, watch) VALUES (${user.id}, ${topic.id}, $watch)
+            ON CONFLICT (userid, topic, watch) DO UPDATE SET topic=${topic.id}
+            RETURNING id""".map(rs => rs.int("id")).single.apply().get
 
-  @Transactional(rollbackFor = Array(classOf[Exception]), propagation = Propagation.REQUIRED)
-  private def doAddToMemories(user: User, topic: Topic, watch: Boolean) = {
-    val id = getId(user, topic.id, watch)
-
-    if (id == 0) {
-      insertTemplate.executeAndReturnKey(ImmutableMap.of("userid", user.id,
-        "topic", topic.id, "watch", watch)).intValue
-    } else {
-      id
-    }
-  }
-
-  /**
-    * Get memories id or 0 if not in memories
-    */
-  private def getId(user: User, topic: Int, watch: Boolean): Int = {
-    val res = jdbcTemplate.queryForSeq[Int]("SELECT id FROM memories WHERE userid=? AND topic=? AND watch=?",
-      user.id, topic, watch)
-
-    res.headOption.getOrElse(0)
-  }
-
-  /**
-    * get number of memories/favs for topic
-    */
-  def getTopicInfo(topic: Int, currentUserOpt: Option[User]): MemoriesInfo = {
-    val res: MemoriesInfo = jdbcTemplate.queryAndMap("SELECT watch, count(*) FROM memories WHERE topic=? GROUP BY watch", topic){ (rs, _) =>
-      if (rs.getBoolean("watch")) {
-        MemoriesInfo(watchCount = rs.getInt("count"), favsCount = 0, watchId = 0, favId = 0)
-      } else {
-        MemoriesInfo(watchCount = 0, favsCount = rs.getInt("count"), watchId = 0, favId = 0)
-      }
-    }.fold(MemoriesInfo(0, 0, 0, 0)) { (acc, cur) =>
-      MemoriesInfo(
-        watchCount = acc.watchCount + cur.watchCount,
-        favsCount = acc.favsCount + cur.favsCount,
-        watchId = 0,
-        favId = 0)
-    }
-
-    currentUserOpt match {
-      case Some(currentUser) =>
-        val ids = jdbcTemplate.queryAndMap("SELECT id, watch FROM memories WHERE userid=? AND topic=?", currentUser.id, topic) {
-          (rs, _) => rs.getInt("id") -> rs.getBoolean("watch")
+  def getTopicInfo(topic: Int, currentUserOpt: Option[User]): MemoriesInfo =
+    val res = springDB.run:
+      sql"SELECT watch, count(*) FROM memories WHERE topic=$topic GROUP BY watch"
+        .map { rs =>
+          if rs.boolean("watch") then
+            MemoriesInfo(watchCount = rs.int("count"), favsCount = 0, watchId = 0, favId = 0)
+          else
+            MemoriesInfo(watchCount = 0, favsCount = rs.int("count"), watchId = 0, favId = 0)
         }
+        .list
+        .apply()
+        .foldLeft(MemoriesInfo(0, 0, 0, 0)) { (acc, cur) =>
+          MemoriesInfo(
+            watchCount = acc.watchCount + cur.watchCount,
+            favsCount = acc.favsCount + cur.favsCount,
+            watchId = 0,
+            favId = 0)
+        }
+
+    currentUserOpt match
+      case Some(currentUser) =>
+        val ids = springDB.run:
+          sql"SELECT id, watch FROM memories WHERE userid=${currentUser.id} AND topic=$topic"
+            .map(rs => rs.int("id") -> rs.boolean("watch"))
+            .list
+            .apply()
 
         var watchId = 0
         var favsId = 0
-
-        for (p <- ids) {
-          if (p._2) watchId = p._1
-          else favsId = p._1
-        }
+        for (id, w) <- ids do
+          if w then
+            watchId = id
+          else
+            favsId = id
 
         MemoriesInfo(watchCount = res.watchCount, favsCount = res.favsCount, watchId = watchId, favId = favsId)
       case None =>
         res
-    }
-  }
 
-  def getMemoriesListItem(id: Int): java.util.Optional[MemoriesListItem] = {
-    val res = jdbcTemplate.queryAndMap("SELECT * FROM memories WHERE id=?", id) {
-      (rs, _) => MemoriesListItem(rs)
-    }
+  def getMemoriesListItem(id: Int): ju.Optional[MemoriesListItem] =
+    val result = springDB.run:
+      sql"SELECT * FROM memories WHERE id=$id".map(rs => MemoriesListItem(rs.underlying)).single.apply()
+    result.toJava
 
-    res.headOption.toJava
-  }
-
-  def delete(id: Int): Unit = jdbcTemplate.update("DELETE FROM memories WHERE id=?", id)
+  def delete(id: Int): Unit =
+    springDB.run:
+      sql"DELETE FROM memories WHERE id=$id".update.apply()
 
   def isWatchPresetForUser(user: User): Boolean = checkMemoriesPresent(user, watch = true)
 
   def isFavPresetForUser(user: User): Boolean = checkMemoriesPresent(user, watch = false)
 
-  private def checkMemoriesPresent(user: User, watch: Boolean) = {
-    val present = jdbcTemplate.queryForSeq[Int]("select memories.id from memories join topics on memories.topic=topics.id " +
-      "where memories.userid=? and watch=? and not deleted limit 1", user.id, watch)
+  private def checkMemoriesPresent(user: User, watch: Boolean): Boolean =
+    springDB.run:
+      sql"""SELECT memories.id FROM memories JOIN topics ON memories.topic=topics.id
+            WHERE memories.userid=${user.id} AND watch=$watch AND NOT deleted LIMIT 1"""
+        .map(rs => rs.int("id"))
+        .single
+        .apply()
+        .isDefined
 
-    present.nonEmpty
-  }
-
-  /**
-    * get number of watch memories for user
-    *
-    * @param user user
-    * @return count memories
-    */
-  def getWatchCountForUser(user: User): Int = {
-    val ret = jdbcTemplate.queryForSeq[Int](
-      "select count(id) from memories where userid=? and watch='t'",
-      user.id)
-
-    ret.headOption.getOrElse(0)
-  }
-}
+  def getWatchCountForUser(user: User): Int =
+    springDB.run:
+      sql"SELECT count(id) FROM memories WHERE userid=${user.id} AND watch='t'"
+        .map(rs => rs.int("count"))
+        .single
+        .apply()
+        .getOrElse(0)

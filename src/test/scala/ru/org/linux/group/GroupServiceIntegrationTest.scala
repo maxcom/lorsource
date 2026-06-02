@@ -21,9 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{Section, SectionScrollModeEnum}
-
-import javax.sql.DataSource
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(classes = Array(classOf[GroupServiceIntegrationTestConfiguration]))
@@ -79,7 +78,7 @@ class GroupServiceIntegrationTest:
 @Configuration @ImportResource(Array("classpath:database.xml", "classpath:common.xml"))
 class GroupServiceIntegrationTestConfiguration:
   @Bean
-  def groupDao(dataSource: DataSource): GroupDao = new GroupDao(dataSource)
+  def groupDao(springDB: SpringDB): GroupDao = new GroupDao(springDB)
 
   @Bean
   def groupService(groupDao: GroupDao): GroupService = new GroupService(groupDao)

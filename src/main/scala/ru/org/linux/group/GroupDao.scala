@@ -16,56 +16,81 @@
 package ru.org.linux.group
 
 import com.typesafe.scalalogging.StrictLogging
-import org.apache.commons.lang3.StringUtils
-import org.springframework.dao.EmptyResultDataAccessException
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.Section
-
-import java.sql.PreparedStatement
-import javax.sql.DataSource
+import ru.org.linux.topic.TopicPermissionService
+import scalikejdbc.*
 
 @Repository
-class GroupDao(ds: DataSource) extends StrictLogging:
-  private val jdbcTemplate = JdbcTemplate(ds)
+class GroupDao(springDB: SpringDB) extends StrictLogging:
 
-  /**
-   * Получить объект группы по идентификатору.
-   *
-   * @param id идентификатор группы
-   * @return объект группы
-   * @throws GroupNotFoundException если группа не существует
-   */
+  private def buildGroup(rs: WrappedResultSet): Group =
+    val restrictTopics = rs.intOpt("restrict_topics").getOrElse(TopicPermissionService.POSTSCORE_UNRESTRICTED)
+    Group(
+      premoderated = rs.boolean("moderate"),
+      pollPostAllowed = rs.boolean("vote"),
+      linksAllowed = rs.boolean("havelink"),
+      sectionId = rs.int("section"),
+      defaultLinkText = rs.string("linktext"),
+      urlName = rs.string("urlname"),
+      image = rs.string("image"),
+      topicRestriction = restrictTopics,
+      commentsRestriction = rs.int("restrict_comments"),
+      id = rs.int("id"),
+      stat3 = rs.int("stat3"),
+      resolvable = rs.boolean("resolvable"),
+      title = rs.string("title"),
+      info = rs.string("info"),
+      longInfo = rs.string("longinfo")
+    )
+
+  /** Получить объект группы по идентификатору.
+    *
+    * @param id
+    *   идентификатор группы
+    * @return
+    *   объект группы
+    * @throws GroupNotFoundException
+    *   если группа не существует
+    */
   def getGroup(id: Int): Group =
-    try
-      jdbcTemplate.queryForObjectAndMap(
-        "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
-        id
-      )((rs, _) => Group.buildGroup(rs)).orNull
-    catch
-      case _: EmptyResultDataAccessException =>
-        throw new GroupNotFoundException(s"Группа $id не существует")
+    springDB.run:
+      sql"""SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image,
+            groups.restrict_topics, restrict_comments, stat3, groups.id, groups.info, groups.longinfo, groups.resolvable
+            FROM groups, sections WHERE groups.id=$id AND groups.section=sections.id"""
+        .map(buildGroup)
+        .single
+        .apply()
+        .getOrElse(throw new GroupNotFoundException(s"Группа $id не существует"))
 
-  /**
-   * Получить список групп в указанной секции.
-   *
-   * @param section объект секции.
-   * @return список групп
-   */
+  /** Получить список групп в указанной секции.
+    *
+    * @param section
+    *   объект секции.
+    * @return
+    *   список групп
+    */
   def getGroups(section: Section): Seq[Group] =
-    jdbcTemplate.queryAndMap(
-      "SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image, groups.restrict_topics, restrict_comments, stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
-      section.id
-    )((rs, _) => Group.buildGroup(rs))
+    springDB.run:
+      sql"""SELECT sections.moderate, vote, section, havelink, linktext, title, urlname, image,
+            groups.restrict_topics, restrict_comments, stat3, groups.id, groups.info, groups.longinfo, groups.resolvable
+            FROM groups, sections WHERE sections.id=${section.id} AND groups.section=sections.id ORDER BY id"""
+        .map(buildGroup)
+        .list
+        .apply()
 
-  /**
-   * Получить объект группы в указанной секции по имени группы.
-   *
-   * @param section объект секции.
-   * @param name    имя группы
-   * @return объект группы
-   * @throws GroupNotFoundException если группа не существует
-   */
+  /** Получить объект группы в указанной секции по имени группы.
+    *
+    * @param section
+    *   объект секции.
+    * @param name
+    *   имя группы
+    * @return
+    *   объект группы
+    * @throws GroupNotFoundException
+    *   если группа не существует
+    */
   def getGroup(section: Section, name: String): Group =
     val group = getGroupOpt(section, name, false)
 
@@ -75,66 +100,65 @@ class GroupDao(ds: DataSource) extends StrictLogging:
     else
       group.get
 
-  /**
-   * Получить объект группы в указанной секции по имени группы.
-   *
-   * @param section      объект секции.
-   * @param name          имя группы
-   * @param allowNumber   разрешить поиск по числовому id
-   * @return объект группы (optional)
-   */
+  /** Получить объект группы в указанной секции по имени группы.
+    *
+    * @param section
+    *   объект секции.
+    * @param name
+    *   имя группы
+    * @param allowNumber
+    *   разрешить поиск по числовому id
+    * @return
+    *   объект группы (optional)
+    */
   def getGroupOpt(section: Section, name: String, allowNumber: Boolean): Option[Group] =
-    try
-      if allowNumber && StringUtils.isNumeric(name) then
-        val id = jdbcTemplate.queryForObject[Int](
-          "SELECT id FROM groups WHERE section=? AND id=?",
-          section.id,
-          Integer.parseInt(name)
-        ).get
-        Some(getGroup(id))
-      else if StringUtils.isAsciiPrintable(name) then
-        val id = jdbcTemplate.queryForObject[Int](
-          "SELECT id FROM groups WHERE section=? AND urlname=?",
-          section.id,
-          name
-        ).get
-        Some(getGroup(id))
-      else
-        None
-    catch
-      case _: EmptyResultDataAccessException =>
-        logger.debug(s"Group '$name' not found in section ${section.getUrlName}")
-        None
+    if allowNumber && name.nonEmpty && name.forall(_.isDigit) then
+      springDB.run:
+        sql"SELECT id FROM groups WHERE section=${section.id} AND id=${name.toInt}"
+          .map(rs => rs.int("id"))
+          .single
+          .apply()
+      match
+        case Some(id) =>
+          Some(getGroup(id))
+        case None =>
+          None
+    else if name.forall(c => c.isLetterOrDigit || c == '-' || c == '_') && name.nonEmpty then
+      springDB.run:
+        sql"SELECT id FROM groups WHERE section=${section.id} AND urlname=$name".map(rs => rs.int("id")).single.apply()
+      match
+        case Some(id) =>
+          Some(getGroup(id))
+        case None =>
+          logger.debug(s"Group '$name' not found in section ${section.getUrlName}")
+          None
+    else
+      None
 
-  /**
-   * Изменить настройки группы.
-   *
-   * @param group      объект группы
-   * @param title      Заголовок группы
-   * @param info       дополнительная информация
-   * @param longInfo   расширенная дополнительная информация
-   * @param resolvable можно ли ставить темам признак "тема решена"
-   * @param urlName    имя группы в URL
-   */
-  def setParams(group: Group, title: String, info: String, longInfo: String, resolvable: Boolean, urlName: String): Unit =
-    jdbcTemplate.executePreparedStatement(
-      "UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?"
-    ) { (pst: PreparedStatement) =>
-      pst.setString(1, title)
-
-      if info.nonEmpty then
-        pst.setString(2, info)
-      else
-        pst.setString(2, null)
-
-      if longInfo.nonEmpty then
-        pst.setString(3, longInfo)
-      else
-        pst.setString(3, null)
-
-      pst.setBoolean(4, resolvable)
-      pst.setString(5, urlName)
-      pst.setInt(6, group.id)
-
-      pst.executeUpdate()
-    }
+  /** Изменить настройки группы.
+    *
+    * @param group
+    *   объект группы
+    * @param title
+    *   Заголовок группы
+    * @param info
+    *   дополнительная информация
+    * @param longInfo
+    *   расширенная дополнительная информация
+    * @param resolvable
+    *   можно ли ставить темам признак "тема решена"
+    * @param urlName
+    *   имя группы в URL
+    */
+  def setParams(
+      group: Group,
+      title: String,
+      info: String,
+      longInfo: String,
+      resolvable: Boolean,
+      urlName: String): Unit =
+    val infoOpt = Option.when(info.nonEmpty)(info)
+    val longInfoOpt = Option.when(longInfo.nonEmpty)(longInfo)
+    springDB.run:
+      sql"""UPDATE groups SET title=$title, info=$infoOpt, longinfo=$longInfoOpt,
+            resolvable=$resolvable, urlname=$urlName WHERE id=${group.id}""".update.apply()

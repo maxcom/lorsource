@@ -23,7 +23,7 @@
     <import resource="classpath:common.xml"/>
 
     <bean class="ru.org.linux.group.GroupDao" id="groupDao">
-        <constructor-arg ref="datasource"/>
+        <constructor-arg ref="springDB"/>
     </bean>
     <bean class="ru.org.linux.group.GroupService" id="groupService"/>
 
