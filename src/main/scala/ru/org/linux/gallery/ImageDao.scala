@@ -35,23 +35,20 @@ object ImageDao {
   }
 
   private def galleryItemRowMapper(gallery: Section)(rs: ResultSet, rowNum: Int): GalleryItem = {
-    val item = new GalleryItem
-
-    item.setMsgid(rs.getInt("msgid"))
-    item.setStat(rs.getInt("stat1"))
-    item.setTitle(rs.getString("title"))
-    item.setCommitDate(rs.getTimestamp("commitdate"))
     val imageid = rs.getInt("imageid")
-
     val extension = rs.getString("extension")
-    val image = Image(imageid, rs.getInt("msgid"), s"images/$imageid/original.$extension", deleted = false, main = true)
+    val msgid = rs.getInt("msgid")
+    val image = Image(imageid, msgid, s"images/$imageid/original.$extension", deleted = false, main = true)
 
-    item.setImage(image)
-    item.setUserid(rs.getInt("userid"))
-    item.setStat(rs.getInt("stat1"))
-    item.setLink(gallery.getSectionLink + rs.getString("urlname") + '/' + rs.getInt("msgid"))
-
-    item
+    GalleryItem(
+      msgid = msgid,
+      userid = rs.getInt("userid"),
+      title = rs.getString("title"),
+      stat = rs.getInt("stat1"),
+      link = gallery.getSectionLink + rs.getString("urlname") + '/' + msgid,
+      image = image,
+      commitDate = rs.getTimestamp("commitdate")
+    )
   }
 }
 

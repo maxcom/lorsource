@@ -72,7 +72,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   }
 
   def prepareGalleryItem(item: GalleryItem): PreparedGalleryItem = {
-    PreparedGalleryItem(item, userService.getUserCached(item.getUserid), new ImageInfo(htmlPath + item.getImage.getMedium))
+    PreparedGalleryItem(item, userService.getUserCached(item.userid), new ImageInfo(htmlPath + item.image.getMedium))
   }
 
   def prepareImage(image: Image): Option[PreparedImage] = prepareImage(image, lazyLoad = false)
@@ -105,7 +105,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
         Some(prepareGalleryItem(img))
       } catch {
         case NonFatal(ex) =>
-          logger.warn("Failed to get info for {}", img.getImage.getMedium, ex)
+          logger.warn("Failed to get info for {}", img.image.getMedium, ex)
           None
       }
     }.asJava
