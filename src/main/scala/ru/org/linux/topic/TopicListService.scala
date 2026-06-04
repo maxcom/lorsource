@@ -19,223 +19,154 @@ import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
 import ru.org.linux.group.Group
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.TagService
-import ru.org.linux.topic.TopicListDto.CommitMode
+import ru.org.linux.topic.TopicListRequest.CommitMode
+import ru.org.linux.topic.TopicListRequest.DateLimit
 import ru.org.linux.user.User
 
 import java.util.Calendar
 import java.util.Date
-import ru.org.linux.topic.TopicListDto.CommitMode.COMMITED_ONLY
-import ru.org.linux.topic.TopicListDto.CommitMode.POSTMODERATED_ONLY
-
 import java.time.{Instant, ZonedDateTime}
 
 @Service
-object TopicListService {
+object TopicListService:
   val MaxOffset = 300
 
-  /**
-   * Корректировка смещения в результатах выборки.
-   *
-   * @param offset оригинальное смещение
-   * @return скорректированное смещение
-   */
-  def fixOffset(offset: Integer): Int =
-    if (offset != null) {
-      if (offset < 0) {
-        0
-      } else if (offset > MaxOffset) {
-        MaxOffset
-      } else {
-        offset
-      }
-    } else {
+  def fixOffset(offset: Int): Int =
+    if offset < 0 then
       0
-    }
-}
+    else if offset > MaxOffset then
+      MaxOffset
+    else
+      offset
 
 @Service
-class TopicListService(tagService: TagService, topicListDao: TopicListDao, sectionService: SectionService) {
-  /**
-   * Получение списка топиков.
-   *
-   * @param section секция
-   * @param group   группа
-   * @param tag     тег
-   * @param offset  смещение в результатах выборки
-   * @param yearMonth год, месяц
-   * @return список топиков
-   */
-  def getTopicsFeed(section: Section, group: Option[Group], tag: Option[String], offset: Int, yearMonth: Option[(Int, Int)],
-                    count: Int, noTalks: Boolean, tech: Boolean)(using currentUser: AnySession): collection.Seq[Topic] = {
-    val topicListDto = new TopicListDto
+class TopicListService(tagService: TagService, topicListDao: TopicListDao, sectionService: SectionService):
+  def getTopicsFeed(
+      section: Section,
+      group: Option[Group],
+      tag: Option[String],
+      offset: Int,
+      yearMonth: Option[(Int, Int)],
+      count: Int,
+      noTalks: Boolean,
+      tech: Boolean)(using currentUser: AnySession): collection.Seq[Topic] =
+    val commitMode =
+      if section.isPremoderated then
+        CommitMode.CommittedOnly
+      else
+        CommitMode.PostmoderatedOnly
 
-    topicListDto.setNotalks(noTalks)
-    topicListDto.setTech(tech)
+    val base = TopicListRequest(
+      notalks = noTalks,
+      tech = tech,
+      sections = Set(section.id),
+      commitMode = commitMode,
+      group = group.map(_.id).getOrElse(0),
+      tag = tag.map(tagService.getTagId(_)).getOrElse(0)
+    )
 
-    topicListDto.setSection(section.id)
-
-    if (section.isPremoderated) {
-      topicListDto.setCommitMode(COMMITED_ONLY)
-    } else {
-      topicListDto.setCommitMode(POSTMODERATED_ONLY)
-    }
-
-    group.foreach { group =>
-      topicListDto.setGroup(group.id)
-    }
-
-    tag.foreach { tag =>
-      topicListDto.setTag(tagService.getTagId(tag))
-    }
-
-    if (yearMonth.isDefined) {
-      topicListDto.setDateLimitType(TopicListDto.DateLimitType.BETWEEN)
-
-      val calendar = Calendar.getInstance
-      calendar.set(yearMonth.get._1, yearMonth.get._2 - 1, 1, 0, 0, 0)
-      topicListDto.setFromDate(calendar.getTime)
-      calendar.add(Calendar.MONTH, 1)
-      topicListDto.setToDate(calendar.getTime)
-    } else {
-      topicListDto.setLimit(count)
-      topicListDto.setOffset(if (offset > 0) offset else null)
-
-      if (tag.isEmpty && group.isEmpty && !section.isPremoderated) {
-        topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
-
+    val dto =
+      if yearMonth.isDefined then
         val calendar = Calendar.getInstance
-        calendar.setTime(new Date)
-        calendar.add(Calendar.MONTH, -6)
-        topicListDto.setFromDate(calendar.getTime)
-      }
-    }
+        calendar.set(yearMonth.get._1, yearMonth.get._2 - 1, 1, 0, 0, 0)
+        val fromDate = calendar.getTime
+        calendar.add(Calendar.MONTH, 1)
+        val toDate = calendar.getTime
+        base.copy(dateLimit = DateLimit.Between(fromDate, toDate))
+      else
+        val withLimit = base.copy(limit = Some(count), offset = Some(TopicListService.fixOffset(offset)).filter(_ > 0))
+        if tag.isEmpty && group.isEmpty && !section.isPremoderated then
+          val calendar = Calendar.getInstance
+          calendar.setTime(new Date)
+          calendar.add(Calendar.MONTH, -6)
+          withLimit.copy(dateLimit = DateLimit.FromDate(calendar.getTime))
+        else
+          withLimit
 
-    topicListDao.getTopics(topicListDto, currentUser)
-  }
+    topicListDao.getTopics(dto, currentUser)
 
-  /**
-   * Получение списка топиков пользователя.
-   *
-   * @param user      объект пользователя
-   * @param section   секция, из которой выбрать сообщения
-   * @param offset    смещение в результатах выборки
-   * @param favorites true если нужно выбрать избранные сообщения пользователя
-   * @return список топиков пользователя
-   */
-  def getUserTopicsFeed(user: User, section: Option[Section] = None, offset: Int,
-                        favorites: Boolean, watches: Boolean): collection.Seq[Topic] = {
-    val topicListDto = new TopicListDto
+  def getUserTopicsFeed(
+      user: User,
+      section: Option[Section] = None,
+      offset: Int,
+      favorites: Boolean,
+      watches: Boolean): collection.Seq[Topic] =
+    val dto = TopicListRequest(
+      limit = Some(20),
+      offset = Some(offset),
+      commitMode = CommitMode.All,
+      userId = user.id,
+      userFavs = favorites,
+      userWatches = watches,
+      sections = section.map(s => Set(s.id)).getOrElse(Set.empty)
+    )
 
-    topicListDto.setLimit(20)
-    topicListDto.setOffset(offset)
-    topicListDto.setCommitMode(CommitMode.ALL)
-    topicListDto.setUserId(user.id)
-    topicListDto.setUserFavs(favorites)
-    topicListDto.setUserWatches(watches)
+    topicListDao.getTopics(dto, NonAuthorizedSession)
 
-    section.foreach { section =>
-      topicListDto.setSection(section.id)
-    }
+  def getDrafts(user: User, offset: Int): collection.Seq[Topic] =
+    val dto = TopicListRequest(
+      limit = Some(20),
+      offset = Some(offset),
+      commitMode = CommitMode.All,
+      userId = user.id,
+      showDraft = true)
 
-    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
-  }
+    topicListDao.getTopics(dto, NonAuthorizedSession)
 
-  /**
-   * Получение списка черновиков пользователя.
-   *
-   * @param user   объект пользователя
-   * @param offset смещение в результатах выборки
-   * @return список топиков пользователя
-   */
-  def getDrafts(user: User, offset: Int): collection.Seq[Topic] = {
-    val topicListDto = new TopicListDto
+  def getRssTopicsFeed(
+      section: Section,
+      group: Option[Group],
+      fromDate: Instant,
+      noTalks: Boolean,
+      tech: Boolean): collection.Seq[Topic] =
+    val commitMode =
+      if section.isPremoderated then
+        CommitMode.CommittedOnly
+      else
+        CommitMode.PostmoderatedOnly
 
-    topicListDto.setLimit(20)
-    topicListDto.setOffset(offset)
-    topicListDto.setCommitMode(CommitMode.ALL)
-    topicListDto.setUserId(user.id)
-    topicListDto.setShowDraft(true)
+    val dto = TopicListRequest(
+      sections = Set(section.id),
+      group = group.map(_.id).getOrElse(0),
+      dateLimit = DateLimit.FromDate(Date.from(fromDate)),
+      notalks = noTalks,
+      tech = tech,
+      limit = Some(30),
+      commitMode = commitMode
+    )
 
-    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
-  }
+    topicListDao.getTopics(dto, NonAuthorizedSession)
 
-  /**
-   * Получение списка топиков для RSS-ленты.
-   *
-   * @param section  секция
-   * @param group    группа
-   * @param fromDate от какой даты получить список
-   * @param noTalks  без Talks
-   * @param tech     только технические
-   * @return список топиков для RSS-ленты
-   */
-  def getRssTopicsFeed(section: Section, group: Option[Group], fromDate: Instant, noTalks: Boolean, tech: Boolean): collection.Seq[Topic] = {
-    val topicListDto = new TopicListDto
+  def getUncommitedTopic(section: Option[Section], fromDate: Date): collection.Seq[Topic] =
+    val dto = TopicListRequest(
+      commitMode = CommitMode.UncommittedOnly,
+      sections = section.map(s => Set(s.id)).getOrElse(Set.empty),
+      dateLimit = DateLimit.FromDate(fromDate))
 
-    topicListDto.setSection(section.id)
-
-    group.foreach { group =>
-      topicListDto.setGroup(group.id)
-    }
-
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
-    topicListDto.setFromDate(Date.from(fromDate))
-    topicListDto.setNotalks(noTalks)
-    topicListDto.setTech(tech)
-    topicListDto.setLimit(30)
-
-    if (section.isPremoderated) {
-      topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
-    } else {
-      topicListDto.setCommitMode(CommitMode.POSTMODERATED_ONLY)
-    }
-
-    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
-  }
-
-  def getUncommitedTopic(section: Option[Section], fromDate: Date): collection.Seq[Topic] = {
-    val topicListDto = new TopicListDto
-
-    topicListDto.setCommitMode(CommitMode.UNCOMMITED_ONLY)
-
-    section.foreach { section =>
-      topicListDto.setSection(section.id)
-    }
-
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
-    topicListDto.setFromDate(fromDate)
-
-    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
-  }
+    topicListDao.getTopics(dto, NonAuthorizedSession)
 
   def getDeletedTopics(sectionId: Int, skipBadReason: Boolean): Seq[DeletedTopic] =
-    topicListDao.getDeletedTopics(sectionId, skipBadReason)
+    topicListDao.getDeletedTopics(sectionId, skipBadReason = skipBadReason)
 
-  def getMainPageFeed(count: Int)
-                     (using session: AnySession): collection.Seq[Topic] = {
-    val topicListDto = new TopicListDto
+  def getMainPageFeed(count: Int)(using session: AnySession): collection.Seq[Topic] =
+    val sections =
+      if session.profile.showGalleryOnMain then
+        Set(Section.News, Section.Gallery, Section.Polls, Section.Articles)
+      else
+        Set(Section.News)
 
-    topicListDto.setLimit(count)
-    topicListDto.setDateLimitType(TopicListDto.DateLimitType.FROM_DATE)
+    val dto = TopicListRequest(
+      limit = Some(count),
+      dateLimit = DateLimit.FromDate(Date.from(ZonedDateTime.now.minusMonths(3).toInstant)),
+      commitMode = CommitMode.CommittedOnly,
+      sections = sections
+    )
 
-    topicListDto.setFromDate(Date.from(ZonedDateTime.now.minusMonths(3).toInstant))
-    
-    topicListDto.setCommitMode(CommitMode.COMMITED_ONLY)
+    topicListDao.getTopics(dto, NonAuthorizedSession)
 
-    if session.profile.showGalleryOnMain then
-      topicListDto.setSection(Section.News, Section.Gallery, Section.Polls, Section.Articles)
-    else 
-      topicListDto.setSection(Section.News)
+  def getTopics(topicListRequest: TopicListRequest)(using currentUser: AnySession): collection.Seq[Topic] =
+    topicListDao.getTopics(topicListRequest, currentUser)
 
-    topicListDao.getTopics(topicListDto, NonAuthorizedSession)
-  }
+  def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] = topicListDao.getDeletedUserTopics(user, topics)
 
-  def getTopics(topicListDto: TopicListDto)(using currentUser: AnySession): collection.Seq[Topic] =
-    topicListDao.getTopics(topicListDto, currentUser)
-
-  def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] =
-    topicListDao.getDeletedUserTopics(user, topics)
-
-  def getUserSections(user: User): Seq[Section] =
-    topicListDao.getUserSections(user).map(sectionService.idToSection)
-}
+  def getUserSections(user: User): Seq[Section] = topicListDao.getUserSections(user).map(sectionService.idToSection)

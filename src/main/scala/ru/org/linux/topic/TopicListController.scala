@@ -40,7 +40,7 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
 object TopicListController {
-  private def calculatePTitle(section: Section, groupOpt: Option[Group], topicListForm: TopicListRequest): String = {
+  private def calculatePTitle(section: Section, groupOpt: Option[Group], topicListForm: TopicListForm): String = {
     groupOpt match {
       case Some(group) =>
         s"${section.name} - ${group.title}"
@@ -53,7 +53,7 @@ object TopicListController {
     }
   }
 
-  private def calculateNavTitle(section: Section, group: Option[Group], topicListForm: TopicListRequest): String = {
+  private def calculateNavTitle(section: Section, group: Option[Group], topicListForm: TopicListForm): String = {
     val navTitle = new StringBuilder(section.name)
 
     group.foreach { group =>
@@ -86,7 +86,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
                            prepareService: TopicPrepareService, tagService: TagService,
                            groupService: GroupService, groupPermissionService: GroupPermissionService,
                            topicService: TopicService) extends StrictLogging {
-  private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListRequest,
+  private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListForm,
                                     group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
 
@@ -159,7 +159,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
              @RequestParam(value="offset", defaultValue = "0") offset: Int): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
 
-    val topicListForm = TopicListRequest.ofOffset(offset)
+    val topicListForm = TopicListForm.ofOffset(offset)
 
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       modelAndView.addObject("url", section.getNewsViewerLink)
@@ -177,7 +177,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
             @RequestParam(value = "filter", required = false) filter: String): CompletionStage[ModelAndView] = {
     val section = sectionService.getSection(Section.Forum)
 
-    val topicListForm = TopicListRequest.ofOffset(offset).copy(filter = parseFilter(filter))
+    val topicListForm = TopicListForm.ofOffset(offset).copy(filter = parseFilter(filter))
 
     mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
       if (filter==null) {
@@ -198,7 +198,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     val group = groupService.getGroup(section, groupName)
 
-    val topicListForm = TopicListRequest.ofOffset(offset)
+    val topicListForm = TopicListForm.ofOffset(offset)
 
     mainTopicsFeedHandler(section, topicListForm, Some(group)).map { modelAndView =>
       modelAndView.addObject("url", group.getUrl)
@@ -210,7 +210,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val sectionObject = sectionService.getSectionByName(section)
 
     (if (sectionObject.isPremoderated) {
-      val topicListForm = TopicListRequest.orYearMonth(year, month)
+      val topicListForm = TopicListForm.orYearMonth(year, month)
 
       mainTopicsFeedHandler(sectionObject, topicListForm, None)
     } else {

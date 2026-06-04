@@ -27,7 +27,7 @@ import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.TagPageController.isRecent
 import ru.org.linux.topic.*
-import ru.org.linux.topic.TopicListDto.CommitMode
+import ru.org.linux.topic.TopicListRequest.CommitMode
 import ru.org.linux.user.UserTagService
 
 import java.time
@@ -93,10 +93,10 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
         val (news, newsDate) = getNewsSection(tag, timezone)
-        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.Forum, CommitMode.POSTMODERATED_ONLY, timezone)
+        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.Forum, CommitMode.PostmoderatedOnly, timezone)
         val gallery = getGallerySection(tag, tagInfo.id)
-        val (polls, _) = getTopicList(tag, tagInfo.id, Section.Polls, CommitMode.COMMITED_ONLY, timezone)
-        val (articles, _) = getTopicList(tag, tagInfo.id, Section.Articles, CommitMode.COMMITED_ONLY, timezone)
+        val (polls, _) = getTopicList(tag, tagInfo.id, Section.Polls, CommitMode.CommittedOnly, timezone)
+        val (articles, _) = getTopicList(tag, tagInfo.id, Section.Articles, CommitMode.CommittedOnly, timezone)
 
         val newsFirst = newsDate.isDefined && (newsDate.exists(isRecent) || newsDate.zip(forumDate).exists(p => p._1.isAfter(p._2)))
 
@@ -190,14 +190,15 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
   }
 
   private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode, timezone: ZoneId)
-                          (using currentUser: AnySession) = {
+                           (using currentUser: AnySession) = {
     val forumSection = sectionService.getSection(section)
 
-    val topicListDto = new TopicListDto
-    topicListDto.setSection(forumSection.id)
-    topicListDto.setCommitMode(mode)
-    topicListDto.setTag(tagId)
-    topicListDto.setLimit(TagPageController.ForumTopicCount)
+    val topicListDto = TopicListRequest(
+      sections = Set(forumSection.id),
+      commitMode = mode,
+      tag = tagId,
+      limit = Some(TagPageController.ForumTopicCount)
+    )
 
     val forumTopics = topicListService.getTopics(topicListDto)
     val topicByDate = TopicListTools.datePartition(forumTopics, timezone)

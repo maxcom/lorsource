@@ -14,238 +14,200 @@
  */
 package ru.org.linux.topic
 
-import com.typesafe.scalalogging.StrictLogging
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 import ru.org.linux.auth.AnySession
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.SectionController
-import ru.org.linux.topic.TopicListDto.CommitMode.{COMMITED_ONLY, POSTMODERATED_ONLY, UNCOMMITED_ONLY}
-import ru.org.linux.topic.TopicListDto.DateLimitType
+import ru.org.linux.topic.TopicListRequest.CommitMode
+import ru.org.linux.topic.TopicListRequest.CommitMode.*
+import ru.org.linux.topic.TopicListRequest.DateLimit
 import ru.org.linux.user.User
+import scalikejdbc.*
 
-import java.sql.ResultSet
-import scala.jdk.CollectionConverters.*
-import javax.sql.DataSource
 import scala.collection.mutable
 
-object TopicListDao {
-  /**
-   * Создание условий выборки SQL-запроса.
-   *
-   * @param request объект, содержащий условия выборки
-   * @return строка, содержащая условия выборки SQL-запроса
-   */
-  private def makeConditions(request: TopicListDto, paramsBuilder: mutable.Map[String, AnyRef]) = {
-    val where = new StringBuilder("NOT deleted")
+object TopicListDao:
+  private def makeConditions(request: TopicListRequest, currentUserOpt: Option[User]): SQLSyntax =
+    val fragments = mutable.ListBuffer[SQLSyntax]()
+    val sections = request.sections.filter(_ != 0).toSeq
 
-    if (paramsBuilder.contains("userid")) {
-      where.append(" AND ((sections.moderate AND commitdate is not null) OR userid NOT IN (select ignored from ignore_list where userid=:userid))")
+    fragments += sqls"NOT deleted"
+
+    currentUserOpt.foreach { user =>
+      fragments +=
+        sqls"AND ((sections.moderate AND commitdate is not null) OR userid NOT IN (select ignored from ignore_list where userid=${user
+            .id}))"
     }
 
-    where.append(request.getCommitMode.getQueryPiece)
+    if request.commitMode != CommitMode.All then
+      request.commitMode match
+        case CommittedOnly =>
+          fragments += sqls"AND sections.moderate AND commitdate is not null"
+        case UncommittedOnly =>
+          fragments += sqls"AND (NOT topics.moderate) AND sections.moderate"
+        case PostmoderatedOnly =>
+          fragments += sqls"AND NOT sections.moderate"
+        case CommittedAndPostmoderated =>
+          fragments += sqls"AND (topics.moderate OR NOT sections.moderate)"
+        case All =>
 
-    val sections = request.getSections.asScala.filter(_ != 0)
+    if sections.nonEmpty then
+      fragments += sqls"AND section IN ($sections)"
 
-    if (sections.nonEmpty) {
-      where.append(" AND section in (:sections)")
-      paramsBuilder.put("sections", sections.asJava)
-    }
+    if request.group != 0 then
+      fragments += sqls"AND groupid=${request.group}"
 
-    if (request.getGroup != 0) {
-      where.append(" AND groupid=:groupId")
-      paramsBuilder.put("groupId", Integer.valueOf(request.getGroup))
-    }
-    
-    val dateField = if (request.getCommitMode == COMMITED_ONLY) "commitdate" else "postdate"
+    val dateField: SQLSyntax =
+      if request.commitMode == CommittedOnly then
+        sqls"commitdate"
+      else
+        sqls"postdate"
 
-    request.getDateLimitType match {
-      case DateLimitType.BETWEEN =>
-        where.append(s" AND $dateField>=:fromDate AND $dateField<:toDate")
-        paramsBuilder.put("fromDate", request.getFromDate)
-        paramsBuilder.put("toDate", request.getToDate)
-      case DateLimitType.FROM_DATE =>
-        where.append(s" AND $dateField>=:fromDate")
-        paramsBuilder.put("fromDate", request.getFromDate)
-      case DateLimitType.NONE =>
-    }
+    request.dateLimit match
+      case DateLimit.Between(from, to) =>
+        fragments += sqls"AND $dateField >= $from AND $dateField < $to"
+      case DateLimit.FromDate(from) =>
+        fragments += sqls"AND $dateField >= $from"
+      case DateLimit.NoLimit =>
 
-    if (request.getUserId != 0) {
-      paramsBuilder.put("userId", Integer.valueOf(request.getUserId))
+    if request.userId != 0 then
+      if request.userFavs then
+        fragments += sqls"AND memories.userid=${request.userId}"
+      else
+        fragments += sqls"AND userid=${request.userId}"
 
-      if (request.isUserFavs) {
-        where.append(" AND memories.userid=:userId")
-      } else {
-        where.append(" AND userid=:userId")
+      if request.userFavs then
+        if request.userWatches then
+          fragments += sqls"AND watch"
+        else
+          fragments += sqls"AND NOT watch"
+
+    if request.notalks then
+      fragments += sqls"AND not topics.groupid=8404"
+
+    if request.tech then
+      fragments += sqls"AND NOT topics.groupid IN (${SectionController.NonTech})"
+
+    if request.tag != 0 then
+      fragments += sqls"AND topics.id IN (SELECT msgid FROM tags WHERE tagid=${request.tag})"
+
+    if !request.showDraft then
+      fragments += sqls"AND NOT topics.draft"
+    else
+      fragments += sqls"AND topics.draft"
+
+    SQLSyntax.join(fragments.toSeq, sqls" ")
+
+  private def makeSortOrder(topicListRequest: TopicListRequest): SQLSyntax =
+    if topicListRequest.userFavs then
+      sqls"ORDER BY memories.id DESC"
+    else
+      topicListRequest.commitMode match
+        case CommittedOnly =>
+          sqls"ORDER BY commitdate DESC"
+        case UncommittedOnly | PostmoderatedOnly =>
+          sqls"ORDER BY postdate DESC"
+        case CommittedAndPostmoderated | All =>
+          sqls"ORDER BY COALESCE(commitdate, postdate) DESC"
+
+  private def makeLimitAndOffset(topicListRequest: TopicListRequest): SQLSyntax =
+    val parts = mutable.ListBuffer[SQLSyntax]()
+
+    topicListRequest
+      .limit
+      .foreach { limit =>
+        parts += sqls"LIMIT $limit"
       }
 
-      if (request.isUserFavs) {
-        if (request.isUserWatches) {
-          where.append(" AND watch ")
-        } else {
-          where.append(" AND NOT watch ")
-        }
+    topicListRequest
+      .offset
+      .foreach { offset =>
+        parts += sqls"OFFSET $offset"
       }
-    }
 
-    if (request.isNotalks) {
-      where.append(" AND not topics.groupid=8404")
-    }
-
-    if (request.isTech) {
-      where.append(s" AND not topics.groupid in (${SectionController.NonTech.mkString(", ")})")
-    }
-    
-    if (request.getTag != 0) {
-      paramsBuilder.put("tagId", Integer.valueOf(request.getTag))
-      where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=:tagId)")
-    }
-
-    if (!request.isShowDraft) {
-      where.append(" AND NOT topics.draft ")
-    } else {
-      where.append(" AND topics.draft ")
-    }
-
-    where
-  }
-
-  /**
-   * Создание условий сортировки SQL-запроса.
-   *
-   * @param topicListDto объект, содержащий условия выборки
-   * @return строка, содержащая условия сортировки
-   */
-  private def makeSortOrder(topicListDto: TopicListDto): String = {
-    if (topicListDto.isUserFavs) {
-      "ORDER BY memories.id DESC"
-    } else {
-      topicListDto.getCommitMode match {
-        case COMMITED_ONLY => " ORDER BY commitdate DESC"
-        case UNCOMMITED_ONLY | POSTMODERATED_ONLY => " ORDER BY postdate DESC"
-        case _ => " ORDER BY COALESCE(commitdate, postdate) DESC"
-      }
-    }
-  }
-
-  /**
-   * Создание ограничений размера результатов SQL-запроса.
-   *
-   * @param topicListDto объект, содержащий условия выборки
-   * @return строка, содержащая смещение и количество записей
-   */
-  private def makeLimitAndOffset(topicListDto: TopicListDto) = {
-    var limitStr = ""
-
-    if (topicListDto.getLimit != null) {
-      limitStr += " LIMIT " + topicListDto.getLimit.toString
-    }
-
-    if (topicListDto.getOffset != null) {
-      limitStr += " OFFSET " + topicListDto.getOffset.toString
-    }
-
-    limitStr
-  }
-}
+    if parts.isEmpty then
+      SQLSyntax.empty
+    else
+      SQLSyntax.join(parts.toSeq, sqls" ")
 
 @Repository
-class TopicListDao(ds: DataSource) extends StrictLogging {
-  private val jdbcTemplate: JdbcTemplate = new JdbcTemplate(ds)
-  private val namedJdbcTemplate: NamedParameterJdbcTemplate = new NamedParameterJdbcTemplate(ds)
+class TopicListDao(springDB: SpringDB):
 
-  def getTopics(topicListDto: TopicListDto, currentUser: AnySession): collection.Seq[Topic] = {
-    val params = new mutable.HashMap[String, AnyRef]
+  def getTopics(topicListRequest: TopicListRequest, currentUser: AnySession): collection.Seq[Topic] =
+    val conditions = TopicListDao.makeConditions(topicListRequest, currentUser.userOpt)
+    val sort = TopicListDao.makeSortOrder(topicListRequest)
+    val limitOffset = TopicListDao.makeLimitAndOffset(topicListRequest)
 
-    currentUser.userOpt.map { currentUser =>
-      params.put("userid", Integer.valueOf(currentUser.id))
-    }
+    val fromClause =
+      if topicListRequest.userFavs then
+        sqls"""FROM topics
+              INNER JOIN groups ON (groups.id=topics.groupid)
+              INNER JOIN sections ON (sections.id=groups.section)
+              INNER JOIN memories ON (memories.topic = topics.id)"""
+      else
+        sqls"""FROM topics
+              INNER JOIN groups ON (groups.id=topics.groupid)
+              INNER JOIN sections ON (sections.id=groups.section)"""
 
-    val sort = TopicListDao.makeSortOrder(topicListDto)
-    val limit = TopicListDao.makeLimitAndOffset(topicListDto)
+    springDB.run:
+      sql"""SELECT postdate, topics.id as msgid, topics.userid, topics.title, topics.groupid as guid, topics.url,
+            topics.linktext, ua_id, urlname, section, topics.sticky, topics.postip,
+            COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
+            commitdate, topics.stat1, postscore, topics.moderate, notop, topics.resolved, minor, draft, allow_anonymous,
+            topics.reactions, COALESCE(commitdate, postdate) + sections.expire as expire_date,
+            topics.open_warnings
+            $fromClause
+            WHERE $conditions $sort $limitOffset""".map(rs => Topic.fromResultSet(rs.underlying)).list.apply().toSeq
 
-    val query = new StringBuilder
+  private val DeletionBlockReason = "Блокировка пользователя с удалением сообщений"
+  private val DeletionSpamReason = "4.6 Спам"
 
-    query.append(
-      """SELECT postdate, topics.id as msgid, topics.userid, topics.title, topics.groupid as guid, topics.url,
-        | topics.linktext, ua_id, urlname, section, topics.sticky, topics.postip,
-        | COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
-        | commitdate, topics.stat1, postscore, topics.moderate, notop, topics.resolved, minor, draft, allow_anonymous,
-        | topics.reactions, COALESCE(commitdate, postdate) + sections.expire as expire_date,
-        | topics.open_warnings
-        |FROM topics
-        | INNER JOIN groups ON (groups.id=topics.groupid)
-        | INNER JOIN sections ON (sections.id=groups.section) """.stripMargin)
+  /** Возвращает удаленные темы в премодерируемом разделе.
+    *
+    * Темы, удаленные автором пропускаются.
+    *
+    * @param sectionId
+    *   номер раздела или 0 для всех премодерируемых
+    * @param skipBadReason
+    *   Пропускать темы, удаленные с пустым комментарием и спам
+    * @return
+    *   список удаленных тем
+    */
+  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean): Seq[DeletedTopic] =
+    val fragments = mutable.ListBuffer[SQLSyntax](sqls"""topics.title as subj, nick, groups.section, topics.id as msgid,
+            reason, topics.postdate, del_info.delDate, bonus
+            FROM topics,groups,users,sections,del_info
+            WHERE sections.id=groups.section AND topics.userid=users.id
+            AND topics.groupid=groups.id AND sections.moderate AND deleted
+            AND del_info.msgid=topics.id AND topics.userid!=del_info.delby
+            AND delDate > CURRENT_TIMESTAMP - '2 weeks'::interval""")
 
-    if (topicListDto.isUserFavs) {
-      query.append("INNER JOIN memories ON (memories.topic = topics.id) ")
-    }
+    if skipBadReason then
+      fragments += sqls"AND reason!='' AND reason!=${DeletionBlockReason} AND reason!=${DeletionSpamReason}"
 
-    query
-      .append("WHERE ")
-      .append(TopicListDao.makeConditions(topicListDto, params))
-      .append(sort)
-      .append(limit)
+    if sectionId != 0 then
+      fragments += sqls"AND section=$sectionId"
 
-    namedJdbcTemplate.query(query.toString, params.asJava,
-      (resultSet: ResultSet, _: Int) => Topic.fromResultSet(resultSet)).asScala
-  }
+    fragments += sqls"ORDER BY del_info.delDate DESC LIMIT 20"
 
-  /**
-   * Возвращает удаленные темы в премодерируемом разделе.
-   *
-   * Темы, удаленные автором пропускаются.
-   *
-   * @param sectionId     номер раздела или 0 для всех премодерируемых
-   * @param skipBadReason Пропускать темы, удаленные с пустым комментарием и спам
-   * @return список удаленных тем
-   */
-  def getDeletedTopics(sectionId: Int, skipBadReason: Boolean): Seq[DeletedTopic] = {
-    val query = new StringBuilder
+    val query = SQLSyntax.join(fragments.toSeq, sqls" ")
 
-    query
-      .append("SELECT ")
-      .append("topics.title as subj, nick, groups.section, topics.id as msgid, ")
-      .append("reason, topics.postdate, del_info.delDate, bonus ")
-      .append("FROM topics,groups,users,sections,del_info ")
-      .append("WHERE sections.id=groups.section AND topics.userid=users.id ")
-      .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
-      .append("AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ")
-      .append("AND delDate > CURRENT_TIMESTAMP - '2 weeks'::interval ")
+    springDB.run:
+      sql"SELECT $query".map(rs => DeletedTopic(rs.underlying)).list.apply().toSeq
 
-    if (skipBadReason) {
-      query.append("AND reason!='' AND reason!='Блокировка пользователя с удалением сообщений' AND reason!='4.6 Спам' ")
-    }
+  def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] =
+    springDB.run:
+      sql"""SELECT topics.title as subj, nick, groups.section, topics.id as msgid, reason, topics.postdate,
+            del_info.delDate, bonus FROM topics,groups,users,del_info
+            WHERE topics.userid=users.id AND topics.groupid=groups.id AND deleted AND del_info.msgid=topics.id
+            AND delDate is not null AND topics.userid = ${user.id}
+            ORDER BY del_info.delDate DESC LIMIT $topics""".map(rs => DeletedTopic(rs.underlying)).list.apply().toSeq
 
-    val queryParameters = mutable.ArrayBuffer[AnyRef]()
-
-    if (sectionId != 0) {
-      query.append(" AND section=? ")
-      queryParameters += Integer.valueOf(sectionId)
-    }
-
-    query.append(" ORDER BY del_info.delDate DESC LIMIT 20")
-
-    jdbcTemplate.queryAndMap(query.toString, queryParameters.toSeq *) { (rs: ResultSet, _: Int) =>
-      DeletedTopic.apply(rs)
-    }
-  }
-
-  def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] = {
-    val query =
-      s"""SELECT topics.title as subj, nick, groups.section, topics.id as msgid, reason, topics.postdate,
-         |  del_info.delDate, bonus FROM topics,groups,users,del_info
-         | WHERE topics.userid=users.id AND topics.groupid=groups.id AND deleted AND del_info.msgid=topics.id
-         | AND delDate is not null AND topics.userid = ${user.id}
-         | ORDER BY del_info.delDate DESC LIMIT $topics""".stripMargin
-
-    jdbcTemplate.queryAndMap(query) { (rs: ResultSet, _: Int) => DeletedTopic.apply(rs) }
-  }
-
-  def getUserSections(user: User): Seq[Int] = {
-    jdbcTemplate.queryForSeq[Int](
-      """select distinct section from
-        | groups join topics on topics.groupid=groups.id
-        | where topics.userid=? and not deleted and not draft ORDER BY section""".stripMargin, user.id)
-  }
-}
+  def getUserSections(user: User): Seq[Int] =
+    springDB.run:
+      sql"""select distinct section from
+            groups join topics on topics.groupid=groups.id
+            where topics.userid=${user.id} and not deleted and not draft ORDER BY section"""
+        .map(rs => rs.int("section"))
+        .list
+        .apply()
