@@ -26,8 +26,8 @@ import javax.sql.DataSource
 class ImageDaoIntegrationTestConfiguration:
 
   @Bean
-  def imageDao(sectionService: SectionService, dataSource: DataSource): ImageDao =
-    new ImageDao(sectionService, dataSource)
+  def imageDao(sectionService: SectionService, springDB: SpringDB): ImageDao =
+    new ImageDao(sectionService, springDB)
 
   @Bean
   def sectionService(sectionDao: SectionDao): SectionService = new SectionService(sectionDao)

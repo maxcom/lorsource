@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,202 +15,91 @@
 
 package ru.org.linux.tag
 
-import java.sql.ResultSet
-import javax.sql.DataSource
-
-import com.typesafe.scalalogging.StrictLogging
-import org.springframework.dao.EmptyResultDataAccessException
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.org.linux.tag.TagDao.*
-
-import scala.jdk.CollectionConverters.*
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
 @Repository
-class TagDao(ds: DataSource) extends StrictLogging {
-  private val jdbcTemplate = new JdbcTemplate(ds)
+class TagDao(springDB: SpringDB):
 
-  private val tagInsert =
-    new SimpleJdbcInsert(ds)
-      .withTableName("tags_values")
-      .usingColumns("value")
-      .usingGeneratedKeyColumns("id")
+  private def escapeLikeWildcards(str: String): String = str.replaceAll("[_%]", "\\\\$0")
 
-  private val tagSynonymInsert =
-    new SimpleJdbcInsert(ds)
-      .withTableName("tags_synonyms")
-      .usingColumns("value", "tagid")
-
-  /**
-   * Создать новый тег.
-   *
-   * @param tagName название нового тега
-   * @return tag id
-   */
-  def createTag(tagName: String): Int = {
+  def createTag(tagName: String): Int =
     assume(TagName.isGoodTag(tagName), "Tag name must be valid")
+    springDB.run:
+      sql"INSERT INTO tags_values (value) VALUES ($tagName) RETURNING id".map(rs => rs.int("id")).single.apply().get
 
-    val id = tagInsert.executeAndReturnKey(Map("value" -> tagName).asJava).intValue
-    logger.debug(s"Создан тег: '$tagName' id=$id")
-    id
-  }
-
-  /**
-   * Создать синоним тега.
-   *
-   * @param tagName название синонома тега
-   * @param id тег на который создаем синоним
-   */
-  def createTagSynonym(tagName: String, id: Int): Unit = {
+  def createTagSynonym(tagName: String, id: Int): Unit =
     assume(TagName.isGoodTag(tagName), "Tag name must be valid")
+    springDB.run:
+      sql"INSERT INTO tags_synonyms (value, tagid) VALUES ($tagName, $id)".update.apply()
 
-    tagSynonymInsert.execute(Map("value" -> tagName, "tagid" -> id).asJava)
-    logger.debug(s"Создан синоним: '$tagName' id=$id")
-  }
+  def updateTagSynonym(oldId: Int, newId: Int): Unit =
+    springDB.run:
+      sql"UPDATE tags_synonyms SET tagid=$newId WHERE tagid=$oldId".update.apply()
 
-  /**
-   * Изменить синоним тега.
-   *
-   * @param oldId старый тег
-   * @param newId новый тег
-   */
-  def updateTagSynonym(oldId: Int, newId: Int): Unit = {
-    jdbcTemplate.update("UPDATE tags_synonyms SET tagid=? WHERE tagid=?", newId, oldId)
-  }
+  def changeTag(tagId: Int, tagName: String): Unit =
+    springDB.run:
+      sql"UPDATE tags_values SET value=$tagName WHERE id=$tagId".update.apply()
 
-  /**
-   * Изменить название существующего тега.
-   *
-   * @param tagId   идентификационный номер существующего тега
-   * @param tagName новое название тега
-   */
-  def changeTag(tagId: Int, tagName: String): Unit = {
-    jdbcTemplate.update("UPDATE tags_values set value=? WHERE id=?", tagName, tagId)
-  }
+  def deleteTag(tagId: Int): Unit =
+    springDB.run:
+      sql"DELETE FROM tags_synonyms WHERE tagid=$tagId".update.apply()
+      sql"DELETE FROM tags_values WHERE id=$tagId".update.apply()
 
-  /**
-   * Удалить тег.
-   *
-   * @param tagId идентификационный номер тега
-   */
-  def deleteTag(tagId: Int): Unit = {
-    jdbcTemplate.update("DELETE FROM tags_synonyms WHERE tagid=?", tagId)
-    jdbcTemplate.update("DELETE FROM tags_values WHERE id=?", tagId)
-  }
+  def deleteTagSynonym(tagName: String): Unit =
+    springDB.run:
+      sql"DELETE FROM tags_synonyms WHERE value=$tagName".update.apply()
 
-  /**
-   * Удалить синоним тега.
-   *
-   * @param tagId идентификационный номер тега
-   */
-  def deleteTagSynonym(tagName: String): Unit = {
-    jdbcTemplate.update("DELETE FROM tags_synonyms WHERE value=?", tagName)
-  }
+  private[tag] def getFirstLetters: Seq[String] =
+    springDB.run:
+      sql"""select distinct firstchar from
+            (select lower(substr(value,1,1)) as firstchar from tags_values
+            where counter > 0 order by firstchar) firstchars""".map(rs => rs.string("firstchar")).list.apply().sorted
 
-  /**
-   * Получение списка первых букв тегов.
-   *
-   * @return список первых букв тегов.
-   */
-  private[tag] def getFirstLetters: Seq[String] = {
-    val query =
-      "select distinct firstchar from " +
-        "(select lower(substr(value,1,1)) as firstchar from tags_values " +
-        "where counter > 0 order by firstchar) firstchars"
+  private[tag] def getTagsByPrefix(prefix: String, minCount: Int): Seq[TagInfo] =
+    springDB.run:
+      sql"select counter, value, id from tags_values where value like ${escapeLikeWildcards(prefix) +
+          "%"} and counter >= $minCount order by value"
+        .map(rs => TagInfo(rs.string("value"), rs.int("counter"), rs.int("id")))
+        .list
+        .apply()
+        .toSeq
 
-    val letters = jdbcTemplate.queryForSeq[String](query)
-
-    letters.sorted
-  }
-
-  /**
-   * Получение списка тегов по префиксу.
-   *
-   * @param prefix       префикс имени тега
-   * @return список тегов
-   */
-  private[tag] def getTagsByPrefix(prefix: String, minCount: Int): Seq[TagInfo] = {
-    jdbcTemplate.queryAndMap(
-      "select counter, value, id from tags_values " +
-        "where value like ? and counter >= ?  " +
-        "order by value",
-      escapeLikeWildcards(prefix) + "%", minCount
-    ) (tagInfoMapper)
-  }
-
-  /**
-   * Получение списка тегов по префиксу.
-   *
-   * @param prefix       префикс имени тега
-   * @return список тегов
-   */
-  private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): Seq[String] = {
-    val query =
-      """select value from
-        |   (select s.value, counter from tags_synonyms s join tags_values v on s.tagid=v.id where s.value like ?
-        |   union all
-        |   select value, counter from tags_values where value like ?) j
-        | where counter>=? order by counter desc limit ?""".stripMargin
-
+  private[tag] def getTopTagsByPrefix(prefix: String, minCount: Int, count: Int): Seq[String] =
     val wildcard = escapeLikeWildcards(prefix) + "%"
+    springDB.run:
+      sql"""select value from
+            (select s.value, counter from tags_synonyms s join tags_values v on s.tagid=v.id where s.value like $wildcard
+            union all
+            select value, counter from tags_values where value like $wildcard) j
+           where counter>=$minCount order by counter desc limit $count"""
+        .map(rs => rs.string("value"))
+        .list
+        .apply()
+        .sorted
 
-    val tags = jdbcTemplate.queryForSeq[String](query, wildcard, wildcard, minCount, count)
+  def getTagId(tag: String, skipZero: Boolean = false): Option[Int] =
+    springDB.run:
+      val query =
+        if skipZero then
+          sql"SELECT id FROM tags_values WHERE value=$tag AND counter>0"
+        else
+          sql"SELECT id FROM tags_values WHERE value=$tag"
+      query.map(rs => rs.int("id")).single.apply()
 
-    tags.sorted
-  }
+  def getTagSynonymId(tag: String): Option[Int] =
+    springDB.run:
+      sql"SELECT tagid FROM tags_synonyms WHERE value=$tag".map(rs => rs.int("tagid")).single.apply()
 
-  /**
-   * Получение идентификационного номера тега по названию.
-   *
-   * @param tag название тега
-   * @param skipZero пропускать неиспользуемые теги
-   * @return идентификационный номер
-   */
-  def getTagId(tag: String, skipZero: Boolean = false): Option[Int] = {
-    try {
-      jdbcTemplate.queryForObject[Integer](
-        "SELECT id FROM tags_values WHERE value=?" + (if (skipZero) " AND counter>0" else ""),
-        tag
-      ).map(_.toInt)
-    } catch {
-      case _: EmptyResultDataAccessException => None
-    }
-  }
+  def getTagInfo(tagId: Int): TagInfo =
+    springDB.run:
+      sql"SELECT counter, value, id FROM tags_values WHERE id=$tagId"
+        .map(rs => TagInfo(rs.string("value"), rs.int("counter"), rs.int("id")))
+        .single
+        .apply()
+        .get
 
-  /**
-   * Получение идентификационного номера тега по названию из таблицы синонимов.
-   *
-   * @param tag      название тега
-   * @return идентификационный номер
-   */
-  def getTagSynonymId(tag: String): Option[Int] = {
-    try {
-      jdbcTemplate.queryForObject[Integer](
-        "SELECT tagid FROM tags_synonyms WHERE value=?",
-        tag
-      ).map(_.toInt)
-    } catch {
-      case _: EmptyResultDataAccessException => None
-    }
-  }
-
-  def getTagInfo(tagId: Int): TagInfo = {
-    jdbcTemplate.queryForObjectAndMap(
-      "SELECT counter, value, id  FROM tags_values WHERE id=?", tagId
-    )(tagInfoMapper).get
-  }
-
-  def getSynonymsFor(tagId: Int): Seq[String] = {
-    jdbcTemplate.queryForSeq[String]("SELECT value FROM tags_synonyms WHERE tagid=?", tagId)
-  }
-}
-
-object TagDao {
-  private def escapeLikeWildcards(str: String): String = {
-    str.replaceAll("[_%]", "\\\\$0")
-  }
-
-  private def tagInfoMapper(rs:ResultSet, rowNum:Int) =
-    TagInfo(rs.getString("value"), rs.getInt("counter"), rs.getInt("id"))
-}
+  def getSynonymsFor(tagId: Int): Seq[String] =
+    springDB.run:
+      sql"SELECT value FROM tags_synonyms WHERE tagid=$tagId".map(rs => rs.string("value")).list.apply().toSeq

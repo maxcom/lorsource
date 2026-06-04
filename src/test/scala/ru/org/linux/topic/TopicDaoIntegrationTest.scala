@@ -100,7 +100,7 @@ class TopicDaoIntegrationTestConfiguration {
   def userInvitesDao(springDB: SpringDB) = new UserInvitesDao(springDB)
 
   @Bean
-  def imageDao(sectionService: SectionService, ds: DataSource) = new ImageDao(sectionService, ds)
+  def imageDao(sectionService: SectionService, springDB: SpringDB) = new ImageDao(sectionService, springDB)
 
   @Bean
   def ipBlockDao(springDB: SpringDB) = new IPBlockDao(springDB)

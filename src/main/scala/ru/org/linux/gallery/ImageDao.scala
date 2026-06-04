@@ -14,104 +14,92 @@
  */
 package ru.org.linux.gallery
 
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import org.springframework.scala.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import ru.org.linux.gallery.ImageDao.galleryItemRowMapper
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
+import scalikejdbc.*
 
-import javax.sql.DataSource
-import java.sql.ResultSet
-import scala.jdk.CollectionConverters.MapHasAsJava
+@Repository
+class ImageDao(private val sectionService: SectionService, springDB: SpringDB):
 
-object ImageDao {
-  private def imageRowMapper(rs: ResultSet, i: Int): Image = {
-    val imageid = rs.getInt("id")
-    val extension = rs.getString("extension")
+  private def imageFromRs(rs: WrappedResultSet): Image =
+    val imageid = rs.int("id")
+    val extension = rs.string("extension")
+    Image(
+      id = imageid,
+      topicId = rs.int("topic"),
+      original = s"images/$imageid/original.$extension",
+      deleted = rs.boolean("deleted"),
+      main = rs.boolean("main"))
 
-    Image(id = imageid, topicId = rs.getInt("topic"), original = s"images/$imageid/original.$extension",
-      deleted = rs.getBoolean("deleted"), main = rs.getBoolean("main"))
-  }
-
-  private def galleryItemRowMapper(gallery: Section)(rs: ResultSet, rowNum: Int): GalleryItem = {
-    val imageid = rs.getInt("imageid")
-    val extension = rs.getString("extension")
-    val msgid = rs.getInt("msgid")
+  private def galleryItemFromRs(rs: WrappedResultSet, gallery: Section): GalleryItem =
+    val imageid = rs.int("imageid")
+    val extension = rs.string("extension")
+    val msgid = rs.int("msgid")
     val image = Image(imageid, msgid, s"images/$imageid/original.$extension", deleted = false, main = true)
 
     GalleryItem(
       msgid = msgid,
-      userid = rs.getInt("userid"),
-      title = rs.getString("title"),
-      stat = rs.getInt("stat1"),
-      link = gallery.getSectionLink + rs.getString("urlname") + '/' + msgid,
+      userid = rs.int("userid"),
+      title = rs.string("title"),
+      stat = rs.int("stat1"),
+      link = gallery.getSectionLink + rs.string("urlname") + '/' + msgid,
       image = image,
-      commitDate = rs.getTimestamp("commitdate")
+      commitDate = rs.timestamp("commitdate")
     )
-  }
-}
 
-@Repository
-class ImageDao(private val sectionService: SectionService, dataSource: DataSource) {
-  private val jdbcTemplate = new JdbcTemplate(dataSource)
-
-  private val jdbcInsert = new SimpleJdbcInsert(dataSource).withTableName("images")
-    .usingColumns("topic", "extension", "main").usingGeneratedKeyColumns("id")
-
-  /**
-   * Возвращает последние объекты галереи.
-   *
-   * @return список GalleryDto объектов
-   */
-  def getGalleryItems(countItems: Int): Seq[GalleryItem] = {
+  def getGalleryItems(countItems: Int): Seq[GalleryItem] =
     val gallery = sectionService.getSection(Section.Gallery)
-    val sql =
-      s"""SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate
-         |FROM
-         |  (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
-         |    FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
-         |     AND section=${Section.Gallery} AND NOT topics.deleted AND commitdate IS NOT NULL
-         |     ORDER BY commitdate DESC LIMIT ?) as t JOIN images ON t.msgid = images.topic
-         |WHERE NOT images.deleted AND images.main ORDER BY commitdate DESC""".stripMargin
+    springDB.run:
+      sql"""SELECT t.msgid, t.stat1, t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate
+            FROM
+              (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
+                FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
+                 AND section=${Section.Gallery} AND NOT topics.deleted AND commitdate IS NOT NULL
+                 ORDER BY commitdate DESC LIMIT $countItems) as t JOIN images ON t.msgid = images.topic
+            WHERE NOT images.deleted AND images.main ORDER BY commitdate DESC"""
+        .map(rs => galleryItemFromRs(rs, gallery))
+        .list
+        .apply()
+        .toSeq
 
-    jdbcTemplate.queryAndMap(sql, countItems)(galleryItemRowMapper(gallery))
-  }
-
-  /**
-   * Возвращает последние объекты галереи.
-   */
-  def getGalleryItems(countItems: Int, tagId: Int): Seq[GalleryItem] = {
+  def getGalleryItems(countItems: Int, tagId: Int): Seq[GalleryItem] =
     val gallery = sectionService.getSection(Section.Gallery)
-
-    val sql =
-      s"""SELECT t.msgid, t.stat1,t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate
-         |FROM
-         |  (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
-         |    FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
-         |      AND section=${Section.Gallery} AND NOT topics.deleted AND commitdate IS NOT NULL AND
-         |      topics.id IN (SELECT msgid FROM tags WHERE tagid=?) ORDER BY commitdate DESC LIMIT ?) as t
-         |  JOIN images ON t.msgid = images.topic
-         |WHERE NOT images.deleted AND images.main""".stripMargin
-
-    jdbcTemplate.queryAndMap(sql, tagId, countItems)(galleryItemRowMapper(gallery))
-  }
+    springDB.run:
+      sql"""SELECT t.msgid, t.stat1, t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate
+            FROM
+              (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
+                FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
+                  AND section=${Section.Gallery} AND NOT topics.deleted AND commitdate IS NOT NULL AND
+                  topics.id IN (SELECT msgid FROM tags WHERE tagid=$tagId) ORDER BY commitdate DESC LIMIT $countItems) as t
+              JOIN images ON t.msgid = images.topic
+            WHERE NOT images.deleted AND images.main""".map(rs => galleryItemFromRs(rs, gallery)).list.apply().toSeq
 
   def allImagesForTopic(topicId: Int): Seq[Image] =
-    jdbcTemplate.queryAndMap(
-      "SELECT id, topic, extension, deleted, main FROM images WHERE topic=? AND NOT deleted ORDER BY id", topicId
-    )(ImageDao.imageRowMapper)
+    springDB.run:
+      sql"SELECT id, topic, extension, deleted, main FROM images WHERE topic=$topicId AND NOT deleted ORDER BY id"
+        .map(imageFromRs)
+        .list
+        .apply()
+        .toSeq
 
   def getImage(id: Int): Image =
-    jdbcTemplate.queryAndMap(
-      "SELECT id, topic, extension, deleted, main FROM images WHERE id=?", id
-    )(ImageDao.imageRowMapper).headOption.getOrElse(throw ImageNotFoundException(id))
+    springDB.run:
+      sql"SELECT id, topic, extension, deleted, main FROM images WHERE id=$id"
+        .map(imageFromRs)
+        .single
+        .apply()
+        .getOrElse(throw ImageNotFoundException(id))
 
-  def saveImage(topicId: Int, extension: String, main: Boolean): Int = {
-    val dataMap: Map[String, Any] = Map("topic" -> topicId, "extension" -> extension, "main" -> main)
+  def saveImage(topicId: Int, extension: String, main: Boolean): Int =
+    springDB.run:
+      sql"INSERT INTO images (topic, extension, main) VALUES ($topicId, $extension, $main) RETURNING id"
+        .map(rs => rs.int("id"))
+        .single
+        .apply()
+        .get
 
-    jdbcInsert.executeAndReturnKey(dataMap.asJava).intValue
-  }
-
-  def deleteImage(image: Image): Unit = jdbcTemplate.update("UPDATE images SET deleted='true' WHERE id=?", image.id)
-}
+  def deleteImage(image: Image): Unit =
+    springDB.run:
+      sql"UPDATE images SET deleted='true' WHERE id=${image.id}".update.apply()
