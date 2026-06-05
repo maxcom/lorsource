@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,281 +14,255 @@
  */
 package ru.org.linux.group
 
-import org.springframework.jdbc.core.namedparam.{MapSqlParameterSource, NamedParameterJdbcTemplate}
 import org.springframework.stereotype.Repository
 import ru.org.linux.auth.AnySession
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.tracker.TrackerFilterEnum
 import ru.org.linux.util.StringUtil
 import ru.org.linux.warning.WarningService.TopicMaxWarnings
+import scalikejdbc.*
 
-import java.sql.ResultSet
-import javax.sql.DataSource
-import scala.jdk.CollectionConverters.ListHasAsScala
+object GroupListDao:
+  private def queryPartCommentIgnored(userId: Int): SQLSyntax =
+    sqls"AND NOT EXISTS (SELECT ignored FROM ignore_list WHERE userid=${userId} INTERSECT SELECT get_branch_authors(comments.id))"
 
-object GroupListDao {
-  private val QueryTrackerMain =
-    "WITH topics AS (" + "SELECT topics.*, sections.moderate as smod, groups.title AS gtitle, urlname, section FROM topics " +
-      "JOIN groups ON topics.groupid=groups.id JOIN sections ON sections.id = groups.section " + "WHERE not draft" + "%s" + // deleted
-      "%s" + /* user!=null ? queryPartIgnored*/
-      "%s" + // queryAuthorFilter
-      "%s" + // queryPartTagIgnored
-      "%s" + // noUncommited
-      "%s" + // partFilter
-      "%s" + // noHidden
-      "%s" + // innerSortLimit
-    ") SELECT * FROM (SELECT DISTINCT ON(id) * FROM (SELECT " +
-      "t.userid as author, " +
-      "t.id, " +
-      "t.stat1 AS stat1, " +
-      "gtitle, " +
-      "t.title AS title, " +
-      "comments.id as cid, " +
-      "comments.userid AS last_comment_by, " +
-      "t.resolved as resolved," +
-      "section," +
-      "urlname," +
-      "comments.postdate as comment_postdate, " +
-      "smod, " +
-      "t.moderate, " +
-      "t.sticky, " +
-      "t.postdate as topic_postdate, " +
-      "t.deleted, " +
-      "t.postscore as topic_postscore " +
-      "FROM topics AS t JOIN comments ON (t.id=comments.topic) " +
-      "WHERE t.postscore IS DISTINCT FROM " + TopicPermissionService.POSTSCORE_HIDE_COMMENTS + " " +
-      "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id " +
-      "%s" + /* user!=null ? queryCommentIgnored */
-      "%s" + // queryAuthorFilter
-      "ORDER BY postdate DESC LIMIT 1) " +
-    "%s" + // commentInterval
-    "UNION ALL " +
-      "SELECT " +
-      "t.userid as author, " +
-      "t.id, " +
-      "t.stat1 AS stat1, " +
-      "gtitle, " +
-      "t.title AS title, " +
-      "0, " + /*cid*/
-      "0, " + /*last_comment_by*/
-      "t.resolved as resolved," +
-      "section," +
-      "urlname," +
-      "postdate as comment_postdate, " +
-      "smod, " +
-      "t.moderate, " +
-      "t.sticky, " +
-      "t.postdate as topic_postdate, " +
-      "t.deleted, " +
-      "t.postscore as topic_postscore " +
-      "FROM topics AS t " +
-      "%s " + // WHERE topicInterval
-    ") as tracker ORDER BY id, comment_postdate desc) tracker " +
-      "%s" // outerSortLimit
+  private def queryPartIgnored(userId: Int): SQLSyntax =
+    sqls"AND userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=${userId})"
 
-  private val QueryPartCommentIgnored = " AND not exists (select ignored from ignore_list where userid=:userid intersect select get_branch_authors(comments.id)) "
-  private val QueryPartIgnored = " AND userid NOT IN (select ignored from ignore_list where userid=:userid) "
+  private def queryPartTagIgnored(userId: Int): SQLSyntax =
+    sqls"AND topics.id NOT IN (SELECT tags.msgid FROM tags, user_tags WHERE tags.tagid=user_tags.tag_id AND user_tags.is_favorite=false AND user_id=${userId} EXCEPT SELECT tags.msgid FROM tags, user_tags WHERE tags.tagid=user_tags.tag_id AND user_tags.is_favorite=true AND user_id=${userId})"
 
-  private val QueryPartTagIgnored = " AND topics.id NOT IN (select tags.msgid from tags, user_tags " +
-    "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=:userid " +
-    "except select tags.msgid from tags, user_tags where " +
-    "tags.tagid=user_tags.tag_id and user_tags.is_favorite = true and user_id=:userid) "
-
-  private val NoUncommited = " AND (topics.moderate or NOT sections.moderate) "
-}
+  private val NoUncommited: SQLSyntax = sqls"AND (topics.moderate OR NOT sections.moderate)"
 
 @Repository
-class GroupListDao(ds: DataSource) {
-  private val jdbcTemplate = new NamedParameterJdbcTemplate(ds)
+class GroupListDao(springDB: SpringDB):
 
-  def getGroupTrackerTopics(groupid: Int, offset: Int, tagId: Option[Int])
-                           (using session: AnySession): collection.Seq[TopicsListItem] = {
-    val dateFilter = ">CURRENT_TIMESTAMP-'6 month'::interval "
-    val partFilter = s" AND topics.groupid = $groupid "
-    val tagFilter = tagId.map(t => s" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=$t) ").getOrElse("")
+  def getGroupTrackerTopics(groupid: Int, offset: Int, tagId: Option[Int])(using
+      session: AnySession): collection.Seq[TopicsListItem] =
+    val partFilter = SQLSyntax.join(
+      Seq(
+        sqls"AND topics.groupid = ${groupid}",
+        tagId.map(t => sqls"AND topics.id IN (SELECT msgid FROM tags WHERE tagid=${t})").getOrElse(SQLSyntax.empty),
+        sqls"AND lastmod > CURRENT_TIMESTAMP - '6 month'::interval"
+      ),
+      sqls" "
+    )
 
     load(
-      partFilter = partFilter + tagFilter + " AND lastmod" + dateFilter,
+      partFilter = partFilter,
       topics = session.profile.topics,
       offset = offset,
-      orderColumn = "comment_postdate",
-      commentInterval = "AND comments.postdate" + dateFilter,
-      topicInterval = "t.postdate" + dateFilter,
+      sortByTopic = false,
+      commentInterval = sqls"AND comments.postdate > CURRENT_TIMESTAMP - '6 month'::interval",
+      topicInterval = sqls"t.postdate > CURRENT_TIMESTAMP - '6 month'::interval",
       showIgnored = false,
       showDeleted = false,
-      showUncommited = false)
-  }
+      showUncommited = false
+    )
 
-  def getGroupListTopics(groupid: Int, offset: Int, showIgnored: Boolean, showDeleted: Boolean,
-                         yearMonth: Option[(Int, Int)], tagId: Option[Int])
-                        (using session: AnySession): collection.Seq[TopicsListItem] = {
-    val dateInterval: String = yearMonth.map { v =>
-      val (year, month) = v
+  def getGroupListTopics(
+      groupid: Int,
+      offset: Int,
+      showIgnored: Boolean,
+      showDeleted: Boolean,
+      yearMonth: Option[(Int, Int)],
+      tagId: Option[Int])(using session: AnySession): collection.Seq[TopicsListItem] =
+    val dateInterval: SQLSyntax = yearMonth
+      .map { (year, month) =>
+        sqls"postdate >= make_date(${year}, ${month}, 1)::timestamp AND postdate < make_date(${year}, ${month}, 1)::timestamp + '1 month'::interval"
+      }
+      .getOrElse(sqls"postdate > CURRENT_TIMESTAMP - '6 month'::interval")
 
-      s"postdate>='$year-$month-01'::timestamp AND (postdate<'$year-$month-01'::timestamp+'1 month'::interval)"
-    }.getOrElse("postdate>CURRENT_TIMESTAMP-'6 month'::interval ")
-
-    val partFilter = s" AND topics.groupid = $groupid AND NOT topics.sticky AND $dateInterval"
-    val tagFilter = tagId.map(t => s" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=$t) ").getOrElse("")
+    val partFilter = SQLSyntax.join(
+      Seq(
+        sqls"AND topics.groupid = ${groupid}",
+        sqls"AND NOT topics.sticky",
+        sqls"AND ${dateInterval}",
+        tagId.map(t => sqls"AND topics.id IN (SELECT msgid FROM tags WHERE tagid=${t})").getOrElse(SQLSyntax.empty)
+      ),
+      sqls" "
+    )
 
     load(
-      partFilter = partFilter + tagFilter,
+      partFilter = partFilter,
       topics = session.profile.topics,
       offset = offset,
-      orderColumn = "topic_postdate",
-      commentInterval = "",
-      topicInterval = "",
+      sortByTopic = true,
+      commentInterval = SQLSyntax.empty,
+      topicInterval = SQLSyntax.empty,
       showIgnored = showIgnored,
       showDeleted = showDeleted,
-      showUncommited = false)
-  }
+      showUncommited = false
+    )
 
-  def getSectionListTopics(section: Section, offset: Int, tagId: Int)
-                          (using session: AnySession): collection.Seq[TopicsListItem] = {
-    val partFilter = s" AND section = ${section.id}"
-    val tagFilter = s" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=$tagId) "
+  def getSectionListTopics(section: Section, offset: Int, tagId: Int)(using
+      session: AnySession): collection.Seq[TopicsListItem] =
+    val partFilter = SQLSyntax.join(
+      Seq(sqls"AND section = ${section.id}", sqls"AND topics.id IN (SELECT msgid FROM tags WHERE tagid=${tagId})"),
+      sqls" ")
 
     load(
-      partFilter = partFilter + tagFilter,
+      partFilter = partFilter,
       topics = session.profile.topics,
       offset = offset,
-      orderColumn = "topic_postdate",
-      commentInterval = "",
-      topicInterval = "",
+      sortByTopic = true,
+      commentInterval = SQLSyntax.empty,
+      topicInterval = SQLSyntax.empty,
       showIgnored = false,
       showDeleted = false,
-      showUncommited = false)
-  }
+      showUncommited = false
+    )
 
-  def getGroupStickyTopics(group: Group, tagId: Option[Int])
-                          (using session: AnySession): collection.Seq[TopicsListItem] = {
-    val partFilter = s" AND topics.groupid = ${group.id} AND topics.sticky "
-    val tagFilter = tagId.map(t => s" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=$t) ").getOrElse("")
+  def getGroupStickyTopics(group: Group, tagId: Option[Int])(using
+      session: AnySession): collection.Seq[TopicsListItem] =
+    val partFilter = SQLSyntax.join(
+      Seq(
+        sqls"AND topics.groupid = ${group.id}",
+        sqls"AND topics.sticky",
+        tagId.map(t => sqls"AND topics.id IN (SELECT msgid FROM tags WHERE tagid=${t})").getOrElse(SQLSyntax.empty)
+      ),
+      sqls" "
+    )
 
     load(
-      partFilter = partFilter + tagFilter,
+      partFilter = partFilter,
       topics = 100,
       offset = 0,
-      orderColumn = "topic_postdate",
-      commentInterval = "",
-      topicInterval = "",
+      sortByTopic = true,
+      commentInterval = SQLSyntax.empty,
+      topicInterval = SQLSyntax.empty,
       showIgnored = true,
       showDeleted = false,
-      showUncommited = false)
-  }
+      showUncommited = false
+    )
 
-  def getTrackerTopics(filter: TrackerFilterEnum, offset: Int)
-                      (using session: AnySession): collection.Seq[TopicsListItem] = {
-    val partFilter = filter match {
-      case TrackerFilterEnum.NOTALKS =>
-        " AND not topics.groupid = 8404 AND not topics.notop "
-      case TrackerFilterEnum.MAIN =>
-        " AND not topics.groupid in " + NonTech.mkString("(", ", ",")") + " AND not topics.notop "
-      case TrackerFilterEnum.TECH =>
-        " AND not topics.groupid in " + NonTech.mkString("(", ", ",")") + " AND not topics.notop AND section=2 "
-      case _ => ""
-    }
+  def getTrackerTopics(filter: TrackerFilterEnum, offset: Int)(using
+      session: AnySession): collection.Seq[TopicsListItem] =
+    val sectionFilter: SQLSyntax =
+      filter match
+        case TrackerFilterEnum.NOTALKS =>
+          sqls"AND NOT topics.groupid = 8404 AND NOT topics.notop"
+        case TrackerFilterEnum.MAIN =>
+          sqls"AND NOT topics.groupid IN (${NonTech}) AND NOT topics.notop"
+        case TrackerFilterEnum.TECH =>
+          sqls"AND NOT topics.groupid IN (${NonTech}) AND NOT topics.notop AND section=2"
+        case _ =>
+          SQLSyntax.empty
 
-    val dateFilter = ">CURRENT_TIMESTAMP-'7 days'::interval "
+    val partFilter = SQLSyntax.join(
+      Seq(sectionFilter, sqls"AND lastmod > CURRENT_TIMESTAMP - '7 days'::interval"),
+      sqls" ")
 
     load(
-      partFilter = partFilter + " AND lastmod" + dateFilter,
+      partFilter = partFilter,
       topics = session.profile.topics,
       offset = offset,
-      orderColumn = "comment_postdate",
-      commentInterval = "AND comments.postdate" + dateFilter,
-      topicInterval = "t.postdate" + dateFilter,
+      sortByTopic = false,
+      commentInterval = sqls"AND comments.postdate > CURRENT_TIMESTAMP - '7 days'::interval",
+      topicInterval = sqls"t.postdate > CURRENT_TIMESTAMP - '7 days'::interval",
       showIgnored = false,
       showDeleted = false,
-      showUncommited = filter == TrackerFilterEnum.ALL || session.moderator || session.corrector)
-  }
+      showUncommited = filter == TrackerFilterEnum.ALL || session.moderator || session.corrector
+    )
 
-  private def load(partFilter: String, topics: Int, offset: Int, orderColumn: String,
-                   commentInterval: String, topicInterval: String, showIgnored: Boolean,
-                   showDeleted: Boolean, showUncommited: Boolean)(using session: AnySession): collection.Seq[TopicsListItem] = {
-    // если сортируем по топику, то можно заранее отобрать нужные топики,
-    // до получения даты последнего комментария
-    val (innerSortLimit, outerSortLimit) = if (orderColumn == "topic_postdate") {
-      (s"ORDER BY postdate DESC LIMIT $topics OFFSET $offset",
-        "ORDER BY topic_postdate DESC")
-    } else {
-      ("", s"ORDER BY $orderColumn DESC LIMIT $topics OFFSET $offset")
-    }
+  private def load(
+      partFilter: SQLSyntax,
+      topics: Int,
+      offset: Int,
+      sortByTopic: Boolean,
+      commentInterval: SQLSyntax,
+      topicInterval: SQLSyntax,
+      showIgnored: Boolean,
+      showDeleted: Boolean,
+      showUncommited: Boolean)(using session: AnySession): collection.Seq[TopicsListItem] =
+    val innerSortLimit: SQLSyntax =
+      if sortByTopic then
+        sqls"ORDER BY postdate DESC LIMIT $topics OFFSET $offset"
+      else
+        SQLSyntax.empty
 
-    val parameter = new MapSqlParameterSource
+    val outerSortLimit: SQLSyntax =
+      if sortByTopic then
+        sqls"ORDER BY topic_postdate DESC"
+      else
+        sqls"ORDER BY comment_postdate DESC LIMIT $topics OFFSET $offset"
 
-    var partIgnored: String = null
-    var commentIgnored: String = null
-    var tagIgnored: String = null
+    val userId =
+      if session.authorized && !showIgnored then
+        Some(session.userOpt.get.id)
+      else
+        None
 
-    if (session.authorized && !showIgnored) {
-      commentIgnored = GroupListDao.QueryPartCommentIgnored
-      partIgnored = GroupListDao.QueryPartIgnored
-      tagIgnored = GroupListDao.QueryPartTagIgnored
+    val partIgnored: SQLSyntax = userId.map(GroupListDao.queryPartIgnored).getOrElse(SQLSyntax.empty)
+    val commentIgnored: SQLSyntax = userId.map(GroupListDao.queryPartCommentIgnored).getOrElse(SQLSyntax.empty)
+    val tagIgnored: SQLSyntax = userId.map(GroupListDao.queryPartTagIgnored).getOrElse(SQLSyntax.empty)
 
-      parameter.addValue("userid", session.userOpt.get.id)
-    } else {
-      partIgnored = ""
-      commentIgnored = ""
-      tagIgnored = ""
-    }
+    val noHidden: SQLSyntax =
+      if session.authorized then
+        SQLSyntax.empty
+      else
+        sqls"AND topics.open_warnings <= ${TopicMaxWarnings}"
+    val partUncommited: SQLSyntax =
+      if showUncommited then
+        SQLSyntax.empty
+      else
+        GroupListDao.NoUncommited
+    val partDeleted: SQLSyntax =
+      if showDeleted then
+        SQLSyntax.empty
+      else
+        sqls"AND NOT deleted"
+    val whereTopicInterval: SQLSyntax =
+      if topicInterval.isEmpty then
+        SQLSyntax.empty
+      else
+        sqls"WHERE $topicInterval"
 
-    val noHidden = if (session.authorized) "" else s" AND topics.open_warnings <= $TopicMaxWarnings "
+    springDB.run:
+      sql"""WITH topics AS (
+        SELECT topics.*, sections.moderate as smod, groups.title AS gtitle, urlname, section FROM topics
+        JOIN groups ON topics.groupid=groups.id JOIN sections ON sections.id = groups.section
+        WHERE NOT draft $partDeleted $partIgnored $tagIgnored $partUncommited $partFilter $noHidden $innerSortLimit
+      ) SELECT * FROM (SELECT DISTINCT ON(id) * FROM (SELECT
+        t.userid as author, t.id, t.stat1 AS stat1, gtitle, t.title AS title,
+        comments.id as cid, comments.userid AS last_comment_by, t.resolved as resolved,
+        section, urlname, comments.postdate as comment_postdate, smod, t.moderate,
+        t.sticky, t.postdate as topic_postdate, t.deleted, t.postscore as topic_postscore
+        FROM topics AS t JOIN comments ON (t.id=comments.topic)
+        WHERE t.postscore IS DISTINCT FROM ${TopicPermissionService.POSTSCORE_HIDE_COMMENTS}
+        AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id
+        $commentIgnored ORDER BY postdate DESC LIMIT 1)
+        $commentInterval
+        UNION ALL
+        SELECT
+        t.userid as author, t.id, t.stat1 AS stat1, gtitle, t.title AS title,
+        0, 0, t.resolved as resolved, section, urlname,
+        postdate as comment_postdate, smod, t.moderate, t.sticky,
+        t.postdate as topic_postdate, t.deleted, t.postscore as topic_postscore
+        FROM topics AS t $whereTopicInterval) as tracker ORDER BY id, comment_postdate DESC) tracker $outerSortLimit"""
+        .map(mapTopicsListItem)
+        .list
+        .apply()
+        .toSeq
 
-    val partUncommited = if (showUncommited) "" else GroupListDao.NoUncommited
-
-    val partDeleted = if (showDeleted) "" else " AND NOT deleted "
-
-    val query: String = String.format( // topics CTE
-      GroupListDao.QueryTrackerMain, partDeleted, partIgnored, "", tagIgnored, partUncommited, partFilter, noHidden,
-      innerSortLimit,
-      // comments part
-      commentIgnored, "", commentInterval, // topics part
-      if (topicInterval.isEmpty) "" else "WHERE " + topicInterval, // order
-      outerSortLimit)
-
-    jdbcTemplate.query(query, parameter, (resultSet: ResultSet, rowNum: Int) => {
-      val author = resultSet.getInt("author")
-      val msgid = resultSet.getInt("id")
-      val stat1 = resultSet.getInt("stat1")
-      val groupTitle = resultSet.getString("gtitle")
-      val title = StringUtil.makeTitle(resultSet.getString("title"))
-
-      val cid = Some(resultSet.getInt("cid")).filter(_ != 0)
-
-      val lastCommentBy = Some(resultSet.getInt("last_comment_by")).filter(_ != 0)
-
-      val resolved = resultSet.getBoolean("resolved")
-      val section = resultSet.getInt("section")
-      val groupUrlName = resultSet.getString("urlname")
-      val postdate = resultSet.getTimestamp("comment_postdate")
-      val sticky = resultSet.getBoolean("sticky")
-      val uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate")
-
-      val topicPostscore = if (resultSet.getObject("topic_postscore") == null) {
-        TopicPermissionService.POSTSCORE_UNRESTRICTED
-      } else {
-        resultSet.getInt("topic_postscore")
-      }
-
-      TopicsListItem(
-        topicAuthor = author,
-        topicId = msgid,
-        commentCount = stat1,
-        groupTitle = groupTitle,
-        title = title,
-        lastCommentId = cid,
-        lastCommentBy = lastCommentBy,
-        resolved = resolved,
-        section = section,
-        groupUrlName = groupUrlName,
-        postdate = postdate,
-        uncommited = uncommited,
-        deleted = resultSet.getBoolean("deleted"),
-        sticky = sticky,
-        topicPostscore = topicPostscore)
-    })
-  }.asScala
-}
+  private def mapTopicsListItem(rs: WrappedResultSet): TopicsListItem =
+    TopicsListItem(
+      topicAuthor = rs.int("author"),
+      topicId = rs.int("id"),
+      commentCount = rs.int("stat1"),
+      groupTitle = rs.string("gtitle"),
+      title = StringUtil.makeTitle(rs.string("title")),
+      lastCommentId = rs.intOpt("cid").filter(_ != 0),
+      lastCommentBy = rs.intOpt("last_comment_by").filter(_ != 0),
+      resolved = rs.booleanOpt("resolved").getOrElse(false),
+      section = rs.int("section"),
+      groupUrlName = rs.string("urlname"),
+      postdate = rs.timestamp("comment_postdate"),
+      uncommited = rs.booleanOpt("smod").getOrElse(false) && !rs.booleanOpt("moderate").getOrElse(false),
+      deleted = rs.booleanOpt("deleted").getOrElse(false),
+      sticky = rs.booleanOpt("sticky").getOrElse(false),
+      topicPostscore = rs.intOpt("topic_postscore").getOrElse(TopicPermissionService.POSTSCORE_UNRESTRICTED)
+    )
