@@ -55,7 +55,7 @@ class UserLogDaoIntegrationTest {
     val item = logItems.head
 
     assertNotNull(item)
-    assertEquals(UserLogAction.ACCEPT_NEW_EMAIL, item.action)
+    assertEquals(UserLogAction.AcceptNewEmail, item.action)
   }
 
   @Test
@@ -74,6 +74,6 @@ class UserLogDaoIntegrationTest {
     val item = logItems.head
 
     assertNotNull(item)
-    assertEquals(UserLogAction.SCORE50, item.action)
+    assertEquals(UserLogAction.Score50, item.action)
   }
 }

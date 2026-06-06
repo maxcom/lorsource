@@ -58,7 +58,7 @@ object UserPermissionService {
 class UserPermissionService(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
                             ipBlockDao: IPBlockDao, userDao: UserDao) {
   def canResetPassword(user: User): Boolean = {
-    !userLogDao.hasRecentSelfEvent(user, Duration.ofDays(7), UserLogAction.SENT_PASSWORD_RESET)
+    !userLogDao.hasRecentSelfEvent(user, Duration.ofDays(7), UserLogAction.SentPasswordReset)
   }
 
   def canRegister(remoteAddr: String): Boolean = !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
@@ -67,7 +67,7 @@ class UserPermissionService(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao
   def canLoadUserpic(implicit session: AuthorizedSession): Boolean = {
     def userpicSetCount = userLogDao.getUserpicSetCount(session.user, Duration.ofHours(1))
 
-    def wasReset = userLogDao.hasRecentModerationEvent(session.user, Duration.ofDays(30), UserLogAction.RESET_USERPIC)
+    def wasReset = userLogDao.hasRecentModerationEvent(session.user, Duration.ofDays(30), UserLogAction.ResetUserpic)
 
     def userScoreLoss = deleteInfoDao.getRecentScoreLoss(session.user)
 
@@ -82,9 +82,9 @@ class UserPermissionService(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao
     import session.user
 
     !user.isFrozen &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_INFO) &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_URL) &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.RESET_TOWN)
+      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.ResetInfo) &&
+      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.ResetUrl) &&
+      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.ResetTown)
   }
 
   def canResetPasswordByCode(user: User): Boolean =

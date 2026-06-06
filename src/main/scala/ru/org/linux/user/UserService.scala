@@ -200,16 +200,16 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getUnFrozenUsers: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getUnFrozenUserIds, activityDays = 1)
 
-  def getRecentlyBlocked: Seq[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.BLOCK_USER))
+  def getRecentlyBlocked: Seq[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.BlockUser))
 
-  def getRecentlyUnBlocked: Seq[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.UNBLOCK_USER))
+  def getRecentlyUnBlocked: Seq[User] = getUsersCached(userLogDao.getRecentlyHasEvent(UserLogAction.UnblockUser))
 
   def getModerators: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getModerators, activityDays = 30)
 
   def getCorrectors: Seq[(User, Boolean)] = prepareUserWithActivity(userDao.getCorrectors, activityDays = 30)
 
   def getRecentUserpics: Seq[(User, Userpic)] = {
-    val userIds = userLogDao.getRecentlyHasEvent(UserLogAction.SET_USERPIC).distinct
+    val userIds = userLogDao.getRecentlyHasEvent(UserLogAction.SetUserpic).distinct
 
     getUsersCached(userIds).map { user =>
       user -> getUserpic(user, "empty", misteryMan = false)
@@ -273,7 +273,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     userInvitesDao.getAllInvitedUsers(user).map(getUserCached)
 
   def wasRecentlyBlocker(user: User): Boolean =
-    userLogDao.hasRecentModerationEvent(user, Duration.ofDays(14), UserLogAction.BLOCK_USER)
+    userLogDao.hasRecentModerationEvent(user, Duration.ofDays(14), UserLogAction.BlockUser)
 
   def removeUserInfo(user: User, moderator: User): Unit = {
     transactional() { _ =>

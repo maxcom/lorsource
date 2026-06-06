@@ -45,7 +45,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(actionUser.id),
-      UserLogAction.RESET_USERPIC.toString,
+      UserLogAction.ResetUserpic.toDbName,
       map.asJava
     )
   }
@@ -63,7 +63,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(user.id),
-      UserLogAction.SET_USERPIC.toString,
+      UserLogAction.SetUserpic.toDbName,
       map.asJava
     )
   }
@@ -73,7 +73,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.BLOCK_USER.toString,
+      UserLogAction.BlockUser.toDbName,
       Map(UserLogDao.OptionReason -> reason).asJava
     )
   }
@@ -86,13 +86,14 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
         Map(UserLogDao.OptionReason -> reason, UserLogDao.OptionUntil -> until.toString)
       }
 
-    val action = if (until.isBefore(Instant.now())) UserLogAction.DEFROSTED else UserLogAction.FROZEN
+    val action = if (until.isBefore(Instant.now())) UserLogAction.Defrosted
+      else UserLogAction.Frozen
 
     jdbcTemplate.update(
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      action.toString,
+      action.toDbName,
       options.asJava
     )
   }
@@ -102,7 +103,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, '')",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.SCORE50.toString
+      UserLogAction.Score50.toDbName
     )
   }
 
@@ -111,7 +112,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.UNBLOCK_USER.toString,
+      UserLogAction.UnblockUser.toDbName,
       Map.empty[String, String].asJava
     )
   }
@@ -129,7 +130,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(user.id),
-      UserLogAction.ACCEPT_NEW_EMAIL.toString,
+      UserLogAction.AcceptNewEmail.toDbName,
       map.asJava
     )
   }
@@ -139,7 +140,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.RESET_INFO.toString,
+      UserLogAction.ResetInfo.toDbName,
       Map(
         UserLogDao.OptionOldInfo -> userInfo,
         UserLogDao.OptionBonus -> Int.box(bonus)
@@ -152,7 +153,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.RESET_URL.toString,
+      UserLogAction.ResetUrl.toDbName,
       Map(
         UserLogDao.OptionOldUrl -> url,
         UserLogDao.OptionBonus -> Int.box(bonus)
@@ -165,7 +166,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.RESET_TOWN.toString,
+      UserLogAction.ResetTown.toDbName,
       Map(
         UserLogDao.OptionOldTown -> town,
         UserLogDao.OptionBonus -> Int.box(bonus)
@@ -178,7 +179,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(resetFor.id),
       Int.box(if (resetBy != null) resetBy.id else resetFor.id),
-      UserLogAction.SENT_PASSWORD_RESET.toString,
+      UserLogAction.SentPasswordReset.toDbName,
       Map(UserLogDao.OptionEmail -> email).asJava
     )
   }
@@ -188,7 +189,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.RESET_PASSWORD.toString,
+      UserLogAction.ResetPassword.toDbName,
       Map.empty[String, String].asJava
     )
   }
@@ -198,7 +199,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(user.id),
-      UserLogAction.SET_PASSWORD.toString,
+      UserLogAction.SetPassword.toDbName,
       Map(UserLogDao.OptionIp -> ip).asJava
     )
   }
@@ -208,7 +209,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(user.id),
-      UserLogAction.SET_INFO.toString,
+      UserLogAction.SetInfo.toDbName,
       info
     )
   }
@@ -239,7 +240,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
         rs.getInt("userid"),
         rs.getInt("action_userid"),
         rs.getTimestamp("action_date").toInstant,
-        UserLogAction.valueOf(rs.getString("action").toUpperCase),
+        UserLogAction.fromDbName(rs.getString("action")),
         options)
     }
   }
@@ -248,7 +249,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
     jdbcTemplate.queryForObject[Int](
       "SELECT count(*) FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>?",
       Int.box(user.id),
-      UserLogAction.SET_USERPIC.toString,
+      UserLogAction.SetUserpic.toDbName,
       OffsetDateTime.now().minus(duration)
     ).get
   }
@@ -257,7 +258,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
     jdbcTemplate.queryForObject[Boolean](
       "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid!=action_userid)",
       Int.box(user.id),
-      action.toString,
+      action.toDbName,
       OffsetDateTime.now().minus(duration)
     ).get
   }
@@ -266,7 +267,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
     jdbcTemplate.queryForObject[Boolean](
       "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid=action_userid)",
       Int.box(user.id),
-      action.toString,
+      action.toDbName,
       OffsetDateTime.now().minus(duration)
     ).get
   }
@@ -274,7 +275,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
   def getRecentlyHasEvent(action: UserLogAction): Seq[Int] = {
     jdbcTemplate.queryForSeq[Int](
       "SELECT userid FROM user_log WHERE action=?::user_log_action AND action_date>CURRENT_TIMESTAMP - interval '3 days' ORDER BY action_date",
-      action.toString
+      action.toDbName
     )
   }
 
@@ -289,7 +290,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(userid),
       Int.box(userid),
-      UserLogAction.REGISTER.toString,
+      UserLogAction.Register.toDbName,
       map.asJava
     )
   }
@@ -299,7 +300,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.SET_CORRECTOR.toString,
+      UserLogAction.SetCorrector.toDbName,
       Map.empty[String, String].asJava
     )
   }
@@ -309,7 +310,7 @@ class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionMana
       "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
       Int.box(user.id),
       Int.box(moderator.id),
-      UserLogAction.UNSET_CORRECTOR.toString,
+      UserLogAction.UnsetCorrector.toDbName,
       Map.empty[String, String].asJava
     )
   }
