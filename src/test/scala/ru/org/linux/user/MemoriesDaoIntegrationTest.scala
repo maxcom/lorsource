@@ -16,7 +16,7 @@
 package ru.org.linux.user
 
 import org.junit.Assert.*
-import org.junit.Test
+import org.junit.{Before, Test}
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.topic.Topic
+import scalikejdbc.*
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(classes = Array(classOf[MemoriesDaoIntegrationTestConfiguration])) @Transactional
@@ -36,6 +37,16 @@ class MemoriesDaoIntegrationTest:
 
   @Autowired
   var userDao: UserDao = scala.compiletime.uninitialized
+
+  @Autowired
+  var springDB: SpringDB = scala.compiletime.uninitialized
+
+  private var testTopicId: Int = scala.compiletime.uninitialized
+
+  @Before
+  def setUp(): Unit =
+    testTopicId = springDB.run:
+      sql"select min(id) from topics where not deleted".map(rs => rs.int(1)).single.apply().get
 
   private def mockTopic(id: Int): Topic =
     val topic = mock(classOf[Topic])
@@ -65,14 +76,14 @@ class MemoriesDaoIntegrationTest:
   @Test
   def testAddToMemoriesWatch(): Unit =
     val user = userDao.getUser(1)
-    val topic = mockTopic(1948660)
+    val topic = mockTopic(testTopicId)
     val id = memoriesDao.addToMemories(user, topic, watch = true)
     assertTrue("Should return valid id", id > 0)
 
   @Test
   def testAddToMemoriesIdempotent(): Unit =
     val user = userDao.getUser(1)
-    val topic = mockTopic(1948660)
+    val topic = mockTopic(testTopicId)
     val id1 = memoriesDao.addToMemories(user, topic, watch = true)
     val id2 = memoriesDao.addToMemories(user, topic, watch = true)
     assertEquals("Should return same id on duplicate", id1, id2)
@@ -80,18 +91,18 @@ class MemoriesDaoIntegrationTest:
   @Test
   def testGetTopicInfoWithUser(): Unit =
     val user = userDao.getUser(1)
-    val info = memoriesDao.getTopicInfo(1948660, Some(user))
+    val info = memoriesDao.getTopicInfo(testTopicId, Some(user))
     assertNotNull(info)
 
   @Test
   def testGetTopicInfoWithoutUser(): Unit =
-    val info = memoriesDao.getTopicInfo(1948660, None)
+    val info = memoriesDao.getTopicInfo(testTopicId, None)
     assertNotNull(info)
 
   @Test
   def testDeleteMemories(): Unit =
     val user = userDao.getUser(1)
-    val topic = mockTopic(1948660)
+    val topic = mockTopic(testTopicId)
     val id = memoriesDao.addToMemories(user, topic, watch = true)
     memoriesDao.delete(id)
     val item = memoriesDao.getMemoriesListItem(id)
