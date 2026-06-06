@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 package ru.org.linux.poll
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
@@ -25,38 +24,31 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
 
 @Controller
-class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging {
+class VoteController(pollDao: PollDao, topicDao: TopicDao) extends StrictLogging:
   @RequestMapping(value = Array("/vote.jsp"), method = Array(RequestMethod.POST))
-  def vote(@RequestParam(value = "vote", required = false) votes: Array[Int],
-           @RequestParam("voteid") voteid: Int): ModelAndView = AuthorizedOnly { currentUser =>
-    val poll = pollDao.getPoll(voteid)
+  def vote(
+      @RequestParam(value = "vote", required = false)
+      votes: Array[Int],
+      @RequestParam("voteid")
+      voteid: Int): ModelAndView =
+    AuthorizedOnly { currentUser =>
+      val poll = pollDao.getPoll(voteid)
 
-    val msg = topicDao.getById(poll.topic)
+      val msg = topicDao.getById(poll.topic)
 
-    if (!msg.commited) {
-      throw new BadVoteException("Опрос еще не подтвержден")
-    }
+      if !msg.commited then
+        throw new BadVoteException("Опрос еще не подтвержден")
 
-    if (msg.expired) {
-      throw new BadVoteException("Опрос завершен")
-    }
+      if msg.expired then
+        throw new BadVoteException("Опрос завершен")
 
-    if (votes == null || votes.length == 0) {
-      throw new UserErrorException("ничего не выбрано")
-    }
+      if votes == null || votes.length == 0 then
+        throw new UserErrorException("ничего не выбрано")
 
-    if (!poll.multiSelect && votes.length != 1) {
-      throw new BadVoteException("этот опрос допускает только один вариант ответа")
-    }
+      if !poll.multiSelect && votes.length != 1 then
+        throw new BadVoteException("этот опрос допускает только один вариант ответа")
 
-    try {
       pollDao.updateVotes(voteid, votes, currentUser.user)
-    } catch {
-      case ex: DuplicateKeyException =>
-        logger.debug("Vote already in database", ex)
+
+      new ModelAndView(new RedirectView(msg.getLink))
     }
-
-    new ModelAndView(new RedirectView(msg.getLink))
-  }
-
-}

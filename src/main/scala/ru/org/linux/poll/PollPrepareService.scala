@@ -24,7 +24,7 @@ class PollPrepareService(pollDao: PollDao):
   @throws[PollNotFoundException]
   def preparePoll(topic: Topic, user: User): PreparedPoll =
     val poll = pollDao.getPollByTopicId(topic.id)
-    PreparedPoll(poll, pollDao.getCountUsers(poll), pollDao.getPollResults(poll, Poll.OrderVotes, user))
+    PreparedPoll(poll, pollDao.getCountUsers(poll), pollDao.getPollResults(poll, Poll.OrderVotes, Option(user)))
 
   def preparePollPreview(newPoll: Poll): PreparedPoll =
     val currentMap: Map[Int, PollVariantResult] =

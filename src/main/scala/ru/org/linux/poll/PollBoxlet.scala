@@ -30,7 +30,7 @@ class PollBoxlet(pollDao: PollDao, topicService: TopicService) extends AbstractB
   @RequestMapping(Array("/poll.boxlet"))
   override protected def getData(request: HttpServletRequest): ModelAndView =
     val poll = pollDao.getMostRecentPoll()
-    val results = pollDao.getPollResults(poll, Poll.OrderId, AuthUtil.getCurrentUser)
+    val results = pollDao.getPollResults(poll, Poll.OrderId, Option(AuthUtil.getCurrentUser))
     val userVoted = results.exists(_.userVoted)
 
     val msg = topicService.getById(poll.topic)
