@@ -40,7 +40,7 @@ window.setupFormWithSpinner = function(options) {
       initPreviewTabs($form[0]);
 
       const warnOnUnload = (e) => {
-        if ($textarea.val() !== '' && !submitted) {
+        if ($textarea.val() !== $textarea[0].defaultValue && !submitted) {
           e.preventDefault();
           e.returnValue = UNSAVED_WARNING;
           return e.returnValue;
