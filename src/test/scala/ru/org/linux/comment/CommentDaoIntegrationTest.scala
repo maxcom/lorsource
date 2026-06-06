@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.msgbase.DeleteInfoDao
+import ru.org.linux.scalikejdbc.SpringDB
 
 import javax.sql.DataSource
 import java.sql.Timestamp
@@ -183,6 +184,6 @@ class CommentDaoIntegrationTestConfiguration {
     new CommentDao(dataSource, transactionManager)
 
   @Bean
-  def deleteInfoDao(dataSource: DataSource): DeleteInfoDao =
-    new DeleteInfoDao(dataSource)
+  def deleteInfoDao(springDB: SpringDB): DeleteInfoDao =
+    new DeleteInfoDao(springDB)
 }

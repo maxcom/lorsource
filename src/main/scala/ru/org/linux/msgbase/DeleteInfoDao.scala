@@ -14,114 +14,76 @@
  */
 package ru.org.linux.msgbase
 
-import org.springframework.jdbc.core.{BatchPreparedStatementSetter, JdbcTemplate}
 import org.springframework.stereotype.Repository
 import ru.org.linux.site.DeleteInfo
 import ru.org.linux.user.User
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
-import java.sql.{PreparedStatement, ResultSet}
-import javax.sql.DataSource
-import scala.jdk.CollectionConverters.*
-
-/**
- * Получение информации кем и почему удален топик
- */
 @Repository
-class DeleteInfoDao(dataSource: DataSource) {
-  private val jdbcTemplate: JdbcTemplate = new JdbcTemplate(dataSource)
+class DeleteInfoDao(springDB: SpringDB):
 
-  /**
-   * Кто, когда и почему удалил сообщение
-   * @param id id проверяемого сообщения
-   * @param forUpdate блокировать запись до конца текущей транзакции (SELECT ... FOR UPDATE)
-   * @return информация о удаленном сообщении
-   */
-  def getDeleteInfo(id: Int, forUpdate: Boolean = false): Option[DeleteInfo] = {
-    val list = jdbcTemplate.query(
-      if (forUpdate) DeleteInfoDao.QueryDeleteInfoForUpdate else DeleteInfoDao.QueryDeleteInfo,
-      (rs: ResultSet, _: Int) => {
-        val actualBonus: Option[Int] = if (rs.wasNull()) None else Some(rs.getInt("bonus"))
+  def getDeleteInfo(id: Int, forUpdate: Boolean = false): Option[DeleteInfo] =
+    springDB.run:
+      val query =
+        if forUpdate then
+          sql"SELECT reason, delby as userid, deldate, bonus FROM del_info WHERE msgid=$id FOR UPDATE"
+        else
+          sql"SELECT reason, delby as userid, deldate, bonus FROM del_info WHERE msgid=$id"
 
-        DeleteInfo(
-          rs.getInt("userid"),
-          rs.getString("reason"),
-          rs.getTimestamp("deldate"),
-          actualBonus
-        )
-      },
-      id
-    )
+      query
+        .map { rs =>
+          val bonus: Option[Int] = rs.intOpt("bonus")
+          DeleteInfo(rs.int("userid"), rs.string("reason"), rs.timestamp("deldate"), bonus)
+        }
+        .single
+        .apply()
 
-    list.asScala.headOption
-  }
+  def insert(info: InsertDeleteInfo): Unit = insert(info.msgid, info.deleteUser, info.reason, info.bonus)
 
-  def insert(info: InsertDeleteInfo): Unit =
-    insert(info.msgid, info.deleteUser, info.reason, info.bonus)
-
-  private def insert(msgid: Int, deleter: User, reason: String, scoreBonus: Int): Unit = {
+  private def insert(msgid: Int, deleter: User, reason: String, scoreBonus: Int): Unit =
     require(scoreBonus <= 0, "Score bonus on delete must be non-positive")
+    springDB.run:
+      sql"INSERT INTO del_info (msgid, delby, reason, deldate, bonus) VALUES ($msgid, ${deleter
+          .id}, $reason, CURRENT_TIMESTAMP, $scoreBonus)".update.apply()
 
-    jdbcTemplate.update(DeleteInfoDao.InsertDeleteInfoSql, msgid, deleter.id, reason, scoreBonus)
-  }
+  def getRecentScoreLoss(user: User): Int =
+    springDB.run:
+      sql"""SELECT COALESCE(sum(bonus), 0) FROM del_info
+            WHERE deldate > CURRENT_TIMESTAMP - '3 days'::interval
+            AND msgid IN (
+              SELECT id FROM comments WHERE comments.userid = ${user.id}
+              UNION ALL
+              SELECT id FROM topics WHERE topics.userid = ${user.id}
+            )""".map(rs => math.abs(rs.int(1))).single.apply().getOrElse(0)
 
-  def getRecentScoreLoss(user: User): Int = {
-    Math.abs(
-      jdbcTemplate.queryForObject(
-        "select COALESCE(sum(bonus), 0) from del_info where deldate>CURRENT_TIMESTAMP-'3 days'::interval and " +
-          "msgid in (select id from comments where comments.userid = ? union all select id from topics where topics.userid = ?)",
-        classOf[Integer],
-        user.id,
-        user.id
-      )
-    )
-  }
-
-  def insert(deleteInfos: Seq[InsertDeleteInfo]): Unit = {
-    if (deleteInfos.nonEmpty) {
+  def insert(deleteInfos: Seq[InsertDeleteInfo]): Unit =
+    if deleteInfos.nonEmpty then
       deleteInfos.foreach { info =>
         require(info.bonus <= 0, "Score bonus on delete must be non-positive")
       }
 
-      jdbcTemplate.batchUpdate(
-        DeleteInfoDao.InsertDeleteInfoSql,
-        new BatchPreparedStatementSetter {
-          override def setValues(ps: PreparedStatement, i: Int): Unit = {
-            val info = deleteInfos(i)
-
-            ps.setInt(1, info.msgid)
-            ps.setInt(2, info.deleteUser.id)
-            ps.setString(3, info.reason)
-            ps.setInt(4, info.bonus)
-          }
-
-          override def getBatchSize: Int = deleteInfos.size
-        }
-      )
-    }
-  }
+      springDB.run:
+        sql"INSERT INTO del_info (msgid, delby, reason, deldate, bonus) VALUES ({msgid}, {delby}, {reason}, CURRENT_TIMESTAMP, {bonus})"
+          .batchByName(
+            deleteInfos.map { info =>
+              Seq("msgid" -> info.msgid, "delby" -> info.deleteUser.id, "reason" -> info.reason, "bonus" -> info.bonus)
+            }*)
+          .apply()
 
   def delete(msgid: Int): Unit =
-    jdbcTemplate.update("DELETE FROM del_info WHERE msgid=?", msgid)
+    springDB.run:
+      sql"DELETE FROM del_info WHERE msgid=$msgid".update.apply()
 
   def scoreLoss(msgid: Int): Int =
-    jdbcTemplate.queryForObject(
-      "select COALESCE((select sum(-bonus) as total_bonus from del_info " +
-        "join comments on comments.id = del_info.msgid where bonus is not null and bonus!=0 and " +
-        "comments.userid!=2 and comments.deleted and topic = ?), 0)",
-      classOf[Int],
-      msgid
-    )
-}
+    springDB.run:
+      sql"""SELECT COALESCE(
+              (SELECT sum(-bonus) AS total_bonus FROM del_info
+               JOIN comments ON comments.id = del_info.msgid
+               WHERE bonus IS NOT NULL AND bonus != 0
+               AND comments.userid != 2 AND comments.deleted AND topic = $msgid),
+              0)""".map(rs => rs.int(1)).single.apply().getOrElse(0)
+
+end DeleteInfoDao
 
 case class InsertDeleteInfo(msgid: Int, reason: String, bonus: Int, deleteUser: User)
-
-object DeleteInfoDao {
-  private val QueryDeleteInfo =
-    "SELECT reason,delby as userid, deldate, bonus FROM del_info WHERE msgid=?"
-
-  private val QueryDeleteInfoForUpdate =
-    "SELECT reason,delby as userid, deldate, bonus FROM del_info WHERE msgid=? FOR UPDATE"
-
-  private val InsertDeleteInfoSql =
-    "INSERT INTO del_info (msgid, delby, reason, deldate, bonus) values(?,?,?, CURRENT_TIMESTAMP, ?)"
-}

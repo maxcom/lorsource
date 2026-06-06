@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,148 +15,84 @@
 
 package ru.org.linux.topic
 
-import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.tag.TagInfo
-
-import java.sql.ResultSet
-import javax.sql.DataSource
-import scala.jdk.CollectionConverters.*
+import scalikejdbc.*
 
 @Repository
-class TopicTagDao(ds: DataSource, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
-  private val jdbcTemplate = new JdbcTemplate(ds)
-  private val namedJdbcTemplate = new NamedParameterJdbcTemplate(ds)
+class TopicTagDao(springDB: SpringDB):
 
-  /**
-   * Добавление тега к топику.
-   *
-   * @param msgId идентификационный номер топика
-   * @param tagId идентификационный номер тега
-   */
-  def addTag(msgId: Int, tagId: Int): Unit = transactional() { _ =>
-    val inserted = jdbcTemplate.update("INSERT INTO tags VALUES(?,?) ON CONFLICT DO NOTHING", msgId, tagId)
+  def addTag(msgId: Int, tagId: Int): Unit =
+    springDB.run:
+      val inserted = sql"INSERT INTO tags VALUES($msgId, $tagId) ON CONFLICT DO NOTHING".update.apply()
+      if inserted > 0 then
+        sql"UPDATE tags_values SET counter = counter + 1 WHERE id = $tagId".update.apply()
 
-    if (inserted>0) {
-      jdbcTemplate.update("UPDATE tags_values SET counter = counter + 1 WHERE id = ?", tagId)
-    }
-  }
+  def deleteTag(msgId: Int, tagId: Int): Unit =
+    springDB.run:
+      sql"DELETE FROM tags WHERE msgid=$msgId AND tagid=$tagId".update.apply()
 
-  /**
-   * Удаление тега у топика.
-   *
-   * @param msgId идентификационный номер топика
-   * @param tagId идентификационный номер тега
-   */
-  def deleteTag(msgId: Int, tagId: Int): Unit = {
-    jdbcTemplate.update("DELETE FROM tags WHERE msgid=? and tagid=?", msgId, tagId)
-  }
+  def getTags(msgid: Int): Seq[TagInfo] =
+    springDB.run:
+      sql"""SELECT tags_values.value, tags_values.counter, tags_values.id
+            FROM tags, tags_values
+            WHERE tags.msgid=$msgid AND tags_values.id=tags.tagid
+            ORDER BY value""".map(rs => TagInfo(rs.string("value"), rs.int("counter"), rs.int("id"))).list.apply().toSeq
 
-  /**
-   * Получить список тегов топика.
-   *
-   * @param msgid идентификационный номер топика
-   * @return список тегов топика
-   */
-  def getTags(msgid: Int): Seq[TagInfo] = {
-    jdbcTemplate.queryAndMap(
-      "SELECT tags_values.value, tags_values.counter, tags_values.id FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
-      msgid
-    ) { (rs, _) => TagInfo(rs.getString("value"), rs.getInt("counter"), rs.getInt("id")) }
-  }
+  def getCountReplacedTags(oldTagId: Int, newTagId: Int): Int =
+    springDB.run:
+      sql"""SELECT count(tagid) FROM tags
+            WHERE tagid=$oldTagId AND msgid NOT IN (
+              SELECT msgid FROM tags WHERE tagid=$newTagId
+            )""".map(rs => rs.int(1)).single.apply().getOrElse(0)
 
-  /**
-   * Получение количества тегов, которые будут изменены для топиков (величина прироста использования тега).
-   *
-   * @param oldTagId идентификационный номер старого тега
-   * @param newTagId идентификационный номер нового тега
-   * @return величина прироста использования тега
-   */
-  def getCountReplacedTags(oldTagId:Int, newTagId:Int):Int = {
-    jdbcTemplate.queryForSeq[Integer](
-      "SELECT count (tagid) FROM tags WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
-      oldTagId,
-      newTagId
-    ).head
-  }
+  def replaceTag(oldTagId: Int, newTagId: Int): Unit =
+    springDB.run:
+      sql"""UPDATE tags SET tagid=$newTagId
+            WHERE tagid=$oldTagId AND msgid NOT IN (
+              SELECT msgid FROM tags WHERE tagid=$newTagId
+            )""".update.apply()
 
-  /**
-   * Замена тега в топиках другим тегом.
-   *
-   * @param oldTagId идентификационный номер старого тега
-   * @param newTagId идентификационный номер нового тега
-   */
-  def replaceTag(oldTagId:Int, newTagId:Int):Unit = {
-    jdbcTemplate.update(
-      "UPDATE tags SET tagid=? WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
-      newTagId,
-      oldTagId,
-      newTagId
-    )
-  }
+  def deleteTag(tagId: Int): Unit =
+    springDB.run:
+      sql"DELETE FROM tags WHERE tagid=$tagId".update.apply()
 
-  /**
-   * Удаление тега из топиков.
-   *
-   * @param tagId идентификационный номер тега
-   */
-  def deleteTag(tagId: Int): Unit = {
-    jdbcTemplate.update("DELETE FROM tags WHERE tagid=?", tagId)
-  }
+  def reCalculateAllCounters(): Unit =
+    springDB.run:
+      sql"""UPDATE tags_values SET counter =
+            (SELECT count(*) FROM tags JOIN topics ON tags.msgid=topics.id
+             JOIN groups ON topics.groupid = groups.id
+             JOIN sections ON sections.id = groups.section
+             WHERE tags.tagid=tags_values.id AND NOT deleted AND (topics.moderate OR NOT sections.moderate))"""
+        .update
+        .apply()
 
-  /**
-   * пересчёт счётчиков использования.
-   */
-  def reCalculateAllCounters(): Unit = {
-    jdbcTemplate.update(
-      """update tags_values set counter =
-        | (select count(*) from tags join topics on tags.msgid=topics.id
-        |   join groups on topics.groupid = groups.id
-        |   join sections on sections.id = groups.section
-        |   where tags.tagid=tags_values.id and not deleted and (topics.moderate or not sections.moderate))"""
-      .stripMargin)
-  }
-
-  def getTags(topics: collection.Seq[Int]): collection.Seq[(Int, TagInfo)] = {
-    if (topics.isEmpty) {
+  def getTags(topics: collection.Seq[Int]): collection.Seq[(Int, TagInfo)] =
+    if topics.isEmpty then
       Vector.empty
-    } else {
-      namedJdbcTemplate.query(
-        "SELECT msgid, tags_values.value, tags_values.counter, tags_values.id FROM tags, tags_values WHERE tags.msgid in (:list) AND tags_values.id=tags.tagid ORDER BY value",
-        Map("list" -> topics.asJava).asJava,
-        new RowMapper[(Int, TagInfo)]() {
-          def mapRow(resultSet: ResultSet, rowNum: Int): (Int, TagInfo) =
-            resultSet.getInt("msgid") -> TagInfo(
-              resultSet.getString("value"),
-              resultSet.getInt("counter"),
-              resultSet.getInt("id")
-            )
-        }).asScala
-    }
-  }
+    else
+      springDB.run:
+        sql"""SELECT msgid, tags_values.value, tags_values.counter, tags_values.id
+              FROM tags, tags_values
+              WHERE tags.msgid IN ($topics) AND tags_values.id=tags.tagid
+              ORDER BY value"""
+          .map(rs => rs.int("msgid") -> TagInfo(rs.string("value"), rs.int("counter"), rs.int("id")))
+          .list
+          .apply()
 
-  /**
-   * Увеличить счётчик использования тега.
-   *
-   * @param tagId    идентификационный номер тега
-   * @param tagCount на какое значение изменить счётчик
-   */
-  def increaseCounterById(tagId: Int, tagCount: Int):Unit = {
-    jdbcTemplate.update("UPDATE tags_values SET counter=counter+? WHERE id=?", tagCount, tagId)
-  }
+  def increaseCounterById(tagId: Int, tagCount: Int): Unit =
+    springDB.run:
+      sql"UPDATE tags_values SET counter=counter+$tagCount WHERE id=$tagId".update.apply()
 
-  def processTopicsByTag(tagId: Int, f: Int => Unit): Unit = {
-    jdbcTemplate.queryAndProcess("SELECT msgid FROM tags WHERE tags.tagid=?", tagId) { rs => f(rs.getInt(1)) }
-  }
+  def processTopicsByTag(tagId: Int, f: Int => Unit): Unit =
+    springDB.run:
+      sql"SELECT msgid FROM tags WHERE tags.tagid=$tagId".map(rs => rs.int(1)).list.apply().foreach(f)
 
-  def getTagSections(tagId: Int): Seq[Int] = {
-    jdbcTemplate.queryForSeq[Int](
-    """select distinct section from
-        | groups join topics on topics.groupid=groups.id join tags on tags.msgid = topics.id
-        | where tagid=? and not deleted and not draft ORDER BY section""".stripMargin, tagId)
-  }
-}
+  def getTagSections(tagId: Int): Seq[Int] =
+    springDB.run:
+      sql"""SELECT DISTINCT section FROM
+            groups JOIN topics ON topics.groupid=groups.id JOIN tags ON tags.msgid = topics.id
+            WHERE tagid=$tagId AND NOT deleted AND NOT draft ORDER BY section""".map(rs => rs.int(1)).list.apply().toSeq
+
+end TopicTagDao
