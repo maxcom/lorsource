@@ -18,7 +18,7 @@
     <dependency.spring.version>6.2.18</dependency.spring.version>
     <spring.security.version>6.5.10</spring.security.version>
     <jdbc.postgresql.version>42.7.11</jdbc.postgresql.version>
-    <scala.version>3.8.3</scala.version>
+    <scala.version>3.8.4</scala.version>
     <scala.suffix>3</scala.suffix>
     <activemq.version>6.2.5</activemq.version>
     <jquery.validation.version>1.22.0</jquery.validation.version>
