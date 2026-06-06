@@ -19,7 +19,7 @@
 <%--@elvariable id="frozenUsers" type="java.util.List<scala.Tuple2<ru.org.linux.user.User, java.lang.Boolean>>"--%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
+
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.spring.TrackerFilterEnum>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
