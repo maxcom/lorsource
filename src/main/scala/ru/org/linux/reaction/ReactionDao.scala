@@ -18,157 +18,183 @@ import com.typesafe.scalalogging.StrictLogging
 import io.circe.*
 import io.circe.parser.*
 import io.circe.syntax.*
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
+import scalikejdbc.*
 
 import java.sql.Timestamp
-import javax.sql.DataSource
 import scala.beans.BeanProperty
 
-// reaction -> Seq[UserId]
 case class Reactions(reactions: Map[Int, String])
 
-object Reactions {
+object Reactions:
   val empty: Reactions = Reactions(Map.empty)
-}
 
-case class ReactionsLogItem(originUserId: Int, topicId: Int, commentId: Option[Int], @BeanProperty setDate: Timestamp,
-                            @BeanProperty reaction: String)
+case class ReactionsLogItem(
+    originUserId: Int,
+    topicId: Int,
+    commentId: Option[Int],
+    @BeanProperty
+    setDate: Timestamp,
+    @BeanProperty
+    reaction: String)
 
 case class ReactionsView(item: ReactionsLogItem, title: String, targetUserId: Int, sectionId: Int, groupUrlName: String)
 
-object ReactionDao extends StrictLogging {
-  def parse(json: String): Reactions = {
+object ReactionDao extends StrictLogging:
+  def parse(json: String): Reactions =
     val parsed: Either[Error, Map[Int, String]] = decode[Map[Int, String]](json)
 
-    Reactions(parsed.toTry.recover { ex =>
-      logger.warn("Can't parse reactions", ex)
+    Reactions(
+      parsed
+        .toTry
+        .recover { ex =>
+          logger.warn("Can't parse reactions", ex)
 
-      Map.empty[Int, String]
-    }.get)
-  }
-}
+          Map.empty[Int, String]
+        }
+        .get)
 
 @Repository
-class ReactionDao(ds: DataSource, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
-  private val jdbcTemplate = new JdbcTemplate(ds)
+class ReactionDao(springDB: SpringDB):
 
   def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Int =
-    transactional(propagation = Propagation.MANDATORY) { _ =>
-      if (set) {
+    springDB.run:
+      if set then
         val add = Map(user.id -> reaction).asJson.noSpaces
+        sql"UPDATE comments SET reactions = reactions || ${add}::jsonb WHERE id=${comment.id}".update.apply()
+        sql"""INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction) VALUES(${user.id}, ${comment
+            .topicId}, ${comment.id}, $reaction)
+              ON CONFLICT (origin_user, topic_id, comment_id)
+              DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction""".update.apply()
+      else
+        sql"UPDATE comments SET reactions = reactions - ${user.id.toString} WHERE id=${comment.id}".update.apply()
+        sql"DELETE FROM reactions_log WHERE origin_user=${user.id} AND topic_id=${comment
+            .topicId} AND comment_id=${comment.id}".update.apply()
+      end if
 
-        jdbcTemplate.update("UPDATE comments SET reactions = reactions || ? WHERE id=?", add, comment.id)
-        jdbcTemplate.update("INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction) VALUES(?, ?, ?, ?) " +
-          "ON CONFLICT (origin_user, topic_id, comment_id) " +
-          "DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction",
-          user.id, comment.topicId, comment.id, reaction)
-      } else {
-        jdbcTemplate.update("UPDATE comments SET reactions = reactions - ? WHERE id=?", user.id.toString, comment.id)
-        jdbcTemplate.update("DELETE FROM reactions_log WHERE origin_user=? AND topic_id=? AND comment_id=?",
-          user.id, comment.topicId, comment.id)
-      }
-
-      val r = jdbcTemplate.queryForObject[String]("SELECT reactions FROM comments WHERE id=?", comment.id)
-
-      ReactionDao.parse(r.get).reactions.values.count(_ == reaction)
-    }
+      val r =
+        sql"SELECT reactions FROM comments WHERE id=${comment.id}".map(rs => rs.string("reactions")).single.apply().get
+      ReactionDao.parse(r).reactions.values.count(_ == reaction)
 
   def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int =
-    transactional(propagation = Propagation.MANDATORY) { _ =>
-      if (set) {
+    springDB.run:
+      if set then
         val add = Map(user.id -> reaction).asJson.noSpaces
+        sql"UPDATE topics SET reactions = reactions || ${add}::jsonb WHERE id=${topic.id}".update.apply()
+        sql"""INSERT INTO reactions_log (origin_user, topic_id, reaction) VALUES(${user.id}, ${topic.id}, $reaction)
+              ON CONFLICT (origin_user, topic_id, comment_id)
+              DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction""".update.apply()
+      else
+        sql"UPDATE topics SET reactions = reactions - ${user.id.toString} WHERE id=${topic.id}".update.apply()
+        sql"DELETE FROM reactions_log WHERE origin_user=${user.id} AND topic_id=${topic.id} AND comment_id IS NULL"
+          .update
+          .apply()
+      end if
 
-        jdbcTemplate.update("UPDATE topics SET reactions = reactions || ? WHERE id=?", add, topic.id)
-        jdbcTemplate.update("INSERT INTO reactions_log (origin_user, topic_id, reaction) VALUES(?, ?, ?) " +
-          "ON CONFLICT (origin_user, topic_id, comment_id) " +
-          "DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction", user.id, topic.id, reaction)
-      } else {
-        jdbcTemplate.update("UPDATE topics SET reactions = reactions - ? WHERE id=?", user.id.toString, topic.id)
-        jdbcTemplate.update("DELETE FROM reactions_log WHERE origin_user=? AND topic_id=? AND comment_id IS NULL",
-          user.id, topic.id)
-      }
-
-      val r = jdbcTemplate.queryForObject[String]("SELECT reactions FROM topics WHERE id=?", topic.id)
-
-      ReactionDao.parse(r.get).reactions.values.count(_ == reaction)
-    }
+      val r =
+        sql"SELECT reactions FROM topics WHERE id=${topic.id}".map(rs => rs.string("reactions")).single.apply().get
+      ReactionDao.parse(r).reactions.values.count(_ == reaction)
 
   def recentReactionCount(origin: User): Int =
-    jdbcTemplate.queryForObject[Int](
-      "SELECT count(*) FROM reactions_log " +
-        "WHERE origin_user=? AND set_date > CURRENT_TIMESTAMP - '10 minutes'::interval", origin.id).getOrElse(0)
+    springDB.run:
+      sql"SELECT count(*) FROM reactions_log WHERE origin_user=${origin
+          .id} AND set_date > CURRENT_TIMESTAMP - '10 minutes'::interval"
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .getOrElse(0)
 
   def getLogByTopic(topic: Topic): Seq[ReactionsLogItem] =
-    jdbcTemplate.queryAndMap[ReactionsLogItem](
-      "SELECT origin_user, set_date, reaction " +
-        "FROM reactions_log WHERE topic_id = ? AND comment_id IS NULL", topic.id) { case (rs, _) =>
+    springDB.run:
+      sql"SELECT origin_user, set_date, reaction FROM reactions_log WHERE topic_id=${topic.id} AND comment_id IS NULL"
+        .map(rs =>
           ReactionsLogItem(
-            originUserId = rs.getInt("origin_user"),
+            originUserId = rs.int("origin_user"),
             topicId = topic.id,
             commentId = None,
-            setDate = rs.getTimestamp("set_date"),
-            reaction = rs.getString("reaction"))
-    }
+            setDate = rs.timestamp("set_date"),
+            reaction = rs.string("reaction")))
+        .list
+        .apply()
 
   def getLogByComment(comment: Comment): Seq[ReactionsLogItem] =
-    jdbcTemplate.queryAndMap[ReactionsLogItem](
-      "SELECT origin_user, set_date, reaction " +
-        "FROM reactions_log WHERE topic_id = ? AND comment_id = ?", comment.topicId, comment.id) { case (rs, _) =>
-      ReactionsLogItem(
-        originUserId = rs.getInt("origin_user"),
-        topicId = comment.topicId,
-        commentId = Some(comment.id),
-        setDate = rs.getTimestamp("set_date"),
-        reaction = rs.getString("reaction"))
-    }
+    springDB.run:
+      sql"SELECT origin_user, set_date, reaction FROM reactions_log WHERE topic_id=${comment
+          .topicId} AND comment_id=${comment.id}"
+        .map(rs =>
+          ReactionsLogItem(
+            originUserId = rs.int("origin_user"),
+            topicId = comment.topicId,
+            commentId = Some(comment.id),
+            setDate = rs.timestamp("set_date"),
+            reaction = rs.string("reaction")
+          ))
+        .list
+        .apply()
 
-  def getReactionsView(originUser: User, offset: Int, size: Int,isReactionsOn: Boolean,includeDeleted: Boolean): Seq[ReactionsView] =
-    jdbcTemplate.queryAndMap(
-      if (isReactionsOn)
-         "WITH constants (selectedId) as ( values (?) ) " +
-           " select r.topic_id,r.comment_id,r.set_date, r.reaction,r.origin_user as \"target_user\", g.\"section\", g.urlname, t.title " +
-           " from reactions_log r " +
-           " join topics t ON r.topic_id = t.id  " +
-           (if (!includeDeleted) { " AND NOT t.deleted" } else "" ) +
-           " join groups g ON t.groupid = g.id " +
-           " WHERE r.comment_id is null and t.userid=(select selectedId from constants) " +
-           " UNION ALL " +
-           " select r.topic_id,r.comment_id,r.set_date, r.reaction, r.origin_user, g.\"section\", g.urlname, t.title " +
-           " from reactions_log r " +
-           " join topics t ON r.topic_id = t.id " +
-           (if (!includeDeleted) { " AND NOT t.deleted" } else "") +
-           " JOIN comments c ON c.id = r.comment_id " +
-           " join groups g ON t.groupid = g.id " +
-           " WHERE c.userid=(select selectedId from constants) " +
-           (if (!includeDeleted) { " AND NOT c.deleted" } else "") +
-           " order by set_date desc OFFSET ? LIMIT ?"
+  def getReactionsView(
+      originUser: User,
+      offset: Int,
+      size: Int,
+      isReactionsOn: Boolean,
+      includeDeleted: Boolean): Seq[ReactionsView] =
+    springDB.run:
+      val toView =
+        (rs: WrappedResultSet) =>
+          ReactionsView(
+            item = ReactionsLogItem(
+              originUserId = originUser.id,
+              topicId = rs.int("topic_id"),
+              commentId = rs.intOpt("comment_id"),
+              setDate = rs.timestamp("set_date"),
+              reaction = rs.string("reaction")
+            ),
+            title = rs.string("title"),
+            targetUserId = rs.int("target_user"),
+            sectionId = rs.int("section"),
+            groupUrlName = rs.string("urlname")
+          )
+
+      if isReactionsOn then
+        val notDeletedTopic =
+          if includeDeleted then
+            SQLSyntax.empty
+          else
+            sqls"AND NOT t.deleted"
+        val notDeletedComment =
+          if includeDeleted then
+            SQLSyntax.empty
+          else
+            sqls"AND NOT c.deleted"
+
+        sql"""SELECT r.topic_id, r.comment_id, r.set_date, r.reaction, r.origin_user as "target_user", g."section", g.urlname, t.title
+              FROM reactions_log r
+              JOIN topics t ON r.topic_id = t.id $notDeletedTopic
+              JOIN groups g ON t.groupid = g.id
+              WHERE r.comment_id IS NULL AND t.userid=${originUser.id}
+              UNION ALL
+              SELECT r.topic_id, r.comment_id, r.set_date, r.reaction, r.origin_user, g."section", g.urlname, t.title
+              FROM reactions_log r
+              JOIN topics t ON r.topic_id = t.id $notDeletedTopic
+              JOIN comments c ON c.id = r.comment_id
+              JOIN groups g ON t.groupid = g.id
+              WHERE c.userid=${originUser.id} $notDeletedComment
+              ORDER BY set_date DESC OFFSET $offset LIMIT $size""".map(toView).list.apply()
       else
-      "SELECT topic_id, comment_id, set_date, reaction, topics.title, " +
-        "COALESCE(comments.userid, topics.userid) target_user, groups.section, groups.urlname " +
-        "FROM reactions_log JOIN topics ON topic_id = topics.id " +
-          "JOIN groups ON topics.groupid = groups.id " +
-          "LEFT JOIN comments ON comment_id = comments.id " +
-        "WHERE origin_user=?  " +
-        (if (!includeDeleted) {  " AND NOT topics.deleted AND comments.deleted IS NOT TRUE "  } else "") +
-        " ORDER BY set_date DESC OFFSET ? LIMIT ?",
-      originUser.id, offset, size)  { case (rs, _) =>
-      ReactionsView(
-        item = ReactionsLogItem(
-          originUserId = originUser.id,
-          topicId = rs.getInt("topic_id"),
-          commentId = Option(rs.getInt("comment_id")).filter(_ != 0),
-          setDate = rs.getTimestamp("set_date"),
-          reaction = rs.getString("reaction")),
-        title = rs.getString("title"), // escaped in database
-        targetUserId = rs.getInt("target_user"),
-        sectionId = rs.getInt("section"),
-        groupUrlName = rs.getString("urlname"))
-    }
-}
+        val notDeleted =
+          if includeDeleted then
+            SQLSyntax.empty
+          else
+            sqls"AND NOT topics.deleted AND comments.deleted IS NOT TRUE"
+
+        sql"""SELECT topic_id, comment_id, set_date, reaction, topics.title,
+              COALESCE(comments.userid, topics.userid) target_user, groups.section, groups.urlname
+              FROM reactions_log JOIN topics ON topic_id = topics.id
+              JOIN groups ON topics.groupid = groups.id
+              LEFT JOIN comments ON comment_id = comments.id
+              WHERE origin_user=${originUser.id} $notDeleted
+              ORDER BY set_date DESC OFFSET $offset LIMIT $size""".map(toView).list.apply()
