@@ -204,15 +204,11 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
   /**
    * Сброс пароля пользователю
    *
-   * @param user пользователь которому сбрасываем пароль
-   * @return сообщение о успешности сброса
+   * @param user пользователь, которому сбрасываем пароль
+   * @return сообщение об успешности сброса
    */
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=reset-password"))
   def resetPassword(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
-    if (user.isModerator && !moderator.user.isAdministrator) {
-      throw new AccessViolationException(s"Пользователю ${user.nick} нельзя сбросить пароль")
-    }
-
     if (user.anonymous) {
       throw new AccessViolationException(s"Пользователю ${user.nick} нельзя сбросить пароль")
     }
