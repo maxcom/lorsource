@@ -12,393 +12,414 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux.user
-import ru.org.linux.user.UserConstants
 
-import com.google.common.collect.ImmutableMap
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import org.springframework.scala.transaction.support.TransactionManagement
+package ru.org.linux.user
+
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.{Propagation, Transactional}
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.ReactionDao
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEvent.NoReaction
-import ru.org.linux.user.UserEventDao.QueryById
 import ru.org.linux.user.UserEventFilterEnum.DELETED
 import ru.org.linux.util.StringUtil
+import scalikejdbc.*
 
-import java.sql.ResultSet
-import java.util
-import javax.sql.DataSource
-import scala.collection.mutable
+import java.sql.Timestamp
+import java.util as ju
 import scala.jdk.CollectionConverters.*
 
 @Repository
-object UserEventDao {
-  private val QueryById =
-    """
-      |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
-      |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
-      |  message_warnings.closed_by is not null as closed_warning, user_events.userid
-      |FROM user_events
-      |  INNER JOIN topics ON (topics.id = message_id)
-      |  LEFT JOIN comments ON (comments.id=comment_id)
-      |  LEFT JOIN message_warnings ON (message_warnings.id=warning_id)
-      |WHERE user_events.id = ?
-      |""".stripMargin
+class UserEventDao(springDB: SpringDB):
 
-  private val QueryAll =
-    """
-      |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
-      |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
-      |  message_warnings.closed_by is not null as closed_warning, user_events.userid
-      |FROM user_events
-      |  INNER JOIN topics ON (topics.id = message_id)
-      |  LEFT JOIN comments ON (comments.id=comment_id)
-      |  LEFT JOIN message_warnings ON (message_warnings.id=warning_id)
-      |WHERE user_events.userid = ? %s
-      |ORDER BY id DESC LIMIT ? OFFSET ?
-      |""".stripMargin
+  /** Добавление уведомления
+    *
+    * @param eventType
+    *   тип уведомления
+    * @param userId
+    *   идентификационный номер пользователя
+    * @param isPrivate
+    *   приватное ли уведомление
+    * @param topicId
+    *   идентификационный номер топика (null если нет)
+    * @param commentId
+    *   идентификационный номер комментария (null если нет)
+    * @param message
+    *   дополнительное сообщение уведомления (null если нет)
+    */
+  def addEvent(
+      eventType: String,
+      userId: Int,
+      isPrivate: Boolean,
+      topicId: Option[Int],
+      commentId: Option[Int],
+      message: Option[String],
+      originUser: Option[Int] = None,
+      warningId: Option[Int] = None): Unit =
+    springDB.run {
+      sql"""INSERT INTO user_events (userid, type, private, message_id, comment_id, message, origin_user, warning_id)
+          VALUES ($userId, $eventType, $isPrivate, $topicId, $commentId, $message, $originUser, $warningId)"""
+        .update
+        .apply()
+    }
 
-  private val QueryWithoutPrivate =
-    """
-      |SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
-      |  comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
-      |  user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
-      |  false as closed_warning, user_events.userid
-      |FROM user_events
-      |  INNER JOIN topics ON (topics.id = message_id)
-      |  LEFT JOIN comments ON (comments.id=comment_id)
-      |WHERE user_events.userid = ? AND not private
-      |ORDER BY id DESC LIMIT ? OFFSET ?
-      |""".stripMargin
-}
+  def insertTopicNotification(topicId: Int, userIds: Iterable[Int]): Unit =
+    springDB.run {
+      sql"INSERT INTO topic_users_notified (topic, userid) VALUES ({topic}, {userid})"
+        .batchByName(userIds.toSeq.map(uid => Seq[(String, Any)]("topic" -> topicId, "userid" -> uid))*)
+        .apply()
+    }
 
-@Repository
-class UserEventDao(ds: DataSource, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
-  private val insert = {
-    val insert = new SimpleJdbcInsert(ds)
-    insert.setTableName("user_events")
-    insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message", "origin_user", "warning_id")
-  }
+  def insertReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit =
+    springDB.run {
+      val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
+      sql"""INSERT INTO user_events (userid, type, private, message_id, comment_id, origin_user)
+          VALUES ($authorId, 'REACTION', false, ${topic.id}, ${comment.map(_.id)}, ${user.id})
+          ON CONFLICT DO NOTHING""".update.apply()
+    }
 
-  private val insertTopicUsersNotified = {
-    val insert = new SimpleJdbcInsert(ds)
-    insert.setTableName("topic_users_notified")
-    insert.usingColumns("topic", "userid")
-  }
-
-  private val jdbcTemplate = new JdbcTemplate(ds)
-  private val namedJdbcTemplate = new NamedParameterJdbcTemplate(ds)
-
-  /**
-   * Добавление уведомления
-   *
-   * @param eventType тип уведомления
-   * @param userId    идентификационный номер пользователя
-   * @param isPrivate приватное ли уведомление
-   * @param topicId   идентификационный номер топика (null если нет)
-   * @param commentId идентификационный номер комментария (null если нет)
-   * @param message     дополнительное сообщение уведомления (null если нет)
-   */
-  def addEvent(eventType: String, userId: Int, isPrivate: Boolean, topicId: Option[Int],
-               commentId: Option[Int], message: Option[String], originUser: Option[Int] = None,
-               warningId: Option[Int] = None): Unit = {
-    val params = mutable.Map("userid" -> userId, "type" -> eventType, "private" -> isPrivate)
-
-    topicId.foreach(v => params.put("message_id", v))
-    commentId.foreach(v => params.put("comment_id", v))
-    message.foreach(v => params.put("message", v))
-    originUser.foreach(v => params.put("origin_user", v))
-    warningId.foreach(v => params.put("warning_id", v))
-
-    insert.execute(params.asJava)
-  }
-
-  def insertTopicNotification(topicId: Int, userIds: Iterable[Int]): Unit = {
-    val batch = userIds.view.map(userId => Map("topic" -> topicId, "userid" -> userId).asJava).toSeq
-
-    insertTopicUsersNotified.executeBatch(batch*)
-  }
-
-  def insertReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit = {
+  def deleteUnreadReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit =
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
 
-    jdbcTemplate.update("INSERT INTO " +
-        "user_events (userid, type, private, message_id, comment_id, origin_user)" +
-        "VALUES (?, 'REACTION', false, ?, ?, ?) ON CONFLICT DO NOTHING",
-      authorId, topic.id, comment.map(c => Integer.valueOf(c.id)).orNull, user.id)
-  }
-
-  def deleteUnreadReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit = {
-    val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
-
-    jdbcTemplate.update(
-        "DELETE FROM user_events " +
-          "WHERE userid=? AND message_id=? AND comment_id IS NOT DISTINCT FROM ? " +
-          "AND origin_user=? AND unread AND type='REACTION'",
-      authorId, topic.id, comment.map(c => Integer.valueOf(c.id)).orNull, user.id)
+    springDB.run {
+      sql"""DELETE FROM user_events
+            WHERE userid=$authorId AND message_id=${topic.id}
+            AND comment_id IS NOT DISTINCT FROM ${comment.map(_.id)}
+            AND origin_user=${user.id} AND unread AND type='REACTION'""".update.apply()
+    }
 
     recalcEventCount(Seq(authorId))
-  }
 
   def getNotifiedUsers(topicId: Int): Seq[Integer] =
-    jdbcTemplate.queryForSeq[Integer]("SELECT userid FROM topic_users_notified WHERE topic=?", topicId)
-
-  /**
-   * Сброс уведомлений.
-   *
-   * @param userId идентификационный номер пользователь которому сбрасываем
-   * @param topId  сбрасываем уведомления с идентификатором не больше этого
-   */
-  def resetUnreadEvents(userId: Int, topId: Int, eventType: Option[UserEventFilterEnum]): Unit = transactional() { _ =>
-    eventType match {
-      case Some(eventType) =>
-        jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=? " +
-          "AND type = ?::event_type",
-          userId, topId, eventType.getType)
-      case None =>
-        jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=?", userId, topId)
+    springDB.run {
+      sql"SELECT userid FROM topic_users_notified WHERE topic=$topicId"
+        .map(rs => rs.int("userid"))
+        .list
+        .apply()
+        .map(Integer.valueOf)
     }
 
-    recalcEventCount(Seq(userId))
-  }
+  /** Сброс уведомлений.
+    *
+    * @param userId
+    *   идентификационный номер пользователь которому сбрасываем
+    * @param topId
+    *   сбрасываем уведомления с идентификатором не больше этого
+    */
+  @Transactional
+  def resetUnreadEvents(userId: Int, topId: Int, eventType: Option[UserEventFilterEnum]): Unit =
+    springDB.run {
+      eventType match
+        case Some(et) =>
+          sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId
+              AND type=${et.getType}::event_type""".update.apply()
+        case None =>
+          sql"UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId".update.apply()
 
-  def resetUnreadEvents(userId: Int, topId: Int, topicId: Int, eventType: UserEventFilterEnum): Unit = transactional() { _ =>
-    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id<=? " +
-      "AND type = ?::event_type AND message_id = ?",
-      userId, topId, eventType.getType, topicId)
-
-    recalcEventCount(Seq(userId))
-  }
-
-  def resetUnreadReactionGroup(userId: Int, firstEventId: Int, lastEventId: Int,
-                               topicId: Int, commentId: Int): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "UPDATE user_events SET unread=false WHERE userid=? AND unread AND id BETWEEN ? AND ? " +
-        "AND type = 'REACTION' AND message_id = ? AND coalesce(comment_id, 0) = ?",
-      userId, firstEventId, lastEventId, topicId, commentId)
-
-    recalcEventCount(Seq(userId))
-  }
-
-  /**
-   * Сброс уведомлений.
-   *
-   * @param userId идентификационный номер пользователь которому сбрасываем
-   * @param topId  сбрасываем уведомления с идентификатором не больше этого
-   */
-  def resetSingle(userId: Int, eventId: Int): Unit = transactional() { _ =>
-    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=? AND unread AND id=?", userId, eventId)
-    recalcEventCount(Seq(userId))
-  }
-
-  def recalcEventCount(userids: collection.Seq[Int]): Unit = {
-    if (userids.nonEmpty) {
-      namedJdbcTemplate.update("UPDATE users SET unread_events = " +
-        "(SELECT count(*) FROM user_events WHERE unread AND userid=users.id) WHERE users.id IN (:list)",
-        ImmutableMap.of("list", userids.map(Integer.valueOf).asJavaCollection))
+      recalcEventCount(Seq(userId))
     }
-  }
 
-  /**
-   * Получение списка первых 20 идентификационных номеров пользователей,
-   * количество уведомлений которых превышает максимально допустимое значение.
-   *
-   * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
-   * @return список идентификационных номеров пользователей
-   */
-  def getUserIdListByOldEvents(maxEventsPerUser: Int): util.List[Integer] =
-    jdbcTemplate.queryForSeq[Integer](
-      "select userid from user_events group by userid having count(user_events.id) > ? " +
-        "order by count(user_events.id) DESC limit 20", maxEventsPerUser).asJava
+  @Transactional
+  def resetUnreadEvents(userId: Int, topId: Int, topicId: Int, eventType: UserEventFilterEnum): Unit =
+    springDB.run {
+      sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId
+          AND type=${eventType.getType}::event_type AND message_id=$topicId""".update.apply()
 
-  /**
-   * Очистка старых уведомлений пользователя.
-   *
-   * @param userId           идентификационный номер пользователя
-   * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
-   */
-  def cleanupOldEvents(userId: Int, maxEventsPerUser: Int): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "DELETE FROM user_events WHERE user_events.id IN " +
-        "(SELECT id FROM user_events WHERE userid=? ORDER BY event_date DESC OFFSET ?)",
-      userId, maxEventsPerUser)
+      recalcEventCount(Seq(userId))
+    }
 
-    recalcEventCount(Seq(userId))
-  }
+  @Transactional
+  def resetUnreadReactionGroup(userId: Int, firstEventId: Int, lastEventId: Int, topicId: Int, commentId: Int): Unit =
+    springDB.run {
+      sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id BETWEEN $firstEventId AND $lastEventId
+          AND type='REACTION' AND message_id=$topicId AND coalesce(comment_id, 0)=$commentId""".update.apply()
 
-  def dropBannedUserEvents(): Int = transactional() { _ =>
-    val count = jdbcTemplate.update(
-      "DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval AND user_events.userid IN " +
-        "(SELECT id FROM users WHERE users.blocked and lastlogin < CURRENT_TIMESTAMP-'2 year'::interval)")
+      recalcEventCount(Seq(userId))
+    }
 
-    jdbcTemplate.update(
-      "UPDATE users SET unread_events = (SELECT count(*) FROM user_events WHERE unread AND userid=users.id) " +
-        "WHERE unread_events != 0 AND users.blocked and lastlogin < CURRENT_TIMESTAMP-'2 year'::interval")
+  /** Сброс уведомлений.
+    *
+    * @param userId
+    *   идентификационный номер пользователь которому сбрасываем
+    * @param topId
+    *   сбрасываем уведомления с идентификатором не больше этого
+    */
+  @Transactional
+  def resetSingle(userId: Int, eventId: Int): Unit =
+    springDB.run {
+      sql"UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id=$eventId".update.apply()
+      recalcEventCount(Seq(userId))
+    }
 
-    count
-  }
-
-  def getEvent(id: Int): Option[UserEvent] = {
-    jdbcTemplate.queryAndMap(QueryById, id) { (resultSet, _) =>
-      toUserEvent(resultSet)
-    }.headOption
-  }
-
-  /**
-   * Получить список уведомлений для пользователя.
-   *
-   * @param userId          идентификационный номер пользователя
-   * @param showPrivate     включать ли приватные
-   * @param topics          кол-во уведомлений
-   * @param offset          сдвиг относительно начала
-   * @param eventFilterType тип уведомлений
-   * @return список уведомлений
-   */
-  def getRepliesForUser(userId: Int, showPrivate: Boolean, topics: Int, offset: Int,
-                        eventFilterType: UserEventFilterEnum): Seq[UserEvent] = {
-    val queryString = if (showPrivate) {
-      val queryPart = if (eventFilterType != UserEventFilterEnum.ALL) {
-        s" AND type = '${eventFilterType.getType}' "
-      } else {
-        ""
+  def recalcEventCount(userids: collection.Seq[Int]): Unit =
+    if userids.nonEmpty then
+      springDB.run {
+        sql"""UPDATE users SET unread_events =
+            (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
+            WHERE users.id IN ($userids)""".update.apply()
       }
 
-      String.format(UserEventDao.QueryAll, queryPart)
-    } else {
-      UserEventDao.QueryWithoutPrivate
+  /** Получение списка первых 20 идентификационных номеров пользователей, количество уведомлений которых превышает
+    * максимально допустимое значение.
+    *
+    * @param maxEventsPerUser
+    *   максимальное количество уведомлений для одного пользователя
+    * @return
+    *   список идентификационных номеров пользователей
+    */
+  def getUserIdListByOldEvents(maxEventsPerUser: Int): ju.List[Integer] =
+    springDB.run {
+      sql"""SELECT userid FROM user_events GROUP BY userid HAVING count(user_events.id) > $maxEventsPerUser
+          ORDER BY count(user_events.id) DESC LIMIT 20"""
+        .map(rs => rs.int("userid"))
+        .list
+        .apply()
+        .map(Integer.valueOf)
+        .asJava
     }
 
-    jdbcTemplate.queryAndMap(queryString, userId, topics, offset) { (resultSet, _) =>
-      toUserEvent(resultSet)
+  /** Очистка старых уведомлений пользователя.
+    *
+    * @param userId
+    *   идентификационный номер пользователя
+    * @param maxEventsPerUser
+    *   максимальное количество уведомлений для одного пользователя
+    */
+  @Transactional
+  def cleanupOldEvents(userId: Int, maxEventsPerUser: Int): Unit =
+    springDB.run {
+      sql"""DELETE FROM user_events WHERE user_events.id IN
+          (SELECT id FROM user_events WHERE userid=$userId ORDER BY event_date DESC OFFSET $maxEventsPerUser)"""
+        .update
+        .apply()
+
+      recalcEventCount(Seq(userId))
     }
-  }
 
-  private def toUserEvent(resultSet: ResultSet): UserEvent = {
-    val subj = StringUtil.makeTitle(resultSet.getString("subj"))
-    val eventDate = resultSet.getTimestamp("event_date")
-    val cid = resultSet.getInt("cid")
+  @Transactional
+  def dropBannedUserEvents(): Int =
+    springDB.run {
+      val count =
+        sql"""DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval
+          AND user_events.userid IN
+          (SELECT id FROM users WHERE users.blocked AND lastlogin < CURRENT_TIMESTAMP-'2 year'::interval)"""
+          .update
+          .apply()
 
-    val cAuthor = if (!resultSet.wasNull) {
-      resultSet.getInt("cAuthor")
-    } else {
-      0
+      sql"""UPDATE users SET unread_events = (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
+          WHERE unread_events != 0 AND users.blocked AND lastlogin < CURRENT_TIMESTAMP-'2 year'::interval"""
+        .update
+        .apply()
+
+      count
     }
 
-    val groupId = resultSet.getInt("groupid")
-    val msgid = resultSet.getInt("msgid")
-    val `type` = UserEventFilterEnum.valueOfByType(resultSet.getString("type")).getOrElse(
-      throw new IllegalArgumentException(s"Unknown event type: ${resultSet.getString("type")}")
-    )
-    val eventMessage = resultSet.getString("ev_msg")
-    val unread = resultSet.getBoolean("unread")
+  def getEvent(id: Int): Option[UserEvent] =
+    springDB.run {
+      sql"""SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
+          comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
+          user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
+          message_warnings.closed_by is not null as closed_warning, user_events.userid
+          FROM user_events
+          INNER JOIN topics ON (topics.id = message_id)
+          LEFT JOIN comments ON (comments.id=comment_id)
+          LEFT JOIN message_warnings ON (message_warnings.id=warning_id)
+          WHERE user_events.id = $id""".map(toUserEvent).single.apply()
+    }
 
-    val originUser = resultSet.getInt("origin_user")
+  /** Получить список уведомлений для пользователя.
+    *
+    * @param userId
+    *   идентификационный номер пользователя
+    * @param showPrivate
+    *   включать ли приватные
+    * @param topics
+    *   кол-во уведомлений
+    * @param offset
+    *   сдвиг относительно начала
+    * @param eventFilterType
+    *   тип уведомлений
+    * @return
+    *   список уведомлений
+    */
+  def getRepliesForUser(
+      userId: Int,
+      showPrivate: Boolean,
+      topics: Int,
+      offset: Int,
+      eventFilterType: UserEventFilterEnum): Seq[UserEvent] =
+    springDB.run {
+      if showPrivate then
+        val typeFilter =
+          if eventFilterType != UserEventFilterEnum.ALL then
+            sqls"AND type = ${eventFilterType.getType}::event_type"
+          else
+            SQLSyntax.empty
 
-    val reaction = {
-      val topicReactions = resultSet.getString("t_reactions")
-      val commentReactions = resultSet.getString("c_reactions")
+        sql"""SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
+            comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
+            user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
+            message_warnings.closed_by is not null as closed_warning, user_events.userid
+            FROM user_events
+            INNER JOIN topics ON (topics.id = message_id)
+            LEFT JOIN comments ON (comments.id=comment_id)
+            LEFT JOIN message_warnings ON (message_warnings.id=warning_id)
+            WHERE user_events.userid = $userId $typeFilter
+            ORDER BY id DESC LIMIT $topics OFFSET $offset""".map(toUserEvent).list.apply()
+      else
+        sql"""SELECT user_events.id, event_date, topics.title as subj, topics.id as msgid, comments.id AS cid,
+            comments.userid AS cAuthor, topics.userid AS tAuthor, unread, groupid, comments.deleted, type,
+            user_events.message as ev_msg, origin_user, comments.reactions as c_reactions, topics.reactions as t_reactions,
+            false as closed_warning, user_events.userid
+            FROM user_events
+            INNER JOIN topics ON (topics.id = message_id)
+            LEFT JOIN comments ON (comments.id=comment_id)
+            WHERE user_events.userid = $userId AND not private
+            ORDER BY id DESC LIMIT $topics OFFSET $offset""".map(toUserEvent).list.apply()
+    }
 
+  private def toUserEvent(rs: WrappedResultSet): UserEvent =
+    val subj = StringUtil.makeTitle(rs.string("subj"))
+    val eventDate = rs.timestamp("event_date")
+    val cidOpt = rs.intOpt("cid")
+    val cid = cidOpt.getOrElse(0)
+    val cAuthor = cidOpt.map(_ => rs.int("cAuthor")).getOrElse(0)
+    val groupId = rs.int("groupid")
+    val msgid = rs.int("msgid")
+    val eventType = UserEventFilterEnum
+      .valueOfByType(rs.string("type"))
+      .getOrElse(throw new IllegalArgumentException(s"Unknown event type: ${rs.string("type")}"))
+    val eventMessage = rs.stringOpt("ev_msg").orNull
+    val unread = rs.boolean("unread")
+    val originUser = rs.intOpt("origin_user").getOrElse(0)
+    val reaction =
+      val topicReactions = rs.stringOpt("t_reactions").orNull
+      val commentReactions = rs.stringOpt("c_reactions").orNull
       ReactionDao.parse(Option(commentReactions).getOrElse(topicReactions)).reactions.getOrElse(originUser, NoReaction)
-    }
 
-    UserEvent(cid, cAuthor, groupId, subj, msgid, `type`, eventMessage, eventDate, unread,
-      resultSet.getInt("tAuthor"), resultSet.getInt("id"),
-      originUser, reaction, resultSet.getBoolean("closed_warning"), resultSet.getInt("userid"))
-  }
+    UserEvent(
+      cid,
+      cAuthor,
+      groupId,
+      subj,
+      msgid,
+      eventType,
+      eventMessage,
+      eventDate,
+      unread,
+      rs.int("tAuthor"),
+      rs.int("id"),
+      originUser,
+      reaction,
+      rs.booleanOpt("closed_warning").getOrElse(false),
+      rs.int("userid")
+    )
 
-  def deleteTopicEvents(topics: Seq[Int]): collection.Seq[Int] = {
-    transactional() { _ =>
-      if (topics.isEmpty) {
+  @Transactional
+  def deleteTopicEvents(topics: Seq[Int]): collection.Seq[Int] =
+    springDB.run {
+      if topics.isEmpty then
         Seq.empty
-      } else {
-        val affectedUsers = namedJdbcTemplate.queryForList(
-          "SELECT DISTINCT (userid) FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')",
-          ImmutableMap.of("list", topics.asJava), classOf[Integer])
+      else
+        val affectedUsers =
+          sql"""SELECT DISTINCT userid FROM user_events
+            WHERE message_id IN ($topics) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')"""
+            .map(rs => rs.int("userid"))
+            .list
+            .apply()
 
-        namedJdbcTemplate.update(
-          "DELETE FROM user_events WHERE message_id IN (:list) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')",
-          ImmutableMap.of("list", topics.asJava))
+        sql"""DELETE FROM user_events
+            WHERE message_id IN ($topics) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')"""
+          .update
+          .apply()
 
-        affectedUsers.asScala.map(i => i)
-      }
+        affectedUsers
     }
-  }
 
-  def deleteCommentEvents(comments: Seq[Int]): collection.Seq[Int] = {
-    transactional() { _ =>
-      if (comments.isEmpty) {
+  @Transactional
+  def deleteCommentEvents(comments: Seq[Int]): collection.Seq[Int] =
+    springDB.run {
+      if comments.isEmpty then
         Seq.empty
-      } else {
-        val affectedUsers = namedJdbcTemplate.queryForList(
-          "SELECT DISTINCT (userid) FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')",
-          Map("list" -> comments.map(Integer.valueOf).asJava).asJava, classOf[Integer])
+      else
+        val affectedUsers =
+          sql"""SELECT DISTINCT userid FROM user_events
+            WHERE comment_id IN ($comments) AND type IN ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')"""
+            .map(rs => rs.int("userid"))
+            .list
+            .apply()
 
-        namedJdbcTemplate.update("DELETE FROM user_events WHERE comment_id IN (:list) AND type in ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')",
-          Map("list" -> comments.asJava).asJava)
+        sql"""DELETE FROM user_events
+            WHERE comment_id IN ($comments) AND type IN ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')"""
+          .update
+          .apply()
 
-        affectedUsers.asScala.map(i => i)
-      }
-    }
-  }
-
-  def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment], commentId: Int): collection.Seq[Int] =
-    transactional(propagation = Propagation.MANDATORY) { _ =>
-      val params = new util.HashMap[String, Integer]
-      params.put("topic", comment.topicId)
-      params.put("id", commentId)
-      params.put("userid", comment.userid)
-
-      val userIds = (if (parentComment.isDefined) {
-        params.put("parent_author", parentComment.get.userid)
-        namedJdbcTemplate.queryForList(s"SELECT memories.userid FROM memories WHERE memories.topic = :topic AND :userid != memories.userid AND memories.userid != :parent_author AND memories.userid != ${UserConstants.ANONYMOUS_ID} " + "AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors(:id))) AND watch", params, classOf[Integer])
-      } else {
-        namedJdbcTemplate.queryForList(s"SELECT memories.userid FROM memories WHERE memories.topic = :topic AND :userid != memories.userid AND memories.userid != ${UserConstants.ANONYMOUS_ID} AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=:userid) AND watch", params, classOf[Integer])
-      }).asScala
-
-      if (userIds.nonEmpty) {
-        val batch = userIds.view.map { userId =>
-          Map(
-            "userid" -> userId,
-            "type" -> "WATCH",
-            "private" -> false,
-            "message_id" -> comment.topicId,
-            "comment_id" -> commentId).asJava
-        }.toSeq
-
-        insert.executeBatch(batch*)
-      }
-
-      userIds.map(i => i)
+        affectedUsers
     }
 
-  def getEventTypes(userId: Int): Seq[UserEventFilterEnum] = {
-    jdbcTemplate.queryAndMap("select distinct(type) from user_events where userid=?", userId) { (rs, _) =>
-      UserEventFilterEnum.valueOfByType(rs.getString("type"))
-    }.flatten
-  }
+  @Transactional(propagation = Propagation.MANDATORY)
+  def insertCommentWatchNotification(
+      comment: Comment,
+      parentComment: Option[Comment],
+      commentId: Int): collection.Seq[Int] =
+    springDB.run {
+      val userIds =
+        parentComment match
+          case Some(parent) =>
+            sql"""SELECT memories.userid FROM memories
+              WHERE memories.topic = ${comment.topicId}
+              AND ${comment.userid} != memories.userid
+              AND memories.userid != ${parent.userid}
+              AND memories.userid != ${UserConstants.ANONYMOUS_ID}
+              AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors($commentId)))
+              AND watch""".map(rs => rs.int("userid")).list.apply()
+          case None =>
+            sql"""SELECT memories.userid FROM memories
+              WHERE memories.topic = ${comment.topicId}
+              AND ${comment.userid} != memories.userid
+              AND memories.userid != ${UserConstants.ANONYMOUS_ID}
+              AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=${comment
+                .userid})
+              AND watch""".map(rs => rs.int("userid")).list.apply()
 
-  def insertTopicMassDeleteNotifications(topicsIds: Seq[Int], reason: String, deletedBy: Int): Unit = {
-    namedJdbcTemplate.update(s"""
-        insert into user_events (userid, type, private, message_id, message)
-          (select topics.userid, '${DELETED.getType}', true, topics.id, :message from topics where topics.id in (:topics)
-            and topics.userid != :deletedBy and topics.userid != ${UserConstants.ANONYMOUS_ID})
-      """, Map("message" -> reason, "topics" -> topicsIds.map(Integer.valueOf).asJava, "deletedBy" -> deletedBy).asJava)
-  }
+      if userIds.nonEmpty then
+        sql"""INSERT INTO user_events (userid, type, private, message_id, comment_id)
+              VALUES ({userid}, {type}, {private}, {message_id}, {comment_id})"""
+          .batchByName(
+            userIds.map(uid =>
+              Seq[(String, Any)](
+                "userid" -> uid,
+                "type" -> "WATCH",
+                "private" -> false,
+                "message_id" -> comment.topicId,
+                "comment_id" -> commentId))*)
+          .apply()
 
-  def insertCommentMassDeleteNotifications(commentIds: Seq[Int], reason: String, deletedBy: Int): Unit = {
-    namedJdbcTemplate.update(s"""
-        insert into user_events (userid, type, private, message_id, comment_id, message)
-          (select comments.userid, '${DELETED.getType}', true, comments.topic, comments.id,
-            :message from comments where comments.id in (:comments)
-            and comments.userid != :deletedBy and comments.userid != ${UserConstants.ANONYMOUS_ID})
-      """, Map("message" -> reason, "comments" -> commentIds.map(Integer.valueOf).asJava, "deletedBy" -> deletedBy).asJava)
-  }
-}
+      userIds
+    }
+
+  def getEventTypes(userId: Int): Seq[UserEventFilterEnum] =
+    springDB.run {
+      sql"SELECT distinct(type) FROM user_events WHERE userid=$userId"
+        .map(rs => UserEventFilterEnum.valueOfByType(rs.string("type")))
+        .list
+        .apply()
+        .flatten
+    }
+
+  def insertTopicMassDeleteNotifications(topicsIds: Seq[Int], reason: String, deletedBy: Int): Unit =
+    springDB.run {
+      sql"""INSERT INTO user_events (userid, type, private, message_id, message)
+          (SELECT topics.userid, ${DELETED
+          .getType}::event_type, true, topics.id, $reason FROM topics WHERE topics.id IN ($topicsIds)
+            AND topics.userid != $deletedBy AND topics.userid != ${UserConstants.ANONYMOUS_ID})""".update.apply()
+    }
+
+  def insertCommentMassDeleteNotifications(commentIds: Seq[Int], reason: String, deletedBy: Int): Unit =
+    springDB.run {
+      sql"""INSERT INTO user_events (userid, type, private, message_id, comment_id, message)
+          (SELECT comments.userid, ${DELETED
+          .getType}::event_type, true, comments.topic, comments.id, $reason FROM comments WHERE comments.id IN ($commentIds)
+            AND comments.userid != $deletedBy AND comments.userid != ${UserConstants.ANONYMOUS_ID})""".update.apply()
+    }

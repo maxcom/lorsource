@@ -18,13 +18,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
-import javax.sql.DataSource
+import java.sql.BatchUpdateException
 
 object UserEventDaoIntegrationTest:
   private val TestTopicId = 98075
@@ -43,10 +43,8 @@ class UserEventDaoIntegrationTest:
   @Autowired
   var userDao: UserDao = scala.compiletime.uninitialized
 
-  private var jdbcTemplate: JdbcTemplate = scala.compiletime.uninitialized
-
   @Autowired
-  def setDataSource(ds: DataSource): Unit = jdbcTemplate = new JdbcTemplate(ds)
+  var springDB: SpringDB = scala.compiletime.uninitialized
 
   @Test
   def testAdd(): Unit =
@@ -67,7 +65,7 @@ class UserEventDaoIntegrationTest:
       UserEventDaoIntegrationTest.TestTopicId,
       Seq(UserEventDaoIntegrationTest.TestUserId))
 
-  @Test(expected = classOf[DuplicateKeyException])
+  @Test(expected = classOf[BatchUpdateException])
   def testInsertTopicUserNotificationDup(): Unit =
     userEventDao.insertTopicNotification(
       UserEventDaoIntegrationTest.TestTopicId,
@@ -116,21 +114,23 @@ class UserEventDaoIntegrationTest:
   @Test
   def testResetUnreadReactionGroup(): Unit =
     val topicId =
-      jdbcTemplate
-        .queryForObject[Int](
-          "SELECT topic FROM comments WHERE NOT deleted GROUP BY topic HAVING count(*) >= 2 ORDER BY topic LIMIT 1")
-        .get
+      springDB.run {
+        sql"SELECT topic FROM comments WHERE NOT deleted GROUP BY topic HAVING count(*) >= 2 ORDER BY topic LIMIT 1"
+          .map(rs => rs.int("topic")).single.apply().get
+      }
     val commentIds =
-      jdbcTemplate.queryAndMap("SELECT id FROM comments WHERE topic=? AND NOT deleted ORDER BY id LIMIT 2", topicId) {
-        (rs, _) =>
-          rs.getInt("id")
+      springDB.run {
+        sql"SELECT id FROM comments WHERE topic=$topicId AND NOT deleted ORDER BY id LIMIT 2"
+          .map(rs => rs.int("id")).list.apply()
       }
     assertEquals(2, commentIds.size)
 
     val firstCommentId = commentIds.head
     val secondCommentId = commentIds(1)
     val unreadBefore = userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents
-    val maxEventIdBefore = jdbcTemplate.queryForObject[Int]("SELECT coalesce(max(id), 0) FROM user_events").get
+    val maxEventIdBefore = springDB.run {
+      sql"SELECT coalesce(max(id), 0) as maxid FROM user_events".map(rs => rs.int("maxid")).single.apply().get
+    }
 
     userEventDao.addEvent(
       UserEventFilterEnum.REACTION.getType,
@@ -160,14 +160,10 @@ class UserEventDaoIntegrationTest:
       originUser = Some(userDao.findUserId("edo"))
     )
 
-    val insertedEvents =
-      jdbcTemplate.queryAndMap(
-        "SELECT id, comment_id, unread FROM user_events WHERE userid=? AND id>? AND type='REACTION' ORDER BY id",
-        UserEventDaoIntegrationTest.TestUserId,
-        maxEventIdBefore
-      ) { (rs, _) =>
-        (rs.getInt("id"), rs.getInt("comment_id"), rs.getBoolean("unread"))
-      }
+    val insertedEvents = springDB.run {
+      sql"""SELECT id, comment_id, unread FROM user_events WHERE userid=${UserEventDaoIntegrationTest.TestUserId} AND id>${maxEventIdBefore} AND type='REACTION' ORDER BY id"""
+        .map(rs => (rs.int("id"), rs.int("comment_id"), rs.boolean("unread"))).list.apply()
+    }
     assertEquals(3, insertedEvents.size)
 
     val firstEventId = insertedEvents.head._1
@@ -180,16 +176,10 @@ class UserEventDaoIntegrationTest:
       topicId,
       firstCommentId)
 
-    val unreadFlagsAfterReset =
-      jdbcTemplate
-        .queryAndMap(
-          "SELECT id, unread FROM user_events WHERE userid=? AND id>? AND type='REACTION' ORDER BY id",
-          UserEventDaoIntegrationTest.TestUserId,
-          maxEventIdBefore
-        ) { (rs, _) =>
-          (rs.getInt("id"), rs.getBoolean("unread"))
-        }
-        .toMap
+    val unreadFlagsAfterReset = springDB.run {
+      sql"""SELECT id, unread FROM user_events WHERE userid=${UserEventDaoIntegrationTest.TestUserId} AND id>${maxEventIdBefore} AND type='REACTION' ORDER BY id"""
+        .map(rs => rs.int("id") -> rs.boolean("unread")).list.apply()
+    }.toMap
 
     assertEquals(false, unreadFlagsAfterReset(firstEventId))
     assertEquals(false, unreadFlagsAfterReset(lastEventId))

@@ -13,18 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.user;
+package ru.org.linux.user
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
-
-import javax.sql.DataSource;
+import org.springframework.context.annotation.{Bean, Configuration}
+import ru.org.linux.scalikejdbc.SpringDB
 
 @Configuration
-public class UserLogDaoIntegrationTestConfiguration {
+class UserLogDaoIntegrationTestConfiguration:
   @Bean
-  public UserLogDao userLogDao(DataSource dataSource, PlatformTransactionManager transactionManager) {
-    return new UserLogDao(dataSource, transactionManager);
-  }
-}
+  def userLogDao(springDB: SpringDB): UserLogDao = UserLogDao(springDB)

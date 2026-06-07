@@ -15,308 +15,226 @@
 
 package ru.org.linux.user
 
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.SpringDB.given
+import scalikejdbc.*
 
 import java.time.{Duration, Instant, OffsetDateTime}
-import java.util
+import java.util as ju
 import javax.annotation.Nullable
-import javax.sql.DataSource
 import scala.jdk.CollectionConverters.*
 
 @Repository
-class UserLogDao(ds: DataSource, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
-  private val jdbcTemplate = new JdbcTemplate(ds)
+class UserLogDao(springDB: SpringDB):
 
-  def logResetUserpic(user: User, actionUser: User, bonus: Int): Unit = transactional() { _ =>
-    var map = Map[String, Any]()
+  private def insertLog(userid: Int, actionUserId: Int, action: UserLogAction, info: ju.Map[String, String])(using
+      DBSession): Unit =
+    sql"""INSERT INTO user_log (userid, action_userid, action_date, action, info)
+          VALUES ($userid, $actionUserId, CURRENT_TIMESTAMP, ${action.toDbName}::user_log_action, $info)"""
+      .update
+      .apply()
 
-    if (bonus != 0) {
-      map = map + (UserLogDao.OptionBonus -> Int.box(bonus))
-    }
-
-    if (user.photo != null) {
-      map = map + (UserLogDao.OptionOldUserpic -> user.photo)
-    }
-
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(actionUser.id),
-      UserLogAction.ResetUserpic.toDbName,
-      map.asJava
-    )
-  }
-
-  def logSetUserpic(user: User, userpic: String): Unit = transactional() { _ =>
-    var map = Map[String, Any]()
-
-    if (user.photo != null) {
-      map = map + (UserLogDao.OptionOldUserpic -> user.photo)
-    }
-
-    map = map + (UserLogDao.OptionNewUserpic -> userpic)
-
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(user.id),
-      UserLogAction.SetUserpic.toDbName,
-      map.asJava
-    )
-  }
-
-  def logBlockUser(user: User, moderator: User, reason: String): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.BlockUser.toDbName,
-      Map(UserLogDao.OptionReason -> reason).asJava
-    )
-  }
-
-  def logFreezeUser(user: User, moderator: User, reason: String, until: Instant): Unit = transactional() { _ =>
-    val options: Map[String, String] =
-      if (until.isBefore(Instant.now())) {
-        Map(UserLogDao.OptionReason -> reason)
-      } else {
-        Map(UserLogDao.OptionReason -> reason, UserLogDao.OptionUntil -> until.toString)
-      }
-
-    val action = if (until.isBefore(Instant.now())) UserLogAction.Defrosted
-      else UserLogAction.Frozen
-
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      action.toDbName,
-      options.asJava
-    )
-  }
-
-  def logScore50(user: User, moderator: User): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, '')",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.Score50.toDbName
-    )
-  }
-
-  def logUnblockUser(user: User, moderator: User): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.UnblockUser.toDbName,
-      Map.empty[String, String].asJava
-    )
-  }
-
-  def logAcceptNewEmail(user: User, newEmail: String): Unit = transactional() { _ =>
-    var map = Map[String, Any]()
-
-    map = map + (UserLogDao.OptionNewEmail -> newEmail)
-
-    if (user.email != null) {
-      map = map + (UserLogDao.OptionOldEmail -> user.email)
-    }
-
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(user.id),
-      UserLogAction.AcceptNewEmail.toDbName,
-      map.asJava
-    )
-  }
-
-  def logResetInfo(user: User, moderator: User, userInfo: String, bonus: Int): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.ResetInfo.toDbName,
-      Map(
-        UserLogDao.OptionOldInfo -> userInfo,
-        UserLogDao.OptionBonus -> Int.box(bonus)
+  def logResetUserpic(user: User, actionUser: User, bonus: Int): Unit =
+    springDB.run {
+      val info: ju.Map[String, String] = (
+        Map.empty[String, String] ++ Option.when(bonus != 0)(UserLogDao.OptionBonus -> bonus.toString) ++
+          Option.when(user.photo != null)(UserLogDao.OptionOldUserpic -> user.photo)
       ).asJava
-    )
-  }
 
-  def logResetUrl(user: User, moderator: User, url: String, bonus: Int): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.ResetUrl.toDbName,
-      Map(
-        UserLogDao.OptionOldUrl -> url,
-        UserLogDao.OptionBonus -> Int.box(bonus)
-      ).asJava
-    )
-  }
-
-  def logResetTown(user: User, moderator: User, town: String, bonus: Int): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.ResetTown.toDbName,
-      Map(
-        UserLogDao.OptionOldTown -> town,
-        UserLogDao.OptionBonus -> Int.box(bonus)
-      ).asJava
-    )
-  }
-
-  def logSentPasswordReset(resetFor: User, @Nullable resetBy: User, email: String): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(resetFor.id),
-      Int.box(if (resetBy != null) resetBy.id else resetFor.id),
-      UserLogAction.SentPasswordReset.toDbName,
-      Map(UserLogDao.OptionEmail -> email).asJava
-    )
-  }
-
-  def logResetPassword(user: User, moderator: User): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.ResetPassword.toDbName,
-      Map.empty[String, String].asJava
-    )
-  }
-
-  def logSetPassword(user: User, ip: String): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(user.id),
-      UserLogAction.SetPassword.toDbName,
-      Map(UserLogDao.OptionIp -> ip).asJava
-    )
-  }
-
-  def logSetUserInfo(user: User, info: java.util.Map[String, String]): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(user.id),
-      UserLogAction.SetInfo.toDbName,
-      info
-    )
-  }
-
-  def getLogItems(user: User, includeSelf: Boolean): Seq[UserLogItem] = {
-    val sql =
-      if (includeSelf) {
-        "SELECT id, userid, action_userid, action_date, action, info FROM user_log WHERE userid=? ORDER BY id DESC"
-      } else {
-        "SELECT id, userid, action_userid, action_date, action, info FROM user_log WHERE userid=? AND userid!=action_userid ORDER BY id DESC"
-      }
-
-    jdbcTemplate.queryAndMap(
-      sql,
-      user.id
-    ) { (rs, _) =>
-      val options = 
-        rs
-          .getObject("info")
-          .asInstanceOf[util.Map[String, String]]
-          .asScala
-          .view
-          .mapValues(v => if (v == null) "" else v)
-          .toMap
-      
-      UserLogItem(
-        rs.getInt("id"),
-        rs.getInt("userid"),
-        rs.getInt("action_userid"),
-        rs.getTimestamp("action_date").toInstant,
-        UserLogAction.fromDbName(rs.getString("action")),
-        options)
+      insertLog(user.id, actionUser.id, UserLogAction.ResetUserpic, info)
     }
-  }
 
-  def getUserpicSetCount(user: User, duration: Duration): Int = {
-    jdbcTemplate.queryForObject[Int](
-      "SELECT count(*) FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>?",
-      Int.box(user.id),
-      UserLogAction.SetUserpic.toDbName,
-      OffsetDateTime.now().minus(duration)
-    ).get
-  }
+  def logSetUserpic(user: User, userpic: String): Unit =
+    springDB.run {
+      val info: ju.Map[String, String] = (
+        Map.empty[String, String] ++ Option.when(user.photo != null)(UserLogDao.OptionOldUserpic -> user.photo) +
+          (UserLogDao.OptionNewUserpic -> userpic)
+      ).asJava
 
-  def hasRecentModerationEvent(user: User, duration: Duration, action: UserLogAction): Boolean = {
-    jdbcTemplate.queryForObject[Boolean](
-      "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid!=action_userid)",
-      Int.box(user.id),
-      action.toDbName,
-      OffsetDateTime.now().minus(duration)
-    ).get
-  }
+      insertLog(user.id, user.id, UserLogAction.SetUserpic, info)
+    }
 
-  def hasRecentSelfEvent(user: User, duration: Duration, action: UserLogAction): Boolean = {
-    jdbcTemplate.queryForObject[Boolean](
-      "SELECT EXISTS (SELECT * FROM user_log WHERE userid=? AND action=?::user_log_action AND action_date>? AND userid=action_userid)",
-      Int.box(user.id),
-      action.toDbName,
-      OffsetDateTime.now().minus(duration)
-    ).get
-  }
+  def logBlockUser(user: User, moderator: User, reason: String): Unit =
+    springDB.run {
+      insertLog(user.id, moderator.id, UserLogAction.BlockUser, Map(UserLogDao.OptionReason -> reason).asJava)
+    }
 
-  def getRecentlyHasEvent(action: UserLogAction): Seq[Int] = {
-    jdbcTemplate.queryForSeq[Int](
-      "SELECT userid FROM user_log WHERE action=?::user_log_action AND action_date>CURRENT_TIMESTAMP - interval '3 days' ORDER BY action_date",
-      action.toDbName
-    )
-  }
+  def logFreezeUser(user: User, moderator: User, reason: String, until: Instant): Unit =
+    springDB.run {
+      val action =
+        if until.isBefore(Instant.now()) then
+          UserLogAction.Defrosted
+        else
+          UserLogAction.Frozen
 
-  def logRegister(userid: Int, ip: String, userAgent: Int, language: Option[String]): Unit = transactional() { _ =>
-    var map = Map[String, String]()
+      val info: ju.Map[String, String] =
+        if until.isBefore(Instant.now()) then
+          Map(UserLogDao.OptionReason -> reason).asJava
+        else
+          Map(UserLogDao.OptionReason -> reason, UserLogDao.OptionUntil -> until.toString).asJava
 
-    map = map + (UserLogDao.OptionIp -> ip)
-    map = map + (UserLogDao.OptionUserAgent -> Integer.toString(userAgent))
-    language.foreach(lang => map = map + (UserLogDao.OptionAcceptLanguage -> lang))
+      insertLog(user.id, moderator.id, action, info)
+    }
 
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(userid),
-      Int.box(userid),
-      UserLogAction.Register.toDbName,
-      map.asJava
-    )
-  }
+  def logScore50(user: User, moderator: User): Unit =
+    springDB.run {
+      insertLog(user.id, moderator.id, UserLogAction.Score50, ju.Collections.emptyMap[String, String]())
+    }
 
-  def setCorrector(user: User, moderator: User): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.SetCorrector.toDbName,
-      Map.empty[String, String].asJava
-    )
-  }
+  def logUnblockUser(user: User, moderator: User): Unit =
+    springDB.run {
+      insertLog(user.id, moderator.id, UserLogAction.UnblockUser, ju.Collections.emptyMap[String, String]())
+    }
 
-  def unsetCorrector(user: User, moderator: User): Unit = transactional() { _ =>
-    jdbcTemplate.update(
-      "INSERT INTO user_log (userid, action_userid, action_date, action, info) VALUES (?,?,CURRENT_TIMESTAMP, ?::user_log_action, ?)",
-      Int.box(user.id),
-      Int.box(moderator.id),
-      UserLogAction.UnsetCorrector.toDbName,
-      Map.empty[String, String].asJava
-    )
-  }
-}
+  def logAcceptNewEmail(user: User, newEmail: String): Unit =
+    springDB.run {
+      val info: ju.Map[String, String] = (
+        Map(UserLogDao.OptionNewEmail -> newEmail) ++
+          Option.when(user.email != null)(UserLogDao.OptionOldEmail -> user.email)
+      ).asJava
 
-object UserLogDao {
+      insertLog(user.id, user.id, UserLogAction.AcceptNewEmail, info)
+    }
+
+  def logResetInfo(user: User, moderator: User, userInfo: String, bonus: Int): Unit =
+    springDB.run {
+      val info = Map(UserLogDao.OptionOldInfo -> userInfo, UserLogDao.OptionBonus -> bonus.toString).asJava
+      insertLog(user.id, moderator.id, UserLogAction.ResetInfo, info)
+    }
+
+  def logResetUrl(user: User, moderator: User, url: String, bonus: Int): Unit =
+    springDB.run {
+      val info = Map(UserLogDao.OptionOldUrl -> url, UserLogDao.OptionBonus -> bonus.toString).asJava
+      insertLog(user.id, moderator.id, UserLogAction.ResetUrl, info)
+    }
+
+  def logResetTown(user: User, moderator: User, town: String, bonus: Int): Unit =
+    springDB.run {
+      val info = Map(UserLogDao.OptionOldTown -> town, UserLogDao.OptionBonus -> bonus.toString).asJava
+      insertLog(user.id, moderator.id, UserLogAction.ResetTown, info)
+    }
+
+  def logSentPasswordReset(
+      resetFor: User,
+      @Nullable
+      resetBy: User,
+      email: String): Unit =
+    springDB.run {
+      val actionUserId =
+        if resetBy != null then
+          resetBy.id
+        else
+          resetFor.id
+      insertLog(resetFor.id, actionUserId, UserLogAction.SentPasswordReset, Map(UserLogDao.OptionEmail -> email).asJava)
+    }
+
+  def logResetPassword(user: User, moderator: User): Unit =
+    springDB.run {
+      insertLog(user.id, moderator.id, UserLogAction.ResetPassword, ju.Collections.emptyMap[String, String]())
+    }
+
+  def logSetPassword(user: User, ip: String): Unit =
+    springDB.run {
+      insertLog(user.id, user.id, UserLogAction.SetPassword, Map(UserLogDao.OptionIp -> ip).asJava)
+    }
+
+  def logSetUserInfo(user: User, info: ju.Map[String, String]): Unit =
+    springDB.run {
+      insertLog(user.id, user.id, UserLogAction.SetInfo, info)
+    }
+
+  def getLogItems(user: User, includeSelf: Boolean): Seq[UserLogItem] =
+    springDB.run {
+      if includeSelf then
+        sql"""SELECT id, userid, action_userid, action_date, action, info
+            FROM user_log WHERE userid=${user.id} ORDER BY id DESC""".map(toLogItem).list.apply()
+      else
+        sql"""SELECT id, userid, action_userid, action_date, action, info
+            FROM user_log WHERE userid=${user.id} AND userid!=action_userid ORDER BY id DESC"""
+          .map(toLogItem)
+          .list
+          .apply()
+    }
+
+  def getUserpicSetCount(user: User, duration: Duration): Int =
+    springDB.run {
+      sql"""SELECT count(*) FROM user_log
+          WHERE userid=${user.id} AND action=${UserLogAction
+          .SetUserpic
+          .toDbName}::user_log_action AND action_date>${OffsetDateTime.now().minus(duration)}"""
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .getOrElse(0)
+    }
+
+  def hasRecentModerationEvent(user: User, duration: Duration, action: UserLogAction): Boolean =
+    springDB.run {
+      sql"""SELECT EXISTS (SELECT * FROM user_log
+          WHERE userid=${user.id} AND action=${action.toDbName}::user_log_action AND action_date>${OffsetDateTime
+          .now()
+          .minus(duration)} AND userid!=action_userid)""".map(rs => rs.boolean(1)).single.apply().getOrElse(false)
+    }
+
+  def hasRecentSelfEvent(user: User, duration: Duration, action: UserLogAction): Boolean =
+    springDB.run {
+      sql"""SELECT EXISTS (SELECT * FROM user_log
+          WHERE userid=${user.id} AND action=${action.toDbName}::user_log_action AND action_date>${OffsetDateTime
+          .now()
+          .minus(duration)} AND userid=action_userid)""".map(rs => rs.boolean(1)).single.apply().getOrElse(false)
+    }
+
+  def getRecentlyHasEvent(action: UserLogAction): Seq[Int] =
+    springDB.run {
+      sql"""SELECT userid FROM user_log
+          WHERE action=${action
+          .toDbName}::user_log_action AND action_date>CURRENT_TIMESTAMP - interval '3 days' ORDER BY action_date"""
+        .map(rs => rs.int("userid"))
+        .list
+        .apply()
+    }
+
+  def logRegister(userid: Int, ip: String, userAgent: Int, language: Option[String]): Unit =
+    springDB.run {
+      val info: ju.Map[String, String] = (
+        Map(UserLogDao.OptionIp -> ip, UserLogDao.OptionUserAgent -> userAgent.toString) ++
+          language.map(lang => UserLogDao.OptionAcceptLanguage -> lang)
+      ).asJava
+
+      insertLog(userid, userid, UserLogAction.Register, info)
+    }
+
+  def setCorrector(user: User, moderator: User): Unit =
+    springDB.run {
+      insertLog(user.id, moderator.id, UserLogAction.SetCorrector, ju.Collections.emptyMap[String, String]())
+    }
+
+  def unsetCorrector(user: User, moderator: User): Unit =
+    springDB.run {
+      insertLog(user.id, moderator.id, UserLogAction.UnsetCorrector, ju.Collections.emptyMap[String, String]())
+    }
+
+  private def toLogItem(rs: WrappedResultSet): UserLogItem =
+    val options =
+      rs.get[ju.Map[String, String]]("info")
+        .asScala
+        .view
+        .mapValues(v =>
+          if v == null then
+            ""
+          else
+            v)
+        .toMap
+    UserLogItem(
+      rs.int("id"),
+      rs.int("userid"),
+      rs.int("action_userid"),
+      rs.timestamp("action_date").toInstant,
+      UserLogAction.fromDbName(rs.string("action")),
+      options)
+
+object UserLogDao:
   val OptionOldUserpic = "old_userpic"
   val OptionNewUserpic = "new_userpic"
   val OptionBonus = "bonus"
@@ -332,4 +250,3 @@ object UserLogDao {
   val OptionInvitedBy = "invited_by"
   val OptionAcceptLanguage = "accept_lang"
   val OptionUntil = "until"
-}
