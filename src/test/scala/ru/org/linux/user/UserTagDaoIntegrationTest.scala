@@ -14,35 +14,29 @@
  */
 package ru.org.linux.user
 
-import com.google.common.collect.ImmutableMap
 import org.junit.Assert.assertEquals
 import org.junit.{Before, Test}
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
+import ru.org.linux.scalikejdbc.SpringDB
+import scalikejdbc.*
 
-import javax.sql.DataSource
-
-object UserTagDaoIntegrationTest {
-  private val QueryCountFavoriteByUser = "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?"
-  private val QueryCountIgnoreByUser = "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?"
-}
+object UserTagDaoIntegrationTest
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextHierarchy(Array(
-  new ContextConfiguration(value = Array("classpath:database.xml")),
-  new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))
-))
-@Transactional
-class UserTagDaoIntegrationTest {
+@ContextHierarchy(
+  Array(
+    new ContextConfiguration(value = Array("classpath:database.xml")),
+    new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration])))) @Transactional
+class UserTagDaoIntegrationTest:
   @Autowired
   var userTagDao: UserTagDao = scala.compiletime.uninitialized
 
-  private var jdbcTemplate: JdbcTemplate = scala.compiletime.uninitialized
+  @Autowired
+  var springDB: SpringDB = scala.compiletime.uninitialized
 
   private var user1Id: Int = scala.compiletime.uninitialized
   private var user2Id: Int = scala.compiletime.uninitialized
@@ -53,31 +47,38 @@ class UserTagDaoIntegrationTest {
   private var tag4Id: Int = scala.compiletime.uninitialized
   private var tag5Id: Int = scala.compiletime.uninitialized
 
-  @Autowired
-  def setDataSource(ds: DataSource): Unit = {
-    jdbcTemplate = new JdbcTemplate(ds)
-  }
+  private def createUser(userName: String): Int =
+    springDB.run:
+      val userid = sql"select nextval('s_uid') as userid".map(rs => rs.int("userid")).single.apply().get
+      sql"INSERT INTO users (id, name, nick) VALUES ($userid, $userName, $userName)".update.apply()
+      userid
 
-  private def createUser(userName: String): Int = {
-    val userid = jdbcTemplate.queryForObject("SELECT nextval('s_uid') AS userid", classOf[Integer])
+  private def createTag(tagName: String): Int =
+    springDB.run:
+      sql"INSERT INTO tags_values (value) VALUES ($tagName) RETURNING id".map(rs => rs.int("id")).single.apply().get
 
-    jdbcTemplate.update(
-      "INSERT INTO users (id, name, nick) VALUES (?, ?, ?)",
-      userid: AnyRef, userName: AnyRef, userName: AnyRef
-    )
-    userid
-  }
+  private def countFavoriteByUser(userId: Int): Int =
+    springDB.run:
+      sql"SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=$userId"
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .get
 
-  private def createTag(tagName: String): Int = {
-    val insert = new SimpleJdbcInsert(jdbcTemplate)
-      .withTableName("tags_values")
-      .usingGeneratedKeyColumns("id")
+  private def countIgnoreByUser(userId: Int): Int =
+    springDB.run:
+      sql"SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=$userId"
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .get
 
-    insert.executeAndReturnKey(ImmutableMap.of[String, AnyRef]("value", tagName)).intValue()
-  }
+  private def countByTagId(tagId: Int): Int =
+    springDB.run:
+      sql"SELECT count(user_id) FROM user_tags WHERE tag_id=$tagId".map(rs => rs.int(1)).single.apply().get
 
   @Before
-  def prepareTestData(): Unit = {
+  def prepareTestData(): Unit =
     user1Id = createUser("UserTagDaoIntegrationTest_user1")
     user2Id = createUser("UserTagDaoIntegrationTest_user2")
 
@@ -86,9 +87,8 @@ class UserTagDaoIntegrationTest {
     tag3Id = createTag("UserTagDaoIntegrationTest_tag3")
     tag4Id = createTag("UserTagDaoIntegrationTest_tag4")
     tag5Id = createTag("UserTagDaoIntegrationTest_tag5")
-  }
 
-  private def prepareUserTags(): Unit = {
+  private def prepareUserTags(): Unit =
     userTagDao.addTag(user1Id, tag1Id, true)
     userTagDao.addTag(user2Id, tag1Id, true)
     userTagDao.addTag(user1Id, tag2Id, true)
@@ -101,89 +101,45 @@ class UserTagDaoIntegrationTest {
     userTagDao.addTag(user1Id, tag5Id, false)
     userTagDao.addTag(user2Id, tag5Id, true)
     userTagDao.addTag(user1Id, tag5Id, true)
-  }
 
   @Test
-  def addTest(): Unit = {
+  def addTest(): Unit =
     prepareUserTags()
 
     userTagDao.addTag(user1Id, tag1Id, false)
 
-    var result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountFavoriteByUser,
-      classOf[Integer], Integer.valueOf(user1Id))
-    assertEquals("Wrong count of user tags.", 5, result)
-
-    result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountIgnoreByUser,
-      classOf[Integer], Integer.valueOf(user1Id))
-    assertEquals("Wrong count of user tags.", 3, result)
-
-    result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountFavoriteByUser,
-      classOf[Integer], Integer.valueOf(user2Id))
-    assertEquals("Wrong count of user tags.", 5, result)
-
-    result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountIgnoreByUser,
-      classOf[Integer], Integer.valueOf(user2Id))
-    assertEquals("Wrong count of user tags.", 0, result)
-
-    result = jdbcTemplate.queryForObject(
-      "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
-      classOf[Integer], Integer.valueOf(tag1Id))
-    assertEquals("Wrong count of user tags.", 3, result)
-  }
+    assertEquals("Wrong count of user tags.", 5, countFavoriteByUser(user1Id))
+    assertEquals("Wrong count of user tags.", 3, countIgnoreByUser(user1Id))
+    assertEquals("Wrong count of user tags.", 5, countFavoriteByUser(user2Id))
+    assertEquals("Wrong count of user tags.", 0, countIgnoreByUser(user2Id))
+    assertEquals("Wrong count of user tags.", 3, countByTagId(tag1Id))
 
   @Test
-  def deleteOneTest(): Unit = {
+  def deleteOneTest(): Unit =
     prepareUserTags()
 
     userTagDao.deleteTag(user1Id, tag1Id, true)
     userTagDao.deleteTag(user1Id, tag2Id, true)
 
-    var result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountFavoriteByUser,
-      classOf[Integer], Integer.valueOf(user1Id))
-    assertEquals("Wrong count of user tags.", 3, result)
+    assertEquals("Wrong count of user tags.", 3, countFavoriteByUser(user1Id))
 
     userTagDao.deleteTag(user1Id, tag2Id, false)
 
-    result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountFavoriteByUser,
-      classOf[Integer], Integer.valueOf(user1Id))
-    assertEquals("Wrong count of user tags.", 3, result)
-
-    result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountIgnoreByUser,
-      classOf[Integer], Integer.valueOf(user1Id))
-    assertEquals("Wrong count of user tags.", 1, result)
-  }
+    assertEquals("Wrong count of user tags.", 3, countFavoriteByUser(user1Id))
+    assertEquals("Wrong count of user tags.", 1, countIgnoreByUser(user1Id))
 
   @Test
-  def deleteAllTest(): Unit = {
+  def deleteAllTest(): Unit =
     prepareUserTags()
 
     userTagDao.deleteTags(tag2Id)
 
-    var result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountFavoriteByUser,
-      classOf[Integer], Integer.valueOf(user1Id))
-    assertEquals("Wrong count of user tags.", 4, result)
-
-    result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountIgnoreByUser,
-      classOf[Integer], Integer.valueOf(user1Id))
-    assertEquals("Wrong count of user tags.", 1, result)
-
-    result = jdbcTemplate.queryForObject(
-      UserTagDaoIntegrationTest.QueryCountFavoriteByUser,
-      classOf[Integer], Integer.valueOf(user2Id))
-    assertEquals("Wrong count of user tags.", 4, result)
-  }
+    assertEquals("Wrong count of user tags.", 4, countFavoriteByUser(user1Id))
+    assertEquals("Wrong count of user tags.", 1, countIgnoreByUser(user1Id))
+    assertEquals("Wrong count of user tags.", 4, countFavoriteByUser(user2Id))
 
   @Test
-  def getTest(): Unit = {
+  def getTest(): Unit =
     prepareUserTags()
 
     var tags = userTagDao.getTags(user1Id, true)
@@ -191,10 +147,9 @@ class UserTagDaoIntegrationTest {
 
     tags = userTagDao.getTags(user1Id, false)
     assertEquals("Wrong count of user tags.", 2, tags.size)
-  }
 
   @Test
-  def getUserIdListByTagsTest(): Unit = {
+  def getUserIdListByTagsTest(): Unit =
     prepareUserTags()
     var userIdList = userTagDao.getUserIdListByTags(user1Id, Seq(tag1Id))
     assertEquals("Wrong count of user ID's.", 1, userIdList.size)
@@ -205,23 +160,16 @@ class UserTagDaoIntegrationTest {
     userTagDao.deleteTag(user1Id, tag5Id, true)
     userIdList = userTagDao.getUserIdListByTags(user1Id, Seq(tag5Id))
     assertEquals("Wrong count of user ID's.", 1, userIdList.size)
-  }
 
   @Test
-  def replaceTagTest(): Unit = {
+  def replaceTagTest(): Unit =
     prepareUserTags()
 
     userTagDao.replaceTag(tag2Id, tag1Id)
-    var result = jdbcTemplate.queryForObject(
-      "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
-      classOf[Integer], Integer.valueOf(tag1Id))
-    assertEquals("Wrong count of user tags.", 2, result)
+    assertEquals("Wrong count of user tags.", 2, countByTagId(tag1Id))
 
     userTagDao.deleteTags(tag1Id)
     userTagDao.replaceTag(tag2Id, tag1Id)
-    result = jdbcTemplate.queryForObject(
-      "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
-      classOf[Integer], Integer.valueOf(tag1Id))
-    assertEquals("Wrong count of user tags.", 3, result)
-  }
-}
+    assertEquals("Wrong count of user tags.", 3, countByTagId(tag1Id))
+
+end UserTagDaoIntegrationTest

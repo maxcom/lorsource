@@ -17,15 +17,15 @@ package ru.org.linux.user
 import munit.FunSuite
 import org.jsoup.Jsoup
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy, TestContextManager}
 import ru.org.linux.csrf.CSRFProtectionService
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.test.WebHelper
+import scalikejdbc.*
 import sttp.client4.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
 import java.io.File
-import javax.sql.DataSource
 
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database-admin.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
@@ -34,15 +34,13 @@ class UserpicControllerWebTest extends FunSuite with WebHelper:
   @Autowired
   private var userDao: UserDao = scala.compiletime.uninitialized
 
-  private var jdbcTemplate: JdbcTemplate = scala.compiletime.uninitialized
-
   @Autowired
-  def setDatasource(ds: DataSource): Unit =
-    jdbcTemplate = new JdbcTemplate(ds)
+  private var springDB: SpringDB = scala.compiletime.uninitialized
 
   private def rescueJB(): Unit =
     val user = userDao.getUser(userDao.findUserId("JB"))
-    jdbcTemplate.update("DELETE FROM user_log WHERE userid=?", user.id)
+    springDB.run:
+      sql"DELETE FROM user_log WHERE userid=${user.id}".update.apply()
     userDao.unblock(user)
 
   private def addPhoto(filename: String, auth: String) =
