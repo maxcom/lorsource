@@ -138,6 +138,6 @@ class GroupListDaoIntegrationTestConfiguration:
   def groupDao(springDB: SpringDB): GroupDao = new GroupDao(springDB)
 
   @Bean
-  def userDao(dataSource: javax.sql.DataSource): UserDao = new UserDao(dataSource)
+  def userDao(springDB: SpringDB): UserDao = new UserDao(springDB)
 
 end GroupListDaoIntegrationTestConfiguration

@@ -117,6 +117,6 @@ class MemoriesDaoIntegrationTestConfiguration:
   def memoriesDao(springDB: SpringDB): MemoriesDao = new MemoriesDao(springDB)
 
   @Bean
-  def userDao(dataSource: javax.sql.DataSource): UserDao = new UserDao(dataSource)
+  def userDao(springDB: SpringDB): UserDao = new UserDao(springDB)
 
 end MemoriesDaoIntegrationTestConfiguration

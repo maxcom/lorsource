@@ -33,7 +33,7 @@ class SimpleIntegrationTestConfiguration:
   def userTagDao(springDB: SpringDB): UserTagDao = UserTagDao(springDB)
 
   @Bean
-  def userDao(dataSource: DataSource): UserDao = UserDao(dataSource)
+  def userDao(springDB: SpringDB): UserDao = UserDao(springDB)
 
   @Bean
   def userService(

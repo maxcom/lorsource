@@ -210,6 +210,6 @@ class TopicListDaoIntegrationTestConfiguration:
   def topicListDao(springDB: SpringDB): TopicListDao = new TopicListDao(springDB)
 
   @Bean
-  def userDao(dataSource: javax.sql.DataSource): UserDao = new UserDao(dataSource)
+  def userDao(springDB: SpringDB): UserDao = new UserDao(springDB)
 
 end TopicListDaoIntegrationTestConfiguration

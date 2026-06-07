@@ -76,7 +76,7 @@
     <property name="dataSource" ref="datasource"/>
   </bean>
 
-  <tx:annotation-driven transaction-manager="txManager"/>
+  <tx:annotation-driven transaction-manager="txManager" proxy-target-class="true"/>
 
   <bean class="org.springframework.jdbc.core.JdbcTemplate" id="jdbcTemplate">
     <constructor-arg ref="datasource"/>
@@ -139,5 +139,5 @@
     <property name="concurrency" value="4"/>
   </bean>
 
-  <task:annotation-driven/>
+  <task:annotation-driven proxy-target-class="true"/>
 </beans>

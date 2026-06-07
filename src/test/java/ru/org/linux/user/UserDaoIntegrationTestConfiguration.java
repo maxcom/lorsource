@@ -17,13 +17,12 @@ package ru.org.linux.user;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.sql.DataSource;
+import ru.org.linux.scalikejdbc.SpringDB;
 
 @Configuration
 public class UserDaoIntegrationTestConfiguration {
   @Bean
-  public UserDao userDao(DataSource dataSource) {
-    return new UserDao(dataSource);
+  public UserDao userDao(SpringDB springDB) {
+    return new UserDao(springDB);
   }
 }

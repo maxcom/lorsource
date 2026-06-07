@@ -15,59 +15,25 @@
 package ru.org.linux.user
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.scala.jdbc.core.JdbcTemplate
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.section.SectionController.NonTech
-
-import javax.sql.DataSource
 
 @Component
-class ScoreUpdater(ds: DataSource, val transactionManager: PlatformTransactionManager) extends TransactionManagement with StrictLogging {
-
-  private val jdbcTemplate = new JdbcTemplate(ds)
+class ScoreUpdater(userDao: UserDao) extends StrictLogging:
 
   @Scheduled(cron = "1 0 1 */2 * *")
-  def updateScore(): Unit = transactional() { _ =>
+  def updateScore(): Unit =
     logger.info("Updating score")
-
-    jdbcTemplate.update("update users set score=score+1 " +
-      "where id in " +
-      "(select distinct comments.userid from comments, topics " +
-      "where comments.postdate>CURRENT_TIMESTAMP-'2 days'::interval " +
-      "and topics.id=comments.topic and " +
-      "not groupid in " + NonTech.mkString("(", ", ",")") + " and " +
-      "not comments.deleted and not topics.deleted and not topics.notop)")
-
-    updateMaxScore()
-  }
+    userDao.updateScore()
 
   @Scheduled(cron = "1 15 * * * *")
-  def updateMaxScore(): Unit = {
-    jdbcTemplate.update("update users set max_score=score where score>max_score")
-  }
+  def updateMaxScore(): Unit = userDao.updateMaxScore()
 
   @Scheduled(cron = "0 1 * * * *")
-  def block(): Unit = {
-    jdbcTemplate.update("update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and not blocked)")
-    jdbcTemplate.update("update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and blocked is null)")
-  }
+  def blockLowScoreUsers(): Unit = userDao.blockLowScoreUsers()
 
   @Scheduled(cron = "0 30 * * * *")
-  def deleteInactivated(): Unit = transactional() { _ =>
+  def deleteInactivated(): Unit =
     logger.info("Deleting non-activated accounts")
-
-    jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)")
-    jdbcTemplate.update("delete from topic_users_notified where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)")
-    val deleted = jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval")
-
-    jdbcTemplate.update("delete from ban_info where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)")
-    jdbcTemplate.update("delete from user_events where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)")
-    jdbcTemplate.update("delete from topic_users_notified where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)")
-    val deletedBlocked = jdbcTemplate.update("delete from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval")
-
+    val (deleted, deletedBlocked) = userDao.deleteInactivatedAccounts()
     logger.info(s"Deleted $deleted non-activated; $deletedBlocked blocked accounts")
-  }
-}

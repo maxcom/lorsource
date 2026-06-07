@@ -29,4 +29,4 @@ class UserEventDaoIntegrationTestConfiguration:
   def userEventDao(springDB: SpringDB): UserEventDao = UserEventDao(springDB)
 
   @Bean
-  def userDao(dataSource: DataSource): UserDao = UserDao(dataSource)
+  def userDao(springDB: SpringDB): UserDao = UserDao(springDB)

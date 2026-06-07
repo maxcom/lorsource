@@ -94,7 +94,7 @@ class TopicDaoIntegrationTestConfiguration {
   def topicDao(ds: DataSource) = new TopicDao(ds)
 
   @Bean
-  def userDao(dataSource: DataSource) = new UserDao(dataSource)
+  def userDao(springDB: SpringDB) = new UserDao(springDB)
 
   @Bean
   def userInvitesDao(springDB: SpringDB) = new UserInvitesDao(springDB)

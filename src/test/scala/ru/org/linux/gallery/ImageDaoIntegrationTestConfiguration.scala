@@ -36,6 +36,6 @@ class ImageDaoIntegrationTestConfiguration:
   def sectionDao(springDB: SpringDB): SectionDao = new SectionDaoImpl(springDB)
 
   @Bean
-  def userDao(dataSource: DataSource): UserDao = new UserDao(dataSource)
+  def userDao(springDB: SpringDB): UserDao = new UserDao(springDB)
 
 end ImageDaoIntegrationTestConfiguration
