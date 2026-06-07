@@ -16,36 +16,21 @@
 package ru.org.linux.topic
 
 import com.google.common.base.Strings
-import org.springframework.dao.EmptyResultDataAccessException
-import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.{Propagation, Transactional}
 import ru.org.linux.group.Group
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.SectionScrollModeEnum
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
 import ru.org.linux.warning.RuleWarning
+import scalikejdbc.*
 
-import javax.sql.DataSource
 import java.sql.Timestamp
-import java.time.{LocalDate, ZoneId, ZonedDateTime}
-import scala.jdk.CollectionConverters.*
+import java.time.{LocalDate, OffsetDateTime, ZoneId}
 
 @Repository
 object TopicDao:
-  private val QueryMessage =
-    "SELECT " + "postdate, topics.id as msgid, userid, topics.title, " +
-      "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
-      "urlname, section, topics.sticky, topics.postip, " +
-      "COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-      "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
-      "topics.resolved, minor, draft, allow_anonymous, topics.reactions, " +
-      "COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, " + "topics.open_warnings " +
-      "FROM topics " + "INNER JOIN groups ON (groups.id=topics.groupid) " +
-      "INNER JOIN sections ON (sections.id=groups.section) " + "WHERE topics.id=?"
-
-  private val QueryTopicsIdByTime = "SELECT id FROM topics WHERE postdate>=? AND postdate<?"
-
   def equalStrings(s1: String, s2: String): Boolean =
     if Strings.isNullOrEmpty(s1) then
       Strings.isNullOrEmpty(s2)
@@ -53,335 +38,314 @@ object TopicDao:
       s1.equals(s2)
 
 @Repository
-class TopicDao(dataSource: DataSource):
-  private val jdbcTemplate: JdbcTemplate = new JdbcTemplate(dataSource)
-  private val namedJdbcTemplate: NamedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource)
+class TopicDao(springDB: SpringDB):
+
+  private def selectTopic(rs: WrappedResultSet): Topic = Topic.fromResultSet(rs.underlying)
 
   def getTimeFirstTopic: Timestamp =
-    jdbcTemplate.queryForObject(
-      "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp",
-      classOf[Timestamp])
+    springDB.run:
+      sql"SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp"
+        .map(rs => rs.timestamp("min"))
+        .single
+        .apply()
+        .orNull
 
   def updateLastmod(topicId: Int): Unit =
-    jdbcTemplate.update("UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=?", topicId)
+    springDB.run:
+      sql"UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=$topicId".update.apply()
 
   def getById(id: Int): Topic = findById(id).getOrElse(throw MessageNotFoundException(id))
 
   def findById(id: Int): Option[Topic] =
-    try
-      Some(
-        jdbcTemplate.queryForObject(
-          TopicDao.QueryMessage,
-          (resultSet: java.sql.ResultSet, _: Int) => Topic.fromResultSet(resultSet),
-          id))
-    catch
-      case _: EmptyResultDataAccessException =>
-        None
+    springDB.run:
+      sql"""SELECT postdate, topics.id as msgid, userid, topics.title,
+            topics.groupid as guid, topics.url, topics.linktext, ua_id,
+            urlname, section, topics.sticky, topics.postip,
+            COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
+            commitdate, topics.stat1, postscore, topics.moderate, notop,
+            topics.resolved, minor, draft, allow_anonymous, topics.reactions,
+            COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+            FROM topics
+            INNER JOIN groups ON (groups.id=topics.groupid)
+            INNER JOIN sections ON (sections.id=groups.section)
+            WHERE topics.id=$id""".map(selectTopic).single.apply()
 
   def getMessageForMonth(year: Int, month: Int): Seq[Int] =
-    val start = LocalDate.of(year, month, 1).atStartOfDay.atZone(ZoneId.systemDefault)
+    val start = LocalDate.of(year, month, 1).atStartOfDay.atZone(ZoneId.systemDefault).toOffsetDateTime
     val end = start.plusMonths(1)
 
-    jdbcTemplate
-      .query(
-        TopicDao.QueryTopicsIdByTime,
-        (resultSet: java.sql.ResultSet, _: Int) => resultSet.getInt("id"),
-        start.toOffsetDateTime,
-        end.toOffsetDateTime)
-      .asScala
-      .view
-      .map(_.intValue())
-      .toVector
+    springDB.run:
+      sql"SELECT id FROM topics WHERE postdate >= $start AND postdate < $end"
+        .map(rs => rs.int("id"))
+        .list
+        .apply()
+        .toVector
 
   def delete(msgid: Int): Boolean =
-    jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=? AND NOT deleted", msgid) > 0
+    springDB.run:
+      sql"UPDATE topics SET deleted='t',sticky='f' WHERE id=$msgid AND NOT deleted".update.apply() > 0
 
-  def undelete(message: Topic): Unit = jdbcTemplate.update("UPDATE topics SET deleted='f' WHERE id=?", message.id)
+  def undelete(message: Topic): Unit =
+    springDB.run:
+      sql"UPDATE topics SET deleted='f' WHERE id=${message.id}".update.apply()
 
-  private def allocateMsgid: Int = jdbcTemplate.queryForObject("select nextval('s_msgid') as msgid", classOf[Int])
-
+  @Transactional(propagation = Propagation.MANDATORY)
   def saveNewMessage(msg: Topic, user: User, userAgent: String, group: Group): Int =
-    val msgid = allocateMsgid
-
-    jdbcTemplate.update(
-      "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet, ?, CURRENT_TIMESTAMP, ?)",
-      group.id.asInstanceOf[AnyRef],
-      user.id.asInstanceOf[AnyRef],
-      msg.title,
-      msg.url,
-      Integer.valueOf(msgid),
-      msg.linktext,
-      userAgent,
-      msg.postIP,
-      java.lang.Boolean.valueOf(msg.draft),
-      java.lang.Boolean.valueOf(msg.allowAnonymous)
-    )
-
-    msgid
+    springDB.run:
+      val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
+      val truncatedUserAgent = userAgent.substring(0, Math.min(511, userAgent.length))
+      sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
+            VALUES (${group.id}, ${user.id}, ${msg.title}, ${msg.url}, 'f', CURRENT_TIMESTAMP, $msgid, ${msg
+          .linktext}, 'f', create_user_agent($truncatedUserAgent), ${msg.postIP}::inet, ${msg
+          .draft}, CURRENT_TIMESTAMP, ${msg.allowAnonymous})""".update.apply()
+      msgid
 
   def updateTitle(msgid: Int, title: String): Unit =
-    namedJdbcTemplate.update(
-      "UPDATE topics SET title=:title WHERE id=:id",
-      Map("title" -> title, "id" -> msgid.asInstanceOf[AnyRef]).asJava)
+    springDB.run:
+      sql"UPDATE topics SET title=$title WHERE id=$msgid".update.apply()
 
   def updateLinktext(msgid: Int, linktext: String): Unit =
-    namedJdbcTemplate.update(
-      "UPDATE topics SET linktext=:linktext WHERE id=:id",
-      Map("linktext" -> linktext, "id" -> msgid.asInstanceOf[AnyRef]).asJava)
+    springDB.run:
+      sql"UPDATE topics SET linktext=$linktext WHERE id=$msgid".update.apply()
 
   def updateUrl(msgid: Int, url: String): Unit =
-    namedJdbcTemplate.update(
-      "UPDATE topics SET url=:url WHERE id=:id",
-      Map("url" -> url, "id" -> msgid.asInstanceOf[AnyRef]).asJava)
+    springDB.run:
+      sql"UPDATE topics SET url=$url WHERE id=$msgid".update.apply()
 
   def setMinor(msgid: Int, minor: Boolean): Unit =
-    namedJdbcTemplate.update(
-      "UPDATE topics SET minor=:minor WHERE id=:id",
-      Map("minor" -> java.lang.Boolean.valueOf(minor), "id" -> msgid.asInstanceOf[AnyRef]).asJava)
+    springDB.run:
+      sql"UPDATE topics SET minor=$minor WHERE id=$msgid".update.apply()
 
   def commit(msg: Topic, commiter: User): Unit =
-    jdbcTemplate.update(
-      "UPDATE topics SET moderate='t', commitby=?, commitdate=CURRENT_TIMESTAMP, lastmod=CURRENT_TIMESTAMP WHERE id=?",
-      commiter.id.asInstanceOf[AnyRef],
-      msg.id.asInstanceOf[AnyRef]
-    )
+    springDB.run:
+      sql"UPDATE topics SET moderate='t', commitby=${commiter
+          .id}, commitdate=CURRENT_TIMESTAMP, lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
 
   def publish(msg: Topic): Unit =
-    jdbcTemplate.update(
-      "UPDATE topics SET draft='f',postdate=CURRENT_TIMESTAMP,lastmod=CURRENT_TIMESTAMP WHERE id=? AND draft",
-      msg.id.asInstanceOf[AnyRef])
+    springDB.run:
+      sql"UPDATE topics SET draft='f',postdate=CURRENT_TIMESTAMP,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id} AND draft"
+        .update
+        .apply()
 
   def uncommit(msg: Topic): Unit =
-    jdbcTemplate.update(
-      "UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?",
-      msg.id.asInstanceOf[AnyRef])
+    springDB.run:
+      sql"UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=${msg.id}".update.apply()
 
   def getPreviousMessage(message: Topic, currentUser: User, scrollMode: SectionScrollModeEnum): Option[Topic] =
     if message.sticky then
       return None
 
-    val res =
+    springDB.run {
       scrollMode match
         case SectionScrollModeEnum.SECTION =>
-          jdbcTemplate.queryForList(
-            "SELECT topics.id as msgid " + "FROM topics " + "WHERE topics.commitdate=" +
-              "(SELECT commitdate FROM topics, groups, sections WHERE NOT draft AND sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND NOT sticky ORDER BY commitdate DESC LIMIT 1)",
-            classOf[Integer],
-            message.commitDate,
-            message.sectionId
-          )
+          sql"""SELECT postdate, topics.id as msgid, userid, topics.title,
+                topics.groupid as guid, topics.url, topics.linktext, ua_id,
+                urlname, section, topics.sticky, topics.postip,
+                COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
+                commitdate, topics.stat1, postscore, topics.moderate, notop,
+                topics.resolved, minor, draft, allow_anonymous, topics.reactions,
+                COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                FROM topics
+                INNER JOIN groups ON (groups.id=topics.groupid)
+                INNER JOIN sections ON (sections.id=groups.section)
+                WHERE topics.id=(SELECT t.id FROM topics t, groups g, sections s
+                  WHERE NOT t.draft AND s.id=g.section AND t.commitdate<${message.commitDate}
+                  AND t.groupid=g.id AND g.section=${message.sectionId}
+                  AND (t.moderate OR NOT s.moderate) AND NOT t.deleted AND NOT t.sticky
+                  ORDER BY t.commitdate DESC LIMIT 1)""".map(selectTopic).single.apply()
 
         case SectionScrollModeEnum.GROUP =>
           if currentUser == null || currentUser.anonymous then
-            jdbcTemplate.queryForList(
-              "SELECT topics.id " + "FROM topics " +
-                "WHERE NOT draft AND topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate DESC LIMIT 1",
-              classOf[Integer],
-              message.postdate,
-              message.groupId
-            )
+            sql"""SELECT postdate, topics.id as msgid, userid, topics.title,
+                  topics.groupid as guid, topics.url, topics.linktext, ua_id,
+                  urlname, section, topics.sticky, topics.postip,
+                  COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
+                  commitdate, topics.stat1, postscore, topics.moderate, notop,
+                  topics.resolved, minor, draft, allow_anonymous, topics.reactions,
+                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                  FROM topics
+                  INNER JOIN groups ON (groups.id=topics.groupid)
+                  INNER JOIN sections ON (sections.id=groups.section)
+                  WHERE NOT topics.draft AND topics.postdate<${message.postdate} AND topics.groupid=${message.groupId}
+                  AND NOT topics.deleted AND NOT topics.sticky ORDER BY topics.postdate DESC LIMIT 1"""
+              .map(selectTopic)
+              .single
+              .apply()
           else
-            jdbcTemplate.queryForList(
-              "SELECT topics.id as msgid " + "FROM topics " +
-                "WHERE NOT draft AND topics.postdate<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
-                "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postdate DESC LIMIT 1",
-              classOf[Integer],
-              message.postdate,
-              message.groupId,
-              currentUser.id
-            )
+            sql"""SELECT postdate, topics.id as msgid, userid, topics.title,
+                  topics.groupid as guid, topics.url, topics.linktext, ua_id,
+                  urlname, section, topics.sticky, topics.postip,
+                  COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
+                  commitdate, topics.stat1, postscore, topics.moderate, notop,
+                  topics.resolved, minor, draft, allow_anonymous, topics.reactions,
+                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                  FROM topics
+                  INNER JOIN groups ON (groups.id=topics.groupid)
+                  INNER JOIN sections ON (sections.id=groups.section)
+                  WHERE NOT topics.draft AND topics.postdate<${message.postdate} AND topics.groupid=${message.groupId}
+                  AND NOT topics.deleted AND NOT topics.sticky
+                  AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=${currentUser.id})
+                  ORDER BY topics.postdate DESC LIMIT 1""".map(selectTopic).single.apply()
 
         case SectionScrollModeEnum.NO_SCROLL | _ =>
-          return None
-
-    if res.isEmpty || res.get(0) == null then
-      None
-    else
-      try
-        Some(getById(res.get(0).intValue()))
-      catch
-        case _: MessageNotFoundException =>
           None
+    }
   end getPreviousMessage
 
   def getNextMessage(message: Topic, currentUser: User, scrollMode: SectionScrollModeEnum): Option[Topic] =
     if message.sticky then
       return None
 
-    val res =
+    springDB.run {
       scrollMode match
         case SectionScrollModeEnum.SECTION =>
-          jdbcTemplate.queryForList(
-            "SELECT topics.id as msgid " + "FROM topics " + "WHERE topics.commitdate=" +
-              "(SELECT commitdate FROM topics, groups, sections WHERE NOT draft AND sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND NOT sticky ORDER BY commitdate ASC LIMIT 1)",
-            classOf[Integer],
-            message.commitDate,
-            message.sectionId
-          )
+          sql"""SELECT postdate, topics.id as msgid, userid, topics.title,
+                topics.groupid as guid, topics.url, topics.linktext, ua_id,
+                urlname, section, topics.sticky, topics.postip,
+                COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
+                commitdate, topics.stat1, postscore, topics.moderate, notop,
+                topics.resolved, minor, draft, allow_anonymous, topics.reactions,
+                COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                FROM topics
+                INNER JOIN groups ON (groups.id=topics.groupid)
+                INNER JOIN sections ON (sections.id=groups.section)
+                WHERE topics.id=(SELECT t.id FROM topics t, groups g, sections s
+                  WHERE NOT t.draft AND s.id=g.section AND t.commitdate>${message.commitDate}
+                  AND t.groupid=g.id AND g.section=${message.sectionId}
+                  AND (t.moderate OR NOT s.moderate) AND NOT t.deleted AND NOT t.sticky
+                  ORDER BY t.commitdate ASC LIMIT 1)""".map(selectTopic).single.apply()
 
         case SectionScrollModeEnum.GROUP =>
           if currentUser == null || currentUser.anonymous then
-            jdbcTemplate.queryForList(
-              "SELECT topics.id as msgid " + "FROM topics " +
-                "WHERE NOT draft AND topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky ORDER BY postdate ASC LIMIT 1",
-              classOf[Integer],
-              message.postdate,
-              message.groupId
-            )
+            sql"""SELECT postdate, topics.id as msgid, userid, topics.title,
+                  topics.groupid as guid, topics.url, topics.linktext, ua_id,
+                  urlname, section, topics.sticky, topics.postip,
+                  COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
+                  commitdate, topics.stat1, postscore, topics.moderate, notop,
+                  topics.resolved, minor, draft, allow_anonymous, topics.reactions,
+                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                  FROM topics
+                  INNER JOIN groups ON (groups.id=topics.groupid)
+                  INNER JOIN sections ON (sections.id=groups.section)
+                  WHERE NOT topics.draft AND topics.postdate>${message.postdate} AND topics.groupid=${message.groupId}
+                  AND NOT topics.deleted AND NOT topics.sticky ORDER BY topics.postdate ASC LIMIT 1"""
+              .map(selectTopic)
+              .single
+              .apply()
           else
-            jdbcTemplate.queryForList(
-              "SELECT topics.id as msgid " + "FROM topics " +
-                "WHERE NOT draft AND topics.postdate>? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
-                "AND userid NOT IN (select ignored from ignore_list where userid=?) ORDER BY postdate ASC LIMIT 1",
-              classOf[Integer],
-              message.postdate,
-              message.groupId,
-              currentUser.id
-            )
+            sql"""SELECT postdate, topics.id as msgid, userid, topics.title,
+                  topics.groupid as guid, topics.url, topics.linktext, ua_id,
+                  urlname, section, topics.sticky, topics.postip,
+                  COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
+                  commitdate, topics.stat1, postscore, topics.moderate, notop,
+                  topics.resolved, minor, draft, allow_anonymous, topics.reactions,
+                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                  FROM topics
+                  INNER JOIN groups ON (groups.id=topics.groupid)
+                  INNER JOIN sections ON (sections.id=groups.section)
+                  WHERE NOT topics.draft AND topics.postdate>${message.postdate} AND topics.groupid=${message.groupId}
+                  AND NOT topics.deleted AND NOT topics.sticky
+                  AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=${currentUser.id})
+                  ORDER BY topics.postdate ASC LIMIT 1""".map(selectTopic).single.apply()
 
         case SectionScrollModeEnum.NO_SCROLL | _ =>
-          return None
-
-    if res.isEmpty || res.get(0) == null then
-      None
-    else
-      try
-        Some(getById(res.get(0).intValue()))
-      catch
-        case _: MessageNotFoundException =>
           None
+    }
   end getNextMessage
 
   def resolveMessage(msgid: Int, b: Boolean): Unit =
-    jdbcTemplate.update(
-      "UPDATE topics SET resolved=?,lastmod=lastmod+'1 second'::interval WHERE id=?",
-      java.lang.Boolean.valueOf(b),
-      msgid.asInstanceOf[AnyRef])
+    springDB.run:
+      sql"UPDATE topics SET resolved=$b,lastmod=lastmod+'1 second'::interval WHERE id=$msgid".update.apply()
 
   def setTopicOptions(msg: Topic, postscore: Int, sticky: Boolean, notop: Boolean): Unit =
-    jdbcTemplate.update(
-      "UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP WHERE id=?",
-      postscore.asInstanceOf[AnyRef],
-      java.lang.Boolean.valueOf(sticky),
-      java.lang.Boolean.valueOf(notop),
-      msg.id.asInstanceOf[AnyRef]
-    )
+    springDB.run:
+      sql"UPDATE topics SET postscore=$postscore, sticky=$sticky, notop=$notop, lastmod=CURRENT_TIMESTAMP WHERE id=${msg
+          .id}".update.apply()
 
   def changeGroup(msg: Topic, changeGroupId: Int): Unit =
-    jdbcTemplate.update(
-      "UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?",
-      changeGroupId.asInstanceOf[AnyRef],
-      msg.id.asInstanceOf[AnyRef])
+    springDB.run:
+      sql"UPDATE topics SET groupid=$changeGroupId,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
 
+  @Transactional(propagation = Propagation.MANDATORY)
   def moveTopic(msg: Topic, newGrp: Group): Unit =
-    val oldId = jdbcTemplate.queryForObject(
-      "SELECT groupid FROM topics WHERE id=? FOR UPDATE",
-      classOf[Integer],
-      msg.id.asInstanceOf[AnyRef])
+    springDB.run {
+      val oldId =
+        sql"SELECT groupid FROM topics WHERE id=${msg.id} FOR UPDATE".map(rs => rs.int("groupid")).single.apply().get
 
-    if oldId == newGrp.id then
-      return
-
-    changeGroup(msg, newGrp.id)
-
-    if !newGrp.linksAllowed then
-      jdbcTemplate.update("UPDATE topics SET linktext=null, url=null WHERE id=?", msg.id.asInstanceOf[AnyRef])
+      if oldId != newGrp.id then
+        sql"UPDATE topics SET groupid=${newGrp.id},lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
+        if !newGrp.linksAllowed then
+          sql"UPDATE topics SET linktext=null, url=null WHERE id=${msg.id}".update.apply()
+    }
   end moveTopic
 
+  @Transactional(propagation = Propagation.MANDATORY)
   def getUserTopicForUpdate(user: User): Seq[Int] =
-    jdbcTemplate
-      .queryForList(
-        "SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE",
-        classOf[Integer],
-        user.id.asInstanceOf[AnyRef])
-      .asScala
-      .view
-      .map(_.intValue())
-      .toVector
+    springDB.run:
+      sql"SELECT id FROM topics WHERE userid=${user.id} AND NOT deleted FOR UPDATE"
+        .map(rs => rs.int("id"))
+        .list
+        .apply()
+        .toVector
 
+  @Transactional(propagation = Propagation.MANDATORY)
   def getAllByIPForUpdate(ip: String, startTime: Timestamp): Seq[Int] =
-    jdbcTemplate
-      .queryForList(
-        "SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
-        classOf[Integer],
-        ip,
-        startTime)
-      .asScala
-      .view
-      .map(_.intValue())
-      .toVector
+    springDB.run:
+      sql"SELECT id FROM topics WHERE postip=$ip::inet AND NOT deleted AND postdate>$startTime FOR UPDATE"
+        .map(rs => rs.int("id"))
+        .list
+        .apply()
+        .toVector
 
   def getUncommitedCounts: Seq[(Int, Int)] =
-    jdbcTemplate
-      .query(
-        "select section, count(*) from topics,groups,sections where section=sections.id AND " +
-          "sections.moderate and not draft and topics.groupid=groups.id and not deleted and " +
-          "not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " +
-          "group by section order by section",
-        (rs: java.sql.ResultSet, _: Int) => rs.getInt("section") -> rs.getInt("count")
-      )
-      .asScala
-      .view
-      .map(p => p._1 -> p._2)
-      .toVector
+    springDB.run:
+      sql"""select section, count(*) from topics,groups,sections where section=sections.id AND
+            sections.moderate and not draft and topics.groupid=groups.id and not deleted and
+            not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)
+            group by section order by section""".map(rs => rs.int("section") -> rs.int("count")).list.apply().toVector
 
   def getUncommitedCount(sectionId: Int): Int =
-    val count = jdbcTemplate.queryForObject(
-      "SELECT count(*) FROM topics,groups,sections WHERE section=sections.id " +
-        "AND sections.moderate AND NOT draft AND topics.groupid=groups.id AND NOT deleted " +
-        "AND NOT topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " + "AND section=?",
-      classOf[Integer],
-      sectionId.asInstanceOf[AnyRef]
-    )
+    springDB.run:
+      sql"""SELECT count(*) FROM topics,groups,sections WHERE section=sections.id
+            AND sections.moderate AND NOT draft AND topics.groupid=groups.id AND NOT deleted
+            AND NOT topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) AND section=$sectionId"""
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .getOrElse(0)
 
-    if count != null then
-      count.intValue()
-    else
-      0
-
-  def countRecentTopics(userId: Int, sectionId: Int): Int = {
-    val count = jdbcTemplate.queryForObject(
-      """SELECT COUNT(*) FROM topics t
-        |LEFT JOIN del_info di ON di.msgid = t.id
-        |WHERE t.userid = ?
-        |AND t.postdate >= (CURRENT_TIMESTAMP - '24 hours'::interval)
-        |AND NOT t.draft
-        |AND NOT (t.deleted AND (di.msgid IS NULL OR di.delby = t.userid))
-        |AND EXISTS (SELECT 1 FROM groups g WHERE g.id = t.groupid AND g.section = ?)""".stripMargin,
-      classOf[Integer],
-      userId.asInstanceOf[AnyRef],
-      sectionId.asInstanceOf[AnyRef]
-    )
-
-    if count != null then
-      count.intValue()
-    else
-      0
-  }
+  def countRecentTopics(userId: Int, sectionId: Int): Int =
+    springDB.run:
+      sql"""SELECT COUNT(*) FROM topics t
+            LEFT JOIN del_info di ON di.msgid = t.id
+            WHERE t.userid = $userId
+            AND t.postdate >= (CURRENT_TIMESTAMP - '24 hours'::interval)
+            AND NOT t.draft
+            AND NOT (t.deleted AND (di.msgid IS NULL OR di.delby = t.userid))
+            AND EXISTS (SELECT 1 FROM groups g WHERE g.id = t.groupid AND g.section = $sectionId)"""
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .getOrElse(0)
 
   def hasDrafts(author: User): Boolean =
-    val res = jdbcTemplate.queryForList(
-      "select id FROM topics WHERE draft AND userid=? LIMIT 1",
-      classOf[Integer],
-      author.id.asInstanceOf[AnyRef])
-
-    !res.isEmpty
+    springDB.run:
+      sql"SELECT id FROM topics WHERE draft AND userid=${author.id} LIMIT 1"
+        .map(rs => rs.int("id"))
+        .single
+        .apply()
+        .isDefined
 
   def recalcWarningsCount(topicId: Int): Unit =
-    jdbcTemplate.update(
-      """update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
-        | and mw.comment is null and mw.closed_by is null and mw.warning_type=? and
-        | mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
-        | mw.author in (select id from users where score>100)) where topics.id=?""".stripMargin,
-      RuleWarning.id.asInstanceOf[AnyRef],
-      topicId.asInstanceOf[AnyRef]
-    )
+    springDB.run:
+      sql"""update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
+            and mw.comment is null and mw.closed_by is null and mw.warning_type=${RuleWarning.id} and
+            mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
+            mw.author in (select id from users where score>100)) where topics.id=$topicId""".update.apply()
 
   def recalcAllWarningsCount(): Unit =
-    jdbcTemplate.update(
-      """update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
-        | and mw.comment is null and mw.closed_by is null and mw.warning_type=? and
-        | mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
-        | mw.author in (select id from users where score>100)) where open_warnings > 0""".stripMargin,
-      RuleWarning.id.asInstanceOf[AnyRef]
-    )
+    springDB.run:
+      sql"""update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
+            and mw.comment is null and mw.closed_by is null and mw.warning_type=${RuleWarning.id} and
+            mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
+            mw.author in (select id from users where score>100)) where open_warnings > 0""".update.apply()
