@@ -215,7 +215,7 @@ class CommentDao(springDB: SpringDB):
             title = StringUtil.makeTitle(rs.string("title")),
             reason = rs.string("reason"),
             delDate = rs.timestamp("deldate"),
-            bonus = rs.int("bonus"),
+            bonus = rs.intOpt("bonus").getOrElse(0),
             commentId = rs.int("cid"),
             deleted = rs.boolean("comment_deleted"),
             postdate = rs.timestamp("postdate"),

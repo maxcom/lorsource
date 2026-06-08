@@ -212,6 +212,48 @@ class CommentDaoIntegrationTest:
     val result = commentDao.getAllByUserForUpdate(user)
     assertNotNull(result)
 
+  @Test
+  def testGetDeletedCommentsWhenTopicDeletedNotComment(): Unit =
+    val groupId = springDB.run:
+      sql"SELECT id FROM groups LIMIT 1".map(rs => rs.int("id")).single.apply().get
+
+    val newTopicId = springDB.run:
+      sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
+
+    springDB.run:
+      sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
+            VALUES ($groupId, $testUserId, 'deleted topic test', '', 't', CURRENT_TIMESTAMP, $newTopicId, '', 'f',
+                    create_user_agent('Integration test User Agent'), '127.0.0.1'::inet, 'f', CURRENT_TIMESTAMP, 'f')"""
+        .update
+        .apply()
+
+    val commentId = springDB.run:
+      sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
+
+    springDB.run:
+      sql"""INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id)
+            VALUES ($commentId, $testUserId, 'test comment', CURRENT_TIMESTAMP,
+                    ${null: Integer}, 'f', $newTopicId, '127.0.0.1'::inet,
+                    create_user_agent('Integration test User Agent'))"""
+        .update
+        .apply()
+      sql"INSERT INTO msgbase (id, message) VALUES ($commentId, 'test body')".update.apply()
+
+    springDB.run:
+      sql"UPDATE topics SET deleted='t' WHERE id = $newTopicId".update.apply()
+      sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
+            VALUES ($newTopicId, $testUserId, 'topic reason', CURRENT_TIMESTAMP, -5)"""
+        .update
+        .apply()
+
+    val result = commentDao.getDeletedComments(testUserId)
+    val item = result.find(_.commentId == commentId)
+    assertTrue("Should find comment deleted with its topic", item.isDefined)
+    assertNull("No reason from comdel when comment not individually deleted", item.get.reason)
+    assertEquals(0, item.get.bonus)
+    assertTrue(item.get.topicDeleted)
+    assertFalse(item.get.deleted)
+
 end CommentDaoIntegrationTest
 
 @Configuration @ImportResource(Array("classpath:database.xml", "classpath:common.xml"))
