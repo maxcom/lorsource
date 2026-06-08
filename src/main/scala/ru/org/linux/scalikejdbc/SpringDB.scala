@@ -25,7 +25,11 @@ import javax.sql.DataSource
 import java.sql.PreparedStatement
 import java.util as ju
 
-class Transaction private[scalikejdbc]()
+opaque type Transaction = DBSession
+
+object Transaction:
+  private[scalikejdbc] def apply(session: DBSession): Transaction = session
+  given dbSession(using t: Transaction): DBSession = t
 
 @Component
 class SpringDB(dataSource: DataSource, val transactionManager: PlatformTransactionManager)
@@ -37,12 +41,12 @@ class SpringDB(dataSource: DataSource, val transactionManager: PlatformTransacti
     try f(using DBSession(conn, settings = settings))
     finally DataSourceUtils.releaseConnection(conn, dataSource)
 
-  def localTx[A](f: (DBSession, Transaction) ?=> A): A =
+  def localTx[A](f: Transaction ?=> A): A =
     transactional(): _ =>
       val conn = DataSourceUtils.getConnection(dataSource)
       try
-        given Transaction = new Transaction
-        f(using DBSession(conn, settings = settings), summon[Transaction])
+        given Transaction = Transaction(DBSession(conn, settings = settings))
+        f(using summon[Transaction])
       finally DataSourceUtils.releaseConnection(conn, dataSource)
 
 object SpringDB:

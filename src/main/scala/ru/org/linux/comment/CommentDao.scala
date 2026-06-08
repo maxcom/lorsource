@@ -17,6 +17,7 @@ package ru.org.linux.comment
 
 import org.springframework.stereotype.Repository
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
@@ -87,7 +88,7 @@ class CommentDao(springDB: SpringDB):
     springDB.run:
       sql"UPDATE comments SET deleted='t' WHERE id = $msgid AND NOT deleted".update.apply() > 0
 
-  def undeleteComment(comment: Comment)(using DBSession, Transaction): Unit =
+  def undeleteComment(comment: Comment)(using Transaction): Unit =
     sql"UPDATE comments SET deleted='f' WHERE id = ${comment.id}".update.apply()
 
   /** Обновляет статистику после удаления комментариев в одном топике.
@@ -125,13 +126,13 @@ class CommentDao(springDB: SpringDB):
     * @return
     *   список удаленных комментариев
     */
-  def getAllByUserForUpdate(user: User)(using DBSession, Transaction): Seq[Int] =
+  def getAllByUserForUpdate(user: User)(using Transaction): Seq[Int] =
     sql"SELECT id FROM comments WHERE userid = ${user.id} AND NOT deleted ORDER BY id DESC FOR UPDATE"
       .map(rs => rs.int("id"))
       .list
       .apply()
 
-  def getCommentsByIPAddressForUpdate(ip: String, timedelta: Timestamp)(using DBSession, Transaction): Seq[Int] =
+  def getCommentsByIPAddressForUpdate(ip: String, timedelta: Timestamp)(using Transaction): Seq[Int] =
     sql"SELECT id FROM comments WHERE postip = ${ip}::inet AND NOT deleted AND postdate > $timedelta ORDER BY id DESC FOR UPDATE"
       .map(rs => rs.int("id"))
       .list
@@ -142,7 +143,7 @@ class CommentDao(springDB: SpringDB):
     * @return
     *   идентификационный номер нового комментария
     */
-  def saveNewMessage(comment: Comment, userAgent: Option[String])(using DBSession, Transaction): Int =
+  def saveNewMessage(comment: Comment, userAgent: Option[String])(using Transaction): Int =
     val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     val truncatedUserAgent = userAgent.map(ua => ua.substring(0, Math.min(511, ua.length)))
     val replyToOpt = Option.when(comment.replyTo != 0)(comment.replyTo)

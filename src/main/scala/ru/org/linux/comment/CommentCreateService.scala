@@ -28,11 +28,11 @@ import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, E
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.*
 import ru.org.linux.util.ExceptionBindingErrorProcessor
-import scalikejdbc.DBSession
 
 import java.beans.PropertyEditorSupport
 import scala.collection.mutable
@@ -241,7 +241,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   }
 
   /* оповещение об ответе на коммент */
-  private def notifyReply(comment: Comment, commentId: Int, parentComment: Comment)(using DBSession, Transaction): Option[User] = {
+  private def notifyReply(comment: Comment, commentId: Int, parentComment: Comment)(using Transaction): Option[User] = {
     val notifyUser = if (parentComment.userid != comment.userid) {
       Some(userService.getUserCached(parentComment.userid))
         .filterNot(_.anonymous)

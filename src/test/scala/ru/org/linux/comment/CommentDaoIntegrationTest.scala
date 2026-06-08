@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
 import scalikejdbc.*

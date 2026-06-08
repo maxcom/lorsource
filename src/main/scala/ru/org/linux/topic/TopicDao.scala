@@ -19,6 +19,7 @@ import com.google.common.base.Strings
 import org.springframework.stereotype.Repository
 import ru.org.linux.group.Group
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.SectionScrollModeEnum
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
@@ -88,7 +89,7 @@ class TopicDao(springDB: SpringDB):
     springDB.run:
       sql"UPDATE topics SET deleted='f' WHERE id=${message.id}".update.apply()
 
-  def saveNewMessage(msg: Topic, user: User, userAgent: String, group: Group)(using DBSession, Transaction): Int =
+  def saveNewMessage(msg: Topic, user: User, userAgent: String, group: Group)(using Transaction): Int =
     val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     val truncatedUserAgent = userAgent.substring(0, Math.min(511, userAgent.length))
     sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
@@ -263,7 +264,7 @@ class TopicDao(springDB: SpringDB):
     springDB.run:
       sql"UPDATE topics SET groupid=$changeGroupId,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
 
-  def moveTopic(msg: Topic, newGrp: Group)(using DBSession, Transaction): Unit =
+  def moveTopic(msg: Topic, newGrp: Group)(using Transaction): Unit =
     val oldId =
       sql"SELECT groupid FROM topics WHERE id=${msg.id} FOR UPDATE".map(rs => rs.int("groupid")).single.apply().get
 
@@ -273,14 +274,14 @@ class TopicDao(springDB: SpringDB):
         sql"UPDATE topics SET linktext=null, url=null WHERE id=${msg.id}".update.apply()
   end moveTopic
 
-  def getUserTopicForUpdate(user: User)(using DBSession, Transaction): Seq[Int] =
+  def getUserTopicForUpdate(user: User)(using Transaction): Seq[Int] =
     sql"SELECT id FROM topics WHERE userid=${user.id} AND NOT deleted FOR UPDATE"
       .map(rs => rs.int("id"))
       .list
       .apply()
       .toVector
 
-  def getAllByIPForUpdate(ip: String, startTime: Timestamp)(using DBSession, Transaction): Seq[Int] =
+  def getAllByIPForUpdate(ip: String, startTime: Timestamp)(using Transaction): Seq[Int] =
     sql"SELECT id FROM topics WHERE postip=$ip::inet AND NOT deleted AND postdate>$startTime FOR UPDATE"
       .map(rs => rs.int("id"))
       .list

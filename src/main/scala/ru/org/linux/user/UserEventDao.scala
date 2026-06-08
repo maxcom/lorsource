@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.ReactionDao
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEvent.NoReaction
 import ru.org.linux.user.UserEventFilterEnum.DELETED
@@ -361,7 +362,7 @@ class UserEventDao(springDB: SpringDB):
   def insertCommentWatchNotification(
       comment: Comment,
       parentComment: Option[Comment],
-      commentId: Int)(using DBSession, Transaction): collection.Seq[Int] =
+      commentId: Int)(using Transaction): collection.Seq[Int] =
     val userIds =
       parentComment match
         case Some(parent) =>

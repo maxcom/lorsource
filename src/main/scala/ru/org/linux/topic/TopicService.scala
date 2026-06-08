@@ -29,6 +29,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{PollDao, PollVariant}
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
@@ -38,7 +39,6 @@ import ru.org.linux.util.LorHttpUtils
 
 import java.io.File
 import java.time.{Instant, OffsetDateTime}
-import scalikejdbc.DBSession
 
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 

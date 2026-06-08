@@ -23,9 +23,9 @@ import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.msgbase.InsertDeleteInfo
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserEventService, UserService}
-import scalikejdbc.DBSession
 
 import java.sql.Timestamp
 import scala.collection.mutable.ArrayBuffer
