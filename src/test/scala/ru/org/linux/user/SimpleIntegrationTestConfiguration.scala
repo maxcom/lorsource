@@ -27,7 +27,8 @@ import javax.sql.DataSource
 @Configuration
 class SimpleIntegrationTestConfiguration:
   @Bean
-  def springDB(dataSource: DataSource): SpringDB = SpringDB(dataSource)
+  def springDB(dataSource: DataSource, transactionManager: PlatformTransactionManager): SpringDB = 
+    SpringDB(dataSource, transactionManager)
 
   @Bean
   def userTagDao(springDB: SpringDB): UserTagDao = UserTagDao(springDB)

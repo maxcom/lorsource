@@ -16,6 +16,7 @@
 package ru.org.linux.user
 
 import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.scalikejdbc.SpringDB
 
 import javax.sql.DataSource
@@ -23,7 +24,8 @@ import javax.sql.DataSource
 @Configuration
 class UserEventDaoIntegrationTestConfiguration:
   @Bean
-  def springDB(dataSource: DataSource): SpringDB = SpringDB(dataSource)
+  def springDB(dataSource: DataSource,transactionManager: PlatformTransactionManager): SpringDB = 
+    SpringDB(dataSource, transactionManager)
 
   @Bean
   def userEventDao(springDB: SpringDB): UserEventDao = UserEventDao(springDB)

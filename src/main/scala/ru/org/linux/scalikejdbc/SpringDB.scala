@@ -16,7 +16,9 @@
 package ru.org.linux.scalikejdbc
 
 import org.springframework.jdbc.datasource.DataSourceUtils
+import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Component
+import org.springframework.transaction.PlatformTransactionManager
 import scalikejdbc.{DBSession, ParameterBinderFactory, SettingsProvider, TypeBinder}
 
 import javax.sql.DataSource
@@ -24,13 +26,18 @@ import java.sql.PreparedStatement
 import java.util as ju
 
 @Component
-class SpringDB(dataSource: DataSource):
+class SpringDB(dataSource: DataSource, val transactionManager: PlatformTransactionManager)
+    extends TransactionManagement:
   private val settings = SettingsProvider.default.copy(jtaDataSourceCompatible = _ => true)
 
   def run[A](f: DBSession ?=> A): A =
     val conn = DataSourceUtils.getConnection(dataSource)
     try f(using DBSession(conn, settings = settings))
     finally DataSourceUtils.releaseConnection(conn, dataSource)
+
+  def localTx[A](f: DBSession ?=> A): A =
+    transactional(): _ =>
+      run(f)
 
 object SpringDB:
   given hstorePbf: ParameterBinderFactory[ju.Map[String, String]] =
