@@ -25,7 +25,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.msgbase.DeleteInfoDao
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
 import scalikejdbc.*
@@ -131,7 +131,8 @@ class CommentDaoIntegrationTest:
     val comment = commentDao.getById(commentId)
     assertTrue("Comment should be deleted", comment.deleted)
 
-    commentDao.undeleteComment(comment)
+    springDB.localTx:
+      commentDao.undeleteComment(comment)
     val restored = commentDao.getById(commentId)
     assertFalse("Comment should be restored", restored.deleted)
 
@@ -202,14 +203,16 @@ class CommentDaoIntegrationTest:
   def testGetCommentsByIPAddressForUpdate(): Unit =
     val ip = "127.0.0.1"
     val timedelta = new java.sql.Timestamp(System.currentTimeMillis() - 86400000)
-    val result = commentDao.getCommentsByIPAddressForUpdate(ip, timedelta)
+    val result = springDB.localTx:
+      commentDao.getCommentsByIPAddressForUpdate(ip, timedelta)
     assertNotNull(result)
 
   @Test
   def testGetAllByUserForUpdate(): Unit =
     val user = mock(classOf[User])
     when(user.id).thenReturn(testUserId)
-    val result = commentDao.getAllByUserForUpdate(user)
+    val result = springDB.localTx:
+      commentDao.getAllByUserForUpdate(user)
     assertNotNull(result)
 
   @Test

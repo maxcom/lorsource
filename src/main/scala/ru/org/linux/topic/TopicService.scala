@@ -28,6 +28,7 @@ import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{PollDao, PollVariant}
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
@@ -37,6 +38,8 @@ import ru.org.linux.util.LorHttpUtils
 
 import java.io.File
 import java.time.{Instant, OffsetDateTime}
+import scalikejdbc.DBSession
+
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object TopicService {
@@ -55,11 +58,11 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
                    textService: MessageTextService, editHistoryDao: EditHistoryDao,
                    imageDao: ImageDao, siteConfig: SiteConfig, permissionService: GroupPermissionService,
-                   val transactionManager: PlatformTransactionManager) extends TransactionManagement with StrictLogging {
+                   val transactionManager: PlatformTransactionManager, springDB: SpringDB) extends TransactionManagement with StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
                  image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
-                 previewMsg: Topic): (Int, Set[Int]) = transactional() { _ =>
+                 previewMsg: Topic): (Int, Set[Int]) = springDB.localTx {
     val section = sectionService.getSection(group.sectionId)
 
     if (section.imagepost && image.isEmpty) {
@@ -340,7 +343,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
   def getUncommitedCount(section: Section): Int = topicDao.getUncommitedCount(section.id)
 
-  def moveTopic(msg: Topic, newGrp: Group, moveBy: User): Unit = transactional() { _ =>
+  def moveTopic(msg: Topic, newGrp: Group, moveBy: User): Unit = springDB.localTx {
     topicDao.moveTopic(msg, newGrp)
 
     if !newGrp.linksAllowed then

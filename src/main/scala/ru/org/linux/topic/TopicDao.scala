@@ -17,9 +17,8 @@ package ru.org.linux.topic
 
 import com.google.common.base.Strings
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.{Propagation, Transactional}
 import ru.org.linux.group.Group
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.section.SectionScrollModeEnum
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
@@ -89,16 +88,14 @@ class TopicDao(springDB: SpringDB):
     springDB.run:
       sql"UPDATE topics SET deleted='f' WHERE id=${message.id}".update.apply()
 
-  @Transactional(propagation = Propagation.MANDATORY)
-  def saveNewMessage(msg: Topic, user: User, userAgent: String, group: Group): Int =
-    springDB.run:
-      val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
-      val truncatedUserAgent = userAgent.substring(0, Math.min(511, userAgent.length))
-      sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
-            VALUES (${group.id}, ${user.id}, ${msg.title}, ${msg.url}, 'f', CURRENT_TIMESTAMP, $msgid, ${msg
+  def saveNewMessage(msg: Topic, user: User, userAgent: String, group: Group)(using DBSession, Transaction): Int =
+    val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
+    val truncatedUserAgent = userAgent.substring(0, Math.min(511, userAgent.length))
+    sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
+          VALUES (${group.id}, ${user.id}, ${msg.title}, ${msg.url}, 'f', CURRENT_TIMESTAMP, $msgid, ${msg
           .linktext}, 'f', create_user_agent($truncatedUserAgent), ${msg.postIP}::inet, ${msg
           .draft}, CURRENT_TIMESTAMP, ${msg.allowAnonymous})""".update.apply()
-      msgid
+    msgid
 
   def updateTitle(msgid: Int, title: String): Unit =
     springDB.run:
@@ -266,36 +263,29 @@ class TopicDao(springDB: SpringDB):
     springDB.run:
       sql"UPDATE topics SET groupid=$changeGroupId,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
 
-  @Transactional(propagation = Propagation.MANDATORY)
-  def moveTopic(msg: Topic, newGrp: Group): Unit =
-    springDB.run {
-      val oldId =
-        sql"SELECT groupid FROM topics WHERE id=${msg.id} FOR UPDATE".map(rs => rs.int("groupid")).single.apply().get
+  def moveTopic(msg: Topic, newGrp: Group)(using DBSession, Transaction): Unit =
+    val oldId =
+      sql"SELECT groupid FROM topics WHERE id=${msg.id} FOR UPDATE".map(rs => rs.int("groupid")).single.apply().get
 
-      if oldId != newGrp.id then
-        sql"UPDATE topics SET groupid=${newGrp.id},lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
-        if !newGrp.linksAllowed then
-          sql"UPDATE topics SET linktext=null, url=null WHERE id=${msg.id}".update.apply()
-    }
+    if oldId != newGrp.id then
+      sql"UPDATE topics SET groupid=${newGrp.id},lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
+      if !newGrp.linksAllowed then
+        sql"UPDATE topics SET linktext=null, url=null WHERE id=${msg.id}".update.apply()
   end moveTopic
 
-  @Transactional(propagation = Propagation.MANDATORY)
-  def getUserTopicForUpdate(user: User): Seq[Int] =
-    springDB.run:
-      sql"SELECT id FROM topics WHERE userid=${user.id} AND NOT deleted FOR UPDATE"
-        .map(rs => rs.int("id"))
-        .list
-        .apply()
-        .toVector
+  def getUserTopicForUpdate(user: User)(using DBSession, Transaction): Seq[Int] =
+    sql"SELECT id FROM topics WHERE userid=${user.id} AND NOT deleted FOR UPDATE"
+      .map(rs => rs.int("id"))
+      .list
+      .apply()
+      .toVector
 
-  @Transactional(propagation = Propagation.MANDATORY)
-  def getAllByIPForUpdate(ip: String, startTime: Timestamp): Seq[Int] =
-    springDB.run:
-      sql"SELECT id FROM topics WHERE postip=$ip::inet AND NOT deleted AND postdate>$startTime FOR UPDATE"
-        .map(rs => rs.int("id"))
-        .list
-        .apply()
-        .toVector
+  def getAllByIPForUpdate(ip: String, startTime: Timestamp)(using DBSession, Transaction): Seq[Int] =
+    sql"SELECT id FROM topics WHERE postip=$ip::inet AND NOT deleted AND postdate>$startTime FOR UPDATE"
+      .map(rs => rs.int("id"))
+      .list
+      .apply()
+      .toVector
 
   def getUncommitedCounts: Seq[(Int, Int)] =
     springDB.run:

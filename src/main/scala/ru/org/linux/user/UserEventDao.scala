@@ -16,10 +16,10 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.{Propagation, Transactional}
+import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.ReactionDao
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEvent.NoReaction
 import ru.org.linux.user.UserEventFilterEnum.DELETED
@@ -358,46 +358,43 @@ class UserEventDao(springDB: SpringDB):
         affectedUsers
     }
 
-  @Transactional(propagation = Propagation.MANDATORY)
   def insertCommentWatchNotification(
       comment: Comment,
       parentComment: Option[Comment],
-      commentId: Int): collection.Seq[Int] =
-    springDB.run {
-      val userIds =
-        parentComment match
-          case Some(parent) =>
-            sql"""SELECT memories.userid FROM memories
-              WHERE memories.topic = ${comment.topicId}
-              AND ${comment.userid} != memories.userid
-              AND memories.userid != ${parent.userid}
-              AND memories.userid != ${UserConstants.ANONYMOUS_ID}
-              AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors($commentId)))
-              AND watch""".map(rs => rs.int("userid")).list.apply()
-          case None =>
-            sql"""SELECT memories.userid FROM memories
-              WHERE memories.topic = ${comment.topicId}
-              AND ${comment.userid} != memories.userid
-              AND memories.userid != ${UserConstants.ANONYMOUS_ID}
-              AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=${comment
-                .userid})
-              AND watch""".map(rs => rs.int("userid")).list.apply()
+      commentId: Int)(using DBSession, Transaction): collection.Seq[Int] =
+    val userIds =
+      parentComment match
+        case Some(parent) =>
+          sql"""SELECT memories.userid FROM memories
+            WHERE memories.topic = ${comment.topicId}
+            AND ${comment.userid} != memories.userid
+            AND memories.userid != ${parent.userid}
+            AND memories.userid != ${UserConstants.ANONYMOUS_ID}
+            AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored IN (select get_branch_authors($commentId)))
+            AND watch""".map(rs => rs.int("userid")).list.apply()
+        case None =>
+          sql"""SELECT memories.userid FROM memories
+            WHERE memories.topic = ${comment.topicId}
+            AND ${comment.userid} != memories.userid
+            AND memories.userid != ${UserConstants.ANONYMOUS_ID}
+            AND NOT EXISTS (SELECT ignore_list.userid FROM ignore_list WHERE ignore_list.userid=memories.userid AND ignored=${comment
+              .userid})
+            AND watch""".map(rs => rs.int("userid")).list.apply()
 
-      if userIds.nonEmpty then
-        sql"""INSERT INTO user_events (userid, type, private, message_id, comment_id)
-              VALUES ({userid}, {type}, {private}, {message_id}, {comment_id})"""
-          .batchByName(
-            userIds.map(uid =>
-              Seq[(String, Any)](
-                "userid" -> uid,
-                "type" -> "WATCH",
-                "private" -> false,
-                "message_id" -> comment.topicId,
-                "comment_id" -> commentId))*)
-          .apply()
+    if userIds.nonEmpty then
+      sql"""INSERT INTO user_events (userid, type, private, message_id, comment_id)
+            VALUES ({userid}, {type}, {private}, {message_id}, {comment_id})"""
+        .batchByName(
+          userIds.map(uid =>
+            Seq[(String, Any)](
+              "userid" -> uid,
+              "type" -> "WATCH",
+              "private" -> false,
+              "message_id" -> comment.topicId,
+              "comment_id" -> commentId))*)
+        .apply()
 
-      userIds
-    }
+    userIds
 
   def getEventTypes(userId: Int): Seq[UserEventFilterEnum] =
     springDB.run {

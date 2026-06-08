@@ -16,9 +16,7 @@
 package ru.org.linux.comment
 
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Propagation
-import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
@@ -89,10 +87,8 @@ class CommentDao(springDB: SpringDB):
     springDB.run:
       sql"UPDATE comments SET deleted='t' WHERE id = $msgid AND NOT deleted".update.apply() > 0
 
-  @Transactional(propagation = Propagation.MANDATORY)
-  def undeleteComment(comment: Comment): Unit =
-    springDB.run:
-      sql"UPDATE comments SET deleted='f' WHERE id = ${comment.id}".update.apply()
+  def undeleteComment(comment: Comment)(using DBSession, Transaction): Unit =
+    sql"UPDATE comments SET deleted='f' WHERE id = ${comment.id}".update.apply()
 
   /** Обновляет статистику после удаления комментариев в одном топике.
     *
@@ -129,38 +125,32 @@ class CommentDao(springDB: SpringDB):
     * @return
     *   список удаленных комментариев
     */
-  @Transactional(propagation = Propagation.MANDATORY)
-  def getAllByUserForUpdate(user: User): Seq[Int] =
-    springDB.run:
-      sql"SELECT id FROM comments WHERE userid = ${user.id} AND NOT deleted ORDER BY id DESC FOR UPDATE"
-        .map(rs => rs.int("id"))
-        .list
-        .apply()
+  def getAllByUserForUpdate(user: User)(using DBSession, Transaction): Seq[Int] =
+    sql"SELECT id FROM comments WHERE userid = ${user.id} AND NOT deleted ORDER BY id DESC FOR UPDATE"
+      .map(rs => rs.int("id"))
+      .list
+      .apply()
 
-  @Transactional(propagation = Propagation.MANDATORY)
-  def getCommentsByIPAddressForUpdate(ip: String, timedelta: Timestamp): Seq[Int] =
-    springDB.run:
-      sql"SELECT id FROM comments WHERE postip = ${ip}::inet AND NOT deleted AND postdate > $timedelta ORDER BY id DESC FOR UPDATE"
-        .map(rs => rs.int("id"))
-        .list
-        .apply()
+  def getCommentsByIPAddressForUpdate(ip: String, timedelta: Timestamp)(using DBSession, Transaction): Seq[Int] =
+    sql"SELECT id FROM comments WHERE postip = ${ip}::inet AND NOT deleted AND postdate > $timedelta ORDER BY id DESC FOR UPDATE"
+      .map(rs => rs.int("id"))
+      .list
+      .apply()
 
   /** Добавить новый комментарий.
     *
     * @return
     *   идентификационный номер нового комментария
     */
-  @Transactional(propagation = Propagation.MANDATORY)
-  def saveNewMessage(comment: Comment, userAgent: Option[String]): Int =
-    springDB.run:
-      val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
-      val truncatedUserAgent = userAgent.map(ua => ua.substring(0, Math.min(511, ua.length)))
-      val replyToOpt = Option.when(comment.replyTo != 0)(comment.replyTo)
-      sql"""INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id)
-            VALUES ($msgid, ${comment.userid}, ${comment.title}, CURRENT_TIMESTAMP,
-                    $replyToOpt, 'f', ${comment.topicId}, ${comment.postIP}::inet,
-                    create_user_agent($truncatedUserAgent))""".update.apply()
-      msgid
+  def saveNewMessage(comment: Comment, userAgent: Option[String])(using DBSession, Transaction): Int =
+    val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
+    val truncatedUserAgent = userAgent.map(ua => ua.substring(0, Math.min(511, ua.length)))
+    val replyToOpt = Option.when(comment.replyTo != 0)(comment.replyTo)
+    sql"""INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id)
+          VALUES ($msgid, ${comment.userid}, ${comment.title}, CURRENT_TIMESTAMP,
+                  $replyToOpt, 'f', ${comment.topicId}, ${comment.postIP}::inet,
+                  create_user_agent($truncatedUserAgent))""".update.apply()
+    msgid
 
   /** Редактирование комментария.
     *

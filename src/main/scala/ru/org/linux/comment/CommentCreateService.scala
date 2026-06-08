@@ -27,10 +27,12 @@ import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, EditHistoryService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.*
 import ru.org.linux.util.ExceptionBindingErrorProcessor
+import scalikejdbc.DBSession
 
 import java.beans.PropertyEditorSupport
 import scala.collection.mutable
@@ -64,7 +66,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
                            floodProtector: FloodProtector, editHistoryService: EditHistoryService,
                            textService: MessageTextService, userEventService: UserEventService, msgbaseDao: MsgbaseDao,
                            ignoreListDao: IgnoreListDao, permissionService: TopicPermissionService,
-                           val transactionManager: PlatformTransactionManager)
+                           val transactionManager: PlatformTransactionManager, springDB: SpringDB)
     extends StrictLogging  with TransactionManagement {
   def requestValidator(binder: WebDataBinder): Unit = {
     binder.setValidator(new CommentRequestValidator)
@@ -204,7 +206,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    */
   @throws[MessageNotFoundException]
   def create(author: User, comment: Comment, commentBody: MessageText, remoteAddress: String,
-             xForwardedFor: Option[String], userAgent: Option[String]): (Int, Set[Int]) = transactional() { _ =>
+             xForwardedFor: Option[String], userAgent: Option[String]): (Int, Set[Int]) = springDB.localTx {
     Preconditions.checkArgument(comment.userid == author.id)
 
     val notifyUsers = Set.newBuilder[Int]
@@ -239,7 +241,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
   }
 
   /* оповещение об ответе на коммент */
-  private def notifyReply(comment: Comment, commentId: Int, parentComment: Comment): Option[User] = {
+  private def notifyReply(comment: Comment, commentId: Int, parentComment: Comment)(using DBSession, Transaction): Option[User] = {
     val notifyUser = if (parentComment.userid != comment.userid) {
       Some(userService.getUserCached(parentComment.userid))
         .filterNot(_.anonymous)

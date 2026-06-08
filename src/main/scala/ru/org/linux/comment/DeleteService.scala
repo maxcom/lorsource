@@ -22,8 +22,10 @@ import ru.org.linux.common.DeleteReasons
 import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.msgbase.InsertDeleteInfo
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserEventService, UserService}
+import scalikejdbc.DBSession
 
 import java.sql.Timestamp
 import scala.collection.mutable.ArrayBuffer
@@ -32,7 +34,7 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 @Service
 class DeleteService(commentDao: CommentDao, userService: UserService, userEventService: UserEventService,
                     deleteInfoDao: DeleteInfoDao, commentService: CommentReadService, topicDao: TopicDao,
-                    val transactionManager: PlatformTransactionManager) extends TransactionManagement {
+                    val transactionManager: PlatformTransactionManager, springDB: SpringDB) extends TransactionManagement {
   /**
    * Удаление топика и если удаляет модератор изменить автору score
    *
@@ -113,7 +115,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    * @return список id удаленных сообщений
    */
   def deleteByIPAddress(ip: String, timeDelta: Timestamp, reason: String)
-                       (using currentUser: AuthorizedSession): DeleteCommentResult = transactional() { _ =>
+                       (using currentUser: AuthorizedSession): DeleteCommentResult = springDB.localTx {
     assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
 
     val topics = topicDao.getAllByIPForUpdate(ip, timeDelta)
@@ -132,7 +134,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    */
   def deleteAllAndBlock(user: User, reason: String)
                        (using currentUser: AuthorizedSession): DeleteCommentResult = {
-    val result = transactional() { _ =>
+    val result = springDB.localTx {
       assert(currentUser.moderator, "Только модератор может выполнять массовое удаление")
 
       userService.block(user, currentUser.user, reason)
@@ -149,7 +151,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
   }
 
   def undeleteComment(comment: Comment)
-                 (using currentUser: AuthorizedSession): Unit = transactional() { _ =>
+                 (using currentUser: AuthorizedSession): Unit = springDB.localTx {
     assert(currentUser.moderator, "Только модератор может восстанавливать")
 
     val deleteInfo = deleteInfoDao.getDeleteInfo(comment.id, true)

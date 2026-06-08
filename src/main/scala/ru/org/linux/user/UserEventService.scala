@@ -19,12 +19,13 @@ import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
 import org.springframework.transaction.PlatformTransactionManager
-import org.springframework.transaction.annotation.Propagation
 import ru.org.linux.comment.Comment
 import ru.org.linux.msgbase.InsertDeleteInfo
+import ru.org.linux.scalikejdbc.Transaction
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEventFilterEnum.*
 import ru.org.linux.user.UserEventFilterEnum.DELETED
+import scalikejdbc.DBSession
 
 import java.util
 import scala.jdk.CollectionConverters.*
@@ -64,10 +65,8 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
   /**
    * Добавление уведомления об ответе на сообщение пользователя.
    */
-  def addReplyEvent(parentAuthor: User, topicId: Int, commentId: Int): Unit =
-    transactional(propagation = Propagation.MANDATORY) { _ =>
-      userEventDao.addEvent(ANSWERS.getType, parentAuthor.id, isPrivate = false, Some(topicId), Some(commentId), None)
-    }
+  def addReplyEvent(parentAuthor: User, topicId: Int, commentId: Int)(using DBSession, Transaction): Unit =
+    userEventDao.addEvent(ANSWERS.getType, parentAuthor.id, isPrivate = false, Some(topicId), Some(commentId), None)
 
   /**
    * Добавление уведомления о назначении тега сообщению.
@@ -170,10 +169,8 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
   }
 
   def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment],
-                                     commentId: Int): collection.Seq[Int] =
-    transactional(propagation = Propagation.MANDATORY) { _ =>
-      userEventDao.insertCommentWatchNotification(comment, parentComment, commentId)
-    }
+                                     commentId: Int)(using DBSession, Transaction): collection.Seq[Int] =
+    userEventDao.insertCommentWatchNotification(comment, parentComment, commentId)
 
   def getEventTypes(user: User): Seq[UserEventFilterEnum] = {
     val unsorted = userEventDao.getEventTypes(user.id).toSet
