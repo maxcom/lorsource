@@ -22,7 +22,7 @@ import ru.org.linux.spring.SiteConfig
 
 class HstsInterceptor(config: SiteConfig) extends HandlerInterceptor:
   private val HCaptchaSources = "https://hcaptcha.com https://*.hcaptcha.com"
-  private val PingAdminImageSource = "https://images.ping-admin.ru"
+  private val ImageSources = Seq("'self'", "data:", "https://images.ping-admin.ru", "https://cdn.jsdelivr.net")
 
   private val secureOrigin = origin(config.getSecureURI, "SecureUrl")
   private val webSocketOrigin = Option(config.getWSUrl).filter(_.nonEmpty).map(parseOrigin)
@@ -34,7 +34,7 @@ class HstsInterceptor(config: SiteConfig) extends HandlerInterceptor:
       s"form-action 'self' $secureOrigin; manifest-src 'self'; " +
       s"script-src 'self' 'unsafe-inline' 'unsafe-eval' $HCaptchaSources; " +
       s"style-src 'self' 'unsafe-inline' $HCaptchaSources; " +
-      s"img-src 'self' $PingAdminImageSource; font-src 'self'; " +
+      s"img-src ${ImageSources.mkString(" ")}; font-src 'self'; " +
       s"connect-src ${connectSources.mkString(" ")}; frame-src 'self' $HCaptchaSources"
 
   private def parseOrigin(url: String): String =
