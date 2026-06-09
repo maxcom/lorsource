@@ -22,7 +22,13 @@ import ru.org.linux.spring.SiteConfig
 
 class HstsInterceptor(config: SiteConfig) extends HandlerInterceptor:
   private val HCaptchaSources = "https://hcaptcha.com https://*.hcaptcha.com"
-  private val ImageSources = Seq("'self'", "data:", "https://images.ping-admin.ru", "https://cdn.jsdelivr.net")
+  private val ImageSources = Seq(
+    "'self'",
+    "data:",
+    "https://images.ping-admin.ru",
+    "https://cdn.jsdelivr.net",
+    "https://secure.gravatar.com"
+  )
 
   private val secureOrigin = origin(config.getSecureURI, "SecureUrl")
   private val webSocketOrigin = Option(config.getWSUrl).filter(_.nonEmpty).map(parseOrigin)
