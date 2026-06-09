@@ -286,7 +286,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     }
   }
 
-  private def massDelete(moderator: User, topics: collection.Seq[Int], comments: collection.Seq[Int],
+  private def massDelete(moderator: User, topics: Seq[Int], comments: Seq[Int],
                          reason: String, notifyUser: Boolean = true)(using Transaction): DeleteCommentResult = {
     // deleteTopics
     val deletedTopicsBuilder = Vector.newBuilder[InsertDeleteInfo]

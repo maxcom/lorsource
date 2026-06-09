@@ -42,7 +42,7 @@ class WarningDao(springDB: SpringDB):
       closedWhen = rs.timestampOpt("closed_when").map(_.toInstant)
     )
 
-  def loadForTopic(topicId: Int, forModerator: Boolean): collection.Seq[Warning] =
+  def loadForTopic(topicId: Int, forModerator: Boolean): Seq[Warning] =
     val filter =
       if forModerator then
         SQLSyntax.empty

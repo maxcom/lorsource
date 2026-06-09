@@ -180,9 +180,9 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService, springDB: S
     * @param errors объект ошибок
     * @return массив строк, содержащий описания ошибок
     */
-  private def errorsToStringList(errors: Errors): scala.collection.Seq[String] = {
+  private def errorsToStringList(errors: Errors): Seq[String] = {
     if (errors.hasErrors) {
-      errors.getAllErrors.asScala.map(_.getCode)
+      errors.getAllErrors.asScala.map(_.getCode).toSeq
     } else {
       Seq.empty
     }

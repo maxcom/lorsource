@@ -21,13 +21,12 @@ import ru.org.linux.site.DateFormats
 import java.time.format.{DateTimeFormatter, TextStyle}
 import java.time.temporal.ChronoUnit
 import java.time.{Instant, Month, ZoneId}
-import scala.collection.Seq
 import scala.jdk.CollectionConverters.*
 
 object TopicListTools {
   private val OldYearFormat = DateTimeFormatter.ofPattern("yyyy", DateFormats.RussianLocale)
   
-  def partitionOf(date: Instant, timezone: ZoneId, now: Instant) =
+  def partitionOf(date: Instant, timezone: ZoneId, now: Instant): String =
     def startOfToday = now.atZone(timezone).truncatedTo(ChronoUnit.DAYS)
     def startOfYesterday = now.atZone(timezone).truncatedTo(ChronoUnit.DAYS).minusDays(1)
     def yearAgo = now.atZone(timezone).withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS).minusYears(1)

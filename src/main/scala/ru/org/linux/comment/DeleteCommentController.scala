@@ -30,7 +30,6 @@ import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, UserErrorException, UserService}
 
 import java.util
-import scala.collection.Seq
 import scala.jdk.CollectionConverters.*
 
 @Controller

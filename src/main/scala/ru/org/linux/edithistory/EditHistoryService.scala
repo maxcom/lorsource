@@ -218,7 +218,7 @@ class EditHistoryService(
         title = topic.title,
         url = topic.url,
         linktext = topic.linktext,
-        tags = topicTagService.getTagRefs(topic),
+        tags = topicTagService.getTagRefs(topic).asJava,
         minor = topic.minor,
         image = maybeImage.flatMap(imageService.prepareImage).orNull,
         lastId = null,
@@ -333,7 +333,7 @@ class EditHistoryService(
     else
       Vector.empty
 
-  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): collection.Seq[EditHistoryRecord] =
+  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): Seq[EditHistoryRecord] =
     editHistoryDao.getEditInfo(id, objectTypeEnum)
 
   def editCount(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): Int =
@@ -342,7 +342,7 @@ class EditHistoryService(
 
   def insert(editHistoryRecord: EditHistoryRecord)(using Transaction): Unit = editHistoryDao.insert(editHistoryRecord)
 
-  def getEditorUsers(message: Topic, editInfoList: collection.Seq[EditHistoryRecord]): Set[User] =
+  def getEditorUsers(message: Topic, editInfoList: Seq[EditHistoryRecord]): Set[User] =
     val editors = editInfoList.view.map(_.editor).filterNot(_ == message.authorUserId).toSet
 
     userService.getUsersCached(editors).toSet

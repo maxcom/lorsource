@@ -29,15 +29,15 @@ import scala.jdk.CollectionConverters.ListHasAsScala
  * tags tag
  */
 class TagsTag extends TagSupport {
-  private var list: collection.Seq[TagRef] = scala.compiletime.uninitialized
+  private var list: Seq[TagRef] = scala.compiletime.uninitialized
   private var deletable: Boolean = false
 
-  def setList(list: util.List[TagRef]): Unit = this.list = list.asScala
+  def setList(list: util.List[TagRef]): Unit = this.list = list.asScala.toSeq
 
   def setDeletable(value: Boolean): Unit = deletable = value
 
   @throws[JspException]
-  override def doStartTag: Int = {
+  override def doStartTag(): Int = {
     val out = pageContext.getOut
 
     if (list != null) try {

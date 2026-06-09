@@ -53,6 +53,6 @@ class SectionController(sectionService: SectionService, groupService: GroupServi
 object SectionController {
   val NonTech: Set[Int] = Set(8404, 4068, 9326, 19405)
 
-  def groupsSorted(groups: collection.Seq[Group]): collection.Seq[Group] =
+  def groupsSorted(groups: Seq[Group]): Seq[Group] =
     groups.sortBy(g => (SectionController.NonTech.contains(g.id), g.id))
 }

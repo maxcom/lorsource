@@ -158,7 +158,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
                          (using session: AnySession): ModelAndView = {
     val deadline = TopicController.MoreLikeThisTimeout.fromNow
 
-    val tags = topicTagService.getTagRefs(topic).asScala
+    val tags = topicTagService.getTagRefs(topic)
     val moreLikeThis = moreLikeThisService.searchSimilar(topic, tags)
     val messageText = msgbaseDao.getMessageText(topic.id)
     val plainText = textService.extractPlainText(messageText)

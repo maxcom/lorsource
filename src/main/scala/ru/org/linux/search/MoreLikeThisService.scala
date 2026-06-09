@@ -37,7 +37,6 @@ import ru.org.linux.util.StringUtil
 
 import java.time.{Duration, Instant, ZoneId}
 import scala.beans.BeanProperty
-import scala.collection.Seq as MSeq
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.*
@@ -72,7 +71,7 @@ class MoreLikeThisService(
   breaker.onOpen { logger.warn("Similar topics lookup disabled") }
   breaker.onClose { logger.warn("Similar topics lookup enabled") }
 
-  def searchSimilar(topic: Topic, tags: MSeq[TagRef]): Future[Result] = {
+  def searchSimilar(topic: Topic, tags: Seq[TagRef]): Future[Result] = {
     val cachedValue = Option(cache.getIfPresent(topic.id))
 
     cachedValue.map(Future.successful).getOrElse {
@@ -104,7 +103,7 @@ class MoreLikeThisService(
     }
   }
 
-  private def makeQuery(topic: Topic, tags: MSeq[TagRef]): SearchRequest = {
+  private def makeQuery(topic: Topic, tags: Seq[TagRef]): SearchRequest = {
     val tagsQ = if (tags.nonEmpty) {
       Seq(tagsQuery(tags.map(_.name)))
     } else Seq.empty
@@ -197,7 +196,7 @@ class MoreLikeThisService(
     )
   }
 
-  private def tagsQuery(tags: MSeq[String]): Query = {
+  private def tagsQuery(tags: Seq[String]): Query = {
     Query.of(q => q
       .terms(TermsQuery.of(t => t
         .field("tag")

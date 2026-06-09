@@ -31,7 +31,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
    * @param events      список событий
    * @param withText возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
    */
-  def prepareSimple(events: collection.Seq[UserEvent], withText: Boolean): Seq[PreparedUserEvent] = {
+  def prepareSimple(events: Seq[UserEvent], withText: Boolean): Seq[PreparedUserEvent] = {
     val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor) ++ events.map(_.originUserId)).filter(_ != 0)
     val users = userService.getUsersCachedMap(userIds)
 
@@ -41,7 +41,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
   }
 
   private def prepare(event: UserEvent, withText: Boolean, users: Map[Int, User],
-                      tags: Map[Int, collection.Seq[String]]): PreparedUserEvent = {
+                      tags: Map[Int, Seq[String]]): PreparedUserEvent = {
     val msgid = if (event.isComment) event.cid else event.topicId
 
     val text = if (withText) {
@@ -83,7 +83,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
       bonus = loadBonus(event),
       section = sectionService.getSection(group.sectionId),
       group = group,
-      tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
+      tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle),
       lastId = event.id,
       date = event.eventDate,
       commentId = event.cid,
@@ -101,8 +101,8 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
     }).map(_.getBonus)
   }
 
-  private def groupFavorites(toGroup: scala.collection.Seq[UserEvent], users: Map[Int, User],
-                              tags: Map[Int, collection.Seq[String]]): Iterable[PreparedUserEvent] = {
+  private def groupFavorites(toGroup: Seq[UserEvent], users: Map[Int, User],
+                              tags: Map[Int, Seq[String]]): Iterable[PreparedUserEvent] = {
     // grouped by (topicId, unread)
     val grouped = toGroup.foldRight(Map.empty[(Int, Boolean), PreparedUserEvent]) { case (event, acc) =>
       acc.updatedWith((event.topicId, event.unread)) {
@@ -130,7 +130,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
             bonus = loadBonus(event),
             section = sectionService.getSection(group.sectionId),
             group = group,
-            tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle).toSeq,
+            tags = tags.getOrElse(event.topicId, Seq.empty).take(TopicTagService.MaxTagsInTitle),
             lastId = event.id,
             date = event.eventDate,
             commentId = event.cid,
@@ -150,8 +150,8 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
     grouped.values
   }
 
-  private def groupReactions(toGroup: scala.collection.Seq[UserEvent], users: Map[Int, User],
-                             tags: Map[Int, collection.Seq[String]]): Seq[PreparedUserEvent] = {
+  private def groupReactions(toGroup: Seq[UserEvent], users: Map[Int, User],
+                             tags: Map[Int, Seq[String]]): Seq[PreparedUserEvent] = {
      toGroup.foldRight(Vector.empty[PreparedUserEvent]) { case (event, acc) =>
        val replaceIdx = {
          val similarIdx = acc.indexWhere { existing =>
@@ -182,7 +182,7 @@ class UserEventPrepareService(msgbaseDao: MsgbaseDao, messageTextService: Messag
      }
   }
 
-  def prepareGrouped(events: collection.Seq[UserEvent], newDesign: Boolean): Seq[PreparedUserEvent] = {
+  def prepareGrouped(events: Seq[UserEvent], newDesign: Boolean): Seq[PreparedUserEvent] = {
     val userIds = (events.map(_.commentAuthor) ++ events.map(_.topicAuthor) ++ events.map(_.originUserId)).filter(_ != 0)
     val users = userService.getUsersCachedMap(userIds)
 

@@ -26,7 +26,7 @@ class SameIpDao(springDB: SpringDB):
       ip: Option[String],
       userAgent: Option[Int],
       score: Option[Int],
-      limit: Int): collection.Seq[PostListItem] =
+      limit: Int): Seq[PostListItem] =
     val ipQuery = ip.map(v => sqls"AND m.postip <<= ${v}::inet").getOrElse(SQLSyntax.empty)
     val userAgentQuery = userAgent.map(v => sqls"AND m.ua_id=${v}").getOrElse(SQLSyntax.empty)
     val scoreQuery = score

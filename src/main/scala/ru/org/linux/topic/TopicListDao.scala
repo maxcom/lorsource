@@ -133,7 +133,7 @@ object TopicListDao:
 @Repository
 class TopicListDao(springDB: SpringDB):
 
-  def getTopics(topicListRequest: TopicListRequest, currentUser: AnySession): collection.Seq[Topic] =
+  def getTopics(topicListRequest: TopicListRequest, currentUser: AnySession): Seq[Topic] =
     val conditions = TopicListDao.makeConditions(topicListRequest, currentUser.userOpt)
     val sort = TopicListDao.makeSortOrder(topicListRequest)
     val limitOffset = TopicListDao.makeLimitAndOffset(topicListRequest)
@@ -157,7 +157,7 @@ class TopicListDao(springDB: SpringDB):
             topics.reactions, COALESCE(commitdate, postdate) + sections.expire as expire_date,
             topics.open_warnings
             $fromClause
-            WHERE $conditions $sort $limitOffset""".map(rs => Topic.fromResultSet(rs.underlying)).list.apply().toSeq
+            WHERE $conditions $sort $limitOffset""".map(rs => Topic.fromResultSet(rs.underlying)).list.apply()
 
   private val DeletionBlockReason = "Блокировка пользователя с удалением сообщений"
   private val DeletionSpamReason = "4.6 Спам"
@@ -193,7 +193,7 @@ class TopicListDao(springDB: SpringDB):
     val query = SQLSyntax.join(fragments.toSeq, sqls" ")
 
     springDB.run:
-      sql"SELECT $query".map(rs => DeletedTopic(rs.underlying)).list.apply().toSeq
+      sql"SELECT $query".map(rs => DeletedTopic(rs.underlying)).list.apply()
 
   def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] =
     springDB.run:
@@ -201,7 +201,7 @@ class TopicListDao(springDB: SpringDB):
             del_info.delDate, bonus FROM topics,groups,users,del_info
             WHERE topics.userid=users.id AND topics.groupid=groups.id AND deleted AND del_info.msgid=topics.id
             AND delDate is not null AND topics.userid = ${user.id}
-            ORDER BY del_info.delDate DESC LIMIT $topics""".map(rs => DeletedTopic(rs.underlying)).list.apply().toSeq
+            ORDER BY del_info.delDate DESC LIMIT $topics""".map(rs => DeletedTopic(rs.underlying)).list.apply()
 
   def getUserSections(user: User): Seq[Int] =
     springDB.run:

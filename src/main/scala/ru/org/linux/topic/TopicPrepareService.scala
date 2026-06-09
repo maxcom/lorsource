@@ -43,10 +43,10 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
                           reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao,
                           warningService: WarningService) {
   def prepareTopic(message: Topic)(using session: AnySession): PreparedTopic =
-    prepareTopic(message, topicTagService.getTagRefs(message).asScala, minimizeCut = false, None,
+    prepareTopic(message, topicTagService.getTagRefs(message), minimizeCut = false, None,
       msgbaseDao.getMessageText(message.id), image = None, imageLazyLoad = false)
 
-  def prepareTopic(message: Topic, tags: collection.Seq[TagRef], text: MessageText,
+  def prepareTopic(message: Topic, tags: Seq[TagRef], text: MessageText,
                    warnings: Seq[Warning])(using session: AnySession): PreparedTopic =
     prepareTopic(message, tags, minimizeCut = false, None, text, None, Seq.empty, warnings, imageLazyLoad = false)
 
@@ -77,7 +77,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
    * @param poll        опрос к топику
    * @return подготовленный топик
    */
-  private def prepareTopic(topic: Topic, tags: collection.Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
+  private def prepareTopic(topic: Topic, tags: Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
                            text: MessageText, image: Option[Image], additionalImages: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty,
                            imageLazyLoad: Boolean)
                            (using session: AnySession): PreparedTopic = {
@@ -166,8 +166,8 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
    * @param loadUserpics флаг загрузки аватар
    * @return список подготовленных топиков
    */
-  def prepareTopics(messages: collection.Seq[Topic], loadUserpics: Boolean)
-                   (using user: AnySession): collection.Seq[PersonalizedPreparedTopic] = {
+  def prepareTopics(messages: Seq[Topic], loadUserpics: Boolean)
+                   (using user: AnySession): Seq[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
@@ -180,7 +180,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
     }
   }
 
-  private def loadTexts(messages: collection.Seq[Topic]) =
+  private def loadTexts(messages: Seq[Topic]) =
     msgbaseDao.getMessageText(messages.map(_.id))
 
   /**
@@ -189,7 +189,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
    * @param messages список топиков
    * @return список подготовленных топиков
    */
-  def prepareTopicForRSS(messages: collection.Seq[Topic]): Seq[PreparedTopic] = {
+  def prepareTopicForRSS(messages: Seq[Topic]): Seq[PreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 

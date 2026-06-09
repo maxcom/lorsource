@@ -23,11 +23,11 @@ import ru.org.linux.user.UserService
 @Service
 class SameIpService(userService: UserService, msgbaseDao: MsgbaseDao, textService: MessageTextService,
                     sameIpDao: SameIpDao) {
-  def getPosts(ip: Option[String], userAgent: Option[Int], score: Option[Int], limit: Int): collection.Seq[PreparedPostListItem] = {
+  def getPosts(ip: Option[String], userAgent: Option[Int], score: Option[Int], limit: Int): Seq[PreparedPostListItem] = {
     prepareCommentList(sameIpDao.getComments(ip = ip, userAgent = userAgent, score = score, limit = limit))
   }
 
-  private def prepareCommentList(items: collection.Seq[PostListItem]): collection.Seq[PreparedPostListItem] = {
+  private def prepareCommentList(items: Seq[PostListItem]): Seq[PreparedPostListItem] = {
     val users = userService.getUsersCachedMap(items.map(_.authorId))
     val texts = msgbaseDao.getMessageText(items.map(i => i.commentId.getOrElse(i.topicId)))
 

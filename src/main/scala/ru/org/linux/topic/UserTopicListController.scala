@@ -188,7 +188,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView
   }
 
-  private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: collection.Seq[Topic])
+  private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: Seq[Topic])
                                         (using currentUser: AnySession): Unit = {
     if (rss) {
       modelAndView.addObject("messages", prepareService.prepareTopicForRSS(messages).asJava)

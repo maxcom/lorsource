@@ -41,7 +41,7 @@ class MsgbaseDao(springDB: SpringDB):
         .apply()
         .getOrElse(throw new MessageNotFoundException(msgid))
 
-  def getMessageText(msgids: collection.Seq[Int]): Map[Int, MessageText] =
+  def getMessageText(msgids: Seq[Int]): Map[Int, MessageText] =
     if msgids.isEmpty then
       Map.empty
     else

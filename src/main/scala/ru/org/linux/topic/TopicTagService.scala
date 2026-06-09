@@ -74,9 +74,9 @@ class TopicTagService(springDB: SpringDB, tagService: TagService,
 
   private def getTags(msgId: Int): Seq[String] = topicTagDao.getTags(msgId).map(_.name)
 
-  def getTagRefs(topic: Topic): java.util.List[TagRef] = topicTagDao.getTags(topic.id).map(t => tagRef(t)).asJava
+  def getTagRefs(topic: Topic): Seq[TagRef] = topicTagDao.getTags(topic.id).map(t => tagRef(t))
 
-  def tagRefs(topics: collection.Seq[Int]): Map[Int, scala.collection.Seq[TagRef]] =
+  def tagRefs(topics: Seq[Int]): Map[Int, Seq[TagRef]] =
     topicTagDao.getTags(topics).groupMap(_._1)(p => tagRef(p._2))
 
   /**

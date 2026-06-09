@@ -37,7 +37,7 @@ class TopicTagDao(springDB: SpringDB):
       sql"""SELECT tags_values.value, tags_values.counter, tags_values.id
             FROM tags, tags_values
             WHERE tags.msgid=$msgid AND tags_values.id=tags.tagid
-            ORDER BY value""".map(rs => TagInfo(rs.string("value"), rs.int("counter"), rs.int("id"))).list.apply().toSeq
+            ORDER BY value""".map(rs => TagInfo(rs.string("value"), rs.int("counter"), rs.int("id"))).list.apply()
 
   def getCountReplacedTags(oldTagId: Int, newTagId: Int): Int =
     springDB.run:
@@ -63,7 +63,7 @@ class TopicTagDao(springDB: SpringDB):
       .update
       .apply()
 
-  def getTags(topics: collection.Seq[Int]): collection.Seq[(Int, TagInfo)] =
+  def getTags(topics: Seq[Int]): Seq[(Int, TagInfo)] =
     if topics.isEmpty then
       Vector.empty
     else
@@ -87,6 +87,6 @@ class TopicTagDao(springDB: SpringDB):
     springDB.run:
       sql"""SELECT DISTINCT section FROM
             groups JOIN topics ON topics.groupid=groups.id JOIN tags ON tags.msgid = topics.id
-            WHERE tagid=$tagId AND NOT deleted AND NOT draft ORDER BY section""".map(rs => rs.int(1)).list.apply().toSeq
+            WHERE tagid=$tagId AND NOT deleted AND NOT draft ORDER BY section""".map(rs => rs.int(1)).list.apply()
 
 end TopicTagDao

@@ -140,7 +140,7 @@ class UserEventDao(springDB: SpringDB):
     sql"UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id=$eventId".update.apply()
     recalcEventCount(Seq(userId))
 
-  def recalcEventCount(userids: collection.Seq[Int])(using Transaction): Unit =
+  def recalcEventCount(userids: Seq[Int])(using Transaction): Unit =
     if userids.nonEmpty then
       sql"""UPDATE users SET unread_events =
           (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
@@ -296,7 +296,7 @@ class UserEventDao(springDB: SpringDB):
       rs.int("userid")
     )
 
-  def deleteTopicEvents(topics: Seq[Int])(using Transaction): collection.Seq[Int] =
+  def deleteTopicEvents(topics: Seq[Int])(using Transaction): Seq[Int] =
     if topics.isEmpty then
       Seq.empty
     else
@@ -314,7 +314,7 @@ class UserEventDao(springDB: SpringDB):
 
       affectedUsers
 
-  def deleteCommentEvents(comments: Seq[Int])(using Transaction): collection.Seq[Int] =
+  def deleteCommentEvents(comments: Seq[Int])(using Transaction): Seq[Int] =
     if comments.isEmpty then
       Seq.empty
     else
@@ -331,7 +331,7 @@ class UserEventDao(springDB: SpringDB):
       affectedUsers
 
   def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment], commentId: Int)(using
-      Transaction): collection.Seq[Int] =
+      Transaction): Seq[Int] =
     val userIds =
       parentComment match
         case Some(parent) =>

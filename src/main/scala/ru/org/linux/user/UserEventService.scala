@@ -80,7 +80,7 @@ class UserEventService(userEventDao: UserEventDao, springDB: SpringDB)
     }
   }
 
-  def addWarningEvent(author: User, users: collection.Seq[User], topic: Topic, comment: Option[Comment],
+  def addWarningEvent(author: User, users: Seq[User], topic: Topic, comment: Option[Comment],
                       message: String, warningId: Int): Unit = {
     for (user <- users) {
       userEventDao.addEvent(
@@ -163,7 +163,7 @@ class UserEventService(userEventDao: UserEventDao, springDB: SpringDB)
    *
    * @param msgids идентификаторы комментариев
    */
-  def processCommentsDeleted(msgids: Seq[Int]): collection.Seq[Int] = springDB.localTx {
+  def processCommentsDeleted(msgids: Seq[Int]): Seq[Int] = springDB.localTx {
     val users = userEventDao.deleteCommentEvents(msgids)
 
     userEventDao.recalcEventCount(users)
@@ -172,7 +172,7 @@ class UserEventService(userEventDao: UserEventDao, springDB: SpringDB)
   }
 
   def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment],
-                                     commentId: Int)(using Transaction): collection.Seq[Int] =
+                                     commentId: Int)(using Transaction): Seq[Int] =
     userEventDao.insertCommentWatchNotification(comment, parentComment, commentId)
 
   def getEventTypes(user: User): Seq[UserEventFilterEnum] = {

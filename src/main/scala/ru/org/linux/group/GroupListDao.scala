@@ -41,7 +41,7 @@ object GroupListDao:
 class GroupListDao(springDB: SpringDB):
 
   def getGroupTrackerTopics(groupid: Int, offset: Int, tagId: Option[Int])(using
-      session: AnySession): collection.Seq[TopicsListItem] =
+      session: AnySession): Seq[TopicsListItem] =
     val partFilter = SQLSyntax.join(
       Seq(
         sqls"AND topics.groupid = ${groupid}",
@@ -69,7 +69,7 @@ class GroupListDao(springDB: SpringDB):
       showIgnored: Boolean,
       showDeleted: Boolean,
       yearMonth: Option[(Int, Int)],
-      tagId: Option[Int])(using session: AnySession): collection.Seq[TopicsListItem] =
+      tagId: Option[Int])(using session: AnySession): Seq[TopicsListItem] =
     val dateInterval: SQLSyntax = yearMonth
       .map { (year, month) =>
         sqls"postdate >= make_date(${year}, ${month}, 1)::timestamp AND postdate < make_date(${year}, ${month}, 1)::timestamp + '1 month'::interval"
@@ -99,7 +99,7 @@ class GroupListDao(springDB: SpringDB):
     )
 
   def getSectionListTopics(section: Section, offset: Int, tagId: Int)(using
-      session: AnySession): collection.Seq[TopicsListItem] =
+      session: AnySession): Seq[TopicsListItem] =
     val partFilter = SQLSyntax.join(
       Seq(sqls"AND section = ${section.id}", sqls"AND topics.id IN (SELECT msgid FROM tags WHERE tagid=${tagId})"),
       sqls" ")
@@ -117,7 +117,7 @@ class GroupListDao(springDB: SpringDB):
     )
 
   def getGroupStickyTopics(group: Group, tagId: Option[Int])(using
-      session: AnySession): collection.Seq[TopicsListItem] =
+      session: AnySession): Seq[TopicsListItem] =
     val partFilter = SQLSyntax.join(
       Seq(
         sqls"AND topics.groupid = ${group.id}",
@@ -140,7 +140,7 @@ class GroupListDao(springDB: SpringDB):
     )
 
   def getTrackerTopics(filter: TrackerFilterEnum, offset: Int)(using
-      session: AnySession): collection.Seq[TopicsListItem] =
+      session: AnySession): Seq[TopicsListItem] =
     val sectionFilter: SQLSyntax =
       filter match
         case TrackerFilterEnum.NOTALKS =>
@@ -177,7 +177,7 @@ class GroupListDao(springDB: SpringDB):
       topicInterval: SQLSyntax,
       showIgnored: Boolean,
       showDeleted: Boolean,
-      showUncommited: Boolean)(using session: AnySession): collection.Seq[TopicsListItem] =
+      showUncommited: Boolean)(using session: AnySession): Seq[TopicsListItem] =
     val innerSortLimit: SQLSyntax =
       if sortByTopic then
         sqls"ORDER BY postdate DESC LIMIT $topics OFFSET $offset"
@@ -246,7 +246,6 @@ class GroupListDao(springDB: SpringDB):
         .map(mapTopicsListItem)
         .list
         .apply()
-        .toSeq
 
   private def mapTopicsListItem(rs: WrappedResultSet): TopicsListItem =
     TopicsListItem(

@@ -77,7 +77,7 @@ class EditHistoryDao(springDB: SpringDB):
     * @return
     *   список изменений топика
     */
-  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): collection.Seq[EditHistoryRecord] =
+  def getEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): Seq[EditHistoryRecord] =
     springDB.run:
       sql"SELECT * FROM edit_info WHERE msgid=$id AND object_type = ${objectTypeEnum
           .toString}::edit_event_type ORDER BY id DESC".map(parseEditHistoryRecord).list.apply()
@@ -91,7 +91,7 @@ class EditHistoryDao(springDB: SpringDB):
         .apply()
         .getOrElse(throw new RuntimeException(s"Edit record $recordId not found for msgid=$msgid"))
 
-  def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): collection.Seq[BriefEditInfo] =
+  def getBriefEditInfo(id: Int, objectTypeEnum: EditHistoryObjectTypeEnum): Seq[BriefEditInfo] =
     springDB.run:
       sql"SELECT editdate, editor FROM edit_info WHERE msgid=$id AND object_type = ${objectTypeEnum
           .toString}::edit_event_type ORDER BY id DESC"

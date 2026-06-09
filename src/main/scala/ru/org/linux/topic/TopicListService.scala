@@ -49,7 +49,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       yearMonth: Option[(Int, Int)],
       count: Int,
       noTalks: Boolean,
-      tech: Boolean)(using currentUser: AnySession): collection.Seq[Topic] =
+      tech: Boolean)(using currentUser: AnySession): Seq[Topic] =
     val commitMode =
       if section.isPremoderated then
         CommitMode.CommittedOnly
@@ -90,7 +90,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       section: Option[Section] = None,
       offset: Int,
       favorites: Boolean,
-      watches: Boolean): collection.Seq[Topic] =
+      watches: Boolean): Seq[Topic] =
     val dto = TopicListRequest(
       limit = Some(20),
       offset = Some(offset),
@@ -103,7 +103,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
 
     topicListDao.getTopics(dto, NonAuthorizedSession)
 
-  def getDrafts(user: User, offset: Int): collection.Seq[Topic] =
+  def getDrafts(user: User, offset: Int): Seq[Topic] =
     val dto = TopicListRequest(
       limit = Some(20),
       offset = Some(offset),
@@ -118,7 +118,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       group: Option[Group],
       fromDate: Instant,
       noTalks: Boolean,
-      tech: Boolean): collection.Seq[Topic] =
+      tech: Boolean): Seq[Topic] =
     val commitMode =
       if section.isPremoderated then
         CommitMode.CommittedOnly
@@ -137,7 +137,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
 
     topicListDao.getTopics(dto, NonAuthorizedSession)
 
-  def getUncommitedTopic(section: Option[Section], fromDate: Date): collection.Seq[Topic] =
+  def getUncommitedTopic(section: Option[Section], fromDate: Date): Seq[Topic] =
     val dto = TopicListRequest(
       commitMode = CommitMode.UncommittedOnly,
       sections = section.map(s => Set(s.id)).getOrElse(Set.empty),
@@ -148,7 +148,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
   def getDeletedTopics(sectionId: Int, skipBadReason: Boolean): Seq[DeletedTopic] =
     topicListDao.getDeletedTopics(sectionId, skipBadReason = skipBadReason)
 
-  def getMainPageFeed(count: Int)(using session: AnySession): collection.Seq[Topic] =
+  def getMainPageFeed(count: Int)(using session: AnySession): Seq[Topic] =
     val sections =
       if session.profile.showGalleryOnMain then
         Set(Section.News, Section.Gallery, Section.Polls, Section.Articles)
@@ -164,7 +164,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
 
     topicListDao.getTopics(dto, NonAuthorizedSession)
 
-  def getTopics(topicListRequest: TopicListRequest)(using currentUser: AnySession): collection.Seq[Topic] =
+  def getTopics(topicListRequest: TopicListRequest)(using currentUser: AnySession): Seq[Topic] =
     topicListDao.getTopics(topicListRequest, currentUser)
 
   def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] = topicListDao.getDeletedUserTopics(user, topics)

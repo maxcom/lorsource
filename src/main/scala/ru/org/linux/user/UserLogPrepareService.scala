@@ -37,7 +37,7 @@ object UserLogPrepareService {
 
 @Service
 class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao) {
-  def prepare(items: collection.Seq[UserLogItem], timezone: ZoneId): Seq[PreparedUserLogItem] = {
+  def prepare(items: Seq[UserLogItem], timezone: ZoneId): Seq[PreparedUserLogItem] = {
     items.view.map((item: UserLogItem) => {
       val options = for ((rawKey, rawValue) <- item.options) yield {
         val key = UserLogPrepareService.OptionDescription.getOrElse(rawKey, escapeHtml(rawKey))

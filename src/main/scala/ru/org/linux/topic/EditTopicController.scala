@@ -163,7 +163,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
     }
 
     if (!preparedTopic.tags.isEmpty) {
-      form.tags=TagRef.names(preparedTopic.tags)
+      form.tags=TagRef.names(preparedTopic.tags.asScala.toSeq)
     }
 
     if (preparedTopic.section.isPollPostAllowed) {
