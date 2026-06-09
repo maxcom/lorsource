@@ -18,7 +18,8 @@ import io.circe.parser.*
 import io.circe.syntax.*
 import org.springframework.stereotype.Repository
 import ru.org.linux.poll.Poll
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.tag.{TagName, TagService}
 import scalikejdbc.*
 
@@ -98,7 +99,7 @@ class EditHistoryDao(springDB: SpringDB):
         .list
         .apply()
 
-  def insert(record: EditHistoryRecord): Unit =
+  def insert(record: EditHistoryRecord)(using Transaction): Unit =
     val oldPollStr = record.oldPoll.map(_.asJson.noSpaces)
     val oldaddimagesBinder: Option[ParameterBinder] = record
       .oldaddimages
@@ -108,10 +109,9 @@ class EditHistoryDao(springDB: SpringDB):
           value = arr,
           binder =
             (stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, stmt.getConnection.createArrayOf("integer", arr)))
-    springDB.run:
-      sql"""INSERT INTO edit_info (msgid, editor, oldmessage, oldtitle, oldtags, oldlinktext, oldurl,
-            object_type, oldminor, oldimage, oldpoll, oldaddimages)
-            VALUES (${record.msgid}, ${record.editor}, ${record.oldmessage}, ${record.oldtitle},
-            ${record.oldtags.map(TagService.tagsToString)}, ${record.oldlinktext}, ${record.oldurl},
-            ${record.objectType.toString}::edit_event_type, ${record.oldminor}, ${record.oldimage},
-            $oldPollStr, $oldaddimagesBinder)""".update.apply()
+    sql"""INSERT INTO edit_info (msgid, editor, oldmessage, oldtitle, oldtags, oldlinktext, oldurl,
+          object_type, oldminor, oldimage, oldpoll, oldaddimages)
+          VALUES (${record.msgid}, ${record.editor}, ${record.oldmessage}, ${record.oldtitle},
+          ${record.oldtags.map(TagService.tagsToString)}, ${record.oldlinktext}, ${record.oldurl},
+          ${record.objectType.toString}::edit_event_type, ${record.oldminor}, ${record.oldimage},
+          $oldPollStr, $oldaddimagesBinder)""".update.apply()

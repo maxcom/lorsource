@@ -16,12 +16,10 @@ package ru.org.linux.user
 import ru.org.linux.user.UserConstants
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.comment.Comment
 import ru.org.linux.msgbase.InsertDeleteInfo
-import ru.org.linux.scalikejdbc.Transaction
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEventFilterEnum.*
@@ -31,8 +29,8 @@ import java.util
 import scala.jdk.CollectionConverters.*
 
 @Service
-class UserEventService(userEventDao: UserEventDao, val transactionManager: PlatformTransactionManager)
-    extends StrictLogging with TransactionManagement {
+class UserEventService(userEventDao: UserEventDao, springDB: SpringDB)
+    extends StrictLogging {
   /**
    * Добавление уведомления об упоминании пользователей в комментарии.
    *
@@ -52,7 +50,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    * @param users   список пользователей. которых надо оповестить
    * @param topicId идентификационный номер топика
    */
-  def addUserRefEvent(users: Set[Int], topicId: Int): Unit = transactional() { _ =>
+  def addUserRefEvent(users: Set[Int], topicId: Int): Unit = springDB.localTx {
     userEventDao.insertTopicNotification(topicId, users)
 
     users.foreach { user =>
@@ -74,7 +72,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    * @param userIdList список ID пользователей, которых надо оповестить
    * @param topicId    идентификационный номер топика
    */
-  def addUserTagEvent(userIdList: Seq[Int], topicId: Int): Unit = transactional() { _ =>
+  def addUserTagEvent(userIdList: Seq[Int], topicId: Int): Unit = springDB.localTx {
     userEventDao.insertTopicNotification(topicId, userIdList)
 
     userIdList.foreach { userId =>
@@ -107,10 +105,14 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
 
     oldEventsList.asScala.foreach { userId =>
       logger.info(s"Cleaning up events for userid=$userId")
-      userEventDao.cleanupOldEvents(userId, maxEventsPerUser)
+      springDB.localTx {
+        userEventDao.cleanupOldEvents(userId, maxEventsPerUser)
+      }
     }
 
-    val deleted = userEventDao.dropBannedUserEvents()
+    val deleted = springDB.localTx {
+      userEventDao.dropBannedUserEvents()
+    }
 
     if (deleted != 0) {
       logger.info(s"Deleted $deleted abandoned events")
@@ -139,19 +141,20 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    * @param user пользователь которому сбрасываем
    */
   def resetUnreadEvents(user: User, topId: Int, eventType: Option[UserEventFilterEnum] = None): Unit =
-    userEventDao.resetUnreadEvents(user.id, topId, eventType)
-  def resetSingleEvent(user: User, eventId: Int): Unit = userEventDao.resetSingle(user.id, eventId)
+    springDB.localTx { userEventDao.resetUnreadEvents(user.id, topId, eventType) }
+  def resetSingleEvent(user: User, eventId: Int): Unit =
+    springDB.localTx { userEventDao.resetSingle(user.id, eventId) }
   def resetUnreadEvents(user: User, topId: Int, topicId: Int, eventType: UserEventFilterEnum): Unit =
-    userEventDao.resetUnreadEvents(user.id, topId, topicId, eventType)
+    springDB.localTx { userEventDao.resetUnreadEvents(user.id, topId, topicId, eventType) }
   def resetUnreadReactionGroup(user: User, firstEventId: Int, lastEventId: Int, topicId: Int, commentId: Int): Unit =
-    userEventDao.resetUnreadReactionGroup(user.id, firstEventId, lastEventId, topicId, commentId)
+    springDB.localTx { userEventDao.resetUnreadReactionGroup(user.id, firstEventId, lastEventId, topicId, commentId) }
 
   /**
    * Удаление уведомлений, относящихся к удаленным топикам
    *
    * @param msgids идентификаторы топиков
    */
-  def processTopicDeleted(msgids: Seq[Int]): Unit = transactional() { _ =>
+  def processTopicDeleted(msgids: Seq[Int]): Unit = springDB.localTx {
     userEventDao.recalcEventCount(userEventDao.deleteTopicEvents(msgids))
   }
 
@@ -160,7 +163,7 @@ class UserEventService(userEventDao: UserEventDao, val transactionManager: Platf
    *
    * @param msgids идентификаторы комментариев
    */
-  def processCommentsDeleted(msgids: Seq[Int]): collection.Seq[Int] = transactional() { _ =>
+  def processCommentsDeleted(msgids: Seq[Int]): collection.Seq[Int] = springDB.localTx {
     val users = userEventDao.deleteCommentEvents(msgids)
 
     userEventDao.recalcEventCount(users)

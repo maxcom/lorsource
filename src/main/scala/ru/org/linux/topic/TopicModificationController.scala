@@ -23,6 +23,8 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.group.GroupService
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.{UserErrorException, UserService}
@@ -34,7 +36,7 @@ import scala.jdk.CollectionConverters.*
 class TopicModificationController(prepareService: TopicPrepareService, messageDao: TopicDao,
                                   sectionService: SectionService, groupService: GroupService,
                                   userService: UserService, searchQueueSender: SearchQueueSender,
-                                  topicService: TopicService) extends StrictLogging {
+                                  topicService: TopicService, springDB: SpringDB) extends StrictLogging {
 
   @RequestMapping(value = Array("/setpostscore.jsp"), method = Array(RequestMethod.GET))
   def showForm(@RequestParam msgid: Int): ModelAndView = ModeratorOnly { _ =>
@@ -66,7 +68,8 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     val topic = messageDao.getById(msgid)
 
-    messageDao.setTopicOptions(topic, postscore, sticky, notop)
+    springDB.localTx:
+      messageDao.setTopicOptions(topic, postscore, sticky, notop)
 
     val out = new StringBuilder
     if (topic.postscore != postscore) {
@@ -167,7 +170,8 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
 
     checkUncommitable(topic)
 
-    messageDao.uncommit(topic)
+    springDB.localTx:
+      messageDao.uncommit(topic)
 
     searchQueueSender.updateMessage(topic.id, true)
 

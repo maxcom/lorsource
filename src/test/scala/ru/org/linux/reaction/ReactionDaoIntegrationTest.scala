@@ -25,7 +25,8 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.comment.Comment
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
 import scalikejdbc.*
@@ -79,7 +80,7 @@ class ReactionDaoIntegrationTest:
     val comment = mockComment(testCommentId, testTopicId)
     val user = mockUser(TestUserId)
 
-    val count = reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
+    val count = springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true) }
     assertEquals(1, count)
 
     val log = reactionDao.getLogByComment(comment)
@@ -95,9 +96,9 @@ class ReactionDaoIntegrationTest:
     val comment = mockComment(testCommentId, testTopicId)
     val user = mockUser(TestUserId)
 
-    reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
+    springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true) }
 
-    val count = reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = false)
+    val count = springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = false) }
     assertEquals(0, count)
 
     val log = reactionDao.getLogByComment(comment)
@@ -109,7 +110,7 @@ class ReactionDaoIntegrationTest:
     val topic = mockTopic(testTopicId)
     val user = mockUser(TestUserId)
 
-    val count = reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = true)
+    val count = springDB.localTx { reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = true) }
     assertEquals(1, count)
 
     val log = reactionDao.getLogByTopic(topic)
@@ -123,9 +124,9 @@ class ReactionDaoIntegrationTest:
     val topic = mockTopic(testTopicId)
     val user = mockUser(TestUserId)
 
-    reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = true)
+    springDB.localTx { reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = true) }
 
-    val count = reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = false)
+    val count = springDB.localTx { reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = false) }
     assertEquals(0, count)
 
     val log = reactionDao.getLogByTopic(topic)
@@ -139,7 +140,7 @@ class ReactionDaoIntegrationTest:
     val before = reactionDao.recentReactionCount(user)
 
     val comment = mockComment(testCommentId, testTopicId)
-    reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
+    springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true) }
 
     val after = reactionDao.recentReactionCount(user)
     assertEquals(before + 1, after)
@@ -150,8 +151,8 @@ class ReactionDaoIntegrationTest:
     val comment = mockComment(testCommentId, testTopicId)
     val user = mockUser(TestUserId)
 
-    reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
-    val countAfterFirst = reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4E", set = true)
+    springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true) }
+    val countAfterFirst = springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4E", set = true) }
     assertEquals(1, countAfterFirst)
 
     val log = reactionDao.getLogByComment(comment)
@@ -164,7 +165,7 @@ class ReactionDaoIntegrationTest:
     val originUser = mockUser(TestUserId)
     val topic = mockTopic(testTopicId)
 
-    reactionDao.setTopicReaction(topic, originUser, "\uD83D\uDC4D", set = true)
+    springDB.localTx { reactionDao.setTopicReaction(topic, originUser, "\uD83D\uDC4D", set = true) }
 
     val view = reactionDao.getReactionsView(
       originUser,

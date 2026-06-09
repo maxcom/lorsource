@@ -23,7 +23,8 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
@@ -49,12 +50,12 @@ class WarningDaoIntegrationTest:
 
   @Test
   def testPostAndLoadTopicWarning(): Unit =
-    val id = warningDao.postWarning(
+    val id = springDB.localTx { warningDao.postWarning(
       topicId = testTopicId,
       commentId = None,
       authorId = TestUserId,
       message = "test topic warning",
-      warningType = RuleWarning)
+      warningType = RuleWarning) }
     assertTrue("postWarning should return positive id", id > 0)
 
     val warnings = warningDao.loadForTopic(testTopicId, forModerator = true)
@@ -69,12 +70,12 @@ class WarningDaoIntegrationTest:
   @Test
   def testPostAndLoadCommentWarning(): Unit =
     val commentId = testCommentId
-    val id = warningDao.postWarning(
+    val id = springDB.localTx { warningDao.postWarning(
       topicId = testTopicId,
       commentId = Some(commentId),
       authorId = TestUserId,
       message = "test comment warning",
-      warningType = TagsWarning)
+      warningType = TagsWarning) }
     assertTrue("postWarning should return positive id", id > 0)
 
     val loaded = warningDao.loadForComments(Set(commentId))
@@ -85,12 +86,12 @@ class WarningDaoIntegrationTest:
 
   @Test
   def testLoadForTopicNonModerator(): Unit =
-    val id = warningDao.postWarning(
+    val id = springDB.localTx { warningDao.postWarning(
       topicId = testTopicId,
       commentId = None,
       authorId = TestUserId,
       message = "non-moderator test",
-      warningType = RuleWarning)
+      warningType = RuleWarning) }
 
     val allWarnings = warningDao.loadForTopic(testTopicId, forModerator = true)
     val filteredWarnings = warningDao.loadForTopic(testTopicId, forModerator = false)
@@ -110,12 +111,12 @@ class WarningDaoIntegrationTest:
 
   @Test
   def testGetWarning(): Unit =
-    val id = warningDao.postWarning(
+    val id = springDB.localTx { warningDao.postWarning(
       topicId = testTopicId,
       commentId = None,
       authorId = TestUserId,
       message = "get test warning",
-      warningType = SpellingWarning)
+      warningType = SpellingWarning) }
 
     val warning = warningDao.get(id)
     assertEquals(id, warning.id)
@@ -125,18 +126,18 @@ class WarningDaoIntegrationTest:
 
   @Test
   def testClearWarning(): Unit =
-    val id = warningDao.postWarning(
+    val id = springDB.localTx { warningDao.postWarning(
       topicId = testTopicId,
       commentId = None,
       authorId = TestUserId,
       message = "clear test warning",
-      warningType = GroupWarning)
+      warningType = GroupWarning) }
 
     val before = warningDao.get(id)
     assertEquals(None, before.closedBy)
     assertEquals(None, before.closedWhen)
 
-    warningDao.clear(id, byUserId = 2)
+    springDB.localTx { warningDao.clear(id, byUserId = 2) }
 
     val after = warningDao.get(id)
     assertEquals(Some(2), after.closedBy)
@@ -146,12 +147,12 @@ class WarningDaoIntegrationTest:
   def testLastWarningsCount(): Unit =
     val beforeCount = warningDao.lastWarningsCount(TestUserId)
 
-    warningDao.postWarning(
+    springDB.localTx { warningDao.postWarning(
       topicId = testTopicId,
       commentId = None,
       authorId = TestUserId,
       message = "count test warning",
-      warningType = RuleWarning)
+      warningType = RuleWarning) }
 
     val afterCount = warningDao.lastWarningsCount(TestUserId)
     assertEquals(beforeCount + 1, afterCount)
@@ -159,12 +160,12 @@ class WarningDaoIntegrationTest:
   @Test
   def testAllWarningTypes(): Unit =
     for warningType <- Seq(RuleWarning, TagsWarning, SpellingWarning, GroupWarning) do
-      val id = warningDao.postWarning(
+      val id = springDB.localTx { warningDao.postWarning(
         topicId = testTopicId,
         commentId = None,
         authorId = TestUserId,
         message = s"type test: ${warningType.id}",
-        warningType = warningType)
+        warningType = warningType) }
       val loaded = warningDao.get(id)
       assertEquals(warningType, loaded.warningType)
 

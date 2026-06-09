@@ -16,9 +16,7 @@ package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
 import org.springframework.web.multipart.MultipartFile
 import ru.org.linux.auth.AuthorizedSession
@@ -58,7 +56,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
                    textService: MessageTextService, editHistoryDao: EditHistoryDao,
                    imageDao: ImageDao, siteConfig: SiteConfig, permissionService: GroupPermissionService,
-                   val transactionManager: PlatformTransactionManager, springDB: SpringDB) extends TransactionManagement with StrictLogging {
+                   springDB: SpringDB) extends StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
                  image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
@@ -133,9 +131,9 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   }
 
   private def modifyTopic(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]], newText: MessageText,
-                                    pollVariants: Option[Seq[PollVariant]], multiselect: Boolean,
-                                    imagePreview: Option[UploadedImagePreview],
-                                    additionalImages: Seq[UploadedImagePreview]): Boolean = {
+                          pollVariants: Option[Seq[PollVariant]], multiselect: Boolean,
+                          imagePreview: Option[UploadedImagePreview],
+                          additionalImages: Seq[UploadedImagePreview])(using Transaction): Boolean = {
     var editHistoryRecord = EditHistoryRecord(
       msgid = oldMsg.id,
       editor = user.id,
@@ -225,7 +223,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                       newText: MessageText, commit: Boolean, changeGroupId: Option[Int], bonus: Int,
                       pollVariants: Option[Seq[PollVariant]], multiselect: Boolean,
                       editorBonus: Map[User, Int], imagePreview: Option[UploadedImagePreview],
-                      additionalImages: Seq[UploadedImagePreview]): (Boolean, Set[Int]) = transactional() { _ =>
+                      additionalImages: Seq[UploadedImagePreview]): (Boolean, Set[Int]) = springDB.localTx {
     val modified = modifyTopic(newMsg = newMsg, oldMsg = oldMsg, user = user, newTags = newTags, newText = newText,
       pollVariants = pollVariants, multiselect = multiselect, imagePreview = imagePreview,
       additionalImages = additionalImages)
@@ -259,7 +257,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     (modified, notified)
   }
 
-  private def replaceImage(oldMsg: Topic, oldImage: Option[Image], imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord): EditHistoryRecord = {
+  private def replaceImage(oldMsg: Topic, oldImage: Option[Image], imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord)(using Transaction): EditHistoryRecord = {
     oldImage.foreach { oldImage =>
       imageDao.deleteImage(oldImage)
     }
@@ -277,7 +275,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
   }
 
-  private def doCommit(msg: Topic, commiter: User, bonus: Int, editorBonus: Map[User, Int]): Unit = {
+  private def doCommit(msg: Topic, commiter: User, bonus: Int, editorBonus: Map[User, Int])(using Transaction): Unit = {
     assert(bonus <= 20 && bonus >= 0, "Некорректное значение bonus")
 
     if (msg.draft) {

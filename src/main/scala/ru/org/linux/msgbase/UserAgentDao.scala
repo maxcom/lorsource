@@ -15,7 +15,8 @@
 package ru.org.linux.msgbase
 
 import org.springframework.stereotype.Repository
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 import java.util.Optional
@@ -32,10 +33,9 @@ class UserAgentDao(springDB: SpringDB):
           sql"SELECT name FROM user_agents WHERE id = $id".map(rs => rs.string("name")).single.apply()
         .toJava
 
-  def createOrGetId(userAgent: String): Int =
-    springDB.run:
-      sql"SELECT create_user_agent($userAgent)".map(rs => rs.int(1)).single.apply().getOrElse(
-        throw new IllegalStateException(s"create_user_agent returned no result for: $userAgent")
-      )
+  def createOrGetId(userAgent: String)(using Transaction): Int =
+    sql"SELECT create_user_agent($userAgent)".map(rs => rs.int(1)).single.apply().getOrElse(
+      throw new IllegalStateException(s"create_user_agent returned no result for: $userAgent")
+    )
 
 end UserAgentDao

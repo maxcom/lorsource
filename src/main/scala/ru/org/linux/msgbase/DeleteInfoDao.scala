@@ -17,7 +17,8 @@ package ru.org.linux.msgbase
 import org.springframework.stereotype.Repository
 import ru.org.linux.site.DeleteInfo
 import ru.org.linux.user.User
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 @Repository
@@ -39,13 +40,13 @@ class DeleteInfoDao(springDB: SpringDB):
         .single
         .apply()
 
-  def insert(info: InsertDeleteInfo): Unit = insert(info.msgid, info.deleteUser, info.reason, info.bonus)
+  def insert(info: InsertDeleteInfo)(using Transaction): Unit =
+    insert(info.msgid, info.deleteUser, info.reason, info.bonus)
 
-  private def insert(msgid: Int, deleter: User, reason: String, scoreBonus: Int): Unit =
+  private def insert(msgid: Int, deleter: User, reason: String, scoreBonus: Int)(using Transaction): Unit =
     require(scoreBonus <= 0, "Score bonus on delete must be non-positive")
-    springDB.run:
-      sql"INSERT INTO del_info (msgid, delby, reason, deldate, bonus) VALUES ($msgid, ${deleter
-          .id}, $reason, CURRENT_TIMESTAMP, $scoreBonus)".update.apply()
+    sql"INSERT INTO del_info (msgid, delby, reason, deldate, bonus) VALUES ($msgid, ${deleter
+        .id}, $reason, CURRENT_TIMESTAMP, $scoreBonus)".update.apply()
 
   def getRecentScoreLoss(user: User): Int =
     springDB.run:
@@ -57,23 +58,20 @@ class DeleteInfoDao(springDB: SpringDB):
               SELECT id FROM topics WHERE topics.userid = ${user.id}
             )""".map(rs => math.abs(rs.int(1))).single.apply().getOrElse(0)
 
-  def insert(deleteInfos: Seq[InsertDeleteInfo]): Unit =
+  def insert(deleteInfos: Seq[InsertDeleteInfo])(using Transaction): Unit =
     if deleteInfos.nonEmpty then
       deleteInfos.foreach { info =>
         require(info.bonus <= 0, "Score bonus on delete must be non-positive")
       }
 
-      springDB.run:
-        sql"INSERT INTO del_info (msgid, delby, reason, deldate, bonus) VALUES ({msgid}, {delby}, {reason}, CURRENT_TIMESTAMP, {bonus})"
-          .batchByName(
-            deleteInfos.map { info =>
-              Seq("msgid" -> info.msgid, "delby" -> info.deleteUser.id, "reason" -> info.reason, "bonus" -> info.bonus)
-            }*)
-          .apply()
+      sql"INSERT INTO del_info (msgid, delby, reason, deldate, bonus) VALUES ({msgid}, {delby}, {reason}, CURRENT_TIMESTAMP, {bonus})"
+        .batchByName(
+          deleteInfos.map { info =>
+            Seq("msgid" -> info.msgid, "delby" -> info.deleteUser.id, "reason" -> info.reason, "bonus" -> info.bonus)
+          }*)
+        .apply()
 
-  def delete(msgid: Int): Unit =
-    springDB.run:
-      sql"DELETE FROM del_info WHERE msgid=$msgid".update.apply()
+  def delete(msgid: Int)(using Transaction): Unit = sql"DELETE FROM del_info WHERE msgid=$msgid".update.apply()
 
   def scoreLoss(msgid: Int): Int =
     springDB.run:

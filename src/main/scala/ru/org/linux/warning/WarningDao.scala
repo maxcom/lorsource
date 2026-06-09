@@ -16,18 +16,18 @@
 package ru.org.linux.warning
 
 import org.springframework.stereotype.Repository
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 @Repository
 class WarningDao(springDB: SpringDB):
 
-  def postWarning(topicId: Int, commentId: Option[Int], authorId: Int, message: String, warningType: WarningType): Int =
-    springDB.run:
-      val commentSql = commentId.map(c => sqls"$c").getOrElse(sqls"NULL")
-      sql"""INSERT INTO message_warnings (topic, comment, author, message, warning_type)
-            VALUES ($topicId, $commentSql, $authorId, $message, ${warningType.id})
-            RETURNING id""".map(rs => rs.int("id")).single.apply().get
+  def postWarning(topicId: Int, commentId: Option[Int], authorId: Int, message: String, warningType: WarningType)(using Transaction): Int =
+    val commentSql = commentId.map(c => sqls"$c").getOrElse(sqls"NULL")
+    sql"""INSERT INTO message_warnings (topic, comment, author, message, warning_type)
+          VALUES ($topicId, $commentSql, $authorId, $message, ${warningType.id})
+          RETURNING id""".map(rs => rs.int("id")).single.apply().get
 
   private def warningFromRs(rs: WrappedResultSet): Warning =
     Warning(
@@ -83,7 +83,6 @@ class WarningDao(springDB: SpringDB):
             where id=$id
             order by postdate""".map(warningFromRs).single.apply().get
 
-  def clear(id: Int, byUserId: Int): Unit =
-    springDB.run:
-      sql"""update message_warnings set closed_by = $byUserId, closed_when = CURRENT_TIMESTAMP
-            where id=$id and closed_by is null""".update.apply()
+  def clear(id: Int, byUserId: Int)(using Transaction): Unit =
+    sql"""update message_warnings set closed_by = $byUserId, closed_when = CURRENT_TIMESTAMP
+          where id=$id and closed_by is null""".update.apply()

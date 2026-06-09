@@ -23,7 +23,8 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.poll.{Poll, PollVariant}
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(classes = Array(classOf[EditHistoryDaoIntegrationTestConfiguration])) @Transactional
@@ -31,6 +32,9 @@ class EditHistoryDaoIntegrationTest:
 
   @Autowired
   var editHistoryDao: EditHistoryDao = scala.compiletime.uninitialized
+
+  @Autowired
+  var springDB: SpringDB = scala.compiletime.uninitialized
 
   @Test
   def testGetEditInfoEmpty(): Unit =
@@ -52,7 +56,7 @@ class EditHistoryDaoIntegrationTest:
       objectType = EditHistoryObjectTypeEnum.TOPIC,
       oldmessage = Some("test old message"),
       oldtitle = Some("test old title"))
-    editHistoryDao.insert(record)
+    springDB.localTx { editHistoryDao.insert(record) }
 
     val edits = editHistoryDao.getEditInfo(98075, EditHistoryObjectTypeEnum.TOPIC)
     assertTrue("Should have at least one edit", edits.nonEmpty)
@@ -66,7 +70,7 @@ class EditHistoryDaoIntegrationTest:
   @Test
   def testInsertWithNulls(): Unit =
     val record = EditHistoryRecord(msgid = 98076, editor = 1, objectType = EditHistoryObjectTypeEnum.COMMENT)
-    editHistoryDao.insert(record)
+    springDB.localTx { editHistoryDao.insert(record) }
 
     val edits = editHistoryDao.getEditInfo(98076, EditHistoryObjectTypeEnum.COMMENT)
     assertTrue("Should have at least one edit", edits.nonEmpty)
@@ -94,7 +98,7 @@ class EditHistoryDaoIntegrationTest:
       oldPoll = Some(poll),
       oldaddimages = Some(Seq(100, 200, 300))
     )
-    editHistoryDao.insert(record)
+    springDB.localTx { editHistoryDao.insert(record) }
 
     val edits = editHistoryDao.getEditInfo(98077, EditHistoryObjectTypeEnum.TOPIC)
     assertTrue("Should have at least one edit", edits.nonEmpty)
@@ -110,8 +114,8 @@ class EditHistoryDaoIntegrationTest:
       msgid = 98078,
       editor = 1,
       objectType = EditHistoryObjectTypeEnum.TOPIC,
-      oldtags = Some(Seq("linux", "kernel")))
-    editHistoryDao.insert(record)
+      oldtags = Some(Seq("linux", "kernel"))    )
+    springDB.localTx { editHistoryDao.insert(record) }
 
     val edits = editHistoryDao.getEditInfo(98078, EditHistoryObjectTypeEnum.TOPIC)
     assertTrue("Should have at least one edit", edits.nonEmpty)

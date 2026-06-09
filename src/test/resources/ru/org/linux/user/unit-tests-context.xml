@@ -34,6 +34,10 @@
     <constructor-arg value="ru.org.linux.user.UserTagDao"/>
   </bean>
 
+  <bean id="springDB" class="ru.org.linux.scalikejdbc.SpringDBTestAdapter"
+        factory-method="create">
+  </bean>
+
   <bean id="userTagService" class="ru.org.linux.user.UserTagService"/>
   <bean id="tagModificationService" name="mockTagModificationService"
         class="org.mockito.Mockito" factory-method="mock">

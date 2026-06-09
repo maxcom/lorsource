@@ -17,20 +17,22 @@ package ru.org.linux.tag
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.TopicTagDao
 import ru.org.linux.user.UserTagDao
 
 @Component
-class TagCountersUpdater(topicTagDao: TopicTagDao, userTagDao: UserTagDao) extends StrictLogging {
+class TagCountersUpdater(topicTagDao: TopicTagDao, userTagDao: UserTagDao, springDB: SpringDB) extends StrictLogging {
   @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 5 * 60 * 1000)
-  def recalcTagsCounters(): Unit = topicTagDao.reCalculateAllCounters()
+  def recalcTagsCounters(): Unit = springDB.localTx:
+    topicTagDao.reCalculateAllCounters()
 
   @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 5 * 60 * 1000)
-  def deleteUnusedTags(): Unit = {
+  def deleteUnusedTags(): Unit = springDB.localTx:
     val count = userTagDao.deleteUnusedTags()
 
     if (count > 0) {
       logger.info(s"Deleted $count empty favorite tags")
     }
-  }
 }

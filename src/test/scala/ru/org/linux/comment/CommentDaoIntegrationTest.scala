@@ -112,13 +112,13 @@ class CommentDaoIntegrationTest:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     insertComment(commentId, None, "to be deleted", "body")
 
-    val deleted = commentDao.deleteComment(commentId)
+    val deleted = springDB.localTx { commentDao.deleteComment(commentId) }
     assertTrue("Should delete existing comment", deleted)
 
     val comment = commentDao.getById(commentId)
     assertTrue("Comment should be marked as deleted", comment.deleted)
 
-    val deletedAgain = commentDao.deleteComment(commentId)
+    val deletedAgain = springDB.localTx { commentDao.deleteComment(commentId) }
     assertFalse("Should not delete already-deleted comment", deletedAgain)
 
   @Test
@@ -162,7 +162,7 @@ class CommentDaoIntegrationTest:
         .apply()
         .get
 
-    commentDao.updateStatsAfterDelete(commentId, 1)
+    springDB.localTx { commentDao.updateStatsAfterDelete(commentId, 1) }
 
     val statAfter = springDB.run:
       sql"SELECT stat1, stat3 FROM topics WHERE id = $topicId"
@@ -182,7 +182,7 @@ class CommentDaoIntegrationTest:
     val oldComment = commentDao.getById(commentId)
     assertEquals("original title", oldComment.title)
 
-    commentDao.changeTitle(oldComment, "new title")
+    springDB.localTx { commentDao.changeTitle(oldComment, "new title") }
 
     val updated = commentDao.getById(commentId)
     assertEquals("new title", updated.title)
@@ -194,7 +194,7 @@ class CommentDaoIntegrationTest:
     insertComment(commentId, None, "editor test", "body")
 
     val editDate = new java.sql.Timestamp(System.currentTimeMillis())
-    commentDao.updateLatestEditorInfo(commentId, testUserId, editDate, 5)
+    springDB.localTx { commentDao.updateLatestEditorInfo(commentId, testUserId, editDate, 5) }
 
     val comment = commentDao.getById(commentId)
     assertEquals(testUserId, comment.editorId)

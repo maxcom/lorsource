@@ -23,6 +23,8 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.ContextHierarchy
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
@@ -34,6 +36,9 @@ class TagDaoIntegrationTest:
   @Autowired
   var tagDao: TagDao = scala.compiletime.uninitialized
 
+  @Autowired
+  var springDB: SpringDB = scala.compiletime.uninitialized
+
   @Test
   def testTagNotFound(): Unit =
     val fetch = tagDao.getTagId("fdsfsdfdsfsdfs", false)
@@ -41,30 +46,30 @@ class TagDaoIntegrationTest:
 
   @Test
   def createAndGetTest(): Unit =
-    val id = tagDao.createTag("test-tag")
+    val id = springDB.localTx { tagDao.createTag("test-tag") }
     val fetchId = tagDao.getTagId("test-tag", false)
     assertEquals(Some(id), fetchId)
 
   @Test
   def prefixSearchExactTest(): Unit =
-    tagDao.createTag("zest")
-    tagDao.createTag("zesd")
+    springDB.localTx { tagDao.createTag("zest") }
+    springDB.localTx { tagDao.createTag("zesd") }
 
     val tags = tagDao.getTagsByPrefix("zest", 0)
     assertEquals(1, tags.size)
 
   @Test
   def prefixTopSearchExactTest(): Unit =
-    tagDao.createTag("zest")
-    tagDao.createTag("zesd")
+    springDB.localTx { tagDao.createTag("zest") }
+    springDB.localTx { tagDao.createTag("zesd") }
 
     val tags = tagDao.getTopTagsByPrefix("zest", 0, 20)
     assertEquals(1, tags.size)
 
   @Test
   def prefixSearchSimpleTest(): Unit =
-    val zest = tagDao.createTag("zest")
-    val zesd = tagDao.createTag("zesd")
+    val zest = springDB.localTx { tagDao.createTag("zest") }
+    val zesd = springDB.localTx { tagDao.createTag("zesd") }
 
     val tags = tagDao.getTagsByPrefix("ze", 0)
     assertEquals(2, tags.size)
@@ -73,7 +78,7 @@ class TagDaoIntegrationTest:
 
   @Test
   def prefixSearchEscapeTest(): Unit =
-    tagDao.createTag("zestxtest")
+    springDB.localTx { tagDao.createTag("zestxtest") }
 
     assertEquals(0, tagDao.getTagsByPrefix("zest_", 0).size)
     assertEquals(0, tagDao.getTagsByPrefix("zest%", 0).size)

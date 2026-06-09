@@ -40,7 +40,7 @@ class SimpleIntegrationTestConfiguration:
   def userService(
       userDao: UserDao,
       userLogDao: UserLogDao,
-      transactionManager: PlatformTransactionManager): UserService =
+      springDB: SpringDB): UserService =
     UserService(
       siteConfig = mock(classOf[SiteConfig]),
       userDao = userDao,
@@ -49,7 +49,7 @@ class SimpleIntegrationTestConfiguration:
       userLogDao = userLogDao,
       userAgentDao = mock(classOf[UserAgentDao]),
       profileDao = mock(classOf[ProfileDao]),
-      transactionManager = transactionManager
+      springDB = springDB
     )
 
   @Bean

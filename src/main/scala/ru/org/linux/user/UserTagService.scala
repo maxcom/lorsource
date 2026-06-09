@@ -17,12 +17,14 @@ package ru.org.linux.user
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 
 import scala.jdk.CollectionConverters.*
 
 @Service
-class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
+class UserTagService(userTagDao: UserTagDao, tagService: TagService, springDB: SpringDB) {
   /**
     * Добавление тега к пользователю.
     *
@@ -31,13 +33,12 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @return идентификатор избранного тега
     */
   @throws[TagNotFoundException]
-  def favoriteAdd(user: User, tagName: String): Int = {
+  def favoriteAdd(user: User, tagName: String): Int = springDB.localTx:
     val tagId = tagService.getTagId(tagName, skipZero = true)
 
     userTagDao.addTag(user.id, tagId, true)
 
     tagId
-  }
 
   /**
     * Удаление тега у пользователя.
@@ -47,13 +48,12 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @return идентификатор тега
     */
   @throws[TagNotFoundException]
-  def favoriteDel(user: User, tagName: String): Int = {
+  def favoriteDel(user: User, tagName: String): Int = springDB.localTx:
     val tagId = tagService.getTagId(tagName)
 
     userTagDao.deleteTag(user.id, tagId, true)
 
     tagId
-  }
 
   /**
     * Добавление игнорированного тега к пользователю.
@@ -62,13 +62,12 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @param tagName название тега
     */
   @throws[TagNotFoundException]
-  def ignoreAdd(user: User, tagName: String): Int = {
+  def ignoreAdd(user: User, tagName: String): Int = springDB.localTx:
     val tagId = tagService.getTagId(tagName)
 
     userTagDao.addTag(user.id, tagService.getTagId(tagName), false)
 
     tagId
-  }
 
   /**
     * Удаление игнорированного тега у пользователя.
@@ -77,13 +76,12 @@ class UserTagService(userTagDao: UserTagDao, tagService: TagService) {
     * @param tagName название тега
     */
   @throws[TagNotFoundException]
-  def ignoreDel(user: User, tagName: String): Int = {
+  def ignoreDel(user: User, tagName: String): Int = springDB.localTx:
     val tagId = tagService.getTagId(tagName)
 
     userTagDao.deleteTag(user.id, tagService.getTagId(tagName), false)
 
     tagId
-  }
 
   /**
     * Получение списка тегов пользователя.

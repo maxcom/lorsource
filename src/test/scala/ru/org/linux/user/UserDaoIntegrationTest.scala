@@ -22,7 +22,8 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 object UserDaoIntegrationTest:
@@ -52,7 +53,7 @@ class UserDaoIntegrationTest:
   @Test
   def testBlock(): Unit =
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
-    userDao.block(user, user, "")
+    springDB.localTx { userDao.block(user, user, "") }
     val userAfter = userDao.getUser(UserDaoIntegrationTest.TestId)
     assertTrue(userAfter.blocked)
 

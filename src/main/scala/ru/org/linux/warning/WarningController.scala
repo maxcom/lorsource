@@ -26,6 +26,8 @@ import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.common.DeleteReasons
 import ru.org.linux.group.{Group, GroupService}
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
@@ -43,7 +45,8 @@ class PostWarningRequest(@BeanProperty var topic: Topic, @BeanProperty var comme
 @Controller
 class WarningController(warningService: WarningService, topicDao: TopicDao, commentReadService: CommentReadService,
                         topicPermissionService: TopicPermissionService, groupService: GroupService, userService: UserService,
-                        topicPrepareService: TopicPrepareService, commentPrepareService: CommentPrepareService) {
+                        topicPrepareService: TopicPrepareService, commentPrepareService: CommentPrepareService,
+                        springDB: SpringDB) {
   @RequestMapping(value = Array("/post-warning"), method = Array(RequestMethod.GET))
   def showForm(@ModelAttribute(value = "request") request: PostWarningRequest,
                errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
@@ -197,7 +200,8 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     val warning = warningService.get(id)
     val topic = topicDao.getById(warning.topicId)
 
-    warningService.clear(warning, currentUser)
+    springDB.localTx:
+      warningService.clear(warning, currentUser)
 
     val builder = TopicLinkBuilder.baseLink(topic)
 

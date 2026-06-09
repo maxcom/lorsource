@@ -17,9 +17,7 @@ package ru.org.linux.comment
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
 import ru.org.linux.auth.*
@@ -66,8 +64,8 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
                            floodProtector: FloodProtector, editHistoryService: EditHistoryService,
                            textService: MessageTextService, userEventService: UserEventService, msgbaseDao: MsgbaseDao,
                            ignoreListDao: IgnoreListDao, permissionService: TopicPermissionService,
-                           val transactionManager: PlatformTransactionManager, springDB: SpringDB)
-    extends StrictLogging  with TransactionManagement {
+                           springDB: SpringDB)
+    extends StrictLogging {
   def requestValidator(binder: WebDataBinder): Unit = {
     binder.setValidator(new CommentRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
@@ -278,7 +276,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * @param xForwardedFor IP-адрес через шлюз, с которого был добавлен комментарий
    */
   def edit(oldComment: Comment, newComment: Comment, commentBody: String, remoteAddress: String,
-           xForwardedFor: Option[String], editor: User, originalMessageText: MessageText): Unit = transactional() { _ =>
+           xForwardedFor: Option[String], editor: User, originalMessageText: MessageText): Unit = springDB.localTx {
     commentDao.changeTitle(oldComment, newComment.title)
     msgbaseDao.updateMessage(oldComment.id, commentBody)
 
@@ -319,7 +317,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * @param messageText         новое содержимое комментария
    */
   private def addEditHistoryItem(editor: User, original: Comment, originalMessageText: String, comment: Comment,
-                                 messageText: String): Unit = {
+                                  messageText: String)(using Transaction): Unit = {
     val editHistoryRecord = EditHistoryRecord(
       msgid = original.id,
       objectType = EditHistoryObjectTypeEnum.COMMENT,
@@ -339,7 +337,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * @param original оригинал (старый комментарий)
    * @param comment  изменённый комментарий
    */
-  private def updateLatestEditorInfo(editor: User, original: Comment, comment: Comment): Unit = {
+  private def updateLatestEditorInfo(editor: User, original: Comment, comment: Comment)(using Transaction): Unit = {
     val editCount = editHistoryService.editCount(original.id, EditHistoryObjectTypeEnum.COMMENT)
 
     commentDao.updateLatestEditorInfo(original.id, editor.id, comment.postdate, editCount)

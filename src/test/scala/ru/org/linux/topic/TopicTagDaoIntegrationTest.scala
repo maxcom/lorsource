@@ -23,7 +23,8 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
@@ -57,11 +58,11 @@ class TopicTagDaoIntegrationTest:
       val beforeAdd = topicTagDao.getTags(testTopicId)
       assertFalse("Tag should not be linked initially", beforeAdd.exists(_.id == existingTagId.get))
 
-      topicTagDao.addTag(testTopicId, existingTagId.get)
+      springDB.localTx { topicTagDao.addTag(testTopicId, existingTagId.get) }
       val afterAdd = topicTagDao.getTags(testTopicId)
       assertTrue("Tag should be added", afterAdd.exists(_.id == existingTagId.get))
 
-      topicTagDao.deleteTag(testTopicId, existingTagId.get)
+      springDB.localTx { topicTagDao.deleteTag(testTopicId, existingTagId.get) }
       val afterDelete = topicTagDao.getTags(testTopicId)
       assertFalse("Tag should be removed", afterDelete.exists(_.id == existingTagId.get))
 
@@ -118,7 +119,7 @@ class TopicTagDaoIntegrationTest:
     val counterBefore = springDB.run:
       sql"select counter from tags_values where id=$testTagId".map(rs => rs.int("counter")).single.apply().get
 
-    topicTagDao.increaseCounterById(testTagId, 1)
+    springDB.localTx { topicTagDao.increaseCounterById(testTagId, 1) }
 
     val counterAfter = springDB.run:
       sql"select counter from tags_values where id=$testTagId".map(rs => rs.int("counter")).single.apply().get
@@ -144,8 +145,8 @@ class TopicTagDaoIntegrationTest:
             limit 1""".map(rs => rs.int(1)).single.apply()
 
     if existingTagId.isDefined then
-      topicTagDao.addTag(testTopicId, existingTagId.get)
-      topicTagDao.deleteTag(testTopicId, existingTagId.get)
+      springDB.localTx { topicTagDao.addTag(testTopicId, existingTagId.get) }
+      springDB.localTx { topicTagDao.deleteTag(testTopicId, existingTagId.get) }
       val afterDelete = topicTagDao.getTags(testTopicId)
       assertFalse("Tag should be removed after delete", afterDelete.exists(_.id == existingTagId.get))
 

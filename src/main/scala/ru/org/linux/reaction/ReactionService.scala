@@ -16,9 +16,7 @@ package ru.org.linux.reaction
 
 import org.apache.pekko.actor.typed.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AnySession
 import ru.org.linux.comment.Comment
 import ru.org.linux.markup.MessageTextService
@@ -26,6 +24,8 @@ import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
 import ru.org.linux.realtime.RealtimeEventHub
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.Section
 import ru.org.linux.site.DateFormats
 import ru.org.linux.topic.{Topic, TopicDao}
@@ -121,7 +121,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
                       @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                       ignoreListDao: IgnoreListDao, profileDao: ProfileDao, msgbaseDao: MsgbaseDao,
                       textService: MessageTextService,
-                      val transactionManager: PlatformTransactionManager) extends TransactionManagement {
+                      springDB: SpringDB) {
   def allowInteract(currentUser: Option[User], topic: Topic, comment: Option[Comment]): Boolean = {
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
 
@@ -167,7 +167,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
 
   def setCommentReaction(topic: Topic, comment: Comment, user: User, reaction: String,
                          set: Boolean): Int = {
-    val r = transactional() { _ =>
+    val r = springDB.localTx {
       val newCount = reactionDao.setCommentReaction(comment, user, reaction, set)
 
       topicDao.updateLastmod(comment.topicId)
@@ -192,7 +192,7 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
   }
 
   def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int = {
-    val r = transactional() { _ =>
+    val r = springDB.localTx {
       val newCount = reactionDao.setTopicReaction(topic, user, reaction, set)
 
       topicDao.updateLastmod(topic.id)

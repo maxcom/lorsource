@@ -84,9 +84,8 @@ class CommentDao(springDB: SpringDB):
     * @return
     *   true если комментарий был удалён, иначе false
     */
-  def deleteComment(msgid: Int): Boolean =
-    springDB.run:
-      sql"UPDATE comments SET deleted='t' WHERE id = $msgid AND NOT deleted".update.apply() > 0
+  def deleteComment(msgid: Int)(using Transaction): Boolean =
+    sql"UPDATE comments SET deleted='t' WHERE id = $msgid AND NOT deleted".update.apply() > 0
 
   def undeleteComment(comment: Comment)(using Transaction): Unit =
     sql"UPDATE comments SET deleted='f' WHERE id = ${comment.id}".update.apply()
@@ -98,11 +97,10 @@ class CommentDao(springDB: SpringDB):
     * @param count
     *   количество удаленных комментариев
     */
-  def updateStatsAfterDelete(commentId: Int, count: Int): Unit =
-    springDB.run:
-      val topicId = sql"SELECT topic FROM comments WHERE id = $commentId".map(rs => rs.int("topic")).single.apply().get
-      sql"UPDATE topics SET stat1=stat1-$count, lastmod=CURRENT_TIMESTAMP WHERE id = $topicId".update.apply()
-      sql"UPDATE topics SET stat3=stat1 WHERE id = $topicId AND stat3 > stat1".update.apply()
+  def updateStatsAfterDelete(commentId: Int, count: Int)(using Transaction): Unit =
+    val topicId = sql"SELECT topic FROM comments WHERE id = $commentId".map(rs => rs.int("topic")).single.apply().get
+    sql"UPDATE topics SET stat1=stat1-$count, lastmod=CURRENT_TIMESTAMP WHERE id = $topicId".update.apply()
+    sql"UPDATE topics SET stat3=stat1 WHERE id = $topicId AND stat3 > stat1".update.apply()
 
   /** Сколько ответов на комментарий
     *
@@ -160,9 +158,8 @@ class CommentDao(springDB: SpringDB):
     * @param title
     *   новый заголовок
     */
-  def changeTitle(oldComment: Comment, title: String): Unit =
-    springDB.run:
-      sql"UPDATE comments SET title = $title WHERE id = ${oldComment.id}".update.apply()
+  def changeTitle(oldComment: Comment, title: String)(using Transaction): Unit =
+    sql"UPDATE comments SET title = $title WHERE id = ${oldComment.id}".update.apply()
 
   /** Обновить информацию о последнем редакторе комментария.
     *
@@ -175,11 +172,10 @@ class CommentDao(springDB: SpringDB):
     * @param editCount
     *   количество исправлений
     */
-  def updateLatestEditorInfo(id: Int, editorId: Int, editDate: Timestamp, editCount: Int): Unit =
-    springDB.run:
-      sql"""UPDATE comments SET editor_id = $editorId, edit_date = $editDate, edit_count = $editCount WHERE id = $id"""
-        .update
-        .apply()
+  def updateLatestEditorInfo(id: Int, editorId: Int, editDate: Timestamp, editCount: Int)(using Transaction): Unit =
+    sql"""UPDATE comments SET editor_id = $editorId, edit_date = $editDate, edit_count = $editCount WHERE id = $id"""
+      .update
+      .apply()
 
   /** Получить список последних удалённых комментариев пользователя.
     *

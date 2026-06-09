@@ -21,6 +21,7 @@ import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollNotFoundException}
+import ru.org.linux.scalikejdbc.Transaction
 import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.topic.{PreparedImage, Topic, TopicTagService}
 import ru.org.linux.user.{User, UserService}
@@ -339,7 +340,7 @@ class EditHistoryService(
     // TODO replace with count() SQL query
     editHistoryDao.getEditInfo(id, objectTypeEnum).size
 
-  def insert(editHistoryRecord: EditHistoryRecord): Unit = editHistoryDao.insert(editHistoryRecord)
+  def insert(editHistoryRecord: EditHistoryRecord)(using Transaction): Unit = editHistoryDao.insert(editHistoryRecord)
 
   def getEditorUsers(message: Topic, editInfoList: collection.Seq[EditHistoryRecord]): Set[User] =
     val editors = editInfoList.view.map(_.editor).filterNot(_ == message.authorUserId).toSet

@@ -19,9 +19,9 @@ import com.typesafe.scalalogging.StrictLogging
 import org.jasypt.util.password.BasicPasswordEncryptor
 import org.jasypt.util.password.PasswordEncryptor
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.markup.MarkupType
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
@@ -147,69 +147,66 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
         .list
         .apply())
 
-  def removeTown(user: User): Unit = springDB.run(sql"UPDATE users SET town=null WHERE id=${user.id}".update.apply())
+  def removeTown(user: User)(using Transaction): Unit =
+    sql"UPDATE users SET town=null WHERE id=${user.id}".update.apply()
 
-  def removeUrl(user: User): Unit = springDB.run(sql"UPDATE users SET url=null WHERE id=${user.id}".update.apply())
+  def removeUrl(user: User)(using Transaction): Unit = sql"UPDATE users SET url=null WHERE id=${user.id}".update.apply()
 
-  def resetUserpic(user: User): Boolean =
-    springDB.run(sql"UPDATE users SET photo=null WHERE id=${user.id} AND photo IS NOT NULL".update.apply()) > 0
+  def resetUserpic(user: User)(using Transaction): Boolean =
+    sql"UPDATE users SET photo=null WHERE id=${user.id} AND photo IS NOT NULL".update.apply() > 0
 
-  def setPhoto(user: User, photo: String): Unit =
-    springDB.run(sql"UPDATE users SET photo=${photo} WHERE id=${user.id}".update.apply())
+  def setPhoto(user: User, photo: String)(using Transaction): Unit =
+    sql"UPDATE users SET photo=${photo} WHERE id=${user.id}".update.apply()
 
-  def updateUserInfo(userid: Int, text: String, markup: MarkupType): Boolean =
-    springDB.run(
-      sql"UPDATE users SET userinfo=${text}, userinfo_markup=${markup
-          .id} WHERE id=${userid} AND (userinfo IS DISTINCT FROM ${text} OR userinfo_markup IS DISTINCT FROM ${markup
-          .id})".update.apply()) > 0
+  def updateUserInfo(userid: Int, text: String, markup: MarkupType)(using Transaction): Boolean =
+    sql"UPDATE users SET userinfo=${text}, userinfo_markup=${markup
+        .id} WHERE id=${userid} AND (userinfo IS DISTINCT FROM ${text} OR userinfo_markup IS DISTINCT FROM ${markup
+        .id})".update.apply() > 0
 
-  def resetUserInfo(userid: Int): Boolean =
-    springDB.run(sql"UPDATE users SET userinfo=null WHERE id=${userid} AND userinfo IS NOT NULL".update.apply()) > 0
+  def resetUserInfo(userid: Int)(using Transaction): Boolean =
+    sql"UPDATE users SET userinfo=null WHERE id=${userid} AND userinfo IS NOT NULL".update.apply() > 0
 
-  def changeScore(id: Int, delta: Int): Unit =
-    val updated = springDB.run(sql"UPDATE users SET score=score+${delta} WHERE id=${id}".update.apply())
+  def changeScore(id: Int, delta: Int)(using Transaction): Unit =
+    val updated = sql"UPDATE users SET score=score+${delta} WHERE id=${id}".update.apply()
     if updated == 0 then
       throw new IllegalArgumentException(new UserNotFoundException(id))
 
-  def setCorrector(user: User): Unit =
+  def setCorrector(user: User)(using Transaction): Unit =
     if !user.corrector then
-      springDB.run(sql"UPDATE users SET corrector='t' WHERE id=${user.id}".update.apply())
+      sql"UPDATE users SET corrector='t' WHERE id=${user.id}".update.apply()
 
-  def unsetCorrector(user: User): Unit =
+  def unsetCorrector(user: User)(using Transaction): Unit =
     if user.corrector then
-      springDB.run(sql"UPDATE users SET corrector='f' WHERE id=${user.id}".update.apply())
+      sql"UPDATE users SET corrector='f' WHERE id=${user.id}".update.apply()
 
-  def setPassword(user: User, password: String): Unit =
+  def setPassword(user: User, password: String)(using Transaction): Unit =
     val encryptor: PasswordEncryptor = new BasicPasswordEncryptor()
     val encryptedPassword = encryptor.encryptPassword(password)
-    springDB.run(
-      sql"UPDATE users SET passwd=${encryptedPassword}, lostpwd = 'epoch' WHERE id=${user.id}".update.apply())
+    sql"UPDATE users SET passwd=${encryptedPassword}, lostpwd = 'epoch' WHERE id=${user.id}".update.apply()
 
-  def updateResetDate(user: User, now: Timestamp): Unit =
-    springDB.run(sql"UPDATE users SET lostpwd=${now} WHERE id=${user.id}".update.apply())
+  def updateResetDate(user: User, now: Timestamp)(using Transaction): Unit =
+    sql"UPDATE users SET lostpwd=${now} WHERE id=${user.id}".update.apply()
 
   def getResetDate(user: User): Timestamp =
     springDB.run(
       sql"SELECT lostpwd FROM users WHERE id=${user.id}".map(rs => rs.timestamp("lostpwd")).single.apply().get)
 
-  def block(user: User, moderator: User, reason: String): Unit =
-    springDB.run(sql"UPDATE users SET blocked='t' WHERE id=${user.id}".update.apply())
-    springDB.run(
-      sql"INSERT INTO ban_info (userid, reason, ban_by) VALUES (${user.id}, ${reason}, ${moderator.id})".update.apply())
+  def block(user: User, moderator: User, reason: String)(using Transaction): Unit =
+    sql"UPDATE users SET blocked='t' WHERE id=${user.id}".update.apply()
+    sql"INSERT INTO ban_info (userid, reason, ban_by) VALUES (${user.id}, ${reason}, ${moderator.id})".update.apply()
 
-  def freezeUser(user: User, moderator: User, reason: String, until: Timestamp): Unit =
-    springDB.run(
-      sql"UPDATE users SET frozen_until=${until}, frozen_by=${moderator.id}, freezing_reason=${reason} WHERE id=${user
-          .id}".update.apply())
+  def freezeUser(user: User, moderator: User, reason: String, until: Timestamp)(using Transaction): Unit =
+    sql"UPDATE users SET frozen_until=${until}, frozen_by=${moderator.id}, freezing_reason=${reason} WHERE id=${user
+        .id}".update.apply()
 
-  def score50(user: User): Boolean =
-    springDB.run(
-      sql"UPDATE users SET score=GREATEST(score, 50), max_score=GREATEST(max_score, 50) WHERE id=${user
-          .id} AND score<50".update.apply()) > 0
+  def score50(user: User)(using Transaction): Boolean =
+    sql"UPDATE users SET score=GREATEST(score, 50), max_score=GREATEST(max_score, 50) WHERE id=${user.id} AND score<50"
+      .update
+      .apply() > 0
 
-  def unblock(user: User): Unit =
-    springDB.run(sql"UPDATE users SET blocked='f' WHERE id=${user.id}".update.apply())
-    springDB.run(sql"DELETE FROM ban_info WHERE userid=${user.id}".update.apply())
+  def unblock(user: User)(using Transaction): Unit =
+    sql"UPDATE users SET blocked='f' WHERE id=${user.id}".update.apply()
+    sql"DELETE FROM ban_info WHERE userid=${user.id}".update.apply()
 
   def getModerators: Seq[(Int, Option[Instant])] =
     springDB.run(
@@ -258,34 +255,31 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
           .list
           .apply())
 
-  def activateUser(user: User): Unit =
-    springDB.run(sql"UPDATE users SET activated='t' WHERE id=${user.id}".update.apply())
+  def activateUser(user: User)(using Transaction): Unit =
+    sql"UPDATE users SET activated='t' WHERE id=${user.id}".update.apply()
 
-  def updateName(user: User, name: String): Boolean =
-    springDB.run(
-      sql"UPDATE users SET name=${name} WHERE id=${user.id} AND name IS DISTINCT FROM ${name}".update.apply()) > 0
+  def updateName(user: User, name: String)(using Transaction): Boolean =
+    sql"UPDATE users SET name=${name} WHERE id=${user.id} AND name IS DISTINCT FROM ${name}".update.apply() > 0
 
-  def updateUrl(user: User, url: String): Boolean =
-    springDB.run(sql"UPDATE users SET url=${url} WHERE id=${user.id} AND url IS DISTINCT FROM ${url}".update.apply()) >
-      0
+  def updateUrl(user: User, url: String)(using Transaction): Boolean =
+    sql"UPDATE users SET url=${url} WHERE id=${user.id} AND url IS DISTINCT FROM ${url}".update.apply() > 0
 
-  def updateTown(user: User, town: String): Boolean =
-    springDB.run(
-      sql"UPDATE users SET town=${town} WHERE id=${user.id} AND town IS DISTINCT FROM ${town}".update.apply()) > 0
+  def updateTown(user: User, town: String)(using Transaction): Boolean =
+    sql"UPDATE users SET town=${town} WHERE id=${user.id} AND town IS DISTINCT FROM ${town}".update.apply() > 0
 
-  def setNewEmail(user: User, newEmail: String): Unit =
-    springDB.run(sql"UPDATE users SET new_email=${newEmail} WHERE id=${user.id}".update.apply())
+  def setNewEmail(user: User, newEmail: String)(using Transaction): Unit =
+    sql"UPDATE users SET new_email=${newEmail} WHERE id=${user.id}".update.apply()
 
-  def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String): Int =
+  def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String)(using
+      Transaction): Int =
     val encryptor: PasswordEncryptor = new BasicPasswordEncryptor()
     val fixedUrl = Option(url).map(URLUtil.fixURL).orNull
 
-    val userid = springDB.run(sql"select nextval('s_uid') as userid".map(rs => rs.int("userid")).single.apply().get)
-    springDB.run(
-      sql"""INSERT INTO users
-            (id, name, nick, passwd, url, email, town, score, max_score, regdate, userinfo_markup)
-            VALUES (${userid}, ${name}, ${nick}, ${encryptor.encryptPassword(password)}, ${fixedUrl}, ${mail
-          .getAddress}, ${town}, 45, 45, current_timestamp, ${Profile.DEFAULT.formatMode.id})""".update.apply())
+    val userid = sql"select nextval('s_uid') as userid".map(rs => rs.int("userid")).single.apply().get
+    sql"""INSERT INTO users
+          (id, name, nick, passwd, url, email, town, score, max_score, regdate, userinfo_markup)
+          VALUES (${userid}, ${name}, ${nick}, ${encryptor.encryptPassword(password)}, ${fixedUrl}, ${mail
+        .getAddress}, ${town}, 45, 45, current_timestamp, ${Profile.DEFAULT.formatMode.id})""".update.apply()
     userid
 
   def isUserExists(nick: String): Boolean =
@@ -307,8 +301,8 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     springDB.run(
       sql"SELECT new_email FROM users WHERE id=${user.id}".map(rs => rs.string("new_email")).single.apply().orNull)
 
-  def acceptNewEmail(user: User, newEmail: String): Unit =
-    springDB.run(sql"UPDATE users SET email=${newEmail}, new_email=null WHERE id=${user.id}".update.apply())
+  def acceptNewEmail(user: User, newEmail: String)(using Transaction): Unit =
+    sql"UPDATE users SET email=${newEmail}, new_email=null WHERE id=${user.id}".update.apply()
 
   def updateLastlogin(user: User, force: Boolean): Boolean =
     if force then
@@ -353,19 +347,19 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     (rs: WrappedResultSet) =>
       UserAndAgent(rs.timestamp("lastdate"), rs.string("nick"), rs.string("user_agent"), rs.boolean("blocked"))
 
-  @Transactional
-  def updateScore(): Unit =
-    springDB.run(sql"""update users set score=score+1
+  def updateScore()(using Transaction): Unit =
+    sql"""update users set score=score+1
             where id in (
               select distinct comments.userid from comments, topics
               where comments.postdate>CURRENT_TIMESTAMP-'2 days'::interval
               and topics.id=comments.topic and
               not topics.groupid in (${NonTech}) and
               not comments.deleted and not topics.deleted and not topics.notop
-            )""".update.apply())
+            )""".update.apply()
     updateMaxScore()
 
-  def updateMaxScore(): Unit = springDB.run(sql"update users set max_score=score where score>max_score".update.apply())
+  def updateMaxScore()(using Transaction): Unit =
+    sql"update users set max_score=score where score>max_score".update.apply()
 
   def blockLowScoreUsers(): Unit =
     springDB.run(
@@ -377,32 +371,27 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
         .update
         .apply())
 
-  @Transactional
-  def deleteInactivatedAccounts(): (Int, Int) =
-    springDB.run(
-      sql"delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)"
-        .update
-        .apply())
-    springDB.run(
-      sql"delete from topic_users_notified where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)"
-        .update
-        .apply())
-    val deleted = springDB.run(
+  def deleteInactivatedAccounts()(using Transaction): (Int, Int) =
+    sql"delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)"
+      .update
+      .apply()
+    sql"delete from topic_users_notified where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)"
+      .update
+      .apply()
+    val deleted =
       sql"delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval"
         .update
-        .apply())
-    springDB.run(
-      sql"delete from ban_info where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
-        .update
-        .apply())
-    springDB.run(
-      sql"delete from user_events where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
-        .update
-        .apply())
-    springDB.run(
-      sql"delete from topic_users_notified where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
-        .update
-        .apply())
-    val deletedBlocked = springDB.run(
-      sql"delete from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval".update.apply())
+        .apply()
+    sql"delete from ban_info where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
+      .update
+      .apply()
+    sql"delete from user_events where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
+      .update
+      .apply()
+    sql"delete from topic_users_notified where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
+      .update
+      .apply()
+    val deletedBlocked = sql"delete from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval"
+      .update
+      .apply()
     (deleted, deletedBlocked)

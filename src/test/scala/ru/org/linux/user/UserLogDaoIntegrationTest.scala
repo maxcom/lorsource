@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 
 object UserLogDaoIntegrationTest {
   private val TestId = 1
@@ -38,6 +40,9 @@ class UserLogDaoIntegrationTest {
   @Autowired
   var userLogDao: UserLogDao = scala.compiletime.uninitialized
 
+  @Autowired
+  var springDB: SpringDB = scala.compiletime.uninitialized
+
   @Test
   def testLogAcceptEmail(): Unit = {
     val user = mock(classOf[User])
@@ -46,7 +51,7 @@ class UserLogDaoIntegrationTest {
 
     val oldLogItems = userLogDao.getLogItems(user, includeSelf = true)
 
-    userLogDao.logAcceptNewEmail(user, "test@email")
+    springDB.localTx { userLogDao.logAcceptNewEmail(user, "test@email") }
 
     val logItems = userLogDao.getLogItems(user, includeSelf = true)
 
@@ -65,7 +70,7 @@ class UserLogDaoIntegrationTest {
 
     val oldLogItems = userLogDao.getLogItems(user, includeSelf = true)
 
-    userLogDao.logScore50(user, user)
+    springDB.localTx { userLogDao.logScore50(user, user) }
 
     val logItems = userLogDao.getLogItems(user, includeSelf = true)
 

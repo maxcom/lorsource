@@ -50,9 +50,8 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .orNull
 
-  def updateLastmod(topicId: Int): Unit =
-    springDB.run:
-      sql"UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=$topicId".update.apply()
+  def updateLastmod(topicId: Int)(using Transaction): Unit =
+    sql"UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=$topicId".update.apply()
 
   def getById(id: Int): Topic = findById(id).getOrElse(throw MessageNotFoundException(id))
 
@@ -81,13 +80,11 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .toVector
 
-  def delete(msgid: Int): Boolean =
-    springDB.run:
-      sql"UPDATE topics SET deleted='t',sticky='f' WHERE id=$msgid AND NOT deleted".update.apply() > 0
+  def delete(msgid: Int)(using Transaction): Boolean =
+    sql"UPDATE topics SET deleted='t',sticky='f' WHERE id=$msgid AND NOT deleted".update.apply() > 0
 
-  def undelete(message: Topic): Unit =
-    springDB.run:
-      sql"UPDATE topics SET deleted='f' WHERE id=${message.id}".update.apply()
+  def undelete(message: Topic)(using Transaction): Unit =
+    sql"UPDATE topics SET deleted='f' WHERE id=${message.id}".update.apply()
 
   def saveNewMessage(msg: Topic, user: User, userAgent: String, group: Group)(using Transaction): Int =
     val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
@@ -98,36 +95,29 @@ class TopicDao(springDB: SpringDB):
           .draft}, CURRENT_TIMESTAMP, ${msg.allowAnonymous})""".update.apply()
     msgid
 
-  def updateTitle(msgid: Int, title: String): Unit =
-    springDB.run:
-      sql"UPDATE topics SET title=$title WHERE id=$msgid".update.apply()
+  def updateTitle(msgid: Int, title: String)(using Transaction): Unit =
+    sql"UPDATE topics SET title=$title WHERE id=$msgid".update.apply()
 
-  def updateLinktext(msgid: Int, linktext: String): Unit =
-    springDB.run:
-      sql"UPDATE topics SET linktext=$linktext WHERE id=$msgid".update.apply()
+  def updateLinktext(msgid: Int, linktext: String)(using Transaction): Unit =
+    sql"UPDATE topics SET linktext=$linktext WHERE id=$msgid".update.apply()
 
-  def updateUrl(msgid: Int, url: String): Unit =
-    springDB.run:
-      sql"UPDATE topics SET url=$url WHERE id=$msgid".update.apply()
+  def updateUrl(msgid: Int, url: String)(using Transaction): Unit =
+    sql"UPDATE topics SET url=$url WHERE id=$msgid".update.apply()
 
-  def setMinor(msgid: Int, minor: Boolean): Unit =
-    springDB.run:
-      sql"UPDATE topics SET minor=$minor WHERE id=$msgid".update.apply()
+  def setMinor(msgid: Int, minor: Boolean)(using Transaction): Unit =
+    sql"UPDATE topics SET minor=$minor WHERE id=$msgid".update.apply()
 
-  def commit(msg: Topic, commiter: User): Unit =
-    springDB.run:
-      sql"UPDATE topics SET moderate='t', commitby=${commiter
-          .id}, commitdate=CURRENT_TIMESTAMP, lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
+  def commit(msg: Topic, commiter: User)(using Transaction): Unit =
+    sql"UPDATE topics SET moderate='t', commitby=${commiter
+        .id}, commitdate=CURRENT_TIMESTAMP, lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
 
-  def publish(msg: Topic): Unit =
-    springDB.run:
-      sql"UPDATE topics SET draft='f',postdate=CURRENT_TIMESTAMP,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id} AND draft"
-        .update
-        .apply()
+  def publish(msg: Topic)(using Transaction): Unit =
+    sql"UPDATE topics SET draft='f',postdate=CURRENT_TIMESTAMP,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id} AND draft"
+      .update
+      .apply()
 
-  def uncommit(msg: Topic): Unit =
-    springDB.run:
-      sql"UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=${msg.id}".update.apply()
+  def uncommit(msg: Topic)(using Transaction): Unit =
+    sql"UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=${msg.id}".update.apply()
 
   def getPreviousMessage(message: Topic, currentUser: User, scrollMode: SectionScrollModeEnum): Option[Topic] =
     if message.sticky then
@@ -251,18 +241,15 @@ class TopicDao(springDB: SpringDB):
     }
   end getNextMessage
 
-  def resolveMessage(msgid: Int, b: Boolean): Unit =
-    springDB.run:
-      sql"UPDATE topics SET resolved=$b,lastmod=lastmod+'1 second'::interval WHERE id=$msgid".update.apply()
+  def resolveMessage(msgid: Int, b: Boolean)(using Transaction): Unit =
+    sql"UPDATE topics SET resolved=$b,lastmod=lastmod+'1 second'::interval WHERE id=$msgid".update.apply()
 
-  def setTopicOptions(msg: Topic, postscore: Int, sticky: Boolean, notop: Boolean): Unit =
-    springDB.run:
-      sql"UPDATE topics SET postscore=$postscore, sticky=$sticky, notop=$notop, lastmod=CURRENT_TIMESTAMP WHERE id=${msg
-          .id}".update.apply()
+  def setTopicOptions(msg: Topic, postscore: Int, sticky: Boolean, notop: Boolean)(using Transaction): Unit =
+    sql"UPDATE topics SET postscore=$postscore, sticky=$sticky, notop=$notop, lastmod=CURRENT_TIMESTAMP WHERE id=${msg
+        .id}".update.apply()
 
-  def changeGroup(msg: Topic, changeGroupId: Int): Unit =
-    springDB.run:
-      sql"UPDATE topics SET groupid=$changeGroupId,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
+  def changeGroup(msg: Topic, changeGroupId: Int)(using Transaction): Unit =
+    sql"UPDATE topics SET groupid=$changeGroupId,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
 
   def moveTopic(msg: Topic, newGrp: Group)(using Transaction): Unit =
     val oldId =
@@ -327,16 +314,16 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .isDefined
 
-  def recalcWarningsCount(topicId: Int): Unit =
-    springDB.run:
-      sql"""update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
-            and mw.comment is null and mw.closed_by is null and mw.warning_type=${RuleWarning.id} and
-            mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
-            mw.author in (select id from users where score>100)) where topics.id=$topicId""".update.apply()
+  def recalcWarningsCount(topicId: Int)(using Transaction): Unit =
+    sql"""update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
+          and mw.comment is null and mw.closed_by is null and mw.warning_type=${RuleWarning.id} and
+          mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
+          mw.author in (select id from users where score>100)) where topics.id=$topicId""".update.apply()
 
-  def recalcAllWarningsCount(): Unit =
-    springDB.run:
-      sql"""update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
-            and mw.comment is null and mw.closed_by is null and mw.warning_type=${RuleWarning.id} and
-            mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
-            mw.author in (select id from users where score>100)) where open_warnings > 0""".update.apply()
+  def recalcAllWarningsCount()(using Transaction): Unit =
+    sql"""update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id
+          and mw.comment is null and mw.closed_by is null and mw.warning_type=${RuleWarning.id} and
+          mw.postdate > CURRENT_TIMESTAMP - '12 hours'::interval and
+          mw.author in (select id from users where score>100)) where open_warnings > 0""".update.apply()
+
+  def recalcAllWarningsCountInTx(): Unit = springDB.localTx(recalcAllWarningsCount())

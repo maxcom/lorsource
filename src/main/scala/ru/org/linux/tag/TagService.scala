@@ -25,6 +25,8 @@ import org.opensearch.client.opensearch._types.query_dsl.{BoolQuery, Query, Rang
 import org.opensearch.client.opensearch.core.{CountRequest, SearchRequest}
 import org.springframework.stereotype.Service
 import ru.org.linux.group.{Group, GroupService}
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.topic.TagTopicListController
@@ -44,7 +46,7 @@ import scala.util.Success
 
 @Service
 class TagService(tagDao: TagDao, searchClient: OpenSearchAsyncClient, actorSystem: ActorSystem,
-                 sectionService: SectionService, groupService: GroupService) extends StrictLogging {
+                 sectionService: SectionService, groupService: GroupService, springDB: SpringDB) extends StrictLogging {
   private given ActorSystem = actorSystem
 
   import ru.org.linux.tag.TagService.*
@@ -76,7 +78,8 @@ class TagService(tagDao: TagDao, searchClient: OpenSearchAsyncClient, actorSyste
    * @param tagName название тега
    * @return идентификационный номер тега
    */
-  def getOrCreateTag(tagName: String): Int = getTagIdOptWithSynonym(tagName).getOrElse(tagDao.createTag(tagName))
+  def getOrCreateTag(tagName: String): Int = springDB.localTx:
+    getTagIdOptWithSynonym(tagName).getOrElse(tagDao.createTag(tagName))
 
   def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] = {
     if (TagName.isGoodTag(tag)) {

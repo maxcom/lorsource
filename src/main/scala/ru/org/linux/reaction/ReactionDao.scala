@@ -20,7 +20,8 @@ import io.circe.parser.*
 import io.circe.syntax.*
 import org.springframework.stereotype.Repository
 import ru.org.linux.comment.Comment
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
 import scalikejdbc.*
@@ -61,43 +62,40 @@ object ReactionDao extends StrictLogging:
 @Repository
 class ReactionDao(springDB: SpringDB):
 
-  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean): Int =
-    springDB.run:
-      if set then
-        val add = Map(user.id -> reaction).asJson.noSpaces
-        sql"UPDATE comments SET reactions = reactions || ${add}::jsonb WHERE id=${comment.id}".update.apply()
-        sql"""INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction) VALUES(${user.id}, ${comment
-            .topicId}, ${comment.id}, $reaction)
-              ON CONFLICT (origin_user, topic_id, comment_id)
-              DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction""".update.apply()
-      else
-        sql"UPDATE comments SET reactions = reactions - ${user.id.toString} WHERE id=${comment.id}".update.apply()
-        sql"DELETE FROM reactions_log WHERE origin_user=${user.id} AND topic_id=${comment
-            .topicId} AND comment_id=${comment.id}".update.apply()
-      end if
+  def setCommentReaction(comment: Comment, user: User, reaction: String, set: Boolean)(using Transaction): Int =
+    if set then
+      val add = Map(user.id -> reaction).asJson.noSpaces
+      sql"UPDATE comments SET reactions = reactions || ${add}::jsonb WHERE id=${comment.id}".update.apply()
+      sql"""INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction) VALUES(${user.id}, ${comment
+          .topicId}, ${comment.id}, $reaction)
+            ON CONFLICT (origin_user, topic_id, comment_id)
+            DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction""".update.apply()
+    else
+      sql"UPDATE comments SET reactions = reactions - ${user.id.toString} WHERE id=${comment.id}".update.apply()
+      sql"DELETE FROM reactions_log WHERE origin_user=${user.id} AND topic_id=${comment
+          .topicId} AND comment_id=${comment.id}".update.apply()
+    end if
 
-      val r =
-        sql"SELECT reactions FROM comments WHERE id=${comment.id}".map(rs => rs.string("reactions")).single.apply().get
-      ReactionDao.parse(r).reactions.values.count(_ == reaction)
+    val r =
+      sql"SELECT reactions FROM comments WHERE id=${comment.id}".map(rs => rs.string("reactions")).single.apply().get
+    ReactionDao.parse(r).reactions.values.count(_ == reaction)
 
-  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int =
-    springDB.run:
-      if set then
-        val add = Map(user.id -> reaction).asJson.noSpaces
-        sql"UPDATE topics SET reactions = reactions || ${add}::jsonb WHERE id=${topic.id}".update.apply()
-        sql"""INSERT INTO reactions_log (origin_user, topic_id, reaction) VALUES(${user.id}, ${topic.id}, $reaction)
-              ON CONFLICT (origin_user, topic_id, comment_id)
-              DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction""".update.apply()
-      else
-        sql"UPDATE topics SET reactions = reactions - ${user.id.toString} WHERE id=${topic.id}".update.apply()
-        sql"DELETE FROM reactions_log WHERE origin_user=${user.id} AND topic_id=${topic.id} AND comment_id IS NULL"
-          .update
-          .apply()
-      end if
+  def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean)(using Transaction): Int =
+    if set then
+      val add = Map(user.id -> reaction).asJson.noSpaces
+      sql"UPDATE topics SET reactions = reactions || ${add}::jsonb WHERE id=${topic.id}".update.apply()
+      sql"""INSERT INTO reactions_log (origin_user, topic_id, reaction) VALUES(${user.id}, ${topic.id}, $reaction)
+            ON CONFLICT (origin_user, topic_id, comment_id)
+            DO UPDATE SET set_date=CURRENT_TIMESTAMP, reaction = EXCLUDED.reaction""".update.apply()
+    else
+      sql"UPDATE topics SET reactions = reactions - ${user.id.toString} WHERE id=${topic.id}".update.apply()
+      sql"DELETE FROM reactions_log WHERE origin_user=${user.id} AND topic_id=${topic.id} AND comment_id IS NULL"
+        .update
+        .apply()
+    end if
 
-      val r =
-        sql"SELECT reactions FROM topics WHERE id=${topic.id}".map(rs => rs.string("reactions")).single.apply().get
-      ReactionDao.parse(r).reactions.values.count(_ == reaction)
+    val r = sql"SELECT reactions FROM topics WHERE id=${topic.id}".map(rs => rs.string("reactions")).single.apply().get
+    ReactionDao.parse(r).reactions.values.count(_ == reaction)
 
   def recentReactionCount(origin: User): Int =
     springDB.run:

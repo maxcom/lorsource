@@ -21,9 +21,11 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.group.GroupService
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 
 @Controller
-class ResolveController(messageDao: TopicDao, groupService: GroupService) {
+class ResolveController(messageDao: TopicDao, groupService: GroupService, springDB: SpringDB) {
   @RequestMapping(Array("/resolve.jsp"))
   def resolve(@RequestParam("msgid") msgid: Int,
               @RequestParam("resolve") resolved: String): RedirectView = AuthorizedOnly { currentUser =>
@@ -38,7 +40,8 @@ class ResolveController(messageDao: TopicDao, groupService: GroupService) {
       throw new AccessViolationException("У Вас нет прав на решение данной темы")
     }
 
-    messageDao.resolveMessage(message.id, "yes" == resolved)
+    springDB.localTx:
+      messageDao.resolveMessage(message.id, "yes" == resolved)
 
     new RedirectView(TopicLinkBuilder.baseLink(message).forceLastmod.build)
   }

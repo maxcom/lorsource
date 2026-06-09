@@ -15,11 +15,11 @@
 
 package ru.org.linux.warning
 
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.comment.Comment
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserEventService, UserService}
 
@@ -34,9 +34,9 @@ object WarningService {
 
 @Service
 class WarningService(warningDao: WarningDao, eventService: UserEventService, userService: UserService,
-                     topicDao: TopicDao, val transactionManager: PlatformTransactionManager) extends TransactionManagement {
+                     topicDao: TopicDao, springDB: SpringDB) {
   def postWarning(topic: Topic, comment: Option[Comment], author: User, message: String,
-                  warningType: WarningType): Unit = transactional() { _ =>
+                  warningType: WarningType): Unit = springDB.localTx {
     val notifyList = warningType match {
       case RuleWarning | GroupWarning =>
         userService.getModerators.filter(_._2).map(_._1)
@@ -76,7 +76,7 @@ class WarningService(warningDao: WarningDao, eventService: UserEventService, use
 
   def get(id: Int): Warning = warningDao.get(id)
 
-  def clear(warning: Warning, by: AuthorizedSession): Unit = {
+  def clear(warning: Warning, by: AuthorizedSession)(using Transaction): Unit = {
     warningDao.clear(warning.id, by.user.id)
 
     if (warning.commentId.isEmpty) {

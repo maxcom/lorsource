@@ -16,22 +16,21 @@
 package ru.org.linux.topic
 
 import org.springframework.stereotype.Repository
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.tag.TagInfo
 import scalikejdbc.*
 
 @Repository
 class TopicTagDao(springDB: SpringDB):
 
-  def addTag(msgId: Int, tagId: Int): Unit =
-    springDB.run:
-      val inserted = sql"INSERT INTO tags VALUES($msgId, $tagId) ON CONFLICT DO NOTHING".update.apply()
-      if inserted > 0 then
-        sql"UPDATE tags_values SET counter = counter + 1 WHERE id = $tagId".update.apply()
+  def addTag(msgId: Int, tagId: Int)(using Transaction): Unit =
+    val inserted = sql"INSERT INTO tags VALUES($msgId, $tagId) ON CONFLICT DO NOTHING".update.apply()
+    if inserted > 0 then
+      sql"UPDATE tags_values SET counter = counter + 1 WHERE id = $tagId".update.apply()
 
-  def deleteTag(msgId: Int, tagId: Int): Unit =
-    springDB.run:
-      sql"DELETE FROM tags WHERE msgid=$msgId AND tagid=$tagId".update.apply()
+  def deleteTag(msgId: Int, tagId: Int)(using Transaction): Unit =
+    sql"DELETE FROM tags WHERE msgid=$msgId AND tagid=$tagId".update.apply()
 
   def getTags(msgid: Int): Seq[TagInfo] =
     springDB.run:
@@ -47,26 +46,22 @@ class TopicTagDao(springDB: SpringDB):
               SELECT msgid FROM tags WHERE tagid=$newTagId
             )""".map(rs => rs.int(1)).single.apply().getOrElse(0)
 
-  def replaceTag(oldTagId: Int, newTagId: Int): Unit =
-    springDB.run:
-      sql"""UPDATE tags SET tagid=$newTagId
-            WHERE tagid=$oldTagId AND msgid NOT IN (
-              SELECT msgid FROM tags WHERE tagid=$newTagId
-            )""".update.apply()
+  def replaceTag(oldTagId: Int, newTagId: Int)(using Transaction): Unit =
+    sql"""UPDATE tags SET tagid=$newTagId
+          WHERE tagid=$oldTagId AND msgid NOT IN (
+            SELECT msgid FROM tags WHERE tagid=$newTagId
+          )""".update.apply()
 
-  def deleteTag(tagId: Int): Unit =
-    springDB.run:
-      sql"DELETE FROM tags WHERE tagid=$tagId".update.apply()
+  def deleteTag(tagId: Int)(using Transaction): Unit = sql"DELETE FROM tags WHERE tagid=$tagId".update.apply()
 
-  def reCalculateAllCounters(): Unit =
-    springDB.run:
-      sql"""UPDATE tags_values SET counter =
-            (SELECT count(*) FROM tags JOIN topics ON tags.msgid=topics.id
-             JOIN groups ON topics.groupid = groups.id
-             JOIN sections ON sections.id = groups.section
-             WHERE tags.tagid=tags_values.id AND NOT deleted AND (topics.moderate OR NOT sections.moderate))"""
-        .update
-        .apply()
+  def reCalculateAllCounters()(using Transaction): Unit =
+    sql"""UPDATE tags_values SET counter =
+          (SELECT count(*) FROM tags JOIN topics ON tags.msgid=topics.id
+           JOIN groups ON topics.groupid = groups.id
+           JOIN sections ON sections.id = groups.section
+           WHERE tags.tagid=tags_values.id AND NOT deleted AND (topics.moderate OR NOT sections.moderate))"""
+      .update
+      .apply()
 
   def getTags(topics: collection.Seq[Int]): collection.Seq[(Int, TagInfo)] =
     if topics.isEmpty then
@@ -81,9 +76,8 @@ class TopicTagDao(springDB: SpringDB):
           .list
           .apply()
 
-  def increaseCounterById(tagId: Int, tagCount: Int): Unit =
-    springDB.run:
-      sql"UPDATE tags_values SET counter=counter+$tagCount WHERE id=$tagId".update.apply()
+  def increaseCounterById(tagId: Int, tagCount: Int)(using Transaction): Unit =
+    sql"UPDATE tags_values SET counter=counter+$tagCount WHERE id=$tagId".update.apply()
 
   def processTopicsByTag(tagId: Int, f: Int => Unit): Unit =
     springDB.run:

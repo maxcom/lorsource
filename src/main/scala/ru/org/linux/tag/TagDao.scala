@@ -16,7 +16,8 @@
 package ru.org.linux.tag
 
 import org.springframework.stereotype.Repository
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 @Repository
@@ -24,32 +25,26 @@ class TagDao(springDB: SpringDB):
 
   private def escapeLikeWildcards(str: String): String = str.replaceAll("[_%]", "\\\\$0")
 
-  def createTag(tagName: String): Int =
+  def createTag(tagName: String)(using Transaction): Int =
     assume(TagName.isGoodTag(tagName), "Tag name must be valid")
-    springDB.run:
-      sql"INSERT INTO tags_values (value) VALUES ($tagName) RETURNING id".map(rs => rs.int("id")).single.apply().get
+    sql"INSERT INTO tags_values (value) VALUES ($tagName) RETURNING id".map(rs => rs.int("id")).single.apply().get
 
-  def createTagSynonym(tagName: String, id: Int): Unit =
+  def createTagSynonym(tagName: String, id: Int)(using Transaction): Unit =
     assume(TagName.isGoodTag(tagName), "Tag name must be valid")
-    springDB.run:
-      sql"INSERT INTO tags_synonyms (value, tagid) VALUES ($tagName, $id)".update.apply()
+    sql"INSERT INTO tags_synonyms (value, tagid) VALUES ($tagName, $id)".update.apply()
 
-  def updateTagSynonym(oldId: Int, newId: Int): Unit =
-    springDB.run:
-      sql"UPDATE tags_synonyms SET tagid=$newId WHERE tagid=$oldId".update.apply()
+  def updateTagSynonym(oldId: Int, newId: Int)(using Transaction): Unit =
+    sql"UPDATE tags_synonyms SET tagid=$newId WHERE tagid=$oldId".update.apply()
 
-  def changeTag(tagId: Int, tagName: String): Unit =
-    springDB.run:
-      sql"UPDATE tags_values SET value=$tagName WHERE id=$tagId".update.apply()
+  def changeTag(tagId: Int, tagName: String)(using Transaction): Unit =
+    sql"UPDATE tags_values SET value=$tagName WHERE id=$tagId".update.apply()
 
-  def deleteTag(tagId: Int): Unit =
-    springDB.run:
-      sql"DELETE FROM tags_synonyms WHERE tagid=$tagId".update.apply()
-      sql"DELETE FROM tags_values WHERE id=$tagId".update.apply()
+  def deleteTag(tagId: Int)(using Transaction): Unit =
+    sql"DELETE FROM tags_synonyms WHERE tagid=$tagId".update.apply()
+    sql"DELETE FROM tags_values WHERE id=$tagId".update.apply()
 
-  def deleteTagSynonym(tagName: String): Unit =
-    springDB.run:
-      sql"DELETE FROM tags_synonyms WHERE value=$tagName".update.apply()
+  def deleteTagSynonym(tagName: String)(using Transaction): Unit =
+    sql"DELETE FROM tags_synonyms WHERE value=$tagName".update.apply()
 
   private[tag] def getFirstLetters: Seq[String] =
     springDB.run:

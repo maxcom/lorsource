@@ -50,7 +50,7 @@ public class StatUpdater {
 
     statUpdate.execute();
     statMonthly.execute();
-    topicDao.recalcAllWarningsCount();
+    topicDao.recalcAllWarningsCountInTx();
   }
 
   @Scheduled(fixedDelay=HOUR, initialDelay = FIVE_MINS)

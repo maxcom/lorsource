@@ -18,12 +18,12 @@ import com.github.benmanes.caffeine.cache.{Caffeine, LoadingCache}
 import com.typesafe.scalalogging.StrictLogging
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException
 import org.jasypt.util.password.BasicPasswordEncryptor
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.msgbase.UserAgentDao
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.DefaultProfile
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.UserService.*
@@ -69,8 +69,8 @@ object UserService {
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
-                  profileDao: ProfileDao, val transactionManager: PlatformTransactionManager)
-    extends StrictLogging with TransactionManagement {
+                  profileDao: ProfileDao, springDB: SpringDB)
+    extends StrictLogging {
   private val nameToIdCache: LoadingCache[String, Int] =
     Caffeine.newBuilder().maximumSize(UserService.NameCacheSize).build(
       (nick: String) => userDao.findUserId(nick)
@@ -169,7 +169,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     StringUtil.md5hash(s"$base:$nick:$email:${tm.getTime.toString}:reset")
   }
 
-  def updateResetDate(forUser: User, byUser: User, email: String, now: Timestamp): Unit = transactional() { _ =>
+  def updateResetDate(forUser: User, byUser: User, email: String, now: Timestamp): Unit = springDB.localTx {
     userDao.updateResetDate(forUser, now)
     userLogDao.logSentPasswordReset(forUser, byUser, email)
   }
@@ -253,7 +253,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def createUser(nick: String, password: String, mail: InternetAddress, ip: String,
                  userAgent: Option[String], language: Option[String]): Int = {
-    val result = transactional() { _ =>
+    val result = springDB.localTx {
       val newUserId = userDao.createUser("", nick, password, null, mail, null)
       
       val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
@@ -276,7 +276,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     userLogDao.hasRecentModerationEvent(user, Duration.ofDays(14), UserLogAction.BlockUser)
 
   def removeUserInfo(user: User, moderator: User): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       val userInfo = userDao.getUserInfo(user)
 
       if ((userInfo.text != null) && userInfo.text.trim.nonEmpty) {
@@ -290,7 +290,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def removeTown(user: User, moderator: User): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       val userInfo = userDao.getUserInfo(user)
 
       if (userInfo.town != null && userInfo.town.trim.nonEmpty) {
@@ -304,7 +304,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def removeUrl(user: User, moderator: User): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       val userInfo = userDao.getUserInfo(user)
 
       if (userInfo.url != null || userInfo.url.trim.nonEmpty) {
@@ -319,7 +319,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def updateUser(user: User, name: String, url: String, newEmail: Option[String], town: String,
                  password: Option[String], info: String, infoMarkup: MarkupType, ip: String): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       val changed = mutable.Map[String, String]()
 
       if (userDao.updateName(user, name)) changed += "name" -> name
@@ -342,7 +342,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def updateEmailPasswd(user: User, newEmail: Option[String], password: Option[String],
                         ip: String): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       password.foreach { password =>
         userDao.setPassword(user, password)
         userLogDao.logSetPassword(user, ip)
@@ -363,7 +363,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     userDao.getUsersWithAgent(ip, userAgent, limit)
 
   def deregister(user: User): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       userDao.resetUserpic(user)
 
       userDao.updateName(user, "")
@@ -393,7 +393,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def freezeUser(user: User, moderator: User, reason: String, until: Timestamp): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       userDao.freezeUser(user, moderator, reason, until)
       userLogDao.logFreezeUser(user, moderator, reason, until.toInstant)
     }
@@ -402,7 +402,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def setPhoto(user: User, photo: String): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       userDao.setPhoto(user, photo)
       userLogDao.logSetUserpic(user, photo)
     }
@@ -411,7 +411,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def changeScore(userId: Int, delta: Int): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       userDao.changeScore(userId, delta)
     }
 
@@ -419,7 +419,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def block(user: User, moderator: User, reason: String): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       userDao.block(user, moderator, reason)
       userLogDao.logBlockUser(user, moderator, reason)
     }
@@ -432,7 +432,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def score50(user: User, moderator: User): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       if (userDao.score50(user)) {
         userLogDao.logScore50(user, moderator)
       }
@@ -442,7 +442,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def unblock(user: User, moderator: User): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       userDao.unblock(user)
       userLogDao.logUnblockUser(user, moderator)
     }
@@ -452,12 +452,12 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def toggleCorrector(user: User, moderator: User): Unit = {
     if (user.corrector) {
-      transactional() { _ =>
+      springDB.localTx {
         userDao.unsetCorrector(user)
         userLogDao.unsetCorrector(user, moderator)
       }
     } else {
-      transactional() { _ =>
+      springDB.localTx {
         userDao.setCorrector(user)
         userLogDao.setCorrector(user, moderator)
       }
@@ -466,7 +466,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     idToUserCache.invalidate(user.id)
   }
 
-  def resetPassword(user: User): String = transactional() { _ =>
+  def resetPassword(user: User): String = springDB.localTx {
     val newPassword = StringUtil.generatePassword
 
     userDao.setPassword(user, newPassword)
@@ -475,13 +475,13 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     newPassword
   }
 
-  def resetPassword(user: User, moderator: User): Unit = transactional() { _ =>
+  def resetPassword(user: User, moderator: User): Unit = springDB.localTx {
     userDao.setPassword(user, StringUtil.generatePassword)
     userLogDao.logResetPassword(user, moderator)
   }
 
   def activateUser(user: User): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       userDao.activateUser(user)
     }
 
@@ -489,7 +489,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def acceptNewEmail(user: User, newEmail: String): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       userDao.acceptNewEmail(user, newEmail)
       userLogDao.logAcceptNewEmail(user, newEmail)
     }
@@ -498,7 +498,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def resetUserpic(user: User, cleaner: User): Boolean = {
-    val result = transactional() { _ =>
+    val result = springDB.localTx {
       val cleaned = userDao.resetUserpic(user)
 
       if (cleaned) {

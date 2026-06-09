@@ -24,7 +24,8 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.user.User
 import scalikejdbc.*
 
@@ -58,7 +59,7 @@ class DeleteInfoDaoIntegrationTest:
     val deleter = mockUser(1)
     val info = InsertDeleteInfo(testTopicId, "test delete reason", -5, deleter)
 
-    deleteInfoDao.insert(info)
+    springDB.localTx { deleteInfoDao.insert(info) }
 
     val result = deleteInfoDao.getDeleteInfo(testTopicId)
     assertTrue("Should find delete info", result.isDefined)
@@ -71,7 +72,7 @@ class DeleteInfoDaoIntegrationTest:
     val deleter = mockUser(2)
     val info = InsertDeleteInfo(testCommentId, "zero bonus delete", 0, deleter)
 
-    deleteInfoDao.insert(info)
+    springDB.localTx { deleteInfoDao.insert(info) }
 
     val result = deleteInfoDao.getDeleteInfo(testCommentId)
     assertTrue("Should find delete info", result.isDefined)
@@ -86,12 +87,12 @@ class DeleteInfoDaoIntegrationTest:
   def testDeleteDeleteInfo(): Unit =
     val deleter = mockUser(1)
     val info = InsertDeleteInfo(testTopicId, "to be deleted", -2, deleter)
-    deleteInfoDao.insert(info)
+    springDB.localTx { deleteInfoDao.insert(info) }
 
     val before = deleteInfoDao.getDeleteInfo(testTopicId)
     assertTrue("Should exist before delete", before.isDefined)
 
-    deleteInfoDao.delete(testTopicId)
+    springDB.localTx { deleteInfoDao.delete(testTopicId) }
 
     val after = deleteInfoDao.getDeleteInfo(testTopicId)
     assertTrue("Should not exist after delete", after.isEmpty)
@@ -106,7 +107,7 @@ class DeleteInfoDaoIntegrationTest:
       InsertDeleteInfo(testCommentId, "batch delete 1", -3, deleter),
       InsertDeleteInfo(commentId2, "batch delete 2", -1, deleter))
 
-    deleteInfoDao.insert(infos)
+    springDB.localTx { deleteInfoDao.insert(infos) }
 
     val result1 = deleteInfoDao.getDeleteInfo(testCommentId)
     assertTrue("Should find first batch delete info", result1.isDefined)
@@ -120,7 +121,7 @@ class DeleteInfoDaoIntegrationTest:
   def testScoreLoss(): Unit =
     val deleter = mockUser(1)
     val info = InsertDeleteInfo(testTopicId, "score loss test", -10, deleter)
-    deleteInfoDao.insert(info)
+    springDB.localTx { deleteInfoDao.insert(info) }
 
     val loss = deleteInfoDao.scoreLoss(testTopicId)
     assertTrue("Score loss should be non-negative", loss >= 0)
@@ -134,7 +135,7 @@ class DeleteInfoDaoIntegrationTest:
     assertTrue("Score loss should be non-negative", before >= 0)
 
     val info = InsertDeleteInfo(testTopicId, "recent score loss", -7, deleter)
-    deleteInfoDao.insert(info)
+    springDB.localTx { deleteInfoDao.insert(info) }
 
     val after = deleteInfoDao.getRecentScoreLoss(user)
     assertEquals("Score loss should increase after insertion", before + 7, after)
@@ -143,7 +144,7 @@ class DeleteInfoDaoIntegrationTest:
   def testGetDeleteInfoForUpdate(): Unit =
     val deleter = mockUser(1)
     val info = InsertDeleteInfo(testTopicId, "for update test", -1, deleter)
-    deleteInfoDao.insert(info)
+    springDB.localTx { deleteInfoDao.insert(info) }
 
     val result = deleteInfoDao.getDeleteInfo(testTopicId, forUpdate = true)
     assertTrue("Should find delete info with FOR UPDATE", result.isDefined)

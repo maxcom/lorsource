@@ -15,7 +15,8 @@
 package ru.org.linux.gallery
 
 import org.springframework.stereotype.Repository
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
 import scalikejdbc.*
@@ -92,14 +93,12 @@ class ImageDao(private val sectionService: SectionService, springDB: SpringDB):
         .apply()
         .getOrElse(throw ImageNotFoundException(id))
 
-  def saveImage(topicId: Int, extension: String, main: Boolean): Int =
-    springDB.run:
-      sql"INSERT INTO images (topic, extension, main) VALUES ($topicId, $extension, $main) RETURNING id"
-        .map(rs => rs.int("id"))
-        .single
-        .apply()
-        .get
+  def saveImage(topicId: Int, extension: String, main: Boolean)(using Transaction): Int =
+    sql"INSERT INTO images (topic, extension, main) VALUES ($topicId, $extension, $main) RETURNING id"
+      .map(rs => rs.int("id"))
+      .single
+      .apply()
+      .get
 
-  def deleteImage(image: Image): Unit =
-    springDB.run:
-      sql"UPDATE images SET deleted='true' WHERE id=${image.id}".update.apply()
+  def deleteImage(image: Image)(using Transaction): Unit =
+    sql"UPDATE images SET deleted='true' WHERE id=${image.id}".update.apply()

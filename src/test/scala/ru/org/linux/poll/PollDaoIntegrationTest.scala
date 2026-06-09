@@ -24,7 +24,8 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.user.User
 import scalikejdbc.*
 
@@ -112,7 +113,7 @@ class PollDaoIntegrationTest:
         .apply()
         .get
     val pollList = Seq("Test Case 1", "Test Case 2", "Test Case 3")
-    pollDao.createPoll(pollList, true, topicId)
+    springDB.localTx { pollDao.createPoll(pollList, true, topicId) }
     val poll = pollDao.getPollByTopicId(topicId)
     assertEquals(3, poll.variants.size)
     assertTrue("Poll should be multiselect", poll.multiSelect)
@@ -131,12 +132,12 @@ class PollDaoIntegrationTest:
         .apply()
         .get
     val pollList = Seq("Alpha", "Beta")
-    pollDao.createPoll(pollList, false, topicId)
+    springDB.localTx { pollDao.createPoll(pollList, false, topicId) }
     val poll = pollDao.getPollByTopicId(topicId)
 
     val modifiedVariants =
       poll.variants.map(v => PollVariant(v.id, "Modified " + v.label)) :+ PollVariant(0, "New Variant")
-    val modified = pollDao.updatePoll(poll, modifiedVariants, true)
+    val modified = springDB.localTx { pollDao.updatePoll(poll, modifiedVariants, true) }
     assertTrue("Poll should be modified", modified)
 
     val updatedPoll = pollDao.getPoll(poll.id)
@@ -155,7 +156,7 @@ class PollDaoIntegrationTest:
         .single
         .apply()
         .get
-    pollDao.createPoll(Seq("Option A", "Option B"), false, topicId)
+    springDB.localTx { pollDao.createPoll(Seq("Option A", "Option B"), false, topicId) }
     val poll = pollDao.getPollByTopicId(topicId)
     val variantA = poll.variants.find(_.label == "Option A").get
 
@@ -166,7 +167,7 @@ class PollDaoIntegrationTest:
         .apply()
         .getOrElse(0)
 
-    pollDao.updateVotes(poll.id, Array(variantA.id), mockUser(1))
+    springDB.localTx { pollDao.updateVotes(poll.id, Array(variantA.id), mockUser(1)) }
 
     val votesAfter = springDB.run:
       sql"SELECT sum(votes) FROM polls_variants WHERE vote = ${poll.id}"
@@ -190,21 +191,21 @@ class PollDaoIntegrationTest:
         .single
         .apply()
         .get
-    pollDao.createPoll(Seq("Option X", "Option Y"), false, topicId)
+    springDB.localTx { pollDao.createPoll(Seq("Option X", "Option Y"), false, topicId) }
     val poll = pollDao.getPollByTopicId(topicId)
     val variantX = poll.variants.find(_.label == "Option X").get
 
     val votesBefore = springDB.run:
       sql"SELECT votes FROM polls_variants WHERE id = ${variantX.id}".map(rs => rs.int("votes")).single.apply().get
 
-    pollDao.updateVotes(poll.id, Array(variantX.id), mockUser(2))
+    springDB.localTx { pollDao.updateVotes(poll.id, Array(variantX.id), mockUser(2)) }
 
     val votesAfterFirst = springDB.run:
       sql"SELECT votes FROM polls_variants WHERE id = ${variantX.id}".map(rs => rs.int("votes")).single.apply().get
 
     assertEquals("Votes should increase by 1 after first vote", votesBefore + 1, votesAfterFirst)
 
-    pollDao.updateVotes(poll.id, Array(variantX.id), mockUser(2))
+    springDB.localTx { pollDao.updateVotes(poll.id, Array(variantX.id), mockUser(2)) }
 
     val votesAfterSecond = springDB.run:
       sql"SELECT votes FROM polls_variants WHERE id = ${variantX.id}".map(rs => rs.int("votes")).single.apply().get
@@ -224,14 +225,14 @@ class PollDaoIntegrationTest:
         .single
         .apply()
         .get
-    pollDao.createPoll(Seq("Option M", "Option N"), false, topicId)
+    springDB.localTx { pollDao.createPoll(Seq("Option M", "Option N"), false, topicId) }
     val poll = pollDao.getPollByTopicId(topicId)
 
     val invalidVariantId = springDB.run:
       sql"SELECT max(id) + 1 FROM polls_variants".map(rs => rs.int(1)).single.apply().get
 
     try
-      pollDao.updateVotes(poll.id, Array(invalidVariantId), mockUser(3))
+      springDB.localTx { pollDao.updateVotes(poll.id, Array(invalidVariantId), mockUser(3)) }
       fail("Should throw BadVoteException for invalid poll variant")
     catch
       case _: BadVoteException =>

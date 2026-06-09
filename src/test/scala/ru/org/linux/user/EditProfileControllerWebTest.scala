@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy, TestContextManager}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.markup.MarkupType
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.test.WebHelper
 import sttp.client4.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
@@ -49,18 +51,21 @@ class EditProfileControllerWebTest extends FunSuite with WebHelper:
   private var userDao: UserDao = scala.compiletime.uninitialized
 
   @Autowired
+  private var springDB: SpringDB = scala.compiletime.uninitialized
+
+  @Autowired
   private var userService: UserService = scala.compiletime.uninitialized
 
   private def rescueMaxcom(): Unit =
     val user = userDao.getUser(userDao.findUserId("maxcom"))
     userService.updateUser(user, MAXCOM_NAME, MAXCOM_URL, Some(MAXCOM_EMAIL), MAXCOM_TOWN, Some(MAXCOM_PASS), MAXCOM_INFO, MarkupType.Lorcode, "127.0.0.1")
-    userDao.acceptNewEmail(user, MAXCOM_EMAIL)
+    springDB.localTx { userDao.acceptNewEmail(user, MAXCOM_EMAIL) }
 
   private def rescueJB(): Unit =
     val user = userDao.getUser(userDao.findUserId("JB"))
     userService.updateUser(user, JB_NAME, JB_URL, Some(JB_EMAIL), JB_TOWN, Some(JB_PASS), JB_INFO, MarkupType.Lorcode, "127.0.0.1")
-    userDao.acceptNewEmail(user, JB_EMAIL)
-    userDao.unblock(user)
+    springDB.localTx { userDao.acceptNewEmail(user, JB_EMAIL) }
+    springDB.localTx { userDao.unblock(user) }
 
   override def beforeEach(context: BeforeEach): Unit =
     rescueMaxcom()

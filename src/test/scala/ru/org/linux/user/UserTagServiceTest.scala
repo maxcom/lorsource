@@ -23,6 +23,8 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.tag.{TagDao, TagNotFoundException, TagService}
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 
 import java.sql.{ResultSet, SQLException}
 import scala.jdk.CollectionConverters.*
@@ -42,12 +44,19 @@ class UserTagServiceTest {
   @Autowired
   private var userTagService: UserTagService = scala.compiletime.uninitialized
 
+  @Autowired
+  private var springDB: SpringDB = scala.compiletime.uninitialized
+
   private var user: User = scala.compiletime.uninitialized
 
   @Before
   def resetMockObjects(): Unit = {
     reset(userTagDao)
     reset(tagService)
+
+    val txMock = mock(classOf[scalikejdbc.DBSession])
+    given Transaction = txMock.asInstanceOf[Transaction]
+
     when(tagService.getTagId(eqTo("tag1"), anyBoolean())).thenReturn(2)
     when(tagService.getTagIdOptWithSynonym(eqTo("tag1"))).thenReturn(Some(2))
     user = getUser(1)
@@ -68,25 +77,25 @@ class UserTagServiceTest {
   def favoriteAddTest(): Unit = {
     when(tagDao.getTagId("tag1", false)).thenReturn(Some(2))
     userTagService.favoriteAdd(user, "tag1")
-    verify(userTagDao).addTag(eqTo(1), eqTo(2), eqTo(true))
+    verify(userTagDao).addTag(eqTo(1), eqTo(2), eqTo(true))(using any())
   }
 
   @Test
   def favoriteDelTest(): Unit = {
     userTagService.favoriteDel(user, "tag1")
-    verify(userTagDao).deleteTag(eqTo(1), eqTo(2), eqTo(true))
+    verify(userTagDao).deleteTag(eqTo(1), eqTo(2), eqTo(true))(using any())
   }
 
   @Test
   def ignoreAddTest(): Unit = {
     userTagService.ignoreAdd(user, "tag1")
-    verify(userTagDao).addTag(eqTo(1), eqTo(2), eqTo(false))
+    verify(userTagDao).addTag(eqTo(1), eqTo(2), eqTo(false))(using any())
   }
 
   @Test
   def ignoreDelTest(): Unit = {
     userTagService.ignoreDel(user, "tag1")
-    verify(userTagDao).deleteTag(eqTo(1), eqTo(2), eqTo(false))
+    verify(userTagDao).deleteTag(eqTo(1), eqTo(2), eqTo(false))(using any())
   }
 
   @Test

@@ -15,24 +15,21 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Repository
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 @Repository
 class UserTagDao(springDB: SpringDB):
-  def addTag(userId: Int, tagId: Int, isFavorite: Boolean): Unit =
-    springDB.run:
-      sql"INSERT INTO user_tags (user_id, tag_id, is_favorite) VALUES ($userId, $tagId, $isFavorite) ON CONFLICT DO NOTHING"
-        .update
-        .apply()
+  def addTag(userId: Int, tagId: Int, isFavorite: Boolean)(using Transaction): Unit =
+    sql"INSERT INTO user_tags (user_id, tag_id, is_favorite) VALUES ($userId, $tagId, $isFavorite) ON CONFLICT DO NOTHING"
+      .update
+      .apply()
 
-  def deleteTag(userId: Int, tagId: Int, isFavorite: Boolean): Unit =
-    springDB.run:
-      sql"DELETE FROM user_tags WHERE user_id=$userId AND tag_id=$tagId AND is_favorite=$isFavorite".update.apply()
+  def deleteTag(userId: Int, tagId: Int, isFavorite: Boolean)(using Transaction): Unit =
+    sql"DELETE FROM user_tags WHERE user_id=$userId AND tag_id=$tagId AND is_favorite=$isFavorite".update.apply()
 
-  def deleteTags(tagId: Int): Unit =
-    springDB.run:
-      sql"DELETE FROM user_tags WHERE tag_id=$tagId".update.apply()
+  def deleteTags(tagId: Int)(using Transaction): Unit = sql"DELETE FROM user_tags WHERE tag_id=$tagId".update.apply()
 
   def getTags(userId: Int, isFavorite: Boolean): List[String] =
     springDB.run:
@@ -55,11 +52,10 @@ class UserTagDao(springDB: SpringDB):
           .list
           .apply()
 
-  def replaceTag(oldTagId: Int, newTagId: Int): Unit =
-    springDB.run:
-      sql"UPDATE user_tags SET tag_id=$newTagId WHERE tag_id=$oldTagId AND user_id NOT IN (SELECT user_id FROM user_tags WHERE tag_id=$newTagId)"
-        .update
-        .apply()
+  def replaceTag(oldTagId: Int, newTagId: Int)(using Transaction): Unit =
+    sql"UPDATE user_tags SET tag_id=$newTagId WHERE tag_id=$oldTagId AND user_id NOT IN (SELECT user_id FROM user_tags WHERE tag_id=$newTagId)"
+      .update
+      .apply()
 
   def countFavs(tagId: Int): Int =
     springDB.run:
@@ -77,8 +73,7 @@ class UserTagDao(springDB: SpringDB):
         .apply()
         .getOrElse(0)
 
-  def deleteUnusedTags(): Int =
-    springDB.run:
-      sql"delete from user_tags where not exists (select * from tags join topics on topics.id=tags.msgid where tagid=user_tags.tag_id and not deleted)"
-        .update
-        .apply()
+  def deleteUnusedTags()(using Transaction): Int =
+    sql"delete from user_tags where not exists (select * from tags join topics on topics.id=tags.msgid where tagid=user_tags.tag_id and not deleted)"
+      .update
+      .apply()

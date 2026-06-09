@@ -15,8 +15,8 @@
 package ru.org.linux.poll
 
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.User
 import scalikejdbc.*
@@ -73,42 +73,40 @@ class PollDao(springDB: SpringDB):
     *   неправильное голосование
     */
   @throws[BadVoteException]
-  @Transactional
-  def updateVotes(pollId: Int, votes: Array[Int], user: User): Unit =
-    springDB.run:
-      val count = sql"SELECT count(vote) FROM vote_users WHERE vote = $pollId AND userid = ${user.id}"
-        .map(rs => rs.int(1))
-        .single
-        .apply()
-        .getOrElse(0)
-      
-      if count == 0 then
-        for vote <- votes do
-          val (valid, inserted, updated) =
-            sql"""
-            WITH valid_variant AS (
-              SELECT id FROM polls_variants WHERE id = $vote AND vote = $pollId
-            ), inserted_vote AS (
-              INSERT INTO vote_users (vote, userid, variant_id)
-              SELECT $pollId, ${user.id}, id FROM valid_variant
-              ON CONFLICT (vote, userid, variant_id) DO NOTHING
-              RETURNING variant_id
-            ), updated_variant AS (
-              UPDATE polls_variants
-              SET votes = votes + 1
-              WHERE id IN (SELECT variant_id FROM inserted_vote)
-              RETURNING id
-            )
-            SELECT EXISTS(SELECT 1 FROM valid_variant) AS valid,
-                   EXISTS(SELECT 1 FROM inserted_vote) AS inserted,
-                   EXISTS(SELECT 1 FROM updated_variant) AS updated
-          """.map(rs => (rs.boolean("valid"), rs.boolean("inserted"), rs.boolean("updated"))).single.apply().get
+  def updateVotes(pollId: Int, votes: Array[Int], user: User)(using Transaction): Unit =
+    val count = sql"SELECT count(vote) FROM vote_users WHERE vote = $pollId AND userid = ${user.id}"
+      .map(rs => rs.int(1))
+      .single
+      .apply()
+      .getOrElse(0)
 
-          if !valid then
-            throw new BadVoteException
+    if count == 0 then
+      for vote <- votes do
+        val (valid, inserted, updated) =
+          sql"""
+          WITH valid_variant AS (
+            SELECT id FROM polls_variants WHERE id = $vote AND vote = $pollId
+          ), inserted_vote AS (
+            INSERT INTO vote_users (vote, userid, variant_id)
+            SELECT $pollId, ${user.id}, id FROM valid_variant
+            ON CONFLICT (vote, userid, variant_id) DO NOTHING
+            RETURNING variant_id
+          ), updated_variant AS (
+            UPDATE polls_variants
+            SET votes = votes + 1
+            WHERE id IN (SELECT variant_id FROM inserted_vote)
+            RETURNING id
+          )
+          SELECT EXISTS(SELECT 1 FROM valid_variant) AS valid,
+                 EXISTS(SELECT 1 FROM inserted_vote) AS inserted,
+                 EXISTS(SELECT 1 FROM updated_variant) AS updated
+        """.map(rs => (rs.boolean("valid"), rs.boolean("inserted"), rs.boolean("updated"))).single.apply().get
 
-          if inserted && !updated then
-            throw new IllegalStateException(s"Vote variant $vote for poll $pollId was inserted but not updated")
+        if !valid then
+          throw new BadVoteException
+
+        if inserted && !updated then
+          throw new IllegalStateException(s"Vote variant $vote for poll $pollId was inserted but not updated")
 
   /** Получить самое новое голосование.
     *
@@ -226,16 +224,12 @@ class PollDao(springDB: SpringDB):
     * @param multiSelect - true если голосование с мультивыбором
     * @param msgid       - идентификатор темы.
     */
-  // call in @Transactional
-  def createPoll(pollList: Seq[String], multiSelect: Boolean, msgid: Int): Unit =
-    springDB.run:
-      val voteid = sql"select nextval('vote_id') as voteid".map(rs => rs.int("voteid")).single.apply().get
-      sql"INSERT INTO polls (id, multiselect, topic) VALUES ($voteid, $multiSelect, $msgid)".update.apply()
-      for variant <- pollList do
-        if variant.trim.nonEmpty then
-          sql"INSERT INTO polls_variants (id, vote, label) VALUES (nextval('votes_id'), $voteid, $variant)"
-            .update
-            .apply()
+  def createPoll(pollList: Seq[String], multiSelect: Boolean, msgid: Int)(using Transaction): Unit =
+    val voteid = sql"select nextval('vote_id') as voteid".map(rs => rs.int("voteid")).single.apply().get
+    sql"INSERT INTO polls (id, multiselect, topic) VALUES ($voteid, $multiSelect, $msgid)".update.apply()
+    for variant <- pollList do
+      if variant.trim.nonEmpty then
+        sql"INSERT INTO polls_variants (id, vote, label) VALUES (nextval('votes_id'), $voteid, $variant)".update.apply()
 
   /** Добавить новый вариант ответа в голосование.
     *
@@ -275,33 +269,31 @@ class PollDao(springDB: SpringDB):
     sql"UPDATE polls SET multiselect = $multiselect WHERE id = ${poll.id}".update.apply()
 
   @throws[PollNotFoundException]
-  @Transactional
-  def updatePoll(poll: Poll, newVariants: Seq[PollVariant], multiselect: Boolean): Boolean =
-    springDB.run:
-      var modified = false
-  
-      val oldVariants = poll.variants
-  
-      val newMap = newVariants.map(v => v.id -> v.label).toMap
-  
-      for oldVar <- oldVariants do
-        val label = newMap.get(oldVar.id)
-  
-        if !TopicDao.equalStrings(oldVar.label, label.orNull) then
-          modified = true
-  
-        if label.isEmpty || label.get.isEmpty then
-          removeVariant(oldVar)
-        else
-          updateVariant(oldVar, label.get)
-  
-      for newVar <- newVariants do
-        if newVar.id == 0 && newVar.label != null && newVar.label.nonEmpty then
-          modified = true
-          addNewVariant(poll, newVar.label)
-  
-      if poll.multiSelect != multiselect then
+  def updatePoll(poll: Poll, newVariants: Seq[PollVariant], multiselect: Boolean)(using Transaction): Boolean =
+    var modified = false
+
+    val oldVariants = poll.variants
+
+    val newMap = newVariants.map(v => v.id -> v.label).toMap
+
+    for oldVar <- oldVariants do
+      val label = newMap.get(oldVar.id)
+
+      if !TopicDao.equalStrings(oldVar.label, label.orNull) then
         modified = true
-        updateMultiselect(poll, multiselect)
-  
-      modified
+
+      if label.isEmpty || label.get.isEmpty then
+        removeVariant(oldVar)
+      else
+        updateVariant(oldVar, label.get)
+
+    for newVar <- newVariants do
+      if newVar.id == 0 && newVar.label != null && newVar.label.nonEmpty then
+        modified = true
+        addNewVariant(poll, newVar.label)
+
+    if poll.multiSelect != multiselect then
+      modified = true
+      updateMultiselect(poll, multiselect)
+
+    modified

@@ -17,17 +17,19 @@ package ru.org.linux.user
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 
 @Component
-class ScoreUpdater(userDao: UserDao) extends StrictLogging:
+class ScoreUpdater(userDao: UserDao, springDB: SpringDB) extends StrictLogging:
 
   @Scheduled(cron = "1 0 1 */2 * *")
   def updateScore(): Unit =
     logger.info("Updating score")
-    userDao.updateScore()
+    springDB.localTx { userDao.updateScore() }
 
   @Scheduled(cron = "1 15 * * * *")
-  def updateMaxScore(): Unit = userDao.updateMaxScore()
+  def updateMaxScore(): Unit = springDB.localTx { userDao.updateMaxScore() }
 
   @Scheduled(cron = "0 1 * * * *")
   def blockLowScoreUsers(): Unit = userDao.blockLowScoreUsers()
@@ -35,5 +37,5 @@ class ScoreUpdater(userDao: UserDao) extends StrictLogging:
   @Scheduled(cron = "0 30 * * * *")
   def deleteInactivated(): Unit =
     logger.info("Deleting non-activated accounts")
-    val (deleted, deletedBlocked) = userDao.deleteInactivatedAccounts()
+    val (deleted, deletedBlocked) = springDB.localTx { userDao.deleteInactivatedAccounts() }
     logger.info(s"Deleted $deleted non-activated; $deletedBlocked blocked accounts")

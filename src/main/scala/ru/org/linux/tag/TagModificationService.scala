@@ -15,9 +15,9 @@
 package ru.org.linux.tag
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.TopicTagDao
 import ru.org.linux.user.UserTagDao
@@ -25,16 +25,16 @@ import ru.org.linux.user.UserTagDao
 import scala.collection.mutable
 
 @Service
-class TagModificationService(val transactionManager: PlatformTransactionManager, tagDao: TagDao,
+class TagModificationService(springDB: SpringDB, tagDao: TagDao,
                              tagService: TagService, userTagDao: UserTagDao, topicTagDao: TopicTagDao,
-                             searchQueueSender: SearchQueueSender) extends StrictLogging with TransactionManagement {
+                             searchQueueSender: SearchQueueSender) extends StrictLogging {
   /**
     * Изменить название существующего тега.
     *
     * @param oldTagName старое название тега
     * @param tagName    новое название тега
     */
-  def change(oldTagName: String, tagName: String): Unit = transactional() { _ =>
+  def change(oldTagName: String, tagName: String): Unit = springDB.localTx {
     val oldTagId = tagService.getTagId(oldTagName)
 
     tagDao.deleteTagSynonym(tagName)
@@ -49,7 +49,7 @@ class TagModificationService(val transactionManager: PlatformTransactionManager,
     * @param tagName    название тега
     */
   def delete(tagName: String): Unit = {
-    val toUpdate = transactional() { _ =>
+    val toUpdate = springDB.localTx {
       tagService.getTagIdOpt(tagName) match {
         case Some(oldTagId) =>
           val toUpdate = mutable.Buffer[Int]()
@@ -83,7 +83,7 @@ class TagModificationService(val transactionManager: PlatformTransactionManager,
     * @param newTagName новое название тега
     */
   def merge(tagName: String, newTagName: String, createSynonym: Boolean): Unit = {
-    val newTagId = transactional() { _ =>
+    val newTagId = springDB.localTx {
       val oldTagId = tagService.getTagId(tagName)
 
       assume(newTagName != tagName, "Заменяемый тег не должен быть равен удаляемому")

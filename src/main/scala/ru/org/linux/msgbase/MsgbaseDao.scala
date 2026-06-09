@@ -16,7 +16,8 @@ package ru.org.linux.msgbase
 
 import org.springframework.stereotype.Repository
 import ru.org.linux.markup.MarkupType
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import scalikejdbc.*
 
@@ -25,11 +26,8 @@ import java.sql.SQLException
 @Repository
 class MsgbaseDao(springDB: SpringDB):
 
-  def saveNewMessage(message: MessageText, msgid: Int): Unit =
-    springDB.run:
-      sql"INSERT INTO msgbase (id, message, markup) VALUES ($msgid, ${message.text}, ${message.markup.id})"
-        .update
-        .apply()
+  def saveNewMessage(message: MessageText, msgid: Int)(using Transaction): Unit =
+    sql"INSERT INTO msgbase (id, message, markup) VALUES ($msgid, ${message.text}, ${message.markup.id})".update.apply()
 
   @throws[SQLException]
   private def messageTextOf(rs: WrappedResultSet): MessageText =
@@ -54,10 +52,8 @@ class MsgbaseDao(springDB: SpringDB):
           .apply()
           .toMap
 
-  def updateMessage(msgid: Int, text: String): Unit =
-    springDB.run:
-      sql"UPDATE msgbase SET message=$text WHERE id=$msgid".update.apply()
+  def updateMessage(msgid: Int, text: String)(using Transaction): Unit =
+    sql"UPDATE msgbase SET message=$text WHERE id=$msgid".update.apply()
 
-  def appendMessage(msgid: Int, text: String): Unit =
-    springDB.run:
-      sql"UPDATE msgbase SET message=message||$text WHERE id=$msgid".update.apply()
+  def appendMessage(msgid: Int, text: String)(using Transaction): Unit =
+    sql"UPDATE msgbase SET message=message||$text WHERE id=$msgid".update.apply()

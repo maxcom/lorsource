@@ -19,7 +19,8 @@ import org.jsoup.Jsoup
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy, TestContextManager}
 import ru.org.linux.csrf.CSRFProtectionService
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.test.WebHelper
 import scalikejdbc.*
 import sttp.client4.*
@@ -41,7 +42,7 @@ class UserpicControllerWebTest extends FunSuite with WebHelper:
     val user = userDao.getUser(userDao.findUserId("JB"))
     springDB.run:
       sql"DELETE FROM user_log WHERE userid=${user.id}".update.apply()
-    userDao.unblock(user)
+    springDB.localTx { userDao.unblock(user) }
 
   private def addPhoto(filename: String, auth: String) =
     val file = new File(filename)

@@ -16,7 +16,6 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.comment.Comment
 import ru.org.linux.reaction.ReactionDao
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
@@ -80,15 +79,13 @@ class UserEventDao(springDB: SpringDB):
           ON CONFLICT DO NOTHING""".update.apply()
     }
 
-  def deleteUnreadReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit =
+  def deleteUnreadReactionNotification(user: User, topic: Topic, comment: Option[Comment])(using Transaction): Unit =
     val authorId = comment.map(_.userid).getOrElse(topic.authorUserId)
 
-    springDB.run {
-      sql"""DELETE FROM user_events
-            WHERE userid=$authorId AND message_id=${topic.id}
-            AND comment_id IS NOT DISTINCT FROM ${comment.map(_.id)}
-            AND origin_user=${user.id} AND unread AND type='REACTION'""".update.apply()
-    }
+    sql"""DELETE FROM user_events
+          WHERE userid=$authorId AND message_id=${topic.id}
+          AND comment_id IS NOT DISTINCT FROM ${comment.map(_.id)}
+          AND origin_user=${user.id} AND unread AND type='REACTION'""".update.apply()
 
     recalcEventCount(Seq(authorId))
 
@@ -108,36 +105,29 @@ class UserEventDao(springDB: SpringDB):
     * @param topId
     *   сбрасываем уведомления с идентификатором не больше этого
     */
-  @Transactional
-  def resetUnreadEvents(userId: Int, topId: Int, eventType: Option[UserEventFilterEnum]): Unit =
-    springDB.run {
-      eventType match
-        case Some(et) =>
-          sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId
-              AND type=${et.getType}::event_type""".update.apply()
-        case None =>
-          sql"UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId".update.apply()
+  def resetUnreadEvents(userId: Int, topId: Int, eventType: Option[UserEventFilterEnum])(using Transaction): Unit =
+    eventType match
+      case Some(et) =>
+        sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId
+            AND type=${et.getType}::event_type""".update.apply()
+      case None =>
+        sql"UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId".update.apply()
 
-      recalcEventCount(Seq(userId))
-    }
+    recalcEventCount(Seq(userId))
 
-  @Transactional
-  def resetUnreadEvents(userId: Int, topId: Int, topicId: Int, eventType: UserEventFilterEnum): Unit =
-    springDB.run {
-      sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId
-          AND type=${eventType.getType}::event_type AND message_id=$topicId""".update.apply()
+  def resetUnreadEvents(userId: Int, topId: Int, topicId: Int, eventType: UserEventFilterEnum)(using
+      Transaction): Unit =
+    sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id<=$topId
+        AND type=${eventType.getType}::event_type AND message_id=$topicId""".update.apply()
 
-      recalcEventCount(Seq(userId))
-    }
+    recalcEventCount(Seq(userId))
 
-  @Transactional
-  def resetUnreadReactionGroup(userId: Int, firstEventId: Int, lastEventId: Int, topicId: Int, commentId: Int): Unit =
-    springDB.run {
-      sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id BETWEEN $firstEventId AND $lastEventId
-          AND type='REACTION' AND message_id=$topicId AND coalesce(comment_id, 0)=$commentId""".update.apply()
+  def resetUnreadReactionGroup(userId: Int, firstEventId: Int, lastEventId: Int, topicId: Int, commentId: Int)(using
+      Transaction): Unit =
+    sql"""UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id BETWEEN $firstEventId AND $lastEventId
+        AND type='REACTION' AND message_id=$topicId AND coalesce(comment_id, 0)=$commentId""".update.apply()
 
-      recalcEventCount(Seq(userId))
-    }
+    recalcEventCount(Seq(userId))
 
   /** Сброс уведомлений.
     *
@@ -146,20 +136,15 @@ class UserEventDao(springDB: SpringDB):
     * @param topId
     *   сбрасываем уведомления с идентификатором не больше этого
     */
-  @Transactional
-  def resetSingle(userId: Int, eventId: Int): Unit =
-    springDB.run {
-      sql"UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id=$eventId".update.apply()
-      recalcEventCount(Seq(userId))
-    }
+  def resetSingle(userId: Int, eventId: Int)(using Transaction): Unit =
+    sql"UPDATE user_events SET unread=false WHERE userid=$userId AND unread AND id=$eventId".update.apply()
+    recalcEventCount(Seq(userId))
 
-  def recalcEventCount(userids: collection.Seq[Int]): Unit =
+  def recalcEventCount(userids: collection.Seq[Int])(using Transaction): Unit =
     if userids.nonEmpty then
-      springDB.run {
-        sql"""UPDATE users SET unread_events =
-            (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
-            WHERE users.id IN ($userids)""".update.apply()
-      }
+      sql"""UPDATE users SET unread_events =
+          (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
+          WHERE users.id IN ($userids)""".update.apply()
 
   /** Получение списка первых 20 идентификационных номеров пользователей, количество уведомлений которых превышает
     * максимально допустимое значение.
@@ -187,34 +172,28 @@ class UserEventDao(springDB: SpringDB):
     * @param maxEventsPerUser
     *   максимальное количество уведомлений для одного пользователя
     */
-  @Transactional
-  def cleanupOldEvents(userId: Int, maxEventsPerUser: Int): Unit =
-    springDB.run {
-      sql"""DELETE FROM user_events WHERE user_events.id IN
-          (SELECT id FROM user_events WHERE userid=$userId ORDER BY event_date DESC OFFSET $maxEventsPerUser)"""
+  def cleanupOldEvents(userId: Int, maxEventsPerUser: Int)(using Transaction): Unit =
+    sql"""DELETE FROM user_events WHERE user_events.id IN
+        (SELECT id FROM user_events WHERE userid=$userId ORDER BY event_date DESC OFFSET $maxEventsPerUser)"""
+      .update
+      .apply()
+
+    recalcEventCount(Seq(userId))
+
+  def dropBannedUserEvents()(using Transaction): Int =
+    val count =
+      sql"""DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval
+        AND user_events.userid IN
+        (SELECT id FROM users WHERE users.blocked AND lastlogin < CURRENT_TIMESTAMP-'2 year'::interval)"""
         .update
         .apply()
 
-      recalcEventCount(Seq(userId))
-    }
+    sql"""UPDATE users SET unread_events = (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
+        WHERE unread_events != 0 AND users.blocked AND lastlogin < CURRENT_TIMESTAMP-'2 year'::interval"""
+      .update
+      .apply()
 
-  @Transactional
-  def dropBannedUserEvents(): Int =
-    springDB.run {
-      val count =
-        sql"""DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval
-          AND user_events.userid IN
-          (SELECT id FROM users WHERE users.blocked AND lastlogin < CURRENT_TIMESTAMP-'2 year'::interval)"""
-          .update
-          .apply()
-
-      sql"""UPDATE users SET unread_events = (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
-          WHERE unread_events != 0 AND users.blocked AND lastlogin < CURRENT_TIMESTAMP-'2 year'::interval"""
-        .update
-        .apply()
-
-      count
-    }
+    count
 
   def getEvent(id: Int): Option[UserEvent] =
     springDB.run {
@@ -317,52 +296,42 @@ class UserEventDao(springDB: SpringDB):
       rs.int("userid")
     )
 
-  @Transactional
-  def deleteTopicEvents(topics: Seq[Int]): collection.Seq[Int] =
-    springDB.run {
-      if topics.isEmpty then
-        Seq.empty
-      else
-        val affectedUsers =
-          sql"""SELECT DISTINCT userid FROM user_events
-            WHERE message_id IN ($topics) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')"""
-            .map(rs => rs.int("userid"))
-            .list
-            .apply()
-
-        sql"""DELETE FROM user_events
-            WHERE message_id IN ($topics) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')"""
-          .update
+  def deleteTopicEvents(topics: Seq[Int])(using Transaction): collection.Seq[Int] =
+    if topics.isEmpty then
+      Seq.empty
+    else
+      val affectedUsers =
+        sql"""SELECT DISTINCT userid FROM user_events
+          WHERE message_id IN ($topics) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')"""
+          .map(rs => rs.int("userid"))
+          .list
           .apply()
 
-        affectedUsers
-    }
+      sql"""DELETE FROM user_events
+          WHERE message_id IN ($topics) AND type IN ('TAG', 'REF', 'REPLY', 'WATCH', 'REACTION', 'WARNING')"""
+        .update
+        .apply()
 
-  @Transactional
-  def deleteCommentEvents(comments: Seq[Int]): collection.Seq[Int] =
-    springDB.run {
-      if comments.isEmpty then
-        Seq.empty
-      else
-        val affectedUsers =
-          sql"""SELECT DISTINCT userid FROM user_events
-            WHERE comment_id IN ($comments) AND type IN ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')"""
-            .map(rs => rs.int("userid"))
-            .list
-            .apply()
+      affectedUsers
 
-        sql"""DELETE FROM user_events
-            WHERE comment_id IN ($comments) AND type IN ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')"""
-          .update
+  def deleteCommentEvents(comments: Seq[Int])(using Transaction): collection.Seq[Int] =
+    if comments.isEmpty then
+      Seq.empty
+    else
+      val affectedUsers =
+        sql"""SELECT DISTINCT userid FROM user_events
+          WHERE comment_id IN ($comments) AND type IN ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')"""
+          .map(rs => rs.int("userid"))
+          .list
           .apply()
 
-        affectedUsers
-    }
+      sql"""DELETE FROM user_events
+          WHERE comment_id IN ($comments) AND type IN ('REPLY', 'WATCH', 'REF', 'REACTION', 'WARNING')""".update.apply()
 
-  def insertCommentWatchNotification(
-      comment: Comment,
-      parentComment: Option[Comment],
-      commentId: Int)(using Transaction): collection.Seq[Int] =
+      affectedUsers
+
+  def insertCommentWatchNotification(comment: Comment, parentComment: Option[Comment], commentId: Int)(using
+      Transaction): collection.Seq[Int] =
     val userIds =
       parentComment match
         case Some(parent) =>

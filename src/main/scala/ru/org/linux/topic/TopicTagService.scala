@@ -16,9 +16,9 @@
 package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.tag.*
 import ru.org.linux.tag.TagService.*
 import ru.org.linux.topic.TopicTagService.*
@@ -27,8 +27,8 @@ import scala.collection.Map
 import scala.jdk.CollectionConverters.*
 
 @Service
-class TopicTagService(val transactionManager: PlatformTransactionManager, tagService: TagService,
-                      topicTagDao: TopicTagDao) extends StrictLogging with TransactionManagement {
+class TopicTagService(springDB: SpringDB, tagService: TagService,
+                      topicTagDao: TopicTagDao) extends StrictLogging {
 
   /**
    * Обновить список тегов сообщения по идентификационному номеру сообщения.
@@ -38,7 +38,7 @@ class TopicTagService(val transactionManager: PlatformTransactionManager, tagSer
    * @return true если были произведены изменения
    */
   def updateTags(msgId: Int, tagList: Seq[String]): Boolean = {
-    transactional() { _ =>
+    springDB.localTx {
       logger.debug(s"Обновление списка тегов [${tagList.toString}] для топика msgId=$msgId")
 
       val oldTags = getTags(msgId)

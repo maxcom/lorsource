@@ -17,13 +17,13 @@ package ru.org.linux.gallery
 
 import com.google.common.base.Preconditions
 import com.typesafe.scalalogging.StrictLogging
-import org.springframework.scala.transaction.support.TransactionManagement
 import org.springframework.stereotype.Service
-import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.validation.Errors
 import org.springframework.web.multipart.MultipartFile
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedGalleryItem, PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserService}
@@ -40,15 +40,15 @@ import scala.util.control.NonFatal
 @Service
 class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
                    topicDao: TopicDao, userService: UserService, siteConfig: SiteConfig,
-                   val transactionManager: PlatformTransactionManager)
-  extends StrictLogging with TransactionManagement {
+                   springDB: SpringDB)
+  extends StrictLogging {
 
   private val previewPath = new File(siteConfig.getUploadPath + "/gallery/preview")
   private val galleryPath = new File(siteConfig.getUploadPath + "/images")
   private val htmlPath = siteConfig.getUploadPath
 
   def deleteImage(image: Image)(using session: AuthorizedSession): Unit = {
-    transactional() { _ =>
+    springDB.localTx {
       val info = if (image.main) {
         EditHistoryRecord(
           editor = session.user.id,
@@ -199,7 +199,7 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  def saveImage(imagePreview: UploadedImagePreview, msgid: Int, main: Boolean): Unit = transactional() { _ =>
+  def saveImage(imagePreview: UploadedImagePreview, msgid: Int, main: Boolean): Unit = springDB.localTx {
     val id = imageDao.saveImage(msgid, imagePreview.extension, main)
 
     imagePreview.moveTo(galleryPath, id.toString)
