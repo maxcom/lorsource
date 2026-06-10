@@ -42,17 +42,10 @@ ${section.name}
 
 <nav>
   <c:if test="${group == null}">
-    <a class="btn btn-default" href="${section.sectionLink}">Новые</a>
+    <a class="btn btn-default" href="${section.sectionLink}">Лента</a>
   </c:if>
   <c:if test="${group != null}">
-    <a class="btn btn-default" href="${group.url}">Новые</a>
-  </c:if>
-
-  <c:if test="${group == null}">
-    <a class="btn btn-default" href="${section.sectionLink}?lastmod=true">Активные</a>
-  </c:if>
-  <c:if test="${group != null}">
-    <a class="btn btn-default" href="${group.url}?lastmod=true">Активные</a>
+    <a class="btn btn-default" href="${group.url}">Лента</a>
   </c:if>
 
   <c:if test="${section.premoderated}">
