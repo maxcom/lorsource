@@ -40,7 +40,7 @@ class RegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao) exten
       val topDomain = InternetDomainName.from(domain).topPrivateDomain.toString
       !emailDomainsBlockDao.isBlocked(domain) && !emailDomainsBlockDao.isBlocked(topDomain)
     } catch {
-      case _: IllegalStateException => false
+      case _: IllegalStateException | _: IllegalArgumentException => false
     }
   }
 
