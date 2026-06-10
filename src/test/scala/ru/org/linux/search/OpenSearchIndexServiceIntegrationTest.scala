@@ -26,17 +26,17 @@ import org.opensearch.testcontainers.OpenSearchContainer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
-import org.springframework.test.context.{ContextConfiguration, TestContextManager}
+import org.springframework.test.context.ContextConfiguration
 import munit.FunSuite
 import ru.org.linux.PekkoConfiguration
+import ru.org.linux.test.SpringTestSupport
 import ru.org.linux.auth.FloodProtector
 import ru.org.linux.search.OpenSearchIndexService.MessageIndex
 import ru.org.linux.spring.SiteConfig
 
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
   classOf[PekkoConfiguration]))
-class OpenSearchIndexServiceIntegrationTest extends FunSuite:
-  new TestContextManager(this.getClass).prepareTestInstance(this)
+class OpenSearchIndexServiceIntegrationTest extends FunSuite with SpringTestSupport:
 
   @Autowired
   var indexCreationService: OpenSearchIndexCreationService = scala.compiletime.uninitialized

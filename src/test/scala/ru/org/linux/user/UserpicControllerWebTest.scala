@@ -17,11 +17,11 @@ package ru.org.linux.user
 import munit.FunSuite
 import org.jsoup.Jsoup
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.{ContextConfiguration, ContextHierarchy, TestContextManager}
+import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
-import ru.org.linux.test.WebHelper
+import ru.org.linux.test.{SpringTestSupport, WebHelper}
 import scalikejdbc.*
 import sttp.client4.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
@@ -30,8 +30,7 @@ import java.io.File
 
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database-admin.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
-class UserpicControllerWebTest extends FunSuite with WebHelper:
-  new TestContextManager(this.getClass).prepareTestInstance(this)
+class UserpicControllerWebTest extends FunSuite with WebHelper with SpringTestSupport:
   @Autowired
   private var userDao: UserDao = scala.compiletime.uninitialized
 

@@ -16,11 +16,11 @@ package ru.org.linux.section
 
 import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.{ContextConfiguration, TestContextManager}
+import org.springframework.test.context.ContextConfiguration
+import ru.org.linux.test.SpringTestSupport
 
 @ContextConfiguration(Array("integration-tests-context.xml"))
-class SectionDaoIntegrationTest extends FunSuite:
-  new TestContextManager(this.getClass).prepareTestInstance(this)
+class SectionDaoIntegrationTest extends FunSuite with SpringTestSupport:
 
   @Autowired
   var sectionDao: SectionDao = scala.compiletime.uninitialized

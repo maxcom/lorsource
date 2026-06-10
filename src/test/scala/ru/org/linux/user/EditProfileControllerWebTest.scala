@@ -17,12 +17,12 @@ package ru.org.linux.user
 import munit.FunSuite
 import org.jsoup.Jsoup
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.{ContextConfiguration, ContextHierarchy, TestContextManager}
+import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
-import ru.org.linux.test.WebHelper
+import ru.org.linux.test.{SpringTestSupport, WebHelper}
 import sttp.client4.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
@@ -42,10 +42,8 @@ object EditProfileControllerWebTest:
 
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
-class EditProfileControllerWebTest extends FunSuite with WebHelper:
+class EditProfileControllerWebTest extends FunSuite with WebHelper with SpringTestSupport:
   import EditProfileControllerWebTest._
-
-  new TestContextManager(this.getClass).prepareTestInstance(this)
 
   @Autowired
   private var userDao: UserDao = scala.compiletime.uninitialized

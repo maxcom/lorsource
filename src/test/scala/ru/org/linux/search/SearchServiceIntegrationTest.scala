@@ -19,8 +19,9 @@ import org.opensearch.client.opensearch.OpenSearchClient
 import org.opensearch.client.opensearch.indices.{DeleteIndexRequest, RefreshRequest}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.DirtiesContext
-import org.springframework.test.context.{ContextConfiguration, TestContextManager}
+import org.springframework.test.context.ContextConfiguration
 import ru.org.linux.PekkoConfiguration
+import ru.org.linux.test.SpringTestSupport
 import ru.org.linux.topic.TopicTagService
 
 import java.time.ZoneId
@@ -29,8 +30,7 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 @ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
   classOf[PekkoConfiguration]))
 @DirtiesContext
-class SearchServiceIntegrationTest extends FunSuite:
-  new TestContextManager(this.getClass).prepareTestInstance(this)
+class SearchServiceIntegrationTest extends FunSuite with SpringTestSupport:
 
   @Autowired
   var indexCreationService: OpenSearchIndexCreationService = scala.compiletime.uninitialized
