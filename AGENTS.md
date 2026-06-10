@@ -161,14 +161,15 @@ mvn dependency:tree      # Show dependency tree
 
 ### Database Access
 
-- Use Spring's `JdbcTemplate` and `NamedParameterJdbcTemplate`
-- All database access must be implemented in Scala.
-- Use `.transactional()` for transactional database operations
+- Use ScalikeJDBC
+- Connection management and transactions are made by Spring
+- Use `SpringDB.run` to run SQL with auto commit. Use `SpringDB.localTx` for transactions.
 - Repository pattern with `@Repository` annotation
 
 ### Dependencies
 
 - Spring Framework 6.x
+- ScalikeJDBC 4.x
 - Spring Security 6.x
 - PostgreSQL JDBC driver
 - OpenSearch 3 via opensearch-java.
