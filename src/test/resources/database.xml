@@ -40,10 +40,6 @@
     <constructor-arg ref="hikariConfig" />
   </bean>
 
-  <bean class="org.springframework.jdbc.core.JdbcTemplate" id="jdbcTemplate">
-    <constructor-arg ref="datasource"/>
-  </bean>
-
   <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="datasource"/>
   </bean>
