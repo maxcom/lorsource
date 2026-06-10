@@ -28,12 +28,12 @@ class StatUpdater(topicDao: TopicDao, springDB: SpringDB) extends StrictLogging:
   def updateStats(): Unit =
     logger.debug("Updating statistics")
     springDB.run:
-      sql"SELECT stat_update()".update.apply()
-      sql"SELECT update_monthly_stats()".update.apply()
+      sql"SELECT stat_update()".map(_.timestamp(1)).single.apply()
+      sql"SELECT update_monthly_stats()".map(_.timestamp(1)).single.apply()
     topicDao.recalcAllWarningsCountInTx()
 
   @Scheduled(fixedDelay = 3600000, initialDelay = 300000)
   def updateGroupStats(): Unit =
     logger.debug("Updating group statistics")
     springDB.run:
-      sql"SELECT stat_update2()".update.apply()
+      sql"SELECT stat_update2()".map(_.timestamp(1)).single.apply()
