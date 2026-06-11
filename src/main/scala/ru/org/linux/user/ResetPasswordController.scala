@@ -56,10 +56,9 @@ class ResetPasswordController(userDao: UserDao, userService: UserService,
     }
 
     val resetDate = userDao.getResetDate(user)
-    val resetCode = userService.getResetCode(user.nick, user.email, resetDate)
 
-    if (resetCode != formCode) {
-      logger.warn("Код проверки не совпадает; login={} formCode={} resetCode={}", nick, formCode, resetCode)
+    if (!userService.verifyResetCode(user.nick, user.email, resetDate, formCode)) {
+      logger.warn("Код проверки не совпадает; login={} formCode={}", nick, formCode)
 
       throw new UserErrorException("Код не совпадает")
     } else {

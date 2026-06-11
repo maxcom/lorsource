@@ -166,7 +166,13 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
   def getResetCode(nick: String, email: String, tm: Timestamp): String = {
     val base = siteConfig.getSecret
-    StringUtil.md5hash(s"$base:$nick:$email:${tm.getTime.toString}:reset")
+    StringUtil.sha256hash(s"$base:$nick:$email:${tm.getTime.toString}:reset")
+  }
+
+  def verifyResetCode(nick: String, email: String, tm: Timestamp, code: String): Boolean = {
+    val base = siteConfig.getSecret
+    val expected = s"$base:$nick:$email:${tm.getTime.toString}:reset"
+    StringUtil.verifyHash(StringUtil.sha256hash(expected), StringUtil.md5hash(expected), code)
   }
 
   def updateResetDate(forUser: User, byUser: User, email: String, now: Timestamp): Unit = springDB.localTx {

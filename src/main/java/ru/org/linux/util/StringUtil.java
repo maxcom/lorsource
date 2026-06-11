@@ -15,12 +15,11 @@
 
 package ru.org.linux.util;
 
+import com.google.common.hash.Hashing;
 import ru.org.linux.util.formatter.RuTypoChanger;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
-import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,24 +58,19 @@ public final class StringUtil {
   }
 
   public static String md5hash(String pass) {
-    try {
-      MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-      BigInteger bi = new BigInteger(1, md.digest(pass.getBytes()));
-      String hash = bi.toString(16);
-      if (hash.length() < 32) {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < 32 - hash.length(); i++) {
-          buf.append('0');
-        }
-        buf.append(hash);
-//        logger.fine("Calculated hash="+buf.toString()); //$NON-NLS-1$
-        return buf.toString();
-      } else {
-        return hash;
-      }
-    } catch (GeneralSecurityException gse) {
-      throw new RuntimeException(gse);
+    return Hashing.md5().hashString(pass, StandardCharsets.UTF_8).toString();
+  }
+
+  public static String sha256hash(String pass) {
+    return Hashing.sha256().hashString(pass, StandardCharsets.UTF_8).toString();
+  }
+
+  public static boolean verifyHash(String sha256expected, String md5expected, String actual) {
+    if (sha256expected.equalsIgnoreCase(actual)) {
+      return true;
     }
+
+    return md5expected.equalsIgnoreCase(actual);
   }
 
   public static String generatePassword() {

@@ -159,9 +159,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
         val auth = authenticationManager.authenticate(token)
         val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
-        val regcode = userDetails.getUser.getActivationCode(siteConfig.getSecret)
 
-        if (regcode.equalsIgnoreCase(activation)) {
+        if (userDetails.getUser.verifyActivationCode(siteConfig.getSecret, activation)) {
           userService.activateUser(userDetails.getUser)
 
           val updatedDetails = userDetailsService.loadUserByUsername(nick)
@@ -198,9 +197,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("new_email == null?!")
     }
 
-    val regcode = currentUser.user.getActivationCodeWithEmail(siteConfig.getSecret, newEmail)
-
-    if (!regcode.equalsIgnoreCase(activation)) {
+    if (!currentUser.user.verifyActivationCodeWithEmail(siteConfig.getSecret, newEmail, activation)) {
       val params = activationFormParams(currentUser.user.nick, activation) + ("error" -> "Неправильный код активации")
 
       new ModelAndView("activate", params.asJava)
