@@ -19,13 +19,16 @@ import com.google.common.net.InternetDomainName
 import org.springframework.validation.Errors
 import org.springframework.validation.Validator
 import ru.org.linux.util.StringUtil
-
 import jakarta.mail.internet.AddressException
 import jakarta.mail.internet.InternetAddress
+import ru.org.linux.user.RegisterRequestValidator.MinPasswordLength
+
+object RegisterRequestValidator {
+  val MinPasswordLength = 10
+  val MaxTownLength = 100
+}
 
 class RegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao) extends Validator {
-  protected val TOWN_LENGTH = 100
-  protected val MIN_PASSWORD_LEN = 4
 
   protected def checkEmail(email: InternetAddress, errors: Errors): Unit = {
     if (!isGoodDomainEmail(email)) {
@@ -33,7 +36,7 @@ class RegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao) exten
     }
   }
 
-  def isGoodDomainEmail(email: InternetAddress): Boolean = {
+  private def isGoodDomainEmail(email: InternetAddress): Boolean = {
     val domain = email.getAddress.replaceFirst("^[^@]+@", "").toLowerCase
 
     try {
@@ -91,8 +94,8 @@ class RegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao) exten
       errors.reject(null, "введенные пароли не совпадают")
     }
 
-    if (!Strings.isNullOrEmpty(form.getPassword) && form.getPassword.length < MIN_PASSWORD_LEN) {
-      errors.reject("password", null, "слишком короткий пароль, минимальная длина: " + MIN_PASSWORD_LEN)
+    if (!Strings.isNullOrEmpty(form.getPassword) && form.getPassword.length < MinPasswordLength) {
+      errors.reject("password", null, s"слишком короткий пароль, минимальная длина: $MinPasswordLength")
     }
 
     /*

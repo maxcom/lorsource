@@ -77,7 +77,7 @@
 
   <div class="control-group">
     <label for="password">Пароль</label>
-    <form:password path="password" size="40" required="required" cssErrorClass="error" minlength="5"/>
+    <form:password path="password" size="40" required="required" cssErrorClass="error" minlength="10"/>
     <form:errors path="password" element="span" cssClass="error help-inline" for="password"/>
   </div>
 

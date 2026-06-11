@@ -18,9 +18,9 @@ import com.google.common.base.Strings
 import org.springframework.validation.Errors
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
-
 import jakarta.mail.internet.AddressException
 import jakarta.mail.internet.InternetAddress
+import ru.org.linux.user.RegisterRequestValidator.{MinPasswordLength, MaxTownLength}
 
 class EditProfileRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao)
   extends RegisterRequestValidator(emailDomainsBlockDao) {
@@ -31,8 +31,8 @@ class EditProfileRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao)
     val form = target.asInstanceOf[EditProfileRequest]
 
     if (!Strings.isNullOrEmpty(form.getTown)) {
-      if (StringUtil.escapeHtml(form.getTown).length > TOWN_LENGTH) {
-        errors.rejectValue("town", null, "Слишком длиное название города (максимум " + TOWN_LENGTH + " символов)")
+      if (StringUtil.escapeHtml(form.getTown).length > MaxTownLength) {
+        errors.rejectValue("town", null, s"Слишком длинное название города (максимум ${MaxTownLength} символов)")
       }
     }
 
@@ -46,8 +46,8 @@ class EditProfileRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao)
       errors.reject(null, "введенные пароли не совпадают")
     }
 
-    if (!Strings.isNullOrEmpty(form.getPassword) && form.getPassword.length < MIN_PASSWORD_LEN) {
-      errors.reject(null, "слишком короткий пароль, минимальная длина: " + MIN_PASSWORD_LEN)
+    if (!Strings.isNullOrEmpty(form.getPassword) && form.getPassword.length < MinPasswordLength) {
+      errors.reject(null, s"слишком короткий пароль, минимальная длина: $MinPasswordLength")
     }
 
     if (Strings.isNullOrEmpty(form.getEmail)) {
