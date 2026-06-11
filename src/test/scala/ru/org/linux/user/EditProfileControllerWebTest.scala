@@ -155,8 +155,8 @@ class EditProfileControllerWebTest extends FunSuite with WebHelper with SpringTe
           ("infoMarkup", "lorcode"),
           ("csrf", "csrf"),
           ("oldpass", "passwd"),
-          ("password", "passwd2"),
-          ("password2", "passwd2")))
+          ("password", "newpassword10"),
+          ("password2", "newpassword10")))
       .post(MainUrl.addPath("people", "maxcom", "edit"))
       .cookie(AuthCookie, auth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
@@ -187,9 +187,9 @@ class EditProfileControllerWebTest extends FunSuite with WebHelper with SpringTe
           ("info", info),
           ("infoMarkup", "lorcode"),
           ("csrf", "csrf"),
-          ("oldpass", "passwd2"),
-          ("password", "passwd"),
-          ("password2", "passwd")))
+("oldpass", "newpassword10"),
+           ("password", "longpassword1"),
+           ("password2", "longpassword1")))
       .post(MainUrl.addPath("people", "maxcom", "edit"))
       .cookie(AuthCookie, newAuth)
       .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")

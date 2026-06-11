@@ -58,4 +58,4 @@ class GroupControllerWebTest extends FunSuite with WebHelper:
 
     val doc = Jsoup.parse(response.body.merge, response.request.uri.toString())
 
-    assert(!doc.select(".infoblock").text().contains("править"), "infoblock should not contain edit link")
+    assert(doc.select(".infoblock-small").isEmpty, "infoblock-small should not be present for group without long info")
