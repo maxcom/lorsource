@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2024 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -24,12 +24,12 @@
 
   <c:if test="${not empty group.longInfo}">
     <div class="infoblock-small">
-    ${group.longInfo}
-
-    <c:if test="${template.moderatorSession}">
-      <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
-    </c:if>
+      ${group.longInfo}
     </div>
+  </c:if>
+
+  <c:if test="${template.moderatorSession}">
+    <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
   </c:if>
 
   <c:if test="${not empty activeTags}">

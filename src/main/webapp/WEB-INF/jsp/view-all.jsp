@@ -37,25 +37,29 @@
 <title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>${title}</h1>
+<c:if test="${section!=null}">
+  <h1>${section.name}</h1>
+</c:if>
+<c:if test="${section==null}">
+  <h1>${title}</h1>
+</c:if>
 
 <nav>
   <c:if test="${section!=null}">
-    <a class="btn btn-default" href="view-all.jsp">Все: ${uncommited}</a>
+    <a class="btn btn-default" href="${section.sectionLink}">Лента</a>
+    <a class="btn btn-selected" href="/view-all.jsp?section=${section.id}">Неподтверждённые: ${uncommited}</a>
+    <a class="btn btn-default" href="${section.archiveLink}">Архив</a>
   </c:if>
 
   <c:if test="${section==null}">
     <a class="btn btn-selected" href="view-all.jsp">Все: ${uncommited}</a>
-  </c:if>
 
-  <c:forEach var="item" items="${uncommitedCounts}">
-    <c:if test="${section!=null && item._1().id == section.id}">
-      <a href="view-all.jsp?section=${item._1().id}" class="btn btn-selected">${item._1().name}: ${item._2()}</a>
-    </c:if>
-    <c:if test="${item._1().id != section.id}">
-      <a href="view-all.jsp?section=${item._1().id}" class="btn btn-default">${item._1().name}: ${item._2()}</a>
-    </c:if>
-  </c:forEach>
+    <c:forEach var="item" items="${uncommitedCounts}">
+      <c:if test="${item._1().id != section.id}">
+        <a href="view-all.jsp?section=${item._1().id}" class="btn btn-default">${item._1().name}: ${item._2()}</a>
+      </c:if>
+    </c:forEach>
+  </c:if>
 
   <c:if test="${not empty addlink}">
     <a class="btn btn-primary" href="${addlink}">Добавить</a>

@@ -37,7 +37,6 @@ ${section.name}
   <c:if test="${group!=null}">
     «${group.title}»
   </c:if>
-  - Архив
 </H1>
 
 <nav>
@@ -45,11 +44,14 @@ ${section.name}
     <a class="btn btn-default" href="${section.sectionLink}">Лента</a>
   </c:if>
   <c:if test="${group != null}">
-    <a class="btn btn-default" href="${group.url}">Лента</a>
+    <a class="btn btn-default" href="${group.url}">Новые</a>
+    <a class="btn btn-default" href="${group.url}?lastmod=true">Активные</a>
   </c:if>
 
   <c:if test="${section.premoderated}">
-    <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтверждённые</a>
+      <c:if test="${uncommitedCount > 0}">
+        <a class="btn btn-default" href="/view-all.jsp?section=${section.id}">Неподтверждённые: ${uncommitedCount}</a>
+      </c:if>
   </c:if>
 
   <c:if test="${group == null}">

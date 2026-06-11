@@ -28,7 +28,7 @@ import ru.org.linux.section.SectionService
 
 @Controller
 class ArchiveController(sectionService: SectionService, groupService: GroupService, archiveDao: ArchiveDao,
-                        groupPermissionService: GroupPermissionService) {
+                        groupPermissionService: GroupPermissionService, topicService: TopicService) {
   private def archiveList(sectionid: Int,
                           groupName: Option[String] = None) = MaybeAuthorized { implicit currentUserOpt =>
     val mv = new ModelAndView("view-news-archive")
@@ -55,6 +55,10 @@ class ArchiveController(sectionService: SectionService, groupService: GroupServi
     }
 
     mv.getModel.put("addUrl", addUrl)
+
+    if (section.isPremoderated) {
+      mv.getModel.put("uncommitedCount", topicService.getUncommitedCount(section))
+    }
 
     mv
   }

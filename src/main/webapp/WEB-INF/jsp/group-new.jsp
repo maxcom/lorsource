@@ -111,9 +111,6 @@
       <a class="btn btn-selected" href="${activeUrl}">Активные</a>
     </c:if>
     <a href="${group.url}archive/" class="btn btn-default">Архив</a>
-    <c:if test="${template.moderatorSession}">
-      <a href="groupmod.jsp?group=${group.id}" class="btn btn-default">Править</a>
-    </c:if>
     <c:if test="${addable}">
       <a href="${addUrl}" class="btn btn-primary">Добавить</a>
     </c:if>
