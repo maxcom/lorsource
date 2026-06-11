@@ -32,7 +32,7 @@
 <title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Последние сообщения</h1>
+<h1>Активные топики</h1>
 
 <nav>
   <c:forEach items="${filters}" var="f">

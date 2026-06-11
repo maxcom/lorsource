@@ -51,9 +51,9 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
 
   private def makeTitle(filter: TrackerFilterEnum, defaultFilter: TrackerFilterEnum) =
     if (filter != defaultFilter)
-      "Последние сообщения (" + filter.label + ")"
+      "Активные топики (" + filter.label + ")"
     else
-      "Последние сообщения"
+      "Активные топики"
 
   private def buildTrackerUrl(offset: Int, filter: Option[TrackerFilterEnum]): String = {
     val additionalQuery = filter.map("filter=" + _.value)
