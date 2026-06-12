@@ -26,8 +26,7 @@ class TopicPostingChecker(sectionService: SectionService, userService: UserServi
   def isTopicPostingAllowed(section: Section)(using currentUser: AnySession): Boolean =
     checkTopicPosting(section).permitted
 
-  def isTopicPostingAllowed(group: Group)(using currentUser: AnySession): Boolean =
-    checkTopicPosting(group).permitted
+  def isTopicPostingAllowed(group: Group)(using currentUser: AnySession): Boolean = checkTopicPosting(group).permitted
 
   def checkTopicPosting(section: Section)(using currentUser: AnySession): Permission =
     isTopicPostingAllowed(section.topicsRestriction, currentUser.userOpt)
@@ -44,22 +43,23 @@ class TopicPostingChecker(sectionService: SectionService, userService: UserServi
       case POSTSCORE_UNRESTRICTED =>
         Unrestricted
       case POSTSCORE_MODERATORS_ONLY =>
-        Unrestricted
-          .restrict(!user.isModerator, "только для модераторов")
+        Unrestricted.restrict(!user.isModerator, "только для модераторов")
       case POSTSCORE_REGISTERED_ONLY =>
-        Unrestricted
-          .restrict(user.anonymous, "только для зарегистрированных")
+        Unrestricted.restrict(user.anonymous, "только для зарегистрированных")
       case POSTSCORE_NO_COMMENTS | POSTSCORE_HIDE_COMMENTS =>
         Restricted("постинг запрещен") // в топиках не бывает, но пусть будет на всякий случай
       case 100 | 200 | 300 | 400 =>
-        Unrestricted
-          .restrict(user.anonymous || user.score < postscore, s"только для зарегистрированных, минимум ${User.getStars(postscore, postscore, true)}")
+        Unrestricted.restrict(
+          user.anonymous || user.score < postscore,
+          s"только для зарегистрированных, минимум ${User.getStars(postscore, postscore, true)}")
       case 500 =>
-        Unrestricted
-          .restrict(user.anonymous || user.score < postscore, s"только для зарегистрированных, ${User.getStars(postscore, postscore, true)}")
+        Unrestricted.restrict(
+          user.anonymous || user.score < postscore,
+          s"только для зарегистрированных, ${User.getStars(postscore, postscore, true)}")
       case _ =>
-        Unrestricted
-          .restrict(user.anonymous || user.score < postscore, s"только для зарегистрированных, score>=$postscore")
+        Unrestricted.restrict(
+          user.anonymous || user.score < postscore,
+          s"только для зарегистрированных, score>=$postscore")
 
   private def isTopicPostingAllowed(restriction: Int, currentUserOpt: Option[User]): Permission =
     val currentUser = currentUserOpt.getOrElse(userService.getAnonymous)
