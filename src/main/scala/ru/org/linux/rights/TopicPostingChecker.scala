@@ -29,14 +29,14 @@ class TopicPostingChecker(sectionService: SectionService, userService: UserServi
   def isTopicPostingAllowed(group: Group)(using currentUser: AnySession): Boolean = checkTopicPosting(group).permitted
 
   def checkTopicPosting(section: Section)(using currentUser: AnySession): Permission =
-    isTopicPostingAllowed(section.topicsRestriction, currentUser.userOpt)
+    checkTopicPostingImpl(section.topicsRestriction, currentUser.userOpt)
 
   def checkTopicPosting(group: Group)(using currentUser: AnySession): Permission =
     val section = sectionService.getSection(group.sectionId)
 
     val maxPostscore = Math.max(group.topicRestriction, section.topicsRestriction)
 
-    isTopicPostingAllowed(maxPostscore, currentUser.userOpt)
+    checkTopicPostingImpl(maxPostscore, currentUser.userOpt)
 
   private def postScoreChecker(user: User, postscore: Int): Unrestricted.type | Restricted =
     postscore match
@@ -61,7 +61,7 @@ class TopicPostingChecker(sectionService: SectionService, userService: UserServi
           user.anonymous || user.score < postscore,
           s"только для зарегистрированных, score>=$postscore")
 
-  private def isTopicPostingAllowed(restriction: Int, currentUserOpt: Option[User]): Permission =
+  private def checkTopicPostingImpl(restriction: Int, currentUserOpt: Option[User]): Permission =
     val currentUser = currentUserOpt.getOrElse(userService.getAnonymous)
 
     Unrestricted
