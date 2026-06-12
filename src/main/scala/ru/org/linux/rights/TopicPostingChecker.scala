@@ -48,15 +48,18 @@ class TopicPostingChecker(sectionService: SectionService, userService: UserServi
           .restrict(!user.isModerator, "только для модераторов")
       case POSTSCORE_REGISTERED_ONLY =>
         Unrestricted
-          .restrict(user.anonymous, "только для зарегистрированных пользователей")
+          .restrict(user.anonymous, "только для зарегистрированных")
       case POSTSCORE_NO_COMMENTS | POSTSCORE_HIDE_COMMENTS =>
         Restricted("постинг запрещен") // в топиках не бывает, но пусть будет на всякий случай
-      case 100 | 200 | 300 | 400 | 500 =>
+      case 100 | 200 | 300 | 400 =>
         Unrestricted
-          .restrict(user.anonymous || user.score < postscore, s"только ${User.getStars(postscore, postscore, true)}")
+          .restrict(user.anonymous || user.score < postscore, s"только для зарегистрированных, минимум ${User.getStars(postscore, postscore, true)}")
+      case 500 =>
+        Unrestricted
+          .restrict(user.anonymous || user.score < postscore, s"только для зарегистрированных, ${User.getStars(postscore, postscore, true)}")
       case _ =>
         Unrestricted
-          .restrict(user.anonymous || user.score < postscore, s"только для зарегистрированных пользователей, score>=$postscore")
+          .restrict(user.anonymous || user.score < postscore, s"только для зарегистрированных, score>=$postscore")
 
   private def isTopicPostingAllowed(restriction: Int, currentUserOpt: Option[User]): Permission =
     val currentUser = currentUserOpt.getOrElse(userService.getAnonymous)

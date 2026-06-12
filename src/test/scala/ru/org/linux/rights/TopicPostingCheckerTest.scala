@@ -142,7 +142,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val result = checker.checkTopicPosting(section)(using NonAuthorizedSession)
 
     assert(result.restricted)
-    assertEquals(result.reason, "только для зарегистрированных пользователей")
+    assertEquals(result.reason, "только для зарегистрированных")
 
   test("moderators-only section: moderator is permitted"):
     val section = unrestrictedSection.copy(topicsRestriction = POSTSCORE_MODERATORS_ONLY)
