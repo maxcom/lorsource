@@ -379,14 +379,20 @@ class UserEventDao(springDB: SpringDB):
     springDB.run {
       sql"""INSERT INTO user_events (userid, type, private, message_id, message)
           (SELECT topics.userid, ${DELETED
-          .getType}::event_type, true, topics.id, $reason FROM topics WHERE topics.id IN ($topicsIds)
-            AND topics.userid != $deletedBy AND topics.userid != ${UserConstants.ANONYMOUS_ID})""".update.apply()
+          .getType}::event_type, true, topics.id, $reason FROM topics
+            JOIN users ON topics.userid = users.id
+            WHERE topics.id IN ($topicsIds)
+            AND topics.userid != $deletedBy AND topics.userid != ${UserConstants.ANONYMOUS_ID}
+            AND (users.frozen_until IS NULL OR users.frozen_until < CURRENT_TIMESTAMP))""".update.apply()
     }
 
   def insertCommentMassDeleteNotifications(commentIds: Seq[Int], reason: String, deletedBy: Int): Unit =
     springDB.run {
       sql"""INSERT INTO user_events (userid, type, private, message_id, comment_id, message)
           (SELECT comments.userid, ${DELETED
-          .getType}::event_type, true, comments.topic, comments.id, $reason FROM comments WHERE comments.id IN ($commentIds)
-            AND comments.userid != $deletedBy AND comments.userid != ${UserConstants.ANONYMOUS_ID})""".update.apply()
+          .getType}::event_type, true, comments.topic, comments.id, $reason FROM comments
+            JOIN users ON comments.userid = users.id
+            WHERE comments.id IN ($commentIds)
+            AND comments.userid != $deletedBy AND comments.userid != ${UserConstants.ANONYMOUS_ID}
+            AND (users.frozen_until IS NULL OR users.frozen_until < CURRENT_TIMESTAMP))""".update.apply()
     }

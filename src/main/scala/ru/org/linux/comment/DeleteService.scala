@@ -23,7 +23,7 @@ import ru.org.linux.msgbase.InsertDeleteInfo
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.{Topic, TopicDao}
-import ru.org.linux.user.{User, UserEventService, UserService}
+import ru.org.linux.user.{User, UserConstants, UserEventService, UserService}
 
 import java.sql.Timestamp
 import scala.collection.mutable.ArrayBuffer
@@ -186,20 +186,23 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    *
    * @param comment    удаляемый комментарий
    * @param scoreBonus сколько снять скора у автора комментария
-   * @return DeleteInfo, rоторый потом надо вставить в БД
+   * @return DeleteInfo, который потом надо вставить в БД
    */
   private def doDeleteCommentWithScore(comment: Comment, scoreBonus: Int, reason: String,
-                                        deleteBy: User)(using Transaction): Option[InsertDeleteInfo] = {
+                                         deleteBy: User)(using Transaction): Option[InsertDeleteInfo] = {
     assert(scoreBonus <= 0, s"Score bonus '$scoreBonus' on delete must be non-positive")
 
     val deleted = commentDao.deleteComment(comment.id)
 
-    if (deleted && scoreBonus != 0) {
-      userService.changeScore(comment.userid, scoreBonus)
+    val effectiveBonus = if (scoreBonus != 0 && comment.userid != UserConstants.ANONYMOUS_ID
+      && userService.getUserCached(comment.userid).isFrozen) 0 else scoreBonus
+
+    if (deleted && effectiveBonus != 0) {
+      userService.changeScore(comment.userid, effectiveBonus)
     }
 
     if (deleted) {
-      Some(InsertDeleteInfo(comment.id, reason, scoreBonus, deleteBy))
+      Some(InsertDeleteInfo(comment.id, reason, effectiveBonus, deleteBy))
     } else {
       None
     }
@@ -276,11 +279,14 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     val deleted = topicDao.delete(topic.id)
 
     if (deleted) {
-      if (scoreBonus !=0) {
-        userService.changeScore(topic.authorUserId, scoreBonus)
+      val effectiveBonus = if (scoreBonus != 0 && topic.authorUserId != UserConstants.ANONYMOUS_ID
+        && userService.getUserCached(topic.authorUserId).isFrozen) 0 else scoreBonus
+
+      if (effectiveBonus != 0) {
+        userService.changeScore(topic.authorUserId, effectiveBonus)
       }
 
-      Some(InsertDeleteInfo(topic.id, reason, scoreBonus, moderator))
+      Some(InsertDeleteInfo(topic.id, reason, effectiveBonus, moderator))
     } else {
       None
     }

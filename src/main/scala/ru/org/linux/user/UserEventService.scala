@@ -29,7 +29,7 @@ import java.util
 import scala.jdk.CollectionConverters.*
 
 @Service
-class UserEventService(userEventDao: UserEventDao, springDB: SpringDB)
+class UserEventService(userEventDao: UserEventDao, userService: UserService, springDB: SpringDB)
     extends StrictLogging {
   /**
    * Добавление уведомления об упоминании пользователей в комментарии.
@@ -188,7 +188,8 @@ class UserEventService(userEventDao: UserEventDao, springDB: SpringDB)
   def insertTopicDeleteNotification(topic: Topic, info: InsertDeleteInfo): Unit = {
     assert(topic.id == info.msgid)
 
-    if (info.deleteUser.id != topic.authorUserId && topic.authorUserId != UserConstants.ANONYMOUS_ID) {
+    if (info.deleteUser.id != topic.authorUserId && topic.authorUserId != UserConstants.ANONYMOUS_ID
+      && !userService.getUserCached(topic.authorUserId).isFrozen) {
       userEventDao.addEvent(
         eventType = DELETED.getType,
         userId = topic.authorUserId,
@@ -202,7 +203,8 @@ class UserEventService(userEventDao: UserEventDao, springDB: SpringDB)
   def insertCommentDeleteNotification(comment: Comment, info: InsertDeleteInfo): Unit = {
     assert(comment.id == info.msgid)
 
-    if (info.deleteUser.id != comment.userid && comment.userid != UserConstants.ANONYMOUS_ID) {
+    if (info.deleteUser.id != comment.userid && comment.userid != UserConstants.ANONYMOUS_ID
+      && !userService.getUserCached(comment.userid).isFrozen) {
       userEventDao.addEvent(
         eventType = DELETED.getType,
         userId = comment.userid,
