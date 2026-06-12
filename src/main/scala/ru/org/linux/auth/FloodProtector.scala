@@ -17,6 +17,7 @@ package ru.org.linux.auth
 import com.google.common.cache.{Cache, CacheBuilder}
 import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
+import ru.org.linux.rights.SlowModeChecker
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.{User, UserPermissionService}
 
@@ -38,7 +39,7 @@ object FloodProtector {
 }
 
 @Component
-class FloodProtector(siteConfig: SiteConfig, userPermissionService: UserPermissionService) {
+class FloodProtector(siteConfig: SiteConfig, slowModeChecker: SlowModeChecker) {
   final private val performedActions: Cache[String, Instant] =
     CacheBuilder.newBuilder.expireAfterWrite(Duration.ofMinutes(30)).build
 
@@ -62,7 +63,7 @@ class FloodProtector(siteConfig: SiteConfig, userPermissionService: UserPermissi
     if (enabled) {
       val threshold: Duration = if (user == null || user.anonymous) {
         action.threshold
-      } else if (userPermissionService.isSlowMode(user)) {
+      } else if (slowModeChecker.check(user).restricted) {
         action.thresholdLowScore
       } else if (user.getScore >= 100) {
         action.thresholdTrusted

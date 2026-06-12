@@ -52,6 +52,13 @@ $script.ready("plugins", function() {
 <form:form modelAttribute="form" method="POST" action="/people/${form.nick}/edit" id="editRegForm">
     <lor:csrf/>
     <form:errors element="label" cssClass="error"/>
+
+    <c:if test="${not canEditInfo}">
+    <div class="infoblock">
+      Редактирование данных профиля не возможно: ${canEditInfoReason}. Сейчас доступна только смена пароля и email.
+    </div>
+    </c:if>
+
     <dl>
         <dt><label for="name">Имя</label></dt>
         <dd>

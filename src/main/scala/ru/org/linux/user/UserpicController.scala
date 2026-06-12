@@ -27,6 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriTemplate
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.rights.EditProfileChecker
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.BadImageException
 
@@ -35,28 +36,23 @@ import java.io.IOException
 import java.nio.file.Files
 import java.util.Random
 
-object UserpicController {
+private object UserpicController:
   private val ProfileUriTemplate = new UriTemplate("/people/{nick}/profile")
-}
 
 @Controller
 class UserpicController(siteConfig: SiteConfig, userService: UserService,
-                        userPermissionService: UserPermissionService) extends StrictLogging {
+                        editProfileChecker: EditProfileChecker) extends StrictLogging {
   @RequestMapping(value = Array("/addphoto.jsp"), method = Array(RequestMethod.GET))
   def showForm: ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (userPermissionService.canLoadUserpic) {
-      new ModelAndView("addphoto")
-    } else {
-      new ModelAndView("errors/code403")
-    }
+    editProfileChecker.checkLoadUserpic.checkOrThrow()
+    
+    new ModelAndView("addphoto")
   }
 
   @RequestMapping(value = Array("/addphoto.jsp"), method = Array(RequestMethod.POST))
   def addPhoto(@RequestParam("file") file: MultipartFile,
                response: HttpServletResponse): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    if (!userPermissionService.canLoadUserpic) {
-      throw new AccessViolationException("Forbidden")
-    }
+    editProfileChecker.checkLoadUserpic.checkOrThrow()
 
     if (file == null || file.isEmpty) {
       new ModelAndView("addphoto", "error", "изображение не задано")

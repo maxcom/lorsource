@@ -23,6 +23,7 @@ import ru.org.linux.comment.{Comment, CommentReadService}
 import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.msgbase.DeleteInfoDao
+import ru.org.linux.rights.SlowModeChecker
 import ru.org.linux.section.Section
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
@@ -92,7 +93,8 @@ object TopicPermissionService {
 @Service
 class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupService: GroupService,
                              deleteInfoDao: DeleteInfoDao, userService: UserService,
-                             userPermissionService: UserPermissionService) {
+                             userPermissionService: UserPermissionService,
+                             slowModeChecker: SlowModeChecker) {
   def allowViewAllDeletedComments(message: Topic)(using currentUser: AnySession): Boolean = {
     if !currentUser.moderator then
       val topicForbidden = message.expired || message.draft ||
@@ -103,7 +105,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       val userAllowed = currentUser.userOpt.exists(u => !u.anonymous && !u.isFrozen && u.score >= ViewDeletedScore)
 
       def topicAllowedByScoreLoss = deleteInfoDao.scoreLoss(message.id) < 150
-      def userSlowMode = currentUser.userOpt.exists(userPermissionService.isSlowMode)
+      def userSlowMode = currentUser.userOpt.exists(u => slowModeChecker.check(u).restricted)
 
       !topicForbidden && userAllowed && topicAllowedByScoreLoss && !userSlowMode
     else
@@ -147,7 +149,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
             throw new AccessViolationException("Сообщение удалено")
           }
 
-          if (currentUser.score < TopicPermissionService.ViewDeletedScore || userPermissionService.isSlowMode(currentUser)) {
+          if (currentUser.score < TopicPermissionService.ViewDeletedScore || slowModeChecker.check(currentUser).restricted) {
             throw new MessageNotFoundException(message.id, "Сообщение удалено")
           }
 

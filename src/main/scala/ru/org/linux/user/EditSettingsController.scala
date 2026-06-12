@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.rights.EditProfileChecker
 import ru.org.linux.site.{BadInputException, DefaultProfile, Theme}
 import ru.org.linux.tracker.TrackerFilterEnum
 import ru.org.linux.user.UserPermissionService.DeprecatedFeaturesScore
@@ -32,7 +33,7 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 @RequestMapping (path = Array ("/people/{nick}/settings") )
-class EditSettingsController(profileDao: ProfileDao, userPermissionService: UserPermissionService, userService: UserService) {
+class EditSettingsController(profileDao: ProfileDao, editProfileChecker: EditProfileChecker, userService: UserService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
     if (!(currentUser.user.nick == nick)) {
@@ -69,7 +70,7 @@ class EditSettingsController(profileDao: ProfileDao, userPermissionService: User
 
     params.put("avatarsList", DefaultProfile.getAvatars.asJava)
 
-    params.put("canLoadUserpic", Boolean.box(userPermissionService.canLoadUserpic))
+    params.put("canLoadUserpic", Boolean.box(editProfileChecker.checkLoadUserpic.permitted))
 
     new ModelAndView("edit-settings", params)
   }

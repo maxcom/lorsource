@@ -26,8 +26,9 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.markup.{MessageTextService, MarkupType}
+import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.msgbase.MessageText
+import ru.org.linux.rights.{EditProfileChecker, SlowModeChecker}
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
 import java.net.URLEncoder
@@ -40,10 +41,11 @@ import scala.jdk.FutureConverters.FutureOps
 
 @Controller
 class WhoisController(userStatisticsService: UserStatisticsService, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                       textService: MessageTextService, userTagService: UserTagService,
-                       topicPermissionService: TopicPermissionService, userService: UserService, userLogDao: UserLogDao,
-                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
-                       topicDao: TopicDao, userPermissionService: UserPermissionService) extends StrictLogging {
+                      textService: MessageTextService, userTagService: UserTagService,
+                      topicPermissionService: TopicPermissionService, userService: UserService, userLogDao: UserLogDao,
+                      userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
+                      topicDao: TopicDao, editProfileChecker: EditProfileChecker,
+                      slowModeChecker: SlowModeChecker) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def getInfoNew(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
@@ -120,7 +122,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     if (viewByOwner) {
       currentUserOpt.opt.foreach { implicit authorized =>
         mv.getModel.put("hasRemarks", remarkDao.hasRemarks(user))
-        mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
+        mv.getModel.put("canLoadUserpic", editProfileChecker.checkLoadUserpic.permitted)
       }
     }
 
@@ -145,9 +147,9 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
       mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))
       mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user).asJava)
 
-      mv.getModel.put("slowMode", userPermissionService.isSlowMode(user))
-    } else {
-      mv.getModel.put("slowMode", false)
+      val slowModeCheck = slowModeChecker.check(user)
+      mv.getModel.put("slowMode", slowModeCheck.restricted)
+      mv.getModel.put("slowModeReason", slowModeCheck.reason)
     }
 
     userStatsF.map { userStat =>

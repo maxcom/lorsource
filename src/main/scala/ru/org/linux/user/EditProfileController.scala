@@ -36,9 +36,10 @@ import ru.org.linux.markup.MarkupType
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
-
 import jakarta.mail.internet.AddressException
 import jakarta.mail.internet.InternetAddress
+import ru.org.linux.rights.EditProfileChecker
+
 import javax.validation.Valid
 
 @Controller @RequestMapping(Array("/people/{nick}/edit"))
@@ -51,17 +52,17 @@ class EditProfileController(
     userService: UserService,
     emailService: EmailService,
     emailDomainsBlockDao: EmailDomainsBlockDao,
-    userPermissionService: UserPermissionService)
+    editProfileChecker: EditProfileChecker)
     extends StrictLogging:
   private val validator = new EditProfileRequestValidator(emailDomainsBlockDao)
 
   @RequestMapping(method = Array(RequestMethod.GET))
   def show(
-            @ModelAttribute("form")
+      @ModelAttribute("form")
       form: EditProfileRequest,
-            @PathVariable("nick")
+      @PathVariable("nick")
       nick: String,
-            response: HttpServletResponse): ModelAndView =
+      response: HttpServletResponse): ModelAndView =
     AuthorizedOnly { implicit currentUser =>
       if currentUser.user.nick != nick then
         throw new AccessViolationException("Not authorized")
@@ -70,14 +71,20 @@ class EditProfileController(
 
       val userInfo = userDao.getUserInfo(user)
 
-      val effectiveMarkup = if Strings.isNullOrEmpty(userInfo.text) || userInfo.text.trim.isEmpty
-        then currentUser.profile.formatMode
-        else userInfo.markup
+      val effectiveMarkup =
+        if Strings.isNullOrEmpty(userInfo.text) || userInfo.text.trim.isEmpty then
+          currentUser.profile.formatMode
+        else
+          userInfo.markup
 
       val mv = new ModelAndView("edit-profile")
 
-      mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
-      mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
+      mv.getModel.put("canLoadUserpic", editProfileChecker.checkLoadUserpic.permitted)
+      val editProfileInfoCheck = editProfileChecker.checkEditProfileInfo
+      
+      mv.getModel.put("canEditInfo", editProfileInfoCheck.permitted)
+      mv.getModel.put("canEditInfoReason", editProfileInfoCheck.reason)
+
       mv.getModel.put("infoMarkupFormId", effectiveMarkup.formId)
       mv.getModel.put("infoMarkupTitle", effectiveMarkup.title)
 
@@ -95,13 +102,13 @@ class EditProfileController(
 
   @RequestMapping(method = Array(RequestMethod.POST))
   def edit(
-            request: HttpServletRequest,
-            response: HttpServletResponse,
-            @PathVariable("nick")
+      request: HttpServletRequest,
+      response: HttpServletResponse,
+      @PathVariable("nick")
       nick: String,
-            @Valid @ModelAttribute("form")
+      @Valid @ModelAttribute("form")
       form: EditProfileRequest,
-            errors: Errors): ModelAndView =
+      errors: Errors): ModelAndView =
     AuthorizedOnly { implicit currentUser =>
       if currentUser.user.nick != nick then
         throw new AccessViolationException("Not authorized")
@@ -127,22 +134,26 @@ class EditProfileController(
       val town = Option(form.getTown).filter(_.nonEmpty).map(StringUtil.escapeHtml).orNull
       val info = Option(form.getInfo).filter(_.nonEmpty).orNull
 
-      val infoMarkup = if info != null then
-        val formMarkup = Option(form.getInfoMarkup)
-          .filter(_.nonEmpty)
-          .flatMap { v =>
-            try Some(MarkupType.ofFormId(v))
-            catch case _: IllegalArgumentException => None
-          }
-          .getOrElse(currentUser.profile.formatMode)
+      val infoMarkup =
+        if info != null then
+          val formMarkup = Option(form.getInfoMarkup)
+            .filter(_.nonEmpty)
+            .flatMap { v =>
+              try
+                Some(MarkupType.ofFormId(v))
+              catch
+                case _: IllegalArgumentException =>
+                  None
+            }
+            .getOrElse(currentUser.profile.formatMode)
 
-        val allowedFormats = UserPermissionService.allowedFormats(currentUser.user)
-        if !allowedFormats.contains(formMarkup) then
-          currentUser.profile.formatMode
+          val allowedFormats = UserPermissionService.allowedFormats(currentUser.user)
+          if !allowedFormats.contains(formMarkup) then
+            currentUser.profile.formatMode
+          else
+            formMarkup
         else
-          formMarkup
-      else
-        currentUser.profile.formatMode
+          currentUser.profile.formatMode
 
       val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
       UserPermissionService.checkBlockIP(ipBlockInfo, errors, currentUser.user)
@@ -166,13 +177,16 @@ class EditProfileController(
 
       val mv = new ModelAndView("edit-profile")
 
-      mv.getModel.put("canLoadUserpic", userPermissionService.canLoadUserpic)
-      mv.getModel.put("canEditInfo", userPermissionService.canEditProfileInfo)
+      mv.getModel.put("canLoadUserpic", editProfileChecker.checkLoadUserpic.permitted)
+      val canEditProfileInfo = editProfileChecker.checkEditProfileInfo.permitted
+
+      mv.getModel.put("canEditInfo", canEditProfileInfo)
+
       mv.getModel.put("infoMarkupFormId", infoMarkup.formId)
       mv.getModel.put("infoMarkupTitle", infoMarkup.title)
 
       if !errors.hasErrors then
-        if userPermissionService.canEditProfileInfo then
+        if canEditProfileInfo then
           userService.updateUser(user, name, url, newEmail, town, newPassword, info, infoMarkup, request.getRemoteAddr)
         else
           userService.updateEmailPasswd(user, newEmail, newPassword, request.getRemoteAddr)

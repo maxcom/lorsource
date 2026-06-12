@@ -17,6 +17,7 @@ package ru.org.linux.group
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.msgbase.DeleteInfoDao
+import ru.org.linux.rights.SlowModeChecker
 import ru.org.linux.section.Section.{Articles, Gallery, News, Polls}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.{PreparedTopic, Topic, TopicDao, TopicPermissionService}
@@ -44,7 +45,8 @@ object GroupPermissionService {
 
 @Service
 class GroupPermissionService(sectionService: SectionService, deleteInfoDao: DeleteInfoDao,
-                              userPermissionService: UserPermissionService, topicDao: TopicDao) {
+                             userPermissionService: UserPermissionService, topicDao: TopicDao,
+                             slowModeChecker: SlowModeChecker) {
   import GroupPermissionService.*
   /**
     * Проверка может ли пользователь удалить топик
@@ -310,7 +312,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
 
   def canViewAllDeletedTopics(using session: AnySession): Boolean =
     session.authorized && session.userOpt.exists(_.score >= 50)
-      && !session.userOpt.exists(u => u.isFrozen || userPermissionService.isSlowMode(u))
+      && !session.userOpt.exists(u => u.isFrozen || slowModeChecker.check(u).restricted)
 
   private def topicLimit(user: User): Int = Math.max(user.getGreenStars, 2)
 

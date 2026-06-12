@@ -28,7 +28,6 @@ import javax.annotation.Nullable
 
 object UserPermissionService {
   private val MaxUnactivatedPerIp = 2
-  private val MaxUserpicScoreLoss = 20
   val DeprecatedFeaturesScore = 500
 
   def allowedFormats(user: User): Set[MarkupType] = {
@@ -55,45 +54,14 @@ object UserPermissionService {
 }
 
 @Service
-class UserPermissionService(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao,
-                            ipBlockDao: IPBlockDao, userDao: UserDao) {
+class UserPermissionService(userLogDao: UserLogDao, ipBlockDao: IPBlockDao, userDao: UserDao) {
   def canResetPassword(user: User): Boolean = {
     !userLogDao.hasRecentSelfEvent(user, Duration.ofDays(7), UserLogAction.SentPasswordReset)
   }
 
   def canRegister(remoteAddr: String): Boolean = !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
     userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp
-
-  def canLoadUserpic(implicit session: AuthorizedSession): Boolean = {
-    def userpicSetCount = userLogDao.getUserpicSetCount(session.user, Duration.ofHours(1))
-
-    def wasReset = userLogDao.hasRecentModerationEvent(session.user, Duration.ofDays(30), UserLogAction.ResetUserpic)
-
-    def userScoreLoss = deleteInfoDao.getRecentScoreLoss(session.user)
-
-    session.user.getScore >= 45 &&
-      !session.user.isFrozen &&
-      (userpicSetCount < 3) &&
-      !wasReset &&
-      (userScoreLoss < MaxUserpicScoreLoss)
-  }
-
-  def canEditProfileInfo(implicit session: AuthorizedSession): Boolean = {
-    import session.user
-
-    !user.isFrozen &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.ResetInfo) &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.ResetUrl) &&
-      !userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.ResetTown)
-  }
-
+  
   def canResetPasswordByCode(user: User): Boolean =
     !user.blocked && user.activated && !user.anonymous && !user.isAdministrator
-
-  def isSlowMode(user: User): Boolean = {
-    !user.anonymous && !user.isFrozen && !user.blocked && (
-      user.getScore < 35 ||
-        Option(user.frozenUntil).map(_.toInstant).exists(_.isAfter(Instant.now.minus(3, ChronoUnit.DAYS))) ||
-        deleteInfoDao.getRecentScoreLoss(user) >= 30)
-  }
 }
