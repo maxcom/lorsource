@@ -38,7 +38,7 @@ class HstsInterceptor(config: SiteConfig) extends HandlerInterceptor:
 
     s"default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; " +
       s"form-action 'self' $secureOrigin; manifest-src 'self'; " +
-      s"script-src 'self' 'unsafe-inline' 'unsafe-eval' $HCaptchaSources; " +
+      s"script-src 'self' 'unsafe-inline' $HCaptchaSources; " +
       s"style-src 'self' 'unsafe-inline' $HCaptchaSources; " +
       s"img-src ${ImageSources.mkString(" ")}; font-src 'self'; " +
       s"connect-src ${connectSources.mkString(" ")}; frame-src 'self' $HCaptchaSources"

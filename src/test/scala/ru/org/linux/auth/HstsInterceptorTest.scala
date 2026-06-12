@@ -35,7 +35,7 @@ class HstsInterceptorTest:
     assertEquals(
       "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; " +
         "form-action 'self' https://www.linux.org.ru; manifest-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hcaptcha.com https://*.hcaptcha.com; " +
+        "script-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
         "style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
         "img-src 'self' data: https://images.ping-admin.ru https://cdn.jsdelivr.net https://secure.gravatar.com; font-src 'self'; " +
         "connect-src 'self' https://hcaptcha.com https://*.hcaptcha.com wss://www.linux.org.ru:8443; " +
@@ -55,7 +55,7 @@ class HstsInterceptorTest:
     assertEquals(
       "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; " +
         "form-action 'self' https://www.linux.org.ru; manifest-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hcaptcha.com https://*.hcaptcha.com; " +
+        "script-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
         "style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
         "img-src 'self' data: https://images.ping-admin.ru https://cdn.jsdelivr.net https://secure.gravatar.com; font-src 'self'; " +
         "connect-src 'self' https://hcaptcha.com https://*.hcaptcha.com; " +

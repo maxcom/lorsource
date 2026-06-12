@@ -21,7 +21,7 @@ var LorViewDiffHistory = function() {
 
     pushHash: function (tag) {
        if (typeof(this.htmlHash[tag]) == 'undefined') {
-        this.htmlHash[tag] = eval('"\\u'+this.currentHash.toString(16)+'"');
+        this.htmlHash[tag] = String.fromCharCode(this.currentHash);
         this.currentHash++;
       }
       return this.htmlHash[tag];
