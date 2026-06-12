@@ -63,7 +63,7 @@ case class User(
     User.verifyActivationCode(base, nick, email, code)
 
   def verifyActivationCodeWithEmail(base: String, email: String, code: String): Boolean =
-    StringUtil.verifyHash(StringUtil.sha256hash(s"$base:$nick:$email"), StringUtil.md5hash(s"$base:$nick:$email"), code)
+    StringUtil.verifyHash(StringUtil.sha256hash(s"$base:$nick:$email"), code)
 
   def getScore: Int = if (anonymous) 0 else score
 
@@ -156,7 +156,7 @@ object User {
     StringUtil.sha256hash(s"$base:$nick:$email")
 
   def verifyActivationCode(base: String, nick: String, email: String, code: String): Boolean =
-    StringUtil.verifyHash(StringUtil.sha256hash(s"$base:$nick:$email"), StringUtil.md5hash(s"$base:$nick:$email"), code)
+    StringUtil.verifyHash(StringUtil.sha256hash(s"$base:$nick:$email"), code)
 
   def getGreenStars(score: Int): Int = {
     var s = if (score < 0) 0 else score

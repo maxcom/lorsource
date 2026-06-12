@@ -292,17 +292,6 @@ public class UserTest {
   }
 
   /**
-   * проверка backward-compatible верификации (MD5 fallback)
-   * @throws Exception хм
-   */
-  @Test
-  public void hizelVerifyMd5Test() throws Exception {
-    ResultSet resultSet = Users.getHizel();
-    User user = User.fromResultSet(resultSet);
-    Assert.assertTrue(user.verifyActivationCode("secret", "0428dfed932b07ea582efd94038b1076"));
-  }
-
-  /**
    * проверка верификации SHA256
    * @throws Exception хм
    */

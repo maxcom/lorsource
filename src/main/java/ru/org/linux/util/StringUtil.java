@@ -65,12 +65,8 @@ public final class StringUtil {
     return Hashing.sha256().hashString(pass, StandardCharsets.UTF_8).toString();
   }
 
-  public static boolean verifyHash(String sha256expected, String md5expected, String actual) {
-    if (sha256expected.equalsIgnoreCase(actual)) {
-      return true;
-    }
-
-    return md5expected.equalsIgnoreCase(actual);
+  public static boolean verifyHash(String sha256expected, String actual) {
+    return sha256expected.equalsIgnoreCase(actual);
   }
 
   public static String generatePassword() {
