@@ -27,7 +27,6 @@ import ru.org.linux.user.{User, UserPermissionService}
 import scala.beans.BeanProperty
 import java.time.{Duration, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
-import javax.annotation.Nullable
 
 @Service
 object GroupPermissionService {
@@ -96,30 +95,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       Math.max(group.commentsRestriction,
         Section.getCommentPostscore(group.sectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
   }
-
-  def isTopicPostingAllowed(section: Section)(using currentUser: AnySession): Boolean =
-    isTopicPostingAllowed(section.topicsRestriction, currentUser.userOpt.orNull)
-
-  def isTopicPostingAllowed(group: Group)(using currentUser: AnySession): Boolean =
-    isTopicPostingAllowed(effectivePostscore(group), currentUser.userOpt.orNull)
-
-  private def isTopicPostingAllowed(restriction: Int, @Nullable currentUser: User): Boolean = {
-    if (currentUser!=null && (currentUser.blocked || currentUser.isFrozen)) {
-      false
-    } else if (restriction == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
-      true
-    } else if (currentUser == null || currentUser.anonymous) {
-      false
-    } else if (restriction == TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
-      currentUser.isModerator
-    } else if (restriction == TopicPermissionService.POSTSCORE_NO_COMMENTS ||
-        restriction == TopicPermissionService.POSTSCORE_HIDE_COMMENTS) {
-      false
-    } else {
-      currentUser.score >= restriction
-    }
-  }
-
+  
   def isImagePostingAllowed(section: Section)(using currentUser: AnySession): Boolean = {
     if (section.imagepost) {
       true

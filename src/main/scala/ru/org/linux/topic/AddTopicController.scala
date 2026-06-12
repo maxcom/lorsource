@@ -36,6 +36,7 @@ import ru.org.linux.group.{Group, GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
+import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.tag.TagService.tagRef
@@ -97,7 +98,8 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
                          topicService: TopicService,
                          @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                           renderService: MarkdownFormatter, groupService: GroupService, dupeProtector: FloodProtector,
-                         ipBlockDao: IPBlockDao, servletContext: ServletContext) {
+                         ipBlockDao: IPBlockDao, servletContext: ServletContext,
+                         topicPostingChecker: TopicPostingChecker) {
   @ModelAttribute("ipBlockInfo")
   def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
 
@@ -105,7 +107,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val group = form.group
 
-    if (currentUser.authorized && !permissionService.isTopicPostingAllowed(group)) {
+    if (currentUser.authorized && !topicPostingChecker.isTopicPostingAllowed(group)) {
       val errorView = new ModelAndView("errors/good-penguin")
 
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу")
@@ -165,7 +167,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     UserPermissionService.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
-    if (!permissionService.isTopicPostingAllowed(group)(using postingUser)) {
+    if (!topicPostingChecker.isTopicPostingAllowed(group)(using postingUser)) {
       errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
     }
 
@@ -276,8 +278,11 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     val groups = groupService.getGroups(section)
 
     if groups.size == 1 then
-      val group = groups(0)
-      if permissionService.isTopicPostingAllowed(group) then
+      val group = groups.head
+
+      val postable = topicPostingChecker.checkTopicPosting(group)
+
+      if postable.permitted then
         new ModelAndView(new RedirectView(AddTopicController.getAddUrl(group, tag)))
       else
         val params = prepareModel(None, section).to(mutable.HashMap)
@@ -286,7 +291,7 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
           group,
           AddTopicController.getAddUrl(group, tag, noinfo = true),
           false,
-          permissionService.getPostScoreInfo(group)
+          postable.reason
         )).asJava)
 
         if tag != null then
@@ -297,13 +302,13 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       val params = prepareModel(None, section).to(mutable.HashMap)
 
       val groupChoices = groups.map { group =>
-        val postable = permissionService.isTopicPostingAllowed(group)
+        val postable = topicPostingChecker.checkTopicPosting(group)
+
         AddTopicController.GroupChoice(
           group,
           AddTopicController.getAddUrl(group, tag, noinfo = true),
-          postable,
-          if postable then "" else permissionService.getPostScoreInfo(group)
-        )
+          postable.permitted,
+          postable.reason)
       }
 
       params.put("groups", groupChoices.asJava)
@@ -318,22 +323,21 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def showFormAllSections(@RequestParam(value = "tag", required = false) tag: String): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val sectionList = sectionService.sections.filter(_.moderate).map { section =>
       val groups = groupService.getGroups(section)
+
       val postable = if groups.size == 1 then
-        permissionService.isTopicPostingAllowed(groups(0))
+        topicPostingChecker.checkTopicPosting(groups.head)
       else
-        permissionService.isTopicPostingAllowed(section)
-      val postScoreInfo = if groups.size == 1 then
-        permissionService.getPostScoreInfo(groups(0))
-      else
-        permissionService.getPostScoreInfo(section)
+        topicPostingChecker.checkTopicPosting(section)
+
       val url = if groups.size == 1 then
-        AddTopicController.getAddUrl(groups(0), tag)
+        AddTopicController.getAddUrl(groups.head, tag)
       else
         val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
         builder.queryParam("section", section.id)
         if tag != null then builder.queryParam("tag", tag)
         builder.build.toUriString
-      AddTopicController.SectionChoice(section, url, postable, postScoreInfo)
+
+      AddTopicController.SectionChoice(section, url, postable.permitted, postable.reason)
     }
 
     val params = mutable.HashMap[String, AnyRef]("sectionList" -> sectionList.asJava)

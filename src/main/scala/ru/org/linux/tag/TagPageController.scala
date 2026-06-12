@@ -24,6 +24,7 @@ import ru.org.linux.auth.AnySession
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.gallery.ImageService
 import ru.org.linux.group.GroupPermissionService
+import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.TagPageController.isRecent
 import ru.org.linux.topic.*
@@ -55,7 +56,7 @@ object TagPageController {
 @RequestMapping(value = Array("/tag/{tag}"), params = Array("!section"))
 class TagPageController(tagService: TagService, prepareService: TopicPrepareService, topicListService: TopicListService,
                         sectionService: SectionService, userTagService: UserTagService,
-                        imageService: ImageService, groupPermissionService: GroupPermissionService) extends StrictLogging {
+                        imageService: ImageService, topicPostingChecker: TopicPostingChecker) extends StrictLogging {
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def tagPage(@PathVariable tag: String, @RequestAttribute(name="timezone") timezone: ZoneId): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUser =>
@@ -158,7 +159,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
 
-    val addNews = if (groupPermissionService.isTopicPostingAllowed(newsSection)) {
+    val addNews = if (topicPostingChecker.isTopicPostingAllowed(newsSection)) {
       Some("addNews" -> AddTopicController.getAddUrl(newsSection, tag))
     } else {
       None
@@ -174,7 +175,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId).asJava)
     val section = sectionService.getSection(Section.Gallery)
 
-    val add = if (groupPermissionService.isTopicPostingAllowed(section)) {
+    val add = if (topicPostingChecker.isTopicPostingAllowed(section)) {
       Some("addGallery" -> AddTopicController.getAddUrl(section, tag))
     } else {
       None
@@ -209,7 +210,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    val add = if (groupPermissionService.isTopicPostingAllowed(forumSection)) {
+    val add = if (topicPostingChecker.isTopicPostingAllowed(forumSection)) {
       Some(forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag))
     } else {
       None

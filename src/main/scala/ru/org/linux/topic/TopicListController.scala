@@ -24,6 +24,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{Group, GroupNotFoundException, GroupPermissionService, GroupService}
+import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.tag.{TagPageController, TagService}
@@ -83,9 +84,9 @@ object TopicListController {
 
 @Controller
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
-                           prepareService: TopicPrepareService, tagService: TagService,
-                           groupService: GroupService, groupPermissionService: GroupPermissionService,
-                           topicService: TopicService) extends StrictLogging {
+                          prepareService: TopicPrepareService, tagService: TagService,
+                          groupService: GroupService, topicPostingChecker: TopicPostingChecker,
+                          topicService: TopicService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListForm,
                                     group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
@@ -131,9 +132,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
 
     val addUrl = group match {
-      case Some(group) if groupPermissionService.isTopicPostingAllowed(group) =>
+      case Some(group) if topicPostingChecker.isTopicPostingAllowed(group) =>
         AddTopicController.getAddUrl(group)
-      case None if groupPermissionService.isTopicPostingAllowed(section) =>
+      case None if topicPostingChecker.isTopicPostingAllowed(section) =>
         AddTopicController.getAddUrl(section)
       case _ =>
         ""

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupPermissionService
+import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 
 import java.util.{Calendar, Date}
@@ -30,7 +31,7 @@ class UncommitedTopicsController(
     sectionService: SectionService,
     topicListService: TopicListService,
     prepareService: TopicPrepareService,
-    groupPermissionService: GroupPermissionService,
+    topicPostingChecker: TopicPostingChecker,
     topicService: TopicService):
   @RequestMapping
   def viewAll(
@@ -48,7 +49,7 @@ class UncommitedTopicsController(
       section.foreach { section =>
         modelAndView.addObject("section", section)
 
-        if groupPermissionService.isTopicPostingAllowed(section) then
+        if topicPostingChecker.isTopicPostingAllowed(section) then
           modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
       }
 

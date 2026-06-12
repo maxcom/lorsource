@@ -18,4 +18,5 @@ package ru.org.linux.rights
 import ru.org.linux.user.User
 
 object FrozenUserChecker:
-  def check(user: User): Permission = Unrestricted.restrict(user.isFrozen, "пользователь временно заморожен").seal
+  def checkChain(user: User): Unrestricted.type | Restricted =
+    Unrestricted.restrict(user.isFrozen, "пользователь временно заморожен")

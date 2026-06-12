@@ -23,7 +23,7 @@ sealed trait Permission
 sealed trait PermissionChain:
   def permit(condition: => Boolean): PermissionChain
   def restrict(condition: => Boolean, reason: String): PermissionChain
-  def restrict(permission: => Permission): PermissionChain
+  def restrict(permission: => (Unrestricted.type | Restricted)): PermissionChain
 
 case object Unrestricted extends PermissionChain:
   override def permit(condition: => Boolean): PermissionChain =
@@ -32,26 +32,26 @@ case object Unrestricted extends PermissionChain:
     else
       this
 
-  override def restrict(condition: => Boolean, reason: String): PermissionChain =
+  override def restrict(condition: => Boolean, reason: String): Unrestricted.type | Restricted =
     if condition then
       Restricted(reason)
     else
       this
-      
-  override def restrict(permission: => Permission): PermissionChain =
+
+  override def restrict(permission: => Unrestricted.type | Restricted): Unrestricted.type | Restricted =
     permission match
-      case Permitted => this
+      case Unrestricted => this
       case r: Restricted => r
 
 case object Permitted extends PermissionChain with Permission:
   override def permit(condition: => Boolean): Permitted.type = this
   override def restrict(condition: => Boolean, reason: String): Permitted.type = this
-  override def restrict(permission: => Permission): PermissionChain = this
+  override def restrict(permission: => Unrestricted.type | Restricted): Permitted.type = this
 
 case class Restricted(reason: String) extends PermissionChain with Permission:
   override def permit(condition: => Boolean): Restricted = this
   override def restrict(condition: => Boolean, reason: String): Restricted = this
-  override def restrict(permission: => Permission): PermissionChain = this
+  override def restrict(permission: => Unrestricted.type | Restricted): Restricted = this
 
 extension (p: PermissionChain)
   def seal: Permission =

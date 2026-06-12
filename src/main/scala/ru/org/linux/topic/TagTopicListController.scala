@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,6 +23,7 @@ import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{GroupListDao, GroupPermissionService}
+import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}
 import ru.org.linux.user.UserTagService
@@ -65,7 +66,7 @@ object TagTopicListController {
 class TagTopicListController(userTagService: UserTagService, sectionService: SectionService, tagService: TagService,
                              topicListService: TopicListService, prepareService: TopicPrepareService,
                              topicTagDao: TopicTagDao, groupListDao: GroupListDao,
-                             groupPermissionService: GroupPermissionService) {
+                             topicPostingChecker: TopicPostingChecker) {
 
   private def getTitle(tag: String, section: Section) = s"${tag.capitalize} (${section.name})"
 
@@ -141,7 +142,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        if (groupPermissionService.isTopicPostingAllowed(section)) {
+        if (topicPostingChecker.isTopicPostingAllowed(section)) {
           modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))
         }
 

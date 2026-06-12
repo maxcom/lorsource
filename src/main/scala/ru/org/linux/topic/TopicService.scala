@@ -26,6 +26,7 @@ import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{PollDao, PollVariant}
+import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.{Section, SectionService}
@@ -37,7 +38,6 @@ import ru.org.linux.util.LorHttpUtils
 
 import java.io.File
 import java.time.{Instant, OffsetDateTime}
-
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object TopicService {
@@ -56,7 +56,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
                    textService: MessageTextService, editHistoryDao: EditHistoryDao,
                    imageDao: ImageDao, siteConfig: SiteConfig, permissionService: GroupPermissionService,
-                   springDB: SpringDB) extends StrictLogging {
+                   springDB: SpringDB, topicPostingChecker: TopicPostingChecker) extends StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
                  image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
@@ -301,7 +301,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
       if (permissionService.isImagePostingAllowed(section) &&
-        permissionService.isTopicPostingAllowed(group)) {
+        topicPostingChecker.isTopicPostingAllowed(group)) {
         val main = imageService.processUpload(Option(form.uploadedImage), form.image, errors)
 
         val additionalImagePreviews =

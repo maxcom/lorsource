@@ -22,6 +22,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.{AccessViolationException, AnySession}
+import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
 import ru.org.linux.topic.{ArchiveDao, TagTopicListController, TopicPrepareService}
@@ -41,7 +42,8 @@ private object GroupController {
 @Controller
 class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectionService: SectionService,
                       prepareService: GroupInfoPrepareService, groupPermissionService: GroupPermissionService,
-                      groupListDao: GroupListDao, tagService: TagService, topicPrepareService: TopicPrepareService) {
+                      groupListDao: GroupListDao, tagService: TagService, topicPrepareService: TopicPrepareService,
+                      topicPostingChecker: TopicPostingChecker) {
   @RequestMapping(path = Array("/group.jsp"))
   def topics(@RequestParam("group") groupId: Int,
              @RequestParam(value = "offset", required = false) offsetObject: Integer): View = {
@@ -198,7 +200,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
       params.put("topicsList", mainTopics.asJava)
     }
 
-    params.put("addable", Boolean.box(groupPermissionService.isTopicPostingAllowed(group)))
+    params.put("addable", Boolean.box(topicPostingChecker.isTopicPostingAllowed(group)))
 
     activeTagsF.map { activeTags =>
       if (activeTags.nonEmpty) {
