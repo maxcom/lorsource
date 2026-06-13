@@ -107,24 +107,17 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
   def add(@Valid @ModelAttribute("form") form: AddTopicRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val group = form.group
 
-    if (currentUser.authorized && !topicPostingChecker.isTopicPostingAllowed(group)) {
-      val errorView = new ModelAndView("errors/good-penguin")
+    topicPostingChecker.checkTopicPosting(group).checkOrThrow("Недостаточно прав для создания топика")
 
-      errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу")
-      errorView.addObject("msgMessage", permissionService.getPostScoreInfo(group))
+    val section = sectionService.getSection(form.group.sectionId)
 
-      errorView
-    } else {
-      val section = sectionService.getSection(form.group.sectionId)
+    form.additionalUploadedImages=new Array[String](permissionService.additionalImageLimit(section))
 
-      form.additionalUploadedImages=new Array[String](permissionService.additionalImageLimit(section))
+    val params = prepareModel(Some(form.group), section)
 
-      val params = prepareModel(Some(form.group), section)
+    val topicLimitInfo = permissionService.topicLimitInfo(section)
 
-      val topicLimitInfo = permissionService.topicLimitInfo(section)
-
-      new ModelAndView("add", (params + ("topicLimitInfo" -> topicLimitInfo)).asJava)
-    }
+    new ModelAndView("add", (params + ("topicLimitInfo" -> topicLimitInfo)).asJava)
   }
 
   private def prepareModel(group: Option[Group], section: Section)
@@ -167,9 +160,8 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
 
     UserPermissionService.checkBlockIP(ipBlockInfo, errors, postingUser.userOpt.orNull)
 
-    if (!topicPostingChecker.isTopicPostingAllowed(group)(using postingUser)) {
-      errors.reject(null, "Недостаточно прав для постинга тем в эту группу")
-    }
+    topicPostingChecker.checkTopicPosting(group)(using postingUser)
+      .checkOrError(errors, "Недостаточно прав для создания топика")
 
     val topicLimitInfo = permissionService.topicLimitInfo(section)(using postingUser)
     params.put("topicLimitInfo", topicLimitInfo)

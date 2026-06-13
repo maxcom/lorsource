@@ -74,16 +74,16 @@ object Permission:
 
     def restricted: Boolean = !permitted
 
-    def checkOrThrow(): Unit =
+    def checkOrThrow(prefix: String = "Ограничение"): Unit =
       p match
         case Restricted(reason) =>
-          throw new AccessViolationException(s"Ограничение: $reason")
+          throw new AccessViolationException(s"$prefix: $reason")
         case _ =>
 
-    def checkOrError(b: BindingResult): Unit =
+    def checkOrError(b: BindingResult, prefix: String = "Ограничение"): Unit =
       p match
         case Restricted(reason) =>
-          b.reject(null, s"Ограничение: $reason")
+          b.reject(null, s"$prefix: $reason")
         case _ =>
 
     def reason: String =

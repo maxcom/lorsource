@@ -28,7 +28,7 @@
     exception = (Throwable) request.getAttribute("exception");
   }
 
-  String message = exception==null ? "":(exception.getMessage()==null?"":exception.getMessage());
+  String message = exception==null ? "":(exception.getMessage()==null?"Доступ запрещен":exception.getMessage());
 
   logger.debug("Forbidden. {}: {} ({})", request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI),
           message, AuthUtil.getNick());
@@ -41,9 +41,8 @@
 <div id="warning-body">
     <div id="warning-logo"><img src="/img/good-penguin.png" alt="good-penguin" /></div>
     <div id="warning-text">
-        <h1>403</h1>
-        <p>Доступ запрещен.</p>
-        <p>Access denied.</p>
+        <h1>403 Forbidden</h1>
+        <p><%= message %>.</p>
     </div>
 </div>
 <div id="warning-footer"></div>

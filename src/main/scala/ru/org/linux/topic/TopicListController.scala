@@ -23,7 +23,7 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.group.{Group, GroupNotFoundException, GroupPermissionService, GroupService}
+import ru.org.linux.group.{Group, GroupNotFoundException, GroupService}
 import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.ScriptErrorException
@@ -35,10 +35,10 @@ import ru.org.linux.util.{DateUtil, ServletParameterException}
 import java.time.ZonedDateTime
 import java.util.concurrent.CompletionStage
 import javax.annotation.Nullable
-import scala.jdk.FutureConverters.FutureOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.FutureOps
 
 object TopicListController {
   private def calculatePTitle(section: Section, groupOpt: Option[Group], topicListForm: TopicListForm): String = {
