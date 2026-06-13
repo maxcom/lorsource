@@ -19,4 +19,4 @@ import ru.org.linux.user.User
 
 object FrozenUserChecker:
   def checkChain(user: User): Unrestricted.type | Restricted =
-    Unrestricted.restrict(user.isFrozen, "пользователь временно заморожен")
+    Unrestricted.restrict(user.isFrozen, "установлен режим только для чтения")

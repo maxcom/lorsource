@@ -23,7 +23,7 @@ sealed trait Permission
 sealed trait PermissionChain:
   def permit(condition: => Boolean): PermissionChain
   def restrict(condition: => Boolean, reason: String): PermissionChain
-  def restrict(permission: => (Unrestricted.type | Restricted)): PermissionChain
+  def restrict(permission: => Unrestricted.type | Restricted): PermissionChain
 
 case object Unrestricted extends PermissionChain:
   override def permit(condition: => Boolean): PermissionChain =
@@ -77,13 +77,13 @@ object Permission:
     def checkOrThrow(): Unit =
       p match
         case Restricted(reason) =>
-          throw new AccessViolationException(reason)
+          throw new AccessViolationException(s"Ограничение: $reason")
         case _ =>
 
     def checkOrError(b: BindingResult): Unit =
       p match
         case Restricted(reason) =>
-          b.reject(null, reason)
+          b.reject(null, s"Ограничение: $reason")
         case _ =>
 
     def reason: String =
