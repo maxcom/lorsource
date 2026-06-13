@@ -267,7 +267,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val result = checker.checkTopicPosting(unrestrictedSection)(using session)
 
     assert(result.restricted)
-    assertEquals(result.reason, "пользователь временно заморожен")
+    assertEquals(result.reason, "установлен режим только для чтения")
 
   test("blocked user takes priority over frozen"):
     val checker = makeChecker()
