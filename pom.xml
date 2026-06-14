@@ -899,6 +899,7 @@
           </execution>
         </executions>
         <configuration>
+          <basedir>${project.basedir}</basedir>
           <includes>
             <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/head.jsp</include>
             <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/view-topic.jsp</include>
