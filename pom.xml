@@ -643,6 +643,10 @@
           <style>COMPRESSED</style>
           <!-- use a fixed version of dart-saas to ensure reproducible builds -->
           <version>1.99.0</version>
+          <!-- do not emit UTF-8 BOM: when main.css is not the first file in the
+               yuicompressor aggregation, the BOM ends up in the middle of combined.css
+               and corrupts the :root selector, breaking all CSS custom properties -->
+          <noCharset>true</noCharset>
         </configuration>
       </plugin>
 

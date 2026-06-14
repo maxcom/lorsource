@@ -52,6 +52,7 @@ $unread_marker_color: #00A;
   --tracker-tag-color: #{$tracker_tag_color};
   --unread-marker-color: #{$unread_marker_color};
   --code-background: #{$code_background};
+  --button-selected-text-color: white;
 }
 
 @include mixins.heatmap-colors(color.adjust(#8ae234, $lightness: -15%), -1.5);

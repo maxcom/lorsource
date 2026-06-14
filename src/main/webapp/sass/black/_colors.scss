@@ -37,6 +37,7 @@ $unread_marker_color: #fefefe;
   --unread-marker-color: #{$unread_marker_color};
   --code-background: #{$code_background};
   --article-background: #000040;
+  --button-selected-text-color: black;
 }
 
 @include mixins.heatmap-colors(#8ae234, 1.5);
