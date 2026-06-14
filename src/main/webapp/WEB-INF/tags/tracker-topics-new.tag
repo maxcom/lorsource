@@ -46,7 +46,7 @@
       <div class="tracker-title">
         <p>
           <c:if test="${msg.commentsClosed and not msg.deleted}">
-            &#128274;
+            <i class="icon-lock"></i>
           </c:if>
           <c:if test="${msg.resolved}">
             <i class="icon-check" title="решено"></i>

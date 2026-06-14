@@ -14,6 +14,7 @@
   ~    limitations under the License.
   --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.section.Section"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -63,6 +64,9 @@
 
   <c:if test="${not empty addlink}">
     <a class="btn btn-primary" href="${addlink}">Добавить</a>
+  </c:if>
+  <c:if test="${empty addlink}">
+    <a class="btn btn-primary disabled" title="${fn:escapeXml(addlinkReason)}"><i class="icon-lock"></i> Добавить</a>
   </c:if>
 </nav>
 

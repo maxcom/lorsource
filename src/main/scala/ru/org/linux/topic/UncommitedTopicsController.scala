@@ -49,8 +49,12 @@ class UncommitedTopicsController(
       section.foreach { section =>
         modelAndView.addObject("section", section)
 
-        if topicPostingChecker.isTopicPostingAllowed(section) then
+        val postingCheck = topicPostingChecker.checkTopicPosting(section)
+        
+        if postingCheck.permitted then
           modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
+        else
+          modelAndView.addObject("addlinkReason", postingCheck.reason)
       }
 
       if section.isEmpty then

@@ -23,11 +23,6 @@ import ru.org.linux.user.{User, UserService}
 
 @Service
 class TopicPostingChecker(sectionService: SectionService, userService: UserService):
-  def isTopicPostingAllowed(section: Section)(using currentUser: AnySession): Boolean =
-    checkTopicPosting(section).permitted
-
-  def isTopicPostingAllowed(group: Group)(using currentUser: AnySession): Boolean = checkTopicPosting(group).permitted
-
   def checkTopicPosting(section: Section)(using currentUser: AnySession): Permission =
     checkTopicPostingImpl(section.topicsRestriction, currentUser.userOpt)
 

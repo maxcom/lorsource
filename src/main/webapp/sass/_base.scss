@@ -798,6 +798,10 @@ a img { border: none; }
   line-height: 1.4;
   margin-bottom: 0.5em;
   margin-right: 0.3em;
+
+  [class^="icon-"]:before {
+    margin-left: 0;
+  }
 }
 
 #bd .btn-small {
@@ -980,4 +984,23 @@ figure.medium-image {
 
 .news .slider-nav::before {
   padding: 0;
+}
+
+.tippy-box {
+  background-color: var(--text-color);
+  color: var(--button-selected-text-color);
+}
+
+.tippy-box > .tippy-arrow {
+  color: var(--text-color);
+}
+
+.tippy-box > .tippy-arrow::before {
+  border-top-color: var(--text-color);
+  border-bottom-color: var(--text-color);
+}
+
+.tippy-box[data-placement^='bottom'] > .tippy-arrow::before {
+  border-bottom-color: var(--text-color);
+  border-top-color: var(--text-color);
 }

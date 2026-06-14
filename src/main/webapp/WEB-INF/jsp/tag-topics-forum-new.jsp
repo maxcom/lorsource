@@ -50,6 +50,9 @@
   <c:if test="${not empty addUrl}">
     <a class="btn btn-primary" href="${addUrl}">Добавить</a>
   </c:if>
+  <c:if test="${empty addUrl}">
+    <a class="btn btn-primary disabled" title="${fn:escapeXml(addUrlReason)}"><i class="icon-lock"></i> Добавить</a>
+  </c:if>
 </nav>
 
 <div class="infoblock" style="font-size: medium">

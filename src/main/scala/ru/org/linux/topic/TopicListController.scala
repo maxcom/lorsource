@@ -130,17 +130,25 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       prepareService.prepareTopics(messages, loadUserpics = false).asJava)
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
+    
+    val postingCheck = 
+      group match
+        case Some(group) =>
+          topicPostingChecker.checkTopicPosting(group)
+        case None =>
+          topicPostingChecker.checkTopicPosting(section)  
 
     val addUrl = group match {
-      case Some(group) if topicPostingChecker.isTopicPostingAllowed(group) =>
+      case Some(group) if postingCheck.permitted =>
         AddTopicController.getAddUrl(group)
-      case None if topicPostingChecker.isTopicPostingAllowed(section) =>
+      case None if postingCheck.permitted =>
         AddTopicController.getAddUrl(section)
       case _ =>
         ""
     }
 
     modelAndView.addObject("addUrl", addUrl)
+    modelAndView.addObject("addUrlReason", postingCheck.reason)
 
     if (section.isPremoderated) {
       modelAndView.addObject("uncommitedCount", topicService.getUncommitedCount(section))

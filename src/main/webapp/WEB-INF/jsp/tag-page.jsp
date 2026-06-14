@@ -155,6 +155,9 @@
           <c:if test="${not empty addNews}">
             <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
           </c:if>
+          <c:if test="${empty addNews}">
+            <a class="btn btn-primary disabled" title="${fn:escapeXml(addNewsReason)}"><i class="icon-lock"></i> Добавить новость</a>
+          </c:if>
           <c:if test="${not empty moreNews}">
             <a href="${moreNews}" class="btn btn-default">Все новости</a>
           </c:if>
@@ -193,10 +196,13 @@
       <div class="tag-page-buttons">
         <div>
           <c:if test="${not empty forumAdd}">
-            <a href="${forumAdd}" class="btn btn-primary">Добавить тему</a>
+            <a href="${forumAdd}" class="btn btn-primary">Добавить топик</a>
+          </c:if>
+          <c:if test="${empty forumAdd}">
+            <a class="btn btn-primary disabled" title="${fn:escapeXml(forumAddReason)}"><i class="icon-lock"></i> Добавить топик</a>
           </c:if>
           <c:if test="${not empty forumMore}">
-            <a href="${forumMore}" class="btn btn-default">Все темы</a>
+            <a href="${forumMore}" class="btn btn-default">Все топики</a>
           </c:if>
         </div>
       </div>
@@ -241,8 +247,11 @@
         <c:if test="${not empty pollsAdd}">
           <a href="${pollsAdd}" class="btn btn-primary">Добавить опрос</a>
         </c:if>
+        <c:if test="${empty pollsAdd}">
+          <a class="btn btn-primary disabled" title="${fn:escapeXml(pollsAddReason)}"><i class="icon-lock"></i> Добавить опрос</a>
+        </c:if>
         <c:if test="${not empty pollsMore}">
-          <a href="${pollsMore}" class="btn btn-default">Все темы</a>
+          <a href="${pollsMore}" class="btn btn-default">Все топики</a>
         </c:if>
       </div>
     </div>
@@ -275,6 +284,9 @@
     <div>
       <c:if test="${not empty addGallery}">
         <a href="${addGallery}" class="btn btn-primary">Добавить изображение</a>
+      </c:if>
+      <c:if test="${empty addGallery}">
+        <a class="btn btn-primary disabled" title="${fn:escapeXml(addGalleryReason)}"><i class="icon-lock"></i> Добавить изображение</a>
       </c:if>
       <c:if test="${not empty moreGallery}">
         <a href="${moreGallery}" class="btn btn-default">Все изображения</a>
@@ -312,10 +324,13 @@
   <div class="tag-page-buttons">
   <div>
   <c:if test="${not empty articlesAdd}">
-    <a href="${articlesAdd}" class="btn btn-primary">Добавить тему</a>
+    <a href="${articlesAdd}" class="btn btn-primary">Добавить топик</a>
+  </c:if>
+  <c:if test="${empty articlesAdd}">
+    <a class="btn btn-primary disabled" title="${fn:escapeXml(articlesAddReason)}"><i class="icon-lock"></i> Добавить топик</a>
   </c:if>
   <c:if test="${not empty articlesMore}">
-    <a href="${articlesMore}" class="btn btn-default">Все темы</a>
+    <a href="${articlesMore}" class="btn btn-default">Все топики</a>
   </c:if>
   </div>
   </div>

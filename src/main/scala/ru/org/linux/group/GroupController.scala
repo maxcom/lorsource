@@ -200,7 +200,10 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
       params.put("topicsList", mainTopics.asJava)
     }
 
-    params.put("addable", Boolean.box(topicPostingChecker.isTopicPostingAllowed(group)))
+    val postingCheck = topicPostingChecker.checkTopicPosting(group)
+    
+    params.put("addable", Boolean.box(postingCheck.permitted))
+    params.put("addableReason", postingCheck.reason)
 
     activeTagsF.map { activeTags =>
       if (activeTags.nonEmpty) {

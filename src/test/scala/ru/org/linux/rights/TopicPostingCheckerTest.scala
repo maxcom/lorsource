@@ -320,46 +320,4 @@ class TopicPostingCheckerTest extends FunSuite:
     val result = checker.checkTopicPosting(group)(using session)
 
     assert(result.restricted)
-
-  // === isTopicPostingAllowed(section) tests ===
-
-  test("isTopicPostingAllowed(section): returns true when permitted"):
-    val checker = makeChecker()
-    val user = makeUser(score = 50)
-    val session = makeSession(user)
-
-    assert(checker.isTopicPostingAllowed(unrestrictedSection)(using session))
-
-  test("isTopicPostingAllowed(section): returns false when restricted"):
-    val section = unrestrictedSection.copy(topicsRestriction = POSTSCORE_REGISTERED_ONLY)
-    val userService = mock(classOf[UserService])
-    val anonymousUser = makeUser(anonymous = true)
-    when(userService.getAnonymous).thenReturn(anonymousUser)
-    val checker = makeChecker(userService = userService)
-
-    assert(!checker.isTopicPostingAllowed(section)(using NonAuthorizedSession))
-
-  // === isTopicPostingAllowed(group) tests ===
-
-  test("isTopicPostingAllowed(group): returns true when permitted"):
-    val section = unrestrictedSection.copy(topicsRestriction = POSTSCORE_UNRESTRICTED)
-    val group = defaultGroup.copy(topicRestriction = POSTSCORE_UNRESTRICTED, sectionId = 1)
-    val sectionService = mock(classOf[SectionService])
-    when(sectionService.getSection(1)).thenReturn(section)
-    val checker = makeChecker(sectionService = sectionService)
-    val user = makeUser(score = 50)
-    val session = makeSession(user)
-
-    assert(checker.isTopicPostingAllowed(group)(using session))
-
-  test("isTopicPostingAllowed(group): returns false when restricted"):
-    val section = unrestrictedSection.copy(topicsRestriction = POSTSCORE_REGISTERED_ONLY)
-    val group = defaultGroup.copy(topicRestriction = POSTSCORE_REGISTERED_ONLY, sectionId = 1)
-    val sectionService = mock(classOf[SectionService])
-    when(sectionService.getSection(1)).thenReturn(section)
-    val userService = mock(classOf[UserService])
-    val anonymousUser = makeUser(anonymous = true)
-    when(userService.getAnonymous).thenReturn(anonymousUser)
-    val checker = makeChecker(sectionService, userService)
-
-    assert(!checker.isTopicPostingAllowed(group)(using NonAuthorizedSession))
+    

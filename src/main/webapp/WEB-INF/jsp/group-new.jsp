@@ -111,9 +111,13 @@
       <a class="btn btn-selected" href="${activeUrl}">Активные</a>
     </c:if>
     <a href="${group.url}archive/" class="btn btn-default">Архив</a>
-    <c:if test="${addable}">
-      <a href="${addUrl}" class="btn btn-primary">Добавить</a>
-    </c:if>
+  </c:if>
+
+  <c:if test="${addable}">
+    <a href="${addUrl}" class="btn btn-primary">Добавить</a>
+  </c:if>
+  <c:if test="${not addable}">
+    <a class="btn btn-primary disabled" title="${fn:escapeXml(addableReason)}"><i class="icon-lock"></i> Добавить</a>
   </c:if>
 
   <div class="nav-buttons">
@@ -179,7 +183,7 @@
               <i class="icon-pin icon-pin-color" title="Прикрепленная тема"></i>
             </c:if>
             <c:if test="${msg.commentsClosed and not msg.deleted}">
-              &#128274;
+              <i class="icon-lock"></i>
             </c:if>
             <c:if test="${msg.resolved}">
               <i class="icon-check" title="решено"></i>

@@ -510,6 +510,10 @@ fieldset legend {
   &:visited {
     color: var(--table-link-color);
   }
+
+  &.disabled, &.disabled:visited {
+    color: var(--text-color);
+  }
 }
 
 #bd .btn-default {

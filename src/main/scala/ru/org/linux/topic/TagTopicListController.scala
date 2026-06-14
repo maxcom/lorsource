@@ -88,7 +88,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
 
     (tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
-        val forumMode =         section.id == Section.Forum
+        val forumMode = section.id == Section.Forum
 
         val modelAndView = new ModelAndView(if (forumMode) "tag-topics-forum-new" else "tag-topics")
 
@@ -142,9 +142,12 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        if (topicPostingChecker.isTopicPostingAllowed(section)) {
+        val postingCheck = topicPostingChecker.checkTopicPosting(section)
+        
+        if postingCheck.permitted then
           modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))
-        }
+        else
+          modelAndView.addObject("addUrlReason", postingCheck.reason)
 
         if (preparedTopics.isEmpty) {
           Future.successful(new ModelAndView("errors/code404"))

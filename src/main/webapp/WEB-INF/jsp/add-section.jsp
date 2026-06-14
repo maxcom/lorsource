@@ -36,13 +36,13 @@
   <li>
     <c:choose>
     <c:when test="${choice.postable}">
-      <a href="${choice.addUrl}">${choice.group.title}</a>
+      <a class="navLink" href="${choice.addUrl}">${choice.group.title}</a>
       <c:if test="${choice.group.info != null}">
         - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
       </c:if>
     </c:when>
     <c:otherwise>
-      &#128274; ${choice.group.title} - <c:out value="${choice.postScoreInfo}" escapeXml="false"/>
+      ${choice.group.title} (<c:out value="${choice.postScoreInfo}"/>)
     </c:otherwise>
     </c:choose>
     (<a href="${choice.group.url}">просмотр...</a>)
@@ -59,7 +59,7 @@
 <p>Выберите раздел:</p>
 <ul>
 <c:forEach var="choice" items="${sectionList}">
-  <li><c:choose><c:when test="${choice.postable}"><a href="${choice.url}">${choice.section.title}</a></c:when><c:otherwise>&#128274; ${choice.section.title} (<c:out value="${choice.postScoreInfo}" escapeXml="false"/>)</c:otherwise></c:choose></li>
+  <li><c:choose><c:when test="${choice.postable}"><a class="navLink" href="${choice.url}">${choice.section.title}</a></c:when><c:otherwise>${choice.section.title} (<c:out value="${choice.postScoreInfo}"/>)</c:otherwise></c:choose></li>
 </c:forEach>
 </ul>
 </c:otherwise>

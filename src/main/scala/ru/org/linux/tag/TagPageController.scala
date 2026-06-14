@@ -159,10 +159,12 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
 
-    val addNews = if (topicPostingChecker.isTopicPostingAllowed(newsSection)) {
+    val postingCheck = topicPostingChecker.checkTopicPosting(newsSection)
+
+    val addNews = if (postingCheck.permitted) {
       Some("addNews" -> AddTopicController.getAddUrl(newsSection, tag))
     } else {
-      None
+      Some("addNewsReason" -> postingCheck.reason)
     }
 
     (Map[String, AnyRef](
@@ -175,10 +177,12 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId).asJava)
     val section = sectionService.getSection(Section.Gallery)
 
-    val add = if (topicPostingChecker.isTopicPostingAllowed(section)) {
+    val postingCheck = topicPostingChecker.checkTopicPosting(section)
+
+    val add = if (postingCheck.permitted) {
       Some("addGallery" -> AddTopicController.getAddUrl(section, tag))
     } else {
-      None
+      Some("addGalleryReason" -> postingCheck.reason)
     }
 
     val more = if (list.size == TagPageController.GalleryCount) {
@@ -210,10 +214,12 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    val add = if (topicPostingChecker.isTopicPostingAllowed(forumSection)) {
+    val postingCheck = topicPostingChecker.checkTopicPosting(forumSection)
+
+    val add = if (postingCheck.permitted) {
       Some(forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag))
     } else {
-      None
+      Some(forumSection.getUrlName+"AddReason" -> postingCheck.reason)
     }
 
     val newestDate = forumTopics.headOption.map(_.getEffectiveDate)

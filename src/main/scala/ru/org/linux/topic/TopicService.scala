@@ -301,7 +301,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
       if (permissionService.isImagePostingAllowed(section) &&
-        topicPostingChecker.isTopicPostingAllowed(group)) {
+        topicPostingChecker.checkTopicPosting(group).permitted) {
         val main = imageService.processUpload(Option(form.uploadedImage), form.image, errors)
 
         val additionalImagePreviews =

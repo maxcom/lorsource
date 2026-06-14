@@ -672,9 +672,9 @@
               <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
               <includes>
                 <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/auto.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -690,9 +690,10 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/zomg_ponies/combined.css</output>
               <includes>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -700,9 +701,10 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/waltz/combined.css</output>
               <includes>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -710,9 +712,10 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/black/combined.css</output>
               <includes>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/black/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
             <aggregation>
@@ -720,9 +723,10 @@
               <insertNewLine>true</insertNewLine>
               <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
               <includes>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
+                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/white2/main.css</include>
                 <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.min.css</include>
               </includes>
             </aggregation>
           </aggregations>
@@ -771,6 +775,7 @@
                 <include>notifications.js</include>
                 <include>theme.js</include>
                 <include>images.js</include>
+                <include>disabled-btn.js</include>
               </includes>
               <skipMerge>false</skipMerge>
               <logLevel>all</logLevel>

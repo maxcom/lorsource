@@ -46,16 +46,24 @@ class ArchiveController(sectionService: SectionService, groupService: GroupServi
 
     mv.getModel.put("items", items)
 
+    val postingCheck =
+      group match
+        case Some(group) =>
+          topicPostingChecker.checkTopicPosting(group)
+        case None =>
+          topicPostingChecker.checkTopicPosting(section)
+
     val addUrl = group match {
-      case Some(group) if topicPostingChecker.isTopicPostingAllowed(group) =>
+      case Some(group) if postingCheck.permitted =>
         AddTopicController.getAddUrl(group)
-      case None if topicPostingChecker.isTopicPostingAllowed(section) =>
+      case None if postingCheck.permitted =>
         AddTopicController.getAddUrl(section)
       case _ =>
         ""
     }
 
     mv.getModel.put("addUrl", addUrl)
+    mv.getModel.put("addUrlReason", postingCheck.reason)
 
     if (section.isPremoderated) {
       mv.getModel.put("uncommitedCount", topicService.getUncommitedCount(section))
