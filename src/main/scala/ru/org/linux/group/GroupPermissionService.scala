@@ -84,12 +84,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
     }
   }
 
-  private def effectivePostscore(group: Group) = {
-    val section = sectionService.getSection(group.sectionId)
-
-    Math.max(group.topicRestriction, section.topicsRestriction)
-  }
-
   def enableAllowAnonymousCheckbox(group: Group)(using currentUser: AnySession): Boolean = {
     currentUser.authorized && !group.premoderated &&
       Math.max(group.commentsRestriction,
@@ -119,29 +113,6 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       0
     }
   }
-
-  def getPostScoreInfo(group: Group): String = {
-    val postscore = effectivePostscore(group)
-
-    getPostScoreInfo(postscore)
-  }
-
-  def getPostScoreInfo(section: Section): String = {
-    getPostScoreInfo(section.topicsRestriction)
-  }
-
-  private def getPostScoreInfo(postscore: Int): String = postscore match {
-      case TopicPermissionService.POSTSCORE_UNRESTRICTED =>
-        ""
-      case 100 | 200 | 300 | 400 | 500 =>
-        s"<b>Ограничение на добавление сообщений</b>: ${User.getStars(postscore, postscore, true)}"
-      case TopicPermissionService.POSTSCORE_MODERATORS_ONLY =>
-        "<b>Ограничение на добавление сообщений</b>: только для модераторов"
-      case TopicPermissionService.POSTSCORE_REGISTERED_ONLY =>
-        "<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей"
-      case _ =>
-        s"<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей, score>=$postscore"
-    }
 
   def isDeletable(topic: Topic)(using user: AuthorizedSession): Boolean = {
     if (user.administrator) {
