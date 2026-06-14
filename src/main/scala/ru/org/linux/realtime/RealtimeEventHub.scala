@@ -175,8 +175,8 @@ object RealtimeSessionActor {
         timers.startTimerWithFixedDelay(Tick, Tick, initialDelay = 5.seconds, delay = 1.minute)
 
         def handleExceptions: PartialFunction[Throwable, Behavior[SessionProtocol]] = {
-          case ex: IOException =>
-            context.log.debug(s"Terminated by IOException ${ex.toString}")
+          case ex: (IOException | IllegalStateException) =>
+            context.log.debug(s"Terminated by ${ex.toString}")
             Behaviors.stopped
         }
 
