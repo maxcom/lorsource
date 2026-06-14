@@ -46,11 +46,11 @@ class TopicPostingChecker(sectionService: SectionService, userService: UserServi
       case 100 | 200 | 300 | 400 =>
         Unrestricted.restrict(
           user.anonymous || user.score < postscore,
-          s"только для зарегистрированных, минимум ${User.getStars(postscore, postscore, true)}")
+          s"только для зарегистрированных, минимум ${User.getStars(postscore, postscore, false)}")
       case 500 =>
         Unrestricted.restrict(
           user.anonymous || user.score < postscore,
-          s"только для зарегистрированных, ${User.getStars(postscore, postscore, true)}")
+          s"только для зарегистрированных, ${User.getStars(postscore, postscore, false)}")
       case _ =>
         Unrestricted.restrict(
           user.anonymous || user.score < postscore,
