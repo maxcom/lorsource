@@ -54,79 +54,108 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
 @Controller
-object AddTopicController {
-  case class SectionChoice(@BeanProperty section: Section, @BeanProperty url: String, @BooleanBeanProperty postable: Boolean, @BeanProperty postScoreInfo: String)
-  case class GroupChoice(@BeanProperty group: Group, @BeanProperty addUrl: String, @BooleanBeanProperty postable: Boolean, @BeanProperty postScoreInfo: String)
+object AddTopicController:
+  case class SectionChoice(
+      @BeanProperty
+      section: Section,
+      @BeanProperty
+      url: String,
+      @BooleanBeanProperty
+      postable: Boolean,
+      @BeanProperty
+      postScoreInfo: String)
+  case class GroupChoice(
+      @BeanProperty
+      group: Group,
+      @BeanProperty
+      addUrl: String,
+      @BooleanBeanProperty
+      postable: Boolean,
+      @BeanProperty
+      postScoreInfo: String)
 
   private val MaxMessageLengthAnonymous = 8196
   private val MaxMessageLength = 65536
 
-  private def preparePollPreview(form: AddTopicRequest): Poll = {
+  private def preparePollPreview(form: AddTopicRequest): Poll =
     val variants = form.poll.filterNot(Strings.isNullOrEmpty).map(item => PollVariant(0, item))
 
     Poll(0, 0, form.multiSelect, variants.toVector)
-  }
 
-  def getAddUrl(section: Section, tag: String): String = {
+  def getAddUrl(section: Section, tag: String): String =
     val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
     builder.queryParam("section", section.id)
     builder.queryParam("tag", tag)
     builder.build.toUriString
-  }
 
-  def getAddUrl(section: Section): String = {
+  def getAddUrl(section: Section): String =
     val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
     builder.queryParam("section", section.id)
     builder.build.toUriString
-  }
 
   def getAddUrl(group: Group): String = getAddUrl(group, null)
 
-  def getAddUrl(group: Group, @Nullable tag: String, noinfo: Boolean = false): String = {
+  def getAddUrl(
+      group: Group,
+      @Nullable
+      tag: String,
+      noinfo: Boolean = false): String =
     val builder = UriComponentsBuilder.fromPath("/add.jsp")
     builder.queryParam("group", group.id)
-    if (tag != null) builder.queryParam("tags", tag)
-    if (noinfo) builder.queryParam("noinfo", 1)
+    if tag != null then
+      builder.queryParam("tags", tag)
+    if noinfo then
+      builder.queryParam("noinfo", 1)
     builder.build.toUriString
-  }
-}
 
 @Controller
-class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaService, sectionService: SectionService,
-                         tagService: TagService, userService: UserService, prepareService: TopicPrepareService,
-                         permissionService: GroupPermissionService, addTopicRequestValidator: AddTopicRequestValidator,
-                         topicService: TopicService,
-                         @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-                         renderService: MarkdownFormatter, groupService: GroupService, dupeProtector: FloodProtector,
-                         servletContext: ServletContext, topicPostingChecker: TopicPostingChecker) {
+class AddTopicController(
+    searchQueueSender: SearchQueueSender,
+    captcha: CaptchaService,
+    sectionService: SectionService,
+    tagService: TagService,
+    userService: UserService,
+    prepareService: TopicPrepareService,
+    permissionService: GroupPermissionService,
+    addTopicRequestValidator: AddTopicRequestValidator,
+    topicService: TopicService,
+    @Qualifier("realtimeHubWS")
+    realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
+    renderService: MarkdownFormatter,
+    groupService: GroupService,
+    dupeProtector: FloodProtector,
+    servletContext: ServletContext,
+    topicPostingChecker: TopicPostingChecker):
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
-  def add(@Valid @ModelAttribute("form") form: AddTopicRequest, request: HttpServletRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
-    val group = form.group
+  def add(
+      @Valid @ModelAttribute("form")
+      form: AddTopicRequest,
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView =
+    MaybeAuthorized { implicit currentUser =>
+      val group = form.group
 
-    topicPostingChecker
-      .checkTopicPosting(group, request.getRemoteAddr)
-      .checkOrThrowCtx("Недостаточно прав для создания топика"): captchaMode =>
-        val section = sectionService.getSection(form.group.sectionId)
+      topicPostingChecker.checkTopicPosting(group, ipBlockInfo).checkOrThrow("Недостаточно прав для создания топика")
 
-        form.additionalUploadedImages = new Array[String](permissionService.additionalImageLimit(section))
+      val section = sectionService.getSection(form.group.sectionId)
 
-        val params = prepareModel(Some(form.group), section)
+      form.additionalUploadedImages = new Array[String](permissionService.additionalImageLimit(section))
 
-        val topicLimitInfo = permissionService.topicLimitInfo(section)
+      val params = prepareModel(Some(form.group), section)
 
-        new ModelAndView("add", (params + ("topicLimitInfo" -> topicLimitInfo) + ("captchaMode" -> captchaMode)).asJava)
-  }
+      val topicLimitInfo = permissionService.topicLimitInfo(section)
 
-  private def prepareModel(group: Option[Group], section: Section)
-                          (using currentUser: AnySession): Map[String, AnyRef] = {
+      new ModelAndView("add", (params + ("topicLimitInfo" -> topicLimitInfo)).asJava)
+    }
+
+  private def prepareModel(group: Option[Group], section: Section)(using currentUser: AnySession): Map[String, AnyRef] =
     val params = Map.newBuilder[String, AnyRef]
 
     val helpResource = servletContext.getResource("/help/new-topic-" + Section.getUrlName(section.id) + ".md")
-    if (helpResource != null) {
+    if helpResource != null then
       val helpRawText = IOUtils.toString(helpResource, StandardCharsets.UTF_8)
       val addInfo = renderService.renderToHtml(helpRawText, nofollow = false)
       params.addOne("addportal" -> addInfo)
-    }
 
     params.addOne("sectionId" -> Integer.valueOf(section.id))
     params.addOne("section" -> section)
@@ -138,71 +167,77 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
     }
 
     params.result()
-  }
 
-  @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.POST))
-  @CSRFNoAuto
-  def doAdd(request: HttpServletRequest, @Valid @ModelAttribute("form") form: AddTopicRequest,
-            errors: BindingResult): ModelAndView = MaybeAuthorized { sessionUserOpt =>
-    // не используем implicit, так как есть sessionUser и postingUser
-    val group = form.group
-    val section = sectionService.getSection(group.sectionId)
+  @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.POST)) @CSRFNoAuto
+  def doAdd(
+      request: HttpServletRequest,
+      @Valid @ModelAttribute("form")
+      form: AddTopicRequest,
+      errors: BindingResult,
+      @RequestAttribute("captchaRequired")
+      captchaRequired: Boolean,
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView =
+    MaybeAuthorized { sessionUserOpt =>
+      // не используем implicit, так как есть sessionUser и postingUser
+      val group = form.group
+      val section = sectionService.getSection(group.sectionId)
 
-    val params = prepareModel(Some(group), section)(using sessionUserOpt).to(mutable.HashMap)
+      val params = prepareModel(Some(group), section)(using sessionUserOpt).to(mutable.HashMap)
 
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)
-    val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
+      val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)
+      val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
-    val postingCheck = topicPostingChecker.checkTopicPosting(group, request.getRemoteAddr)(using postingUser)
+      val postingCheck = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)(using postingUser)
 
-    postingCheck.checkOrErrorCtx(errors, CaptchaMode(false), "Недостаточно прав для создания топика"): captchaMode =>
-      params.put("captchaMode", captchaMode)
+      postingCheck.checkOrError(errors, "Недостаточно прав для создания топика")
 
       val topicLimitInfo = permissionService.topicLimitInfo(section)(using postingUser)
       params.put("topicLimitInfo", topicLimitInfo)
 
-      if (!permissionService.enableAllowAnonymousCheckbox(group)(using postingUser)) {
-        form.allowAnonymous=true
-      }
+      if !permissionService.enableAllowAnonymousCheckbox(group)(using postingUser) then
+        form.allowAnonymous = true
 
       val message = MessageText(Strings.nullToEmpty(form.msg), sessionUserOpt.profile.formatMode)
 
-      if (!postingUser.authorized) {
-        if (message.text.length > AddTopicController.MaxMessageLengthAnonymous) {
+      if !postingUser.authorized then
+        if message.text.length > AddTopicController.MaxMessageLengthAnonymous then
           errors.rejectValue("msg", null, "Слишком большое сообщение")
-        }
-      } else {
-        if (message.text.length > AddTopicController.MaxMessageLength) {
-          errors.rejectValue("msg", null, "Слишком большое сообщение")
-        }
-      }
+      else if message.text.length > AddTopicController.MaxMessageLength then
+        errors.rejectValue("msg", null, "Слишком большое сообщение")
 
-      val (imagePreview, additionalImagePreviews) = postingUser.opt match {
-        case Some(authorized) =>
-          topicService.processUploads(form, group, errors, request.getRemoteAddr)(using authorized)
-        case None =>
-          (None, Seq.empty)
-      }
+      val (imagePreview, additionalImagePreviews) =
+        postingUser.opt match
+          case Some(authorized) =>
+            topicService.processUploads(form, group, errors, ipBlockInfo)(using authorized)
+          case None =>
+            (None, Seq.empty)
 
-      val poll: Option[Poll] = if (section.isPollPostAllowed) {
-        Some(AddTopicController.preparePollPreview(form))
-      } else {
-        None
-      }
+      val poll: Option[Poll] =
+        if section.isPollPostAllowed then
+          Some(AddTopicController.preparePollPreview(form))
+        else
+          None
 
       val previewMsg: Topic = Topic.fromAddRequest(form, user, request.getRemoteAddr)
 
       val tagNames = TagName.parseAndSanitizeTags(form.tags)
 
-      if (!permissionService.canCreateTag(section)(using postingUser)) {
+      if !permissionService.canCreateTag(section)(using postingUser) then
         val newTags = tagService.getNewTags(tagNames)
 
-        if (newTags.nonEmpty) {
-          errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(newTags) + ")")
-        }
-      }
+        if newTags.nonEmpty then
+          errors.rejectValue(
+            "tags",
+            null,
+            "Вы не можете создавать новые теги (" + TagService.tagsToString(newTags) + ")")
 
-      val preparedTopic = prepareService.prepareTopicPreview(previewMsg, tagNames.map(tagRef), poll, message, imagePreview,
+      val preparedTopic = prepareService.prepareTopicPreview(
+        previewMsg,
+        tagNames.map(tagRef),
+        poll,
+        message,
+        imagePreview,
         additionalImagePreviews)
 
       params.put("message", preparedTopic)
@@ -210,157 +245,187 @@ class AddTopicController(searchQueueSender: SearchQueueSender, captcha: CaptchaS
       val topicMenu = prepareService.getTopicMenu(preparedTopic, loadUserpics = true)(using sessionUserOpt)
       params.put("topicMenu", topicMenu)
 
-      if (!form.isPreviewMode && !errors.hasErrors) {
+      if !form.isPreviewMode && !errors.hasErrors then
         CSRFProtectionService.checkCSRF(request, errors)
-      }
 
-      if !form.isPreviewMode && !errors.hasErrors && captchaMode.required then
+      if !form.isPreviewMode && !errors.hasErrors && captchaRequired then
         captcha.checkCaptcha(request, errors)
 
-      if (!form.isPreviewMode && !errors.hasErrors) {
+      if !form.isPreviewMode && !errors.hasErrors then
         dupeProtector.checkRateLimit(FloodProtector.AddTopic, request.getRemoteAddr, postingUser.userOpt.orNull, errors)
-      }
 
       val topicLimitReached = !form.isDraftMode && !topicLimitInfo.exempt && topicLimitInfo.reached
 
-      if (!form.isPreviewMode && !errors.hasErrors && !topicLimitReached) {
-        createNewTopic(request, form, group, params, section, user, message, imagePreview, additionalImagePreviews, previewMsg)
-      } else {
+      if !form.isPreviewMode && !errors.hasErrors && !topicLimitReached then
+        createNewTopic(
+          request,
+          form,
+          group,
+          params,
+          section,
+          user,
+          message,
+          imagePreview,
+          additionalImagePreviews,
+          previewMsg)
+      else
         new ModelAndView("add", params.asJava)
-      }
-  }
+    }
 
-  private def createNewTopic(request: HttpServletRequest, form: AddTopicRequest, group: Group,
-                             params: mutable.Map[String, AnyRef], section: Section, user: User, message: MessageText,
-                             image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
-                             previewMsg: Topic) = {
-    val (msgid, notifyUsers) = topicService.addMessage(request, form, message, group, user, image, additionalImages, previewMsg)
+  private def createNewTopic(
+      request: HttpServletRequest,
+      form: AddTopicRequest,
+      group: Group,
+      params: mutable.Map[String, AnyRef],
+      section: Section,
+      user: User,
+      message: MessageText,
+      image: Option[UploadedImagePreview],
+      additionalImages: Seq[UploadedImagePreview],
+      previewMsg: Topic) =
+    val (msgid, notifyUsers) = topicService.addMessage(
+      request,
+      form,
+      message,
+      group,
+      user,
+      image,
+      additionalImages,
+      previewMsg)
 
-    if (!previewMsg.draft) {
+    if !previewMsg.draft then
       searchQueueSender.updateMessageOnly(msgid)
       RealtimeEventHub.notifyEvents(realtimeHubWS, notifyUsers)
-    }
 
     val topicUrl = previewMsg.withId(msgid).getLink
 
-    if (!section.isPremoderated || previewMsg.draft) {
+    if !section.isPremoderated || previewMsg.draft then
       new ModelAndView(new RedirectView(topicUrl, false, false))
-    } else {
+    else
       params.put("url", topicUrl)
 
       new ModelAndView("add-done-moderated", params.asJava)
-    }
-  }
 
   @RequestMapping(path = Array("/add-section.jsp"), params = Array("section"))
-  def showFormWithSection(@RequestParam("section") sectionId: Int,
-                           @RequestParam(value = "tag", required = false) tag: String,
-                           request: HttpServletRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
-    val section = sectionService.getSection(sectionId)
+  def showFormWithSection(
+      @RequestParam("section")
+      sectionId: Int,
+      @RequestParam(value = "tag", required = false)
+      tag: String,
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView =
+    MaybeAuthorized { implicit currentUser =>
+      val section = sectionService.getSection(sectionId)
 
-    if tag != null then
-      TagName.checkTag(tag)
+      if tag != null then
+        TagName.checkTag(tag)
 
-    val groups = groupService.getGroups(section)
+      val groups = groupService.getGroups(section)
 
-    if groups.size == 1 then
-      val group = groups.head
+      if groups.size == 1 then
+        val group = groups.head
 
-      val postable = topicPostingChecker.checkTopicPosting(group, request.getRemoteAddr)
+        val postable = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
 
-      if postable.permitted then
-        new ModelAndView(new RedirectView(AddTopicController.getAddUrl(group, tag)))
+        if postable.permitted then
+          new ModelAndView(new RedirectView(AddTopicController.getAddUrl(group, tag)))
+        else
+          val params = prepareModel(None, section).to(mutable.HashMap)
+
+          params.put(
+            "groups",
+            Seq(
+              AddTopicController.GroupChoice(
+                group,
+                AddTopicController.getAddUrl(group, tag, noinfo = true),
+                false,
+                postable.reason)).asJava)
+
+          if tag != null then
+            params.put("tag", tag)
+
+          new ModelAndView("add-section", params.asJava)
       else
         val params = prepareModel(None, section).to(mutable.HashMap)
 
-        params.put("groups", Seq(AddTopicController.GroupChoice(
-          group,
-          AddTopicController.getAddUrl(group, tag, noinfo = true),
-          false,
-          postable.reason
-        )).asJava)
+        val groupChoices = groups.map { group =>
+          val postable = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
+
+          AddTopicController.GroupChoice(
+            group,
+            AddTopicController.getAddUrl(group, tag, noinfo = true),
+            postable.permitted,
+            postable.reason)
+        }
+
+        params.put("groups", groupChoices.asJava)
 
         if tag != null then
           params.put("tag", tag)
 
         new ModelAndView("add-section", params.asJava)
-    else
-      val params = prepareModel(None, section).to(mutable.HashMap)
+    }
 
-      val groupChoices = groups.map { group =>
-        val postable = topicPostingChecker.checkTopicPosting(group, request.getRemoteAddr)
+  @RequestMapping(path = Array("/add-section.jsp"), params = Array("!section"))
+  def showFormAllSections(
+      @RequestParam(value = "tag", required = false)
+      tag: String,
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView =
+    MaybeAuthorized { implicit currentUser =>
+      val sectionList = sectionService
+        .sections
+        .filter(_.moderate)
+        .map { section =>
+          val groups = groupService.getGroups(section)
 
-        AddTopicController.GroupChoice(
-          group,
-          AddTopicController.getAddUrl(group, tag, noinfo = true),
-          postable.permitted,
-          postable.reason)
-      }
+          val postable =
+            if groups.size == 1 then
+              topicPostingChecker.checkTopicPosting(groups.head, ipBlockInfo)
+            else
+              topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
 
-      params.put("groups", groupChoices.asJava)
+          val url =
+            if groups.size == 1 then
+              AddTopicController.getAddUrl(groups.head, tag)
+            else
+              val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
+              builder.queryParam("section", section.id)
+              if tag != null then
+                builder.queryParam("tag", tag)
+              builder.build.toUriString
+
+          AddTopicController.SectionChoice(section, url, postable.permitted, postable.reason)
+        }
+
+      val params = mutable.HashMap[String, AnyRef]("sectionList" -> sectionList.asJava)
 
       if tag != null then
         params.put("tag", tag)
 
       new ModelAndView("add-section", params.asJava)
-  }
-
-  @RequestMapping(path = Array("/add-section.jsp"), params = Array("!section"))
-  def showFormAllSections(@RequestParam(value = "tag", required = false) tag: String,
-                          request: HttpServletRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
-    val sectionList = sectionService.sections.filter(_.moderate).map { section =>
-      val groups = groupService.getGroups(section)
-
-      val postable = if groups.size == 1 then
-        topicPostingChecker.checkTopicPosting(groups.head, request.getRemoteAddr)
-      else
-        topicPostingChecker.checkTopicPosting(section, request.getRemoteAddr)
-
-      val url = if groups.size == 1 then
-        AddTopicController.getAddUrl(groups.head, tag)
-      else
-        val builder = UriComponentsBuilder.fromPath("/add-section.jsp")
-        builder.queryParam("section", section.id)
-        if tag != null then builder.queryParam("tag", tag)
-        builder.build.toUriString
-
-      AddTopicController.SectionChoice(section, url, postable.permitted, postable.reason)
     }
 
-    val params = mutable.HashMap[String, AnyRef]("sectionList" -> sectionList.asJava)
-
-    if tag != null then
-      params.put("tag", tag)
-
-    new ModelAndView("add-section", params.asJava)
-  }
-
   @InitBinder
-  def initBinder(binder: WebDataBinder): Unit = {
-    binder.registerCustomEditor(classOf[Group], new PropertyEditorSupport() {
-      override def setAsText(text: String): Unit = {
-        setValue(groupService.getGroup(text.toInt))
-      }
+  def initBinder(binder: WebDataBinder): Unit =
+    binder.registerCustomEditor(
+      classOf[Group],
+      new PropertyEditorSupport():
+        override def setAsText(text: String): Unit = setValue(groupService.getGroup(text.toInt))
 
-      override def getAsText: String = {
-        if (getValue == null) {
-          null
-        } else {
-          getValue.asInstanceOf[Group].id.toString
-        }
-      }
-    })
+        override def getAsText: String =
+          if getValue == null then
+            null
+          else
+            getValue.asInstanceOf[Group].id.toString
+    )
 
     binder.registerCustomEditor(classOf[User], new UserPropertyEditor(userService))
-  }
 
-  @ExceptionHandler(Array(classOf[SectionNotFoundException]))
-  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(Array(classOf[SectionNotFoundException])) @ResponseStatus(HttpStatus.NOT_FOUND)
   def handleNotFoundException: ModelAndView = new ModelAndView("errors/code404")
 
   @InitBinder(Array("form"))
-  def requestValidator(binder: WebDataBinder): Unit = {
+  def requestValidator(binder: WebDataBinder): Unit =
     binder.setValidator(addTopicRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
-  }
-}

@@ -27,8 +27,8 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.{MaybeAuthorized, isSessionAuthorized}
-import ru.org.linux.auth.{AccessViolationException, AuthUtil, CaptchaMode, IpBlockDao, IpBlockInfo}
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.{AccessViolationException, AuthUtil, IpBlockDao, IpBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MessageText
@@ -36,7 +36,7 @@ import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.UserService
-import ru.org.linux.util.{ServletParameterException, StringUtil}
+import ru.org.linux.util.ServletParameterException
 
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
@@ -47,13 +47,6 @@ class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: Commen
                            topicPrepareService: TopicPrepareService, searchQueueSender: SearchQueueSender,
                            @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                            textService: MessageTextService, userService: UserService) {
-  @ModelAttribute("ipBlockInfo")
-  def ipBlockInfo(request: HttpServletRequest): IpBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
-
-  @ModelAttribute("captchaMode")
-  def captchaMode(request: HttpServletRequest): CaptchaMode =
-    CaptchaMode(!isSessionAuthorized || ipBlockDao.getBlockInfo(request.getRemoteAddr).captchaRequired)
-
   /**
     * Показ формы добавления ответа на комментарий.
     */
@@ -95,7 +88,7 @@ class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: Commen
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
-                 @ModelAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
+                 @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
@@ -141,7 +134,7 @@ class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: Commen
     method = Array(RequestMethod.POST))
   @ResponseBody
   def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
-                     @ModelAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): Json = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
+                     @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): Json = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 

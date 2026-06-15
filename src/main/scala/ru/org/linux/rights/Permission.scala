@@ -18,77 +18,58 @@ package ru.org.linux.rights
 import org.springframework.validation.Errors
 import ru.org.linux.auth.AccessViolationException
 
-sealed trait Permission[+T]
+sealed trait Permission
 
-sealed trait RestrictionChain[+T] extends PermissionChain[T]:
-  def restrict(condition: => Boolean, reason: String): RestrictionChain[T]
-  def restrict[K](permission: => RestrictionChain[K]): RestrictionChain[K]
+sealed trait RestrictionChain extends PermissionChain:
+  def restrict(condition: => Boolean, reason: String): RestrictionChain
+  def restrict(permission: => RestrictionChain): RestrictionChain
 
-sealed trait PermissionChain[+T]:
-  def permit(condition: => Boolean): PermissionChain[T]
-  def restrict(condition: => Boolean, reason: String): PermissionChain[T]
+sealed trait PermissionChain:
+  def permit(condition: => Boolean): PermissionChain
+  def restrict(condition: => Boolean, reason: String): PermissionChain
 
-case class Unrestricted[+T](v: T) extends PermissionChain[T] with RestrictionChain[T]:
-  override def permit(condition: => Boolean): PermissionChain[T] =
+case object Unrestricted extends PermissionChain with RestrictionChain:
+  override def permit(condition: => Boolean): PermissionChain =
     if condition then
-      Permitted(v)
+      Permitted
     else
       this
 
-  override def restrict(condition: => Boolean, reason: String): RestrictionChain[T] =
+  override def restrict(condition: => Boolean, reason: String): RestrictionChain =
     if condition then
       Restricted(reason)
     else
       this
 
-  def restrict[K](permission: => RestrictionChain[K]): RestrictionChain[K] =
+  override def restrict(permission: => RestrictionChain): RestrictionChain =
     permission match
-      case u@Unrestricted(_) => u
-      case r: Restricted => r
+      case Unrestricted =>
+        Unrestricted
+      case r: Restricted =>
+        r
 
-object Unrestricted:
-  val unit: Unrestricted[Unit] = Unrestricted[Unit](())
+case object Permitted extends PermissionChain with Permission:
+  override def permit(condition: => Boolean): Permitted.type = this
+  override def restrict(condition: => Boolean, reason: String): Permitted.type = this
 
-case class Permitted[+T](v: T) extends PermissionChain[T] with Permission[T]:
-  override def permit(condition: => Boolean): Permitted[T] = this
-  override def restrict(condition: => Boolean, reason: String): Permitted[T] = this
-
-case class Restricted(reason: String)
-    extends PermissionChain[Nothing]
-    with Permission[Nothing]
-    with RestrictionChain[Nothing]:
+case class Restricted(reason: String) extends PermissionChain with Permission with RestrictionChain:
   override def permit(condition: => Boolean): Restricted = this
   override def restrict(condition: => Boolean, reason: String): Restricted = this
-  override def restrict[K](permission: => RestrictionChain[K]): RestrictionChain[K] = this
+  override def restrict(permission: => RestrictionChain): RestrictionChain = this
 
-extension [T](p: PermissionChain[T])
-  def seal: Permission[T] =
+extension (p: PermissionChain)
+  def seal: Permission =
     p match
-      case Unrestricted(v) =>
-        Permitted(v)
-      case p: Permitted[T] =>
-        p
+      case Unrestricted | Permitted =>
+        Permitted
       case r: Restricted =>
         r
-
-extension [T](p: RestrictionChain[T])
-  def seal: Permission[T] =
-    p match
-      case Unrestricted(v) =>
-        Permitted(v)
-      case r: Restricted =>
-        r
-
-  def map[K](f: T => K): RestrictionChain[K] =
-    p match
-      case Unrestricted(v) => Unrestricted(f(v))
-      case Restricted(r) => Restricted(r)
 
 object Permission:
-  extension [T](p: Permission[T])
+  extension [T](p: Permission)
     def permitted: Boolean =
       p match
-        case Permitted(_) =>
+        case Permitted =>
           true
         case Restricted(_) =>
           false
@@ -99,32 +80,17 @@ object Permission:
       p match
         case Restricted(reason) =>
           throw new AccessViolationException(s"$prefix: $reason")
-        case _ =>
-
-    def checkOrThrowCtx[V](prefix: String = "Ограничение")(f: T => V): V =
-      p match
-        case Restricted(reason) =>
-          throw new AccessViolationException(s"$prefix: $reason")
-        case Permitted(v) =>
-          f(v)
+        case Permitted =>
 
     def checkOrError(b: Errors, prefix: String = "Ограничение"): Unit =
       p match
         case Restricted(reason) =>
           b.reject(null, s"$prefix: $reason")
-        case _ =>
-
-    def checkOrErrorCtx[V](b: Errors, denyValue: T, prefix: String = "Ограничение")(f: T => V): V =
-      p match
-        case Restricted(reason) =>
-          b.reject(null, s"$prefix: $reason")
-          f(denyValue)
-        case Permitted(v) =>
-          f(v)
+        case Permitted =>
 
     def reason: String =
       p match
         case Restricted(reason) =>
           reason
-        case _ =>
+        case Permitted =>
           ""

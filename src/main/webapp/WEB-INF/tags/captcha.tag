@@ -1,14 +1,3 @@
-<%@ tag import="org.springframework.web.context.WebApplicationContext" %>
-<%@ tag import="org.springframework.web.servlet.support.RequestContextUtils" %>
-<%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.spring.SiteConfig" %>
-<%@ tag pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-
-<%@ attribute name="captchaMode" required="false" type="ru.org.linux.auth.CaptchaMode" %>
-<%@ attribute name="lazy" required="false" type="java.lang.Boolean" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,24 +12,18 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ tag pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<%
-  Template tmpl = Template.getTemplate();
+<%@ attribute name="forced" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="lazy" required="false" type="java.lang.Boolean" %>
 
-  if (captchaMode == null || captchaMode.isRequired()) {
-    WebApplicationContext ctx=RequestContextUtils.findWebApplicationContext(request);
-
-    String key = ((SiteConfig) ctx.getBean("siteConfig")).getCaptchaPublicKey();
-
-    if (lazy != null && lazy) {
-%>
-<div class="h-captcha" data-sitekey="<%= key %>" data-lazy-captcha></div>
-<%
-    } else {
-%>
-<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-<div class="h-captcha" data-sitekey="<%= key %>"></div>
-<%
-    }
-  }
-%>
+<c:if test="${forced || captchaRequired}">
+  <c:if test="${lazy}">
+    <div class="h-captcha" data-sitekey="${configuration.captchaPublicKey}" data-lazy-captcha></div>
+  </c:if>
+  <c:if test="${not lazy}">
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <div class="h-captcha" data-sitekey="${configuration.captchaPublicKey}"></div>
+  </c:if>
+</c:if>

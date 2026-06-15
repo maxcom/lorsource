@@ -48,13 +48,13 @@ object UserPermissionService {
 }
 
 @Service
-class UserPermissionService(userLogDao: UserLogDao, ipBlockDao: IpBlockDao, userDao: UserDao) {
+class UserPermissionService(userLogDao: UserLogDao, userDao: UserDao) {
   def canResetPassword(user: User): Boolean = {
     !userLogDao.hasRecentSelfEvent(user, Duration.ofDays(7), UserLogAction.SentPasswordReset)
   }
 
-  def canRegister(remoteAddr: String): Boolean = !ipBlockDao.getBlockInfo(remoteAddr).isBlocked &&
-    userDao.countUnactivated(remoteAddr) < MaxUnactivatedPerIp
+  def canRegister(ipBlockInfo: IpBlockInfo): Boolean = !ipBlockInfo.isBlocked &&
+    userDao.countUnactivated(ipBlockInfo.ip) < MaxUnactivatedPerIp
   
   def canResetPasswordByCode(user: User): Boolean =
     !user.blocked && user.activated && !user.anonymous && !user.isAdministrator

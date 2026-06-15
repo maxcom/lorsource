@@ -383,7 +383,6 @@
             topic="${message}"
             replyto="0"
             cancel="true"
-            captchaMode="${captchaMode}"
             form_action_url="${form_action_url}"
             postscoreInfo="${preparedMessage.postscoreInfo}"
             lazyCaptcha="true"/>

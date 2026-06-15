@@ -14,12 +14,13 @@
  */
 package ru.org.linux.topic
 
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, ResponseStatus}
+import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestAttribute, RequestMapping,
+  ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.{GroupNotFoundException, GroupService}
 import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionService}
@@ -31,7 +32,7 @@ class ArchiveController(
     archiveDao: ArchiveDao,
     topicPostingChecker: TopicPostingChecker,
     topicService: TopicService):
-  private def archiveList(sectionid: Int, groupName: Option[String] = None, addr: String) =
+  private def archiveList(sectionid: Int, groupName: Option[String] = None, ipBlockInfo: IpBlockInfo) =
     MaybeAuthorized { implicit currentUserOpt =>
       val mv = new ModelAndView("view-news-archive")
 
@@ -50,9 +51,9 @@ class ArchiveController(
       val postingCheck =
         group match
           case Some(group) =>
-            topicPostingChecker.checkTopicPosting(group, addr)
+            topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
           case None =>
-            topicPostingChecker.checkTopicPosting(section, addr)
+            topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
 
       val addUrl =
         group match
@@ -73,24 +74,31 @@ class ArchiveController(
     }
 
   @RequestMapping(path = Array("/gallery/archive"))
-  def galleryArchive(request: HttpServletRequest): ModelAndView =
-    archiveList(Section.Gallery, addr = request.getRemoteAddr)
+  def galleryArchive(
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.Gallery, ipBlockInfo = ipBlockInfo)
 
   @RequestMapping(path = Array("/news/archive"))
-  def newsArchive(request: HttpServletRequest): ModelAndView = archiveList(Section.News, addr = request.getRemoteAddr)
+  def newsArchive(
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.News, ipBlockInfo = ipBlockInfo)
 
   @RequestMapping(path = Array("/polls/archive"))
-  def pollsArchive(request: HttpServletRequest): ModelAndView = archiveList(Section.Polls, addr = request.getRemoteAddr)
+  def pollsArchive(
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.Polls, ipBlockInfo = ipBlockInfo)
 
   @RequestMapping(path = Array("/articles/archive"))
-  def articlesArchive(request: HttpServletRequest): ModelAndView =
-    archiveList(Section.Articles, addr = request.getRemoteAddr)
+  def articlesArchive(
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.Articles, ipBlockInfo = ipBlockInfo)
 
   @RequestMapping(path = Array("/forum/{group}/archive"))
   def forumArchive(
       @PathVariable
       group: String,
-      request: HttpServletRequest): ModelAndView = archiveList(Section.Forum, Some(group), addr = request.getRemoteAddr)
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.Forum, Some(group), ipBlockInfo = ipBlockInfo)
 
   @ExceptionHandler(Array(classOf[GroupNotFoundException])) @ResponseStatus(HttpStatus.NOT_FOUND)
   def handleNotFoundException = new ModelAndView("errors/code404")

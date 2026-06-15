@@ -38,7 +38,7 @@
   </div>
 
   <div class="control-group">
-    <lor:captcha/>
+    <lor:captcha forced="true"/>
   </div>
 
   <div class="control-group">

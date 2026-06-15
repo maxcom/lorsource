@@ -25,11 +25,10 @@ import java.time.Duration
 
 @Service
 class EditProfileChecker(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao):
-  def checkEditProfileInfo(using session: AuthorizedSession): Permission[Unit] =
+  def checkEditProfileInfo(using session: AuthorizedSession): Permission =
     import session.user
 
     Unrestricted
-      .unit
       .restrict(FrozenUserChecker.checkChain(user))
       .restrict(
         userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.ResetInfo),
@@ -42,11 +41,10 @@ class EditProfileChecker(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao):
         "поле города было сброшено модератором менее 24 часов назад")
       .seal
 
-  def checkLoadUserpic(using session: AuthorizedSession): Permission[Unit] =
+  def checkLoadUserpic(using session: AuthorizedSession): Permission =
     val user = session.user
-    
+
     Unrestricted
-      .unit
       .restrict(FrozenUserChecker.checkChain(user))
       .restrict(user.getScore < 45, "низкий score < 45")
       .restrict(

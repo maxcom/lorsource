@@ -199,7 +199,7 @@
   </label>
   <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags"/>
 </div>
-  <lor:captcha captchaMode="${captchaMode}"/>
+  <lor:captcha/>
 
 <c:if test="${showAllowAnonymous}">
   <div class="control-group">

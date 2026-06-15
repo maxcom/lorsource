@@ -24,9 +24,8 @@ import java.time.temporal.ChronoUnit
 
 @Service
 class SlowModeChecker(deleteInfoDao: DeleteInfoDao):
-  def check(user: User): Permission[Unit] =
+  def check(user: User): Permission =
     Unrestricted
-      .unit
       .permit(user.anonymous || user.isFrozen || user.blocked)
       .restrict(user.getScore < 35, "большое число нарушений правил, score < 35")
       .restrict(

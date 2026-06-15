@@ -52,10 +52,11 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
   def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,
-               request: HttpServletRequest): ModelAndView = {
+               @RequestAttribute("ipBlockInfo")
+               ipBlockInfo: IpBlockInfo): ModelAndView = {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 
-    if (userPermissionService.canRegister(request.getRemoteAddr)) {
+    if (userPermissionService.canRegister(ipBlockInfo)) {
       new ModelAndView("register", "permit", makePermit)
     } else {
       new ModelAndView("no-register")

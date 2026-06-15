@@ -15,61 +15,54 @@
 package ru.org.linux.rights
 
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.{AnySession, CaptchaMode, IpBlockInfo}
+import ru.org.linux.auth.{AnySession, IpBlockInfo}
 import ru.org.linux.group.Group
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.TopicPermissionService.*
 import ru.org.linux.user.{User, UserService}
 
 @Service
-class TopicPostingChecker(sectionService: SectionService, userService: UserService, ipBlockChecker: IpBlockChecker):
-  def checkTopicPosting(section: Section, addr: String)(using currentUser: AnySession): Permission[CaptchaMode] =
-    checkTopicPostingImpl(section.topicsRestriction, currentUser.userOpt, addr)
+class TopicPostingChecker(sectionService: SectionService, userService: UserService):
+  def checkTopicPosting(section: Section, ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission =
+    checkTopicPostingImpl(section.topicsRestriction, currentUser.userOpt, ipBlockInfo)
 
-  def checkTopicPosting(group: Group, addr: String)(using currentUser: AnySession): Permission[CaptchaMode] =
+  def checkTopicPosting(group: Group, ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission =
     val section = sectionService.getSection(group.sectionId)
-
     val maxPostscore = Math.max(group.topicRestriction, section.topicsRestriction)
+    checkTopicPostingImpl(maxPostscore, currentUser.userOpt, ipBlockInfo)
 
-    checkTopicPostingImpl(maxPostscore, currentUser.userOpt, addr)
-
-  private def postScoreCheckerChain(user: User, postscore: Int): RestrictionChain[Unit] =
+  private def postScoreCheckerChain(user: User, postscore: Int): RestrictionChain =
     postscore match
       case POSTSCORE_UNRESTRICTED =>
-        Unrestricted.unit
+        Unrestricted
       case POSTSCORE_MODERATORS_ONLY =>
-        Unrestricted.unit.restrict(!user.isModerator, "только для модераторов")
+        Unrestricted.restrict(!user.isModerator, "только для модераторов")
       case POSTSCORE_REGISTERED_ONLY =>
-        Unrestricted.unit.restrict(user.anonymous, "только для зарегистрированных")
+        Unrestricted.restrict(user.anonymous, "только для зарегистрированных")
       case POSTSCORE_NO_COMMENTS | POSTSCORE_HIDE_COMMENTS =>
         Restricted("постинг запрещен") // в топиках не бывает, но пусть будет на всякий случай
       case 100 | 200 | 300 | 400 =>
-        Unrestricted
-          .unit
-          .restrict(
-            user.anonymous || user.score < postscore,
-            s"только для зарегистрированных, минимум ${User.getStars(postscore, postscore, false)}")
+        Unrestricted.restrict(
+          user.anonymous || user.score < postscore,
+          s"только для зарегистрированных, минимум ${User.getStars(postscore, postscore, false)}")
       case 500 =>
-        Unrestricted
-          .unit
-          .restrict(
-            user.anonymous || user.score < postscore,
-            s"только для зарегистрированных, ${User.getStars(postscore, postscore, false)}")
+        Unrestricted.restrict(
+          user.anonymous || user.score < postscore,
+          s"только для зарегистрированных, ${User.getStars(postscore, postscore, false)}")
       case _ =>
-        Unrestricted
-          .unit
-          .restrict(user.anonymous || user.score < postscore, s"только для зарегистрированных, score>=$postscore")
+        Unrestricted.restrict(
+          user.anonymous || user.score < postscore,
+          s"только для зарегистрированных, score>=$postscore")
 
   private def checkTopicPostingImpl(
       restriction: Int,
       currentUserOpt: Option[User],
-      addr: String): Permission[CaptchaMode] =
+      ipBlockInfo: IpBlockInfo): Permission =
     val currentUser = currentUserOpt.getOrElse(userService.getAnonymous)
 
     Unrestricted
-      .unit
       .restrict(currentUser.blocked, "пользователь заблокирован")
       .restrict(FrozenUserChecker.checkChain(currentUser))
       .restrict(postScoreCheckerChain(currentUser, restriction))
-      .restrict(ipBlockChecker.checkChain(addr, currentUserOpt))
+      .restrict(IpBlockChecker.checkChain(ipBlockInfo, currentUserOpt))
       .seal

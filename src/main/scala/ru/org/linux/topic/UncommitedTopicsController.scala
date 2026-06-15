@@ -14,12 +14,12 @@
  */
 package ru.org.linux.topic
 
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
@@ -38,7 +38,7 @@ class UncommitedTopicsController(
   def viewAll(
       @RequestParam(value = "section", required = false, defaultValue = "0")
       sectionId: Int,
-      request: HttpServletRequest): ModelAndView =
+      @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): ModelAndView =
     MaybeAuthorized { implicit session =>
       val modelAndView = new ModelAndView("view-all")
 
@@ -51,7 +51,7 @@ class UncommitedTopicsController(
       section.foreach { section =>
         modelAndView.addObject("section", section)
 
-        val postingCheck = topicPostingChecker.checkTopicPosting(section, request.getRemoteAddr)
+        val postingCheck = topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
         
         if postingCheck.permitted then
           modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))

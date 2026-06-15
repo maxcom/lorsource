@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
 import org.springframework.web.multipart.MultipartFile
-import ru.org.linux.auth.AuthorizedSession
+import ru.org.linux.auth.{AuthorizedSession, IpBlockInfo}
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
 import ru.org.linux.gallery.{Image, ImageDao, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{Group, GroupPermissionService}
@@ -291,7 +291,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
   }
 
-  def processUploads(form: ImageTopicRequest, group: Group, errors: Errors, addr: String, currentAdditionalCount: Int = 0,
+  def processUploads(form: ImageTopicRequest, group: Group, errors: Errors, ipBlockInfo: IpBlockInfo, currentAdditionalCount: Int = 0,
                      hasImage: Boolean = false)
                      (using postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
     val section = sectionService.getSection(group.sectionId)
@@ -301,7 +301,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
       if (permissionService.isImagePostingAllowed(section) &&
-        topicPostingChecker.checkTopicPosting(group, addr).permitted) {
+        topicPostingChecker.checkTopicPosting(group, ipBlockInfo).permitted) {
         val main = imageService.processUpload(Option(form.uploadedImage), form.image, errors)
 
         val additionalImagePreviews =

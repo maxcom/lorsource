@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic
 
-import jakarta.servlet.http.HttpServletRequest
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -24,6 +23,7 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.{Group, GroupNotFoundException, GroupService}
 import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
@@ -89,7 +89,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
                           groupService: GroupService, topicPostingChecker: TopicPostingChecker,
                           topicService: TopicService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListForm,
-                                     group: Option[Group], addr: String): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
+                                      group: Option[Group], ipBlockInfo: IpBlockInfo): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
 
     checkRequestConditions(section, group)
@@ -132,12 +132,12 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
     modelAndView.addObject("offsetNavigation", topicListForm.yearMonth.isEmpty)
     
-    val postingCheck = 
-      group match
-        case Some(group) =>
-          topicPostingChecker.checkTopicPosting(group, addr)
-        case None =>
-          topicPostingChecker.checkTopicPosting(section, addr)  
+    val postingCheck =
+       group match
+         case Some(group) =>
+           topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
+         case None =>
+           topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
 
     val addUrl = group match {
       case Some(group) if postingCheck.permitted =>
@@ -167,12 +167,12 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
   def topics(@PathVariable("section") sectionName: String,
              @RequestParam(value="offset", defaultValue = "0") offset: Int,
-             request: HttpServletRequest): CompletionStage[ModelAndView] = {
+             @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
 
     val topicListForm = TopicListForm.ofOffset(offset)
 
-    mainTopicsFeedHandler(section, topicListForm, None, request.getRemoteAddr).map { modelAndView =>
+    mainTopicsFeedHandler(section, topicListForm, None, ipBlockInfo).map { modelAndView =>
       modelAndView.addObject("url", section.getNewsViewerLink)
       modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}")
     }.asJava
@@ -186,12 +186,12 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   @RequestMapping(path = Array("/forum/lenta"))
   def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int,
             @RequestParam(value = "filter", required = false) filter: String,
-            request: HttpServletRequest): CompletionStage[ModelAndView] = {
+            @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): CompletionStage[ModelAndView] = {
     val section = sectionService.getSection(Section.Forum)
 
     val topicListForm = TopicListForm.ofOffset(offset).copy(filter = parseFilter(filter))
 
-    mainTopicsFeedHandler(section, topicListForm, None, request.getRemoteAddr).map { modelAndView =>
+    mainTopicsFeedHandler(section, topicListForm, None, ipBlockInfo).map { modelAndView =>
       if (filter==null) {
         modelAndView.addObject("url", section.getNewsViewerLink)
         modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}")
@@ -206,27 +206,27 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   def topicsByGroup(@PathVariable("section") sectionName: String,
                     @RequestParam(value="offset", defaultValue = "0") offset: Int,
                     @PathVariable("group") groupName: String,
-                    request: HttpServletRequest): CompletionStage[ModelAndView] = {
+                    @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
 
     val group = groupService.getGroup(section, groupName)
 
     val topicListForm = TopicListForm.ofOffset(offset)
 
-    mainTopicsFeedHandler(section, topicListForm, Some(group), request.getRemoteAddr).map { modelAndView =>
+    mainTopicsFeedHandler(section, topicListForm, Some(group), ipBlockInfo).map { modelAndView =>
       modelAndView.addObject("url", group.getUrl)
     }.asJava
   }
 
   @RequestMapping(path = Array("/{section}/archive/{year:\\d{4}}/{month}"))
   def sectionArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int,
-                     request: HttpServletRequest): CompletionStage[ModelAndView] = {
+                     @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): CompletionStage[ModelAndView] = {
     val sectionObject = sectionService.getSectionByName(section)
 
     (if (sectionObject.isPremoderated) {
       val topicListForm = TopicListForm.orYearMonth(year, month)
 
-      mainTopicsFeedHandler(sectionObject, topicListForm, None, request.getRemoteAddr)
+      mainTopicsFeedHandler(sectionObject, topicListForm, None, ipBlockInfo)
     } else {
       Future.successful(new ModelAndView(new RedirectView(sectionObject.getSectionLink)))
     }).asJava

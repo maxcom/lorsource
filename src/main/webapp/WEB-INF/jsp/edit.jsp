@@ -171,7 +171,7 @@
     <form:hidden path="minor"/>
   </c:if>
 
-  <lor:captcha captchaMode="${captchaMode}"/>
+  <lor:captcha/>
 
   <div class="form-actions">
     <c:if test="${commit}">

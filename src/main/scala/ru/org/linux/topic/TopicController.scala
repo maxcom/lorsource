@@ -23,7 +23,7 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AnySession, CaptchaMode, IpBlockDao}
+import ru.org.linux.auth.{AnySession, IpBlockDao}
 import ru.org.linux.comment.*
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC
 import ru.org.linux.edithistory.EditHistoryService
@@ -277,11 +277,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
     } else {
       params.put("lastCommentId", Integer.valueOf(comments.comments.last.id))
     }
-
-    val captchaMode = CaptchaMode(!session.authorized || ipBlockDao.getBlockInfo(request.getRemoteAddr).captchaRequired)
-
-    params.put("captchaMode", captchaMode)
-
+    
     val add = new CommentRequest
     params.put("add", add)
 

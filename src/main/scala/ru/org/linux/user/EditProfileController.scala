@@ -47,7 +47,6 @@ class EditProfileController(
                              rememberMeServices: RememberMeServices,
                              authenticationManager: AuthenticationManager,
                              userDetailsService: UserDetailsServiceImpl,
-                             ipBlockChecker: IpBlockChecker,
                              userDao: UserDao,
                              userService: UserService,
                              emailService: EmailService,
@@ -104,6 +103,8 @@ class EditProfileController(
   def edit(
       request: HttpServletRequest,
       response: HttpServletResponse,
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo,
       @PathVariable("nick")
       nick: String,
       @Valid @ModelAttribute("form")
@@ -155,7 +156,7 @@ class EditProfileController(
         else
           currentUser.profile.formatMode
 
-      ipBlockChecker.check(request.getRemoteAddr, currentUser.userOpt).checkOrError(errors)
+      IpBlockChecker.check(ipBlockInfo, currentUser.userOpt).checkOrError(errors)
 
       val user = currentUser.user
 

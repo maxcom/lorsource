@@ -18,5 +18,5 @@ package ru.org.linux.rights
 import ru.org.linux.user.User
 
 object FrozenUserChecker:
-  def checkChain(user: User): RestrictionChain[Unit] =
-    Unrestricted.unit.restrict(user.isFrozen, "установлен режим только для чтения")
+  def checkChain(user: User): RestrictionChain =
+    Unrestricted.restrict(user.isFrozen, "установлен режим только для чтения")

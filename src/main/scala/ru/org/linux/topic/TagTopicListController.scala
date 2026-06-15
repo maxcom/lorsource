@@ -15,7 +15,6 @@
 
 package ru.org.linux.topic
 
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -23,6 +22,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.{GroupListDao, GroupPermissionService}
 import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
@@ -76,9 +76,9 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
     method = Array(RequestMethod.GET, RequestMethod.HEAD),
     params = Array("section"))
   def tagFeed(@PathVariable tag: String,
-               @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
-               @RequestParam(value = "section", defaultValue = "0") sectionId: Int,
-               request: HttpServletRequest
+                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
+                @RequestParam(value = "section", defaultValue = "0") sectionId: Int,
+                @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo
   ): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     TagName.checkTag(tag)
 
@@ -144,7 +144,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        val postingCheck = topicPostingChecker.checkTopicPosting(section, request.getRemoteAddr)
+        val postingCheck = topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
         
         if postingCheck.permitted then
           modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))

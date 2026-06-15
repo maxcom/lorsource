@@ -88,7 +88,7 @@
   </div>
 
   <div class="control-group">
-      <lor:captcha/>
+      <lor:captcha forced="true"/>
     </div>
 
     <c:if test="${permit!=null}">

@@ -40,7 +40,6 @@
 
 <lor:commentForm
         topic="${add.topic}"
-        captchaMode="${captchaMode}"
         form_action_url="${form_action_url}"
         autoFocus="true"
         postscoreInfo="${preparedMessage.postscoreInfo}"/>

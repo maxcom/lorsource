@@ -17,20 +17,17 @@ package ru.org.linux.rights
 
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
-import ru.org.linux.auth.{CaptchaMode, IpBlockDao, IpBlockInfo}
+import ru.org.linux.auth.{IpBlockDao, IpBlockInfo}
 import ru.org.linux.user.User
 
 import javax.annotation.Nullable
 
-@Service
-class IpBlockChecker(ipBlockDao: IpBlockDao):
+object IpBlockChecker:
   // temporary transitional method
-  def check(addr: String, user: Option[User]): Permission[CaptchaMode] = checkChain(addr, user).seal
+  def check(ipBlockInfo: IpBlockInfo, user: Option[User]): Permission = checkChain(ipBlockInfo, user).seal
 
-  def checkChain(addr: String, user: Option[User]): RestrictionChain[CaptchaMode] =
-    val ipBlockInfo = ipBlockDao.getBlockInfo(addr)
-
-    Unrestricted(ipBlockInfo)
+  def checkChain(ipBlockInfo: IpBlockInfo, user: Option[User]): RestrictionChain =
+    Unrestricted
       .restrict(
         ipBlockInfo.isBlocked && (user.isEmpty || user.exists(_.anonymous)),
         "анонимный постинг с этого IP адреса заблокирован")
@@ -41,9 +38,7 @@ class IpBlockChecker(ipBlockDao: IpBlockDao):
       .restrict(
         ipBlockInfo.isBlocked && user.isDefined && !ipBlockInfo.isAllowRegisteredPosting,
         s"постинг с этого IP адреса заблокирован")
-      .map(ipBlockInfo => CaptchaMode(ipBlockInfo.captchaRequired || user.forall(_.anonymous)))
 
-object IpBlockChecker:
   // temporary transitional method
   def checkBlockIP(
       block: IpBlockInfo,

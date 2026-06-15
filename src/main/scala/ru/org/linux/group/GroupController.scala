@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AccessViolationException, AnySession}
+import ru.org.linux.auth.{AccessViolationException, AnySession, IpBlockInfo}
 import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
@@ -73,7 +73,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
                    @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
-                   request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
+                   @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val section = sectionService.getSection(Section.Forum)
     val group = groupService.getGroup(section, groupName)
 
@@ -86,7 +86,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
     }
 
     forum(section, group, offset, lastmod = false, Some((year, month)), tagInfo = None,
-      showDeleted = false, showIgnored = showIgnored, addr = request.getRemoteAddr)
+      showDeleted = false, showIgnored = showIgnored, ipBlockInfo = ipBlockInfo)
   }
 
   private def isFirstPage(offset: Int): Boolean = {
@@ -103,10 +103,11 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
 
   @RequestMapping(path = Array("/forum/{group}"))
   def forum(@PathVariable("group") groupName: String, @RequestParam(defaultValue = "0", value = "offset") offset: Int,
-            @RequestParam(defaultValue = "false") lastmod: Boolean, @RequestParam(required = false) tag: String,
-            @RequestParam(defaultValue = "false") showDeleted: Boolean,
-            @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
-            request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit session =>
+             @RequestParam(defaultValue = "false") lastmod: Boolean, @RequestParam(required = false) tag: String,
+             @RequestParam(defaultValue = "false") showDeleted: Boolean,
+             @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
+             @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo,
+             request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit session =>
     val section = sectionService.getSection(Section.Forum)
     val group = groupService.getGroup(section, groupName)
 
@@ -130,14 +131,14 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
         Future.successful(new ModelAndView("errors/code404")).asJava
       } else {
         forum(section, group, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
-          showIgnored = showIgnored, addr = request.getRemoteAddr)
+          showIgnored = showIgnored, ipBlockInfo = ipBlockInfo)
       }
     }
   }
 
   private def forum(section: Section, group: Group, offset: Int, lastmod: Boolean,
                      yearMonth: Option[(Int, Int)], tagInfo: Option[TagInfo], showDeleted: Boolean,
-                     showIgnored: Boolean, addr: String)(using currentUser: AnySession): CompletionStage[ModelAndView] = {
+                     showIgnored: Boolean, ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val firstPage = isFirstPage(offset)
@@ -201,7 +202,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
       params.put("topicsList", mainTopics.asJava)
     }
 
-    val postingCheck = topicPostingChecker.checkTopicPosting(group, addr)
+    val postingCheck = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
     
     params.put("addable", Boolean.box(postingCheck.permitted))
     params.put("addableReason", postingCheck.reason)

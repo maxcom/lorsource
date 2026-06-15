@@ -28,14 +28,16 @@ import java.time.ZoneId
 import java.time.zone.ZoneRulesException
 import java.util.Locale
 
-object CommonContextFilter {
+object CommonContextFilter:
   private val Russian = Locale.forLanguageTag("ru")
   private val BadTimezones: Set[String] = Set("Factory", "Etc/Unknown")
-}
 
-class CommonContextFilter extends GenericFilterBean with InitializingBean {
-  override def doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain): Unit = {
+class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao)
+    extends GenericFilterBean
+    with InitializingBean:
+  override def doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain): Unit =
     val ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext)
+
     val request = req.asInstanceOf[HttpServletRequest]
     val response = res.asInstanceOf[HttpServletResponse]
     val currentUser = AuthUtil.getCurrentUser
@@ -43,20 +45,26 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     val cookies = getCookies(request)
     val timezoneName = cookies.get("tz").filter(_.nonEmpty).filterNot(BadTimezones.contains)
 
-    val timezone = (try {
-      timezoneName.map(ZoneId.of)
-    } catch {
-      case ex: ZoneRulesException =>
-        logger.info(s"Wrong timezone: $timezoneName (${ex.toString})")
-        None
-    }).getOrElse(ZoneId.systemDefault())
+    val timezone =
+      (
+        try
+          timezoneName.map(ZoneId.of)
+        catch
+          case ex: ZoneRulesException =>
+            logger.info(s"Wrong timezone: $timezoneName (${ex.toString})")
+            None
+      ).getOrElse(ZoneId.systemDefault())
 
     request.setAttribute("timezone", timezone)
 
-    request.setAttribute("configuration", ctx.getBean(classOf[SiteConfig]))
+    request.setAttribute("configuration", siteConfig)
     request.setAttribute("template", new Template)
     request.setAttribute("currentUser", currentUser)
-    request.setAttribute("enableAjaxLogin", currentUser==null)
+    request.setAttribute("enableAjaxLogin", currentUser == null)
+
+    val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
+    request.setAttribute("ipBlockInfo", ipBlockInfo)
+    request.setAttribute("captchaRequired", currentUser == null || ipBlockInfo.captchaRequired)
 
     request.setCharacterEncoding("utf-8")
     res.setLocale(Russian)
@@ -66,22 +74,19 @@ class CommonContextFilter extends GenericFilterBean with InitializingBean {
     response.addHeader("Cache-Control", "private")
 
     chain.doFilter(req, res)
-  }
 
-  private def csrfManipulation(request: HttpServletRequest, response: HttpServletResponse): Unit = {
+  private def csrfManipulation(request: HttpServletRequest, response: HttpServletResponse): Unit =
     val cookies = getCookies(request)
 
-    cookies.get(CSRFProtectionService.CSRF_COOKIE) match {
+    cookies.get(CSRFProtectionService.CSRF_COOKIE) match
       case None =>
         CSRFProtectionService.generateCSRFCookie(request, response)
       case Some(value) =>
         request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, value.trim)
-    }
-  }
 
-  private def getCookies(request: HttpServletRequest): Map[String, String] = {
-    Option(request.getCookies).map { cookies =>
-      cookies.view.map(c => c.getName -> c.getValue).toMap
-    }.getOrElse(Map.empty)
-  }
-}
+  private def getCookies(request: HttpServletRequest): Map[String, String] =
+    Option(request.getCookies)
+      .map { cookies =>
+        cookies.view.map(c => c.getName -> c.getValue).toMap
+      }
+      .getOrElse(Map.empty)
