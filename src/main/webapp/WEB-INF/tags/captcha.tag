@@ -27,7 +27,7 @@
 <%
   Template tmpl = Template.getTemplate();
 
-  if (captchaMode.isRequired()) {
+  if (captchaMode == null || captchaMode.isRequired()) {
     WebApplicationContext ctx=RequestContextUtils.findWebApplicationContext(request);
 
     String key = ((SiteConfig) ctx.getBean("siteConfig")).getCaptchaPublicKey();
