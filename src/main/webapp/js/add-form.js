@@ -237,16 +237,28 @@ $script.ready('jquery', function() {
 
       captchaLoaded = true;
       const sitekey = lazyCaptcha.getAttribute('data-sitekey');
-      const script = document.createElement('script');
-      script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit';
-      script.async = true;
-      script.onload = () => {
-        if (typeof hcaptcha !== 'undefined' && !captchaRendered) {
+
+      const renderCaptcha = () => {
+        if (!captchaRendered) {
           hcaptcha.render(lazyCaptcha, {sitekey: sitekey});
           captchaRendered = true;
           lazyCaptcha.removeAttribute('data-lazy-captcha');
         }
       };
+
+      if (typeof hcaptcha !== 'undefined') {
+        renderCaptcha();
+        return;
+      }
+
+      const callbackName = 'onCaptchaLoaded';
+      window[callbackName] = () => {
+        renderCaptcha();
+        delete window[callbackName];
+      };
+      const script = document.createElement('script');
+      script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit&onload=' + callbackName;
+      script.async = true;
       document.head.appendChild(script);
     };
 
