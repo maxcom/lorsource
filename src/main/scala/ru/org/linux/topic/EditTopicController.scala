@@ -105,6 +105,7 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
 
     params.put("message", message)
     params.put("preparedMessage", preparedTopic)
+    params.put("captchaMode", captchaMode)
 
     val group = preparedTopic.group
 
