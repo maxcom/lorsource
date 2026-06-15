@@ -17,7 +17,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="blockInfo" type="ru.org.linux.auth.IPBlockInfo"--%>
+<%--@elvariable id="blockInfo" type="ru.org.linux.auth.IpBlockInfo"--%>
 <%--@elvariable id="blockModerator" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.comment.PreparedCommentsListItem>"--%>

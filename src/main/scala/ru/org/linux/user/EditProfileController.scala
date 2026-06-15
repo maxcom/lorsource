@@ -38,21 +38,21 @@ import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
 import jakarta.mail.internet.AddressException
 import jakarta.mail.internet.InternetAddress
-import ru.org.linux.rights.EditProfileChecker
+import ru.org.linux.rights.{EditProfileChecker, IpBlockChecker}
 
 import javax.validation.Valid
 
 @Controller @RequestMapping(Array("/people/{nick}/edit"))
 class EditProfileController(
-    rememberMeServices: RememberMeServices,
-    authenticationManager: AuthenticationManager,
-    userDetailsService: UserDetailsServiceImpl,
-    ipBlockDao: IPBlockDao,
-    userDao: UserDao,
-    userService: UserService,
-    emailService: EmailService,
-    emailDomainsBlockDao: EmailDomainsBlockDao,
-    editProfileChecker: EditProfileChecker)
+                             rememberMeServices: RememberMeServices,
+                             authenticationManager: AuthenticationManager,
+                             userDetailsService: UserDetailsServiceImpl,
+                             ipBlockChecker: IpBlockChecker,
+                             userDao: UserDao,
+                             userService: UserService,
+                             emailService: EmailService,
+                             emailDomainsBlockDao: EmailDomainsBlockDao,
+                             editProfileChecker: EditProfileChecker)
     extends StrictLogging:
   private val validator = new EditProfileRequestValidator(emailDomainsBlockDao)
 
@@ -155,8 +155,7 @@ class EditProfileController(
         else
           currentUser.profile.formatMode
 
-      val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
-      UserPermissionService.checkBlockIP(ipBlockInfo, errors, currentUser.user)
+      ipBlockChecker.check(request.getRemoteAddr, currentUser.userOpt).checkOrError(errors)
 
       val user = currentUser.user
 

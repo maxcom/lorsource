@@ -23,7 +23,7 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AnySession, IPBlockDao}
+import ru.org.linux.auth.{AnySession, CaptchaMode, IpBlockDao}
 import ru.org.linux.comment.*
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC
 import ru.org.linux.edithistory.EditHistoryService
@@ -90,7 +90,7 @@ object TopicController {
 @Controller
 class TopicController(sectionService: SectionService, topicDao: TopicDao, prepareService: CommentPrepareService,
                       topicPrepareService: TopicPrepareService, commentService: CommentReadService,
-                      ignoreListDao: IgnoreListDao, ipBlockDao: IPBlockDao, editHistoryService: EditHistoryService,
+                      ignoreListDao: IgnoreListDao, ipBlockDao: IpBlockDao, editHistoryService: EditHistoryService,
                       memoriesDao: MemoriesDao, permissionService: TopicPermissionService,
                       moreLikeThisService: MoreLikeThisService, topicTagService: TopicTagService,
                       msgbaseDao: MsgbaseDao, textService: MessageTextService,
@@ -278,9 +278,9 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       params.put("lastCommentId", Integer.valueOf(comments.comments.last.id))
     }
 
-    val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
+    val captchaMode = CaptchaMode(!session.authorized || ipBlockDao.getBlockInfo(request.getRemoteAddr).captchaRequired)
 
-    params.put("ipBlockInfo", ipBlockInfo)
+    params.put("captchaMode", captchaMode)
 
     val add = new CommentRequest
     params.put("add", add)

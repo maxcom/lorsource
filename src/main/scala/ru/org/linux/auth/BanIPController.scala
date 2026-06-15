@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets
 import java.time.OffsetDateTime
 
 @Controller
-class BanIPController(ipBlockDao: IPBlockDao) {
+class BanIPController(ipBlockDao: IpBlockDao) {
   @RequestMapping(value = Array("/banip.jsp"), method = Array(RequestMethod.POST))
   @throws[Exception]
   def banIP(request: HttpServletRequest, @RequestParam("ip") ip: String, @RequestParam("reason") reason: String,

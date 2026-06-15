@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, 
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.IPBlockDao
+import ru.org.linux.auth.IpBlockDao
 import ru.org.linux.group.GroupListDao
 import ru.org.linux.topic.{TopicPrepareService, TopicService}
 import ru.org.linux.user.{UserErrorException, UserService}
@@ -28,7 +28,7 @@ import java.net.URLEncoder
 import scala.jdk.CollectionConverters.*
 
 @Controller
-class TrackerController(groupListDao: GroupListDao, userService: UserService, ipBlockDao: IPBlockDao,
+class TrackerController(groupListDao: GroupListDao, userService: UserService, ipBlockDao: IpBlockDao,
                         topicPrepareService: TopicPrepareService, topicService: TopicService) {
   @ModelAttribute("filters")
   def getFilter: java.util.List[TrackerFilterEnum] = TrackerFilterEnum.values.toSeq.asJava

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
-import ru.org.linux.auth.IPBlockDao
+import ru.org.linux.auth.IpBlockDao
 import ru.org.linux.comment.DeleteService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.user.UserErrorException
@@ -32,7 +32,7 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
 
 @Controller
 class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService: DeleteService,
-                      ipBlockDao: IPBlockDao) extends StrictLogging {
+                      ipBlockDao: IpBlockDao) extends StrictLogging {
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
    *

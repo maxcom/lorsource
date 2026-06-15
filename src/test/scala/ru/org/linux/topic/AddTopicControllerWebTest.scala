@@ -43,12 +43,13 @@ class AddTopicControllerWebTest extends FunSuite with WebHelper:
 
     assert(doc.select("input[name=csrf]").asScala.nonEmpty, "csrf input should exist")
 
-  test("post action rejects request without CSRF"):
+  authorized().test("post action rejects request without CSRF"): auth =>
     val response = basicRequest
       .body(Map(
         "section" -> Section.Forum.toString,
         "group" -> TestGroup.toString))
       .post(MainUrl.addPath("add.jsp"))
+      .cookie(AuthCookie, auth)
       .send(backend)
 
     assertEquals(response.code, StatusCode.Ok, "status code")

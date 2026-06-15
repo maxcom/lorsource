@@ -15,6 +15,7 @@
 package ru.org.linux.tag
 
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.text.WordUtils
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestAttribute, RequestMapping, RequestMethod}
@@ -59,7 +60,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
                         imageService: ImageService, topicPostingChecker: TopicPostingChecker) extends StrictLogging {
 
   @RequestMapping(method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def tagPage(@PathVariable tag: String, @RequestAttribute(name="timezone") timezone: ZoneId): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUser =>
+  def tagPage(@PathVariable tag: String, @RequestAttribute(name="timezone") timezone: ZoneId,
+              request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUser =>
     val deadline = TagPageController.Timeout.fromNow
 
     if (!TagName.isGoodTag(tag)) {
@@ -93,11 +95,11 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
           Future.successful(new ModelAndView(new RedirectView(mainName.url.get, false, false))).asJava
         }.getOrElse(throw new TagNotFoundException())
       case Some(tagInfo) =>
-        val (news, newsDate) = getNewsSection(tag, timezone)
-        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.Forum, CommitMode.PostmoderatedOnly, timezone)
-        val gallery = getGallerySection(tag, tagInfo.id)
-        val (polls, _) = getTopicList(tag, tagInfo.id, Section.Polls, CommitMode.CommittedOnly, timezone)
-        val (articles, _) = getTopicList(tag, tagInfo.id, Section.Articles, CommitMode.CommittedOnly, timezone)
+        val (news, newsDate) = getNewsSection(tag, timezone, request.getRemoteAddr)
+        val (forum, forumDate) = getTopicList(tag, tagInfo.id, Section.Forum, CommitMode.PostmoderatedOnly, timezone, request.getRemoteAddr)
+        val gallery = getGallerySection(tag, tagInfo.id, request.getRemoteAddr)
+        val (polls, _) = getTopicList(tag, tagInfo.id, Section.Polls, CommitMode.CommittedOnly, timezone, request.getRemoteAddr)
+        val (articles, _) = getTopicList(tag, tagInfo.id, Section.Articles, CommitMode.CommittedOnly, timezone, request.getRemoteAddr)
 
         val newsFirst = newsDate.isDefined && (newsDate.exists(isRecent) || newsDate.zip(forumDate).exists(p => p._1.isAfter(p._2)))
 
@@ -136,7 +138,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     }
 }
 
-  private def getNewsSection(tag: String, timezone: ZoneId)(using currentUser: AnySession) = {
+  private def getNewsSection(tag: String, timezone: ZoneId, addr: String)(using currentUser: AnySession) = {
     val newsSection = sectionService.getSection(Section.News)
     val newsTopics = topicListService.getTopicsFeed(newsSection, None, Some(tag), 0, None,
       TagPageController.TotalNewsCount, noTalks = false, tech = false)
@@ -159,7 +161,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
 
     val newestDate = newsTopics.headOption.map(_.commitDate.toInstant)
 
-    val postingCheck = topicPostingChecker.checkTopicPosting(newsSection)
+    val postingCheck = topicPostingChecker.checkTopicPosting(newsSection, addr)
 
     val addNews = if (postingCheck.permitted) {
       Some("addNews" -> AddTopicController.getAddUrl(newsSection, tag))
@@ -173,11 +175,11 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     ) ++ more ++ addNews, newestDate)
   }
 
-  private def getGallerySection(tag: String, tagId: Int)(using currentUser: AnySession) = {
+  private def getGallerySection(tag: String, tagId: Int, addr: String)(using currentUser: AnySession) = {
     val list = imageService.prepareGalleryItem(imageService.getGalleryItems(TagPageController.GalleryCount, tagId).asJava)
     val section = sectionService.getSection(Section.Gallery)
 
-    val postingCheck = topicPostingChecker.checkTopicPosting(section)
+    val postingCheck = topicPostingChecker.checkTopicPosting(section, addr)
 
     val add = if (postingCheck.permitted) {
       Some("addGallery" -> AddTopicController.getAddUrl(section, tag))
@@ -194,8 +196,8 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
     Map[String, AnyRef]("gallery" -> list) ++ add ++ more
   }
 
-  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode, timezone: ZoneId)
-                           (using currentUser: AnySession) = {
+  private def getTopicList(tag: String, tagId: Int, section: Int, mode: CommitMode, timezone: ZoneId, addr: String)
+                            (using currentUser: AnySession) = {
     val forumSection = sectionService.getSection(section)
 
     val topicListDto = TopicListRequest(
@@ -214,7 +216,7 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
       None
     }
 
-    val postingCheck = topicPostingChecker.checkTopicPosting(forumSection)
+    val postingCheck = topicPostingChecker.checkTopicPosting(forumSection, addr)
 
     val add = if (postingCheck.permitted) {
       Some(forumSection.getUrlName+"Add" -> AddTopicController.getAddUrl(forumSection, tag))

@@ -25,7 +25,7 @@
 <%@ attribute name="original" required="false" type="java.lang.Integer" %>
 <%@ attribute name="form_action_url" required="true" type="java.lang.String" %>
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
-<%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
+<%@ attribute name="captchaMode" required="false" type="ru.org.linux.auth.CaptchaMode" %>
 <%@ attribute name="postscoreInfo" required="true" type="java.lang.String" %>
 <%@ attribute name="lazyCaptcha" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="autoFocus" required="false" type="java.lang.Boolean" %>
@@ -91,7 +91,7 @@
   </div>
 
   <div class="help-block">
-    <lor:captcha ipBlockInfo="${ipBlockInfo}" lazy="${lazyCaptcha}" />
+    <lor:captcha captchaMode="${captchaMode}" lazy="${lazyCaptcha}" />
   </div>
 
   <div class="form-actions">

@@ -17,7 +17,7 @@ package ru.org.linux.rights
 
 import munit.FunSuite
 import org.mockito.Mockito.{mock, when}
-import ru.org.linux.auth.{AnySession, AuthorizedSession, NonAuthorizedSession}
+import ru.org.linux.auth.{AnySession, AuthorizedSession, IpBlockDao, IpBlockInfo, NonAuthorizedSession}
 import ru.org.linux.group.Group
 import ru.org.linux.section.{Section, SectionScrollModeEnum, SectionService}
 import ru.org.linux.topic.TopicPermissionService.*
@@ -96,19 +96,22 @@ class TopicPostingCheckerTest extends FunSuite:
   private def makeSession(user: User, moderator: Boolean = false): AnySession =
     AuthorizedSession(user, corrector = false, moderator = moderator, administrator = false, profile = Profile.DEFAULT)
 
+  private val ipBlockDao: IpBlockDao = mock(classOf[IpBlockDao])
+  when(ipBlockDao.getBlockInfo("127.0.0.1")).thenReturn(IpBlockInfo("127.0.0.1"))
+
   private def makeChecker(
       sectionService: SectionService = mock(classOf[SectionService]),
       userService: UserService = mock(classOf[UserService])): TopicPostingChecker =
-    new TopicPostingChecker(sectionService, userService)
+    new TopicPostingChecker(sectionService, userService, new IpBlockChecker(ipBlockDao))
 
   // === checkTopicPosting(section) tests ===
 
   test("unrestricted section: authorized user is permitted"):
     val checker = makeChecker()
-    val user = makeUser(score = 50)
+    val user = makeUser()
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(unrestrictedSection)(using session)
+    val result = checker.checkTopicPosting(unrestrictedSection, "127.0.0.1")(using session)
 
     assert(result.permitted)
 
@@ -118,17 +121,17 @@ class TopicPostingCheckerTest extends FunSuite:
     when(userService.getAnonymous).thenReturn(anonymousUser)
     val checker = makeChecker(userService = userService)
 
-    val result = checker.checkTopicPosting(unrestrictedSection)(using NonAuthorizedSession)
+    val result = checker.checkTopicPosting(unrestrictedSection, "127.0.0.1")(using NonAuthorizedSession)
 
     assert(result.permitted)
 
   test("registered-only section: authorized user is permitted"):
     val section = unrestrictedSection.copy(topicsRestriction = POSTSCORE_REGISTERED_ONLY)
     val checker = makeChecker()
-    val user = makeUser(score = 50)
+    val user = makeUser()
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.permitted)
 
@@ -139,7 +142,7 @@ class TopicPostingCheckerTest extends FunSuite:
     when(userService.getAnonymous).thenReturn(anonymousUser)
     val checker = makeChecker(userService = userService)
 
-    val result = checker.checkTopicPosting(section)(using NonAuthorizedSession)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using NonAuthorizedSession)
 
     assert(result.restricted)
     assertEquals(result.reason, "только для зарегистрированных")
@@ -150,17 +153,17 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(canmod = true)
     val session = makeSession(user, moderator = true)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.permitted)
 
   test("moderators-only section: non-moderator is restricted"):
     val section = unrestrictedSection.copy(topicsRestriction = POSTSCORE_MODERATORS_ONLY)
     val checker = makeChecker()
-    val user = makeUser(canmod = false)
+    val user = makeUser()
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.restricted)
     assertEquals(result.reason, "только для модераторов")
@@ -171,7 +174,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(canmod = true)
     val session = makeSession(user, moderator = true)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.restricted)
     assertEquals(result.reason, "постинг запрещен")
@@ -182,7 +185,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(canmod = true)
     val session = makeSession(user, moderator = true)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.restricted)
     assertEquals(result.reason, "постинг запрещен")
@@ -193,17 +196,17 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(score = 100)
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.permitted)
 
   test("score threshold 200: user with score < 200 is restricted"):
     val section = unrestrictedSection.copy(topicsRestriction = 200)
     val checker = makeChecker()
-    val user = makeUser(score = 50)
+    val user = makeUser()
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.restricted)
 
@@ -213,7 +216,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(score = 300)
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.permitted)
 
@@ -223,7 +226,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(score = 400)
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.restricted)
 
@@ -233,7 +236,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(score = 30)
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(section)(using session)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using session)
 
     assert(result.restricted)
 
@@ -244,7 +247,7 @@ class TopicPostingCheckerTest extends FunSuite:
     when(userService.getAnonymous).thenReturn(anonymousUser)
     val checker = makeChecker(userService = userService)
 
-    val result = checker.checkTopicPosting(section)(using NonAuthorizedSession)
+    val result = checker.checkTopicPosting(section, "127.0.0.1")(using NonAuthorizedSession)
 
     assert(result.restricted)
 
@@ -253,7 +256,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(blocked = true)
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(unrestrictedSection)(using session)
+    val result = checker.checkTopicPosting(unrestrictedSection, "127.0.0.1")(using session)
 
     assert(result.restricted)
     assertEquals(result.reason, "пользователь заблокирован")
@@ -264,7 +267,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(frozenUntil = frozenTime)
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(unrestrictedSection)(using session)
+    val result = checker.checkTopicPosting(unrestrictedSection, "127.0.0.1")(using session)
 
     assert(result.restricted)
     assertEquals(result.reason, "установлен режим только для чтения")
@@ -275,7 +278,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(blocked = true, frozenUntil = frozenTime)
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(unrestrictedSection)(using session)
+    val result = checker.checkTopicPosting(unrestrictedSection, "127.0.0.1")(using session)
 
     assert(result.restricted)
     assertEquals(result.reason, "пользователь заблокирован")
@@ -288,10 +291,10 @@ class TopicPostingCheckerTest extends FunSuite:
     val sectionService = mock(classOf[SectionService])
     when(sectionService.getSection(1)).thenReturn(section)
     val checker = makeChecker(sectionService = sectionService)
-    val user = makeUser(score = 50)
+    val user = makeUser()
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(group)(using session)
+    val result = checker.checkTopicPosting(group, "127.0.0.1")(using session)
 
     assert(result.restricted)
 
@@ -301,10 +304,10 @@ class TopicPostingCheckerTest extends FunSuite:
     val sectionService = mock(classOf[SectionService])
     when(sectionService.getSection(1)).thenReturn(section)
     val checker = makeChecker(sectionService = sectionService)
-    val user = makeUser(score = 50)
+    val user = makeUser()
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(group)(using session)
+    val result = checker.checkTopicPosting(group, "127.0.0.1")(using session)
 
     assert(result.permitted)
 
@@ -317,7 +320,7 @@ class TopicPostingCheckerTest extends FunSuite:
     val user = makeUser(score = 100)
     val session = makeSession(user)
 
-    val result = checker.checkTopicPosting(group)(using session)
+    val result = checker.checkTopicPosting(group, "127.0.0.1")(using session)
 
     assert(result.restricted)
     

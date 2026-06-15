@@ -291,9 +291,9 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
   }
 
-  def processUploads(form: ImageTopicRequest, group: Group, errors: Errors, currentAdditionalCount: Int = 0,
+  def processUploads(form: ImageTopicRequest, group: Group, errors: Errors, addr: String, currentAdditionalCount: Int = 0,
                      hasImage: Boolean = false)
-                    (using postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
+                     (using postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
     val section = sectionService.getSection(group.sectionId)
 
     val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty[MultipartFile])
@@ -301,7 +301,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
       if (permissionService.isImagePostingAllowed(section) &&
-        topicPostingChecker.checkTopicPosting(group).permitted) {
+        topicPostingChecker.checkTopicPosting(group, addr).permitted) {
         val main = imageService.processUpload(Option(form.uploadedImage), form.image, errors)
 
         val additionalImagePreviews =

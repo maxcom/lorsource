@@ -16,7 +16,7 @@ package ru.org.linux.user
 
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
-import ru.org.linux.auth.{AuthorizedSession, IPBlockDao, IPBlockInfo}
+import ru.org.linux.auth.{AuthorizedSession, IpBlockDao, IpBlockInfo}
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.markup.MarkupType.{Html, Lorcode, LorcodeUlb, Markdown}
 import ru.org.linux.msgbase.DeleteInfoDao
@@ -40,12 +40,6 @@ object UserPermissionService {
     }
   }
 
-  def checkBlockIP(block: IPBlockInfo, errors: Errors, @Nullable user: User): Unit = {
-    if (block.isBlocked && (user == null || user.isAnonymousScore || !block.isAllowRegisteredPosting)) {
-      errors.reject(null, "Постинг заблокирован: " + block.reason)
-    }
-  }
-
   def checkFrozen(user: User, errors: Errors): Unit = {
     if (user.isFrozen) {
       errors.reject(null, "Пользователь временно заморожен")
@@ -54,7 +48,7 @@ object UserPermissionService {
 }
 
 @Service
-class UserPermissionService(userLogDao: UserLogDao, ipBlockDao: IPBlockDao, userDao: UserDao) {
+class UserPermissionService(userLogDao: UserLogDao, ipBlockDao: IpBlockDao, userDao: UserDao) {
   def canResetPassword(user: User): Boolean = {
     !userLogDao.hasRecentSelfEvent(user, Duration.ofDays(7), UserLogAction.SentPasswordReset)
   }

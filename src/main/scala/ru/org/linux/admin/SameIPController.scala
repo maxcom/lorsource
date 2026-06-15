@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, 
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.admin.SameIPController.AnonymousScoreFilter
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
-import ru.org.linux.auth.IPBlockDao
+import ru.org.linux.auth.IpBlockDao
 import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.sameip.SameIpService
 import ru.org.linux.site.BadInputException
@@ -35,7 +35,7 @@ object SameIPController {
 }
 
 @Controller
-class SameIPController(ipBlockDao: IPBlockDao, userService: UserService, userAgentDao: UserAgentDao, sameIpService: SameIpService) {
+class SameIPController(ipBlockDao: IpBlockDao, userService: UserService, userAgentDao: UserAgentDao, sameIpService: SameIpService) {
   @ModelAttribute("masks")
   def masks: util.List[(String, String)] =
     Seq(

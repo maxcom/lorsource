@@ -21,7 +21,7 @@ import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch.OpenSearchClient
 import org.springframework.context.annotation.{Bean, ComponentScan, Configuration, FilterType, ImportResource}
 import org.springframework.stereotype.Controller
-import ru.org.linux.auth.{BlackListUpdater, IPBlockDao}
+import ru.org.linux.auth.{BlackListUpdater, IpBlockDao}
 import ru.org.linux.comment.{CommentPrepareService, CommentReadService}
 import ru.org.linux.edithistory.EditHistoryService
 import ru.org.linux.email.EmailService
@@ -65,21 +65,21 @@ import java.util.Properties
 class TopicIntegrationTestConfiguration {
   @Bean
   def topicController(
-    sectionService: SectionService,
-    messageDao: TopicDao,
-    prepareService: CommentPrepareService,
-    topicPrepareService: TopicPrepareService,
-    commentService: CommentReadService,
-    ignoreListDao: IgnoreListDao,
-    ipBlockDao: IPBlockDao,
-    editHistoryService: EditHistoryService,
-    memoriesDao: MemoriesDao,
-    permissionService: TopicPermissionService,
-    moreLikeThisService: MoreLikeThisService,
-    topicTagService: TopicTagService,
-    msgbaseDao: MsgbaseDao,
-    textService: MessageTextService,
-    warningService: WarningService
+                       sectionService: SectionService,
+                       messageDao: TopicDao,
+                       prepareService: CommentPrepareService,
+                       topicPrepareService: TopicPrepareService,
+                       commentService: CommentReadService,
+                       ignoreListDao: IgnoreListDao,
+                       ipBlockDao: IpBlockDao,
+                       editHistoryService: EditHistoryService,
+                       memoriesDao: MemoriesDao,
+                       permissionService: TopicPermissionService,
+                       moreLikeThisService: MoreLikeThisService,
+                       topicTagService: TopicTagService,
+                       msgbaseDao: MsgbaseDao,
+                       textService: MessageTextService,
+                       warningService: WarningService
   ): TopicController = {
     new TopicController(
       sectionService,

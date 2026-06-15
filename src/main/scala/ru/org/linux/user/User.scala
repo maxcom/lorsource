@@ -108,7 +108,7 @@ case class User(
 }
 
 object User {
-  private val AnonymousLevelScore = 50
+  val AnonymousLevelScore = 50
 
   def fromResultSet(rs: ResultSet): User = {
     val id = rs.getInt("id")

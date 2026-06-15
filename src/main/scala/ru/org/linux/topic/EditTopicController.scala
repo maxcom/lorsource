@@ -14,10 +14,10 @@
  */
 package ru.org.linux.topic
 
-import org.apache.pekko.actor.typed.ActorRef
 import com.google.common.base.Strings
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.text.StringEscapeUtils
+import org.apache.pekko.actor.typed.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
@@ -32,11 +32,12 @@ import ru.org.linux.group.{GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
+import ru.org.linux.rights.IpBlockChecker
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
 import ru.org.linux.tag.{TagName, TagRef, TagService}
-import ru.org.linux.user.{User, UserErrorException, UserPermissionService, UserPropertyEditor, UserService}
+import ru.org.linux.user.{User, UserErrorException, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
@@ -49,10 +50,10 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
                           prepareService: TopicPrepareService, groupService: GroupService, pollDao: PollDao,
                           permissionService: GroupPermissionService, captcha: CaptchaService, msgbaseDao: MsgbaseDao,
                           editHistoryService: EditHistoryService, editTopicRequestValidator: EditTopicRequestValidator,
-                          ipBlockDao: IPBlockDao, tagService: TagService, userService: UserService,
+                          tagService: TagService, userService: UserService, ipBlockChecker: IpBlockChecker,
                           @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]) {
   @RequestMapping(value = Array("/commit.jsp"), method = Array(RequestMethod.GET))
-  def showCommitForm(@RequestParam("msgid") msgid: Int,
+  def showCommitForm(@RequestParam("msgid") msgid: Int, request: HttpServletRequest,
                      @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = topicService.getById(msgid)
 
@@ -70,16 +71,18 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       throw new UserErrorException("Раздел не премодерируемый")
     }
 
-    initForm(preparedTopic, form)
-    val mv = new ModelAndView("edit", prepareModel(preparedTopic).asJava)
+    ipBlockChecker.check(request.getRemoteAddr, currentUser.userOpt).checkOrThrowCtx(): captchaMode =>
+      initForm(preparedTopic, form)
 
-    mv.getModel.put("commit", true)
+      val mv = new ModelAndView("edit", prepareModel(preparedTopic, captchaMode).asJava)
 
-    mv
+      mv.getModel.put("commit", true)
+
+      mv
   }
 
   @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.GET))
-  def showEditForm(@RequestParam("msgid") msgid: Int,
+  def showEditForm(@RequestParam("msgid") msgid: Int, request: HttpServletRequest,
                    @ModelAttribute("form") form: EditTopicRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val message = topicService.getById(msgid)
     val preparedTopic = prepareService.prepareTopic(message)
@@ -88,11 +91,13 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       throw new AccessViolationException("это сообщение нельзя править")
     }
 
-    initForm(preparedTopic, form)
-    new ModelAndView("edit", prepareModel(preparedTopic).asJava)
+    ipBlockChecker.check(request.getRemoteAddr, currentUser.userOpt).checkOrThrowCtx(): captchaMode =>
+      initForm(preparedTopic, form)
+
+      new ModelAndView("edit", prepareModel(preparedTopic, captchaMode).asJava)
   }
 
-  private def prepareModel(preparedTopic: PreparedTopic)
+  private def prepareModel(preparedTopic: PreparedTopic, captchaMode: CaptchaMode)
                           (using currentUser: AuthorizedSession): mutable.HashMap[String, AnyRef] = {
     val params = mutable.HashMap[String, AnyRef]()
 
@@ -177,189 +182,183 @@ class EditTopicController(searchQueueSender: SearchQueueSender, topicService: To
       preparedTopic.additionalImages.size()))
   }
 
-  @ModelAttribute("ipBlockInfo")
-  def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
-
   @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.POST))
   @throws[Exception]
   def edit(request: HttpServletRequest,
            @RequestParam(value = "chgrp", required = false) changeGroupId: Integer,
-           @Valid @ModelAttribute("form") form: EditTopicRequest, errors: Errors,
-           @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
+           @Valid @ModelAttribute("form") form: EditTopicRequest, errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
     import form.topic
 
     val preparedTopic = prepareService.prepareTopic(topic)
 
-    val params = prepareModel(preparedTopic)
-
     val group = preparedTopic.group
     val user = currentUser.user
 
-    UserPermissionService.checkBlockIP(ipBlockInfo, errors, user)
+    ipBlockChecker.check(request.getRemoteAddr, currentUser.userOpt).checkOrErrorCtx(errors, CaptchaMode(false)): captchaMode =>
+      val params = prepareModel(preparedTopic, captchaMode)
 
-    val tagsEditable = permissionService.isTagsEditable(preparedTopic)
-    val editable = permissionService.isEditable(preparedTopic)
+      val tagsEditable = permissionService.isTagsEditable(preparedTopic)
+      val editable = permissionService.isEditable(preparedTopic)
 
-    if (!editable && !tagsEditable) {
-      throw new AccessViolationException("это сообщение нельзя править")
-    }
-
-    if (editable) {
-      val title = request.getParameter("title")
-      if (title == null || title.trim.isEmpty) {
-        throw new BadInputException("заголовок сообщения не может быть пустым")
-      }
-    }
-
-    val preview = request.getParameter("preview") != null
-    if (preview) {
-      params.put("info", "Предпросмотр")
-    }
-
-    val publish = request.getParameter("publish") != null
-
-    val commit = request.getParameter("commit") != null
-
-    if (commit) {
-      if (!permissionService.canCommit(topic)) {
-        throw new AccessViolationException("Not authorized")
+      if (!editable && !tagsEditable) {
+        throw new AccessViolationException("это сообщение нельзя править")
       }
 
-      if (topic.commited) {
-        errors.reject(null, "Сообщение уже подтверждено")
+      if (editable) {
+        val title = request.getParameter("title")
+        if (title == null || title.trim.isEmpty) {
+          throw new BadInputException("заголовок сообщения не может быть пустым")
+        }
       }
-    }
 
-    val canCommit = !topic.commited && preparedTopic.section.isPremoderated && permissionService.canCommit(topic)
+      val preview = request.getParameter("preview") != null
+      if (preview) {
+        params.put("info", "Предпросмотр")
+      }
 
-    params.put("commit", Boolean.box(canCommit))
+      val publish = request.getParameter("publish") != null
 
-    val newMsg = Topic.fromEditRequest(group, topic, form, publish)
+      val commit = request.getParameter("commit") != null
 
-    var modified = false
+      if (commit) {
+        if (!permissionService.canCommit(topic)) {
+          throw new AccessViolationException("Not authorized")
+        }
 
-    if (!(topic.title == newMsg.title)) {
-      modified = true
-    }
+        if (topic.commited) {
+          errors.reject(null, "Сообщение уже подтверждено")
+        }
+      }
 
-    val oldText = msgbaseDao.getMessageText(topic.id)
+      val canCommit = !topic.commited && preparedTopic.section.isPremoderated && permissionService.canCommit(topic)
 
-    if (form.msg != null) {
-      if (!(oldText.text == form.msg)) {
+      params.put("commit", Boolean.box(canCommit))
+
+      val newMsg = Topic.fromEditRequest(group, topic, form, publish)
+
+      var modified = false
+
+      if (!(topic.title == newMsg.title)) {
         modified = true
       }
-    }
 
-    if (topic.linktext == null) {
-      if (newMsg.linktext != null) {
-        modified = true
-      } else {
-        if (!(topic.linktext == newMsg.linktext)) modified = true
-      }
-    }
+      val oldText = msgbaseDao.getMessageText(topic.id)
 
-    if (group.linksAllowed) {
-      if (topic.url == null) {
-        if (newMsg.url != null) {
-          modified = true
-        } else if (!(topic.url == newMsg.url)) {
+      if (form.msg != null) {
+        if (!(oldText.text == form.msg)) {
           modified = true
         }
       }
-    }
 
-    val (imagePreview, additionalImagePreviews) =
-      topicService.processUploads(form, group, errors, preparedTopic.additionalImages.size(),
-        hasImage = preparedTopic.image != null)
+      if (topic.linktext == null) {
+        if (newMsg.linktext != null) {
+          modified = true
+        } else {
+          if (!(topic.linktext == newMsg.linktext)) modified = true
+        }
+      }
 
-    if (imagePreview.isDefined || additionalImagePreviews.nonEmpty) {
-      modified = true
-    }
-
-    if (!editable && modified) {
-      throw new AccessViolationException("нельзя править это сообщение, только теги")
-    }
-
-    if (form.minor != topic.minor && !permissionService.canCommit(topic)) {
-      errors.reject(null, "вы не можете менять статус новости")
-    }
-
-    var newTags: Option[Seq[String]] = None
-
-    if (form.tags != null) {
-      newTags = Some(TagName.parseAndSanitizeTags(form.tags)).filter(_.nonEmpty)
-
-      newTags.foreach { newTags =>
-        if (!permissionService.canCreateTag(preparedTopic.section)) {
-          val nonExistingTags = tagService.getNewTags(newTags)
-
-          if (nonExistingTags.nonEmpty) {
-            errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags) + ")")
+      if (group.linksAllowed) {
+        if (topic.url == null) {
+          if (newMsg.url != null) {
+            modified = true
+          } else if (!(topic.url == newMsg.url)) {
+            modified = true
           }
         }
       }
-    }
 
-    if (changeGroupId != null) {
-      if (topic.groupId != changeGroupId) {
-        val changeGroup = groupService.getGroup(changeGroupId)
-        if (changeGroup.sectionId != topic.sectionId) {
-          throw new AccessViolationException("Can't move topics between sections")
+      val (imagePreview, additionalImagePreviews) =
+        topicService.processUploads(form, group, errors, request.getRemoteAddr, preparedTopic.additionalImages.size(),
+          hasImage = preparedTopic.image != null)
+
+      if (imagePreview.isDefined || additionalImagePreviews.nonEmpty) {
+        modified = true
+      }
+
+      if (!editable && modified) {
+        throw new AccessViolationException("нельзя править это сообщение, только теги")
+      }
+
+      if (form.minor != topic.minor && !permissionService.canCommit(topic)) {
+        errors.reject(null, "вы не можете менять статус новости")
+      }
+
+      var newTags: Option[Seq[String]] = None
+
+      if (form.tags != null) {
+        newTags = Some(TagName.parseAndSanitizeTags(form.tags)).filter(_.nonEmpty)
+
+        newTags.foreach { newTags =>
+          if (!permissionService.canCreateTag(preparedTopic.section)) {
+            val nonExistingTags = tagService.getNewTags(newTags)
+
+            if (nonExistingTags.nonEmpty) {
+              errors.rejectValue("tags", null, "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags) + ")")
+            }
+          }
         }
       }
-    }
 
-    val newPoll: Option[Poll] = if (preparedTopic.section.isPollPostAllowed && form.poll != null) {
-      Some(buildNewPoll(topic, form))
-    } else {
-      None
-    }
+      if (changeGroupId != null) {
+        if (topic.groupId != changeGroupId) {
+          val changeGroup = groupService.getGroup(changeGroupId)
+          if (changeGroup.sectionId != topic.sectionId) {
+            throw new AccessViolationException("Can't move topics between sections")
+          }
+        }
+      }
 
-    val newText: MessageText = if (form.msg != null) {
-      MessageText.apply(form.msg, oldText.markup)
-    } else {
-      oldText
-    }
-
-    if (!preview && !errors.hasErrors && ipBlockInfo.captchaRequired) {
-      captcha.checkCaptcha(request, errors)
-    }
-
-    if (!preview && !errors.hasErrors) {
-      val editorBonus = if (form.editorBonus!=null) {
-        form.editorBonus.asScala.view.mapValues(_.toInt).toMap
+      val newPoll: Option[Poll] = if (preparedTopic.section.isPollPostAllowed && form.poll != null) {
+        Some(buildNewPoll(topic, form))
       } else {
-        Map.empty[User, Int]
+        None
       }
 
-      val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
-        Option[Integer](changeGroupId).map(_.toInt), form.bonus, newPoll.map(_.variants), form.multiselect,
-        editorBonus, imagePreview, additionalImagePreviews)
+      val newText: MessageText = if (form.msg != null) {
+        MessageText.apply(form.msg, oldText.markup)
+      } else {
+        oldText
+      }
 
-      if (changed || commit || publish) {
-        if (!newMsg.draft) {
-          searchQueueSender.updateMessage(newMsg.id, true)
-          RealtimeEventHub.notifyEvents(realtimeHubWS, users)
-        }
+      if !preview && !errors.hasErrors && captchaMode.required then
+        captcha.checkCaptcha(request, errors)
 
-        if (!publish || !preparedTopic.section.isPremoderated) {
-          return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build))
+      if (!preview && !errors.hasErrors) {
+        val editorBonus = if (form.editorBonus!=null) {
+          form.editorBonus.asScala.view.mapValues(_.toInt).toMap
         } else {
-          params.put("url", TopicLinkBuilder.baseLink(topic).forceLastmod.build)
-          return new ModelAndView("add-done-moderated", params.asJava)
+          Map.empty[User, Int]
         }
-      } else {
-        errors.reject(null, "Нет изменений")
+
+        val (changed, users) = topicService.updateAndCommit(newMsg, topic, user, newTags, newText, commit,
+          Option[Integer](changeGroupId).map(_.toInt), form.bonus, newPoll.map(_.variants), form.multiselect,
+          editorBonus, imagePreview, additionalImagePreviews)
+
+        if (changed || commit || publish) {
+          if (!newMsg.draft) {
+            searchQueueSender.updateMessage(newMsg.id, true)
+            RealtimeEventHub.notifyEvents(realtimeHubWS, users)
+          }
+
+          if (!publish || !preparedTopic.section.isPremoderated) {
+            return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build))
+          } else {
+            params.put("url", TopicLinkBuilder.baseLink(topic).forceLastmod.build)
+            return new ModelAndView("add-done-moderated", params.asJava)
+          }
+        } else {
+          errors.reject(null, "Нет изменений")
+        }
       }
-    }
 
-    params.put("newMsg", newMsg)
+      params.put("newMsg", newMsg)
 
-    params.put("newPreparedMessage",
-      prepareService.prepareTopicPreview(newMsg, newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
-        newPoll, newText, imagePreview, additionalImagePreviews))
+      params.put("newPreparedMessage",
+        prepareService.prepareTopicPreview(newMsg, newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
+          newPoll, newText, imagePreview, additionalImagePreviews))
 
-    new ModelAndView("edit", params.asJava)
+      new ModelAndView("edit", params.asJava)
   }
 
   private def buildNewPoll(message: Topic, form: EditTopicRequest) = {

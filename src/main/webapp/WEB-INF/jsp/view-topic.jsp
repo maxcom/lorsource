@@ -383,7 +383,7 @@
             topic="${message}"
             replyto="0"
             cancel="true"
-            ipBlockInfo="${ipBlockInfo}"
+            captchaMode="${captchaMode}"
             form_action_url="${form_action_url}"
             postscoreInfo="${preparedMessage.postscoreInfo}"
             lazyCaptcha="true"/>

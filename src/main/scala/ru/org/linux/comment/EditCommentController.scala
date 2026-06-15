@@ -21,8 +21,8 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.auth.{IPBlockDao, IPBlockInfo}
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, isSessionAuthorized}
+import ru.org.linux.auth.{CaptchaMode, IpBlockDao, IpBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
@@ -37,7 +37,7 @@ import javax.validation.Valid
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
-class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IPBlockDao,
+class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IpBlockDao,
                             topicPermissionService: TopicPermissionService, commentPrepareService: CommentPrepareService,
                             searchQueueSender: SearchQueueSender, textService: MessageTextService,
                             commentReadService: CommentReadService, ignoreListDao: IgnoreListDao) {
@@ -48,7 +48,11 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   def initBinder(binder: WebDataBinder): Unit = commentService.initBinder(binder)
 
   @ModelAttribute("ipBlockInfo")
-  def loadIPBlock(request: HttpServletRequest): IPBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
+  def loadIPBlock(request: HttpServletRequest): IpBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
+
+  @ModelAttribute("captchaMode")
+  def captchaMode(request: HttpServletRequest): CaptchaMode =
+    CaptchaMode(!isSessionAuthorized || ipBlockDao.getBlockInfo(request.getRemoteAddr).captchaRequired)
 
   /**
     * Показ формы изменения комментария.
@@ -99,7 +103,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   @CSRFNoAuto
   def editCommentPostHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest, errors: Errors,
                              request: HttpServletRequest,
-                             @ModelAttribute("ipBlockInfo") ipBlockInfo: IPBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
+                             @ModelAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val user = currentUser.user
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, editMode = true, sessionAuthorized = true)
 

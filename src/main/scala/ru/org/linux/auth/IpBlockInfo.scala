@@ -22,7 +22,7 @@ import scala.beans.BeanProperty
 import scala.beans.BooleanBeanProperty
 import scalikejdbc.WrappedResultSet
 
-case class IPBlockInfo(
+case class IpBlockInfo(
   @BooleanBeanProperty initialized: Boolean,
   @BeanProperty ip: String,
   @BeanProperty @Nullable reason: String,
@@ -37,8 +37,8 @@ case class IPBlockInfo(
   def isAllowRegisteredPosting: Boolean = !isBlocked || allowPosting
 }
 
-object IPBlockInfo {
-  def apply(ip: String): IPBlockInfo = IPBlockInfo(
+object IpBlockInfo {
+  def apply(ip: String): IpBlockInfo = IpBlockInfo(
     initialized = false,
     ip = ip,
     reason = null,
@@ -48,7 +48,7 @@ object IPBlockInfo {
     allowPosting = false,
     captchaRequired = false)
 
-  def fromWrappedResultSet(rs: WrappedResultSet): IPBlockInfo = IPBlockInfo(
+  def fromWrappedResultSet(rs: WrappedResultSet): IpBlockInfo = IpBlockInfo(
     initialized = true,
     ip = rs.string("ip"),
     reason = rs.stringOpt("reason").orNull,

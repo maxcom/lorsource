@@ -14,6 +14,7 @@
  */
 package ru.org.linux.topic
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -36,7 +37,8 @@ class UncommitedTopicsController(
   @RequestMapping
   def viewAll(
       @RequestParam(value = "section", required = false, defaultValue = "0")
-      sectionId: Int): ModelAndView =
+      sectionId: Int,
+      request: HttpServletRequest): ModelAndView =
     MaybeAuthorized { implicit session =>
       val modelAndView = new ModelAndView("view-all")
 
@@ -49,7 +51,7 @@ class UncommitedTopicsController(
       section.foreach { section =>
         modelAndView.addObject("section", section)
 
-        val postingCheck = topicPostingChecker.checkTopicPosting(section)
+        val postingCheck = topicPostingChecker.checkTopicPosting(section, request.getRemoteAddr)
         
         if postingCheck.permitted then
           modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))

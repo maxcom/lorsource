@@ -23,7 +23,7 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.auth.IPBlockDao
+import ru.org.linux.auth.IpBlockDao
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.group.{GroupDao, GroupService}
@@ -103,7 +103,7 @@ class TopicDaoIntegrationTestConfiguration {
   def imageDao(sectionService: SectionService, springDB: SpringDB) = new ImageDao(sectionService, springDB)
 
   @Bean
-  def ipBlockDao(springDB: SpringDB) = new IPBlockDao(springDB)
+  def ipBlockDao(springDB: SpringDB) = new IpBlockDao(springDB)
 
   @Bean
   def imageService = Mockito.mock(classOf[ImageService])

@@ -25,8 +25,8 @@ import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, EditHistoryService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
+import ru.org.linux.rights.IpBlockChecker
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.*
@@ -34,7 +34,6 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
 import scala.collection.mutable
-import scala.jdk.OptionConverters.RichOption
 
 object CommentCreateService {
   /**
@@ -112,7 +111,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * @param request        данные запроса от web-клиента
    * @param errors         обработчик ошибок ввода для формы
    */
-  def checkPostData(commentRequest: CommentRequest, user: User, ipBlockInfo: IPBlockInfo, request: HttpServletRequest,
+  def checkPostData(commentRequest: CommentRequest, user: User, ipBlockInfo: IpBlockInfo, request: HttpServletRequest,
                     errors: Errors, editMode: Boolean, sessionAuthorized: Boolean): Unit = {
     if (commentRequest.getMsg == null) {
       errors.rejectValue("msg", null, "комментарий не задан")
@@ -128,7 +127,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
     }
 
     UserPermissionService.checkFrozen(user, errors)
-    UserPermissionService.checkBlockIP(ipBlockInfo, errors, user)
+    IpBlockChecker.checkBlockIP(ipBlockInfo, errors, user)
 
     if (!commentRequest.isPreviewMode && !errors.hasErrors && !editMode) {
       floodProtector.checkRateLimit(FloodProtector.AddComment, request.getRemoteAddr, user, errors)

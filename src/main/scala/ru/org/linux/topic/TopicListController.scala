@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic
 
+import jakarta.servlet.http.HttpServletRequest
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -88,7 +89,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
                           groupService: GroupService, topicPostingChecker: TopicPostingChecker,
                           topicService: TopicService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListForm,
-                                    group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
+                                     group: Option[Group], addr: String): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
 
     checkRequestConditions(section, group)
@@ -134,9 +135,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val postingCheck = 
       group match
         case Some(group) =>
-          topicPostingChecker.checkTopicPosting(group)
+          topicPostingChecker.checkTopicPosting(group, addr)
         case None =>
-          topicPostingChecker.checkTopicPosting(section)  
+          topicPostingChecker.checkTopicPosting(section, addr)  
 
     val addUrl = group match {
       case Some(group) if postingCheck.permitted =>
@@ -165,12 +166,13 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
   @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
   def topics(@PathVariable("section") sectionName: String,
-             @RequestParam(value="offset", defaultValue = "0") offset: Int): CompletionStage[ModelAndView] = {
+             @RequestParam(value="offset", defaultValue = "0") offset: Int,
+             request: HttpServletRequest): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
 
     val topicListForm = TopicListForm.ofOffset(offset)
 
-    mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
+    mainTopicsFeedHandler(section, topicListForm, None, request.getRemoteAddr).map { modelAndView =>
       modelAndView.addObject("url", section.getNewsViewerLink)
       modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}")
     }.asJava
@@ -183,12 +185,13 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
   @RequestMapping(path = Array("/forum/lenta"))
   def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int,
-            @RequestParam(value = "filter", required = false) filter: String): CompletionStage[ModelAndView] = {
+            @RequestParam(value = "filter", required = false) filter: String,
+            request: HttpServletRequest): CompletionStage[ModelAndView] = {
     val section = sectionService.getSection(Section.Forum)
 
     val topicListForm = TopicListForm.ofOffset(offset).copy(filter = parseFilter(filter))
 
-    mainTopicsFeedHandler(section, topicListForm, None).map { modelAndView =>
+    mainTopicsFeedHandler(section, topicListForm, None, request.getRemoteAddr).map { modelAndView =>
       if (filter==null) {
         modelAndView.addObject("url", section.getNewsViewerLink)
         modelAndView.addObject("rssLink", s"section-rss.jsp?section=${section.id}")
@@ -202,26 +205,28 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
   def topicsByGroup(@PathVariable("section") sectionName: String,
                     @RequestParam(value="offset", defaultValue = "0") offset: Int,
-                    @PathVariable("group") groupName: String): CompletionStage[ModelAndView] = {
+                    @PathVariable("group") groupName: String,
+                    request: HttpServletRequest): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
 
     val group = groupService.getGroup(section, groupName)
 
     val topicListForm = TopicListForm.ofOffset(offset)
 
-    mainTopicsFeedHandler(section, topicListForm, Some(group)).map { modelAndView =>
+    mainTopicsFeedHandler(section, topicListForm, Some(group), request.getRemoteAddr).map { modelAndView =>
       modelAndView.addObject("url", group.getUrl)
     }.asJava
   }
 
   @RequestMapping(path = Array("/{section}/archive/{year:\\d{4}}/{month}"))
-  def sectionArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int): CompletionStage[ModelAndView] = {
+  def sectionArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int,
+                     request: HttpServletRequest): CompletionStage[ModelAndView] = {
     val sectionObject = sectionService.getSectionByName(section)
 
     (if (sectionObject.isPremoderated) {
       val topicListForm = TopicListForm.orYearMonth(year, month)
 
-      mainTopicsFeedHandler(sectionObject, topicListForm, None)
+      mainTopicsFeedHandler(sectionObject, topicListForm, None, request.getRemoteAddr)
     } else {
       Future.successful(new ModelAndView(new RedirectView(sectionObject.getSectionLink)))
     }).asJava
@@ -282,7 +287,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     if (lastModified.exists(webRequest.checkNotModified)) {
       null
     } else {
-      modelAndView.addObject("messages", prepareService.prepareTopicForRSS(messages.toSeq).asJava)
+      modelAndView.addObject("messages", prepareService.prepareTopicForRSS(messages).asJava)
 
       modelAndView
     }

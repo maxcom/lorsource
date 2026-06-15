@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -76,7 +77,8 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
     params = Array("section"))
   def tagFeed(@PathVariable tag: String,
                @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
-               @RequestParam(value = "section", defaultValue = "0") sectionId: Int
+               @RequestParam(value = "section", defaultValue = "0") sectionId: Int,
+               request: HttpServletRequest
   ): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     TagName.checkTag(tag)
 
@@ -142,7 +144,7 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
           modelAndView.addObject("prevLink", TagTopicListController.buildTagUri(tag, sectionId, offset - pageSize))
         }
 
-        val postingCheck = topicPostingChecker.checkTopicPosting(section)
+        val postingCheck = topicPostingChecker.checkTopicPosting(section, request.getRemoteAddr)
         
         if postingCheck.permitted then
           modelAndView.addObject("addUrl", AddTopicController.getAddUrl(section, tag))

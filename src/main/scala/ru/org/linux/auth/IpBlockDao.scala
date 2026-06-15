@@ -22,9 +22,8 @@ import scalikejdbc.*
 import java.time.OffsetDateTime
 
 @Repository
-class IPBlockDao(springDB: SpringDB):
-
-  def getBlockInfo(addr: String): IPBlockInfo = springDB.run(getBlockInfoInternal(addr))
+class IpBlockDao(springDB: SpringDB):
+  def getBlockInfo(addr: String): IpBlockInfo = springDB.run(getBlockInfoInternal(addr))
 
   def blockIP(
       ip: String,
@@ -50,13 +49,13 @@ class IPBlockDao(springDB: SpringDB):
 
   def getRecentlyUnBlocked: Seq[String] = springDB.run(getRecentlyUnBlockedInternal)
 
-  private def getBlockInfoInternal(addr: String)(using DBSession): IPBlockInfo =
+  private def getBlockInfoInternal(addr: String)(using DBSession): IpBlockInfo =
     sql"""SELECT ip, reason, ban_date, date, mod_id, allow_posting, captcha_required
           FROM b_ips WHERE ip = $addr::inet"""
-      .map(IPBlockInfo.fromWrappedResultSet)
+      .map(IpBlockInfo.fromWrappedResultSet)
       .single
       .apply()
-      .getOrElse(IPBlockInfo(addr))
+      .getOrElse(IpBlockInfo(addr))
 
   private def getRecentlyBlockedInternal(using DBSession): Seq[String] =
     sql"""SELECT ip FROM b_ips
@@ -70,4 +69,4 @@ class IPBlockDao(springDB: SpringDB):
           AND ban_date > CURRENT_TIMESTAMP - interval '3 days' AND mod_id != 0
           ORDER BY ban_date""".map(rs => rs.string("ip")).list.apply()
 
-end IPBlockDao
+end IpBlockDao

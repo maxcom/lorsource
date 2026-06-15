@@ -29,10 +29,10 @@ import javax.sql.DataSource
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(classes = Array(classOf[IPBlockDaoIntegrationTestConfiguration])) @Transactional
-class IPBlockDaoIntegrationTest:
+class IpBlockDaoIntegrationTest:
 
   @Autowired
-  var ipBlockDao: IPBlockDao = scala.compiletime.uninitialized
+  var ipBlockDao: IpBlockDao = scala.compiletime.uninitialized
 
   @Test
   def testGetBlockInfoNotBlocked(): Unit =
@@ -111,12 +111,12 @@ class IPBlockDaoIntegrationTest:
     val unblocked = ipBlockDao.getRecentlyUnBlocked
     assertTrue("Should contain recently unblocked IP", unblocked.contains("10.0.0.6"))
 
-end IPBlockDaoIntegrationTest
+end IpBlockDaoIntegrationTest
 
 @Configuration @ImportResource(Array("classpath:database.xml"))
 class IPBlockDaoIntegrationTestConfiguration:
 
   @Bean
-  def ipBlockDao(springDB: SpringDB) = new IPBlockDao(springDB)
+  def ipBlockDao(springDB: SpringDB) = new IpBlockDao(springDB)
   
 end IPBlockDaoIntegrationTestConfiguration

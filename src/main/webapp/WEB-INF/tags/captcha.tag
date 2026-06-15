@@ -7,7 +7,7 @@
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
+<%@ attribute name="captchaMode" required="false" type="ru.org.linux.auth.CaptchaMode" %>
 <%@ attribute name="lazy" required="false" type="java.lang.Boolean" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
@@ -27,7 +27,7 @@
 <%
   Template tmpl = Template.getTemplate();
 
-  if (!tmpl.isSessionAuthorized() || ipBlockInfo != null && ipBlockInfo.isCaptchaRequired()) {
+  if (captchaMode.isRequired()) {
     WebApplicationContext ctx=RequestContextUtils.findWebApplicationContext(request);
 
     String key = ((SiteConfig) ctx.getBean("siteConfig")).getCaptchaPublicKey();

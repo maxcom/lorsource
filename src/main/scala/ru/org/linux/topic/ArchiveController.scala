@@ -14,80 +14,83 @@
  */
 package ru.org.linux.topic
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.group.{GroupNotFoundException, GroupPermissionService, GroupService}
+import ru.org.linux.group.{GroupNotFoundException, GroupService}
 import ru.org.linux.rights.TopicPostingChecker
-import ru.org.linux.section.Section
-import ru.org.linux.section.SectionService
+import ru.org.linux.section.{Section, SectionService}
 
 @Controller
-class ArchiveController(sectionService: SectionService, groupService: GroupService, archiveDao: ArchiveDao,
-                        topicPostingChecker: TopicPostingChecker, topicService: TopicService) {
-  private def archiveList(sectionid: Int,
-                          groupName: Option[String] = None) = MaybeAuthorized { implicit currentUserOpt =>
-    val mv = new ModelAndView("view-news-archive")
+class ArchiveController(
+    sectionService: SectionService,
+    groupService: GroupService,
+    archiveDao: ArchiveDao,
+    topicPostingChecker: TopicPostingChecker,
+    topicService: TopicService):
+  private def archiveList(sectionid: Int, groupName: Option[String] = None, addr: String) =
+    MaybeAuthorized { implicit currentUserOpt =>
+      val mv = new ModelAndView("view-news-archive")
 
-    val section = sectionService.getSection(sectionid)
+      val section = sectionService.getSection(sectionid)
 
-    mv.getModel.put("section", section)
+      mv.getModel.put("section", section)
 
-    val group = groupName.map(name => groupService.getGroup(section, name))
+      val group = groupName.map(name => groupService.getGroup(section, name))
 
-    mv.getModel.put("group", group.orNull)
+      mv.getModel.put("group", group.orNull)
 
-    val items = archiveDao.getArchiveStats(section, group)
+      val items = archiveDao.getArchiveStats(section, group)
 
-    mv.getModel.put("items", items)
+      mv.getModel.put("items", items)
 
-    val postingCheck =
-      group match
-        case Some(group) =>
-          topicPostingChecker.checkTopicPosting(group)
-        case None =>
-          topicPostingChecker.checkTopicPosting(section)
+      val postingCheck =
+        group match
+          case Some(group) =>
+            topicPostingChecker.checkTopicPosting(group, addr)
+          case None =>
+            topicPostingChecker.checkTopicPosting(section, addr)
 
-    val addUrl = group match {
-      case Some(group) if postingCheck.permitted =>
-        AddTopicController.getAddUrl(group)
-      case None if postingCheck.permitted =>
-        AddTopicController.getAddUrl(section)
-      case _ =>
-        ""
+      val addUrl =
+        group match
+          case Some(group) if postingCheck.permitted =>
+            AddTopicController.getAddUrl(group)
+          case None if postingCheck.permitted =>
+            AddTopicController.getAddUrl(section)
+          case _ =>
+            ""
+
+      mv.getModel.put("addUrl", addUrl)
+      mv.getModel.put("addUrlReason", postingCheck.reason)
+
+      if section.isPremoderated then
+        mv.getModel.put("uncommitedCount", topicService.getUncommitedCount(section))
+
+      mv
     }
-
-    mv.getModel.put("addUrl", addUrl)
-    mv.getModel.put("addUrlReason", postingCheck.reason)
-
-    if (section.isPremoderated) {
-      mv.getModel.put("uncommitedCount", topicService.getUncommitedCount(section))
-    }
-
-    mv
-  }
 
   @RequestMapping(path = Array("/gallery/archive"))
-  def galleryArchive: ModelAndView = archiveList(Section.Gallery)
+  def galleryArchive(request: HttpServletRequest): ModelAndView =
+    archiveList(Section.Gallery, addr = request.getRemoteAddr)
 
   @RequestMapping(path = Array("/news/archive"))
-  def newsArchive: ModelAndView = archiveList(Section.News)
+  def newsArchive(request: HttpServletRequest): ModelAndView = archiveList(Section.News, addr = request.getRemoteAddr)
 
   @RequestMapping(path = Array("/polls/archive"))
-  def pollsArchive: ModelAndView = archiveList(Section.Polls)
+  def pollsArchive(request: HttpServletRequest): ModelAndView = archiveList(Section.Polls, addr = request.getRemoteAddr)
 
   @RequestMapping(path = Array("/articles/archive"))
-  def articlesArchive: ModelAndView = archiveList(Section.Articles)
+  def articlesArchive(request: HttpServletRequest): ModelAndView =
+    archiveList(Section.Articles, addr = request.getRemoteAddr)
 
   @RequestMapping(path = Array("/forum/{group}/archive"))
-  def forumArchive(@PathVariable group: String): ModelAndView = archiveList(Section.Forum, Some(group))
+  def forumArchive(
+      @PathVariable
+      group: String,
+      request: HttpServletRequest): ModelAndView = archiveList(Section.Forum, Some(group), addr = request.getRemoteAddr)
 
-  @ExceptionHandler(Array(classOf[GroupNotFoundException]))
-  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(Array(classOf[GroupNotFoundException])) @ResponseStatus(HttpStatus.NOT_FOUND)
   def handleNotFoundException = new ModelAndView("errors/code404")
-}

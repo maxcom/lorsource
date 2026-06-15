@@ -24,7 +24,7 @@ import sttp.client4.*
 import java.time.OffsetDateTime
 
 @Component
-class BlackListUpdater(@Qualifier("directBackend") httpClient: SyncBackend, dao: IPBlockDao,
+class BlackListUpdater(@Qualifier("directBackend") httpClient: SyncBackend, dao: IpBlockDao,
                        emailDomainsBlockDao: EmailDomainsBlockDao) extends StrictLogging {
   @Scheduled(fixedDelay = 60 * 60 * 1000, initialDelay = 30 * 60 * 1000)
   def updateTor(): Unit = {
