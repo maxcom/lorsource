@@ -42,6 +42,7 @@ import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
+import org.springframework.security.crypto.password.PasswordEncoder
 import ru.org.linux.user.{User, UserPermissionService, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.markdown.MarkdownFormatter
@@ -126,7 +127,8 @@ class AddTopicController(
     groupService: GroupService,
     dupeProtector: FloodProtector,
     servletContext: ServletContext,
-    topicPostingChecker: TopicPostingChecker):
+    topicPostingChecker: TopicPostingChecker,
+    passwordEncoder: PasswordEncoder):
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(
       @Valid @ModelAttribute("form")
@@ -186,7 +188,7 @@ class AddTopicController(
 
       val params = prepareModel(Some(group), section)(using sessionUserOpt).to(mutable.HashMap)
 
-      val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)
+      val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors)(using passwordEncoder)
       val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
       val postingCheck = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)(using postingUser)

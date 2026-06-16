@@ -26,6 +26,8 @@ import org.opensearch.testcontainers.OpenSearchContainer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.*
 import org.springframework.stereotype.{Repository, Service}
+import org.springframework.security.crypto.password.PasswordEncoder
+import ru.org.linux.auth.PasswordEncoderImpl
 import org.springframework.test.context.ContextConfiguration
 import munit.FunSuite
 import ru.org.linux.PekkoConfiguration
@@ -63,6 +65,9 @@ class OpenSearchIndexServiceIntegrationTest extends FunSuite with SpringTestSupp
   includeFilters = Array(
     new ComponentScan.Filter(`type` = FilterType.ANNOTATION, value = Array(classOf[Service], classOf[Repository]))))
 class SearchIntegrationTestConfiguration {
+  @Bean
+  def passwordEncoder: PasswordEncoder = new PasswordEncoderImpl
+
   @Bean
   def openSearchContainer: OpenSearchContainer[Nothing] = {
     val container = new OpenSearchContainer("opensearchproject/opensearch:3.5.0")

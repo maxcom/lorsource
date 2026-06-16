@@ -35,6 +35,7 @@ import ru.org.linux.msgbase.MessageText
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
+import org.springframework.security.crypto.password.PasswordEncoder
 import ru.org.linux.user.UserService
 import ru.org.linux.util.ServletParameterException
 
@@ -46,7 +47,7 @@ class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: Commen
                            commentService: CommentCreateService, topicPermissionService: TopicPermissionService,
                            topicPrepareService: TopicPrepareService, searchQueueSender: SearchQueueSender,
                            @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-                           textService: MessageTextService, userService: UserService) {
+                           textService: MessageTextService, userService: UserService, passwordEncoder: PasswordEncoder) {
   /**
     * Показ формы добавления ответа на комментарий.
     */
@@ -89,7 +90,7 @@ class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: Commen
   @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors)(using passwordEncoder)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
@@ -135,7 +136,7 @@ class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: Commen
   @ResponseBody
   def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                      @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): Json = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors)(using passwordEncoder)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,

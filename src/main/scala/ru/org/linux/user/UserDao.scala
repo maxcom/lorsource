@@ -16,8 +16,6 @@
 package ru.org.linux.user
 
 import com.typesafe.scalalogging.StrictLogging
-import org.jasypt.util.password.BasicPasswordEncryptor
-import org.jasypt.util.password.PasswordEncryptor
 import org.springframework.stereotype.Repository
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
@@ -179,10 +177,11 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     if user.corrector then
       sql"UPDATE users SET corrector='f' WHERE id=${user.id}".update.apply()
 
-  def setPassword(user: User, password: String)(using Transaction): Unit =
-    val encryptor: PasswordEncryptor = new BasicPasswordEncryptor()
-    val encryptedPassword = encryptor.encryptPassword(password)
-    sql"UPDATE users SET passwd=${encryptedPassword}, lostpwd = 'epoch' WHERE id=${user.id}".update.apply()
+  def setPassword(user: User, encodedPassword: String)(using Transaction): Unit =
+    sql"UPDATE users SET passwd=${encodedPassword}, lostpwd = 'epoch' WHERE id=${user.id}".update.apply()
+
+  def updatePasswordHash(user: User, encodedPassword: String)(using Transaction): Unit =
+    sql"UPDATE users SET passwd=${encodedPassword} WHERE id=${user.id}".update.apply()
 
   def updateResetDate(user: User, now: Timestamp)(using Transaction): Unit =
     sql"UPDATE users SET lostpwd=${now} WHERE id=${user.id}".update.apply()
@@ -270,15 +269,14 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
   def setNewEmail(user: User, newEmail: String)(using Transaction): Unit =
     sql"UPDATE users SET new_email=${newEmail} WHERE id=${user.id}".update.apply()
 
-  def createUser(name: String, nick: String, password: String, url: String, mail: InternetAddress, town: String)(using
+  def createUser(name: String, nick: String, encodedPassword: String, url: String, mail: InternetAddress, town: String)(using
       Transaction): Int =
-    val encryptor: PasswordEncryptor = new BasicPasswordEncryptor()
     val fixedUrl = Option(url).map(URLUtil.fixURL).orNull
 
     val userid = sql"select nextval('s_uid') as userid".map(rs => rs.int("userid")).single.apply().get
     sql"""INSERT INTO users
           (id, name, nick, passwd, url, email, town, score, max_score, regdate, userinfo_markup)
-          VALUES (${userid}, ${name}, ${nick}, ${encryptor.encryptPassword(password)}, ${fixedUrl}, ${mail
+          VALUES (${userid}, ${name}, ${nick}, ${encodedPassword}, ${fixedUrl}, ${mail
         .getAddress}, ${town}, 45, 45, current_timestamp, ${Profile.DEFAULT.formatMode.id})""".update.apply()
     userid
 

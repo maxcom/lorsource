@@ -60,7 +60,7 @@ class DeregisterController(userService: UserService, captcha: CaptchaService) {
 
     import currentUser.user
 
-    if (!UserService.matchPassword(user, form.password)) {
+    if (!userService.matchPassword(user, form.password)) {
       errors.rejectValue("password", null, "Неверный пароль")
     }
 

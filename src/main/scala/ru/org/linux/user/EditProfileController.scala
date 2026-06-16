@@ -162,7 +162,7 @@ class EditProfileController(
 
       if Strings.isNullOrEmpty(form.getOldpass) then
         errors.rejectValue("oldpass", null, "Для изменения регистрации нужен ваш пароль")
-      else if !UserService.matchPassword(user, form.getOldpass) then
+      else if !userService.matchPassword(user, form.getOldpass) then
         errors.rejectValue("oldpass", null, "Неверный пароль")
 
       val newEmail = mail.flatMap { mail =>

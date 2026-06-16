@@ -17,7 +17,9 @@ package ru.org.linux.user
 
 import org.mockito.Mockito.mock
 import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.transaction.PlatformTransactionManager
+import ru.org.linux.auth.PasswordEncoderImpl
 import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.spring.SiteConfig
@@ -31,6 +33,9 @@ class SimpleIntegrationTestConfiguration:
     SpringDB(dataSource, transactionManager)
 
   @Bean
+  def passwordEncoder: PasswordEncoder = new PasswordEncoderImpl
+
+  @Bean
   def userTagDao(springDB: SpringDB): UserTagDao = UserTagDao(springDB)
 
   @Bean
@@ -40,7 +45,8 @@ class SimpleIntegrationTestConfiguration:
   def userService(
       userDao: UserDao,
       userLogDao: UserLogDao,
-      springDB: SpringDB): UserService =
+      springDB: SpringDB,
+      passwordEncoder: PasswordEncoder): UserService =
     UserService(
       siteConfig = mock(classOf[SiteConfig]),
       userDao = userDao,
@@ -49,7 +55,8 @@ class SimpleIntegrationTestConfiguration:
       userLogDao = userLogDao,
       userAgentDao = mock(classOf[UserAgentDao]),
       profileDao = mock(classOf[ProfileDao]),
-      springDB = springDB
+      springDB = springDB,
+      passwordEncoder = passwordEncoder
     )
 
   @Bean

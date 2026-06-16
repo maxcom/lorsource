@@ -55,10 +55,15 @@ http://www.springframework.org/schema/security/spring-security-6.5.xsd">
 
     <!-- <debug/> -->
     <authentication-manager alias="authenticationManager">
-        <authentication-provider user-service-ref="userDetailsServiceImpl">
-            <password-encoder ref="passwordEncoderImpl"/>
-        </authentication-provider>
+        <authentication-provider ref="daoAuthenticationProvider"/>
     </authentication-manager>
+
+    <beans:bean id="daoAuthenticationProvider"
+                class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+        <beans:constructor-arg ref="userDetailsServiceImpl"/>
+        <beans:property name="passwordEncoder" ref="passwordEncoderImpl"/>
+        <beans:property name="userDetailsPasswordService" ref="userDetailsServiceImpl"/>
+    </beans:bean>
 
     <beans:bean id="rememberMeServices"
                 class="ru.org.linux.auth.GenerationBasedTokenRememberMeServices">

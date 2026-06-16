@@ -17,7 +17,9 @@ package ru.org.linux.auth
 import org.springframework.dao.DataAccessException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UserDetailsPasswordService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 import ru.org.linux.user.*
@@ -49,7 +51,7 @@ object UserDetailsServiceImpl {
 }
 
 @Component
-class UserDetailsServiceImpl(userService: UserService) extends UserDetailsService {
+class UserDetailsServiceImpl(userService: UserService) extends UserDetailsService with UserDetailsPasswordService {
   @throws[UsernameNotFoundException]
   @throws[DataAccessException]
   override def loadUserByUsername(username: String): UserDetailsImpl = {
@@ -65,5 +67,12 @@ class UserDetailsServiceImpl(userService: UserService) extends UserDetailsServic
     }
 
     new UserDetailsImpl(user, UserDetailsServiceImpl.retrieveUserAuthorities(user).asJava, userService.getProfile(user))
+  }
+
+  override def updatePassword(user: UserDetails, newPassword: String): UserDetails = {
+    val userDetails = user.asInstanceOf[UserDetailsImpl]
+    userService.updateEncodedPassword(userDetails.getUser, newPassword)
+    val refreshed = userService.getUser(userDetails.getUser.nick)
+    new UserDetailsImpl(refreshed, UserDetailsServiceImpl.retrieveUserAuthorities(refreshed).asJava, userService.getProfile(refreshed))
   }
 }

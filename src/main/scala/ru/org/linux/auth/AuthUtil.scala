@@ -16,6 +16,7 @@ package ru.org.linux.auth
 
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.validation.Errors
 import ru.org.linux.user.{Profile, User, UserService}
 
@@ -195,7 +196,7 @@ object AuthUtil {
     AuthorizedOnly(f)
   }
 
-  def postingUser(session: AnySession, formUser: Option[User], formPassword: Option[String], errors: Errors): AnySession = {
+  def postingUser(session: AnySession, formUser: Option[User], formPassword: Option[String], errors: Errors)(using passwordEncoder: PasswordEncoder): AnySession = {
     if (session.authorized) {
       session
     } else {
@@ -208,7 +209,7 @@ object AuthUtil {
           if (formUser.blocked || !formUser.activated) {
             errors.rejectValue("user", null, s"Пользователь \"${formUser.nick}\" заблокирован или не активирован")
             NonAuthorizedSession
-          } else if (!(formUser.anonymous && formPassword.get.isEmpty) && !UserService.matchPassword(formUser, formPassword.get)) {
+          } else if (!(formUser.anonymous && formPassword.get.isEmpty) && !passwordEncoder.matches(formPassword.get, formUser.password)) {
             errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.nick}\" задан неверно!")
             NonAuthorizedSession
           } else {

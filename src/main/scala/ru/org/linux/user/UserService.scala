@@ -16,8 +16,7 @@ package ru.org.linux.user
 
 import com.github.benmanes.caffeine.cache.{Caffeine, LoadingCache}
 import com.typesafe.scalalogging.StrictLogging
-import org.jasypt.exceptions.EncryptionOperationNotPossibleException
-import org.jasypt.util.password.BasicPasswordEncryptor
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.markup.MarkupType
@@ -53,23 +52,12 @@ object UserService {
   private val UserCacheSize = 5000
 
   val CorrectorScore = 200
-
-  private val UserPasswordEncryptor = new BasicPasswordEncryptor
-
-  def matchPassword(user: User, password: String): Boolean = {
-    try {
-      UserPasswordEncryptor.checkPassword(password, user.password)
-    } catch {
-      case _: EncryptionOperationNotPossibleException =>
-        false
-    }
-  }
 }
 
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
-                  profileDao: ProfileDao, springDB: SpringDB)
+                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
+                   profileDao: ProfileDao, springDB: SpringDB, passwordEncoder: PasswordEncoder)
     extends StrictLogging {
   private val nameToIdCache: LoadingCache[String, Int] =
     Caffeine.newBuilder().maximumSize(UserService.NameCacheSize).build(
@@ -83,6 +71,15 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     Caffeine.newBuilder().maximumSize(UserService.UserCacheSize).expireAfterWrite(5, TimeUnit.MINUTES).build(
       (id: Int) => userDao.getUser(id)
     )
+
+  def matchPassword(user: User, password: String): Boolean =
+    passwordEncoder.matches(password, user.password)
+
+  def updateEncodedPassword(user: User, encodedPassword: String): Unit =
+    springDB.localTx {
+      userDao.updatePasswordHash(user, encodedPassword)
+    }
+    idToUserCache.invalidate(user.id)
 
   @throws(classOf[UserErrorException])
   @throws(classOf[IOException])
@@ -260,7 +257,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def createUser(nick: String, password: String, mail: InternetAddress, ip: String,
                  userAgent: Option[String], language: Option[String]): Int = {
     val result = springDB.localTx {
-      val newUserId = userDao.createUser("", nick, password, null, mail, null)
+      val newUserId = userDao.createUser("", nick, passwordEncoder.encode(password), null, mail, null)
       
       val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
 
@@ -350,7 +347,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
                         ip: String): Unit = {
     springDB.localTx {
       password.foreach { password =>
-        userDao.setPassword(user, password)
+        userDao.setPassword(user, passwordEncoder.encode(password))
         userLogDao.logSetPassword(user, ip)
       }
 
@@ -475,14 +472,14 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   def resetPassword(user: User): String = springDB.localTx {
     val newPassword = StringUtil.generatePassword
 
-    userDao.setPassword(user, newPassword)
+    userDao.setPassword(user, passwordEncoder.encode(newPassword))
     userLogDao.logResetPassword(user, user)
 
     newPassword
   }
 
   def resetPassword(user: User, moderator: User): Unit = springDB.localTx {
-    userDao.setPassword(user, StringUtil.generatePassword)
+    userDao.setPassword(user, passwordEncoder.encode(StringUtil.generatePassword))
     userLogDao.logResetPassword(user, moderator)
   }
 

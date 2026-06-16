@@ -35,6 +35,8 @@ import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDaoIntegrationTest.*
 import ru.org.linux.user.{IgnoreListDao, ProfileDao, UserDao, UserInvitesDao, UserLogDao, UserService}
+import org.springframework.security.crypto.password.PasswordEncoder
+import ru.org.linux.auth.PasswordEncoderImpl
 import ru.org.linux.util.bbcode.LorCodeService
 
 
@@ -79,6 +81,9 @@ object TopicDaoIntegrationTest {
 @ImportResource (Array ("classpath:database.xml", "classpath:common.xml") )
 class TopicDaoIntegrationTestConfiguration {
   @Bean
+  def passwordEncoder: PasswordEncoder = new PasswordEncoderImpl
+
+  @Bean
   def groupDao(springDB: SpringDB) = new GroupDao(springDB)
 
   @Bean
@@ -116,11 +121,11 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
-                  springDB: SpringDB, profileDao: ProfileDao) =
+                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
+                   springDB: SpringDB, profileDao: ProfileDao, passwordEncoder: PasswordEncoder) =
     new UserService(siteConfig = siteConfig, userDao = userDao, ignoreListDao = ignoreListDao,
       userInvitesDao = userInvitesDao, userLogDao = userLogDao, userAgentDao = userAgentDao, profileDao = profileDao,
-      springDB = springDB)
+      springDB = springDB, passwordEncoder = passwordEncoder)
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])

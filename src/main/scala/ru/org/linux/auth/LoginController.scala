@@ -49,11 +49,8 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService, 
   @RequestMapping(value = Array("/login_process"), method = Array(RequestMethod.POST))
   def loginProcess(@RequestParam("nick") username: String, @RequestParam("passwd") password: String,
                    request: HttpServletRequest, response: HttpServletResponse): CompletionStage[ModelAndView] = {
-    val token = new UsernamePasswordAuthenticationToken(username, password)
     try {
-      val details = userDetailsService.loadUserByUsername(username).asInstanceOf[UserDetailsImpl]
-      token.setDetails(details)
-      val auth = authenticationManager.authenticate(token)
+      val auth = authenticate(username, password)
       val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
       if (!userDetails.getUser.activated) {
@@ -91,11 +88,8 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService, 
   @ResponseBody
   def loginAjax(@RequestParam("nick") username: String, @RequestParam("passwd") password: String,
                 request: HttpServletRequest, response: HttpServletResponse): CompletionStage[Json] = {
-    val token = new UsernamePasswordAuthenticationToken(username, password)
     try {
-      val details = userDetailsService.loadUserByUsername(username).asInstanceOf[UserDetailsImpl]
-      token.setDetails(details)
-      val auth = authenticationManager.authenticate(token)
+      val auth = authenticate(username, password)
       val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
       if (!userDetails.getUser.activated) {
@@ -148,6 +142,23 @@ class LoginController(userDao: UserDao, userDetailsService: UserDetailsService, 
     request.setAttribute("enableAjaxLogin", false)
 
     new ModelAndView("login-form")
+  }
+
+  // Authenticates the user and returns an Authentication whose principal reflects the *current*
+  // stored password. DaoAuthenticationProvider may upgrade the password hash (legacy jasypt ->
+  // bcrypt) during authentication, but the Authentication it returns still carries the pre-upgrade
+  // principal. Since the app is stateless and relies on the password-signed remember-me cookie, the
+  // cookie must be signed with the upgraded hash; otherwise it would be rejected on the next request.
+  private def authenticate(username: String, password: String): UsernamePasswordAuthenticationToken = {
+    val token = new UsernamePasswordAuthenticationToken(username, password)
+    token.setDetails(userDetailsService.loadUserByUsername(username).asInstanceOf[UserDetailsImpl])
+
+    val auth = authenticationManager.authenticate(token)
+
+    val refreshed = userDetailsService.loadUserByUsername(username).asInstanceOf[UserDetailsImpl]
+    val result = UsernamePasswordAuthenticationToken.authenticated(refreshed, null, auth.getAuthorities)
+    result.setDetails(refreshed)
+    result
   }
 
   private def delayResponse[T](resp : => T): CompletionStage[T] = {
