@@ -62,11 +62,11 @@
     </c:forEach>
   </c:if>
 
-  <c:if test="${not empty addlink}">
-    <a class="btn btn-primary" href="${addlink}">Добавить</a>
+  <c:if test="${not empty addLink}">
+    <a class="btn btn-primary" href="${addLink}">Добавить</a>
   </c:if>
-  <c:if test="${empty addlink}">
-    <a class="btn btn-primary disabled" title="${fn:escapeXml(addlinkReason)}"><i class="icon-lock"></i> Добавить</a>
+  <c:if test="${empty addLink}">
+    <a class="btn btn-primary disabled" title="${fn:escapeXml(addLinkReason)}"><i class="icon-lock"></i> Добавить</a>
   </c:if>
 </nav>
 

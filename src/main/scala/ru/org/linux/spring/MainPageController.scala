@@ -19,7 +19,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestAttribute, RequestMapping}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.group.GroupPermissionService
+import ru.org.linux.auth.IpBlockInfo
+import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
@@ -33,11 +34,15 @@ class MainPageController(
     topicListService: TopicListService,
     topicDao: TopicDao,
     memoriesDao: MemoriesDao,
-    groupPermissionService: GroupPermissionService,
+    topicPostingChecker: TopicPostingChecker,
     sectionService: SectionService,
     topicService: TopicService):
   @RequestMapping(path = Array("/", "/index.jsp"))
-  def mainPage(@RequestAttribute(name = "timezone") timezone: ZoneId): ModelAndView =
+  def mainPage(
+      @RequestAttribute(name = "timezone")
+      timezone: ZoneId,
+      @RequestAttribute("ipBlockInfo")
+      ipBlockInfo: IpBlockInfo): ModelAndView =
     MaybeAuthorized { implicit session =>
       val allTopics = topicListService.getMainPageFeed(30)
 
@@ -59,7 +64,8 @@ class MainPageController(
         .put(
           "briefNews",
           TopicListTools.split(
-            briefNewsByDate.map(p => p._1 -> prepareService.prepareBrief(p._2, sectionInTitle = session.profile.showGalleryOnMain))))
+            briefNewsByDate.map(p =>
+              p._1 -> prepareService.prepareBrief(p._2, sectionInTitle = session.profile.showGalleryOnMain))))
 
       session
         .userOpt
@@ -76,9 +82,18 @@ class MainPageController(
 
       mv.getModel.put("showAdsense", Boolean.box(!session.authorized || !session.profile.hideAdsense))
 
-      val sectionNews = sectionService.getSection(Section.News)
+      val (postingCheck, addLink) =
+        if session.profile.showGalleryOnMain then
+          (topicPostingChecker.checkTopicPostingAnywhere(ipBlockInfo), "/add-section.jsp")
+        else
+          val sectionNews = sectionService.getSection(Section.News)
 
-      mv.getModel.put("addNews", AddTopicController.getAddUrl(sectionNews))
+          (topicPostingChecker.checkTopicPosting(sectionNews, ipBlockInfo), AddTopicController.getAddUrl(sectionNews))
+
+      if postingCheck.permitted then
+        mv.getModel.put("addLink", addLink)
+      else
+        mv.getModel.put("addLinkReason", postingCheck.reason)
 
       mv
     }

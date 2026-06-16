@@ -107,11 +107,11 @@
     </c:if>
   </c:forEach>
 
-  <c:if test="${not template.prof.showGalleryOnMain}">
-    <a href="${addNews}" class="btn btn-primary">Добавить новость</a>
+  <c:if test="${not empty addLink}">
+    <a href="${addLink}" class="btn btn-primary">Добавить</a>
   </c:if>
-  <c:if test="${template.prof.showGalleryOnMain}">
-    <a href="/add-section.jsp" class="btn btn-primary">Добавить</a>
+  <c:if test="${empty addLink}">
+    <a class="btn btn-primary disabled" title="${fn:escapeXml(addLinkReason)}"><i class="icon-lock"></i> Добавить</a>
   </c:if>
 </nav>
 

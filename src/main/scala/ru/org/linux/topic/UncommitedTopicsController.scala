@@ -48,19 +48,23 @@ class UncommitedTopicsController(
         else
           None
 
-      section.foreach { section =>
+      section.foreach: section =>
         modelAndView.addObject("section", section)
 
         val postingCheck = topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
         
         if postingCheck.permitted then
-          modelAndView.addObject("addlink", AddTopicController.getAddUrl(section))
+          modelAndView.addObject("addLink", AddTopicController.getAddUrl(section))
         else
-          modelAndView.addObject("addlinkReason", postingCheck.reason)
-      }
+          modelAndView.addObject("addLinkReason", postingCheck.reason)
 
       if section.isEmpty then
-        modelAndView.addObject("addlink", "/add-section.jsp")
+        val postingCheck = topicPostingChecker.checkTopicPostingAnywhere(ipBlockInfo)
+
+        if postingCheck.permitted then
+          modelAndView.addObject("addLink", "/add-section.jsp")
+        else
+          modelAndView.addObject("addLinkReason", postingCheck.reason)
 
       val title = section.map(_.uncommitedName).getOrElse("Просмотр неподтверждённых сообщений")
 

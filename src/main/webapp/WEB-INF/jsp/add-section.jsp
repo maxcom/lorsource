@@ -19,50 +19,109 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <c:choose>
-<c:when test="${not empty section}">
-<title>${section.title}: добавление</title>
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+  <c:when test="${not empty section and not empty tech}">
+    <title>${section.title}: добавление</title>
+    <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Добавить в «${section.title}»</h1>
+    <h1>Добавить в «${section.title}»</h1>
 
-<c:if test="${addportal!=null}">
-  ${addportal}
-  <h2>Выберите группу</h2>
-</c:if>
+    <c:if test="${addportal!=null}">
+      ${addportal}
+      <h2>Выберите группу</h2>
+    </c:if>
 
-Доступные группы:
-<ul>
-<c:forEach var="choice" items="${groups}">
-  <li>
-    <c:choose>
-    <c:when test="${choice.postable}">
-      <a class="navLink" href="${choice.addUrl}">${choice.group.title}</a>
-      <c:if test="${choice.group.info != null}">
-        - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
-      </c:if>
-    </c:when>
-    <c:otherwise>
-      ${choice.group.title} (<c:out value="${choice.postScoreInfo}"/>)
-    </c:otherwise>
-    </c:choose>
-    (<a href="${choice.group.url}">просмотр...</a>)
-  </li>
-</c:forEach>
-</ul>
-</c:when>
-<c:otherwise>
-<title>Добавить сообщение</title>
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+    Технический форум:
+    <ul>
+    <c:forEach var="choice" items="${tech}">
+      <li>
+        <c:choose>
+          <c:when test="${choice.postable}">
+            <a class="navLink" href="${choice.addUrl}">${choice.group.title}</a>
+            <c:if test="${choice.group.info != null}">
+              - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
+            </c:if>
+          </c:when>
+          <c:otherwise>
+            ${choice.group.title} (<c:out value="${choice.postScoreInfo}"/>)
+          </c:otherwise>
+        </c:choose>
+        (<a href="${choice.group.url}" target="_blank">просмотр...</a>)
+      </li>
+    </c:forEach>
+    </ul>
 
-<h1>Добавить сообщение</h1>
+    Остальное:
+    <ul>
+    <c:forEach var="choice" items="${other}">
+      <li>
+        <c:choose>
+          <c:when test="${choice.postable}">
+            <a class="navLink" href="${choice.addUrl}">${choice.group.title}</a>
+            <c:if test="${choice.group.info != null}">
+              - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
+            </c:if>
+          </c:when>
+          <c:otherwise>
+            ${choice.group.title} (<c:out value="${choice.postScoreInfo}"/>)
+          </c:otherwise>
+        </c:choose>
+        (<a href="${choice.group.url}" target="_blank">просмотр...</a>)
+      </li>
+    </c:forEach>
+    </ul>
+  </c:when>
+  <c:when test="${not empty section}">
+    <title>${section.title}: добавление</title>
+    <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<p>Выберите раздел:</p>
-<ul>
-<c:forEach var="choice" items="${sectionList}">
-  <li><c:choose><c:when test="${choice.postable}"><a class="navLink" href="${choice.url}">${choice.section.title}</a></c:when><c:otherwise>${choice.section.title} (<c:out value="${choice.postScoreInfo}"/>)</c:otherwise></c:choose></li>
-</c:forEach>
-</ul>
-</c:otherwise>
+    <h1>Добавить в «${section.title}»</h1>
+
+    <c:if test="${addportal!=null}">
+      ${addportal}
+      <h2>Выберите группу</h2>
+    </c:if>
+
+    Доступные группы:
+    <ul>
+    <c:forEach var="choice" items="${groups}">
+      <li>
+        <c:choose>
+          <c:when test="${choice.postable}">
+            <a class="navLink" href="${choice.addUrl}">${choice.group.title}</a>
+            <c:if test="${choice.group.info != null}">
+              - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
+            </c:if>
+          </c:when>
+          <c:otherwise>
+            ${choice.group.title} (<c:out value="${choice.postScoreInfo}"/>)
+          </c:otherwise>
+        </c:choose>
+        (<a href="${choice.group.url}" target="_blank">просмотр...</a>)
+      </li>
+    </c:forEach>
+    </ul>
+  </c:when>
+  <c:otherwise>
+    <title>Добавить топик</title>
+    <jsp:include page="/WEB-INF/jsp/header.jsp"/>
+
+    <h1>Выберите раздел</h1>
+
+    <ul>
+    <c:forEach var="choice" items="${sectionList}">
+      <li>
+        <c:choose>
+          <c:when test="${choice.postable}">
+            <a class="navLink" href="${choice.url}">${choice.section.title}</a>
+          </c:when>
+          <c:otherwise>
+            ${choice.section.title} (<c:out value="${choice.postScoreInfo}"/>)
+          </c:otherwise>
+        </c:choose>
+      </li>
+    </c:forEach>
+    </ul>
+  </c:otherwise>
 </c:choose>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

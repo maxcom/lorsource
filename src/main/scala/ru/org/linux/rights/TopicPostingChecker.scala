@@ -31,6 +31,12 @@ class TopicPostingChecker(sectionService: SectionService, userService: UserServi
     val maxPostscore = Math.max(group.topicRestriction, section.topicsRestriction)
     checkTopicPostingImpl(maxPostscore, currentUser.userOpt, ipBlockInfo)
 
+  def checkTopicPostingAnywhere(ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission = {
+    val minRestriction = sectionService.sections.view.map(_.topicsRestriction).min
+    
+    checkTopicPostingImpl(minRestriction, currentUser.userOpt, ipBlockInfo)
+  }
+
   private def postScoreCheckerChain(user: User, postscore: Int): RestrictionChain =
     postscore match
       case POSTSCORE_UNRESTRICTED =>

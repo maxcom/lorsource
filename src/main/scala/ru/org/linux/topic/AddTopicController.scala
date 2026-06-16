@@ -38,6 +38,7 @@ import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.rights.TopicPostingChecker
 import ru.org.linux.search.SearchQueueSender
+import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
@@ -358,7 +359,14 @@ class AddTopicController(
             postable.reason)
         }
 
-        params.put("groups", groupChoices.asJava)
+        if section.id == Section.Forum then
+          val (other, tech) = groupChoices.partition(g => NonTech.contains(g.group.id))
+
+          params.put("tech", tech.asJava)
+          params.put("other", other.asJava)
+        else
+          params.put("groups", groupChoices.asJava)
+
 
         if tag != null then
           params.put("tag", tag)
@@ -375,7 +383,6 @@ class AddTopicController(
     MaybeAuthorized { implicit currentUser =>
       val sectionList = sectionService
         .sections
-        .filter(_.moderate)
         .map { section =>
           val groups = groupService.getGroups(section)
 
