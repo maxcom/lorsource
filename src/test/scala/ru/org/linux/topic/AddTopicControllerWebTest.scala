@@ -32,9 +32,10 @@ object AddTopicControllerWebTest:
 class AddTopicControllerWebTest extends FunSuite with WebHelper:
   import AddTopicControllerWebTest.*
 
-  test("post form opens and has CSRF"):
+  authorized().test("post form opens and has CSRF"): auth =>
     val response = basicRequest
-      .get(uri"${MainUrl}add-section.jsp?section=${Section.News}")
+      .get(uri"${MainUrl}add.jsp?group=${TestGroup}")
+      .cookie(AuthCookie, auth)
       .send(backend)
 
     assertEquals(response.code, StatusCode.Ok, "status code")
