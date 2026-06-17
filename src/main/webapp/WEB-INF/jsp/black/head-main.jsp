@@ -1,6 +1,7 @@
 <%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +16,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body style="margin-top: 0">
@@ -55,17 +55,10 @@
 <c:if test="${not template.sessionAuthorized}">
   <div id="regmenu" class="head">
     <a href="/register.jsp">Регистрация</a> -
-    <a id="loginbutton" href="/login.jsp">Вход</a>
+    <lor:login-link id="loginbutton">Вход</lor:login-link>
     <%--<br>--%>
     <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
   </div>
-
-  <form method=POST action="login.jsp" style="display: none" id="regform">
-    Имя: <input type=text name=nick size=15><br>
-    Пароль: <input type=password name=passwd size=15><br>
-    <input type=submit value="Вход">
-    <input id="hide_loginbutton" type="button" value="Отмена">
-  </form>
 </c:if>
 </div>
 

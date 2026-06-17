@@ -34,7 +34,7 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
 
   def doLogin(user: String = TestUser, password: String = TestPassword): String = {
     val response = basicRequest
-      .body(Map("nick" -> user, "passwd" -> password, "csrf" -> "csrf"))
+      .body(Map("nick" -> user, "passwd" -> password, "csrf" -> "csrf", "h-captcha-response" -> "10000000-aaaa-bbbb-cccc-000000000001"))
       .cookie(CSRFProtectionService.CSRF_COOKIE -> "csrf")
       .post( MainUrl.addPath("login_process"))
       .followRedirects(false)

@@ -87,10 +87,4 @@
   $script.ready('lorjs', function() {
     fixTimezone("${timezone}");
   });
-
-  <c:if test="${enableAjaxLogin}">
-    $script.ready('lorjs', function() {
-      initLoginForm();
-    });
-  </c:if>
 </script>

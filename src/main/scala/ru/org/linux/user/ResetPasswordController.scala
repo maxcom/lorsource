@@ -63,9 +63,7 @@ class ResetPasswordController(userDao: UserDao, userService: UserService,
       throw new UserErrorException("Код не совпадает")
     } else {
       val password = userService.resetPassword(user)
-
-      request.setAttribute("enableAjaxLogin", false)
-
+      
       new ModelAndView("action-done", Map("message" -> "Установлен новый пароль",
         "bigMessage" -> ("Ваш новый пароль: " + StringUtil.escapeHtml(password))).asJava)
     }

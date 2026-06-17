@@ -60,7 +60,6 @@ class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao)
     request.setAttribute("configuration", siteConfig)
     request.setAttribute("template", new Template)
     request.setAttribute("currentUser", currentUser)
-    request.setAttribute("enableAjaxLogin", currentUser == null)
 
     val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
     request.setAttribute("ipBlockInfo", ipBlockInfo)

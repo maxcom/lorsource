@@ -13,60 +13,10 @@
  *    limitations under the License.
  */
 
-function initLoginForm() {
-  $(function () {
-    $script.ready('plugins', function () {
-      const options = {
-        method: "post",
-        dataType: "json",
-        xhrFields: {
-          withCredentials: true
-        },
-        success: function (response, status) {
-          if (response.loggedIn) {
-            window.location.reload();
-          } else {
-            alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
-            window.location = "/login.jsp";
-          }
-        },
-        error: function (response, status) {
-          alert("Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.");
-          window.location = "/login.jsp";
-        }
-      };
-
-      $('#regform').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax($.extend(options, {
-          url: $(this).attr('action'),
-          data: $(this).serialize()
-        }));
-      });
-
-      $('#loginbutton').on('click', function (e) {
-        $("#regmenu").fadeOut("fast", function () {
-          $("#regform").fadeIn("fast", function () {
-            $("#regform input[name='nick']").focus();
-          });
-        });
-        return false;
-      });
-
-      $('#hide_loginbutton').on('click', function (e) {
-        $("#regform").fadeOut("fast", function () {
-          $("#regmenu").fadeIn("fast");
-        });
-        return false;
-      });
-    });
-  });
-}
-
 $(document).ready(function () {
   function initCtrlEnter() {
     function ctrl_enter(e, form) {
-      if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey || e.metaKey)) {
+      if (((e.keyCode === 13) || (e.keyCode === 10)) && (e.ctrlKey || e.metaKey)) {
         window.onbeforeunload = null;
 
         $(form).trigger('submit');

@@ -32,15 +32,8 @@
           <c:if test="${not template.sessionAuthorized}">
             <div id="regmenu">
               <a style="text-decoration: none" href="/register.jsp">Регистрация</a> -
-              <a style="text-decoration: none" href="/login.jsp" id="loginbutton">Вход</a>
+              <lor:login-link id="loginbutton" style="text-decoration: none">Вход</lor:login-link>
             </div>
-
-            <form method=POST action="login.jsp" style="display: none" id="regform">
-              Имя: <input type=text name=nick size=15>
-              Пароль: <input type=password name=passwd size=15>
-              <input type=submit value="Вход">
-              <input type="button" value="Отмена" id="hide_loginbutton">
-            </form>
           </c:if>
 
         </td>

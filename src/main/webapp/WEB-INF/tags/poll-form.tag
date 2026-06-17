@@ -86,7 +86,7 @@
       <div class="infoblock">Опрос ожидает подтверждения.</div>
     </c:when>
     <c:when test="${commited and not template.sessionAuthorized}">
-      <div class="infoblock">Для участия в опросе <a href="login.jsp">войдите</a> или <a href="register.jsp">зарегистрируйтесь</a>.</div>
+      <div class="infoblock">Для участия в опросе <lor:login-link>войдите</lor:login-link> или <a href="register.jsp">зарегистрируйтесь</a>.</div>
     </c:when>
   </c:choose>
 </c:if>

@@ -38,16 +38,8 @@
       <c:if test="${not template.sessionAuthorized}">
         <div id="regmenu" class="head">
           <a href="${configuration.secureUrl}register.jsp">Регистрация</a> -
-          <a id="loginbutton" href="${configuration.secureUrl}login.jsp">Вход</a>
+          <lor:login-link id="loginbutton">Вход</lor:login-link>
         </div>
-
-        <form method=POST action="${configuration.secureUrlWithoutSlash}/ajax_login_process" style="display: none" id="regform">
-          <lor:csrf/>
-          <label>Имя: <input type=text name=nick size=15 placeholder="nick или email"></label>
-          <label>Пароль: <input type=password name=passwd size=15></label>
-          <input type=submit value="Вход">
-          <input id="hide_loginbutton" type="button" value="Отмена">
-        </form>
       </c:if>
     </div>
 

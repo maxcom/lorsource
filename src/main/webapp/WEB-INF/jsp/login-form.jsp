@@ -16,6 +16,8 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
+<%--@elvariable id="loginForm" type="ru.org.linux.auth.LoginForm"--%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -24,25 +26,22 @@
 
 <h1>Вход</h1>
 
-<form method=POST action="${configuration.secureUrlWithoutSlash}/login_process">
-  <c:if test="${param.error == 'true'}">
-    <div class="error">Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.</div>
-  </c:if>
+<form:form modelAttribute="loginForm" method="POST" action="${configuration.secureUrlWithoutSlash}/login_process">
+  <form:errors element="div" cssClass="error"/>
 
-  <c:if test="${param.error == 'not_activated'}">
-    <div class="error">
-      Регистрация не завершена! Инструкция по активации отправлена на указанный при регистрации email.
-    </div>
-  </c:if>
+  <form:hidden path="redirectUrl"/>
+  <label>Имя/email:<br><form:input path="nick" size="40" autofocus="autofocus" autocapitalize="off"/></label>
+  <label>Пароль:<br><form:password path="passwd" size="40"/></label>
 
+  <c:if test="${requireCaptcha}">
+    <lor:captcha forced="true"/>
+  </c:if>
   <lor:csrf/>
-  <label>Имя/email:<br><input autofocus autocapitalize="off" type=text name=nick size=40></label>
-  <label>Пароль:<br><input type=password name=passwd size=40></label>
 
   <div class="form-actions">
     <button type=submit class="btn btn-primary">Вход</button>
   </div>
-</form>
+</form:form>
 
 <div style="font-size: smaller">
 (<a href="register.jsp">Регистрация</a> | <a href="lostpwd.jsp">Получить забытый пароль</a>)
