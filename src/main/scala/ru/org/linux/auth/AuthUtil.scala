@@ -14,6 +14,8 @@
  */
 package ru.org.linux.auth
 
+import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -23,7 +25,7 @@ import ru.org.linux.user.{Profile, User, UserService}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
 
-sealed trait AnySession {
+sealed trait AnySession:
   def authorized: Boolean
   def corrector: Boolean
   def moderator: Boolean
@@ -37,16 +39,19 @@ sealed trait AnySession {
   def opt: Option[AuthorizedSession]
 
   def profile: Profile
-}
 
-case class AuthorizedSession(user: User, corrector: Boolean, moderator: Boolean,
-                             administrator: Boolean, profile: Profile) extends AnySession {
+case class AuthorizedSession(
+    user: User,
+    corrector: Boolean,
+    moderator: Boolean,
+    administrator: Boolean,
+    profile: Profile)
+    extends AnySession:
   override def userOpt: Some[User] = Some(user)
   override def opt: Option[AuthorizedSession] = Some(this)
   override def authorized: Boolean = true
-}
 
-case object NonAuthorizedSession extends AnySession {
+case object NonAuthorizedSession extends AnySession:
   override def userOpt: None.type = None
   override def corrector: Boolean = false
   override def moderator: Boolean = false
@@ -54,30 +59,23 @@ case object NonAuthorizedSession extends AnySession {
   override def opt: Option[AuthorizedSession] = None
   override def authorized: Boolean = false
   override def profile: Profile = Profile.DEFAULT
-}
 
-object AuthUtil {
-  def updateLastLogin(authentication: Authentication, userService: UserService): Unit = {
-    if (authentication != null && authentication.isAuthenticated) {
+object AuthUtil extends StrictLogging:
+  def updateLastLogin(authentication: Authentication, userService: UserService): Unit =
+    if authentication != null && authentication.isAuthenticated then
       val principal = authentication.getPrincipal
 
-      principal match {
+      principal match
         case userDetails: UserDetailsImpl =>
           val user = userDetails.getUser
           userService.updateLastLogin(user, force = true)
         case _ =>
-      }
-    }
-  }
 
-  def isSessionAuthorized: Boolean = {
+  def isSessionAuthorized: Boolean =
     val authentication = SecurityContextHolder.getContext.getAuthentication
 
     authentication != null &&
-      (authentication.isAuthenticated &&
-        !hasAuthority("ROLE_SYSTEM_ANONYMOUS") &&
-        hasAuthority("ROLE_ANONYMOUS"))
-  }
+    (authentication.isAuthenticated && !hasAuthority("ROLE_SYSTEM_ANONYMOUS") && hasAuthority("ROLE_ANONYMOUS"))
 
   def isModeratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_MODERATOR")
 
@@ -85,65 +83,55 @@ object AuthUtil {
 
   private def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
 
-  private def hasAuthority(authName: String): Boolean = {
+  private def hasAuthority(authName: String): Boolean =
     val authentication = SecurityContextHolder.getContext.getAuthentication
 
-    if (authentication == null) {
+    if authentication == null then
       false
-    } else {
+    else
       authentication.getAuthorities.asScala.exists(_.getAuthority == authName)
-    }
-  }
 
-  /**
-   * Get current authorized users nick
-   *
-   * @return nick or null if not authorized
-   */
+  /** Get current authorized users nick
+    *
+    * @return
+    *   nick or null if not authorized
+    */
   @Nullable
-  def getNick: String = {
+  def getNick: String =
     val currentUser = getCurrentUser
 
-    if (currentUser == null) {
+    if currentUser == null then
       null
-    } else {
+    else
       currentUser.nick
-    }
-  }
 
   @Nullable
-  def getCurrentUser: User = {
-    if (!isSessionAuthorized) {
+  def getCurrentUser: User =
+    if !isSessionAuthorized then
       null
-    } else {
+    else
       val principal = SecurityContextHolder.getContext.getAuthentication.getPrincipal
 
-      principal match {
+      principal match
         case details: UserDetailsImpl =>
           details.getUser
         case _ =>
           null
-      }
-    }
-  }
 
-  def getProfile: Profile = {
-    if (!isSessionAuthorized) {
+  def getProfile: Profile =
+    if !isSessionAuthorized then
       Profile.DEFAULT
-    } else {
+    else
       val principal = SecurityContextHolder.getContext.getAuthentication.getPrincipal
 
-      principal match {
+      principal match
         case details: UserDetailsImpl =>
           details.getProfile
         case _ =>
           Profile.DEFAULT
-      }
-    }
-  }
 
-  def MaybeAuthorized[T](f: AnySession => T): T = {
-    if (isSessionAuthorized) {
+  def MaybeAuthorized[T](f: AnySession => T): T =
+    if isSessionAuthorized then
       val currentUser = AuthorizedSession(
         user = getCurrentUser,
         corrector = isCorrectorSession,
@@ -152,15 +140,12 @@ object AuthUtil {
         profile = getProfile)
 
       f(currentUser)
-    } else {
+    else
       f(NonAuthorizedSession)
-    }
-  }
 
-  def AuthorizedOnly[T](f: AuthorizedSession => T): T = {
-    if (!isSessionAuthorized) {
+  def AuthorizedOnly[T](f: AuthorizedSession => T): T =
+    if !isSessionAuthorized then
       throw new AccessViolationException("Not authorized")
-    }
 
     val currentUser = AuthorizedSession(
       user = getCurrentUser,
@@ -170,52 +155,50 @@ object AuthUtil {
       profile = getProfile)
 
     f(currentUser)
-  }
 
-  def ModeratorOnly[T](f: AuthorizedSession => T): T = {
-    if (!isModeratorSession) {
+  def ModeratorOnly[T](f: AuthorizedSession => T): T =
+    if !isModeratorSession then
       throw new AccessViolationException("Not moderator")
-    }
 
     AuthorizedOnly(f)
-  }
 
-  def CorrectorOrModerator[T](f: AuthorizedSession => T): T = {
-    if (!(isCorrectorSession || isModeratorSession)) {
+  def CorrectorOrModerator[T](f: AuthorizedSession => T): T =
+    if !(isCorrectorSession || isModeratorSession) then
       throw new AccessViolationException("Not corrector or moderator")
-    }
 
     AuthorizedOnly(f)
-  }
 
-  def AdministratorOnly[T](f: AuthorizedSession => T): T = {
-    if (!isAdministratorSession) {
+  def AdministratorOnly[T](f: AuthorizedSession => T): T =
+    if !isAdministratorSession then
       throw new AccessViolationException("Not administrator")
-    }
 
     AuthorizedOnly(f)
-  }
 
-  def postingUser(session: AnySession, formUser: Option[User], formPassword: Option[String], errors: Errors)(using passwordEncoder: PasswordEncoder): AnySession = {
-    if (session.authorized) {
+  def postingUser(session: AnySession, formUser: Option[User], formPassword: Option[String], errors: Errors,
+      passwordEncoder: PasswordEncoder, request: HttpServletRequest): AnySession =
+    if session.authorized then
       session
-    } else {
-      formUser match {
+    else
+      formUser match
         case None =>
           NonAuthorizedSession
         case Some(formUser) if formUser.anonymous =>
           NonAuthorizedSession
         case Some(formUser) =>
-          if (formUser.blocked || !formUser.activated) {
+          if formUser.blocked || !formUser.activated then
             errors.rejectValue("user", null, s"Пользователь \"${formUser.nick}\" заблокирован или не активирован")
             NonAuthorizedSession
-          } else if (!(formUser.anonymous && formPassword.get.isEmpty) && !passwordEncoder.matches(formPassword.get, formUser.password)) {
+          else if !(formUser.anonymous && formPassword.get.isEmpty) &&
+            !passwordEncoder.matches(formPassword.get, formUser.password)
+          then
+            logger.warn("Password of {} does not match; remote IP: {}; {}", formUser.nick, request.getRemoteAddr)
+
             errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.nick}\" задан неверно!")
             NonAuthorizedSession
-          } else {
-            AuthorizedSession(formUser, corrector = false, moderator = false, administrator = false, profile = Profile.DEFAULT)
-          }
-      }
-    }
-  }
-}
+          else
+            AuthorizedSession(
+              formUser,
+              corrector = false,
+              moderator = false,
+              administrator = false,
+              profile = Profile.DEFAULT)

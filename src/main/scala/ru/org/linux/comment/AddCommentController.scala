@@ -90,7 +90,7 @@ class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: Commen
   @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors)(using passwordEncoder)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors, passwordEncoder, request)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
@@ -136,7 +136,7 @@ class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: Commen
   @ResponseBody
   def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
                      @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): Json = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors)(using passwordEncoder)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors, passwordEncoder, request)
     val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
