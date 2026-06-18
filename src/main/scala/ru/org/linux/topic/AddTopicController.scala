@@ -188,6 +188,9 @@ class AddTopicController(
 
       val params = prepareModel(Some(group), section)(using sessionUserOpt).to(mutable.HashMap)
 
+      if !form.isPreviewMode && !errors.hasErrors && captchaRequired then
+        captcha.checkCaptcha(request, errors)
+
       val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors, passwordEncoder, request)
       val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
 
@@ -250,9 +253,6 @@ class AddTopicController(
 
       if !form.isPreviewMode && !errors.hasErrors then
         CSRFProtectionService.checkCSRF(request, errors)
-
-      if !form.isPreviewMode && !errors.hasErrors && captchaRequired then
-        captcha.checkCaptcha(request, errors)
 
       if !form.isPreviewMode && !errors.hasErrors then
         dupeProtector.checkRateLimit(FloodProtector.AddTopic, request.getRemoteAddr, postingUser.userOpt.orNull, errors)

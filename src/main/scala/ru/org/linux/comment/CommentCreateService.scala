@@ -59,7 +59,7 @@ object CommentCreateService {
 
 @Service
 class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userService: UserService,
-                           captcha: CaptchaService, commentPrepareService: CommentPrepareService,
+                           commentPrepareService: CommentPrepareService,
                            floodProtector: FloodProtector, editHistoryService: EditHistoryService,
                            textService: MessageTextService, userEventService: UserEventService, msgbaseDao: MsgbaseDao,
                            ignoreListDao: IgnoreListDao, permissionService: TopicPermissionService,
@@ -117,11 +117,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
       errors.rejectValue("msg", null, "комментарий не задан")
       commentRequest.setMsg("")
     }
-
-    if (!commentRequest.isPreviewMode && (!sessionAuthorized || ipBlockInfo.captchaRequired)) {
-      captcha.checkCaptcha(request, errors)
-    }
-
+    
     if (!commentRequest.isPreviewMode && !errors.hasErrors) {
       CSRFProtectionService.checkCSRF(request, errors)
     }

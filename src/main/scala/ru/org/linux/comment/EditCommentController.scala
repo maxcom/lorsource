@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.auth.{IpBlockDao, IpBlockInfo}
+import ru.org.linux.auth.{CaptchaService, IpBlockDao, IpBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
@@ -40,7 +40,8 @@ import scala.jdk.CollectionConverters.MapHasAsJava
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IpBlockDao,
                             topicPermissionService: TopicPermissionService, commentPrepareService: CommentPrepareService,
                             searchQueueSender: SearchQueueSender, textService: MessageTextService,
-                            commentReadService: CommentReadService, ignoreListDao: IgnoreListDao) {
+                            commentReadService: CommentReadService, ignoreListDao: IgnoreListDao,
+                            captcha: CaptchaService) {
   @InitBinder(Array("edit"))
   def requestValidator(binder: WebDataBinder): Unit = commentService.requestValidator(binder)
 
@@ -96,7 +97,11 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   @CSRFNoAuto
   def editCommentPostHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest, errors: Errors,
                              request: HttpServletRequest,
-                             @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): ModelAndView = AuthorizedOnly { implicit currentUser =>
+                             @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo, @RequestAttribute("captchaRequired")
+                             captchaRequired: Boolean): ModelAndView = AuthorizedOnly { implicit currentUser =>
+    if !commentRequest.isPreviewMode && !errors.hasErrors && captchaRequired then
+      captcha.checkCaptcha(request, errors)
+
     val user = currentUser.user
     commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, editMode = true, sessionAuthorized = true)
 

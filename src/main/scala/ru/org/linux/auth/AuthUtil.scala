@@ -175,8 +175,10 @@ object AuthUtil extends StrictLogging:
     AuthorizedOnly(f)
 
   def postingUser(session: AnySession, formUser: Option[User], formPassword: Option[String], errors: Errors,
-      passwordEncoder: PasswordEncoder, request: HttpServletRequest): AnySession =
-    if session.authorized then
+      passwordEncoder: PasswordEncoder, request: HttpServletRequest): AnySession = {
+    if errors.hasErrors then
+      session
+    else if session.authorized then
       session
     else
       formUser match
@@ -202,3 +204,4 @@ object AuthUtil extends StrictLogging:
               moderator = false,
               administrator = false,
               profile = Profile.DEFAULT)
+  }
