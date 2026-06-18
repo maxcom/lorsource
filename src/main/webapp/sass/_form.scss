@@ -221,32 +221,15 @@ form .error {
   background-color: var(--article-background);
   padding: 0.5em;
   box-sizing: border-box;
-
-  table {
-    margin-bottom: 1em;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  th {
-    font-weight: bold;
-    border-bottom: 2px solid;
-  }
-
-  td, th {
-    padding: 0.75em;
-    border-top: 1px solid;
-  }
 }
 
-#bd .comment .markup-preview {
+#bd #commentForm .markup-preview {
   h1, h2, h3, h4, h5, h6 {
     font-size: 1em;
   }
 
   h1, h2 {
     margin-top: 0.25em;
-    margin-bottom: 0;
   }
 }
 

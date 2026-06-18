@@ -129,7 +129,7 @@ h6 {
   font-size: 1.098em
 }
 
-#bd .msg_body, #bd .entry-body {
+#bd .msg_body, #bd .entry-body, #bd .markup-preview {
   h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child {
     margin-top: 0.3em;
   }
@@ -142,7 +142,6 @@ h6 {
   h1 {
     font-size: 1.752em;
     margin-top: 0.25em;
-    margin-bottom: 0;
   }
 
   h2 {
@@ -203,7 +202,6 @@ h6 {
 #bd .comment .msg_body {
   h1, h2 {
     margin-top: 0.25em;
-    margin-bottom: 0;
   }
 }
 
