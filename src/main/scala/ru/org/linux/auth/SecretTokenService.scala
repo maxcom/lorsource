@@ -91,17 +91,26 @@ class SecretTokenService(siteConfig: SiteConfig) extends StrictLogging:
     }.toOption.flatten
 
   def getResetCode(nick: String, email: String, tm: Timestamp): String =
-    StringUtil.sha256hash(s"$base:$nick:$email:${tm.getTime.toString}:reset")
+    StringUtil.hmacSha256(base, s"$nick:$email:${tm.getTime.toString}:reset")
 
   def verifyResetCode(nick: String, email: String, tm: Timestamp, code: String): Boolean =
-    val expected = s"$base:$nick:$email:${tm.getTime.toString}:reset"
+    val hmacExpected = StringUtil.hmacSha256(base, s"$nick:$email:${tm.getTime.toString}:reset")
+    if StringUtil.verifyHash(hmacExpected, code) then
+      true
+    else
+      val legacyExpected = StringUtil.sha256hash(s"$base:$nick:$email:${tm.getTime.toString}:reset")
+      StringUtil.verifyHash(legacyExpected, code)
 
-    StringUtil.verifyHash(StringUtil.sha256hash(expected), code)
-
-  def getActivationCode(nick: String, email: String): String = StringUtil.sha256hash(s"$base:$nick:$email")
+  def getActivationCode(nick: String, email: String): String =
+    StringUtil.hmacSha256(base, s"$nick:$email")
 
   def verifyActivationCode(nick: String, email: String, code: String): Boolean =
-    StringUtil.verifyHash(StringUtil.sha256hash(s"$base:$nick:$email"), code)
+    val hmacExpected = StringUtil.hmacSha256(base, s"$nick:$email")
+    if StringUtil.verifyHash(hmacExpected, code) then
+      true
+    else
+      val legacyExpected = StringUtil.sha256hash(s"$base:$nick:$email")
+      StringUtil.verifyHash(legacyExpected, code)
 
   def makeRegisterPermit(now: Instant = Instant.now()): String =
     val expiryMillis = now.plusMillis(3_600_000).toEpochMilli

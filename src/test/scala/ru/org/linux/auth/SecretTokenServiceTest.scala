@@ -33,18 +33,18 @@ class SecretTokenServiceTest extends FunSuite:
   private val hizelNick = "hizel"
   private val hizelEmail = "hz@vyborg.ru"
 
-  test("getActivationCode returns SHA-256 hash of secret:nick:email"):
+  test("getActivationCode returns HMAC-SHA256 of nick:email with secret key"):
     val service = makeService()
     assertEquals(
       service.getActivationCode(hizelNick, hizelEmail),
-      "edef5bb2ebdc98fc72a916afc92dc707b6ae2696bff7e188be6f6b06a14082ec"
+      "96be8717add38ca3cee78426d652dff228e0c2a8a5620c40b522e6b69d7fd54f"
     )
 
   test("verifyActivationCode returns true for valid code"):
     val service = makeService()
     assert(service.verifyActivationCode(
       hizelNick, hizelEmail,
-      "edef5bb2ebdc98fc72a916afc92dc707b6ae2696bff7e188be6f6b06a14082ec"
+      "96be8717add38ca3cee78426d652dff228e0c2a8a5620c40b522e6b69d7fd54f"
     ))
 
   test("verifyActivationCode returns false for invalid code"):
@@ -54,12 +54,12 @@ class SecretTokenServiceTest extends FunSuite:
   test("verifyActivationCode returns false for wrong nick"):
     val service = makeService()
     assert(!service.verifyActivationCode("wrongnick", hizelEmail,
-      "edef5bb2ebdc98fc72a916afc92dc707b6ae2696bff7e188be6f6b06a14082ec"))
+      "96be8717add38ca3cee78426d652dff228e0c2a8a5620c40b522e6b69d7fd54f"))
 
   test("verifyActivationCode returns false for wrong email"):
     val service = makeService()
     assert(!service.verifyActivationCode(hizelNick, "wrong@example.com",
-      "edef5bb2ebdc98fc72a916afc92dc707b6ae2696bff7e188be6f6b06a14082ec"))
+      "96be8717add38ca3cee78426d652dff228e0c2a8a5620c40b522e6b69d7fd54f"))
 
   test("getResetCode and verifyResetCode are consistent"):
     val service = makeService()
@@ -113,3 +113,16 @@ class SecretTokenServiceTest extends FunSuite:
     val now = Instant.ofEpochMilli(1700000000000L)
     val permit = service1.makeRegisterPermit(now)
     assert(!service2.checkRegisterPermit(permit, now))
+
+  test("verifyActivationCode accepts legacy SHA-256 code"):
+    val service = makeService()
+    assert(service.verifyActivationCode(
+      hizelNick, hizelEmail,
+      "edef5bb2ebdc98fc72a916afc92dc707b6ae2696bff7e188be6f6b06a14082ec"
+    ))
+
+  test("verifyResetCode accepts legacy SHA-256 code"):
+    val service = makeService()
+    val tm = new Timestamp(1700000000000L)
+    val legacyCode = ru.org.linux.util.StringUtil.sha256hash(s"secret:$hizelNick:$hizelEmail:${tm.getTime}:reset")
+    assert(service.verifyResetCode(hizelNick, hizelEmail, tm, legacyCode))

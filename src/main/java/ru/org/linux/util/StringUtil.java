@@ -19,8 +19,12 @@ import com.google.common.hash.Hashing;
 import ru.org.linux.util.formatter.RuTypoChanger;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.HexFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,8 +69,31 @@ public final class StringUtil {
     return Hashing.sha256().hashString(pass, StandardCharsets.UTF_8).toString();
   }
 
-  public static boolean verifyHash(String sha256expected, String actual) {
-    return sha256expected.equalsIgnoreCase(actual);
+  public static String hmacSha256(String key, String message) {
+    try {
+      SecretKeySpec secretKey = new SecretKeySpec(
+          key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+      Mac mac = Mac.getInstance("HmacSHA256");
+      mac.init(secretKey);
+      byte[] hash = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+      return HexFormat.of().formatHex(hash);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to compute HMAC-SHA256", e);
+    }
+  }
+
+  public static boolean verifyHash(String expected, String actual) {
+    if (expected == null || actual == null) {
+      return false;
+    }
+    try {
+      return MessageDigest.isEqual(
+          HexFormat.of().parseHex(expected),
+          HexFormat.of().parseHex(actual)
+      );
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   public static String generatePassword() {
