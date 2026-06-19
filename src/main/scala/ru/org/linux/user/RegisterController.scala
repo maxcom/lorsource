@@ -18,7 +18,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
-import org.jasypt.util.text.AES256TextEncryptor
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
@@ -36,8 +35,6 @@ import ru.org.linux.email.EmailService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 import jakarta.mail.internet.InternetAddress
-
-import java.time.{Instant, OffsetDateTime}
 import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
 
@@ -45,7 +42,7 @@ import scala.jdk.CollectionConverters.*
 class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMeServices,
                           @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
                           userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
-                          siteConfig: SiteConfig, userService: UserService,
+                          userService: UserService, secretTokenService: SecretTokenService,
                           emailDomainsBlockDao: EmailDomainsBlockDao,
                           userPermissionService: UserPermissionService) extends StrictLogging {
   private val registerRequestValidator = new RegisterRequestValidator(emailDomainsBlockDao)
@@ -57,41 +54,16 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 
     if (userPermissionService.canRegister(ipBlockInfo)) {
-      new ModelAndView("register", "permit", makePermit)
+      new ModelAndView("register", "permit", secretTokenService.makeRegisterPermit)
     } else {
       new ModelAndView("no-register")
     }
   }
-
-  private def makePermit: String = {
-    val key = siteConfig.getSecret
-    val message = s"permit:${OffsetDateTime.now().plusHours(1).toInstant.toEpochMilli}"
-
-    val textEncryptor = new AES256TextEncryptor
-    textEncryptor.setPassword(key)
-    textEncryptor.encrypt(message)
-  }
-
-  private def checkPermit(permit: String): Boolean = {
-    val key = siteConfig.getSecret
-    val textEncryptor = new AES256TextEncryptor
-    textEncryptor.setPassword(key)
-
-    textEncryptor.decrypt(permit).split(":", 2) match {
-      case Array("permit", date) =>
-        val decodedDate = Instant.ofEpochMilli(date.toLong)
-        logger.debug(s"Decoded permit date: $decodedDate")
-        decodedDate.isAfter(Instant.now)
-      case other =>
-        logger.warn(s"Invalid permit - decrypted: ${other.mkString}")
-        false
-    }
-  }
-
+  
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
   def doRegister(request: HttpServletRequest, @Valid @ModelAttribute("form") form: RegisterRequest,
                  errors: Errors, @RequestParam(required = false) permit: String): ModelAndView = {
-    if (permit == null || !checkPermit(permit)) {
+    if (permit == null || !secretTokenService.checkRegisterPermit(permit)) {
       new ModelAndView("no-register")
     } else {
       if (!errors.hasErrors) {
@@ -161,7 +133,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         val auth = authenticationManager.authenticate(token)
         val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
-        if (userDetails.getUser.verifyActivationCode(siteConfig.getSecret, activation)) {
+        if (secretTokenService.verifyActivationCode(userDetails.getUser.nick, userDetails.getUser.email, activation)) {
           userService.activateUser(userDetails.getUser)
 
           val updatedDetails = userDetailsService.loadUserByUsername(nick)
@@ -198,7 +170,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("new_email == null?!")
     }
 
-    if (!currentUser.user.verifyActivationCodeWithEmail(siteConfig.getSecret, newEmail, activation)) {
+    if (!secretTokenService.verifyActivationCode(currentUser.user.nick, newEmail, activation)) {
       val params = activationFormParams(currentUser.user.nick, activation) + ("error" -> "Неправильный код активации")
 
       new ModelAndView("activate", params.asJava)

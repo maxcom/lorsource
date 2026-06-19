@@ -278,38 +278,4 @@ public class UserTest {
     Assert.assertEquals(resultSet.getTimestamp("frozen_until"), 
       user.getFrozenUntil());
   }
-
-
-  /**
-   * проверка активации (SHA256)
-   * @throws Exception хм
-   */
-  @Test
-  public void hizelTest() throws Exception {
-    ResultSet resultSet = Users.getHizel();
-    User user = User.fromResultSet(resultSet);
-    Assert.assertEquals("edef5bb2ebdc98fc72a916afc92dc707b6ae2696bff7e188be6f6b06a14082ec", user.getActivationCode("secret"));
-  }
-
-  /**
-   * проверка верификации SHA256
-   * @throws Exception хм
-   */
-  @Test
-  public void hizelVerifySha256Test() throws Exception {
-    ResultSet resultSet = Users.getHizel();
-    User user = User.fromResultSet(resultSet);
-    Assert.assertTrue(user.verifyActivationCode("secret", "edef5bb2ebdc98fc72a916afc92dc707b6ae2696bff7e188be6f6b06a14082ec"));
-  }
-
-  /**
-   * проверка что неверный код не проходит верификацию
-   * @throws Exception хм
-   */
-  @Test
-  public void hizelVerifyInvalidTest() throws Exception {
-    ResultSet resultSet = Users.getHizel();
-    User user = User.fromResultSet(resultSet);
-    Assert.assertFalse(user.verifyActivationCode("secret", "invalidcode"));
-  }
 }

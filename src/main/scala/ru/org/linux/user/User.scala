@@ -54,17 +54,7 @@ case class User(
   def isAdministrator: Boolean = candel
 
   def canCorrect: Boolean = corrector && !isFrozen
-
-  def getActivationCode(base: String): String = User.getActivationCode(base, nick, email)
-
-  def getActivationCodeWithEmail(base: String, email: String): String = StringUtil.sha256hash(s"$base:$nick:$email")
-
-  def verifyActivationCode(base: String, code: String): Boolean =
-    User.verifyActivationCode(base, nick, email, code)
-
-  def verifyActivationCodeWithEmail(base: String, email: String, code: String): Boolean =
-    StringUtil.verifyHash(StringUtil.sha256hash(s"$base:$nick:$email"), code)
-
+  
   def getScore: Int = if (anonymous) 0 else score
 
   def getMaxScore: Int = if (anonymous) 0 else maxScore
@@ -151,13 +141,7 @@ object User {
       activated = activated
     )
   }
-
-  def getActivationCode(base: String, nick: String, email: String): String =
-    StringUtil.sha256hash(s"$base:$nick:$email")
-
-  def verifyActivationCode(base: String, nick: String, email: String, code: String): Boolean =
-    StringUtil.verifyHash(StringUtil.sha256hash(s"$base:$nick:$email"), code)
-
+  
   def getGreenStars(score: Int): Int = {
     var s = if (score < 0) 0 else score
     if (s >= 600) {

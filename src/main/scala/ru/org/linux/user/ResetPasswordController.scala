@@ -20,14 +20,14 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, SecretTokenService}
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.util.StringUtil
 
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
-class ResetPasswordController(userDao: UserDao, userService: UserService,
+class ResetPasswordController(userDao: UserDao, userService: UserService, secretTokenService: SecretTokenService,
                               userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD),
     params = Array("reset-password"))
@@ -57,7 +57,7 @@ class ResetPasswordController(userDao: UserDao, userService: UserService,
 
     val resetDate = userDao.getResetDate(user)
 
-    if (!userService.verifyResetCode(user.nick, user.email, resetDate, formCode)) {
+    if (!secretTokenService.verifyResetCode(user.nick, user.email, resetDate, formCode)) {
       logger.warn("Код проверки не совпадает; login={} formCode={}", nick, formCode)
 
       throw new UserErrorException("Код не совпадает")

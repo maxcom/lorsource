@@ -18,7 +18,7 @@ import com.google.common.base.Strings
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.AccessViolationException
+import ru.org.linux.auth.{AccessViolationException, SecretTokenService}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.email.EmailService
 import ru.org.linux.site.BadInputException
@@ -28,8 +28,8 @@ import jakarta.mail.internet.AddressException
 
 @Controller
 @RequestMapping(Array("/lostpwd.jsp"))
-class LostPasswordController(userService: UserService, emailService: EmailService,
-                             userPermissionService: UserPermissionService) {
+class LostPasswordController(userService: UserService, emailService: EmailService, 
+                             userPermissionService: UserPermissionService, secretTokenService: SecretTokenService) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm: ModelAndView = new ModelAndView("lostpwd-form")
 
@@ -56,7 +56,7 @@ class LostPasswordController(userService: UserService, emailService: EmailServic
     val now = new Timestamp(System.currentTimeMillis)
 
     try {
-      val resetCode = userService.getResetCode(user.nick, user.email, now)
+      val resetCode = secretTokenService.getResetCode(user.nick, user.email, now)
 
       emailService.sendPasswordReset(user, resetCode)
 

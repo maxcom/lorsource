@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.apache.pekko.actor.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import ru.org.linux.auth.SecretTokenService
 import ru.org.linux.email.EmailService.createMessage
 import ru.org.linux.exception.ExceptionMailingActor
 import ru.org.linux.spring.SiteConfig
@@ -36,10 +37,11 @@ import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
 
 @Service
-class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") exceptionMailingActor: ActorRef)
+class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") exceptionMailingActor: ActorRef,
+                   secretTokenService: SecretTokenService)
     extends StrictLogging {
   def sendRegistrationEmail(nick: String, email: String, isNew: Boolean): Unit = {
-    val regcode = User.getActivationCode(siteConfig.getSecret, nick, email)
+    val regcode = secretTokenService.getActivationCode(nick, email)
 
     val text = new StringBuilder
     text.append(
