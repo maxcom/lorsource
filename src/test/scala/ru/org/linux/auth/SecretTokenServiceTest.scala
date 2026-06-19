@@ -113,16 +113,3 @@ class SecretTokenServiceTest extends FunSuite:
     val now = Instant.ofEpochMilli(1700000000000L)
     val permit = service1.makeRegisterPermit(now)
     assert(!service2.checkRegisterPermit(permit, now))
-
-  test("verifyActivationCode accepts legacy SHA-256 code"):
-    val service = makeService()
-    assert(service.verifyActivationCode(
-      hizelNick, hizelEmail,
-      "edef5bb2ebdc98fc72a916afc92dc707b6ae2696bff7e188be6f6b06a14082ec"
-    ))
-
-  test("verifyResetCode accepts legacy SHA-256 code"):
-    val service = makeService()
-    val tm = new Timestamp(1700000000000L)
-    val legacyCode = ru.org.linux.util.StringUtil.sha256hash(s"secret:$hizelNick:$hizelEmail:${tm.getTime}:reset")
-    assert(service.verifyResetCode(hizelNick, hizelEmail, tm, legacyCode))
