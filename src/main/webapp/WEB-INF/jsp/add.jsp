@@ -58,20 +58,6 @@
   ${addportal}
 </c:if>
 
-<c:if test="${imagepost}">
-<p>
-  Технические требования к изображению:
-  <ul>
-    <li>Ширина x Высота:
-      от <%= Image.MinDimension() %>x<%= Image.MinDimension() %>
-      до <%= Image.MaxDimension() %>x<%= Image.MaxDimension() %> пикселей</li>
-    <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более <%= (Image.MaxFileSize() / 1024) - 50 %> Kb</li>
-    <li>Изображения, содержащие EXIF-информацию, не всегда могут быть загружены. Если ваше изображение соответствует требованиям выше, но не принимается к загрузке, удалите из него EXIF-информацию.</li>
-  </ul>
-</p>
-</c:if>
-
 <form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${imagepost?'multipart/form-data':'application/x-www-form-urlencoded'}" >
   <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
@@ -110,36 +96,6 @@
     <label for="title">Заглавие</label>
     <form:input path="title" required="required" autofocus="autofocus"/>
   </div>
-
-  <c:if test="${imagepost}">
-    <form:hidden path="uploadedImage"/>
-    <div class="control-group">
-      <c:if test="${form.uploadedImage == null}">
-        <label>Изображение:
-      </c:if>
-      <c:if test="${form.uploadedImage != null}">
-        <label>Заменить изображение:
-      </c:if>
-      <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" >
-      </label>
-    </div>
-
-    <c:if test="${not empty form.additionalUploadedImages}">
-      <div class="control-group">
-        <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
-          <form:hidden path="additionalUploadedImages[${i.index}]"/>
-          <c:if test="${v == null}">
-            <label>Дополнительное изображение #${i.index}:
-          </c:if>
-          <c:if test="${v != null}">
-            <label>Заменить изображение #${i.index}:
-          </c:if>
-          <input type="file" name="additionalImage" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
-          </label>
-        </c:forEach>
-      </div>
-    </c:if>
-  </c:if>
 
   <c:if test="${section.pollPostAllowed}">
       <br>
@@ -182,8 +138,8 @@
 
 <div class="control-group">
   <label for="url">
-    Ссылка (не забудьте <b>http://</b>)</label>
-    <form:input placeholder="http://" path="url" type="url"/>
+    Ссылка (не забудьте <b>https://</b>)</label>
+    <form:input placeholder="https://" path="url" type="url"/>
 </div>
 </c:if>
 
@@ -199,7 +155,38 @@
   </label>
   <form:input required="required" autocapitalize="off" data-tags-autocomplete="data-tags-autocomplete" id="tags" path="tags"/>
 </div>
-  <lor:captcha/>
+<lor:captcha/>
+
+<c:if test="${imagepost}">
+  <form:hidden path="uploadedImage"/>
+  <div class="control-group">
+    <c:if test="${form.uploadedImage == null}">
+      <label>Изображение:
+    </c:if>
+    <c:if test="${form.uploadedImage != null}">
+      <label>Заменить изображение:
+    </c:if>
+    <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" >
+    </label>
+  </div>
+
+  <c:if test="${not empty form.additionalUploadedImages}">
+    <div class="control-group">
+      <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
+        <form:hidden path="additionalUploadedImages[${i.index}]"/>
+        <c:if test="${v == null}">
+          <label>Дополнительное изображение #${i.index}:
+        </c:if>
+        <c:if test="${v != null}">
+          <label>Заменить изображение #${i.index}:
+        </c:if>
+        <input type="file" name="additionalImage" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+        </label>
+      </c:forEach>
+    </div>
+  </c:if>
+</c:if>
+
 
 <c:if test="${showAllowAnonymous}">
   <div class="control-group">
@@ -217,10 +204,24 @@
     </c:otherwise>
   </c:choose>
   <button type=submit name=preview class="btn btn-default">Предпросмотр</button>
-<c:if test="${template.sessionAuthorized && !section.pollPostAllowed}">
-  <button type=submit name=draft class="btn btn-default">Сохранить в черновики</button>
-</c:if>
-
+  <c:if test="${template.sessionAuthorized && !section.pollPostAllowed}">
+    <button type=submit name=draft class="btn btn-default">Сохранить в черновики</button>
+  </c:if>
 </div>
 </form:form>
+
+<c:if test="${imagepost}">
+<p>
+  Технические требования к изображению:
+  <ul>
+    <li>Ширина x Высота:
+      от <%= Image.MinDimension() %>x<%= Image.MinDimension() %>
+      до <%= Image.MaxDimension() %>x<%= Image.MaxDimension() %> пикселей</li>
+    <li>Тип: jpeg, gif, png</li>
+    <li>Размер не более <%= (Image.MaxFileSize() / 1024) - 50 %> Kb</li>
+    <li>Изображения, содержащие EXIF-информацию, не всегда могут быть загружены. Если ваше изображение соответствует требованиям выше, но не принимается к загрузке, удалите из него EXIF-информацию.</li>
+  </ul>
+</p>
+</c:if>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
