@@ -32,6 +32,11 @@ class TopicTagDao(springDB: SpringDB):
   def deleteTag(msgId: Int, tagId: Int)(using Transaction): Unit =
     sql"DELETE FROM tags WHERE msgid=$msgId AND tagid=$tagId".update.apply()
 
+  def lockTagValues(ids: Seq[Int])(using Transaction): Unit =
+    if ids.nonEmpty then
+      sql"SELECT id FROM tags_values WHERE id IN ($ids) ORDER BY id FOR UPDATE"
+        .map(rs => rs.int("id")).list.apply()
+
   def getTags(msgid: Int): Seq[TagInfo] =
     springDB.run:
       sql"""SELECT tags_values.value, tags_values.counter, tags_values.id

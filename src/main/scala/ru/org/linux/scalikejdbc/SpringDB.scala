@@ -42,12 +42,17 @@ class SpringDB(dataSource: DataSource, val transactionManager: PlatformTransacti
     finally DataSourceUtils.releaseConnection(conn, dataSource)
 
   def localTx[A](f: Transaction ?=> A): A =
-    transactional(): _ =>
-      val conn = DataSourceUtils.getConnection(dataSource)
-      try
-        given Transaction = Transaction(DBSession(conn, settings = settings))
-        f(using summon[Transaction])
-      finally DataSourceUtils.releaseConnection(conn, dataSource)
+    try
+      transactional(): _ =>
+        val conn = DataSourceUtils.getConnection(dataSource)
+        try
+          given Transaction = Transaction(DBSession(conn, settings = settings))
+          f(using summon[Transaction])
+        finally DataSourceUtils.releaseConnection(conn, dataSource)
+    catch
+      case e: java.lang.reflect.UndeclaredThrowableException =>
+        val cause = e.getCause
+        if cause != null then throw cause else throw e
 
 object SpringDB:
   given hstorePbf: ParameterBinderFactory[ju.Map[String, String]] =

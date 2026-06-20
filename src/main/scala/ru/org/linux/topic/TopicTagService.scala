@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -17,14 +17,12 @@ package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Service
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.tag.*
 import ru.org.linux.tag.TagService.*
 import ru.org.linux.topic.TopicTagService.*
 
 import scala.collection.Map
-import scala.jdk.CollectionConverters.*
 
 @Service
 class TopicTagService(springDB: SpringDB, tagService: TagService,
@@ -43,26 +41,29 @@ class TopicTagService(springDB: SpringDB, tagService: TagService,
 
       val oldTags = getTags(msgId)
 
-      val newTags = tagList.filterNot(oldTags.contains)
+      val addTags = tagList.filterNot(oldTags.contains)
+      val deleteTags = oldTags.filterNot(tagList.contains)
 
-      for (tag <- newTags) {
-        val id = tagService.getOrCreateTag(tag)
+      val addIds = addTags.map(tag => tag -> tagService.getOrCreateTag(tag))
+      val deleteIds = deleteTags.map(tag => tag -> tagService.getOrCreateTag(tag))
 
+      val lockIds = (addIds.map(_._2) ++ deleteIds.map(_._2)).distinct.sorted
+      if lockIds.nonEmpty then
+        topicTagDao.lockTagValues(lockIds)
+
+      for ((tag, id) <- addIds) {
         logger.trace(s"Добавлен тег '$tag' к топику msgId=$msgId")
         topicTagDao.addTag(msgId, id)
       }
 
-      val deleteTags = oldTags.filterNot(tagList.contains)
-
-      for (tag <- deleteTags) {
-        val id = tagService.getOrCreateTag(tag)
+      for ((tag, id) <- deleteIds) {
         logger.trace(s"Удалён тег '$tag' к топику msgId=$msgId")
         topicTagDao.deleteTag(msgId, id)
       }
 
       logger.trace(s"Завершено: обновление списка тегов для топика msgId=$msgId")
 
-      newTags.nonEmpty || deleteTags.nonEmpty
+      addTags.nonEmpty || deleteTags.nonEmpty
     }
   }
 

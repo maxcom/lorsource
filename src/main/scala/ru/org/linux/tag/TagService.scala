@@ -16,17 +16,16 @@
 package ru.org.linux.tag
 
 import com.github.benmanes.caffeine.cache.{Cache, Caffeine}
-import org.apache.pekko.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.pekko.actor.ActorSystem
+import org.opensearch.client.json.JsonData
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch._types.FieldValue
-import org.opensearch.client.json.JsonData
 import org.opensearch.client.opensearch._types.query_dsl.{BoolQuery, Query, RangeQuery, TermQuery}
 import org.opensearch.client.opensearch.core.{CountRequest, SearchRequest}
 import org.springframework.stereotype.Service
 import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, MessageIndex}
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.topic.TagTopicListController
@@ -78,7 +77,7 @@ class TagService(tagDao: TagDao, searchClient: OpenSearchAsyncClient, actorSyste
    * @param tagName название тега
    * @return идентификационный номер тега
    */
-  def getOrCreateTag(tagName: String): Int = springDB.localTx:
+  def getOrCreateTag(tagName: String)(using Transaction): Int =
     getTagIdOptWithSynonym(tagName).getOrElse(tagDao.createTag(tagName))
 
   def getTagInfo(tag: String, skipZero: Boolean): Option[TagInfo] = {
