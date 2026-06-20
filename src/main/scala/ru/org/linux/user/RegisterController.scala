@@ -32,7 +32,6 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.*
 import ru.org.linux.email.EmailService
-import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 import jakarta.mail.internet.InternetAddress
 import javax.validation.Valid
@@ -134,6 +133,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
         if (secretTokenService.verifyActivationCode(userDetails.getUser.nick, userDetails.getUser.email, activation)) {
+          logger.info(s"Activated user ${userDetails.getUser.nick}")
           userService.activateUser(userDetails.getUser)
 
           val updatedDetails = userDetailsService.loadUserByUsername(nick)
@@ -146,6 +146,8 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
           new ModelAndView(new RedirectView("/"))
         } else {
+          logger.warn(s"Wrong activation code for ${userDetails.getUser.nick}")
+          
           val params = activationFormParams(nick, activation) + ("error" -> "Неправильный код активации")
           new ModelAndView("activate", params.asJava)
         }
