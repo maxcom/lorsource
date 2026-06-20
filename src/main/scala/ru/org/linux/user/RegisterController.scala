@@ -54,7 +54,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 
     if (userPermissionService.canRegister(ipBlockInfo)) {
-      new ModelAndView("register", "permit", secretTokenService.makeRegisterPermit)
+      new ModelAndView("register", "permit", secretTokenService.makeRegisterPermit())
     } else {
       new ModelAndView("no-register")
     }
