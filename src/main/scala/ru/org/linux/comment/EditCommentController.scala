@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.auth.{CaptchaService, IpBlockDao, IpBlockInfo}
+import ru.org.linux.auth.{CaptchaService, IpBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
@@ -37,7 +37,7 @@ import javax.validation.Valid
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
-class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, ipBlockDao: IpBlockDao,
+class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, 
                             topicPermissionService: TopicPermissionService, commentPrepareService: CommentPrepareService,
                             searchQueueSender: SearchQueueSender, textService: MessageTextService,
                             commentReadService: CommentReadService, ignoreListDao: IgnoreListDao,

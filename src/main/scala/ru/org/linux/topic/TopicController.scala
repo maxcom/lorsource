@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
+import ru.org.linux.auth.AnySession
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AnySession, IpBlockDao}
 import ru.org.linux.comment.*
 import ru.org.linux.edithistory.EditHistoryObjectTypeEnum.TOPIC
 import ru.org.linux.edithistory.EditHistoryService
@@ -90,7 +90,7 @@ object TopicController {
 @Controller
 class TopicController(sectionService: SectionService, topicDao: TopicDao, prepareService: CommentPrepareService,
                       topicPrepareService: TopicPrepareService, commentService: CommentReadService,
-                      ignoreListDao: IgnoreListDao, ipBlockDao: IpBlockDao, editHistoryService: EditHistoryService,
+                      ignoreListDao: IgnoreListDao, editHistoryService: EditHistoryService,
                       memoriesDao: MemoriesDao, permissionService: TopicPermissionService,
                       moreLikeThisService: MoreLikeThisService, topicTagService: TopicTagService,
                       msgbaseDao: MsgbaseDao, textService: MessageTextService,

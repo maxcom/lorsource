@@ -15,12 +15,8 @@
 
 package ru.org.linux.rights
 
-import org.springframework.stereotype.Service
-import org.springframework.validation.Errors
-import ru.org.linux.auth.{IpBlockDao, IpBlockInfo}
+import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.user.User
-
-import javax.annotation.Nullable
 
 object IpBlockChecker:
   // temporary transitional method
@@ -38,12 +34,3 @@ object IpBlockChecker:
       .restrict(
         ipBlockInfo.isBlocked && user.isDefined && !ipBlockInfo.isAllowRegisteredPosting,
         s"постинг с этого IP адреса заблокирован")
-
-  // temporary transitional method
-  def checkBlockIP(
-      block: IpBlockInfo,
-      errors: Errors,
-      @Nullable
-      user: User): Unit =
-    if block.isBlocked && (user == null || user.isAnonymousScore || !block.isAllowRegisteredPosting) then
-      errors.reject(null, "Постинг заблокирован: " + block.reason)

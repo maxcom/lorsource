@@ -15,16 +15,12 @@
 package ru.org.linux.user
 
 import org.springframework.stereotype.Service
-import org.springframework.validation.Errors
-import ru.org.linux.auth.{AuthorizedSession, IpBlockDao, IpBlockInfo}
+import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.markup.MarkupType.{Html, Lorcode, LorcodeUlb, Markdown}
-import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.user.UserPermissionService.*
 
-import java.time.temporal.ChronoUnit
-import java.time.{Duration, Instant}
-import javax.annotation.Nullable
+import java.time.Duration
 
 object UserPermissionService {
   private val MaxUnactivatedPerIp = 2
@@ -37,12 +33,6 @@ object UserPermissionService {
       Set(Lorcode, LorcodeUlb, Markdown, Html)
     } else {
       Set(Lorcode, LorcodeUlb, Markdown)
-    }
-  }
-
-  def checkFrozen(user: User, errors: Errors): Unit = {
-    if (user.isFrozen) {
-      errors.reject(null, "Пользователь временно заморожен")
     }
   }
 }

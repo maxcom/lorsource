@@ -21,6 +21,7 @@ import io.circe.{Encoder, Json}
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.pekko.actor.typed.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
@@ -28,14 +29,13 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AccessViolationException, AuthUtil, CaptchaService, IpBlockDao, IpBlockInfo}
+import ru.org.linux.auth.{AccessViolationException, AuthUtil, CaptchaService, IpBlockInfo}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
-import org.springframework.security.crypto.password.PasswordEncoder
 import ru.org.linux.user.UserService
 import ru.org.linux.util.ServletParameterException
 
@@ -43,7 +43,7 @@ import javax.validation.Valid
 import scala.jdk.CollectionConverters.*
 
 @Controller
-class AddCommentController(ipBlockDao: IpBlockDao, commentPrepareService: CommentPrepareService,
+class AddCommentController(commentPrepareService: CommentPrepareService,
                            commentService: CommentCreateService, topicPermissionService: TopicPermissionService,
                            topicPrepareService: TopicPrepareService, searchQueueSender: SearchQueueSender,
                            @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],

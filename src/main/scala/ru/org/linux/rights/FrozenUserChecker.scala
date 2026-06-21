@@ -18,5 +18,7 @@ package ru.org.linux.rights
 import ru.org.linux.user.User
 
 object FrozenUserChecker:
+  def check(user: User): Permission = checkChain(user).seal
+
   def checkChain(user: User): RestrictionChain =
     Unrestricted.restrict(user.isFrozen, "установлен режим только для чтения")
