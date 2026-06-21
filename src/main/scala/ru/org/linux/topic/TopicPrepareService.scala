@@ -15,7 +15,7 @@
 package ru.org.linux.topic
 
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
+import ru.org.linux.auth.AnySession
 import ru.org.linux.edithistory.EditInfoSummary
 import ru.org.linux.gallery.{Image, ImageService, UploadedImagePreview}
 import ru.org.linux.group.{GroupPermissionService, GroupService, PreparedTopicsListItem, TopicsListItem}
@@ -51,12 +51,12 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
     prepareTopic(message, tags, minimizeCut = false, None, text, None, Seq.empty, warnings, imageLazyLoad = false)
 
   def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
-                          image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview]): PreparedTopic = {
+                          image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview])(using AnySession): PreparedTopic = {
     val imageObject = image.map(_.toImage(main = true))
     val additionalImageObjects = additionalImages.map(_.toImage(main = false))
 
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
-      text, imageObject, additionalImageObjects, imageLazyLoad = false)(using NonAuthorizedSession)
+      text, imageObject, additionalImageObjects, imageLazyLoad = false)
   }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(using session: AnySession): PreparedEditInfoSummary = {
@@ -189,13 +189,13 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
    * @param messages список топиков
    * @return список подготовленных топиков
    */
-  def prepareTopicForRSS(messages: Seq[Topic]): Seq[PreparedTopic] = {
+  def prepareTopicForRSS(messages: Seq[Topic])(using AnySession): Seq[PreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
 
     messages.view.map { message =>
       prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, textMap(message.id),
-        image = None, imageLazyLoad = false)(using NonAuthorizedSession)
+        image = None, imageLazyLoad = false)
     }.toSeq
   }
 

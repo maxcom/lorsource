@@ -27,17 +27,20 @@ import scalikejdbc.*
 import scala.collection.mutable
 
 object TopicListDao:
-  private def makeConditions(request: TopicListRequest, currentUserOpt: Option[User]): SQLSyntax =
+  private def makeConditions(
+      request: TopicListRequest,
+      skipIgnoreList: Boolean,
+      currentUserOpt: Option[User]): SQLSyntax =
     val fragments = mutable.ListBuffer[SQLSyntax]()
     val sections = request.sections.filter(_ != 0).toSeq
 
     fragments += sqls"NOT deleted"
 
-    currentUserOpt.foreach { user =>
-      fragments +=
-        sqls"AND ((sections.moderate AND commitdate is not null) OR userid NOT IN (select ignored from ignore_list where userid=${user
-            .id}))"
-    }
+    if !skipIgnoreList && request.commitMode != CommittedOnly && currentUserOpt.forall(_.id != request.userId) then
+      currentUserOpt.foreach: user =>
+        fragments +=
+          sqls"AND ((sections.moderate AND commitdate is not null) OR userid NOT IN (select ignored from ignore_list where userid=${user
+              .id}))"
 
     if request.commitMode != CommitMode.All then
       request.commitMode match
@@ -133,8 +136,9 @@ object TopicListDao:
 @Repository
 class TopicListDao(springDB: SpringDB):
 
-  def getTopics(topicListRequest: TopicListRequest, currentUser: AnySession): Seq[Topic] =
-    val conditions = TopicListDao.makeConditions(topicListRequest, currentUser.userOpt)
+  def getTopics(topicListRequest: TopicListRequest, skipIgnoreList: Boolean = false)(using
+      currentUser: AnySession): Seq[Topic] =
+    val conditions = TopicListDao.makeConditions(topicListRequest, skipIgnoreList, currentUser.userOpt)
     val sort = TopicListDao.makeSortOrder(topicListRequest)
     val limitOffset = TopicListDao.makeLimitAndOffset(topicListRequest)
 

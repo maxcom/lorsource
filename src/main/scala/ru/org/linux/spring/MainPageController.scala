@@ -44,7 +44,7 @@ class MainPageController(
       @RequestAttribute("ipBlockInfo")
       ipBlockInfo: IpBlockInfo): ModelAndView =
     MaybeAuthorized { implicit session =>
-      val allTopics = topicListService.getMainPageFeed(30)
+      val allTopics = topicListService.getMainPage(30)
 
       val (messages, titles) =
         allTopics.foldLeft((Vector.empty[Topic], Vector.empty[Topic])) { case ((big, small), topic) =>

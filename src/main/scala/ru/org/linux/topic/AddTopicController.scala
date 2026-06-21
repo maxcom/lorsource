@@ -244,7 +244,7 @@ class AddTopicController(
         poll,
         message,
         imagePreview,
-        additionalImagePreviews)
+        additionalImagePreviews)(using postingUser)
 
       params.put("message", preparedTopic)
 

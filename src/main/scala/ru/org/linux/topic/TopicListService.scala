@@ -15,17 +15,15 @@
 package ru.org.linux.topic
 
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.{AnySession, NonAuthorizedSession}
+import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.group.Group
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.TagService
-import ru.org.linux.topic.TopicListRequest.CommitMode
-import ru.org.linux.topic.TopicListRequest.DateLimit
+import ru.org.linux.topic.TopicListRequest.{CommitMode, DateLimit}
 import ru.org.linux.user.User
 
-import java.util.Calendar
-import java.util.Date
 import java.time.{Instant, ZonedDateTime}
+import java.util.{Calendar, Date}
 
 @Service
 object TopicListService:
@@ -49,7 +47,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       yearMonth: Option[(Int, Int)],
       count: Int,
       noTalks: Boolean,
-      tech: Boolean)(using currentUser: AnySession): Seq[Topic] =
+      tech: Boolean)(using AnySession): Seq[Topic] =
     val commitMode =
       if section.isPremoderated then
         CommitMode.CommittedOnly
@@ -83,14 +81,14 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
         else
           withLimit
 
-    topicListDao.getTopics(dto, currentUser)
+    topicListDao.getTopics(dto)
 
-  def getUserTopicsFeed(
+  def getUserTopics(
       user: User,
       section: Option[Section] = None,
       offset: Int,
       favorites: Boolean,
-      watches: Boolean): Seq[Topic] =
+      watches: Boolean)(using AnySession): Seq[Topic] =
     val dto = TopicListRequest(
       limit = Some(20),
       offset = Some(offset),
@@ -101,9 +99,9 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       sections = section.map(s => Set(s.id)).getOrElse(Set.empty)
     )
 
-    topicListDao.getTopics(dto, NonAuthorizedSession)
+    topicListDao.getTopics(dto, skipIgnoreList = true)
 
-  def getDrafts(user: User, offset: Int): Seq[Topic] =
+  def getDrafts(user: User, offset: Int)(using AuthorizedSession): Seq[Topic] =
     val dto = TopicListRequest(
       limit = Some(20),
       offset = Some(offset),
@@ -111,14 +109,14 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       userId = user.id,
       showDraft = true)
 
-    topicListDao.getTopics(dto, NonAuthorizedSession)
+    topicListDao.getTopics(dto)
 
   def getRssTopicsFeed(
       section: Section,
       group: Option[Group],
       fromDate: Instant,
       noTalks: Boolean,
-      tech: Boolean): Seq[Topic] =
+      tech: Boolean)(using AnySession): Seq[Topic] =
     val commitMode =
       if section.isPremoderated then
         CommitMode.CommittedOnly
@@ -135,20 +133,20 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       commitMode = commitMode
     )
 
-    topicListDao.getTopics(dto, NonAuthorizedSession)
+    topicListDao.getTopics(dto)
 
-  def getUncommitedTopic(section: Option[Section], fromDate: Date): Seq[Topic] =
+  def getUncommitedTopic(section: Option[Section], fromDate: Date)(using AnySession): Seq[Topic] =
     val dto = TopicListRequest(
       commitMode = CommitMode.UncommittedOnly,
       sections = section.map(s => Set(s.id)).getOrElse(Set.empty),
       dateLimit = DateLimit.FromDate(fromDate))
 
-    topicListDao.getTopics(dto, NonAuthorizedSession)
+    topicListDao.getTopics(dto)
 
   def getDeletedTopics(sectionId: Int, skipBadReason: Boolean): Seq[DeletedTopic] =
     topicListDao.getDeletedTopics(sectionId, skipBadReason = skipBadReason)
 
-  def getMainPageFeed(count: Int)(using session: AnySession): Seq[Topic] =
+  def getMainPage(count: Int)(using session: AnySession): Seq[Topic] =
     val sections =
       if session.profile.showGalleryOnMain then
         Set(Section.News, Section.Gallery, Section.Polls, Section.Articles)
@@ -162,10 +160,10 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       sections = sections
     )
 
-    topicListDao.getTopics(dto, NonAuthorizedSession)
+    topicListDao.getTopics(dto)
 
-  def getTopics(topicListRequest: TopicListRequest)(using currentUser: AnySession): Seq[Topic] =
-    topicListDao.getTopics(topicListRequest, currentUser)
+  def getTopics(topicListRequest: TopicListRequest)(using AnySession): Seq[Topic] =
+    topicListDao.getTopics(topicListRequest)
 
   def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] = topicListDao.getDeletedUserTopics(user, topics)
 
