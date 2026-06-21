@@ -171,8 +171,6 @@
     <form:hidden path="minor"/>
   </c:if>
 
-  <lor:captcha/>
-
   <div class="form-actions">
     <c:if test="${commit}">
       <button type="submit" class="btn btn-default">Отредактировать</button>

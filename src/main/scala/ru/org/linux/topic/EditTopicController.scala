@@ -53,7 +53,6 @@ class EditTopicController(
     groupService: GroupService,
     pollDao: PollDao,
     permissionService: GroupPermissionService,
-    captcha: CaptchaService,
     msgbaseDao: MsgbaseDao,
     editHistoryService: EditHistoryService,
     editTopicRequestValidator: EditTopicRequestValidator,
@@ -199,8 +198,6 @@ class EditTopicController(
       request: HttpServletRequest,
       @RequestParam(value = "chgrp", required = false)
       changeGroupId: Integer,
-      @RequestAttribute("captchaRequired")
-      captchaRequired: Boolean,
       @RequestAttribute("ipBlockInfo")
       ipBlockInfo: IpBlockInfo,
       @Valid @ModelAttribute("form")
@@ -324,10 +321,7 @@ class EditTopicController(
           MessageText.apply(form.msg, oldText.markup)
         else
           oldText
-
-      if !preview && !errors.hasErrors && captchaRequired then
-        captcha.checkCaptcha(request, errors)
-
+      
       if !preview && !errors.hasErrors then
         val editorBonus =
           if form.editorBonus != null then
