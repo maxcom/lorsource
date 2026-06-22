@@ -99,9 +99,8 @@ class TopicPostingCheckerTest extends FunSuite:
   private val unblockedIpInfo = IpBlockInfo("127.0.0.1")
 
   private def makeChecker(
-      sectionService: SectionService = mock(classOf[SectionService]),
-      userService: UserService = mock(classOf[UserService])): TopicPostingChecker =
-    new TopicPostingChecker(sectionService, userService)
+      sectionService: SectionService = mock(classOf[SectionService])): TopicPostingChecker =
+    new TopicPostingChecker(sectionService)
 
   // === checkTopicPosting(section) tests ===
 
@@ -118,9 +117,9 @@ class TopicPostingCheckerTest extends FunSuite:
     val userService = mock(classOf[UserService])
     val anonymousUser = makeUser(anonymous = true)
     when(userService.getAnonymous).thenReturn(anonymousUser)
-    val checker = makeChecker(userService = userService)
+    val checker = makeChecker()
 
-    val result = checker.checkTopicPosting(unrestrictedSection, unblockedIpInfo)(using NonAuthorizedSession)
+    val result = checker.checkTopicPosting(unrestrictedSection, unblockedIpInfo)(using NonAuthorizedSession(anonymousUser))
 
     assert(result.permitted)
 
@@ -139,9 +138,9 @@ class TopicPostingCheckerTest extends FunSuite:
     val userService = mock(classOf[UserService])
     val anonymousUser = makeUser(anonymous = true)
     when(userService.getAnonymous).thenReturn(anonymousUser)
-    val checker = makeChecker(userService = userService)
+    val checker = makeChecker()
 
-    val result = checker.checkTopicPosting(section, unblockedIpInfo)(using NonAuthorizedSession)
+    val result = checker.checkTopicPosting(section, unblockedIpInfo)(using NonAuthorizedSession(anonymousUser))
 
     assert(result.restricted)
     assertEquals(result.reason, "только для зарегистрированных")
@@ -241,12 +240,10 @@ class TopicPostingCheckerTest extends FunSuite:
 
   test("score threshold 100: anonymous session is restricted"):
     val section = unrestrictedSection.copy(topicsRestriction = 100)
-    val userService = mock(classOf[UserService])
     val anonymousUser = makeUser(anonymous = true)
-    when(userService.getAnonymous).thenReturn(anonymousUser)
-    val checker = makeChecker(userService = userService)
+    val checker = makeChecker()
 
-    val result = checker.checkTopicPosting(section, unblockedIpInfo)(using NonAuthorizedSession)
+    val result = checker.checkTopicPosting(section, unblockedIpInfo)(using NonAuthorizedSession(anonymousUser))
 
     assert(result.restricted)
 

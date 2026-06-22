@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.validation.Errors
+import org.springframework.web.context.request.{RequestAttributes, RequestContextHolder}
 import ru.org.linux.user.{Profile, User, UserService}
 
 import javax.annotation.Nullable
@@ -31,10 +32,11 @@ sealed trait AnySession:
   def moderator: Boolean
   def administrator: Boolean
 
-  // TODO minimize usages
-  // TODO тут можно возвращать userService.getAnonymous для анонимуса, но надо убрать все места, где
-  // TODO это используется как признак наличия аутентификации
+  // None если аутентификации нет, Some(user) если есть
   def userOpt: Option[User]
+
+  // user, если нет аутентификации то User для anonymous
+  def user: User
 
   def opt: Option[AuthorizedSession]
 
@@ -51,7 +53,8 @@ case class AuthorizedSession(
   override def opt: Option[AuthorizedSession] = Some(this)
   override def authorized: Boolean = true
 
-case object NonAuthorizedSession extends AnySession:
+case class NonAuthorizedSession(anonymous: User) extends AnySession:
+  override def user: User = anonymous
   override def userOpt: None.type = None
   override def corrector: Boolean = false
   override def moderator: Boolean = false
@@ -132,32 +135,44 @@ object AuthUtil extends StrictLogging:
 
   def MaybeAuthorized[T](f: AnySession => T): T =
     if isSessionAuthorized then
-      val currentUser = AuthorizedSession(
+      val session = AuthorizedSession(
         user = getCurrentUser,
         corrector = isCorrectorSession,
         moderator = isModeratorSession,
         administrator = isAdministratorSession,
         profile = getProfile)
 
-      f(currentUser)
+      f(session)
     else
-      f(NonAuthorizedSession)
+      f(mkNonAuthorizedSession)
 
-  def IgnoreAuthorization[T](f: NonAuthorizedSession.type => T): T =
-    f(NonAuthorizedSession)
+  private def mkNonAuthorizedSession: NonAuthorizedSession =
+    val user = RequestContextHolder
+      .currentRequestAttributes()
+      .getAttribute("currentUser", RequestAttributes.SCOPE_REQUEST)
+      .asInstanceOf[User]
+
+    if user == null then
+      throw new IllegalStateException("currentUser not set!?")
+    if !user.anonymous then
+      throw new IllegalStateException("expecting anonymous user for non-authorized session")
+
+    NonAuthorizedSession(user)
+
+  def IgnoreAuthorization[T](f: NonAuthorizedSession => T): T = f(mkNonAuthorizedSession)
 
   def AuthorizedOnly[T](f: AuthorizedSession => T): T =
     if !isSessionAuthorized then
       throw new AccessViolationException("Not authorized")
 
-    val currentUser = AuthorizedSession(
+    val session = AuthorizedSession(
       user = getCurrentUser,
       corrector = isCorrectorSession,
       moderator = isModeratorSession,
       administrator = isAdministratorSession,
       profile = getProfile)
 
-    f(currentUser)
+    f(session)
 
   def ModeratorOnly[T](f: AuthorizedSession => T): T =
     if !isModeratorSession then
@@ -177,8 +192,13 @@ object AuthUtil extends StrictLogging:
 
     AuthorizedOnly(f)
 
-  def postingUser(session: AnySession, formUser: Option[User], formPassword: Option[String], errors: Errors,
-      passwordEncoder: PasswordEncoder, request: HttpServletRequest): AnySession = {
+  def postingUser(
+      session: AnySession,
+      formUser: Option[User],
+      formPassword: Option[String],
+      errors: Errors,
+      passwordEncoder: PasswordEncoder,
+      request: HttpServletRequest): AnySession =
     if errors.hasErrors then
       session
     else if session.authorized then
@@ -186,20 +206,20 @@ object AuthUtil extends StrictLogging:
     else
       formUser match
         case None =>
-          NonAuthorizedSession
+          session
         case Some(formUser) if formUser.anonymous =>
-          NonAuthorizedSession
+          session
         case Some(formUser) =>
           if formUser.blocked || !formUser.activated then
             errors.rejectValue("user", null, s"Пользователь \"${formUser.nick}\" заблокирован или не активирован")
-            NonAuthorizedSession
+            session
           else if !(formUser.anonymous && formPassword.get.isEmpty) &&
             !passwordEncoder.matches(formPassword.get, formUser.password)
           then
             logger.warn("Password of {} does not match; remote IP: {}; {}", formUser.nick, request.getRemoteAddr)
 
             errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.nick}\" задан неверно!")
-            NonAuthorizedSession
+            session
           else
             AuthorizedSession(
               formUser,
@@ -207,4 +227,3 @@ object AuthUtil extends StrictLogging:
               moderator = false,
               administrator = false,
               profile = Profile.DEFAULT)
-  }

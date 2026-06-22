@@ -170,7 +170,7 @@
             <lor:poll poll="${preparedMessage.poll}"/>
           </c:when>
           <c:otherwise>
-            <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${currentUser!=null}" commited="true"/>
+            <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${template.sessionAuthorized}" commited="true"/>
              <p>&gt;&gt;&gt; <a href="${message.link}?results=true">Результаты</a>
           </c:otherwise>
         </c:choose>

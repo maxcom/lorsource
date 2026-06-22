@@ -135,7 +135,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
     lazy val postscore = topicPermissionService.getPostscore(group, topic)
 
     val showRegisterInvite = !session.authorized &&
-      (userService.getAnonymous.isFrozen || postscore <= 45 &&
+      (session.user.isFrozen || postscore <= 45 &&
         postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED)
 
     val postscoreInfo = if (!topic.expired) {

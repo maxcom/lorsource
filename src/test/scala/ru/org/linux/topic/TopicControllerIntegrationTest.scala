@@ -24,6 +24,7 @@ import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.context.WebApplicationContext
 import ru.org.linux.PekkoConfiguration
+import ru.org.linux.user.UserService
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.{redirectedUrl, status}
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
@@ -40,11 +41,19 @@ class TopicControllerIntegrationTest {
   @Autowired
   var wac: WebApplicationContext = scala.compiletime.uninitialized
 
+  @Autowired
+  private var userService: UserService = scala.compiletime.uninitialized
+
   private var mockMvc: MockMvc = scala.compiletime.uninitialized
 
   @Before
   def setup(): Unit = {
-    mockMvc = webAppContextSetup(wac).build()
+    val defaultReq = get("/")
+    defaultReq.requestAttr("currentUser", userService.getAnonymous)
+
+    val builder = webAppContextSetup(wac)
+    builder.defaultRequest(defaultReq)
+    mockMvc = builder.build()
   }
 
   @Test

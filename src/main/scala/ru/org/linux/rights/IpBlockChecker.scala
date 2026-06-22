@@ -20,17 +20,17 @@ import ru.org.linux.user.User
 
 object IpBlockChecker:
   // temporary transitional method
-  def check(ipBlockInfo: IpBlockInfo, user: Option[User]): Permission = checkChain(ipBlockInfo, user).seal
+  def check(ipBlockInfo: IpBlockInfo, user: User): Permission = checkChain(ipBlockInfo, user).seal
 
-  def checkChain(ipBlockInfo: IpBlockInfo, user: Option[User]): RestrictionChain =
+  def checkChain(ipBlockInfo: IpBlockInfo, user: User): RestrictionChain =
     Unrestricted
       .restrict(
-        ipBlockInfo.isBlocked && (user.isEmpty || user.exists(_.anonymous)),
+        ipBlockInfo.isBlocked && user.anonymous,
         "анонимный постинг с этого IP адреса заблокирован")
       .restrict(
-        ipBlockInfo.isBlocked && user.exists(_.isAnonymousScore),
+        ipBlockInfo.isBlocked && user.isAnonymousScore,
         s"постинг с этого IP адреса ограничен для пользователей с score < ${User.AnonymousLevelScore}"
       )
       .restrict(
-        ipBlockInfo.isBlocked && user.isDefined && !ipBlockInfo.isAllowRegisteredPosting,
+        ipBlockInfo.isBlocked && !user.anonymous && !ipBlockInfo.isAllowRegisteredPosting,
         s"постинг с этого IP адреса заблокирован")

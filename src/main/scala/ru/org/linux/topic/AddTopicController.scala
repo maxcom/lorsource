@@ -192,7 +192,7 @@ class AddTopicController(
         captcha.checkCaptcha(request, errors)
 
       val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors, passwordEncoder, request)
-      val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
+      val user = postingUser.user
 
       val postingCheck = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)(using postingUser)
 

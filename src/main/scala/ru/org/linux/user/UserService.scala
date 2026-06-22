@@ -16,13 +16,12 @@ package ru.org.linux.user
 
 import com.github.benmanes.caffeine.cache.{Caffeine, LoadingCache}
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.mail.internet.InternetAddress
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.msgbase.UserAgentDao
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.site.DefaultProfile
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.UserService.*
@@ -34,7 +33,6 @@ import java.sql.Timestamp
 import java.time.{Duration, Instant}
 import java.util.concurrent.{CompletionException, TimeUnit}
 import javax.annotation.Nullable
-import jakarta.mail.internet.InternetAddress
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}

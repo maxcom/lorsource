@@ -21,4 +21,6 @@ object FrozenUserChecker:
   def check(user: User): Permission = checkChain(user).seal
 
   def checkChain(user: User): RestrictionChain =
-    Unrestricted.restrict(user.isFrozen, "установлен режим только для чтения")
+    Unrestricted
+      .restrict(user.anonymous && user.isFrozen, "только для зарегистрированных")
+      .restrict(user.isFrozen, "установлен режим только для чтения")

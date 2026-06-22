@@ -36,7 +36,6 @@ import ru.org.linux.msgbase.MessageText
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
-import ru.org.linux.user.UserService
 import ru.org.linux.util.ServletParameterException
 
 import javax.validation.Valid
@@ -47,7 +46,7 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
                            commentService: CommentCreateService, topicPermissionService: TopicPermissionService,
                            topicPrepareService: TopicPrepareService, searchQueueSender: SearchQueueSender,
                            @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-                           textService: MessageTextService, userService: UserService, passwordEncoder: PasswordEncoder,
+                           textService: MessageTextService, passwordEncoder: PasswordEncoder,
                            captcha: CaptchaService) {
   /**
     * Показ формы добавления ответа на комментарий.
@@ -96,7 +95,7 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
       captcha.checkCaptcha(request, errors)
 
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors, passwordEncoder, request)
-    val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
+    val user = postingUser.user
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
       sessionAuthorized = sessionUserOpt.authorized)
@@ -146,7 +145,7 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
       captcha.checkCaptcha(request, errors)
 
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors, passwordEncoder, request)
-    val user = postingUser.userOpt.getOrElse(userService.getAnonymous)
+    val user = postingUser.user
 
     commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
       sessionAuthorized = sessionUserOpt.authorized)

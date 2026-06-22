@@ -19,22 +19,22 @@ import ru.org.linux.auth.{AnySession, IpBlockInfo}
 import ru.org.linux.group.Group
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.TopicPermissionService.*
-import ru.org.linux.user.{User, UserService}
+import ru.org.linux.user.User
 
 @Service
-class TopicPostingChecker(sectionService: SectionService, userService: UserService):
+class TopicPostingChecker(sectionService: SectionService):
   def checkTopicPosting(section: Section, ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission =
-    checkTopicPostingImpl(section.topicsRestriction, currentUser.userOpt, ipBlockInfo)
+    checkTopicPostingImpl(section.topicsRestriction, currentUser.user, ipBlockInfo)
 
   def checkTopicPosting(group: Group, ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission =
     val section = sectionService.getSection(group.sectionId)
     val maxPostscore = Math.max(group.topicRestriction, section.topicsRestriction)
-    checkTopicPostingImpl(maxPostscore, currentUser.userOpt, ipBlockInfo)
+    checkTopicPostingImpl(maxPostscore, currentUser.user, ipBlockInfo)
 
   def checkTopicPostingAnywhere(ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission = {
     val minRestriction = sectionService.sections.view.map(_.topicsRestriction).min
     
-    checkTopicPostingImpl(minRestriction, currentUser.userOpt, ipBlockInfo)
+    checkTopicPostingImpl(minRestriction, currentUser.user, ipBlockInfo)
   }
 
   private def postScoreCheckerChain(user: User, postscore: Int): RestrictionChain =
@@ -62,13 +62,11 @@ class TopicPostingChecker(sectionService: SectionService, userService: UserServi
 
   private def checkTopicPostingImpl(
       restriction: Int,
-      currentUserOpt: Option[User],
+      currentUser: User,
       ipBlockInfo: IpBlockInfo): Permission =
-    val currentUser = currentUserOpt.getOrElse(userService.getAnonymous)
-
     Unrestricted
       .restrict(currentUser.blocked, "пользователь заблокирован")
       .restrict(FrozenUserChecker.checkChain(currentUser))
       .restrict(postScoreCheckerChain(currentUser, restriction))
-      .restrict(IpBlockChecker.checkChain(ipBlockInfo, currentUserOpt))
+      .restrict(IpBlockChecker.checkChain(ipBlockInfo, currentUser))
       .seal

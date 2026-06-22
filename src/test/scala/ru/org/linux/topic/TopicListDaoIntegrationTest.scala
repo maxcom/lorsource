@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.auth.{AuthorizedSession, NonAuthorizedSession}
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.topic.TopicListRequest.CommitMode
-import ru.org.linux.user.{Profile, UserDao}
+import ru.org.linux.user.{Profile, UserDao, UserService}
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(classes = Array(classOf[TopicListDaoIntegrationTestConfiguration])) @Transactional
@@ -37,11 +37,14 @@ class TopicListDaoIntegrationTest:
   @Autowired
   var userDao: UserDao = scala.compiletime.uninitialized
 
+  private lazy val anonymousSession: NonAuthorizedSession =
+    NonAuthorizedSession(userDao.getUser(UserService.AnonymousUserId))
+
   @Test
   def testGetTopicsForumSection(): Unit =
     val dto = TopicListRequest(sections = Set(2), commitMode = CommitMode.CommittedAndPostmoderated, limit = Some(10))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertTrue("Should return topics for forum section", topics.nonEmpty)
     assertTrue("Should return at most 10 topics", topics.size <= 10)
     topics.foreach { topic =>
@@ -66,7 +69,7 @@ class TopicListDaoIntegrationTest:
   def testGetTopicsAllSections(): Unit =
     val dto = TopicListRequest(commitMode = CommitMode.CommittedOnly, limit = Some(5))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Topics should not be null", topics)
     assertTrue("Should return committed topics", topics.size <= 5)
 
@@ -74,14 +77,14 @@ class TopicListDaoIntegrationTest:
   def testGetTopicsUncommitted(): Unit =
     val dto = TopicListRequest(commitMode = CommitMode.UncommittedOnly, limit = Some(5))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Topics should not be null", topics)
 
   @Test
   def testGetTopicsByGroup(): Unit =
     val dto = TopicListRequest(group = 126, commitMode = CommitMode.CommittedAndPostmoderated, limit = Some(10))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Topics should not be null", topics)
 
   @Test
@@ -95,14 +98,14 @@ class TopicListDaoIntegrationTest:
   def testGetTopicsPostmoderatedOnly(): Unit =
     val dto = TopicListRequest(sections = Set(2), commitMode = CommitMode.PostmoderatedOnly, limit = Some(5))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Topics should not be null", topics)
 
   @Test
   def testGetTopicsCommittedOnly(): Unit =
     val dto = TopicListRequest(sections = Set(1), commitMode = CommitMode.CommittedOnly, limit = Some(10))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertTrue("Should return committed topics in moderated section", topics.nonEmpty)
     topics.foreach { topic =>
       assertNotNull("Committed topic should have commitdate", topic.commitDate)
@@ -112,7 +115,7 @@ class TopicListDaoIntegrationTest:
   def testGetTopicsByUser(): Unit =
     val dto = TopicListRequest(userId = 1, commitMode = CommitMode.CommittedAndPostmoderated, limit = Some(10))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Topics should not be null", topics)
     topics.foreach { topic =>
       assertEquals("All topics should be by user 1", 1, topic.authorUserId)
@@ -126,7 +129,7 @@ class TopicListDaoIntegrationTest:
       commitMode = CommitMode.CommittedAndPostmoderated,
       limit = Some(10))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Favorites topics should not be null", topics)
     assertTrue("Should return at most 10 favorites", topics.size <= 10)
 
@@ -139,7 +142,7 @@ class TopicListDaoIntegrationTest:
       commitMode = CommitMode.CommittedAndPostmoderated,
       limit = Some(10))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Watched topics should not be null", topics)
 
   @Test
@@ -150,7 +153,7 @@ class TopicListDaoIntegrationTest:
       notalks = true,
       limit = Some(10))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Topics should not be null", topics)
     topics.foreach { topic =>
       assertNotEquals("Talks group should be excluded", 8404, topic.groupId)
@@ -164,7 +167,7 @@ class TopicListDaoIntegrationTest:
       tech = true,
       limit = Some(10))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Topics should not be null", topics)
 
   @Test
@@ -175,7 +178,7 @@ class TopicListDaoIntegrationTest:
       limit = Some(5),
       offset = Some(0))
 
-    val topics = topicListDao.getTopics(dto)(using NonAuthorizedSession)
+    val topics = topicListDao.getTopics(dto)(using anonymousSession)
     assertNotNull("Topics should not be null", topics)
     assertTrue("Should return at most 5 topics", topics.size <= 5)
 

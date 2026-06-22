@@ -109,7 +109,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val editable = topicPermissionService.isCommentEditableNow(comment, hasAnswers, topic, messageText.markup)(using session)
     val warningsAllowed = topicPermissionService.canPostWarning(topic, Some(comment))(using session)
 
-    val authorReadonly = !topicPermissionService.isCommentsAllowedByUser(group, topic, Some(author), ignoreFrozen = true)
+    val authorReadonly = !topicPermissionService.isCommentsAllowedByUser(group, topic, author, ignoreFrozen = true)
 
     val preparedWarnings = warningService.prepareWarning(warnings)
 

@@ -23,6 +23,7 @@ import ru.org.linux.auth.CommonContextFilter.{BadTimezones, Russian}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
+import ru.org.linux.user.UserService
 
 import java.time.ZoneId
 import java.time.zone.ZoneRulesException
@@ -32,7 +33,7 @@ object CommonContextFilter:
   private val Russian = Locale.forLanguageTag("ru")
   private val BadTimezones: Set[String] = Set("Factory", "Etc/Unknown")
 
-class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao)
+class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao, userService: UserService)
     extends GenericFilterBean
     with InitializingBean:
   override def doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain): Unit =
@@ -59,7 +60,11 @@ class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao)
 
     request.setAttribute("configuration", siteConfig)
     request.setAttribute("template", new Template)
-    request.setAttribute("currentUser", currentUser)
+    
+    if currentUser != null then
+      request.setAttribute("currentUser", currentUser)
+    else
+      request.setAttribute("currentUser", userService.getAnonymous)
 
     val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
     request.setAttribute("ipBlockInfo", ipBlockInfo)

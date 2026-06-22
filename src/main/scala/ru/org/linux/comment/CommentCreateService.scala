@@ -123,7 +123,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
     }
 
     FrozenUserChecker.check(user).checkOrError(errors)
-    IpBlockChecker.check(ipBlockInfo = ipBlockInfo, user = Some(user)).checkOrError(errors)
+    IpBlockChecker.check(ipBlockInfo = ipBlockInfo, user = user).checkOrError(errors)
 
     if (!commentRequest.isPreviewMode && !errors.hasErrors && !editMode) {
       floodProtector.checkRateLimit(FloodProtector.AddComment, request.getRemoteAddr, user, errors)

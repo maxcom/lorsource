@@ -1,6 +1,6 @@
 <%@ tag import="ru.org.linux.site.DateFormats" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %><%--
-  ~ Copyright 1998-2023 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -33,7 +33,7 @@
     </c:if>
 
     <c:set var="disabled"><c:if test="${not reactions.allowInteract}">disabled</c:if></c:set>
-    <c:set var="anonymous"><c:if test="${currentUser == null}">reaction-anonymous</c:if></c:set>
+    <c:set var="anonymous"><c:if test="${not template.sessionAuthorized}">reaction-anonymous</c:if></c:set>
 
     <c:forEach var="r" items="${reactions.map}">
       <c:if test="${all || r.value.count > 0}">
@@ -53,7 +53,7 @@
       </c:if>
     </c:forEach>
 
-    <c:if test="${not all and not reactions.emptyMap and currentUser != null}">
+    <c:if test="${not all and not reactions.emptyMap and template.sessionAuthorized}">
       <c:if test="${comment==null}">
         <a class="reaction reaction-show-list" href="/reactions?topic=${topic.id}">?</a>
       </c:if>

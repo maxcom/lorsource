@@ -156,7 +156,7 @@ class EditProfileController(
         else
           currentUser.profile.formatMode
 
-      IpBlockChecker.check(ipBlockInfo, currentUser.userOpt).checkOrError(errors)
+      IpBlockChecker.check(ipBlockInfo, currentUser.user).checkOrError(errors)
 
       val user = currentUser.user
 

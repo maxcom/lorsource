@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 <%--@elvariable id="disable_event_header" type="java.lang.Boolean"--%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
-<c:if test="${not disable_event_header}">
+<c:if test="${not disable_event_header and template.sessionAuthorized}">
   <c:if test="${currentUser.unreadEvents > 0}">
     <a href="notifications">Уведомления <span id="main_events_count">(${currentUser.unreadEvents})</span></a>
   </c:if>
@@ -25,5 +25,5 @@
   </c:if>
 </c:if>
 <c:if test="${disable_event_header}">
-    <a href="notifications">Уведомления</a>
+  <a href="notifications">Уведомления</a>
 </c:if>

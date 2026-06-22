@@ -82,7 +82,7 @@ class EditTopicController(
       if !preparedTopic.section.isPremoderated then
         throw new UserErrorException("Раздел не премодерируемый")
 
-      IpBlockChecker.check(ipBlockInfo, currentUser.userOpt).checkOrThrow()
+      IpBlockChecker.check(ipBlockInfo, currentUser.user).checkOrThrow()
 
       initForm(preparedTopic, form)
 
@@ -108,7 +108,7 @@ class EditTopicController(
       if !permissionService.isEditable(preparedTopic) && !permissionService.isTagsEditable(preparedTopic) then
         throw new AccessViolationException("это сообщение нельзя править")
 
-      IpBlockChecker.check(ipBlockInfo, currentUser.userOpt).checkOrThrow()
+      IpBlockChecker.check(ipBlockInfo, currentUser.user).checkOrThrow()
 
       initForm(preparedTopic, form)
 
@@ -211,7 +211,7 @@ class EditTopicController(
       val group = preparedTopic.group
       val user = currentUser.user
 
-      IpBlockChecker.check(ipBlockInfo, currentUser.userOpt).checkOrError(errors)
+      IpBlockChecker.check(ipBlockInfo, currentUser.user).checkOrError(errors)
 
       val params = prepareModel(preparedTopic)
 

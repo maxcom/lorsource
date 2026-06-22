@@ -14,7 +14,6 @@
  */
 package ru.org.linux.topic
 
-import ru.org.linux.user.UserConstants
 import com.google.common.base.Preconditions
 import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
@@ -28,11 +27,11 @@ import ru.org.linux.section.Section
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED, ViewDeletedScore}
-import ru.org.linux.user.{User, UserPermissionService, UserService}
+import ru.org.linux.user.{User, UserConstants, UserPermissionService}
 import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
-import java.time.{Duration, Instant}
 import java.time.temporal.ChronoUnit
+import java.time.{Duration, Instant}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.MapHasAsJava
 
@@ -92,8 +91,7 @@ object TopicPermissionService {
 
 @Service
 class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupService: GroupService,
-                             deleteInfoDao: DeleteInfoDao, userService: UserService,
-                             userPermissionService: UserPermissionService,
+                             deleteInfoDao: DeleteInfoDao, userPermissionService: UserPermissionService,
                              slowModeChecker: SlowModeChecker) {
   def allowViewAllDeletedComments(message: Topic)(using currentUser: AnySession): Boolean = {
     if !currentUser.moderator then
@@ -236,14 +234,14 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
   }
 
   def isCommentsAllowed(group: Group, topic: Topic)(using anySession: AnySession): Boolean =
-    isCommentsAllowedByUser(group, topic, anySession.userOpt, ignoreFrozen = false)
+    isCommentsAllowedByUser(group, topic, anySession.user, ignoreFrozen = false)
 
-  def isCommentsAllowedByUser(group: Group, topic: Topic, user: Option[User], ignoreFrozen: Boolean): Boolean = {
+  def isCommentsAllowedByUser(group: Group, topic: Topic, user: User, ignoreFrozen: Boolean): Boolean = {
     if (topic.deleted || topic.expired || topic.draft) {
       return false
     }
 
-    val effectiveUser = user.getOrElse(userService.getAnonymous)
+    val effectiveUser = user
 
     if (effectiveUser.blocked || (!ignoreFrozen && effectiveUser.isFrozen)) {
       return false
@@ -262,7 +260,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     if (effectiveUser.anonymous) {
       false
     } else {
-      if (user.get.isModerator) {
+      if (user.isModerator) {
         return true
       }
 
@@ -274,13 +272,13 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         return false
       }
 
-      val viewByAuthor = user.get.id == topic.authorUserId
+      val viewByAuthor = user.id == topic.authorUserId
 
       if (score == TopicPermissionService.POSTSCORE_MOD_AUTHOR) {
         return viewByAuthor
       }
 
-      viewByAuthor || user.get.getScore >= score
+      viewByAuthor || user.getScore >= score
     }
   }
 
