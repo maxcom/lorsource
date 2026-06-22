@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
-import ru.org.linux.auth.AuthUtil.{IgnoreAuthorization, MaybeAuthorized}
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.{Group, GroupNotFoundException, GroupService}
 import ru.org.linux.rights.TopicPostingChecker
@@ -246,7 +246,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   def showRSS(@RequestParam(value = "section", defaultValue = "1") sectionId: Int,
               @RequestParam(value = "group", defaultValue = "0") groupId: Int,
               @RequestParam(value = "filter", required = false) filter: String,
-              webRequest: WebRequest): ModelAndView = IgnoreAuthorization { implicit session =>
+              webRequest: WebRequest): ModelAndView = MaybeAuthorized { implicit session =>
     val forumFilter = parseFilter(filter)
 
     val section = sectionService.getSection(sectionId)

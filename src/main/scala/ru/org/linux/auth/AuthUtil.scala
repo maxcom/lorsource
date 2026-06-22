@@ -159,8 +159,6 @@ object AuthUtil extends StrictLogging:
 
     NonAuthorizedSession(user)
 
-  def IgnoreAuthorization[T](f: NonAuthorizedSession => T): T = f(mkNonAuthorizedSession)
-
   def AuthorizedOnly[T](f: AuthorizedSession => T): T =
     if !isSessionAuthorized then
       throw new AccessViolationException("Not authorized")
