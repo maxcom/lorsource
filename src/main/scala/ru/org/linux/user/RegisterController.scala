@@ -47,16 +47,18 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   private val registerRequestValidator = new RegisterRequestValidator(emailDomainsBlockDao)
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
-  def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse,
-               @RequestAttribute("ipBlockInfo")
-               ipBlockInfo: IpBlockInfo): ModelAndView = {
-    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
+  def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse
+              ): ModelAndView = AuthUtil.MaybeAuthorized { session =>
+    if session.authorized then
+      new ModelAndView(new RedirectView("/people/" + session.user.nick + "/profile"))
+    else
+      response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 
-    if (userPermissionService.canRegister(ipBlockInfo)) {
-      new ModelAndView("register", "permit", secretTokenService.makeRegisterPermit())
-    } else {
-      new ModelAndView("no-register")
-    }
+      if (userPermissionService.canRegister(session.ipBlockInfo)) {
+        new ModelAndView("register", "permit", secretTokenService.makeRegisterPermit())
+      } else {
+        new ModelAndView("no-register")
+      }
   }
   
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))

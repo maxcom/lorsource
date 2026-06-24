@@ -103,8 +103,6 @@ class EditProfileController(
   def edit(
       request: HttpServletRequest,
       response: HttpServletResponse,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo,
       @PathVariable("nick")
       nick: String,
       @Valid @ModelAttribute("form")
@@ -156,7 +154,7 @@ class EditProfileController(
         else
           currentUser.profile.formatMode
 
-      IpBlockChecker.check(ipBlockInfo, currentUser.user).checkOrError(errors)
+      IpBlockChecker.check.checkOrError(errors)
 
       val user = currentUser.user
 

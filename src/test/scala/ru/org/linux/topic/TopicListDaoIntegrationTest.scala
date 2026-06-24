@@ -22,7 +22,7 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.auth.{AuthorizedSession, NonAuthorizedSession}
+import ru.org.linux.auth.{AuthorizedSession, IpBlockInfo, NonAuthorizedSession}
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.topic.TopicListRequest.CommitMode
 import ru.org.linux.user.{Profile, UserDao, UserService}
@@ -38,7 +38,7 @@ class TopicListDaoIntegrationTest:
   var userDao: UserDao = scala.compiletime.uninitialized
 
   private lazy val anonymousSession: NonAuthorizedSession =
-    NonAuthorizedSession(userDao.getUser(UserService.AnonymousUserId))
+    NonAuthorizedSession(userDao.getUser(UserService.AnonymousUserId), ipBlockInfo = IpBlockInfo.apply("127.0.0.1"))
 
   @Test
   def testGetTopicsForumSection(): Unit =
@@ -59,7 +59,8 @@ class TopicListDaoIntegrationTest:
       corrector = false,
       moderator = false,
       administrator = false,
-      profile = Profile.DEFAULT)
+      profile = Profile.DEFAULT,
+      ipBlockInfo = IpBlockInfo("127.0.0.1"))
     val dto = TopicListRequest(sections = Set(2), commitMode = CommitMode.CommittedAndPostmoderated, limit = Some(10))
 
     val topics = topicListDao.getTopics(dto)

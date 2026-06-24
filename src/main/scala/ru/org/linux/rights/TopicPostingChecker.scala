@@ -23,18 +23,18 @@ import ru.org.linux.user.User
 
 @Service
 class TopicPostingChecker(sectionService: SectionService):
-  def checkTopicPosting(section: Section, ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission =
-    checkTopicPostingImpl(section.topicsRestriction, currentUser.user, ipBlockInfo)
+  def checkTopicPosting(section: Section)(using session: AnySession): Permission =
+    checkTopicPostingImpl(section.topicsRestriction, session.user, session.ipBlockInfo)
 
-  def checkTopicPosting(group: Group, ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission =
+  def checkTopicPosting(group: Group)(using session: AnySession): Permission =
     val section = sectionService.getSection(group.sectionId)
     val maxPostscore = Math.max(group.topicRestriction, section.topicsRestriction)
-    checkTopicPostingImpl(maxPostscore, currentUser.user, ipBlockInfo)
+    checkTopicPostingImpl(maxPostscore, session.user, session.ipBlockInfo)
 
-  def checkTopicPostingAnywhere(ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): Permission = {
+  def checkTopicPostingAnywhere(using session: AnySession): Permission = {
     val minRestriction = sectionService.sections.view.map(_.topicsRestriction).min
     
-    checkTopicPostingImpl(minRestriction, currentUser.user, ipBlockInfo)
+    checkTopicPostingImpl(minRestriction, session.user, session.ipBlockInfo)
   }
 
   private def postScoreCheckerChain(user: User, postscore: Int): RestrictionChain =

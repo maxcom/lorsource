@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AccessViolationException, AuthUtil, CaptchaService, IpBlockInfo}
+import ru.org.linux.auth.{AccessViolationException, AuthUtil, CaptchaService}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MessageText
@@ -89,16 +89,14 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
-                 @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo, @RequestAttribute("captchaRequired")
-                 captchaRequired: Boolean): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
+                 @RequestAttribute("captchaRequired") captchaRequired: Boolean): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
     if !add.isPreviewMode && !errors.hasErrors && captchaRequired then
       captcha.checkCaptcha(request, errors)
 
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors, passwordEncoder, request)
     val user = postingUser.user
 
-    commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
-      sessionAuthorized = sessionUserOpt.authorized)
+    commentService.checkPostData(add, request, errors, editMode = false)(using postingUser)
 
     val comment = commentService.getComment(add, user, request)
 
@@ -106,11 +104,11 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
       topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(using postingUser)
     }
 
-    if (textService.isEmpty(MessageText(add.getMsg, sessionUserOpt.profile.formatMode))) {
+    if (textService.isEmpty(MessageText(add.getMsg, postingUser.profile.formatMode))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
     }
 
-    val msg = commentService.getCommentBody(add, user, errors, sessionUserOpt.profile.formatMode)
+    val msg = commentService.getCommentBody(add, user, errors, postingUser.profile.formatMode)
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {
       val info = if (add.getTopic != null) {
@@ -139,7 +137,7 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     method = Array(RequestMethod.POST))
   @ResponseBody
   def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
-                     @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo, @RequestAttribute("captchaRequired")
+                     @RequestAttribute("captchaRequired")
                      captchaRequired: Boolean): Json = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
     if !add.isPreviewMode && !errors.hasErrors && captchaRequired then
       captcha.checkCaptcha(request, errors)
@@ -147,10 +145,9 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors, passwordEncoder, request)
     val user = postingUser.user
 
-    commentService.checkPostData(add, user, ipBlockInfo, request, errors, editMode = false,
-      sessionAuthorized = sessionUserOpt.authorized)
+    commentService.checkPostData(add, request, errors, editMode = false)(using postingUser)
 
-    val msg = commentService.getCommentBody(add, user, errors, sessionUserOpt.profile.formatMode)
+    val msg = commentService.getCommentBody(add, user, errors, postingUser.profile.formatMode)
     val comment = commentService.getComment(add, user, request)
 
     if (add.getTopic != null) {

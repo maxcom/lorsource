@@ -72,8 +72,8 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
   def forumArchive(@PathVariable("group") groupName: String,
                    @RequestParam(defaultValue = "0", value = "offset") offset: Int,
                    @PathVariable year: Int, @PathVariable month: Int,
-                   @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
-                   @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
+                   @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean
+                  ): CompletionStage[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val section = sectionService.getSection(Section.Forum)
     val group = groupService.getGroup(section, groupName)
 
@@ -86,7 +86,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
     }
 
     forum(section, group, offset, lastmod = false, Some((year, month)), tagInfo = None,
-      showDeleted = false, showIgnored = showIgnored, ipBlockInfo = ipBlockInfo)
+      showDeleted = false, showIgnored = showIgnored)
   }
 
   private def isFirstPage(offset: Int): Boolean = {
@@ -106,7 +106,6 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
              @RequestParam(defaultValue = "false") lastmod: Boolean, @RequestParam(required = false) tag: String,
              @RequestParam(defaultValue = "false") showDeleted: Boolean,
              @RequestParam(value = "showignored", defaultValue = "false") showIgnored: Boolean,
-             @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo,
              request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { implicit session =>
     val section = sectionService.getSection(Section.Forum)
     val group = groupService.getGroup(section, groupName)
@@ -131,14 +130,14 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
         Future.successful(new ModelAndView("errors/code404")).asJava
       } else {
         forum(section, group, offset, lastmod, None, tagInfo, showDeleted = showDeleted,
-          showIgnored = showIgnored, ipBlockInfo = ipBlockInfo)
+          showIgnored = showIgnored)
       }
     }
   }
 
   private def forum(section: Section, group: Group, offset: Int, lastmod: Boolean,
                      yearMonth: Option[(Int, Int)], tagInfo: Option[TagInfo], showDeleted: Boolean,
-                     showIgnored: Boolean, ipBlockInfo: IpBlockInfo)(using currentUser: AnySession): CompletionStage[ModelAndView] = {
+                     showIgnored: Boolean)(using currentUser: AnySession): CompletionStage[ModelAndView] = {
     val deadline = TagPageController.Timeout.fromNow
 
     val firstPage = isFirstPage(offset)
@@ -202,7 +201,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
       params.put("topicsList", mainTopics.asJava)
     }
 
-    val postingCheck = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
+    val postingCheck = topicPostingChecker.checkTopicPosting(group)
     
     params.put("addable", Boolean.box(postingCheck.permitted))
     params.put("addableReason", postingCheck.reason)

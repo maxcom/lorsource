@@ -15,8 +15,6 @@
 
 package ru.org.linux.user
 
-import ru.org.linux.util.StringUtil
-
 import java.sql.{ResultSet, Timestamp}
 import javax.annotation.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}

@@ -41,19 +41,21 @@ sealed trait AnySession:
   def opt: Option[AuthorizedSession]
 
   def profile: Profile
+  def ipBlockInfo: IpBlockInfo
 
 case class AuthorizedSession(
     user: User,
     corrector: Boolean,
     moderator: Boolean,
     administrator: Boolean,
-    profile: Profile)
+    profile: Profile,
+    ipBlockInfo: IpBlockInfo)
     extends AnySession:
   override def userOpt: Some[User] = Some(user)
   override def opt: Option[AuthorizedSession] = Some(this)
   override def authorized: Boolean = true
 
-case class NonAuthorizedSession(anonymous: User) extends AnySession:
+case class NonAuthorizedSession(anonymous: User, ipBlockInfo: IpBlockInfo) extends AnySession:
   override def user: User = anonymous
   override def userOpt: None.type = None
   override def corrector: Boolean = false
@@ -140,11 +142,24 @@ object AuthUtil extends StrictLogging:
         corrector = isCorrectorSession,
         moderator = isModeratorSession,
         administrator = isAdministratorSession,
-        profile = getProfile)
+        profile = getProfile,
+        ipBlockInfo = mkIpBlockInfo
+      )
 
       f(session)
     else
       f(mkNonAuthorizedSession)
+
+  private def mkIpBlockInfo: IpBlockInfo =
+    val ipBlockInfo = RequestContextHolder
+      .currentRequestAttributes()
+      .getAttribute("ipBlockInfo", RequestAttributes.SCOPE_REQUEST)
+      .asInstanceOf[IpBlockInfo]
+
+    if ipBlockInfo == null then
+      throw new IllegalStateException("ipBlockInfo not set!?")
+
+    ipBlockInfo
 
   private def mkNonAuthorizedSession: NonAuthorizedSession =
     val user = RequestContextHolder
@@ -157,7 +172,7 @@ object AuthUtil extends StrictLogging:
     if !user.anonymous then
       throw new IllegalStateException("expecting anonymous user for non-authorized session")
 
-    NonAuthorizedSession(user)
+    NonAuthorizedSession(user, mkIpBlockInfo)
 
   def AuthorizedOnly[T](f: AuthorizedSession => T): T =
     if !isSessionAuthorized then
@@ -168,7 +183,9 @@ object AuthUtil extends StrictLogging:
       corrector = isCorrectorSession,
       moderator = isModeratorSession,
       administrator = isAdministratorSession,
-      profile = getProfile)
+      profile = getProfile,
+      ipBlockInfo = mkIpBlockInfo
+    )
 
     f(session)
 
@@ -224,4 +241,5 @@ object AuthUtil extends StrictLogging:
               corrector = false,
               moderator = false,
               administrator = false,
-              profile = Profile.DEFAULT)
+              profile = Profile.DEFAULT,
+              ipBlockInfo = session.ipBlockInfo)

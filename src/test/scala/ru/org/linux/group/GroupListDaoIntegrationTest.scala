@@ -22,7 +22,7 @@ import org.springframework.context.annotation.{Bean, Configuration, ImportResour
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.auth.{AuthorizedSession, NonAuthorizedSession}
+import ru.org.linux.auth.{AuthorizedSession, IpBlockInfo, NonAuthorizedSession}
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.Section
 import ru.org.linux.tracker.TrackerFilterEnum
@@ -39,7 +39,7 @@ class GroupListDaoIntegrationTest:
   var userDao: UserDao = scala.compiletime.uninitialized
 
   private lazy val anonymousSession: NonAuthorizedSession =
-    NonAuthorizedSession(userDao.getUser(UserService.AnonymousUserId))
+    NonAuthorizedSession(userDao.getUser(UserService.AnonymousUserId), IpBlockInfo("127.0.0.1"))
 
   @Autowired
   var groupDao: GroupDao = scala.compiletime.uninitialized
@@ -57,7 +57,8 @@ class GroupListDaoIntegrationTest:
       corrector = false,
       moderator = false,
       administrator = false,
-      profile = Profile.DEFAULT)
+      profile = Profile.DEFAULT,
+      ipBlockInfo = IpBlockInfo("127.0.0.1"))
     val topics = groupListDao.getGroupTrackerTopics(126, 0, None)(using session)
     assertNotNull("Topics should not be null", topics)
 
@@ -114,7 +115,8 @@ class GroupListDaoIntegrationTest:
       corrector = false,
       moderator = false,
       administrator = false,
-      profile = Profile.DEFAULT)
+      profile = Profile.DEFAULT,
+      ipBlockInfo = IpBlockInfo("127.0.0.1"))
     val topics = groupListDao.getTrackerTopics(TrackerFilterEnum.MAIN, 0)(using session)
     assertNotNull("Tracker topics should not be null", topics)
 

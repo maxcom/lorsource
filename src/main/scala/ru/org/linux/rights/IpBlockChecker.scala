@@ -15,12 +15,12 @@
 
 package ru.org.linux.rights
 
-import ru.org.linux.auth.IpBlockInfo
+import ru.org.linux.auth.{AnySession, IpBlockInfo}
 import ru.org.linux.user.User
 
 object IpBlockChecker:
   // temporary transitional method
-  def check(ipBlockInfo: IpBlockInfo, user: User): Permission = checkChain(ipBlockInfo, user).seal
+  def check(implicit session: AnySession): Permission = checkChain(session.ipBlockInfo, session.user).seal
 
   def checkChain(ipBlockInfo: IpBlockInfo, user: User): RestrictionChain =
     Unrestricted

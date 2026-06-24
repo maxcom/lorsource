@@ -106,13 +106,12 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
    * Проверка валидности данных запроса.
    *
    * @param commentRequest WEB-форма, содержащая данные
-   * @param user           пользователь, добавляющий или изменяющий комментарий
-   * @param ipBlockInfo    информация о банах
+   * @param postingUser    сессия пользователя, добавляющего комментарий (posting user)
    * @param request        данные запроса от web-клиента
    * @param errors         обработчик ошибок ввода для формы
    */
-  def checkPostData(commentRequest: CommentRequest, user: User, ipBlockInfo: IpBlockInfo, request: HttpServletRequest,
-                    errors: Errors, editMode: Boolean, sessionAuthorized: Boolean): Unit = {
+  def checkPostData(commentRequest: CommentRequest, request: HttpServletRequest,
+                    errors: Errors, editMode: Boolean)(using postingUser: AnySession): Unit = {
     if (commentRequest.getMsg == null) {
       errors.rejectValue("msg", null, "комментарий не задан")
       commentRequest.setMsg("")
@@ -122,11 +121,11 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
       CSRFProtectionService.checkCSRF(request, errors)
     }
 
-    FrozenUserChecker.check(user).checkOrError(errors)
-    IpBlockChecker.check(ipBlockInfo = ipBlockInfo, user = user).checkOrError(errors)
+    FrozenUserChecker.check(postingUser.user).checkOrError(errors)
+    IpBlockChecker.check.checkOrError(errors)
 
     if (!commentRequest.isPreviewMode && !errors.hasErrors && !editMode) {
-      floodProtector.checkRateLimit(FloodProtector.AddComment, request.getRemoteAddr, user, errors)
+      floodProtector.checkRateLimit(FloodProtector.AddComment, request.getRemoteAddr, postingUser.user, errors)
     }
   }
 

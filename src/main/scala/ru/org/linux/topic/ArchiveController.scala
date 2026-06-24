@@ -32,7 +32,7 @@ class ArchiveController(
     archiveDao: ArchiveDao,
     topicPostingChecker: TopicPostingChecker,
     topicService: TopicService):
-  private def archiveList(sectionid: Int, groupName: Option[String] = None, ipBlockInfo: IpBlockInfo) =
+  private def archiveList(sectionid: Int, groupName: Option[String] = None) =
     MaybeAuthorized { implicit currentUserOpt =>
       val mv = new ModelAndView("view-news-archive")
 
@@ -51,9 +51,9 @@ class ArchiveController(
       val postingCheck =
         group match
           case Some(group) =>
-            topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
+            topicPostingChecker.checkTopicPosting(group)
           case None =>
-            topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
+            topicPostingChecker.checkTopicPosting(section)
 
       val addUrl =
         group match
@@ -74,31 +74,21 @@ class ArchiveController(
     }
 
   @RequestMapping(path = Array("/gallery/archive"))
-  def galleryArchive(
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.Gallery, ipBlockInfo = ipBlockInfo)
+  def galleryArchive: ModelAndView = archiveList(Section.Gallery)
 
   @RequestMapping(path = Array("/news/archive"))
-  def newsArchive(
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.News, ipBlockInfo = ipBlockInfo)
+  def newsArchive: ModelAndView = archiveList(Section.News)
 
   @RequestMapping(path = Array("/polls/archive"))
-  def pollsArchive(
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.Polls, ipBlockInfo = ipBlockInfo)
+  def pollsArchive: ModelAndView = archiveList(Section.Polls)
 
   @RequestMapping(path = Array("/articles/archive"))
-  def articlesArchive(
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.Articles, ipBlockInfo = ipBlockInfo)
+  def articlesArchive: ModelAndView = archiveList(Section.Articles)
 
   @RequestMapping(path = Array("/forum/{group}/archive"))
   def forumArchive(
       @PathVariable
-      group: String,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView = archiveList(Section.Forum, Some(group), ipBlockInfo = ipBlockInfo)
+      group: String): ModelAndView = archiveList(Section.Forum, Some(group))
 
   @ExceptionHandler(Array(classOf[GroupNotFoundException])) @ResponseStatus(HttpStatus.NOT_FOUND)
   def handleNotFoundException = new ModelAndView("errors/code404")

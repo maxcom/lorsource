@@ -132,13 +132,11 @@ class AddTopicController(
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(
       @Valid @ModelAttribute("form")
-      form: AddTopicRequest,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView =
+      form: AddTopicRequest): ModelAndView =
     MaybeAuthorized { implicit currentUser =>
       val group = form.group
 
-      topicPostingChecker.checkTopicPosting(group, ipBlockInfo).checkOrThrow("Недостаточно прав для создания топика")
+      topicPostingChecker.checkTopicPosting(group).checkOrThrow("Недостаточно прав для создания топика")
 
       val section = sectionService.getSection(form.group.sectionId)
 
@@ -178,9 +176,7 @@ class AddTopicController(
       form: AddTopicRequest,
       errors: BindingResult,
       @RequestAttribute("captchaRequired")
-      captchaRequired: Boolean,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView =
+      captchaRequired: Boolean): ModelAndView =
     MaybeAuthorized { sessionUserOpt =>
       // не используем implicit, так как есть sessionUser и postingUser
       val group = form.group
@@ -194,7 +190,7 @@ class AddTopicController(
       val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors, passwordEncoder, request)
       val user = postingUser.user
 
-      val postingCheck = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)(using postingUser)
+      val postingCheck = topicPostingChecker.checkTopicPosting(group)(using postingUser)
 
       postingCheck.checkOrError(errors, "Недостаточно прав для создания топика")
 
@@ -215,7 +211,7 @@ class AddTopicController(
       val (imagePreview, additionalImagePreviews) =
         postingUser.opt match
           case Some(authorized) =>
-            topicService.processUploads(form, group, errors, ipBlockInfo)(using authorized)
+            topicService.processUploads(form, group, errors)(using authorized)
           case None =>
             (None, Seq.empty)
 
@@ -314,9 +310,7 @@ class AddTopicController(
       @RequestParam("section")
       sectionId: Int,
       @RequestParam(value = "tag", required = false)
-      tag: String,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView =
+      tag: String): ModelAndView =
     MaybeAuthorized { implicit currentUser =>
       val section = sectionService.getSection(sectionId)
 
@@ -328,7 +322,7 @@ class AddTopicController(
       if groups.size == 1 then
         val group = groups.head
 
-        val postable = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
+        val postable = topicPostingChecker.checkTopicPosting(group)
 
         if postable.permitted then
           new ModelAndView(new RedirectView(AddTopicController.getAddUrl(group, tag)))
@@ -352,7 +346,7 @@ class AddTopicController(
         val params = prepareModel(None, section).to(mutable.HashMap)
 
         val groupChoices = groups.map { group =>
-          val postable = topicPostingChecker.checkTopicPosting(group, ipBlockInfo)
+          val postable = topicPostingChecker.checkTopicPosting(group)
 
           AddTopicController.GroupChoice(
             group,
@@ -379,9 +373,7 @@ class AddTopicController(
   @RequestMapping(path = Array("/add-section.jsp"), params = Array("!section"))
   def showFormAllSections(
       @RequestParam(value = "tag", required = false)
-      tag: String,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView =
+      tag: String): ModelAndView =
     MaybeAuthorized { implicit currentUser =>
       val sectionList = sectionService
         .sections
@@ -390,9 +382,9 @@ class AddTopicController(
 
           val postable =
             if groups.size == 1 then
-              topicPostingChecker.checkTopicPosting(groups.head, ipBlockInfo)
+              topicPostingChecker.checkTopicPosting(groups.head)
             else
-              topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
+              topicPostingChecker.checkTopicPosting(section)
 
           val url =
             if groups.size == 1 then

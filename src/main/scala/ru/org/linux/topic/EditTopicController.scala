@@ -64,8 +64,6 @@ class EditTopicController(
   def showCommitForm(
       @RequestParam("msgid")
       msgid: Int,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo,
       @ModelAttribute("form")
       form: EditTopicRequest): ModelAndView =
     AuthorizedOnly { implicit currentUser =>
@@ -82,7 +80,7 @@ class EditTopicController(
       if !preparedTopic.section.isPremoderated then
         throw new UserErrorException("Раздел не премодерируемый")
 
-      IpBlockChecker.check(ipBlockInfo, currentUser.user).checkOrThrow()
+      IpBlockChecker.check.checkOrThrow()
 
       initForm(preparedTopic, form)
 
@@ -97,8 +95,6 @@ class EditTopicController(
   def showEditForm(
       @RequestParam("msgid")
       msgid: Int,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo,
       @ModelAttribute("form")
       form: EditTopicRequest): ModelAndView =
     AuthorizedOnly { implicit currentUser =>
@@ -108,7 +104,7 @@ class EditTopicController(
       if !permissionService.isEditable(preparedTopic) && !permissionService.isTagsEditable(preparedTopic) then
         throw new AccessViolationException("это сообщение нельзя править")
 
-      IpBlockChecker.check(ipBlockInfo, currentUser.user).checkOrThrow()
+      IpBlockChecker.check.checkOrThrow()
 
       initForm(preparedTopic, form)
 
@@ -198,8 +194,6 @@ class EditTopicController(
       request: HttpServletRequest,
       @RequestParam(value = "chgrp", required = false)
       changeGroupId: Integer,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo,
       @Valid @ModelAttribute("form")
       form: EditTopicRequest,
       errors: Errors): ModelAndView =
@@ -211,7 +205,7 @@ class EditTopicController(
       val group = preparedTopic.group
       val user = currentUser.user
 
-      IpBlockChecker.check(ipBlockInfo, currentUser.user).checkOrError(errors)
+      IpBlockChecker.check.checkOrError(errors)
 
       val params = prepareModel(preparedTopic)
 
@@ -275,7 +269,6 @@ class EditTopicController(
         form,
         group,
         errors,
-        ipBlockInfo,
         preparedTopic.additionalImages.size(),
         hasImage = preparedTopic.image != null)
 

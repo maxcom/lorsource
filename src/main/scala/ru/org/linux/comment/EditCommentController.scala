@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.auth.{CaptchaService, IpBlockInfo}
+import ru.org.linux.auth.CaptchaService
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
@@ -96,15 +96,14 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
   def editCommentPostHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest, errors: Errors,
-                             request: HttpServletRequest,
-                             @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo, @RequestAttribute("captchaRequired")
+                             request: HttpServletRequest, @RequestAttribute("captchaRequired")
                              captchaRequired: Boolean): ModelAndView = AuthorizedOnly { implicit currentUser =>
     if !commentRequest.isPreviewMode && !errors.hasErrors && captchaRequired then
       captcha.checkCaptcha(request, errors)
 
-    val user = currentUser.user
-    commentService.checkPostData(commentRequest, user, ipBlockInfo, request, errors, editMode = true, sessionAuthorized = true)
+    commentService.checkPostData(commentRequest, request, errors, editMode = true)
 
+    val user = currentUser.user
     val comment = commentService.getComment(commentRequest, user, request)
 
     val formParams = new util.HashMap[String, AnyRef](commentService.prepareReplyto(commentRequest, commentRequest.getTopic).asJava)
@@ -131,7 +130,6 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
       formParams.put("formatModeFormId", originalMessageText.markup.formId)
       formParams.put("formatModeTitle", originalMessageText.markup.title)
       val modelAndView = new ModelAndView("edit_comment", formParams)
-      modelAndView.addObject("ipBlockInfo", ipBlockInfo)
       val deadline = topicPermissionService.getEditDeadline(commentRequest.getOriginal)
       deadline.foreach(value => formParams.put("deadline", Date.from(value)))
       modelAndView

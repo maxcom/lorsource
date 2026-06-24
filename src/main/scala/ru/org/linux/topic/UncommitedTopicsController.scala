@@ -37,8 +37,7 @@ class UncommitedTopicsController(
   @RequestMapping
   def viewAll(
       @RequestParam(value = "section", required = false, defaultValue = "0")
-      sectionId: Int,
-      @RequestAttribute("ipBlockInfo") ipBlockInfo: IpBlockInfo): ModelAndView =
+      sectionId: Int): ModelAndView =
     MaybeAuthorized { implicit session =>
       val modelAndView = new ModelAndView("view-all")
 
@@ -51,7 +50,7 @@ class UncommitedTopicsController(
       section.foreach: section =>
         modelAndView.addObject("section", section)
 
-        val postingCheck = topicPostingChecker.checkTopicPosting(section, ipBlockInfo)
+        val postingCheck = topicPostingChecker.checkTopicPosting(section)
         
         if postingCheck.permitted then
           modelAndView.addObject("addLink", AddTopicController.getAddUrl(section))
@@ -59,7 +58,7 @@ class UncommitedTopicsController(
           modelAndView.addObject("addLinkReason", postingCheck.reason)
 
       if section.isEmpty then
-        val postingCheck = topicPostingChecker.checkTopicPostingAnywhere(ipBlockInfo)
+        val postingCheck = topicPostingChecker.checkTopicPostingAnywhere
 
         if postingCheck.permitted then
           modelAndView.addObject("addLink", "/add-section.jsp")

@@ -40,9 +40,7 @@ class MainPageController(
   @RequestMapping(path = Array("/", "/index.jsp"))
   def mainPage(
       @RequestAttribute(name = "timezone")
-      timezone: ZoneId,
-      @RequestAttribute("ipBlockInfo")
-      ipBlockInfo: IpBlockInfo): ModelAndView =
+      timezone: ZoneId): ModelAndView =
     MaybeAuthorized { implicit session =>
       val allTopics = topicListService.getMainPage(30)
 
@@ -84,11 +82,11 @@ class MainPageController(
 
       val (postingCheck, addLink) =
         if session.profile.showGalleryOnMain then
-          (topicPostingChecker.checkTopicPostingAnywhere(ipBlockInfo), "/add-section.jsp")
+          (topicPostingChecker.checkTopicPostingAnywhere, "/add-section.jsp")
         else
           val sectionNews = sectionService.getSection(Section.News)
 
-          (topicPostingChecker.checkTopicPosting(sectionNews, ipBlockInfo), AddTopicController.getAddUrl(sectionNews))
+          (topicPostingChecker.checkTopicPosting(sectionNews), AddTopicController.getAddUrl(sectionNews))
 
       if postingCheck.permitted then
         mv.getModel.put("addLink", addLink)

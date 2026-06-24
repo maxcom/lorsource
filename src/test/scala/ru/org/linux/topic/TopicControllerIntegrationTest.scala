@@ -28,6 +28,7 @@ import ru.org.linux.user.UserService
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.{redirectedUrl, status}
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
+import ru.org.linux.auth.IpBlockInfo
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @WebAppConfiguration
@@ -50,6 +51,7 @@ class TopicControllerIntegrationTest {
   def setup(): Unit = {
     val defaultReq = get("/")
     defaultReq.requestAttr("currentUser", userService.getAnonymous)
+    defaultReq.requestAttr("ipBlockInfo", IpBlockInfo("127.0.0.1"))
 
     val builder = webAppContextSetup(wac)
     builder.defaultRequest(defaultReq)
