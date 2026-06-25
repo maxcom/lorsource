@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
-import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, CorrectorOrModerator}
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
 import ru.org.linux.group.{GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
@@ -66,7 +66,7 @@ class EditTopicController(
       msgid: Int,
       @ModelAttribute("form")
       form: EditTopicRequest): ModelAndView =
-    AuthorizedOnly { implicit currentUser =>
+    CorrectorOrModerator { implicit currentUser =>
       val topic = topicService.getById(msgid)
       val preparedTopic = prepareService.prepareTopic(topic)
 
