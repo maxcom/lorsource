@@ -32,12 +32,12 @@ import ru.org.linux.group.{GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
-import ru.org.linux.rights.IpBlockChecker
+import ru.org.linux.rights.{EditTopicChecker, IpBlockChecker}
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
 import ru.org.linux.tag.{TagName, TagRef, TagService}
-import ru.org.linux.user.{User, UserErrorException, UserPropertyEditor, UserService}
+import ru.org.linux.user.{User, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
@@ -69,18 +69,9 @@ class EditTopicController(
     AuthorizedOnly { implicit currentUser =>
       val topic = topicService.getById(msgid)
 
-      if !permissionService.canCommit(topic) then
-        throw new AccessViolationException("Not authorized")
-
-      if topic.commited then
-        throw new UserErrorException("Сообщение уже подтверждено")
-
       val preparedTopic = prepareService.prepareTopic(topic)
 
-      if !preparedTopic.section.isPremoderated then
-        throw new UserErrorException("Раздел не премодерируемый")
-
-      IpBlockChecker.check.checkOrThrow()
+      EditTopicChecker.checkCommit(topic, preparedTopic.section).checkOrThrow()
 
       initForm(preparedTopic, form)
 
@@ -228,16 +219,12 @@ class EditTopicController(
 
       val commit = request.getParameter("commit") != null
 
+      val commitCheck = EditTopicChecker.checkCommit(topic, preparedTopic.section)
+
       if commit then
-        if !permissionService.canCommit(topic) then
-          throw new AccessViolationException("Not authorized")
+        commitCheck.checkOrError(errors)
 
-        if topic.commited then
-          errors.reject(null, "Сообщение уже подтверждено")
-
-      val canCommit = !topic.commited && preparedTopic.section.isPremoderated && permissionService.canCommit(topic)
-
-      params.put("commit", Boolean.box(canCommit))
+      params.put("commit", Boolean.box(commitCheck.permitted))
 
       val newMsg = Topic.fromEditRequest(group, topic, form, publish)
 
@@ -278,7 +265,7 @@ class EditTopicController(
       if !editable && modified then
         throw new AccessViolationException("нельзя править это сообщение, только теги")
 
-      if form.minor != topic.minor && !permissionService.canCommit(topic) then
+      if form.minor != topic.minor && EditTopicChecker.checkEditMiniStatus(topic, preparedTopic.section).restricted then
         errors.reject(null, "вы не можете менять статус новости")
 
       var newTags: Option[Seq[String]] = None

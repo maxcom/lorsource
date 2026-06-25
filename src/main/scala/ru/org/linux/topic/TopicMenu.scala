@@ -23,7 +23,8 @@ case class TopicMenu(@BooleanBeanProperty topicEditable: Boolean, @BooleanBeanPr
                      @BooleanBeanProperty resolvable: Boolean, @BooleanBeanProperty commentsAllowed: Boolean,
                      @BooleanBeanProperty deletable: Boolean, @BooleanBeanProperty undeletable: Boolean,
                      @BooleanBeanProperty commitable: Boolean, @BeanProperty @Nullable userpic: Userpic,
-                     @BooleanBeanProperty showComments: Boolean, @BooleanBeanProperty warningsAllowed: Boolean) {
+                     @BooleanBeanProperty showComments: Boolean, @BooleanBeanProperty warningsAllowed: Boolean,
+                     @BooleanBeanProperty miniEditable: Boolean) {
   @BooleanBeanProperty
-  val editable: Boolean = tagsEditable || topicEditable
+  val editable: Boolean = tagsEditable || topicEditable || miniEditable
 }

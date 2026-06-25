@@ -25,7 +25,7 @@ import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.{Group, GroupNotFoundException, GroupService}
-import ru.org.linux.rights.TopicPostingChecker
+import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.tag.{TagPageController, TagService}
@@ -86,7 +86,7 @@ object TopicListController {
 @Controller
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
-                          groupService: GroupService, topicPostingChecker: TopicPostingChecker,
+                          groupService: GroupService, addTopicChecker: AddTopicChecker,
                           topicService: TopicService) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListForm,
                                       group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
@@ -135,9 +135,9 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     val postingCheck =
        group match
          case Some(group) =>
-           topicPostingChecker.checkTopicPosting(group)
+           addTopicChecker.checkTopicPosting(group)
          case None =>
-           topicPostingChecker.checkTopicPosting(section)
+           addTopicChecker.checkTopicPosting(section)
 
     val addUrl = group match {
       case Some(group) if postingCheck.permitted =>

@@ -64,9 +64,7 @@
     <c:if test="${showMenu}">
       &emsp;
       <c:if test="${messageMenu.commitable}">
-        <c:if test="${preparedMessage.section.premoderated and not message.commited}">
-          [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
-        </c:if>
+        [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
       </c:if>
       <c:if test="${template.moderatorSession and not message.deleted}">
         [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
@@ -227,7 +225,7 @@
 </div>
 </footer>
 
-<c:if test="${showMenu and messageMenu.commitable and preparedMessage.section.premoderated and not message.commited}">
+<c:if test="${showMenu and messageMenu.commitable}">
   <nav>
     <a class="btn btn-primary" href="commit.jsp?msgid=${message.id}">Подтвердить</a>
     <a class="btn btn-default" href="edit.jsp?msgid=${message.id}">Править</a>

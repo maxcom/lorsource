@@ -163,11 +163,11 @@
     </c:if>
   </c:if>
 
-  <c:if test="${group.premoderated and topicMenu.commitable and !group.pollPostAllowed}">
+  <c:if test="${topicMenu.miniEditable}">
     <label>Мини: <form:checkbox path="minor"/></label>
   </c:if>
 
-  <c:if test="${group.premoderated and not topicMenu.commitable}">
+  <c:if test="${not topicMenu.miniEditable}">
     <form:hidden path="minor"/>
   </c:if>
 

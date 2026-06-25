@@ -253,10 +253,7 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       user != null && user.getScore >= CreateTagScore
     }
   }
-
-  def canCommit(topic: Topic)(using session: AnySession): Boolean =
-    session.userOpt.exists(user => user.isModerator || (user.canCorrect && topic.authorUserId != user.id))
-
+  
   def canViewAllDeletedTopics(using session: AnySession): Boolean =
     session.authorized && session.userOpt.exists(_.score >= 50)
       && !session.userOpt.exists(u => u.isFrozen || slowModeChecker.check(u).restricted)

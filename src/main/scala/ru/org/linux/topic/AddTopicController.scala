@@ -36,7 +36,7 @@ import ru.org.linux.group.{Group, GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
-import ru.org.linux.rights.TopicPostingChecker
+import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
@@ -112,23 +112,23 @@ object AddTopicController:
 
 @Controller
 class AddTopicController(
-    searchQueueSender: SearchQueueSender,
-    captcha: CaptchaService,
-    sectionService: SectionService,
-    tagService: TagService,
-    userService: UserService,
-    prepareService: TopicPrepareService,
-    permissionService: GroupPermissionService,
-    addTopicRequestValidator: AddTopicRequestValidator,
-    topicService: TopicService,
-    @Qualifier("realtimeHubWS")
+                          searchQueueSender: SearchQueueSender,
+                          captcha: CaptchaService,
+                          sectionService: SectionService,
+                          tagService: TagService,
+                          userService: UserService,
+                          prepareService: TopicPrepareService,
+                          permissionService: GroupPermissionService,
+                          addTopicRequestValidator: AddTopicRequestValidator,
+                          topicService: TopicService,
+                          @Qualifier("realtimeHubWS")
     realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
-    renderService: MarkdownFormatter,
-    groupService: GroupService,
-    dupeProtector: FloodProtector,
-    servletContext: ServletContext,
-    topicPostingChecker: TopicPostingChecker,
-    passwordEncoder: PasswordEncoder):
+                          renderService: MarkdownFormatter,
+                          groupService: GroupService,
+                          dupeProtector: FloodProtector,
+                          servletContext: ServletContext,
+                          addTopicChecker: AddTopicChecker,
+                          passwordEncoder: PasswordEncoder):
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(
       @Valid @ModelAttribute("form")
@@ -136,7 +136,7 @@ class AddTopicController(
     MaybeAuthorized { implicit currentUser =>
       val group = form.group
 
-      topicPostingChecker.checkTopicPosting(group).checkOrThrow("Недостаточно прав для создания топика")
+      addTopicChecker.checkTopicPosting(group).checkOrThrow("Недостаточно прав для создания топика")
 
       val section = sectionService.getSection(form.group.sectionId)
 
@@ -190,7 +190,7 @@ class AddTopicController(
       val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors, passwordEncoder, request)
       val user = postingUser.user
 
-      val postingCheck = topicPostingChecker.checkTopicPosting(group)(using postingUser)
+      val postingCheck = addTopicChecker.checkTopicPosting(group)(using postingUser)
 
       postingCheck.checkOrError(errors, "Недостаточно прав для создания топика")
 
@@ -322,7 +322,7 @@ class AddTopicController(
       if groups.size == 1 then
         val group = groups.head
 
-        val postable = topicPostingChecker.checkTopicPosting(group)
+        val postable = addTopicChecker.checkTopicPosting(group)
 
         if postable.permitted then
           new ModelAndView(new RedirectView(AddTopicController.getAddUrl(group, tag)))
@@ -346,7 +346,7 @@ class AddTopicController(
         val params = prepareModel(None, section).to(mutable.HashMap)
 
         val groupChoices = groups.map { group =>
-          val postable = topicPostingChecker.checkTopicPosting(group)
+          val postable = addTopicChecker.checkTopicPosting(group)
 
           AddTopicController.GroupChoice(
             group,
@@ -382,9 +382,9 @@ class AddTopicController(
 
           val postable =
             if groups.size == 1 then
-              topicPostingChecker.checkTopicPosting(groups.head)
+              addTopicChecker.checkTopicPosting(groups.head)
             else
-              topicPostingChecker.checkTopicPosting(section)
+              addTopicChecker.checkTopicPosting(section)
 
           val url =
             if groups.size == 1 then

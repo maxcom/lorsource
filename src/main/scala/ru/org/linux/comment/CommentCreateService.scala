@@ -121,7 +121,7 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
       CSRFProtectionService.checkCSRF(request, errors)
     }
 
-    FrozenUserChecker.check(postingUser.user).checkOrError(errors)
+    FrozenUserChecker.check(using postingUser).checkOrError(errors)
     IpBlockChecker.check.checkOrError(errors)
 
     if (!commentRequest.isPreviewMode && !errors.hasErrors && !editMode) {

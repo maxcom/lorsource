@@ -25,7 +25,7 @@ import ru.org.linux.user.{Profile, User, UserService}
 
 import java.sql.Timestamp
 
-class TopicPostingCheckerTest extends FunSuite:
+class AddTopicCheckerTest extends FunSuite:
 
   private val unrestrictedSection =
     Section(
@@ -104,8 +104,8 @@ class TopicPostingCheckerTest extends FunSuite:
 
   private val unblockedIpInfo = IpBlockInfo("127.0.0.1")
 
-  private def makeChecker(sectionService: SectionService = mock(classOf[SectionService])): TopicPostingChecker =
-    new TopicPostingChecker(sectionService)
+  private def makeChecker(sectionService: SectionService = mock(classOf[SectionService])): AddTopicChecker =
+    new AddTopicChecker(sectionService)
 
   // === checkTopicPosting(section) tests ===
 
@@ -258,16 +258,6 @@ class TopicPostingCheckerTest extends FunSuite:
 
     assert(result.restricted)
 
-  test("blocked user is restricted regardless of section restriction"):
-    val checker = makeChecker()
-    val user = makeUser(blocked = true)
-    val session = makeSession(user)
-
-    val result = checker.checkTopicPosting(unrestrictedSection)(using session)
-
-    assert(result.restricted)
-    assertEquals(result.reason, "пользователь заблокирован")
-
   test("frozen user is restricted"):
     val checker = makeChecker()
     val frozenTime = new Timestamp(System.currentTimeMillis() + 100000L)
@@ -278,17 +268,6 @@ class TopicPostingCheckerTest extends FunSuite:
 
     assert(result.restricted)
     assertEquals(result.reason, "установлен режим только для чтения")
-
-  test("blocked user takes priority over frozen"):
-    val checker = makeChecker()
-    val frozenTime = new Timestamp(System.currentTimeMillis() + 100000L)
-    val user = makeUser(blocked = true, frozenUntil = frozenTime)
-    val session = makeSession(user)
-
-    val result = checker.checkTopicPosting(unrestrictedSection)(using session)
-
-    assert(result.restricted)
-    assertEquals(result.reason, "пользователь заблокирован")
 
   // === checkTopicPosting(group) tests ===
 

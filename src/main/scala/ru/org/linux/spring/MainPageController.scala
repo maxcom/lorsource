@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.{RequestAttribute, RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IpBlockInfo
-import ru.org.linux.rights.TopicPostingChecker
+import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.*
 import ru.org.linux.user.MemoriesDao
@@ -30,13 +30,13 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller
 class MainPageController(
-    prepareService: TopicPrepareService,
-    topicListService: TopicListService,
-    topicDao: TopicDao,
-    memoriesDao: MemoriesDao,
-    topicPostingChecker: TopicPostingChecker,
-    sectionService: SectionService,
-    topicService: TopicService):
+                          prepareService: TopicPrepareService,
+                          topicListService: TopicListService,
+                          topicDao: TopicDao,
+                          memoriesDao: MemoriesDao,
+                          addTopicChecker: AddTopicChecker,
+                          sectionService: SectionService,
+                          topicService: TopicService):
   @RequestMapping(path = Array("/", "/index.jsp"))
   def mainPage(
       @RequestAttribute(name = "timezone")
@@ -82,11 +82,11 @@ class MainPageController(
 
       val (postingCheck, addLink) =
         if session.profile.showGalleryOnMain then
-          (topicPostingChecker.checkTopicPostingAnywhere, "/add-section.jsp")
+          (addTopicChecker.checkTopicPostingAnywhere, "/add-section.jsp")
         else
           val sectionNews = sectionService.getSection(Section.News)
 
-          (topicPostingChecker.checkTopicPosting(sectionNews), AddTopicController.getAddUrl(sectionNews))
+          (addTopicChecker.checkTopicPosting(sectionNews), AddTopicController.getAddUrl(sectionNews))
 
       if postingCheck.permitted then
         mv.getModel.put("addLink", addLink)

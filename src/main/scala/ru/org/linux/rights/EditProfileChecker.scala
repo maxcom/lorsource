@@ -29,7 +29,7 @@ class EditProfileChecker(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao):
     import session.user
 
     Unrestricted
-      .restrict(FrozenUserChecker.checkChain(user))
+      .restrict(FrozenUserChecker.checkChain)
       .restrict(
         userLogDao.hasRecentModerationEvent(user, Duration.ofDays(1), UserLogAction.ResetInfo),
         "текст профиля был сброшен модератором менее 24 часов назад")
@@ -45,7 +45,7 @@ class EditProfileChecker(userLogDao: UserLogDao, deleteInfoDao: DeleteInfoDao):
     val user = session.user
 
     Unrestricted
-      .restrict(FrozenUserChecker.checkChain(user))
+      .restrict(FrozenUserChecker.checkChain)
       .restrict(user.getScore < 45, "низкий score < 45")
       .restrict(
         userLogDao.getUserpicSetCount(user, Duration.ofHours(1)) >= 3,

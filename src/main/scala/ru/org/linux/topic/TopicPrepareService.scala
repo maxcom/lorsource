@@ -23,6 +23,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.{Poll, PollPrepareService, PreparedPoll}
 import ru.org.linux.reaction.ReactionService
+import ru.org.linux.rights.EditTopicChecker
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.TagRef
@@ -224,8 +225,9 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
 
     TopicMenu(topicEditable = topicEditable, tagsEditable = tagsEditable, resolvable = resolvable,
       commentsAllowed = topicPermissionService.isCommentsAllowed(topic.group, topic.message), deletable = deletable,
-      undeletable = undeletable, commitable = groupPermissionService.canCommit(topic.message), userpic = userpic.orNull,
-      showComments = showComments, warningsAllowed = topicPermissionService.canPostWarning(topic.message, comment = None))
+      undeletable = undeletable, commitable = EditTopicChecker.checkCommit(topic.message, topic.section).permitted, userpic = userpic.orNull,
+      showComments = showComments, warningsAllowed = topicPermissionService.canPostWarning(topic.message, comment = None),
+      miniEditable = EditTopicChecker.checkEditMiniStatus(topic.message, topic.section).permitted)
   }
 
   def prepareBrief(topic: Topic, groupInTitle: Boolean = false, sectionInTitle: Boolean = false): BriefTopicRef =

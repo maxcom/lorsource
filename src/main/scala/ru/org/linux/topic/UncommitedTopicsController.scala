@@ -21,7 +21,7 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.GroupPermissionService
-import ru.org.linux.rights.TopicPostingChecker
+import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 
 import java.util.{Calendar, Date}
@@ -29,11 +29,11 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller @RequestMapping(value = Array("/view-all.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
 class UncommitedTopicsController(
-    sectionService: SectionService,
-    topicListService: TopicListService,
-    prepareService: TopicPrepareService,
-    topicPostingChecker: TopicPostingChecker,
-    topicService: TopicService):
+                                  sectionService: SectionService,
+                                  topicListService: TopicListService,
+                                  prepareService: TopicPrepareService,
+                                  addTopicChecker: AddTopicChecker,
+                                  topicService: TopicService):
   @RequestMapping
   def viewAll(
       @RequestParam(value = "section", required = false, defaultValue = "0")
@@ -50,7 +50,7 @@ class UncommitedTopicsController(
       section.foreach: section =>
         modelAndView.addObject("section", section)
 
-        val postingCheck = topicPostingChecker.checkTopicPosting(section)
+        val postingCheck = addTopicChecker.checkTopicPosting(section)
         
         if postingCheck.permitted then
           modelAndView.addObject("addLink", AddTopicController.getAddUrl(section))
@@ -58,7 +58,7 @@ class UncommitedTopicsController(
           modelAndView.addObject("addLinkReason", postingCheck.reason)
 
       if section.isEmpty then
-        val postingCheck = topicPostingChecker.checkTopicPostingAnywhere
+        val postingCheck = addTopicChecker.checkTopicPostingAnywhere
 
         if postingCheck.permitted then
           modelAndView.addObject("addLink", "/add-section.jsp")

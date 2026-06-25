@@ -15,12 +15,12 @@
 
 package ru.org.linux.rights
 
-import ru.org.linux.user.User
+import ru.org.linux.auth.AnySession
 
 object FrozenUserChecker:
-  def check(user: User): Permission = checkChain(user).seal
+  def check(using session: AnySession): Permission = checkChain.seal
 
-  def checkChain(user: User): RestrictionChain =
+  def checkChain(using session: AnySession): RestrictionChain =
     Unrestricted
-      .restrict(user.anonymous && user.isFrozen, "только для зарегистрированных")
-      .restrict(user.isFrozen, "установлен режим только для чтения")
+      .restrict(session.user.anonymous && session.user.isFrozen, "только для зарегистрированных")
+      .restrict(session.user.isFrozen, "установлен режим только для чтения")

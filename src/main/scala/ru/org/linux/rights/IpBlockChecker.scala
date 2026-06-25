@@ -15,22 +15,22 @@
 
 package ru.org.linux.rights
 
-import ru.org.linux.auth.{AnySession, IpBlockInfo}
+import ru.org.linux.auth.AnySession
 import ru.org.linux.user.User
 
 object IpBlockChecker:
   // temporary transitional method
-  def check(implicit session: AnySession): Permission = checkChain(session.ipBlockInfo, session.user).seal
+  def check(using session: AnySession): Permission = checkChain.seal
 
-  def checkChain(ipBlockInfo: IpBlockInfo, user: User): RestrictionChain =
+  def checkChain(using session: AnySession): RestrictionChain =
     Unrestricted
       .restrict(
-        ipBlockInfo.isBlocked && user.anonymous,
+        session.ipBlockInfo.isBlocked && session.user.anonymous,
         "анонимный постинг с этого IP адреса заблокирован")
       .restrict(
-        ipBlockInfo.isBlocked && user.isAnonymousScore,
+        session.ipBlockInfo.isBlocked && session.user.isAnonymousScore,
         s"постинг с этого IP адреса ограничен для пользователей с score < ${User.AnonymousLevelScore}"
       )
       .restrict(
-        ipBlockInfo.isBlocked && !user.anonymous && !ipBlockInfo.isAllowRegisteredPosting,
+        session.ipBlockInfo.isBlocked && !session.user.anonymous && !session.ipBlockInfo.isAllowRegisteredPosting,
         s"постинг с этого IP адреса заблокирован")

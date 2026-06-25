@@ -22,16 +22,16 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.{GroupNotFoundException, GroupService}
-import ru.org.linux.rights.TopicPostingChecker
+import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionService}
 
 @Controller
 class ArchiveController(
-    sectionService: SectionService,
-    groupService: GroupService,
-    archiveDao: ArchiveDao,
-    topicPostingChecker: TopicPostingChecker,
-    topicService: TopicService):
+                         sectionService: SectionService,
+                         groupService: GroupService,
+                         archiveDao: ArchiveDao,
+                         addTopicChecker: AddTopicChecker,
+                         topicService: TopicService):
   private def archiveList(sectionid: Int, groupName: Option[String] = None) =
     MaybeAuthorized { implicit currentUserOpt =>
       val mv = new ModelAndView("view-news-archive")
@@ -51,9 +51,9 @@ class ArchiveController(
       val postingCheck =
         group match
           case Some(group) =>
-            topicPostingChecker.checkTopicPosting(group)
+            addTopicChecker.checkTopicPosting(group)
           case None =>
-            topicPostingChecker.checkTopicPosting(section)
+            addTopicChecker.checkTopicPosting(section)
 
       val addUrl =
         group match
