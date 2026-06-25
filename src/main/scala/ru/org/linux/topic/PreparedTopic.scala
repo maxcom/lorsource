@@ -47,4 +47,7 @@ case class PreparedTopic(@BeanProperty message: Topic, @BeanProperty author: Use
   } else {
     additionalImages
   }
+  
+  def committable: Boolean = !message.commited && section.isPremoderated
+  def canBeMini: Boolean = section.id == Section.News 
 }

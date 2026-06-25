@@ -223,11 +223,14 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
 
     val showComments = !topic.message.isCommentsHidden
 
+    val commitCheck = EditTopicChecker.checkCommit(topic.message)
+    val commitable = topic.committable && commitCheck.permitted
+    
     TopicMenu(topicEditable = topicEditable, tagsEditable = tagsEditable, resolvable = resolvable,
       commentsAllowed = topicPermissionService.isCommentsAllowed(topic.group, topic.message), deletable = deletable,
-      undeletable = undeletable, commitable = EditTopicChecker.checkCommit(topic.message, topic.section).permitted, userpic = userpic.orNull,
+      undeletable = undeletable, commitable = commitable, userpic = userpic.orNull,
       showComments = showComments, warningsAllowed = topicPermissionService.canPostWarning(topic.message, comment = None),
-      miniEditable = EditTopicChecker.checkEditMiniStatus(topic.message, topic.section).permitted)
+      miniEditable = topic.canBeMini && commitCheck.permitted)
   }
 
   def prepareBrief(topic: Topic, groupInTitle: Boolean = false, sectionInTitle: Boolean = false): BriefTopicRef =

@@ -37,7 +37,7 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
 import ru.org.linux.tag.{TagName, TagRef, TagService}
-import ru.org.linux.user.{User, UserPropertyEditor, UserService}
+import ru.org.linux.user.{User, UserErrorException, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
@@ -68,10 +68,15 @@ class EditTopicController(
       form: EditTopicRequest): ModelAndView =
     AuthorizedOnly { implicit currentUser =>
       val topic = topicService.getById(msgid)
-
       val preparedTopic = prepareService.prepareTopic(topic)
 
-      EditTopicChecker.checkCommit(topic, preparedTopic.section).checkOrThrow()
+      if topic.commited then
+        throw new UserErrorException("Топик уже подтвержден")
+
+      if !preparedTopic.committable then
+        throw new UserErrorException("Этот топик нельзя подтвердить")
+
+      EditTopicChecker.checkCommit(topic).checkOrThrow()
 
       initForm(preparedTopic, form)
 
@@ -219,12 +224,18 @@ class EditTopicController(
 
       val commit = request.getParameter("commit") != null
 
-      val commitCheck = EditTopicChecker.checkCommit(topic, preparedTopic.section)
+      val commitCheck = EditTopicChecker.checkCommit(topic)
 
       if commit then
-        commitCheck.checkOrError(errors)
+        if topic.commited then
+          errors.reject(null, "Топик уже подтвержден")
+        else if !preparedTopic.committable then
+          errors.reject(null, "Этот топик нельзя подтвердить")
 
-      params.put("commit", Boolean.box(commitCheck.permitted))
+        if !errors.hasErrors then
+          commitCheck.checkOrError(errors)
+
+      params.put("commit", Boolean.box(preparedTopic.committable && commitCheck.permitted))
 
       val newMsg = Topic.fromEditRequest(group, topic, form, publish)
 
@@ -265,7 +276,7 @@ class EditTopicController(
       if !editable && modified then
         throw new AccessViolationException("нельзя править это сообщение, только теги")
 
-      if form.minor != topic.minor && EditTopicChecker.checkEditMiniStatus(topic, preparedTopic.section).restricted then
+      if form.minor != topic.minor && (!preparedTopic.canBeMini || commitCheck.restricted) then
         errors.reject(null, "вы не можете менять статус новости")
 
       var newTags: Option[Seq[String]] = None

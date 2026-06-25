@@ -19,20 +19,8 @@ import ru.org.linux.section.Section
 import ru.org.linux.topic.Topic
 
 object EditTopicChecker:
-  def checkCommit(topic: Topic, section: Section)(using session: AnySession): Permission =
+  def checkCommit(topic: Topic)(using session: AnySession): Permission =
     Unrestricted
-      .restrict(topic.commited, "топик уже подтвержден")
-      .restrict(!section.isPremoderated, "раздел не премодерируемый")
-      .restrict(!session.moderator && !session.corrector, "только для корректоров и модераторов")
-      .restrict(session.corrector && topic.authorUserId == session.user.id, "нельзя подтверждать собственные топики")
-      .restrict(FrozenUserChecker.checkChain)
-      .restrict(IpBlockChecker.checkChain)
-      .seal
-
-  def checkEditMiniStatus(topic: Topic, section: Section)(using session: AnySession): Permission =
-    Unrestricted
-      .restrict(!section.isPremoderated, "раздел не премодерируемый")
-      .restrict(section.isPollPostAllowed, "опрос не может быть \"мини\"")
       .restrict(!session.moderator && !session.corrector, "только для корректоров и модераторов")
       .restrict(session.corrector && topic.authorUserId == session.user.id, "нельзя подтверждать собственные топики")
       .restrict(FrozenUserChecker.checkChain)
