@@ -31,7 +31,7 @@ class AddTopicCheckerTest extends FunSuite:
     Section(
       name = "Test",
       imagepost = false,
-      moderate = false,
+      premoderated = false,
       id = 1,
       votepoll = false,
       scrollMode = SectionScrollModeEnum.NO_SCROLL,

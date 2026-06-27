@@ -151,7 +151,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     modelAndView.addObject("addUrl", addUrl)
     modelAndView.addObject("addUrlReason", postingCheck.reason)
 
-    if (section.isPremoderated) {
+    if (section.premoderated) {
       modelAndView.addObject("uncommitedCount", topicService.getUncommitedCount(section))
     }
 
@@ -219,7 +219,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   def sectionArchive(@PathVariable section: String, @PathVariable year: Int, @PathVariable month: Int): CompletionStage[ModelAndView] = {
     val sectionObject = sectionService.getSectionByName(section)
 
-    (if (sectionObject.isPremoderated) {
+    (if (sectionObject.premoderated) {
       val topicListForm = TopicListForm.orYearMonth(year, month)
 
       mainTopicsFeedHandler(sectionObject, topicListForm, None)

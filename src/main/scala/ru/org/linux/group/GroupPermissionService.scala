@@ -20,243 +20,137 @@ import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.rights.SlowModeChecker
 import ru.org.linux.section.Section.{Articles, Gallery, News, Polls}
 import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.topic.{PreparedTopic, Topic, TopicDao, TopicPermissionService}
-import ru.org.linux.topic.TopicPermissionService.POSTSCORE_NO_COMMENTS
-import ru.org.linux.user.{User, UserPermissionService}
+import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
+import ru.org.linux.user.User
 
 import scala.beans.BeanProperty
 import java.time.{Duration, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
 
 @Service
-object GroupPermissionService {
+object GroupPermissionService:
   private val DeletePeriod = Duration.ofDays(3)
-  private val EditPeriod = Duration.ofDays(14)
   private val CreateTagScore = 200
 
   case class TopicLimitInfo(
-    @BeanProperty limit: Int,
-    @BeanProperty currentCount: Int,
-    @BeanProperty reached: Boolean,
-    @BeanProperty exempt: Boolean
-  )
-}
+      @BeanProperty
+      limit: Int,
+      @BeanProperty
+      currentCount: Int,
+      @BeanProperty
+      reached: Boolean,
+      @BeanProperty
+      exempt: Boolean)
 
 @Service
-class GroupPermissionService(sectionService: SectionService, deleteInfoDao: DeleteInfoDao,
-                             userPermissionService: UserPermissionService, topicDao: TopicDao,
-                             slowModeChecker: SlowModeChecker) {
+class GroupPermissionService(
+    sectionService: SectionService,
+    deleteInfoDao: DeleteInfoDao,
+    topicDao: TopicDao,
+    slowModeChecker: SlowModeChecker):
   import GroupPermissionService.*
-  /**
-    * Проверка может ли пользователь удалить топик
+
+  /** Проверка может ли пользователь удалить топик
     *
-    * @param user пользователь удаляющий сообщение
-    * @return признак возможности удаления
+    * @param user
+    *   пользователь удаляющий сообщение
+    * @return
+    *   признак возможности удаления
     */
-  private def isDeletableByUser(topic: Topic, user: User, section: Section): Boolean = {
-    if (topic.authorUserId != user.id) {
+  private def isDeletableByUser(topic: Topic, user: User, section: Section): Boolean =
+    if topic.authorUserId != user.id then
       false
-    } else if (topic.draft) {
+    else if topic.draft then
       true
-    } else if (section.isPremoderated && topic.commited) {
+    else if section.premoderated && topic.commited then
       false
-    } else {
+    else
       val deleteDeadline = topic.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(DeletePeriod).toInstant
 
       deleteDeadline.isAfter(Instant.now) && topic.commentCount == 0
-    }
-  }
 
-  def isUndeletable(topic: Topic)(using user: AnySession): Boolean = {
-    if (!topic.deleted || !user.moderator) {
+  def isUndeletable(topic: Topic)(using user: AnySession): Boolean =
+    if !topic.deleted || !user.moderator then
       false
-    } else {
-      if (user.administrator) {
-        true
-      } else if (!topic.expired) {
-        true
-      } else {
-        deleteInfoDao.getDeleteInfo(topic.id)
-          .filter(_.delDate != null)
-          .map(_.delDate.toInstant)
-          .exists(_.isAfter(Instant.now.minus(14, ChronoUnit.DAYS)))
-      }
-    }
-  }
-
-  def enableAllowAnonymousCheckbox(group: Group)(using currentUser: AnySession): Boolean = {
-    currentUser.authorized && !group.premoderated &&
-      Math.max(group.commentsRestriction,
-        Section.getCommentPostscore(group.sectionId))<TopicPermissionService.POSTSCORE_REGISTERED_ONLY
-  }
-  
-  def isImagePostingAllowed(section: Section)(using currentUser: AnySession): Boolean = {
-    if (section.imagepost) {
+    else if user.administrator then
       true
-    } else if (currentUser.authorized &&
-        (currentUser.moderator || currentUser.corrector || currentUser.userOpt.exists(_.getScore >= 50))) {
-      section.imageAllowed
-    } else {
-      false
-    }
-  }
+    else if !topic.expired then
+      true
+    else
+      deleteInfoDao
+        .getDeleteInfo(topic.id)
+        .filter(_.delDate != null)
+        .map(_.delDate.toInstant)
+        .exists(_.isAfter(Instant.now.minus(14, ChronoUnit.DAYS)))
 
-  def additionalImageLimit(section: Section)(using currentUser: AnySession): Int = {
-    if (isImagePostingAllowed(section)) {
-      section.id match {
+  def enableAllowAnonymousCheckbox(group: Group)(using currentUser: AnySession): Boolean =
+    currentUser.authorized && !group.premoderated &&
+      Math.max(group.commentsRestriction, Section.getCommentPostscore(group.sectionId)) <
+      TopicPermissionService.POSTSCORE_REGISTERED_ONLY
+
+  def isImagePostingAllowed(section: Section)(using currentUser: AnySession): Boolean =
+    if section.imagepost then
+      true
+    else if currentUser.authorized &&
+      (currentUser.moderator || currentUser.corrector || currentUser.userOpt.exists(_.getScore >= 50))
+    then
+      section.imageAllowed
+    else
+      false
+
+  def additionalImageLimit(section: Section)(using currentUser: AnySession): Int =
+    if isImagePostingAllowed(section) then
+      section.id match
         case Articles | Gallery | News | Polls =>
           3
         case _ =>
           0
-      }
-    } else {
+    else
       0
-    }
-  }
 
-  def isDeletable(topic: Topic)(using user: AuthorizedSession): Boolean = {
-    if (user.administrator) {
+  def isDeletable(topic: Topic)(using user: AuthorizedSession): Boolean =
+    if user.administrator then
       true
-    } else {
+    else
       val section = sectionService.getSection(topic.sectionId)
 
       val deletableByUser = isDeletableByUser(topic, user.user, section)
 
-      if (!deletableByUser && user.moderator) {
+      if !deletableByUser && user.moderator then
         isDeletableByModerator(topic, user.user, section)
-      } else {
+      else
         deletableByUser
-      }
-    }
-  }
 
-  /**
-    * Проверка, может ли модератор удалить топик
+  /** Проверка, может ли модератор удалить топик
     *
-    * @param moderator пользователь удаляющий сообщение
-    * @return признак возможности удаления
+    * @param moderator
+    *   пользователь удаляющий сообщение
+    * @return
+    *   признак возможности удаления
     */
-  private def isDeletableByModerator(topic: Topic, moderator: User, section: Section) = {
+  private def isDeletableByModerator(topic: Topic, moderator: User, section: Section) =
     val deleteDeadline = topic.postdate.toInstant.atZone(ZoneId.systemDefault()).plusMonths(1).toInstant
 
-    if (section.isPremoderated && !topic.commited) {
+    if section.premoderated && !topic.commited then
       true
-    } else if (section.isPremoderated && topic.commited && deleteDeadline.isAfter(Instant.now)) {
+    else if section.premoderated && topic.commited && deleteDeadline.isAfter(Instant.now) then
       true
-    } else if (!section.isPremoderated) {
+    else if !section.premoderated then
       true
-    } else {
+    else
       false
-    }
-  }
 
-  /**
-    * Можно ли редактировать сообщения полностью
-    *
-    * @param topic тема
-    * @return true если можно, false если нет
-    */
-  def isEditable(topic: PreparedTopic)(using session: AnySession): Boolean = {
-    val by = session.userOpt.orNull
-
-    val message = topic.message
-    val section = topic.section
-    val author = topic.author
-
-    if (message.deleted) {
-      false
-    } else if (by == null || by.anonymous || by.blocked || by.isFrozen) {
-      false
-    } else if (by.isAdministrator) {
-      true
-    } else if (message.expired && !message.draft) {
-      false
-    } else if (!UserPermissionService.allowedFormats(by).contains(topic.markupType)) {
-      false
-    } else if (by.isModerator) {
-      true
-    } else if (by.canCorrect && section.isPremoderated) {
-      true
-    } else if (by.id == author.id && !message.commited) {
-      if (message.sticky) {
-        true
-      } else if (section.isPremoderated) {
-        true
-      } else if (message.draft) {
-        true
-      } else if (message.postscore == POSTSCORE_NO_COMMENTS) {
-        false  
-      } else {
-        val editDeadline = message.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
-
-        editDeadline.isAfter(Instant.now)
-      }
-    } else if (by.id == author.id && message.commited && section.id == Articles) {
-      val editDeadline = message.commitDate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
-
-      editDeadline.isAfter(Instant.now)
-    } else {
-      false
-    }
-  }
-
-  /**
-    * Можно ли редактировать теги сообщения
-    *
-    * @param topic тема
-    * @return true если можно, false если нет
-    */
-  def isTagsEditable(topic: PreparedTopic)(using session: AnySession): Boolean = {
-    val by = session.userOpt.orNull
-
-    val message = topic.message
-    val section = topic.section
-    val author = topic.author
-
-    if (message.deleted) {
-      false
-    } else if (by == null || by.anonymous || by.blocked || by.isFrozen) {
-      false
-    } else if (by.isAdministrator) {
-      true
-    } else if (by.isModerator) {
-      true
-    } else if (by.canCorrect) {
-      true
-    } else if (by.id == author.id && !message.commited) {
-      if (message.sticky) {
-        true
-      } else if (message.draft) {
-        true
-      } else if (section.isPremoderated) {
-        true
-      } else {
-        val editDeadline = message.postdate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
-
-        editDeadline.isAfter(Instant.now)
-      }
-    } else if (by.id == author.id && message.commited && section.id == Articles) {
-      val editDeadline = message.commitDate.toInstant.atZone(ZoneId.systemDefault()).plus(EditPeriod).toInstant
-
-      editDeadline.isAfter(Instant.now)
-    } else {
-      false
-    }
-  }
-
-  def canCreateTag(section: Section)(using session: AnySession): Boolean = {
+  def canCreateTag(section: Section)(using session: AnySession): Boolean =
     val user = session.userOpt.orNull
 
-    if (section.isPremoderated && user!=null && !user.anonymous) {
+    if section.premoderated && user != null && !user.anonymous then
       true
-    } else {
+    else
       user != null && user.getScore >= CreateTagScore
-    }
-  }
-  
+
   def canViewAllDeletedTopics(using session: AnySession): Boolean =
-    session.authorized && session.userOpt.exists(_.score >= 50)
-      && !session.userOpt.exists(u => u.isFrozen || slowModeChecker.check(u).restricted)
+    session.authorized && session.userOpt.exists(_.score >= 50) &&
+      !session.userOpt.exists(u => u.isFrozen || slowModeChecker.check(u).restricted)
 
   private def topicLimit(user: User): Int = Math.max(user.getGreenStars, 2)
 
@@ -267,7 +161,10 @@ class GroupPermissionService(sectionService: SectionService, deleteInfoDao: Dele
       case Some(user) =>
         val limit = topicLimit(user)
         val count = topicDao.countRecentTopics(user.id, section.id)
-        GroupPermissionService.TopicLimitInfo(limit = limit, currentCount = count, reached = count >= limit, exempt = false)
+        GroupPermissionService.TopicLimitInfo(
+          limit = limit,
+          currentCount = count,
+          reached = count >= limit,
+          exempt = false)
       case None =>
         GroupPermissionService.TopicLimitInfo(limit = 0, currentCount = 0, reached = false, exempt = true)
-}

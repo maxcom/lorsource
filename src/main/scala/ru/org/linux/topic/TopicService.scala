@@ -42,7 +42,7 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 object TopicService {
   private def sendTagEventsNeeded(section: Section, oldMsg: Topic, commit: Boolean): Boolean = {
-    val needCommit = section.isPremoderated && !oldMsg.commited
+    val needCommit = section.premoderated && !oldMsg.commited
 
     val fresh = oldMsg.getEffectiveDate.isAfter(OffsetDateTime.now.minusMonths(1).toInstant)
 
@@ -88,7 +88,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     topicTagService.updateTags(msgid, tags)
 
     val notified = if (!previewMsg.draft) {
-      if (section.isPremoderated) {
+      if (section.premoderated) {
         sendEvents(message, msgid, Seq.empty, user.id)
       } else {
         sendEvents(message, msgid, tags, user.id)

@@ -52,13 +52,15 @@ case class AuthorizedSession(
     ipBlockInfo: IpBlockInfo)
     extends AnySession:
   assert(!user.blocked, "blocked authorized user?!")
-  
+  assert(!user.anonymous, "anonymous authorized user?!")
+
   override def userOpt: Some[User] = Some(user)
   override def opt: Option[AuthorizedSession] = Some(this)
   override def authorized: Boolean = true
 
 case class NonAuthorizedSession(anonymous: User, ipBlockInfo: IpBlockInfo) extends AnySession:
   assert(!user.blocked, "blocked anonymous user?!")
+  assert(user.anonymous, "not anonymous?!")
 
   override def user: User = anonymous
   override def userOpt: None.type = None

@@ -32,7 +32,7 @@ import ru.org.linux.group.{GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
-import ru.org.linux.rights.{EditTopicChecker, IpBlockChecker}
+import ru.org.linux.rights.EditTopicChecker
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
@@ -97,10 +97,7 @@ class EditTopicController(
       val message = topicService.getById(msgid)
       val preparedTopic = prepareService.prepareTopic(message)
 
-      if !permissionService.isEditable(preparedTopic) && !permissionService.isTagsEditable(preparedTopic) then
-        throw new AccessViolationException("это сообщение нельзя править")
-
-      IpBlockChecker.check.checkOrThrow()
+      EditTopicChecker.checkAnythingEdit(preparedTopic).checkOrThrow()
 
       initForm(preparedTopic, form)
 
@@ -185,7 +182,7 @@ class EditTopicController(
           0,
           permissionService.additionalImageLimit(preparedTopic.section) - preparedTopic.additionalImages.size()))
 
-  @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.POST)) @throws[Exception]
+  @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.POST))
   def edit(
       request: HttpServletRequest,
       @RequestParam(value = "chgrp", required = false)
@@ -201,15 +198,12 @@ class EditTopicController(
       val group = preparedTopic.group
       val user = currentUser.user
 
-      IpBlockChecker.check.checkOrError(errors)
-
       val params = prepareModel(preparedTopic)
 
-      val tagsEditable = permissionService.isTagsEditable(preparedTopic)
-      val editable = permissionService.isEditable(preparedTopic)
+      val editCheck = EditTopicChecker.checkContentEdit(preparedTopic)
+      val editable = editCheck.permitted
 
-      if !editable && !tagsEditable then
-        throw new AccessViolationException("это сообщение нельзя править")
+      editCheck.or(EditTopicChecker.checkTagsEdit(preparedTopic)).checkOrThrow()
 
       if editable then
         val title = request.getParameter("title")
@@ -312,7 +306,7 @@ class EditTopicController(
           MessageText.apply(form.msg, oldText.markup)
         else
           oldText
-      
+
       if !preview && !errors.hasErrors then
         val editorBonus =
           if form.editorBonus != null then
@@ -341,7 +335,7 @@ class EditTopicController(
             searchQueueSender.updateMessage(newMsg.id, true)
             RealtimeEventHub.notifyEvents(realtimeHubWS, users)
 
-          if !publish || !preparedTopic.section.isPremoderated then
+          if !publish || !preparedTopic.section.premoderated then
             return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build))
           else
             params.put("url", TopicLinkBuilder.baseLink(topic).forceLastmod.build)

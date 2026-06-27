@@ -62,11 +62,11 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
     val section = sectionService.getSection(topic.sectionId)
 
     new ModelAndView("delete", Map[String, Any](
-      "bonus" -> (!section.isPremoderated && !topic.draft && !topic.expired),
+      "bonus" -> (!section.premoderated && !topic.draft && !topic.expired),
       "author" -> userService.getUserCached(topic.authorUserId),
       "msgid" -> msgid,
       "draft" -> topic.draft,
-      "uncommited" -> (section.isPremoderated && !topic.commited)
+      "uncommited" -> (section.premoderated && !topic.commited)
     ).asJava)
   }
 

@@ -67,7 +67,7 @@ class ArchiveController(
       mv.getModel.put("addUrl", addUrl)
       mv.getModel.put("addUrlReason", postingCheck.reason)
 
-      if section.isPremoderated then
+      if section.premoderated then
         mv.getModel.put("uncommitedCount", topicService.getUncommitedCount(section))
 
       mv

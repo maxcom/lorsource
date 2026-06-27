@@ -21,17 +21,15 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
-import ru.org.linux.group.GroupPermissionService
+import ru.org.linux.rights.EditTopicChecker
 import ru.org.linux.topic.*
 
 @Controller
 @RequestMapping(Array("/delete_image"))
 class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topicDao: TopicDao,
-                            prepareService: TopicPrepareService, permissionService: GroupPermissionService) {
+                            prepareService: TopicPrepareService) {
   private def checkDelete(topic: PreparedTopic, image: Image)(using user: AuthorizedSession): Unit = {
-    if (!permissionService.isEditable(topic)) {
-      throw new AccessViolationException("Вы не можете редактировать эту тему")
-    }
+    EditTopicChecker.checkContentEdit(topic).checkOrThrow()
 
     if (topic.section.imagepost && image.main) {
       throw new AccessViolationException("Нельзя удалить основное изображение")

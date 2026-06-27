@@ -298,7 +298,7 @@ class AddTopicController(
 
     val topicUrl = previewMsg.withId(msgid).getLink
 
-    if !section.isPremoderated || previewMsg.draft then
+    if !section.premoderated || previewMsg.draft then
       new ModelAndView(new RedirectView(topicUrl, false, false))
     else
       params.put("url", topicUrl)

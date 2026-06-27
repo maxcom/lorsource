@@ -193,7 +193,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupService: Group
   private def topicAwaitsCommit(msg: Topic) = {
     val section = sectionService.getSection(msg.sectionId)
 
-    section.isPremoderated && !msg.commited
+    section.premoderated && !msg.commited
   }
 
   private def indexOfTopic(topic: Topic, group: Group): MessageIndexDocument = {

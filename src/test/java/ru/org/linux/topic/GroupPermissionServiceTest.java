@@ -99,7 +99,7 @@ public class GroupPermissionServiceTest {
     SectionService sectionService = mock(SectionService.class);
     when(sectionService.getSection(3)).thenReturn(section);
 
-    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null, null);
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null);
 
     assertTrue(permissionService.isDeletable(message, sessionOf(user)));
   }
@@ -142,7 +142,7 @@ public class GroupPermissionServiceTest {
     SectionService sectionService = mock(SectionService.class);
     when(sectionService.getSection(3)).thenReturn(section);
 
-    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null, null);
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null);
 
     assertFalse(permissionService.isDeletable(message, sessionOf(user)));
   }
@@ -186,7 +186,7 @@ public class GroupPermissionServiceTest {
     SectionService sectionService = mock(SectionService.class);
     when(sectionService.getSection(3)).thenReturn(section);
 
-    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null, null);
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null);
 
     assertFalse(permissionService.isDeletable(message, sessionOf(user)));
   }
@@ -230,7 +230,7 @@ public class GroupPermissionServiceTest {
     SectionService sectionService = mock(SectionService.class);
     when(sectionService.getSection(3)).thenReturn(section);
 
-    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null, null);
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null);
 
     assertFalse(permissionService.isDeletable(message, sessionOf(user)));
   }
@@ -320,6 +320,7 @@ public class GroupPermissionServiceTest {
 
     Section sectionModerate = mock(Section.class);
     when(sectionModerate.isPremoderated()).thenReturn(true);
+    when(sectionModerate.premoderated()).thenReturn(true);
     Section sectionNotModerate = mock(Section.class);
     when(sectionNotModerate.isPremoderated()).thenReturn(false);
 
@@ -327,7 +328,7 @@ public class GroupPermissionServiceTest {
     when(sectionService.getSection(1)).thenReturn(sectionModerate);
     when(sectionService.getSection(2)).thenReturn(sectionNotModerate);
 
-    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null, null);
+    GroupPermissionService permissionService = new GroupPermissionService(sectionService, null, null, null);
 
     // проверка, что данные в mock resultSet верные
     assertTrue(resultSetModerateNew.getBoolean("moderate"));

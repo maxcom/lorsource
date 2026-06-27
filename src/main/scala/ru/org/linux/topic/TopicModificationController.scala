@@ -137,8 +137,8 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
     val topic = messageDao.getById(msgid)
     val currentSection = sectionService.getSection(topic.sectionId)
 
-    val sections = if (currentSection.isPremoderated && !currentSection.isPollPostAllowed) {
-      sectionService.sections.filter(s => s.isPremoderated && !s.isPollPostAllowed)
+    val sections = if (currentSection.premoderated && !currentSection.isPollPostAllowed) {
+      sectionService.sections.filter(s => s.premoderated && !s.isPollPostAllowed)
     } else {
       Seq(currentSection)
     }

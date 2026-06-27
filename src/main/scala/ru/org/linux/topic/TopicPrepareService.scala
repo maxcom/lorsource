@@ -202,8 +202,8 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
 
   def getTopicMenu(topic: PreparedTopic, loadUserpics: Boolean)
                   (using session: AnySession): TopicMenu = {
-    val topicEditable = groupPermissionService.isEditable(topic)
-    val tagsEditable = groupPermissionService.isTagsEditable(topic)
+    val topicEditable = EditTopicChecker.checkContentEdit(topic).permitted
+    val tagsEditable = EditTopicChecker.checkTagsEdit(topic).permitted
 
     val (resolvable, deletable, undeletable) = session.opt.map  { implicit currentUser =>
       val resolvable = (currentUser.moderator || (topic.author.id == currentUser.user.id)) &&

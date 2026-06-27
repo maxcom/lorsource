@@ -27,6 +27,8 @@ sealed trait RestrictionChain extends PermissionChain:
 sealed trait PermissionChain:
   def permit(condition: => Boolean): PermissionChain
   def restrict(condition: => Boolean, reason: String): PermissionChain
+  def restrict(permission: => RestrictionChain): PermissionChain
+  def concat(other: => PermissionChain): PermissionChain 
 
 case object Unrestricted extends PermissionChain with RestrictionChain:
   override def permit(condition: => Boolean): PermissionChain =
@@ -47,15 +49,20 @@ case object Unrestricted extends PermissionChain with RestrictionChain:
         Unrestricted
       case r: Restricted =>
         r
+  
+  override def concat(other: => PermissionChain): PermissionChain = other
 
 case object Permitted extends PermissionChain with Permission:
   override def permit(condition: => Boolean): Permitted.type = this
   override def restrict(condition: => Boolean, reason: String): Permitted.type = this
+  override def restrict(permission: => RestrictionChain): Permitted.type = this
+  override def concat(other: => PermissionChain): Permitted.type = this
 
 case class Restricted(reason: String) extends PermissionChain with Permission with RestrictionChain:
   override def permit(condition: => Boolean): Restricted = this
   override def restrict(condition: => Boolean, reason: String): Restricted = this
   override def restrict(permission: => RestrictionChain): RestrictionChain = this
+  override def concat(other: => PermissionChain): RestrictionChain = this
 
 extension (p: PermissionChain)
   def seal: Permission =
@@ -94,3 +101,10 @@ object Permission:
           reason
         case Permitted =>
           ""
+          
+    def or(other: => Permission): Permission =
+      if p.permitted || other.permitted then
+        Permitted
+      else 
+        p
+     

@@ -27,7 +27,7 @@ case class Section(
     @BooleanBeanProperty
     imagepost: Boolean,
     @BooleanBeanProperty
-    moderate: Boolean,
+    premoderated: Boolean,
     @BeanProperty
     id: Int,
     @BooleanBeanProperty
@@ -41,8 +41,6 @@ case class Section(
   import Section.*
 
   def getTitle: String = name
-
-  def isPremoderated: Boolean = moderate
 
   def isPollPostAllowed: Boolean = votepoll
 
@@ -90,7 +88,7 @@ object Section:
   private val sections: Map[Int, String] =
     Map(News -> "news", Forum -> "forum", Gallery -> "gallery", Polls -> "polls", Articles -> "articles")
 
-  def getCommentPostscore(id: Int): Int = 
+  def getCommentPostscore(id: Int): Int =
     id match
       case Forum | News =>
         TopicPermissionService.POSTSCORE_UNRESTRICTED

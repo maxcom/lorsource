@@ -21,6 +21,7 @@ import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.comment.CommentReadService
 import ru.org.linux.group.{GroupPermissionService, GroupService}
+import ru.org.linux.rights.EditTopicChecker
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
 
@@ -29,8 +30,8 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
 @Controller
 class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistoryService,
                             commentService: CommentReadService, topicPermissionService: TopicPermissionService,
-                            groupPermissionService: GroupPermissionService, groupService: GroupService,
-                            userService: UserService, topicPrepareService: TopicPrepareService) {
+                            groupService: GroupService, userService: UserService, 
+                            topicPrepareService: TopicPrepareService) {
   @RequestMapping(Array("/news/{group}/{id}/history", "/forum/{group}/{id}/history", "/gallery/{group}/{id}/history",
     "/polls/{group}/{id}/history", "/articles/{group}/{id}/history"))
   def showEditInfo(@PathVariable("id") msgid: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
@@ -51,7 +52,7 @@ class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistor
 
     modelAndView.getModel.put("message", topic)
     modelAndView.getModel.put("editHistories", editHistories.asJava)
-    modelAndView.getModel.put("canRestore", groupPermissionService.isEditable(preparedMessage))
+    modelAndView.getModel.put("canRestore", EditTopicChecker.checkContentEdit(preparedMessage).permitted)
 
     modelAndView
   }

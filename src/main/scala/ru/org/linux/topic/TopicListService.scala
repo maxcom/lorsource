@@ -49,7 +49,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       noTalks: Boolean,
       tech: Boolean)(using AnySession): Seq[Topic] =
     val commitMode =
-      if section.isPremoderated then
+      if section.premoderated then
         CommitMode.CommittedOnly
       else
         CommitMode.PostmoderatedOnly
@@ -73,7 +73,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
         base.copy(dateLimit = DateLimit.Between(fromDate, toDate))
       else
         val withLimit = base.copy(limit = Some(count), offset = Some(TopicListService.fixOffset(offset)).filter(_ > 0))
-        if tag.isEmpty && group.isEmpty && !section.isPremoderated then
+        if tag.isEmpty && group.isEmpty && !section.premoderated then
           val calendar = Calendar.getInstance
           calendar.setTime(new Date)
           calendar.add(Calendar.MONTH, -6)
@@ -118,7 +118,7 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
       noTalks: Boolean,
       tech: Boolean)(using AnySession): Seq[Topic] =
     val commitMode =
-      if section.isPremoderated then
+      if section.premoderated then
         CommitMode.CommittedOnly
       else
         CommitMode.PostmoderatedOnly
