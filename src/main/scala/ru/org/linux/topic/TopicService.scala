@@ -16,6 +16,8 @@ package ru.org.linux.topic
 
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
+import org.apache.pekko.actor.typed.ActorRef
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
 import org.springframework.web.multipart.MultipartFile
@@ -26,9 +28,11 @@ import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{PollDao, PollVariant}
+import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.spring.SiteConfig
@@ -56,7 +60,10 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
                    textService: MessageTextService, editHistoryDao: EditHistoryDao,
                    imageDao: ImageDao, siteConfig: SiteConfig, permissionService: GroupPermissionService,
-                   springDB: SpringDB, addTopicChecker: AddTopicChecker) extends StrictLogging {
+                   springDB: SpringDB, addTopicChecker: AddTopicChecker,
+                   @Qualifier("realtimeHubWS")
+                   realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
+                   searchQueueSender: SearchQueueSender) extends StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
                  image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
@@ -220,41 +227,46 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   }
 
   def updateAndCommit(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]],
-                      newText: MessageText, commit: Boolean, changeGroupId: Option[Int], bonus: Int,
+                      newText: MessageText, commit: Boolean, publish: Boolean, changeGroupId: Option[Int], bonus: Int,
                       pollVariants: Option[Seq[PollVariant]], multiselect: Boolean,
                       editorBonus: Map[User, Int], imagePreview: Option[UploadedImagePreview],
-                      additionalImages: Seq[UploadedImagePreview]): (Boolean, Set[Int]) = springDB.localTx {
-    val modified = modifyTopic(newMsg = newMsg, oldMsg = oldMsg, user = user, newTags = newTags, newText = newText,
-      pollVariants = pollVariants, multiselect = multiselect, imagePreview = imagePreview,
-      additionalImages = additionalImages)
+                      additionalImages: Seq[UploadedImagePreview]): Boolean = {
+    val (modified, users) = springDB.localTx {
+      val modified = modifyTopic(newMsg = newMsg, oldMsg = oldMsg, user = user, newTags = newTags, newText = newText,
+        pollVariants = pollVariants, multiselect = multiselect, imagePreview = imagePreview,
+        additionalImages = additionalImages)
 
-    val notified = if (!newMsg.draft && !newMsg.expired) {
-      val section = sectionService.getSection(oldMsg.sectionId)
+      val notified = if (!newMsg.draft && !newMsg.expired) {
+        val section = sectionService.getSection(oldMsg.sectionId)
 
-      if (newTags.isDefined && TopicService.sendTagEventsNeeded(section, oldMsg, commit)) {
-        sendEvents(newText, oldMsg.id, newTags.get, oldMsg.authorUserId)
-      } else sendEvents(newText, oldMsg.id, Seq.empty, oldMsg.authorUserId)
-    } else Set.empty[Int]
+        if (newTags.isDefined && TopicService.sendTagEventsNeeded(section, oldMsg, commit)) {
+          sendEvents(newText, oldMsg.id, newTags.get, oldMsg.authorUserId)
+        } else sendEvents(newText, oldMsg.id, Seq.empty, oldMsg.authorUserId)
+      } else Set.empty[Int]
 
-    if (oldMsg.draft && !newMsg.draft) {
-      topicDao.publish(newMsg)
-    }
+      if publish then
+        topicDao.publish(newMsg)
 
-    if (commit) {
-      changeGroupId.foreach { changeGroupId =>
-        if (oldMsg.groupId != changeGroupId) {
-          topicDao.changeGroup(oldMsg, changeGroupId)
+      if commit then
+        changeGroupId.foreach { changeGroupId =>
+          if (oldMsg.groupId != changeGroupId) {
+            topicDao.changeGroup(oldMsg, changeGroupId)
+          }
         }
-      }
 
-      doCommit(oldMsg, user, bonus, editorBonus)
+        doCommit(oldMsg, user, bonus, editorBonus)
+
+      (modified, notified)
     }
 
-    if (modified) {
+    if modified then
       logger.info(s"сообщение ${oldMsg.id} исправлено ${user.nick}")
-    }
 
-    (modified, notified)
+    if (modified || commit || publish) && !newMsg.draft then
+      RealtimeEventHub.notifyEvents(realtimeHubWS, users)
+      searchQueueSender.updateMessage(newMsg.id, true)
+
+    modified
   }
 
   private def replaceImage(oldMsg: Topic, oldImage: Option[Image], imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord)(using Transaction): EditHistoryRecord = {

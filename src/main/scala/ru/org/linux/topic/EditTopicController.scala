@@ -17,8 +17,6 @@ package ru.org.linux.topic
 import com.google.common.base.Strings
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.text.StringEscapeUtils
-import org.apache.pekko.actor.typed.ActorRef
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.web.bind.WebDataBinder
@@ -28,12 +26,11 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, CorrectorOrModerator}
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
+import ru.org.linux.gallery.UploadedImagePreview
 import ru.org.linux.group.{GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
-import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.rights.EditTopicChecker
-import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
 import ru.org.linux.tag.{TagName, TagRef, TagService}
@@ -47,7 +44,6 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsSca
 
 @Controller
 class EditTopicController(
-    searchQueueSender: SearchQueueSender,
     topicService: TopicService,
     prepareService: TopicPrepareService,
     groupService: GroupService,
@@ -57,9 +53,7 @@ class EditTopicController(
     editHistoryService: EditHistoryService,
     editTopicRequestValidator: EditTopicRequestValidator,
     tagService: TagService,
-    userService: UserService,
-    @Qualifier("realtimeHubWS")
-    realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]):
+    userService: UserService):
   @RequestMapping(value = Array("/commit.jsp"), method = Array(RequestMethod.GET))
   def showCommitForm(
       @RequestParam("msgid")
@@ -182,6 +176,42 @@ class EditTopicController(
           0,
           permissionService.additionalImageLimit(preparedTopic.section) - preparedTopic.additionalImages.size()))
 
+  private def checkModified(
+      preparedTopic: PreparedTopic,
+      newMsg: Topic,
+      form: EditTopicRequest,
+      oldText: MessageText,
+      imagePreview: Option[UploadedImagePreview],
+      additionalImagePreviews: Seq[UploadedImagePreview]): Boolean =
+    var modified = false
+    val topic = preparedTopic.message
+
+    if !(topic.title == newMsg.title) then
+      modified = true
+
+    if form.msg != null then
+      if !(oldText.text == form.msg) then
+        modified = true
+
+    if topic.linktext == null then
+      if newMsg.linktext != null then
+        modified = true
+      else if !(topic.linktext == newMsg.linktext) then
+        modified = true
+
+    if preparedTopic.group.linksAllowed then
+      if topic.url == null then
+        if newMsg.url != null then
+          modified = true
+        else if !(topic.url == newMsg.url) then
+          modified = true
+
+    if imagePreview.isDefined || additionalImagePreviews.nonEmpty then
+      modified = true
+
+    modified
+  end checkModified
+
   @RequestMapping(value = Array("/edit.jsp"), method = Array(RequestMethod.POST))
   def edit(
       request: HttpServletRequest,
@@ -194,9 +224,6 @@ class EditTopicController(
       import form.topic
 
       val preparedTopic = prepareService.prepareTopic(topic)
-
-      val group = preparedTopic.group
-      val user = currentUser.user
 
       val params = prepareModel(preparedTopic)
 
@@ -214,8 +241,6 @@ class EditTopicController(
       if preview then
         params.put("info", "Предпросмотр")
 
-      val publish = request.getParameter("publish") != null
-
       val commit = request.getParameter("commit") != null
 
       val commitCheck = EditTopicChecker.checkCommit(topic)
@@ -231,41 +256,17 @@ class EditTopicController(
 
       params.put("commit", Boolean.box(preparedTopic.committable && commitCheck.permitted))
 
-      val newMsg = Topic.fromEditRequest(group, topic, form, publish)
-
-      var modified = false
-
-      if !(topic.title == newMsg.title) then
-        modified = true
-
+      val newMsg = Topic.fromEditRequest(preparedTopic.group, topic, form, request.getParameter("publish") != null)
       val oldText = msgbaseDao.getMessageText(topic.id)
-
-      if form.msg != null then
-        if !(oldText.text == form.msg) then
-          modified = true
-
-      if topic.linktext == null then
-        if newMsg.linktext != null then
-          modified = true
-        else if !(topic.linktext == newMsg.linktext) then
-          modified = true
-
-      if group.linksAllowed then
-        if topic.url == null then
-          if newMsg.url != null then
-            modified = true
-          else if !(topic.url == newMsg.url) then
-            modified = true
 
       val (imagePreview, additionalImagePreviews) = topicService.processUploads(
         form,
-        group,
+        preparedTopic.group,
         errors,
         preparedTopic.additionalImages.size(),
         hasImage = preparedTopic.image != null)
 
-      if imagePreview.isDefined || additionalImagePreviews.nonEmpty then
-        modified = true
+      val modified = checkModified(preparedTopic, newMsg, form, oldText, imagePreview, additionalImagePreviews)
 
       if !editable && modified then
         throw new AccessViolationException("нельзя править это сообщение, только теги")
@@ -273,21 +274,18 @@ class EditTopicController(
       if form.minor != topic.minor && (!preparedTopic.canBeMini || commitCheck.restricted) then
         errors.reject(null, "вы не можете менять статус новости")
 
-      var newTags: Option[Seq[String]] = None
+      val newTags: Option[Seq[String]] = Option(form.tags).map(TagName.parseAndSanitizeTags).filter(_.nonEmpty)
 
-      if form.tags != null then
-        newTags = Some(TagName.parseAndSanitizeTags(form.tags)).filter(_.nonEmpty)
+      newTags.foreach { newTags =>
+        if !permissionService.canCreateTag(preparedTopic.section) then
+          val nonExistingTags = tagService.getNewTags(newTags)
 
-        newTags.foreach { newTags =>
-          if !permissionService.canCreateTag(preparedTopic.section) then
-            val nonExistingTags = tagService.getNewTags(newTags)
-
-            if nonExistingTags.nonEmpty then
-              errors.rejectValue(
-                "tags",
-                null,
-                "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags) + ")")
-        }
+          if nonExistingTags.nonEmpty then
+            errors.rejectValue(
+              "tags",
+              null,
+              "Вы не можете создавать новые теги (" + TagService.tagsToString(nonExistingTags) + ")")
+      }
 
       if changeGroupId != null then
         if topic.groupId != changeGroupId then
@@ -307,56 +305,55 @@ class EditTopicController(
         else
           oldText
 
-      if !preview && !errors.hasErrors then
-        val editorBonus =
-          if form.editorBonus != null then
-            form.editorBonus.asScala.view.mapValues(_.toInt).toMap
-          else
-            Map.empty[User, Int]
+      val doPublish = topic.draft && !newMsg.draft
 
-        val (changed, users) = topicService.updateAndCommit(
-          newMsg,
-          topic,
-          user,
-          newTags,
-          newText,
-          commit,
-          Option[Integer](changeGroupId).map(_.toInt),
-          form.bonus,
-          newPoll.map(_.variants),
-          form.multiselect,
-          editorBonus,
-          imagePreview,
-          additionalImagePreviews
+      val performed = if !preview && !errors.hasErrors then
+        val changed = topicService.updateAndCommit(
+          newMsg = newMsg,
+          oldMsg = topic,
+          user = currentUser.user,
+          newTags = newTags,
+          newText = newText,
+          commit = commit,
+          publish = doPublish,
+          changeGroupId = Option[Integer](changeGroupId).map(_.toInt),
+          bonus = form.bonus,
+          pollVariants = newPoll.map(_.variants),
+          multiselect = form.multiselect,
+          editorBonus = form.editorBonusScala,
+          imagePreview = imagePreview,
+          additionalImages = additionalImagePreviews
         )
 
-        if changed || commit || publish then
-          if !newMsg.draft then
-            searchQueueSender.updateMessage(newMsg.id, true)
-            RealtimeEventHub.notifyEvents(realtimeHubWS, users)
-
-          if !publish || !preparedTopic.section.premoderated then
-            return new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build))
-          else
-            params.put("url", TopicLinkBuilder.baseLink(topic).forceLastmod.build)
-            return new ModelAndView("add-done-moderated", params.asJava)
+        if changed || commit || doPublish then
+          true
         else
           errors.reject(null, "Нет изменений")
+          false
+      else
+        false
 
-      params.put("newMsg", newMsg)
+      if performed then
+        if doPublish && preparedTopic.section.premoderated then
+          params.put("url", TopicLinkBuilder.baseLink(topic).forceLastmod.build)
+          new ModelAndView("add-done-moderated", params.asJava)
+        else
+          new ModelAndView(new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build))
+      else
+        params.put("newMsg", newMsg)
 
-      params.put(
-        "newPreparedMessage",
-        prepareService.prepareTopicPreview(
-          newMsg,
-          newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
-          newPoll,
-          newText,
-          imagePreview,
-          additionalImagePreviews)
-      )
+        params.put(
+          "newPreparedMessage",
+          prepareService.prepareTopicPreview(
+            newMsg,
+            newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
+            newPoll,
+            newText,
+            imagePreview,
+            additionalImagePreviews)
+        )
 
-      new ModelAndView("edit", params.asJava)
+        new ModelAndView("edit", params.asJava)
     }
 
   private def buildNewPoll(message: Topic, form: EditTopicRequest) =

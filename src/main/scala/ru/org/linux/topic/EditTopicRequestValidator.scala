@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -42,11 +42,9 @@ class EditTopicRequestValidator(editHistoryService: EditHistoryService) extends 
       errors.rejectValue("bonus", null, "Некорректное значение bonus")
     }
 
-    if (form.editorBonus != null) {
-      for (value <- form.editorBonus.asScala.values) {
-        if (value == null || value < 0 || value > EditTopicRequestValidator.MaxEditorBonus) {
-          errors.rejectValue("editorBonus", null, "Некорректное значение editorBonus")
-        }
+    for (value <- form.editorBonusScala.values) {
+      if (value < 0 || value > EditTopicRequestValidator.MaxEditorBonus) {
+        errors.rejectValue("editorBonus", null, "Некорректное значение editorBonus")
       }
     }
 
