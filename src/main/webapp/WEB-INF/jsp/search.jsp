@@ -25,9 +25,9 @@
 <%--@elvariable id="time" type="java.lang.Long"--%>
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
-<%--@elvariable id="sorts" type="java.util.Map<SearchViewer.SearchOrder, String>"--%>
-<%--@elvariable id="intervals" type="java.util.Map<SearchViewer.SearchInterval, String>"--%>
-<%--@elvariable id="ranges" type="java.util.Map<SearchViewer.SearchRange, String>"--%>
+<%--@elvariable id="sorts" type="java.util.Map<ru.org.linux.search.SearchOrder, String>"--%>
+<%--@elvariable id="intervals" type="java.util.Map<ru.org.linux.search.SearchEnums.SearchInterval, String>"--%>
+<%--@elvariable id="ranges" type="java.util.Map<ru.org.linux.search.SearchEnums.SearchRange, String>"--%>
 <%--@elvariable id="sectionFacet" type="java.util.Map<Integer, String>"--%>
 <%--@elvariable id="groupFacet" type="java.util.Map<Integer, String>"--%>
 <%--@elvariable id="prevLink" type="java.lang.String"--%>

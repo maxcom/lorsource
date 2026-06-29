@@ -50,7 +50,7 @@ class SearchController(sectionService: SectionService, userService: UserService,
 
   @ModelAttribute("ranges")
   def getRanges: java.util.Map[SearchEnums.SearchRange, String] = {
-    SearchRange.values().view.map(v => v -> v.getTitle).to(VectorMap).asJava
+    SearchRange.values.view.map(v => v -> v.getTitle).to(VectorMap).asJava
   }
 
   @RequestMapping(value = Array("/search.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
