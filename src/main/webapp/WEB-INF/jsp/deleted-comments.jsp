@@ -20,11 +20,30 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="deletedList" type="java.util.List<ru.org.linux.comment.CommentDao.DeletedListItem>"--%>
+<%--@elvariable id="filters" type="java.util.List<ru.org.linux.comment.DeletedCommentsFilterEnum>"--%>
+<%--@elvariable id="filter" type="java.lang.String"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
+<title>${title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Последние 50 удаленных комментариев ${user.nick}</h1>
+<h1>${title}</h1>
+
+<nav>
+  <c:forEach items="${filters}" var="f">
+    <c:url var="fUrl" value="/people/${user.nick}/deleted-comments">
+      <c:if test="${f.value != 'all'}">
+        <c:param name="filter">${f.value}</c:param>
+      </c:if>
+    </c:url>
+    <c:if test="${filter != f.value}">
+      <a class="btn btn-default" href="${fUrl}">${f.label}</a>
+    </c:if>
+    <c:if test="${filter == f.value}">
+      <a href="${fUrl}" class="btn btn-selected">${f.label}</a>
+    </c:if>
+  </c:forEach>
+</nav>
 
 <div class=forum>
   <table width="100%" class="message-table">
@@ -70,4 +89,20 @@
 
   </table>
 </div>
+
+<div class="nav">
+  <div style="display: table; width: 100%">
+    <div style="display: table-cell; text-align: left">
+      <c:if test="${not empty prevLink}">
+        <a href="${prevLink}" rel="prev">← предыдущие</a>
+      </c:if>
+    </div>
+    <div style="display: table-cell; text-align: right">
+      <c:if test="${not empty nextLink}">
+        <a href="${nextLink}" rel="next">следующие →</a>
+      </c:if>
+    </div>
+  </div>
+</div>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

@@ -184,7 +184,13 @@ class CommentDao(springDB: SpringDB):
     * @return
     *   список удалённых комментариев пользователя
     */
-  def getDeletedComments(userId: Int): Seq[CommentsListItem] =
+  def getDeletedComments(userId: Int, filter: DeletedCommentsFilterEnum, offset: Int): Seq[CommentsListItem] =
+    val filterClause: SQLSyntax = filter match
+      case DeletedCommentsFilterEnum.ALL => sqls"true"
+      case DeletedCommentsFilterEnum.PENALTY => sqls"comdel.bonus IS NOT NULL AND comdel.bonus != 0"
+      case DeletedCommentsFilterEnum.NO_AUTO => sqls"comments.deleted AND comdel.reason IS NOT NULL AND comdel.reason NOT ILIKE '%(авто%'"
+      case DeletedCommentsFilterEnum.SELF_DELETED => sqls"comdel.delby = comments.userid"
+
     springDB.run:
       sql"""SELECT groups.title as gtitle, topics.title, topics.id as msgid,
             comdel.reason, COALESCE(comdel.delDate, topdel.delDate) deldate, comdel.bonus,
@@ -193,8 +199,9 @@ class CommentDao(springDB: SpringDB):
             JOIN comments ON comments.topic=topics.id
             LEFT JOIN del_info comdel ON comdel.msgid=comments.id
             LEFT JOIN del_info topdel ON topdel.msgid=topics.id
-            WHERE comments.userid=$userId AND (comments.deleted OR topics.deleted)
-            ORDER BY COALESCE(comdel.delDate, topdel.delDate) DESC NULLS LAST, comments.id DESC LIMIT 50"""
+            WHERE comments.userid=$userId AND (comments.deleted OR topics.deleted) AND ${filterClause}
+            ORDER BY COALESCE(comdel.delDate, topdel.delDate) DESC NULLS LAST, comments.id DESC
+            LIMIT 50 OFFSET ${offset}"""
         .map(rs =>
           CommentsListItem(
             gtitle = rs.string("gtitle"),

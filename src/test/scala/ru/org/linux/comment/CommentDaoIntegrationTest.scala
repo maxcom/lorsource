@@ -250,7 +250,7 @@ class CommentDaoIntegrationTest:
         .update
         .apply()
 
-    val result = commentDao.getDeletedComments(testUserId)
+    val result = commentDao.getDeletedComments(testUserId, DeletedCommentsFilterEnum.ALL, 0)
     val item = result.find(_.commentId == commentId)
     assertTrue("Should find comment deleted with its topic", item.isDefined)
     assertNull("No reason from comdel when comment not individually deleted", item.get.reason)
