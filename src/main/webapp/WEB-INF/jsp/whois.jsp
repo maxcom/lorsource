@@ -106,7 +106,6 @@
         <link rel="me" href="${fn:escapeXml(userInfo.url)}">
     </c:if>
 </c:if>
-<link rel="alternate" href="/people/${user.nick}/?output=rss" type="application/rss+xml">
 
 <jsp:include page="header.jsp"/>
 

@@ -14,6 +14,7 @@
  */
 
 package ru.org.linux.topic
+
 import ru.org.linux.user.UserConstants
 
 import org.springframework.http.HttpStatus
@@ -33,7 +34,7 @@ import scala.jdk.CollectionConverters.*
 class UserTopicListController(topicListService: TopicListService, userDao: UserDao, userService: UserService,
                               sectionService: SectionService, prepareService: TopicPrepareService,
                               topicPermissionService: TopicPermissionService) {
-  @RequestMapping(value = Array("favs"), params = Array("!output"))
+  @RequestMapping(value = Array("favs"))
   def showUserFavs(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
@@ -49,7 +50,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopics(user = user, offset = offset, favorites = true, watches = false)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
+    prepareTopics(modelAndView, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
@@ -74,18 +75,21 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getDrafts(user, offset)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
+    prepareTopics(modelAndView, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
   }
 
+  @RequestMapping(params = Array("output=rss"))
+  @ResponseStatus(HttpStatus.GONE)
+  def showUserTopicsRssGone: ModelAndView = new ModelAndView("errors/code410")
+
   @RequestMapping
   def showUserTopics(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int,
-    @RequestParam(value = "section", defaultValue = "0") sectionId: Int,
-    @RequestParam(value = "output", required = false) output: String
+    @RequestParam(value = "section", defaultValue = "0") sectionId: Int
   ): ModelAndView = MaybeAuthorized { implicit currentUser =>
     val (modelAndView, user) = mkModel(nick)
 
@@ -110,30 +114,23 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
       UriComponentsBuilder.fromUriString("/people/{nick}/").buildAndExpand(nick).encode.toUriString)
     modelAndView.addObject("ptitle", s"Сообщения ${user.nick}")
     modelAndView.addObject("navtitle", s"Сообщения")
-    modelAndView.addObject("rssLink",
-      UriComponentsBuilder.fromUriString("/people/{nick}/?output=rss").buildAndExpand(nick).encode.toUriString)
 
     val offset = TopicListService.fixOffset(rawOffset)
     modelAndView.addObject("offset", offset)
     val messages = topicListService.getUserTopics(user = user, section = section, offset = offset, favorites = false, watches = false)
 
     if (messages.nonEmpty) {
-      val rss = "rss" == output
-      if (!rss) {
-        section.foreach { section => modelAndView.addObject("section", section) }
+      section.foreach { section => modelAndView.addObject("section", section) }
 
-        val sections = topicListService.getUserSections(user)
+      val sections = topicListService.getUserSections(user)
 
-        modelAndView.addObject("sectionList", sections.asJava)
-      }
+      modelAndView.addObject("sectionList", sections.asJava)
 
       modelAndView.addObject("params", section.map(s => s"section=${s.id}").getOrElse(""))
 
-      prepareTopicsForPlainOrRss(modelAndView, rss, messages)
+      prepareTopics(modelAndView, messages)
 
-      if (!rss) {
-        modelAndView.setViewName("user-topics")
-      }
+      modelAndView.setViewName("user-topics")
 
       modelAndView.addObject("showSearch", true)
 
@@ -161,7 +158,7 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     new ModelAndView("deleted-topics", params.asJava)
   }
 
-  @RequestMapping(value = Array("tracked"), params = Array("!output"))
+  @RequestMapping(value = Array("tracked"))
   def showUserWatches(
     @PathVariable nick: String,
     @RequestParam(value = "offset", defaultValue = "0") rawOffset: Int
@@ -182,21 +179,15 @@ class UserTopicListController(topicListService: TopicListService, userDao: UserD
     modelAndView.addObject("offset", offset)
 
     val messages = topicListService.getUserTopics(user = user, offset = offset, favorites = true, watches = true)
-    prepareTopicsForPlainOrRss(modelAndView, rss = false, messages)
+    prepareTopics(modelAndView, messages)
     modelAndView.setViewName("user-topics")
 
     modelAndView
   }
 
-  private def prepareTopicsForPlainOrRss(modelAndView: ModelAndView, rss: Boolean, messages: Seq[Topic])
-                                        (using currentUser: AnySession): Unit = {
-    if (rss) {
-      modelAndView.addObject("messages", prepareService.prepareTopicForRSS(messages).asJava)
-      modelAndView.setViewName("section-rss")
-    } else {
-      modelAndView.addObject("messages", prepareService.prepareTopics(messages, loadUserpics = false).asJava)
-    }
-  }
+  private def prepareTopics(modelAndView: ModelAndView, messages: Seq[Topic])
+                           (using AnySession): Unit =
+    modelAndView.addObject("messages", prepareService.prepareTopics(messages, loadUserpics = false).asJava)
 
   private def mkModel(nick: String): (ModelAndView, User) = {
     val modelAndView = new ModelAndView()

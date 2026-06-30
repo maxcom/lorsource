@@ -230,13 +230,12 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
 
   @RequestMapping(value = Array("/show-topics.jsp"), method = Array(RequestMethod.GET))
   def showUserTopics(@RequestParam("nick") nick: String,
-                     @RequestParam(value = "output", required = false) output: String): View = {
+                     @RequestParam(value = "output", required = false) output: String): View =
     if (output != null) {
       new RedirectView(s"/people/$nick/?output=rss")
     } else {
       new RedirectView(s"/people/$nick/")
     }
-  }
 
   @RequestMapping(path = Array("/section-rss.jsp"))
   def showRSS(@RequestParam(value = "section", defaultValue = "1") sectionId: Int,
