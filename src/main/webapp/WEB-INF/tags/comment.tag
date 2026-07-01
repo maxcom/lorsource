@@ -28,7 +28,7 @@
       <c:if test="${comment.deleted}">
         <strong>Сообщение удалено
           <c:if test="${comment.deleteInfo != null}">
-            ${comment.deleteInfo.nick} по причине <c:out value="${comment.deleteInfo.reason}" escapeXml="true"/>
+            ${comment.deleteInfo.nick} по причине: <c:out value="${comment.deleteInfo.reason}" escapeXml="true"/>
           </c:if>
         </strong>
 
