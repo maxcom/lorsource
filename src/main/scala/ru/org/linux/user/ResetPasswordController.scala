@@ -26,6 +26,9 @@ import ru.org.linux.util.StringUtil
 
 import scala.jdk.CollectionConverters.MapHasAsJava
 
+object ResetPasswordController:
+  private val ResetCodeMaxAgeMs = 24 * 60 * 60 * 1000L
+
 @Controller
 class ResetPasswordController(userDao: UserDao, userService: UserService, secretTokenService: SecretTokenService,
                               userPermissionService: UserPermissionService) extends StrictLogging {
@@ -57,7 +60,15 @@ class ResetPasswordController(userDao: UserDao, userService: UserService, secret
 
     val resetDate = userDao.getResetDate(user)
 
-    if (!secretTokenService.verifyResetCode(user.nick, user.email, resetDate, formCode)) {
+    val isExpired = resetDate == null ||
+      (System.currentTimeMillis() - resetDate.getTime) > ResetPasswordController.ResetCodeMaxAgeMs
+    val isEpoch = resetDate != null && resetDate.getTime == 0
+
+    if isEpoch || isExpired then
+      throw new UserErrorException(
+        "Срок действия кода истёк (24 часа). Запросите сброс пароля повторно.")
+
+    if !secretTokenService.verifyResetCode(user.nick, user.email, resetDate, formCode) then {
       logger.warn("Код проверки не совпадает; login={} formCode={}", nick, formCode)
 
       throw new UserErrorException("Код не совпадает")
