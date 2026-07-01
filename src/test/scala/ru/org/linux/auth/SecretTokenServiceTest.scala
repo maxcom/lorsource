@@ -32,33 +32,58 @@ class SecretTokenServiceTest extends FunSuite:
 
   private val hizelNick = "hizel"
   private val hizelEmail = "hz@vyborg.ru"
+  private val hizelRegdate = new Timestamp(1700000000000L)
 
-  test("getActivationCode returns HMAC-SHA256 of nick:email with secret key"):
+  test("getActivationCode returns HMAC-SHA256 of nick:email:regdate:activate with secret key"):
     val service = makeService()
     assertEquals(
-      service.getActivationCode(hizelNick, hizelEmail),
-      "96be8717add38ca3cee78426d652dff228e0c2a8a5620c40b522e6b69d7fd54f"
+      service.getActivationCode(hizelNick, hizelEmail, hizelRegdate),
+      "594bfb6f8672ba80804821cbfcdb99ffed12132afe6808ae2100d7538a4ca3f0"
     )
 
   test("verifyActivationCode returns true for valid code"):
     val service = makeService()
     assert(service.verifyActivationCode(
-      hizelNick, hizelEmail,
-      "96be8717add38ca3cee78426d652dff228e0c2a8a5620c40b522e6b69d7fd54f"
+      hizelNick, hizelEmail, hizelRegdate,
+      "594bfb6f8672ba80804821cbfcdb99ffed12132afe6808ae2100d7538a4ca3f0"
     ))
 
   test("verifyActivationCode returns false for invalid code"):
     val service = makeService()
-    assert(!service.verifyActivationCode(hizelNick, hizelEmail, "invalidcode"))
+    assert(!service.verifyActivationCode(hizelNick, hizelEmail, hizelRegdate, "invalidcode"))
 
   test("verifyActivationCode returns false for wrong nick"):
     val service = makeService()
-    assert(!service.verifyActivationCode("wrongnick", hizelEmail,
-      "96be8717add38ca3cee78426d652dff228e0c2a8a5620c40b522e6b69d7fd54f"))
+    assert(!service.verifyActivationCode("wrongnick", hizelEmail, hizelRegdate,
+      "594bfb6f8672ba80804821cbfcdb99ffed12132afe6808ae2100d7538a4ca3f0"))
 
   test("verifyActivationCode returns false for wrong email"):
     val service = makeService()
-    assert(!service.verifyActivationCode(hizelNick, "wrong@example.com",
+    assert(!service.verifyActivationCode(hizelNick, "wrong@example.com", hizelRegdate,
+      "594bfb6f8672ba80804821cbfcdb99ffed12132afe6808ae2100d7538a4ca3f0"))
+
+  test("verifyActivationCode returns false for wrong regdate"):
+    val service = makeService()
+    val otherRegdate = new Timestamp(1700000000001L)
+    assert(!service.verifyActivationCode(hizelNick, hizelEmail, otherRegdate,
+      "594bfb6f8672ba80804821cbfcdb99ffed12132afe6808ae2100d7538a4ca3f0"))
+
+  test("getActivationCode produces different codes for different regdate"):
+    val service = makeService()
+    val otherRegdate = new Timestamp(1700000000001L)
+    val code1 = service.getActivationCode(hizelNick, hizelEmail, hizelRegdate)
+    val code2 = service.getActivationCode(hizelNick, hizelEmail, otherRegdate)
+    assert(code1 != code2)
+
+  test("getActivationCode produces same code for same regdate"):
+    val service = makeService()
+    val code1 = service.getActivationCode(hizelNick, hizelEmail, hizelRegdate)
+    val code2 = service.getActivationCode(hizelNick, hizelEmail, new Timestamp(hizelRegdate.getTime))
+    assertEquals(code1, code2)
+
+  test("verifyActivationCode returns false for legacy code without regdate"):
+    val service = makeService()
+    assert(!service.verifyActivationCode(hizelNick, hizelEmail, hizelRegdate,
       "96be8717add38ca3cee78426d652dff228e0c2a8a5620c40b522e6b69d7fd54f"))
 
   test("getResetCode and verifyResetCode are consistent"):

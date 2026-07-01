@@ -270,15 +270,15 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     sql"UPDATE users SET new_email=${newEmail} WHERE id=${user.id}".update.apply()
 
   def createUser(name: String, nick: String, encodedPassword: String, url: String, mail: InternetAddress, town: String)(using
-      Transaction): Int =
+      Transaction): (Int, Timestamp) =
     val fixedUrl = Option(url).map(URLUtil.fixURL).orNull
 
-    val userid = sql"select nextval('s_uid') as userid".map(rs => rs.int("userid")).single.apply().get
     sql"""INSERT INTO users
           (id, name, nick, passwd, url, email, town, score, max_score, regdate, userinfo_markup)
-          VALUES (${userid}, ${name}, ${nick}, ${encodedPassword}, ${fixedUrl}, ${mail
-        .getAddress}, ${town}, 45, 45, current_timestamp, ${Profile.DEFAULT.formatMode.id})""".update.apply()
-    userid
+          VALUES (nextval('s_uid'), ${name}, ${nick}, ${encodedPassword}, ${fixedUrl}, ${mail
+        .getAddress}, ${town}, 45, 45, current_timestamp, ${Profile.DEFAULT.formatMode.id})
+          RETURNING id, regdate"""
+      .map(rs => (rs.int("id"), rs.timestamp("regdate"))).single.apply().get
 
   def isUserExists(nick: String): Boolean =
     springDB.run(

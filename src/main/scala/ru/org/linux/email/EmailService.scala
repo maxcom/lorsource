@@ -32,6 +32,7 @@ import ru.org.linux.user.User
 
 import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
+import java.sql.Timestamp
 import java.util.{Date, Properties}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -40,8 +41,8 @@ import scala.jdk.CollectionConverters.*
 class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") exceptionMailingActor: ActorRef,
                    secretTokenService: SecretTokenService)
     extends StrictLogging {
-  def sendRegistrationEmail(nick: String, email: String, isNew: Boolean): Unit = {
-    val regcode = secretTokenService.getActivationCode(nick, email)
+  def sendRegistrationEmail(nick: String, email: String, regdate: Timestamp, isNew: Boolean): Unit = {
+    val regcode = secretTokenService.getActivationCode(nick, email, regdate)
 
     val text = new StringBuilder
     text.append(

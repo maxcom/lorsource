@@ -242,21 +242,21 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
   }
 
   def createUser(nick: String, password: String, mail: InternetAddress, ip: String,
-                 userAgent: Option[String], language: Option[String]): Int = {
-    val result = springDB.localTx {
-      val newUserId = userDao.createUser("", nick, passwordEncoder.encode(password), null, mail, null)
-      
+                 userAgent: Option[String], language: Option[String]): (Int, Timestamp) = {
+    val (result, regdate) = springDB.localTx {
+      val (newUserId, regdate) = userDao.createUser("", nick, passwordEncoder.encode(password), null, mail, null)
+
       val userAgentId = userAgent.map(userAgentDao.createOrGetId).getOrElse(0)
 
       userLogDao.logRegister(userid = newUserId, ip = ip, userAgent = userAgentId, language = language)
 
-      newUserId
+      (newUserId, regdate)
     }
 
     // обновляет кеш на случай, если пользователь был заново зарегистрирован с тем же ником после неудачи с активацией
     nameToIdCache.put(nick, result)
 
-    result
+    (result, regdate)
   }
 
   def getAllInvitedUsers(user: User): Seq[User] =

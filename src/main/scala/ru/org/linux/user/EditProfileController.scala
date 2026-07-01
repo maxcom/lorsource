@@ -197,7 +197,8 @@ class EditProfileController(
         newEmail match
           case Some(newEmail) =>
             try
-              emailService.sendRegistrationEmail(user.nick, newEmail, isNew = false)
+              val regdate = userDao.getUserInfo(user).registrationDate
+              emailService.sendRegistrationEmail(user.nick, newEmail, regdate, isNew = false)
 
               val msg =
                 s"Обновление регистрации прошло успешно. " +

@@ -35,6 +35,7 @@ import ru.org.linux.email.EmailService
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 import jakarta.mail.internet.InternetAddress
 import javax.validation.Valid
+import java.sql.Timestamp
 import scala.jdk.CollectionConverters.*
 
 @Controller
@@ -84,13 +85,13 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
       if (!errors.hasErrors) {
         val mail = new InternetAddress(form.getEmail.toLowerCase)
-        val userid = userService.createUser(nick = form.getNick, password = form.getPassword, mail = mail,
+        val (userid, regdate) = userService.createUser(nick = form.getNick, password = form.getPassword, mail = mail,
           ip = request.getRemoteAddr, userAgent = Option(request.getHeader("user-agent")),
           language = Option(request.getHeader("accept-language")))
 
         logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
 
-        emailService.sendRegistrationEmail(form.getNick, mail.getAddress, isNew = true)
+        emailService.sendRegistrationEmail(form.getNick, mail.getAddress, regdate, isNew = true)
 
         new ModelAndView(
           "action-done",
@@ -134,7 +135,9 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
         val auth = authenticationManager.authenticate(token)
         val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
-        if (secretTokenService.verifyActivationCode(userDetails.getUser.nick, userDetails.getUser.email, activation)) {
+        val regdate = userDao.getUserInfo(userDetails.getUser).registrationDate
+
+        if (secretTokenService.verifyActivationCode(userDetails.getUser.nick, userDetails.getUser.email, regdate, activation)) {
           logger.info(s"Activated user ${userDetails.getUser.nick}")
           userService.activateUser(userDetails.getUser)
 
@@ -174,7 +177,9 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
       throw new AccessViolationException("new_email == null?!")
     }
 
-    if (!secretTokenService.verifyActivationCode(currentUser.user.nick, newEmail, activation)) {
+    val regdate = userDao.getUserInfo(currentUser.user).registrationDate
+
+    if (!secretTokenService.verifyActivationCode(currentUser.user.nick, newEmail, regdate, activation)) {
       val params = activationFormParams(currentUser.user.nick, activation) + ("error" -> "Неправильный код активации")
 
       new ModelAndView("activate", params.asJava)
