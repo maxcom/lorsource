@@ -90,7 +90,7 @@
       </div>
       <div class="msg_footer">
         <c:if test="${(editHistory.linktext != null) || (editHistory.url != null)}">
-          <p>&gt;&gt;&gt; <a href="${editHistory.url==null ? "#" : editHistory.url}">${editHistory.linktext==null ? "(текст ссылки не изменен)" : editHistory.linktext}</a>
+          <p>&gt;&gt;&gt; <a href="${editHistory.url==null ? "#" : editHistory.url}"><c:out value="${editHistory.linktext==null ? '(текст ссылки не изменен)' : editHistory.linktext}"/></a>
         </c:if>
         <c:if test="${editHistory.tags != null}">
             <l:tags list="${editHistory.tags}"/>

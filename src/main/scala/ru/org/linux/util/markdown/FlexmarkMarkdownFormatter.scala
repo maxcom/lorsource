@@ -120,6 +120,23 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
     mentions.toSet.flatMap(userService.findUserCached)
   }
 
+  // Экранирование inline-спецсимволов CommonMark (\, [, ], `), чтобы текст
+  // нельзя было вырвать из конструкции вида [text](url). \ экранируем первым,
+  // чтобы не двойное экранирование пользовательских backslash.
+  override def escapeInlineMarkdown(content: String): String = {
+    val sb = new StringBuilder(content.length + 16)
+
+    for (c <- content) c match {
+      case '\\' => sb.append("\\\\")
+      case '['  => sb.append("\\[")
+      case ']'  => sb.append("\\]")
+      case '`'  => sb.append("\\`")
+      case _    => sb.append(c)
+    }
+
+    sb.toString
+  }
+
   def renderToText(content: String): String = {
     text(Jsoup.parse(renderToHtml(content, nofollow = false)))
   }

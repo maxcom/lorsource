@@ -122,11 +122,14 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
   def moveInfo(markup: MarkupType, url: String, linktext: String, moveBy: User, moveFrom: String): String = {
     /* if url is not null, update the topic text */
     val link = if (!Strings.isNullOrEmpty(url)) {
-      // TODO escape linktext everywhere; encode url in html
+      // linktext хранится в БД raw, экранируем под текущую разметку:
+      // Html — HTML-сущностями, Markdown — inline-спецсимволами CommonMark,
+      // Lorcode — парсер экранирует сам (UrlTag -> simpleFormat).
+      val safeUrl = StringUtil.escapeHtml(url)
 
       markup match {
         case Html =>
-          s"""<br><a href="$url">$linktext</a>
+          s"""<br><a href="$safeUrl">${StringUtil.escapeHtml(linktext)}</a>
              |<br>
              |""".stripMargin
         case Lorcode | LorcodeUlb =>
@@ -134,8 +137,9 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
              |[url=$url]$linktext[/url]
              |""".stripMargin
         case Markdown =>
+          val safeLinktext = markdownFormatter.escapeInlineMarkdown(linktext)
           s"""
-             |[$linktext]($url)
+             |[$safeLinktext]($url)
              |""".stripMargin
       }
     } else ""

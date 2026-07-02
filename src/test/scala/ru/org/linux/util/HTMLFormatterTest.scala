@@ -24,6 +24,7 @@ import ru.org.linux.msgbase.MessageText
 import ru.org.linux.reaction.Reactions
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{Topic, TopicDao}
+import ru.org.linux.user.User
 import ru.org.linux.user.UserService
 import ru.org.linux.util.bbcode.LorCodeService
 import ru.org.linux.util.bbcode.tags.QuoteTag.{citeFooter, citeHeader}
@@ -168,6 +169,26 @@ class HTMLFormatterTest extends FunSuite:
     val g = mock(classOf[Group])
     when(g.getUrl).thenReturn(url)
     g
+
+  private def createUser(nick: String): User =
+    User(
+      nick = nick,
+      id = 1,
+      canmod = false,
+      candel = false,
+      anonymous = false,
+      corrector = false,
+      blocked = false,
+      password = "",
+      score = 0,
+      maxScore = 0,
+      photo = null,
+      email = null,
+      fullName = null,
+      unreadEvents = 0,
+      frozenUntil = null,
+      activated = true
+    )
 
   private lazy val (toHtmlFormatter, toHtmlFormatter20, lorCodeService, textService) = initServices()
 
@@ -629,3 +650,37 @@ class HTMLFormatterTest extends FunSuite:
       "<p><a href=\"https://www.linux.org.ru/forum/linux%3C%3E-org-ru/\">www.linux.org.ru/forum/linux&lt;&gt;-org-ru/</a></p>"
     )
   }
+
+  test("moveInfoMarkdownEscapesLinktext") {
+    val user = createUser("maxcom")
+    // попытка вырваться из [text](url) и подсунуть ссылку на evil
+    val linktext = "a](http://evil)[b"
+    val snippet = textService.moveInfo(MarkupType.Markdown, "http://example.com", linktext, user, "/forum/talks/")
+    val rendered = textService.renderTopic(MessageText(snippet, MarkupType.Markdown), minimizeCut = false, nofollow = false, "")
+
+    // отдельной ссылки на evil быть не должно
+    assert(!rendered.contains("href=\"http://evil"), rendered)
+    // легитимная ссылка на месте
+    assert(rendered.contains("href=\"http://example.com\""), rendered)
+    // текст ссылки выведен буквально (без инъекции)
+    assert(rendered.contains(">a](http://evil)[b<"), rendered)
+  }
+
+  test("moveInfoMarkdownPreservesNormalLinktext") {
+    val user = createUser("maxcom")
+    val snippet = textService.moveInfo(MarkupType.Markdown, "http://example.com", "Linux.org.ru", user, "/forum/talks/")
+    val rendered = textService.renderTopic(MessageText(snippet, MarkupType.Markdown), minimizeCut = false, nofollow = false, "")
+
+    assert(rendered.contains("<a href=\"http://example.com\">Linux.org.ru</a>"), rendered)
+  }
+
+  test("moveInfoHtmlEscapesLinktextAndUrl") {
+    val user = createUser("maxcom")
+    val snippet = textService.moveInfo(MarkupType.Html, "http://example.com?a=1&b=2", "<b>bold</b>", user, "/forum/talks/")
+    val rendered = textService.renderTopic(MessageText(snippet, MarkupType.Html), minimizeCut = false, nofollow = false, "")
+
+    assert(rendered.contains("href=\"http://example.com?a=1&amp;b=2\""), rendered)
+    assert(rendered.contains("&lt;b&gt;bold&lt;/b&gt;"), rendered)
+    assert(!rendered.contains("<b>bold</b>"), rendered)
+  }
+end HTMLFormatterTest

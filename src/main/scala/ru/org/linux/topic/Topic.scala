@@ -127,7 +127,7 @@ object Topic {
       userAgentId = 0,
       postIP = postIP,
       groupId = form.group.id,
-      linktext =  if (form.linktext != null) StringUtil.escapeHtml(form.linktext) else null,
+      linktext = if (form.linktext != null) form.linktext else null,
       url = if (!Strings.isNullOrEmpty(form.url)) URLUtil.fixURL(form.url) else null,
       title = if (form.title!=null) StringUtil.escapeHtml(form.title) else "",
       sectionId = group.sectionId,
