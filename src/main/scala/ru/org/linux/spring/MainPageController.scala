@@ -68,7 +68,7 @@ class MainPageController(
       session
         .userOpt
         .foreach { user =>
-          mv.getModel.put("hasDrafts", Boolean.box(topicDao.hasDrafts(user)))
+          mv.getModel.put("draftsCount", Int.box(topicDao.countDrafts(user)))
           mv.getModel.put("favPresent", Boolean.box(memoriesDao.isFavPresetForUser(user)))
         }
 

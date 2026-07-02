@@ -144,7 +144,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
         mv.addObject("userlog", userLogPrepareService.prepare(logItems, timezone).asJava)
       }
 
-      mv.getModel.put("hasDrafts", topicDao.hasDrafts(user))
+      mv.getModel.put("draftsCount", Int.box(topicDao.countDrafts(user)))
       mv.getModel.put("invitedUsers", userService.getAllInvitedUsers(user).asJava)
 
       val slowModeCheck = slowModeChecker.check(user)

@@ -628,9 +628,9 @@
             <a href="/people/${user.nick}/favs">Избранные темы</a>
         </li>
     </c:if>
-    <c:if test="${hasDrafts}">
+    <c:if test="${draftsCount > 0}">
         <li>
-            <a href="/people/${user.nick}/drafts">Черновики</a>
+            <a href="/people/${user.nick}/drafts">Черновики</a> (${draftsCount})
         </li>
     </c:if>
     <c:if test="${moderatorOrCurrentUser}">

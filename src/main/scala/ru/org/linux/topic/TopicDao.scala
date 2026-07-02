@@ -306,13 +306,13 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .getOrElse(0)
 
-  def hasDrafts(author: User): Boolean =
+  def countDrafts(author: User): Int =
     springDB.run:
-      sql"SELECT id FROM topics WHERE draft AND userid=${author.id} LIMIT 1"
-        .map(rs => rs.int("id"))
+      sql"SELECT COUNT(*) FROM topics WHERE draft AND userid=${author.id} AND NOT deleted"
+        .map(rs => rs.int(1))
         .single
         .apply()
-        .isDefined
+        .getOrElse(0)
 
   def recalcWarningsCount(topicId: Int)(using Transaction): Unit =
     sql"""update topics set open_warnings = (select count(distinct mw.author) from message_warnings mw where mw.topic = topics.id

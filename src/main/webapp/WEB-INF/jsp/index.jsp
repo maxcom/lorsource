@@ -22,7 +22,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="news" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
-<%--@elvariable id="hasDrafts" type="java.lang.Boolean"--%>
+<%--@elvariable id="draftsCount" type="java.lang.Integer"--%>
 <%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="briefNews" type="java.util.List<java.util.List<scala.Tuple2<java.lang.String, java.util.Collection<ru.org.linux.topic.BriefTopicRef>>>>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -193,9 +193,9 @@
           </c:if>
           <li><a href="search.jsp?range=COMMENTS&user=${currentUser.nick}&sort=DATE">Мои комментарии</a></li>
           <li><a href="/people/${currentUser.nick}/reactions">Мои реакции</a></li>
-          <c:if test="${hasDrafts}">
+          <c:if test="${draftsCount > 0}">
               <li>
-                  <a href="/people/${currentUser.nick}/drafts">Черновики</a>
+                  <a href="/people/${currentUser.nick}/drafts">Черновики</a> (${draftsCount})
               </li>
           </c:if>
         </ul>
