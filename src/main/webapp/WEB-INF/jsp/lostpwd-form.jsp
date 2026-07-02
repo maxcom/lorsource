@@ -17,6 +17,7 @@
 <%--@elvariable id="error" type="java.lang.String"--%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -37,9 +38,13 @@
   <div class="control-group">
     <label class="control-label" for="email-input">Email</label>
     <div class="controls">
-      <input id="email-input" type=email name=email size=40 autofocus="autofocus" required="required">
+      <input id="email-input" type=email name=email size=40 autofocus="autofocus" required="required" value="${fn:escapeXml(email)}">
       <span class="help-block">Инструкция по сбросу пароля будет отправлена на этот адрес</span>
     </div>
+  </div>
+
+  <div class="control-group">
+    <lor:captcha/>
   </div>
 
   <div class="control-group">

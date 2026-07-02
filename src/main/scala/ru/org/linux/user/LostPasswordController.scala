@@ -16,59 +16,76 @@ package ru.org.linux.user
 
 import com.google.common.base.Strings
 import jakarta.mail.internet.AddressException
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestMethod, RequestParam}
+import org.springframework.validation.BeanPropertyBindingResult
+import org.springframework.web.bind.annotation.{ExceptionHandler, RequestAttribute, RequestMapping, RequestMethod,
+  RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AccessViolationException, SecretTokenService}
+import ru.org.linux.auth.{AccessViolationException, CaptchaService, SecretTokenService}
 import ru.org.linux.email.EmailService
 import ru.org.linux.site.BadInputException
 
 import java.time.Instant
 
-@Controller
-@RequestMapping(Array("/lostpwd.jsp"))
-class LostPasswordController(userService: UserService, emailService: EmailService, 
-                             userPermissionService: UserPermissionService, secretTokenService: SecretTokenService) {
+@Controller @RequestMapping(Array("/lostpwd.jsp"))
+class LostPasswordController(
+    userService: UserService,
+    emailService: EmailService,
+    userPermissionService: UserPermissionService,
+    secretTokenService: SecretTokenService,
+    captchaService: CaptchaService):
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm: ModelAndView = new ModelAndView("lostpwd-form")
 
-  @RequestMapping(method = Array(RequestMethod.POST))
-  @throws[Exception]
-  def sendPassword(@RequestParam("email") email: String): ModelAndView = MaybeAuthorized { currentUser =>
-    if (Strings.isNullOrEmpty(email)) throw new BadInputException("email не задан")
+  @RequestMapping(method = Array(RequestMethod.POST)) @throws[Exception]
+  def sendPassword(
+      @RequestParam("email")
+      email: String,
+      request: HttpServletRequest,
+      @RequestAttribute("captchaRequired")
+      captchaRequired: Boolean): ModelAndView =
+    MaybeAuthorized { currentUser =>
+      if Strings.isNullOrEmpty(email) then
+        throw new BadInputException("email не задан")
 
-    val user = userService.getByEmail(email, searchBlocked = true)
-      .getOrElse(throw new BadInputException("Этот email не зарегистрирован!"))
+      if captchaRequired then
+        val errors = new BeanPropertyBindingResult(email, "email")
+        captchaService.checkCaptcha(request, errors)
+        if errors.hasErrors then
+          throw new UserErrorException(errors.getGlobalError.getDefaultMessage)
 
-    if (!userPermissionService.canResetPasswordByCode(user)) {
-      throw new AccessViolationException("Пароль этого пользователя нельзя сбросить через email")
+      val user = userService
+        .getByEmail(email, searchBlocked = true)
+        .getOrElse(throw new BadInputException("Этот email не зарегистрирован!"))
+
+      if !userPermissionService.canResetPasswordByCode(user) then
+        throw new AccessViolationException("Пароль этого пользователя нельзя сбросить через email")
+
+      if user.isModerator && !currentUser.moderator then
+        throw new AccessViolationException("этот пароль могут сбросить только модераторы")
+
+      if !currentUser.moderator && !userPermissionService.canResetPassword(user) then
+        throw new BadInputException("Нельзя запрашивать пароль чаще одного раза в день!")
+
+      val now = Instant.now
+
+      try
+        val resetCode = secretTokenService.getResetCode(user.nick, user.email, now)
+
+        emailService.sendPasswordReset(user, resetCode)
+
+        userService.updateResetDate(user, currentUser.userOpt.orNull, user.email, now)
+
+        new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email")
+      catch
+        case _: AddressException =>
+          throw new UserErrorException("Incorrect email address")
     }
-
-    if (user.isModerator && !currentUser.moderator) {
-      throw new AccessViolationException("этот пароль могут сбросить только модераторы")
-    }
-
-    if (!currentUser.moderator && !userPermissionService.canResetPassword(user)) {
-      throw new BadInputException("Нельзя запрашивать пароль чаще одного раза в день!")
-    }
-
-    val now = Instant.now
-
-    try {
-      val resetCode = secretTokenService.getResetCode(user.nick, user.email, now)
-
-      emailService.sendPasswordReset(user, resetCode)
-
-      userService.updateResetDate(user, currentUser.userOpt.orNull, user.email, now)
-
-      new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email")
-    } catch {
-      case _: AddressException =>
-        throw new UserErrorException("Incorrect email address")
-    }
-  }
 
   @ExceptionHandler(Array(classOf[UserErrorException]))
-  def handleUserError(ex: UserErrorException) = new ModelAndView("lostpwd-form", "error", ex.getMessage)
-}
+  def handleUserError(ex: UserErrorException, request: HttpServletRequest): ModelAndView =
+    val mav = new ModelAndView("lostpwd-form", "error", ex.getMessage)
+    mav.addObject("email", request.getParameter("email"))
+    mav
