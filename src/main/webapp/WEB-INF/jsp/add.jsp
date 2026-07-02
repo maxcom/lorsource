@@ -204,7 +204,7 @@
     </c:otherwise>
   </c:choose>
   <button type=submit name=preview class="btn btn-default">Предпросмотр</button>
-  <c:if test="${template.sessionAuthorized && !section.pollPostAllowed}">
+  <c:if test="${template.sessionAuthorized}">
     <button type=submit name=draft class="btn btn-default">Сохранить в черновики</button>
   </c:if>
 </div>
