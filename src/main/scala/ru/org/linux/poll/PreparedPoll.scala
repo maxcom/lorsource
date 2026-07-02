@@ -36,7 +36,7 @@ case class PreparedPoll(
     val sb = new StringBuilder("<table>")
     var total = 0
     for variant <- variants do
-      val row = s"<tr><td>${StringUtil.escapeHtml(variant.label)}</td><td>${variant.votes}</td></tr>"
+      val row = s"<tr><td>${StringUtil.escapeForceHtml(variant.label)}</td><td>${variant.votes}</td></tr>"
       sb.append(row)
       total += variant.votes
     sb.append(s"<tr><td colspan=2>Всего голосов: $total</td></tr>")

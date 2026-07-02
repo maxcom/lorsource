@@ -34,12 +34,6 @@
         <function-signature>java.lang.String escapeHtml(java.lang.String)</function-signature>
     </function>
 
-    <function>
-        <name>escapeXml</name>
-        <function-class>ru.org.linux.util.StringUtil</function-class>
-        <function-signature>java.lang.String escapeXml(java.lang.String)</function-signature>
-    </function>
-
     <tag>
         <description>Process title</description>
         <name>title</name>

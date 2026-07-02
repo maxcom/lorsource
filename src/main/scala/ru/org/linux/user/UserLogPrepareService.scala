@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.site.DateFormats
 import ru.org.linux.user.UserLogDao.*
-import ru.org.linux.util.StringUtil.escapeHtml
+import ru.org.linux.util.StringUtil.escapeForceHtml
 
 import java.time.{Instant, ZoneId}
 import java.util.Date
@@ -40,13 +40,13 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
   def prepare(items: Seq[UserLogItem], timezone: ZoneId): Seq[PreparedUserLogItem] = {
     items.view.map((item: UserLogItem) => {
       val options = for ((rawKey, rawValue) <- item.options) yield {
-        val key = UserLogPrepareService.OptionDescription.getOrElse(rawKey, escapeHtml(rawKey))
+        val key = UserLogPrepareService.OptionDescription.getOrElse(rawKey, escapeForceHtml(rawKey))
 
         val value = rawKey match {
           case OptionOldUserpic | OptionNewUserpic =>
-            s"<a href=\"/photos/${escapeHtml(rawValue)}\">${escapeHtml(rawValue)}</a>"
+            s"<a href=\"/photos/${escapeForceHtml(rawValue)}\">${escapeForceHtml(rawValue)}</a>"
           case OptionIp =>
-            s"<a href=\"/sameip.jsp?ip=${escapeHtml(rawValue)}\">${escapeHtml(rawValue)}</a>"
+            s"<a href=\"/sameip.jsp?ip=${escapeForceHtml(rawValue)}\">${escapeForceHtml(rawValue)}</a>"
           case OptionInvitedBy =>
             val user = userService.getUserCached(rawValue.toInt)
             s"<a href=\"/people/${user.nick}/profile\">${user.nick}</a>"
@@ -55,16 +55,16 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
             val ip = item.options.getOrElse(OptionIp, "")
 
             if (id != 0) {
-              s"<a href=\"/sameip.jsp?ua=$id&ip=$ip&mask=0\">${userAgentDao.getUserAgentById(id).orElse(escapeHtml("<не найден>"))}</a>"
+              s"<a href=\"/sameip.jsp?ua=$id&ip=$ip&mask=0\">${userAgentDao.getUserAgentById(id).orElse(escapeForceHtml("<не найден>"))}</a>"
             } else {
-              escapeHtml("<нет>")
+              escapeForceHtml("<нет>")
             }
           case OptionUntil =>
             val until = Instant.parse(rawValue)
 
             DateFormats.formatDefault(timezone, Date.from(until))
           case _ =>
-            escapeHtml(rawValue)
+            escapeForceHtml(rawValue)
         }
 
         key -> value

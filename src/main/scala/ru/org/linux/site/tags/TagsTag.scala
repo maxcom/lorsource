@@ -45,9 +45,9 @@ class TagsTag extends TagSupport {
 
       buf.append(list.map { el =>
         (if (el.url.isDefined) {
-          s"""<a class=tag rel=tag href="${el.url.get}">${StringUtil.escapeHtml(el.name)}</a>"""
+          s"""<a class=tag rel=tag href="${el.url.get}">${StringUtil.escapeForceHtml(el.name)}</a>"""
         } else {
-          s"<span class=tag>${StringUtil.escapeHtml(el.name)}</span>"
+          s"<span class=tag>${StringUtil.escapeForceHtml(el.name)}</span>"
         }) + (if (deletable) {
           s""" [<a href="/tags/delete?tagName=${URLEncoder.encode(el.name, StandardCharsets.UTF_8)}">X</a>]"""
         } else {

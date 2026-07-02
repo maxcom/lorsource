@@ -164,7 +164,7 @@ class MoreLikeThisService(
     val title = source.title.getOrElse("")
 
     MoreLikeThisTopic(
-      title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
+      title = StringUtil.processTitle(StringUtil.escapeForceHtml(title)),
       link = link,
       year = postdate.atZone(ZoneId.systemDefault()).getYear,
       sectionService.getSectionByName(section).getTitle)

@@ -64,11 +64,7 @@ public final class StringUtil {
   public static String md5hash(String pass) {
     return Hashing.md5().hashString(pass, StandardCharsets.UTF_8).toString();
   }
-
-  public static String sha256hash(String pass) {
-    return Hashing.sha256().hashString(pass, StandardCharsets.UTF_8).toString();
-  }
-
+  
   public static String hmacSha256(String key, String message) {
     try {
       SecretKeySpec secretKey = new SecretKeySpec(
@@ -153,56 +149,7 @@ public final class StringUtil {
 
     return res.toString();
   }
-
-  /**
-   * Экранируем управляющие html символьные последовательности, кроме &#NNNN;
-   * преобразует некоторые entity в цифровые
-   *
-   * @param str сырая строка
-   * @return отэкранированная строка
-   */
-  public static String escapeXml(String str) {
-    StringBuilder res = new StringBuilder();
-
-    for (int i = 0; i < str.length(); i++) {
-      switch (str.charAt(i)) {
-        case '<':
-          res.append("&lt;");
-          break;
-        case '>':
-          res.append("&gt;");
-          break;
-        case '\"':
-          res.append("&quot;");
-          break;
-        case '&':
-          Matcher m = uniRE.matcher(str.substring(i));
-          if (m.find()) {
-            String s = m.group();
-
-            if ("&nbsp;".equals(s)) {
-              res.append("&#160;");
-            } else {
-              res.append(s);
-            }
-
-            i += s.length() - 1;
-
-            continue;
-          } else {
-            res.append("&amp;");
-          }
-
-          break;
-        default:
-          res.append(str.charAt(i));
-      }
-
-    }
-
-    return res.toString();
-  }
-
+  
   /**
    * Экранируем управляющие html символьные последовательности, в отличии от
    * escapeHtml &#NNN; тоже экранируем

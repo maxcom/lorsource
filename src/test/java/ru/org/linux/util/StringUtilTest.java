@@ -44,9 +44,4 @@ public class StringUtilTest {
     // then
     assertEquals("&#171;Test of &#8222;quotes &quot; &#8222;in quotes&#8220; in title&#8220;&#187;", actualResult);
   }
-
-  @Test
-  public void escapeXml() {
-    assertEquals("test&#160;test&amp;", StringUtil.escapeXml("test&nbsp;test&amp;"));
-  }
 }

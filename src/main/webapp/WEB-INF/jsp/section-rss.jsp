@@ -18,7 +18,7 @@
 <%@ page import="java.util.Date"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
 <rss version="2.0">
@@ -37,7 +37,7 @@
       <author>${msg.author.nick}</author>
       <link>${configuration.secureUrlWithoutSlash}${msg.message.link}</link>
       <guid>${configuration.secureUrlWithoutSlash}${msg.message.link}</guid>
-      <title>${l:escapeXml(msg.message.title)}</title>
+      <title>${fn:escapeXml(msg.message.title)}</title>
       <c:if test="${msg.message.commitDate!=null}">
         <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
       </c:if>

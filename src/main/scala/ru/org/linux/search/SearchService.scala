@@ -261,11 +261,11 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
     val source = doc.source
 
     val itemTitle = highlight.get("title").flatMap(_.asScala.headOption)
-      .orElse(source.title.map { v => StringUtil.escapeHtml(v) })
+      .orElse(source.title.map { v => StringUtil.escapeForceHtml(v) })
 
     itemTitle.filter(_.trim.nonEmpty).orElse(
       highlight.get("topic_title").flatMap(_.asScala.headOption))
-      .getOrElse(StringUtil.escapeHtml(source.topicTitle))
+      .getOrElse(StringUtil.escapeForceHtml(source.topicTitle))
   }
 
   private def getMessage(doc: Hit[MessageIndexDocument]): String = {
