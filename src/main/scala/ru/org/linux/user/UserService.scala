@@ -159,7 +159,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
   }
   
-  def updateResetDate(forUser: User, byUser: User, email: String, now: Timestamp): Unit = springDB.localTx {
+  def updateResetDate(forUser: User, byUser: User, email: String, now: Instant): Unit = springDB.localTx {
     userDao.updateResetDate(forUser, now)
     userLogDao.logSentPasswordReset(forUser, byUser, email)
   }

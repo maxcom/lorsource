@@ -15,16 +15,16 @@
 package ru.org.linux.user
 
 import com.google.common.base.Strings
+import jakarta.mail.internet.AddressException
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
-import ru.org.linux.auth.{AccessViolationException, SecretTokenService}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.{AccessViolationException, SecretTokenService}
 import ru.org.linux.email.EmailService
 import ru.org.linux.site.BadInputException
 
-import java.sql.Timestamp
-import jakarta.mail.internet.AddressException
+import java.time.Instant
 
 @Controller
 @RequestMapping(Array("/lostpwd.jsp"))
@@ -50,10 +50,10 @@ class LostPasswordController(userService: UserService, emailService: EmailServic
     }
 
     if (!currentUser.moderator && !userPermissionService.canResetPassword(user)) {
-      throw new BadInputException("Нельзя запрашивать пароль чаще одного раза в неделю!")
+      throw new BadInputException("Нельзя запрашивать пароль чаще одного раза в день!")
     }
 
-    val now = new Timestamp(System.currentTimeMillis)
+    val now = Instant.now
 
     try {
       val resetCode = secretTokenService.getResetCode(user.nick, user.email, now)

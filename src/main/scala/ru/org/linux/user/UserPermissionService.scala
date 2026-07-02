@@ -35,12 +35,14 @@ object UserPermissionService {
       Set(Lorcode, LorcodeUlb, Markdown)
     }
   }
+
+  val ResetCodeMaxAge: Duration = Duration.ofDays(1)
 }
 
 @Service
 class UserPermissionService(userLogDao: UserLogDao, userDao: UserDao) {
   def canResetPassword(user: User): Boolean = {
-    !userLogDao.hasRecentSelfEvent(user, Duration.ofDays(7), UserLogAction.SentPasswordReset)
+    !userLogDao.hasRecentSelfEvent(user, UserPermissionService.ResetCodeMaxAge, UserLogAction.SentPasswordReset)
   }
 
   def canRegister(ipBlockInfo: IpBlockInfo): Boolean = !ipBlockInfo.isBlocked &&

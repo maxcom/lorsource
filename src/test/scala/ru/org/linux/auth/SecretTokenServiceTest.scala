@@ -88,20 +88,20 @@ class SecretTokenServiceTest extends FunSuite:
 
   test("getResetCode and verifyResetCode are consistent"):
     val service = makeService()
-    val tm = new Timestamp(1700000000000L)
+    val tm = Instant.ofEpochMilli(1700000000000L)
     val code = service.getResetCode(hizelNick, hizelEmail, tm)
     assert(service.verifyResetCode(hizelNick, hizelEmail, tm, code))
 
   test("verifyResetCode returns false for wrong code"):
     val service = makeService()
-    val tm = new Timestamp(1700000000000L)
+    val tm = Instant.ofEpochMilli(1700000000000L)
     assert(!service.verifyResetCode(hizelNick, hizelEmail, tm, "wrongcode"))
 
   test("verifyResetCode returns false for wrong timestamp"):
     val service = makeService()
-    val tm = new Timestamp(1700000000000L)
+    val tm = Instant.ofEpochMilli(1700000000000L)
     val code = service.getResetCode(hizelNick, hizelEmail, tm)
-    val otherTm = new Timestamp(1700000000001L)
+    val otherTm = Instant.ofEpochMilli(1700000000001L)
     assert(!service.verifyResetCode(hizelNick, hizelEmail, otherTm, code))
 
   test("makeRegisterPermit and checkRegisterPermit roundtrip"):

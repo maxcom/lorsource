@@ -90,11 +90,11 @@ class SecretTokenService(siteConfig: SiteConfig) extends StrictLogging:
         Some(plaintext)
     }.toOption.flatten
 
-  def getResetCode(nick: String, email: String, tm: Timestamp): String =
-    StringUtil.hmacSha256(base, s"$nick:$email:${tm.getTime.toString}:reset")
+  def getResetCode(nick: String, email: String, tm: Instant): String =
+    StringUtil.hmacSha256(base, s"$nick:$email:${tm.toEpochMilli.toString}:reset")
 
-  def verifyResetCode(nick: String, email: String, tm: Timestamp, code: String): Boolean =
-    val hmacExpected = StringUtil.hmacSha256(base, s"$nick:$email:${tm.getTime.toString}:reset")
+  def verifyResetCode(nick: String, email: String, tm: Instant, code: String): Boolean =
+    val hmacExpected = StringUtil.hmacSha256(base, s"$nick:$email:${tm.toEpochMilli.toString}:reset")
     StringUtil.verifyHash(hmacExpected, code)
 
   def getActivationCode(nick: String, email: String, regdate: Timestamp): String =

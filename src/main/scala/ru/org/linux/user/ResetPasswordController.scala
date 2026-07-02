@@ -20,14 +20,12 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.{AccessViolationException, SecretTokenService}
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
+import ru.org.linux.auth.{AccessViolationException, SecretTokenService}
 import ru.org.linux.util.StringUtil
 
+import java.time.Instant
 import scala.jdk.CollectionConverters.MapHasAsJava
-
-object ResetPasswordController:
-  private val ResetCodeMaxAgeMs = 24 * 60 * 60 * 1000L
 
 @Controller
 class ResetPasswordController(userDao: UserDao, userService: UserService, secretTokenService: SecretTokenService,
@@ -60,9 +58,9 @@ class ResetPasswordController(userDao: UserDao, userService: UserService, secret
 
     val resetDate = userDao.getResetDate(user)
 
-    val isExpired = resetDate == null ||
-      (System.currentTimeMillis() - resetDate.getTime) > ResetPasswordController.ResetCodeMaxAgeMs
-    val isEpoch = resetDate != null && resetDate.getTime == 0
+    val isExpired = resetDate.plus(UserPermissionService.ResetCodeMaxAge).isBefore(Instant.now)
+
+    val isEpoch = resetDate == Instant.EPOCH
 
     if isEpoch || isExpired then
       throw new UserErrorException(

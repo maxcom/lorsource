@@ -57,6 +57,17 @@ class UserDaoIntegrationTest:
     val userAfter = userDao.getUser(UserDaoIntegrationTest.TestId)
     assertTrue(userAfter.blocked)
 
+  @Test
+  def testReset(): Unit =
+    val user = userDao.getUser(UserDaoIntegrationTest.TestId)
+    val tm = userDao.getResetDate(user)
+
+    springDB.localTx { userDao.updateResetDate(user, tm.plusSeconds(60)) }
+
+    val after = userDao.getResetDate(user)
+
+    assertEquals(tm.plusSeconds(60), after)
+
 end UserDaoIntegrationTest
 
 @Configuration @ImportResource(Array("classpath:database.xml", "classpath:common.xml"))

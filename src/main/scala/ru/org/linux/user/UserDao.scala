@@ -183,12 +183,12 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
   def updatePasswordHash(user: User, encodedPassword: String)(using Transaction): Unit =
     sql"UPDATE users SET passwd=${encodedPassword} WHERE id=${user.id}".update.apply()
 
-  def updateResetDate(user: User, now: Timestamp)(using Transaction): Unit =
+  def updateResetDate(user: User, now: Instant)(using Transaction): Unit =
     sql"UPDATE users SET lostpwd=${now} WHERE id=${user.id}".update.apply()
 
-  def getResetDate(user: User): Timestamp =
+  def getResetDate(user: User): Instant =
     springDB.run(
-      sql"SELECT lostpwd FROM users WHERE id=${user.id}".map(rs => rs.timestamp("lostpwd")).single.apply().get)
+      sql"SELECT lostpwd FROM users WHERE id=${user.id}".map(rs => rs.timestamp("lostpwd")).single.apply().get.toInstant)
 
   def block(user: User, moderator: User, reason: String)(using Transaction): Unit =
     sql"UPDATE users SET blocked='t' WHERE id=${user.id}".update.apply()
