@@ -42,7 +42,7 @@
     <div id="warning-logo"><img src="/img/good-penguin.png" alt="good-penguin" /></div>
     <div id="warning-text">
         <h1>403 Forbidden</h1>
-        <p><%= message %>.</p>
+        <p><c:out value="${message}" escapeXml="true"/>.</p>
     </div>
 </div>
 <div id="warning-footer"></div>
