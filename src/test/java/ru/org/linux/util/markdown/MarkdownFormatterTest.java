@@ -92,4 +92,34 @@ public class MarkdownFormatterTest {
     assertEquals("@ (---) http://#$#@$@QW",
             markdownFormatter.renderToText("[@](http://#$#@$@QW)"));
   }
+
+  // упоминание пользователя через @ должно подсвечиваться, даже если оно
+  // стоит в начале строки внутри абзаца (после мягкого переноса \n или \r\n).
+  // См. https://127.0.0.1:8080/forum/linux-org-ru/1948702?cid=1949491
+  @Test
+  public void testMentionAfterSoftLineBreak() {
+    String lf = "@Aceler\n@Aceler";
+    String crlf = "@Aceler\r\n@Aceler\r\n@Aceler";
+
+    String renderedLf = markdownFormatter.renderToHtml(lf, false);
+    String renderedCrlf = markdownFormatter.renderToHtml(crlf, false);
+
+    // несуществующий в моке пользователь рендерится в <s>@nick</s>;
+    // каждое обнаруженное упоминание даёт такой блок
+    int countLf = countOccurrences(renderedLf, "<s>@Aceler</s>");
+    int countCrlf = countOccurrences(renderedCrlf, "<s>@Aceler</s>");
+
+    assertEquals(2, countLf);
+    assertEquals(3, countCrlf);
+  }
+
+  private static int countOccurrences(String haystack, String needle) {
+    int count = 0;
+    int idx = 0;
+    while ((idx = haystack.indexOf(needle, idx)) != -1) {
+      count++;
+      idx += needle.length();
+    }
+    return count;
+  }
 }

@@ -86,7 +86,7 @@ class LorUserParserExtension extends InlineParserExtension {
 
     val possible = index == 0 || {
       val c = inlineParser.getInput.charAt(index - 1)
-      c == ' ' || c == '('
+      c == ' ' || c == '(' || c == '\t' || c == '\n' || c == '\r'
     }
 
     if (possible) {
