@@ -12,7 +12,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>

@@ -152,7 +152,7 @@
     linktext = "Подробности";
   }
 
-  out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(StringUtil.escapeHtml(linktext)).append("</a>");
+  out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeForceHtml(url)).append("\">").append(StringUtil.escapeForceHtml(linktext)).append("</a>");
 
   scala.Option<String> shortHost = URLUtil.extractShortHost(url);
 

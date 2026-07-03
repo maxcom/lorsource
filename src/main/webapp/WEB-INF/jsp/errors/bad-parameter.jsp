@@ -30,7 +30,7 @@
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Ошибка: <%= StringUtil.escapeHtml(exception.getClass().getName()) %></title>
+<title>Ошибка: <%= StringUtil.escapeForceHtml(exception.getClass().getName()) %></title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>
     <%
@@ -46,7 +46,7 @@
             }
         }
 
-        out.print(StringUtil.escapeHtml(message));
+        out.print(StringUtil.escapeForceHtml(message));
     %>
 </h1>
 

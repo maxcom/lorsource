@@ -166,7 +166,7 @@
             if (linktext == null || linktext.isEmpty()) {
               linktext = "Подробности";
             }
-            out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(StringUtil.escapeHtml(linktext)).append("</a>");
+            out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeForceHtml(message.getUrl())).append("\">").append(StringUtil.escapeForceHtml(linktext)).append("</a>");
           %>
         </p>
       </c:if>
