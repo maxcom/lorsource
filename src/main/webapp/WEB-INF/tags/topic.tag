@@ -162,7 +162,11 @@
       <c:if test="${preparedMessage.group.linksAllowed and not empty message.url}">
         <p>
           <%
-            out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(StringUtil.escapeHtml(message.getLinktext())).append("</a>");
+            String linktext = message.getLinktext();
+            if (linktext == null || linktext.isEmpty()) {
+              linktext = "Подробности";
+            }
+            out.append("&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(StringUtil.escapeHtml(linktext)).append("</a>");
           %>
         </p>
       </c:if>

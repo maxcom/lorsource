@@ -126,18 +126,19 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       // Html — HTML-сущностями, Markdown — inline-спецсимволами CommonMark,
       // Lorcode — парсер экранирует сам (UrlTag -> simpleFormat).
       val safeUrl = StringUtil.escapeHtml(url)
+      val effectiveLinktext = if (Strings.isNullOrEmpty(linktext)) "Подробности" else linktext
 
       markup match {
         case Html =>
-          s"""<br><a href="$safeUrl">${StringUtil.escapeHtml(linktext)}</a>
+          s"""<br><a href="$safeUrl">${StringUtil.escapeHtml(effectiveLinktext)}</a>
              |<br>
              |""".stripMargin
         case Lorcode | LorcodeUlb =>
           s"""
-             |[url=$url]$linktext[/url]
+             |[url=$url]$effectiveLinktext[/url]
              |""".stripMargin
         case Markdown =>
-          val safeLinktext = markdownFormatter.escapeInlineMarkdown(linktext)
+          val safeLinktext = markdownFormatter.escapeInlineMarkdown(effectiveLinktext)
           s"""
              |[$safeLinktext]($url)
              |""".stripMargin

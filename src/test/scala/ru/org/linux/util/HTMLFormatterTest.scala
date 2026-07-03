@@ -683,4 +683,28 @@ class HTMLFormatterTest extends FunSuite:
     assert(rendered.contains("&lt;b&gt;bold&lt;/b&gt;"), rendered)
     assert(!rendered.contains("<b>bold</b>"), rendered)
   }
+
+  test("moveInfoHtmlNullLinktextFallsBackToDefault") {
+    val user = createUser("maxcom")
+    val snippet = textService.moveInfo(MarkupType.Html, "http://example.com", null, user, "/forum/talks/")
+    val rendered = textService.renderTopic(MessageText(snippet, MarkupType.Html), minimizeCut = false, nofollow = false, "")
+
+    assert(rendered.contains("<a href=\"http://example.com\">Подробности</a>"), rendered)
+  }
+
+  test("moveInfoHtmlEmptyLinktextFallsBackToDefault") {
+    val user = createUser("maxcom")
+    val snippet = textService.moveInfo(MarkupType.Html, "http://example.com", "", user, "/forum/talks/")
+    val rendered = textService.renderTopic(MessageText(snippet, MarkupType.Html), minimizeCut = false, nofollow = false, "")
+
+    assert(rendered.contains("<a href=\"http://example.com\">Подробности</a>"), rendered)
+  }
+
+  test("moveInfoMarkdownNullLinktextFallsBackToDefault") {
+    val user = createUser("maxcom")
+    val snippet = textService.moveInfo(MarkupType.Markdown, "http://example.com", null, user, "/forum/talks/")
+    val rendered = textService.renderTopic(MessageText(snippet, MarkupType.Markdown), minimizeCut = false, nofollow = false, "")
+
+    assert(rendered.contains("<a href=\"http://example.com\">Подробности</a>"), rendered)
+  }
 end HTMLFormatterTest
