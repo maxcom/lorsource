@@ -52,6 +52,30 @@ class PasswordEncoderImplTest extends FunSuite:
     val bcryptHash = encoder.encode("password")
     assert(!encoder.upgradeEncoding(bcryptHash))
 
+  test("encode handles passwords longer than 72 bytes"):
+    val longPassword = "x" * 200
+    val encoded = encoder.encode(longPassword)
+    assert(PasswordEncoderImpl.isBcrypt(encoded))
+    assert(encoder.matches(longPassword, encoded))
+    // a password sharing the same 72-byte prefix must also match (bcrypt only
+    // considers the first 72 bytes)
+    assert(encoder.matches("x" * 72 + "y" * 100, encoded))
+    assert(!encoder.matches("y" * 200, encoded))
+
+  test("matches truncates at a UTF-8 character boundary"):
+    // 'a' is 1 byte and 'я' is 2 bytes; "a" + "я" * 36 is 73 bytes. The
+    // 72-byte bcrypt cut lands on the trailing (continuation) byte of
+    // 'я' #35 (byte 72 = 0x8F), so truncateForBcrypt must back up to
+    // byte 71 — a starter byte — yielding the 71-byte prefix
+    // "a" + "я" * 35. The truncated input must be valid UTF-8 and round-trip.
+    val password = "a" + "я" * 36
+    val encoded = encoder.encode(password)
+    assert(encoder.matches(password, encoded))
+    // same first 73 bytes (truncates to the same 71-byte prefix) — must still match
+    assert(encoder.matches("a" + "я" * 36 + "b" * 50, encoded))
+    // different first byte, different truncated prefix — must not match
+    assert(!encoder.matches("b" + "я" * 36, encoded))
+
   test("isBcrypt detects all variants"):
     assert(PasswordEncoderImpl.isBcrypt("$2a$10$abcdefghijklmnopqrstuvwxABCDEFGHIJKLMN"))
     assert(PasswordEncoderImpl.isBcrypt("$2b$10$abcdefghijklmnopqrstuvwxABCDEFGHIJKLMN"))

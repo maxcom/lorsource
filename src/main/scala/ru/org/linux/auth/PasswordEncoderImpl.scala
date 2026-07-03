@@ -22,19 +22,40 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
+import java.nio.charset.StandardCharsets
+
 @Component
 class PasswordEncoderImpl extends PasswordEncoder:
   private val legacyEncryptor = new BasicPasswordEncryptor
   private val logger = LoggerFactory.getLogger(classOf[PasswordEncoderImpl])
   private val bcryptEncoder = new BCryptPasswordEncoder
 
-  override def encode(rawPassword: CharSequence): String = bcryptEncoder.encode(rawPassword)
+  // BCrypt only uses the first 72 bytes of the password and throws
+  // IllegalArgumentException for anything longer. Truncate to a 72-byte prefix
+  // (on a UTF-8 character boundary) so long passwords authenticate instead of
+  // crashing the login flow. The limit is a property of bcrypt itself, so
+  // existing hashes are unaffected: they were already computed from the first
+  // 72 bytes of the password.
+  private def truncateForBcrypt(rawPassword: CharSequence): String =
+    val bytes = rawPassword.toString.getBytes(StandardCharsets.UTF_8)
+    if bytes.length <= 72 then
+      rawPassword.toString
+    else
+      var n = 72
+      // Back up so we don't split a multibyte sequence: the first excluded byte
+      // (index n) must be a starter byte. Continuation bytes are 10xxxxxx
+      // (0x80..0xBF); back up while index n is a continuation byte.
+      while n > 0 && (bytes(n) & 0xc0) == 0x80 do
+        n -= 1
+      new String(bytes, 0, n, StandardCharsets.UTF_8)
+
+  override def encode(rawPassword: CharSequence): String = bcryptEncoder.encode(truncateForBcrypt(rawPassword))
 
   override def matches(rawPassword: CharSequence, encodedPassword: String): Boolean =
     if rawPassword.isEmpty then
       false
     else if PasswordEncoderImpl.isBcrypt(encodedPassword) then
-      bcryptEncoder.matches(rawPassword, encodedPassword)
+      bcryptEncoder.matches(truncateForBcrypt(rawPassword), encodedPassword)
     else
       try
         legacyEncryptor.checkPassword(rawPassword.toString, encodedPassword)
