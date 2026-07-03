@@ -47,13 +47,13 @@ function init_interpage_adv(ads) {
       const interpage = $('#interpage');
 
       if (interpage.width() > 1024) {
-        img.attr('width', 980);
+        img.attr('width', 1000);
         img.attr('height', 120);
-        img.attr('src', ad.img980);
+        img.attr('src', ad.img1000);
       } else if (interpage.width() > 750) {
-        img.attr('width', 730);
+        img.attr('width', 728);
         img.attr('height', 90);
-        img.attr('src', ad.img730);
+        img.attr('src', ad.img728);
         img.attr('style', "margin-top: 15px");
       } else {
         img.attr('width', 320);
