@@ -753,7 +753,11 @@ section {
   margin-right: 0.5em;
   margin-left: 0.4em;
   text-align: center;
-  line-height: 1;
+  line-height: 1.1;
+
+  div {
+    margin-bottom: .5em;
+  }
 
   a {
     font-size: 200%;

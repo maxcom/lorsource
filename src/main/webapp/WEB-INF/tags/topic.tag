@@ -129,10 +129,14 @@
 
     <c:if test="${memoriesInfo!=null}">
       <div class="fav-buttons">
-        <a id="favs_button" href="#"<c:if test="${memoriesInfo.favId() != 0}"> class="selected"</c:if> title="<c:choose><c:when test="${memoriesInfo.favId() != 0}">Удалить из избранного</c:when><c:otherwise>В избранное</c:otherwise></c:choose>"><i class="icon-star"></i></a><br><span
-           id="favs_count">${memoriesInfo.favsCount()}</span><br>
-        <a id="memories_button" href="#"<c:if test="${memoriesInfo.watchId() != 0}"> class="selected"</c:if> title="<c:choose><c:when test="${memoriesInfo.watchId() != 0}">Не отслеживать</c:when><c:otherwise>Отслеживать</c:otherwise></c:choose>"><i class="icon-eye"></i></a><br><span
-           id="memories_count">${memoriesInfo.watchCount()}</span>
+        <div>
+          <a id="favs_button" href="#"<c:if test="${memoriesInfo.favId() != 0}"> class="selected"</c:if> title="<c:choose><c:when test="${memoriesInfo.favId() != 0}">Удалить из избранного</c:when><c:otherwise>В избранное</c:otherwise></c:choose>"><i class="icon-star"></i></a><br><span
+             id="favs_count">${memoriesInfo.favsCount()}</span><br>
+        </div>
+        <div>
+          <a id="memories_button" href="#"<c:if test="${memoriesInfo.watchId() != 0}"> class="selected"</c:if> title="<c:choose><c:when test="${memoriesInfo.watchId() != 0}">Не отслеживать</c:when><c:otherwise>Отслеживать</c:otherwise></c:choose>"><i class="icon-bell"></i></a><br><span
+             id="memories_count">${memoriesInfo.watchCount()}</span>
+        </div>
       </div>
     </c:if>
 

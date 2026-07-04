@@ -50,15 +50,15 @@
                 <c:param name="newFavoriteTagName" value="${tag}"/>
             </c:url>
 
-            <a id="tagFavAdd" href="${tagFavUrl}" title="В избранное"><i class="icon-eye"></i></a>
+            <a id="tagFavAdd" href="${tagFavUrl}" title="В избранное"><i class="icon-bell"></i></a>
         </c:if>
         <c:if test="${not template.sessionAuthorized}">
-            <a id="tagFavNoth" href="#"><i class="icon-eye"  title="Добавить в избранное"></i></a>
+            <a id="tagFavNoth" href="#"><i class="icon-bell"  title="Добавить в избранное"></i></a>
         </c:if>
         <c:if test="${showUnFavoriteTagButton}">
             <c:url var="tagFavUrl" value="/user-filter"/>
 
-            <a id="tagFavAdd" href="${tagFavUrl}" title="Удалить из избранного" class="selected"><i class="icon-eye"></i></a>
+            <a id="tagFavAdd" href="${tagFavUrl}" title="Удалить из избранного" class="selected"><i class="icon-bell"></i></a>
         </c:if>
         <br><span id="favsCount" title="Кол-во пользователей, добавивших в избранное">${favsCount}</span>
 

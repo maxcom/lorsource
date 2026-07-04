@@ -1,6 +1,5 @@
 @charset "UTF-8";
 
-.icon-eye:before { content: '\2b'; } /* '+' */
 .icon-reply:before { content: '\52'; } /* 'R' */
 .icon-rss:before { content: '\e800'; } /* '' */
 .icon-spin:before { content: '\e801'; } /* '' */
@@ -11,5 +10,7 @@
 .icon-user:before { content: '\e806'; } /* '' */
 .icon-eye-with-line:before { content: '\e807'; } /* '' */
 .icon-lock:before { content: '\e808'; } /* '' */
+.icon-bell:before { content: '\e80a'; } /* '' */
+.icon-user-circle-o:before { content: '\f2be'; } /* '' */
 .icon-telegram:before { content: '\f2c6'; } /* '' */
 .icon-tag:before { content: '🔖'; } /* '\1f516' */
