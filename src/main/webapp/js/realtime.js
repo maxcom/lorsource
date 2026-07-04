@@ -19,14 +19,25 @@ function initUpdateEventsCount() {
       url: "/notifications-count",
       cache: false
     }).done(function(data) {
-      var value = data==0 ? "" : ("("+data+")" );
+      const value = data==0 ? "" : ("("+data+")" );
 
       $('#main_events_count').text(value);
+
+      if (data===0) {
+        $('#main_events_count_number').removeClass("set")
+        $('#main_events_count_number').text("");
+      } else {
+        $('#main_events_count_number').addClass("set")
+        $('#main_events_count_number').text(data);
+      }
     });
   }
 
   $(function() {
     if ($('#main_events_count').length>0) {
+      update_count();
+    }
+    if ($('#main_events_count_number').length>0) {
       update_count();
     }
   });

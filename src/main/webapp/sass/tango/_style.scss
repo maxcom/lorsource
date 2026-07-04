@@ -289,10 +289,15 @@ p {
 #topProfile {
   float: right;
   font-size: 1.5em;
-  margin-top: 1rem;
+  margin-top: .5rem;
 
   a {
     color: var(--site-title-color) !important;
+    text-decoration: none;
+  }
+
+  @include respond-to(tablet-and-desktops) {
+    margin-top: 1rem;
   }
 }
 
@@ -306,6 +311,17 @@ p {
   a {
     color: var(--link-color) !important;
   }
+}
+
+#main_events_count_number.set {
+  position: relative;
+  top: -.7rem;
+  right: .4rem;
+  padding: 0px .4em;
+  border-radius: 100%;
+  background: var(--tagpage-group-label-background);
+  color: var(--table-link-color);
+  font-size: 0.6em;
 }
 
 input[type="radio"] {

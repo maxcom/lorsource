@@ -26,7 +26,15 @@
 <header id="hd">
   <div id="topProfile">
     <c:if test="${template.sessionAuthorized}">
-      <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
+      <c:if test="${not disable_event_header}">
+        <c:if test="${currentUser.unreadEvents > 0}">
+          <a href="/notifications"> <i class="icon-bell"></i><span id="main_events_count_number" class="set">${currentUser.unreadEvents}</span></a>
+        </c:if>
+        <c:if test="${currentUser.unreadEvents == 0}">
+          <a href="/notifications"> <i class="icon-bell"></i><span id="main_events_count_number"></span></a>
+        </c:if>
+        <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
+      </c:if>
       <a style="text-decoration: none" href="${userUrl}"><i class="icon-user-circle-o"></i></a>
     </c:if>
   </div>
@@ -49,12 +57,6 @@
       <li><a href="/articles/">Статьи</a></li>
       <li><a href="/forum/">Форум</a></li>
       <li><a href="/tracker/">Трекер</a></li>
-      <c:if test="${template.sessionAuthorized}">
-        <li>
-          <lor:events/>
-        </li>
-      </c:if>
-
       <li><a href="/search.jsp">Поиск</a></li>
     </ul>
   </nav>
