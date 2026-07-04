@@ -76,6 +76,14 @@ p {
 
 #hd {
   margin-bottom: 0.5em;
+
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  @include respond-to(tablet-and-desktops) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
 
 #sitetitle {
@@ -84,6 +92,7 @@ p {
   padding-top: 0.5rem;
   display: block;
   padding-right: 0.5em;
+  padding-left: 0;
 
   @include respond-to(tablet-and-desktops) {
     margin-right: 0.5em;
@@ -279,12 +288,11 @@ p {
 
 #topProfile {
   float: right;
-  font-size: 1.1em;
+  font-size: 1.5em;
   margin-top: 1rem;
-  margin-right: 0.8rem;
 
   a {
-    color: var(--link-color) !important;
+    color: var(--site-title-color) !important;
   }
 }
 

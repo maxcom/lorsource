@@ -27,7 +27,7 @@
   <div id="topProfile">
     <c:if test="${template.sessionAuthorized}">
       <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
-      <a style="text-decoration: none" href="${userUrl}">${currentUser.nick}</a>
+      <a style="text-decoration: none" href="${userUrl}"><i class="icon-user-circle-o"></i></a>
     </c:if>
   </div>
 
