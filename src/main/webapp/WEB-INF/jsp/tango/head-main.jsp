@@ -16,6 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="configuration" type="ru.org.linux.spring.SiteConfig"--%>
 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
@@ -35,7 +36,7 @@
         </c:if>
         <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
       </c:if>
-      <a style="text-decoration: none" href="${userUrl}"><i class="icon-user-circle-o"></i></a>
+      <a style="text-decoration: none" title="${fn:escapeXml(currentUser.nick)}" href="${userUrl}"><i class="icon-user-circle-o"></i></a>
     </c:if>
   </div>
 
