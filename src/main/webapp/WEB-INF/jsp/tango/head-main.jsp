@@ -36,7 +36,7 @@
         </c:if>
         <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
       </c:if>
-      <a style="text-decoration: none" title="${fn:escapeXml(currentUser.nick)}" href="${userUrl}"><i class="icon-user-circle-o"></i></a>
+      <a title="${fn:escapeXml(currentUser.nick)}" href="${userUrl}"><i class="icon-user-circle-o"></i></a>
     </c:if>
   </div>
 
