@@ -34,8 +34,8 @@
         <c:if test="${currentUser.unreadEvents == 0}">
           <a href="/notifications"> <i class="icon-bell"></i><span id="main_events_count_number"></span></a>
         </c:if>
-        <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
       </c:if>
+      <c:url var="userUrl" value="/people/${currentUser.nick}/profile"/>
       <a title="${fn:escapeXml(currentUser.nick)}" href="${userUrl}"><i class="icon-user-circle-o"></i></a>
     </c:if>
   </div>
