@@ -38,7 +38,7 @@ object EditTopicChecker:
 
     preCheck(topic)
       .restrict(
-        !UserPermissionService.allowedFormats(session.user).contains(preparedTopic.markupType),
+        !UserPermissionService.legacyEditableFormats(session.user).contains(preparedTopic.markupType),
         s"запрещено редактирование текстов в формате ${preparedTopic.markupType}"
       )
       .permit(session.administrator)

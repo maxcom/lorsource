@@ -357,7 +357,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
         errors.reject(null, "У вас недостаточно прав для редактирования этого комментария")
       }
 
-      if (!UserPermissionService.allowedFormats(currentUser).contains(markup)) {
+      if (!UserPermissionService.legacyEditableFormats(currentUser).contains(markup)) {
         errors.reject(null, "Вы не можете редактировать тексты данного формата")
       }
     } else {

@@ -17,6 +17,7 @@ package ru.org.linux.markup
 
 import com.google.common.base.Strings
 import org.jsoup.Jsoup
+import org.jsoup.safety.Safelist
 import org.springframework.stereotype.Service
 import ru.org.linux.markup.MarkupType.*
 import ru.org.linux.msgbase.MessageText
@@ -41,7 +42,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case LorcodeUlb =>
         lorCodeService.parseComment(text.text, nofollow, LorCodeService.Ulb)
       case Html =>
-        "<p>" + text.text + "</p>"
+        Jsoup.clean(text.text, MessageTextService.HtmlSafelist)
       case Markdown =>
         markdownFormatter.renderToHtml(text.text, nofollow)
     }
@@ -60,7 +61,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
       case LorcodeUlb =>
         lorCodeService.parseCommentRSS(text.text, LorCodeService.Ulb)
       case Html =>
-        "<p>" + text.text + "</p>"
+        Jsoup.clean(text.text, MessageTextService.HtmlSafelist)
       case Markdown =>
         // TODO check if rss needs special rendering
         markdownFormatter.renderToHtml(text.text, nofollow = false)
@@ -82,7 +83,7 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
           lorCodeService.parseTopic(text.text, nofollow, LorCodeService.Ulb)
         }
       case Html =>
-        "<p>" + text.text
+        Jsoup.clean(text.text, MessageTextService.HtmlSafelist)
       case Markdown =>
         if (minimizeCut) {
           markdownFormatter.renderWithMinimizedCut(text.text, nofollow, canonicalUrl)
@@ -167,6 +168,15 @@ class MessageTextService(lorCodeService: LorCodeService, markdownFormatter: Mark
 }
 
 object MessageTextService {
+  /**
+    * Safelist для фильтрации устаревшего HTML: разрешены изображения, ссылки и
+    * базовая вёрстка; скрипты, формы и опасные атрибуты удаляются.
+    */
+  private val HtmlSafelist: Safelist =
+    Safelist.relaxed()
+      .addProtocols("img", "src", "data")
+      .preserveRelativeLinks(true)
+
   /**
     * Обрезать чистый текст до заданого размера
     *

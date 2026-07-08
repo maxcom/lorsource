@@ -29,11 +29,18 @@ object UserPermissionService {
   def allowedFormats(user: User): Set[MarkupType] = {
     if (user==null) { // anonymous
       Set(Lorcode, Markdown)
-    } else if (user.isAdministrator) {
-      Set(Lorcode, LorcodeUlb, Markdown, Html)
     } else {
       Set(Lorcode, LorcodeUlb, Markdown)
     }
+  }
+
+  /**
+    * Форматы, доступные для редактирования существующих текстов.
+    * Html запрещён для создания, но администраторы могут править legacy-тексты.
+    */
+  def legacyEditableFormats(user: User): Set[MarkupType] = {
+    val base = allowedFormats(user)
+    if (user!=null && user.isAdministrator) base + Html else base
   }
 
   val ResetCodeMaxAge: Duration = Duration.ofDays(1)

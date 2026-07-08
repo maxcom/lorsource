@@ -707,4 +707,45 @@ class HTMLFormatterTest extends FunSuite:
 
     assert(rendered.contains("<a href=\"http://example.com\">Подробности</a>"), rendered)
   }
+
+  test("htmlMarkupStripsScriptsAndForms") {
+    val raw =
+      """<p>text <a href="http://example.com">link</a> <img src="http://example.com/i.png" alt="img"> <b>bold</b> <i>italic</i></p>
+        |<script>alert(1)</script>
+        |<form action="http://evil.com"><input name="x"><button>go</button></form>
+        |<div onmouseover="alert(2)">x</div>
+        |<iframe src="http://evil.com"></iframe>
+        |<style>body{}</style>
+        |<svg/onload=alert(3)>
+        |""".stripMargin
+
+    val rendered = textService.renderCommentText(MessageText(raw, MarkupType.Html), nofollow = false)
+
+    assert(!rendered.contains("<script"), rendered)
+    assert(!rendered.contains("<form"), rendered)
+    assert(!rendered.contains("<input"), rendered)
+    assert(!rendered.contains("<button"), rendered)
+    assert(!rendered.contains("<iframe"), rendered)
+    assert(!rendered.contains("<style"), rendered)
+    assert(!rendered.contains("<svg"), rendered)
+    assert(!rendered.contains("onmouseover"), rendered)
+    assert(!rendered.contains("alert"), rendered)
+    assert(rendered.contains("<a href=\"http://example.com\">link</a>"), rendered)
+    assert(rendered.contains("<img"), rendered)
+    assert(rendered.contains("src=\"http://example.com/i.png\""), rendered)
+    assert(rendered.contains("alt=\"img\""), rendered)
+    assert(rendered.contains("<b>bold</b>"), rendered)
+    assert(rendered.contains("<i>italic</i>"), rendered)
+  }
+
+  test("htmlMarkupStripsForTopicToo") {
+    val raw = "<p>x</p><script>alert(1)</script><form><button>go</button></form><img src=\"http://e/p.png\">"
+
+    val rendered = textService.renderTopic(MessageText(raw, MarkupType.Html), minimizeCut = false, nofollow = false, "")
+
+    assert(!rendered.contains("<script"), rendered)
+    assert(!rendered.contains("<form"), rendered)
+    assert(!rendered.contains("<button"), rendered)
+    assert(rendered.contains("<img src=\"http://e/p.png\">"), rendered)
+  }
 end HTMLFormatterTest

@@ -20,7 +20,7 @@ enum MarkupType(val id: String, val title: String, val formId: String, val depre
   case Markdown extends MarkupType(id = "MARKDOWN", title = "Markdown", formId = "markdown")
   case Lorcode extends MarkupType(id = "BBCODE_TEX", title = "LORCODE", formId = "lorcode")
   case LorcodeUlb extends MarkupType(id = "BBCODE_ULB", title = "User line break", formId = "ntobr", deprecated = true)
-  case Html extends MarkupType(id = "PLAIN", title = "HTML", formId = "plain")
+  case Html extends MarkupType(id = "PLAIN", title = "HTML", formId = "plain", deprecated = true)
 
 object MarkupType:
   def of(v: String): MarkupType =
