@@ -21,12 +21,21 @@
 <%@ attribute name="votedVariants" required="false" type="java.util.List" %>
 <%@ attribute name="commited" required="false" type="java.lang.Boolean" %>
 
+<c:set var="pollUncommited" value="${not enabled and (not empty commited and not commited)}"/>
+
+<c:if test="${pollUncommited}">
+  <div class="infoblock">
+    <i class="icon-lock"></i> Опрос ожидает подтверждения модератором. Голосование недоступно.
+  </div>
+</c:if>
+
 <c:if test="${enabled}">
   <form action="/vote.jsp" method="POST" style="margin-bottom: 1em">
   <lor:csrf/>
   <input type="hidden" name="voteid" value="${poll.id}">
 </c:if>
 
+<c:if test="${pollUncommited}"><div class="poll-uncommited"></c:if>
 <c:forEach var="variant" items="${not empty votedVariants ? votedVariants : poll.variants}">
   <c:set var="lineClass">
     <c:choose>
@@ -74,19 +83,13 @@
     </label>
   </div>
 </c:forEach>
+<c:if test="${pollUncommited}"></div></c:if>
 
 <c:if test="${enabled}">
   <button type="submit" class="btn btn-default">Голосовать</button>
   </form>
 </c:if>
 
-<c:if test="${not enabled}">
-  <c:choose>
-    <c:when test="${not empty commited and not commited}">
-      <div class="infoblock">Опрос ожидает подтверждения.</div>
-    </c:when>
-    <c:when test="${commited and not template.sessionAuthorized}">
-      <div class="infoblock">Для участия в опросе <lor:login-link>войдите</lor:login-link> или <a href="register.jsp">зарегистрируйтесь</a>.</div>
-    </c:when>
-  </c:choose>
+<c:if test="${not enabled and commited and not template.sessionAuthorized}">
+  <div class="infoblock">Для участия в опросе <lor:login-link>войдите</lor:login-link> или <a href="register.jsp">зарегистрируйтесь</a>.</div>
 </c:if>

@@ -704,6 +704,10 @@ table.poll-result img {
     padding: 0;
 }
 
+.poll-uncommited {
+  opacity: 0.75;
+}
+
 .difference-insert,  .difference-insert * {
   background-color: green;
 }
