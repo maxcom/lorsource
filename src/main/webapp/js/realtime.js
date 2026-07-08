@@ -13,98 +13,106 @@
  *    limitations under the License.
  */
 
-function initUpdateEventsCount() {
-  function update_count() {
+(function () {
+  function updateCount(countEl, numberEl) {
     $.ajax({
       url: "/notifications-count",
       cache: false
-    }).done(function(data) {
-      const value = data==0 ? "" : ("("+data+")" );
+    }).done(function (data) {
+      const count = Number(data);
 
-      $('#main_events_count').text(value);
+      countEl.text(count === 0 ? "" : "(" + count + ")");
 
-      if (data===0) {
-        $('#main_events_count_number').removeClass("set")
-        $('#main_events_count_number').text("");
+      if (count === 0) {
+        numberEl.removeClass("set").text("");
       } else {
-        $('#main_events_count_number').addClass("set")
-        $('#main_events_count_number').text(data);
+        numberEl.addClass("set").text(count);
       }
     });
   }
 
-  $(function() {
-    if ($('#main_events_count').length>0) {
-      update_count();
-    }
-    if ($('#main_events_count_number').length>0) {
-      update_count();
-    }
+  function initUpdateEventsCount() {
+    $(function () {
+      const countEl = $('#main_events_count');
+      const numberEl = $('#main_events_count_number');
+
+      if (countEl.length > 0 || numberEl.length > 0) {
+        updateCount(countEl, numberEl);
+      }
+    });
+  }
+
+  $script.ready('jquery', function () {
+    initUpdateEventsCount();
   });
-}
 
-$script.ready('jquery', function () {
-  initUpdateEventsCount();
-});
+  const RealtimeContext = {
+    started: false,
+    setupTopic: function (topic, link, cid) {
+      RealtimeContext.topic = topic;
+      RealtimeContext.link = link;
+      RealtimeContext.cid = cid;
+    },
+    start: function (wsUrl) {
+      if (RealtimeContext.started) {
+        return;
+      }
 
-var RealtimeContext = {
-  started: false,
-  setupTopic: function(topic, link, cid) {
-    this.topic = topic
-    this.link = link
-    this.cid = cid
-  },
-  start: function(wsUrl) {
-    if (!RealtimeContext.started) {
       RealtimeContext.started = true;
 
       $script.ready('jquery', function () {
         $(function () {
-          var supportsWebSockets = 'WebSocket' in window || 'MozWebSocket' in window;
+          if (!('WebSocket' in window)) {
+            return;
+          }
 
-          if (supportsWebSockets) {
-            var ws = new WebSocket(wsUrl + "ws");
+          const ws = new WebSocket(`${wsUrl}ws`);
 
-            ws.onmessage = function (event) {
-              initUpdateEventsCount(); // temporary solution
+          ws.onmessage = function (event) {
+            initUpdateEventsCount(); // temporary solution
 
-              if (event.data.startsWith("comment ")) {
-                var comment = event.data.substring("comment ".length)
-
-                if (!$('#commentForm').find(".spinner").length && !window._commentSubmitting) {
-                  if ($("#realtime").is(":hidden")) {
-                    $("#realtime")
-                        .text("Был добавлен новый комментарий. ")
-                        .append($("<a>").attr("href", RealtimeContext.link + "?cid=" + comment + "&skipdeleted=true").text("Обновить."))
-                        .show();
-                  }
-                } else {
-                  // retry in 5 seconds
-                  ws.close()
-                }
-              }
-            };
-
-            if (RealtimeContext.topic) {
-              ws.onopen = function () {
-                if (RealtimeContext.cid == 0) {
-                  ws.send(RealtimeContext.topic)
-                } else {
-                  ws.send(RealtimeContext.topic + ' ' + RealtimeContext.cid)
-                }
-              };
+            if (typeof event.data !== 'string') {
+              return;
             }
 
-            ws.onclose = function () {
-              RealtimeContext.started = false;
+            if (event.data.startsWith("comment ")) {
+              const comment = event.data.substring("comment ".length);
 
-              setTimeout(function () {
-                RealtimeContext.start(wsUrl)
-              }, 5000);
+              if (!$('#commentForm').find(".spinner").length && !window._commentSubmitting) {
+                if ($("#realtime").is(":hidden")) {
+                  $("#realtime")
+                      .text("Был добавлен новый комментарий. ")
+                      .append($("<a>").attr("href", `${RealtimeContext.link}?cid=${encodeURIComponent(comment)}&skipdeleted=true`).text("Обновить."))
+                      .show();
+                }
+              } else {
+                // retry in 5 seconds
+                ws.close();
+              }
+            }
+          };
+
+          if (RealtimeContext.topic) {
+            ws.onopen = function () {
+              if (RealtimeContext.cid === 0) {
+                ws.send(RealtimeContext.topic);
+              } else {
+                ws.send(`${RealtimeContext.topic} ${RealtimeContext.cid}`);
+              }
             };
           }
+
+          ws.onclose = function () {
+            RealtimeContext.started = false;
+
+            setTimeout(function () {
+              RealtimeContext.start(wsUrl);
+            }, 5000);
+          };
         });
-      })
+      });
     }
-  }
-}
+  };
+
+  window.RealtimeContext = RealtimeContext;
+})();
