@@ -85,6 +85,7 @@ function initPreviewTabs(formElement) {
   const formatMode = formatGroup.dataset.formatMode;
   const textarea = formatGroup.querySelector('textarea');
   if (!textarea) return;
+  if (textarea.readOnly) return;
 
   const nav = formatGroup.querySelector('.markup-tabs__nav');
   if (!nav) return;

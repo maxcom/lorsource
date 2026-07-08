@@ -40,6 +40,12 @@ select {
   border: 1px;
 }
 
+input[readonly]:not([type="hidden"]),
+textarea[readonly] {
+  background-color: var(--main-background);
+  cursor: not-allowed;
+}
+
 .form-actions {
   margin-top: 1em;
   margin-bottom: 1em;
@@ -168,6 +174,11 @@ form .error {
     font-weight: 500;
     background-color: var(--article-background);
   }
+}
+
+.markup-tabs:has(textarea[readonly]) .markup-tabs__tab.active {
+  border-color: var(--table-border-color) var(--table-border-color) var(--main-background);
+  background-color: var(--main-background);
 }
 
 #bd .markup-tabs__tab {

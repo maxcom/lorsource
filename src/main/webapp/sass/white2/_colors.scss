@@ -38,6 +38,7 @@ $unread_marker_color: #00A;
 
 :root {
   --text-color: #{$text_color};
+  --main-background: #{$main_background};
   --link-color: #{$a_color};
   --header-color: #{$header_color};
   --boxlet-background: #{$boxlet_back_color};
