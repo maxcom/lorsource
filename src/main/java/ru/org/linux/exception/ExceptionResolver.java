@@ -90,11 +90,11 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     HttpServletRequest request,
     Exception exception
   ) {
-    modelAndView.addObject("headTitle", StringUtil.escapeForceHtml(exception.getClass().getName()));
+    modelAndView.addObject("headTitle", StringUtil.escapeHtml(exception.getClass().getName()));
 
     String errorMessage = exception.getMessage() == null
-      ? StringUtil.escapeForceHtml(exception.getClass().getName())
-      : StringUtil.escapeForceHtml(exception.getMessage());
+      ? StringUtil.escapeHtml(exception.getClass().getName())
+      : StringUtil.escapeHtml(exception.getMessage());
     modelAndView.addObject("errorMessage", errorMessage);
 
     ExceptionType exceptionType = ExceptionType.OTHER;

@@ -202,7 +202,7 @@ class EditProfileController(
 
               val msg =
                 s"Обновление регистрации прошло успешно. " +
-                  s"Ожидайте письма на ${StringUtil.escapeForceHtml(newEmail)} с кодом активации смены email."
+                  s"Ожидайте письма на ${StringUtil.escapeHtml(newEmail)} с кодом активации смены email."
 
               new ModelAndView("action-done", "message", msg)
             catch

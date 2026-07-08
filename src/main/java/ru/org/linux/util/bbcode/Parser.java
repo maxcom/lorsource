@@ -54,10 +54,10 @@
 package ru.org.linux.util.bbcode;
 
 import org.apache.commons.lang3.StringUtils;
-import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.Tag;
 import ru.org.linux.util.formatter.RuTypoChanger;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Map;
 import java.util.Set;
@@ -92,7 +92,7 @@ public class Parser {
   }
 
   public static String escape(String html) {
-    return StringUtil.escapeHtml(html);
+    return ToHtmlFormatter.strangeEscapeHtml(html);
   }
 
   public RootNode createRootNode() {

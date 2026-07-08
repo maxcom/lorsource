@@ -193,7 +193,7 @@ object MessageTextService {
     }
 
     if (encodeHtml) {
-      StringUtil.escapeForceHtml(cut)
+      StringUtil.escapeHtml(cut)
     } else {
       cut
     }

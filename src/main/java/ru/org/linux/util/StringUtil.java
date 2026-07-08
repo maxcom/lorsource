@@ -16,6 +16,7 @@
 package ru.org.linux.util;
 
 import com.google.common.hash.Hashing;
+import com.google.common.html.HtmlEscapers;
 import ru.org.linux.util.formatter.RuTypoChanger;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
@@ -25,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.HexFormat;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class StringUtil {
@@ -103,83 +103,15 @@ public final class StringUtil {
 
     return builder.toString();
   }
-
-  /**
-   * Convert special SGML (HTML) chars to
-   * SGML entities
-   */
-  private static final Pattern uniRE = Pattern.compile("^&((#[1-9]\\d{1,4})|(\\w{1,8}));");
-
-  /**
-   * Экранируем управляющие html символьные последовательности, кроме &#NNNN;
-   * @param str сырая строка
-   * @return отэкранированная строка
-   */
-  public static String escapeHtml(String str) {
-    StringBuilder res = new StringBuilder();
-
-    for (int i = 0; i < str.length(); i++) {
-      switch (str.charAt(i)) {
-        case '<':
-          res.append("&lt;");
-          break;
-        case '>':
-          res.append("&gt;");
-          break;
-        case '\"':
-          res.append("&quot;");
-          break;
-        case '&':
-          Matcher m = uniRE.matcher(str.substring(i));
-          if (m.find()) {
-              String s = m.group();
-              res.append(s);
-              i+=s.length()-1;
-              continue;
-          } else {
-            res.append("&amp;");
-          }
-
-          break;
-        default:
-          res.append(str.charAt(i));
-      }
-
-    }
-
-    return res.toString();
-  }
   
   /**
-   * Экранируем управляющие html символьные последовательности, в отличии от
-   * escapeHtml &#NNN; тоже экранируем
+   * Экранируем управляющие html символьные последовательности,
+   * 
    * @param str сырая строка
-   * @return отэкранированная строка
+   * @return экранированная строка
    */
-  public static String escapeForceHtml(String str) {
-    StringBuilder res = new StringBuilder();
-
-    for (int i = 0; i < str.length(); i++) {
-      switch (str.charAt(i)) {
-        case '<':
-          res.append("&lt;");
-          break;
-        case '>':
-          res.append("&gt;");
-          break;
-        case '\"':
-          res.append("&quot;");
-          break;
-        case '&':
-          res.append("&amp;");
-          break;
-        default:
-          res.append(str.charAt(i));
-      }
-
-    }
-
-    return res.toString();
+  public static String escapeHtml(String str) {
+    return HtmlEscapers.htmlEscaper().escape(str);
   }
 
   public static boolean isUnsignedPositiveNumber(String s) {

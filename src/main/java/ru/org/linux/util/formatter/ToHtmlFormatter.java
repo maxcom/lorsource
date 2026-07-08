@@ -28,7 +28,6 @@ import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
-import ru.org.linux.util.StringUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,6 +48,12 @@ public class ToHtmlFormatter {
     "|(?:mailto: ?[a-z0-9+.]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+  /**
+   * Convert special SGML (HTML) chars to
+   * SGML entities
+   */
+  private static final Pattern uniRE = Pattern.compile("^&((#[1-9]\\d{1,4})|(\\w{1,8}));");
 
   /*
   Замена двойного минуса на тире
@@ -103,7 +108,7 @@ public class ToHtmlFormatter {
   }
 
   public String format(String text, boolean nofollow, RuTypoChanger changer) {
-    String escapedText = StringUtil.escapeHtml(text);
+    String escapedText = strangeEscapeHtml(text);
 
     StringTokenizer st = new StringTokenizer(escapedText, " \n", true);
     StringBuilder sb = new StringBuilder();
@@ -123,10 +128,10 @@ public class ToHtmlFormatter {
    * @return форматированый текст
    */
   public String simpleFormat(String text) {
-    return StringUtil.escapeHtml(text).replaceAll(MDASH_REGEX, MDASH_REPLACE);
+    return strangeEscapeHtml(text).replaceAll(MDASH_REGEX, MDASH_REPLACE);
   }
 
-  private String formatWithMagic(String text, RuTypoChanger changer) {
+  private static String formatWithMagic(String text, RuTypoChanger changer) {
     return changer!=null ? changer.format(text) : text;
   }
 
@@ -216,7 +221,7 @@ public class ToHtmlFormatter {
   ) throws URIException {
     // ссылка внутри lorsource исправляем scheme
     String fixedUrlHref = url.canonize(siteConfig.getSecureURI());
-    String fixedUrlBody = linktext!=null?simpleFormat(linktext):StringUtil.escapeHtml(url.formatUrlBody(maxLength));
+    String fixedUrlBody = linktext!=null?simpleFormat(linktext): strangeEscapeHtml(url.formatUrlBody(maxLength));
     out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
   }
 
@@ -243,7 +248,7 @@ public class ToHtmlFormatter {
         deleted = comment.isDeleted();
       }
 
-      String urlTitle = linkText!=null?simpleFormat(linkText):StringUtil.escapeHtml(message.getTitle());
+      String urlTitle = linkText!=null?simpleFormat(linkText): strangeEscapeHtml(message.getTitle());
 
       String newUrlHref = url.formatJump(topicDao, groupService, siteConfig.getSecureURI());
       String fixedUrlBody = url.formatUrlBody(maxLength);
@@ -255,7 +260,7 @@ public class ToHtmlFormatter {
       out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">");
 
       if (deleted) {
-        out.append(StringUtil.escapeHtml(fixedUrlBody));
+        out.append(strangeEscapeHtml(fixedUrlBody));
       } else {
         out.append(urlTitle);
 
@@ -270,7 +275,50 @@ public class ToHtmlFormatter {
         out.append("</s>");
       }
     } catch (MessageNotFoundException ex) {
-      out.append("<a href=\"").append(url).append("\">").append(StringUtil.escapeHtml(url.formatUrlBody(maxLength))).append("</a>");
+      out.append("<a href=\"").append(url).append("\">").append(strangeEscapeHtml(url.formatUrlBody(maxLength))).append("</a>");
     }
+  }
+
+  /**
+   * Экранируем управляющие html символьные последовательности, кроме &#NNNN;
+   * Не очень понятно предназначение этой версии; нужно разобраться и по возможности заменить
+   * на стандартный вариант.
+   * 
+   * @param str сырая строка
+   * @return отэкранированная строка
+   */
+  public static String strangeEscapeHtml(String str) {
+    StringBuilder res = new StringBuilder();
+
+    for (int i = 0; i < str.length(); i++) {
+      switch (str.charAt(i)) {
+        case '<':
+          res.append("&lt;");
+          break;
+        case '>':
+          res.append("&gt;");
+          break;
+        case '\"':
+          res.append("&quot;");
+          break;
+        case '&':
+          Matcher m = uniRE.matcher(str.substring(i));
+          if (m.find()) {
+            String s = m.group();
+            res.append(s);
+            i+=s.length()-1;
+            continue;
+          } else {
+            res.append("&amp;");
+          }
+
+          break;
+        default:
+          res.append(str.charAt(i));
+      }
+
+    }
+
+    return res.toString();
   }
 }

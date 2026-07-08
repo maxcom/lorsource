@@ -54,12 +54,12 @@
 package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableSet;
-import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 public class UrlWithParamTag extends Tag {
   public UrlWithParamTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
@@ -99,13 +99,13 @@ public class UrlWithParamTag extends Tag {
     if (node.lengthChildren() == 0 || (textChild != null && textChild.getText().trim().isEmpty())){
       if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
-                .append(StringUtil.escapeHtml(escapedUrl))
+                .append(ToHtmlFormatter.strangeEscapeHtml(escapedUrl))
                 .append("\">")
                 .append(escapedUrl)
                 .append("</a>");
       } else {
         ret.append("<s title=\"")
-                .append(StringUtil.escapeHtml(escapedUrl))
+                .append(ToHtmlFormatter.strangeEscapeHtml(escapedUrl))
                 .append("\">")
                 .append(Parser.escape(url))
                 .append("</s>");
@@ -113,13 +113,13 @@ public class UrlWithParamTag extends Tag {
     } else {
       if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
-                .append(StringUtil.escapeHtml(escapedUrl))
+                .append(ToHtmlFormatter.strangeEscapeHtml(escapedUrl))
                 .append("\">")
                 .append(node.renderChildrenXHtml())
                 .append("</a>");
       } else {
         ret.append("<s title=\"")
-            .append(StringUtil.escapeHtml(escapedUrl))
+            .append(ToHtmlFormatter.strangeEscapeHtml(escapedUrl))
             .append("\">")
             .append(node.renderChildrenXHtml())
             .append("</s>");

@@ -74,7 +74,7 @@ class ResetPasswordController(userDao: UserDao, userService: UserService, secret
       val password = userService.resetPassword(user)
       
       new ModelAndView("action-done", Map("message" -> "Установлен новый пароль",
-        "bigMessage" -> ("Ваш новый пароль: " + StringUtil.escapeForceHtml(password))).asJava)
+        "bigMessage" -> ("Ваш новый пароль: " + StringUtil.escapeHtml(password))).asJava)
     }
   }
 

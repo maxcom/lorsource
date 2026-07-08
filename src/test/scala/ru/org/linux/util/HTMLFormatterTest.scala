@@ -348,16 +348,16 @@ class HTMLFormatterTest extends FunSuite:
 
   test("testHTMLEscape") {
     val str1 = "This is an entity &#1999;"
-    val s1 = StringUtil.escapeHtml(str1)
+    val s1 = ToHtmlFormatter.strangeEscapeHtml(str1)
     assertEquals(s1, str1, "String should remain unescaped")
 
     val str2 = "a&b"
-    val s2 = StringUtil.escapeHtml(str2)
+    val s2 = ToHtmlFormatter.strangeEscapeHtml(str2)
     assertEquals(s2, "a&amp;b", "Ampersand should be escaped")
 
-    assertEquals(StringUtil.escapeHtml("<script>"), "&lt;script&gt;")
-    assertEquals(StringUtil.escapeHtml("&nbsp;"), "&nbsp;")
-    assertEquals(StringUtil.escapeHtml("&#41;&#41;&#41;"), "&#41;&#41;&#41;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("<script>"), "&lt;script&gt;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&nbsp;"), "&nbsp;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#41;&#41;&#41;"), "&#41;&#41;&#41;")
   }
 
   test("testToLorCodeFormatter2") {
