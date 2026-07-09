@@ -41,12 +41,12 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title><l:title>${message.title}</l:title> — ${preparedMessage.group.title} — ${preparedMessage.section.title}</title>
+<title><l:title>${message.title}</l:title> — <l:title><c:out value="${preparedMessage.group.title}"/></l:title> — ${preparedMessage.section.title}</title>
 <meta property="og:title" content="<l:title>${message.title}</l:title>">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:type" content="article">
 <meta property="og:url" content="${configuration.secureUrlWithoutSlash}${message.link}">
-<meta property="article:section" content="${preparedMessage.section.title}: ${preparedMessage.group.title}">
+<meta property="article:section" content="${preparedMessage.section.title}: <l:title><c:out value="${preparedMessage.group.title}"/></l:title>">
 <meta property="article:published_time" content="${DateFormats.formatIso8601(preparedMessage.message.effectiveDateJsp)}">
 <c:if test="${editInfo.editCount > 0}">
   <meta property="article:modified_time" content="${DateFormats.formatIso8601(editInfo.lastEditDate())}">
@@ -125,9 +125,9 @@
       </c:if>
     </div>
     <div class="scroller-group">
-      <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
+      <a title="${preparedMessage.section.title} - <l:title><c:out value="${preparedMessage.group.title}"/></l:title>"
          href="${group.url}">
-          ${preparedMessage.group.title}
+          <l:title><c:out value="${preparedMessage.group.title}"/></l:title>
       </a>
     </div>
     <div class="scroller-next">

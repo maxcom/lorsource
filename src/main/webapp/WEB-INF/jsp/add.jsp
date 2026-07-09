@@ -53,7 +53,7 @@
   <lor:topic messageMenu="${topicMenu}" preparedMessage="${message}" message="${message.message}" showMenu="false"/>
 </div>
 </c:if>
-<h1>Добавить в «${group.title}»</h1>
+<h1>Добавить в «<c:out value="${group.title}"/>»</h1>
 <c:if test="${not form.noinfo}">
   ${addportal}
 </c:if>

@@ -196,10 +196,10 @@
     <select name="chgrp">
       <c:forEach var="group" items="${groups}">
         <c:if test="${group.id != message.groupId}">
-          <option value="${group.id}">${group.title}</option>
+          <option value="${group.id}"><c:out value="${group.title}"/></option>
         </c:if>
         <c:if test="${group.id == message.groupId}">
-          <option value="${group.id}" selected="selected">${group.title}</option>
+          <option value="${group.id}" selected="selected"><c:out value="${group.title}"/></option>
         </c:if>
       </c:forEach>
     </select></label>

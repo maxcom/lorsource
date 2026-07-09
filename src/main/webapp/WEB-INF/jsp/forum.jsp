@@ -29,12 +29,12 @@
 <ul>
   <c:forEach var="group" items="${tech}">
     <li>
-      <a class="navLink" href="${group.url}">${group.title}</a>
+      <a class="navLink" href="${group.url}"><c:out value="${group.title}"/></a>
 
       (${group.stat3} за сутки)
 
       <c:if test="${group.info != null}">
-        — <em><c:out value="${group.info}" escapeXml="false"/></em>
+        — <em><c:out value="${group.info}"/></em>
       </c:if>
 
     </li>
@@ -47,12 +47,12 @@
 <ul>
   <c:forEach var="group" items="${other}">
     <li>
-      <a class="navLink" href="${group.url}">${group.title}</a>
+      <a class="navLink" href="${group.url}"><c:out value="${group.title}"/></a>
 
       (${group.stat3} за сутки)
 
       <c:if test="${group.info != null}">
-        — <em><c:out value="${group.info}" escapeXml="false"/></em>
+        — <em><c:out value="${group.info}"/></em>
       </c:if>
 
     </li>

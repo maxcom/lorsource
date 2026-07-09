@@ -909,6 +909,7 @@
             <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/add.jsp</include>
             <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/edit.jsp</include>
             <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/edit-profile.jsp</include>
+            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/groupmod.jsp</include>
           </includes>
           <replacements>
             <replacement>

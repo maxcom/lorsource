@@ -36,13 +36,13 @@
       <li>
         <c:choose>
           <c:when test="${choice.postable}">
-            <a class="navLink" href="${choice.addUrl}">${choice.group.title}</a>
+            <a class="navLink" href="${choice.addUrl}"><c:out value="${choice.group.title}"/></a>
             <c:if test="${choice.group.info != null}">
-              - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
+              - <em><c:out value="${choice.group.info}"/></em>
             </c:if>
           </c:when>
           <c:otherwise>
-            ${choice.group.title} (<c:out value="${choice.postScoreInfo}"/>)
+            <c:out value="${choice.group.title}"/> (<c:out value="${choice.postScoreInfo}"/>)
           </c:otherwise>
         </c:choose>
         (<a href="${choice.group.url}" target="_blank">просмотр...</a>)
@@ -56,13 +56,13 @@
       <li>
         <c:choose>
           <c:when test="${choice.postable}">
-            <a class="navLink" href="${choice.addUrl}">${choice.group.title}</a>
+            <a class="navLink" href="${choice.addUrl}"><c:out value="${choice.group.title}"/></a>
             <c:if test="${choice.group.info != null}">
-              - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
+              - <em><c:out value="${choice.group.info}"/></em>
             </c:if>
           </c:when>
           <c:otherwise>
-            ${choice.group.title} (<c:out value="${choice.postScoreInfo}"/>)
+            <c:out value="${choice.group.title}"/> (<c:out value="${choice.postScoreInfo}"/>)
           </c:otherwise>
         </c:choose>
         (<a href="${choice.group.url}" target="_blank">просмотр...</a>)
@@ -87,13 +87,13 @@
       <li>
         <c:choose>
           <c:when test="${choice.postable}">
-            <a class="navLink" href="${choice.addUrl}">${choice.group.title}</a>
+            <a class="navLink" href="${choice.addUrl}"><c:out value="${choice.group.title}"/></a>
             <c:if test="${choice.group.info != null}">
-              - <em><c:out value="${choice.group.info}" escapeXml="false"/></em>
+              - <em><c:out value="${choice.group.info}"/></em>
             </c:if>
           </c:when>
           <c:otherwise>
-            ${choice.group.title} (<c:out value="${choice.postScoreInfo}"/>)
+            <c:out value="${choice.group.title}"/> (<c:out value="${choice.postScoreInfo}"/>)
           </c:otherwise>
         </c:choose>
         (<a href="${choice.group.url}" target="_blank">просмотр...</a>)

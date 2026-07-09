@@ -47,7 +47,7 @@
     -->
 </script>
 
-<title>${section.name} — ${group.title}
+<title>${section.name} — <c:out value="${group.title}"/>
   <c:if test="${year != null}">
     — Архив ${year}, ${l:getMonthName(month)}
   </c:if>
@@ -62,11 +62,11 @@
 
 <h1>
   <c:if test="${tag == null}">
-    ${section.name} «${group.title}»
+    ${section.name} «<c:out value="${group.title}"/>»
   </c:if>
 
   <c:if test="${tag != null}">
-    ${section.name}&nbsp;<a href="${group.url}">«${group.title}»</a>
+    ${section.name}&nbsp;<a href="${group.url}">«<c:out value="${group.title}"/>»</a>
       (тег <a href="${tag.url.get()}">${tagTitle}</a>)
   </c:if>
 
@@ -126,18 +126,18 @@
       <c:forEach items="${groupList}" var="item">
         <c:if test="${item.id == group.id}">
           <c:if test="${lastmod}">
-            <option value="${item.url}?lastmod=true" selected>${item.title}</option>
+            <option value="${item.url}?lastmod=true" selected><c:out value="${item.title}"/></option>
           </c:if>
           <c:if test="${not lastmod}">
-            <option value="${item.url}" selected>${item.title}</option>
+            <option value="${item.url}" selected><c:out value="${item.title}"/></option>
           </c:if>
         </c:if>
         <c:if test="${item.id != group.id}">
           <c:if test="${lastmod}">
-            <option value="${item.url}?lastmod=true">${item.title}</option>
+            <option value="${item.url}?lastmod=true"><c:out value="${item.title}"/></option>
           </c:if>
           <c:if test="${not lastmod}">
-            <option value="${item.url}">${item.title}</option>
+            <option value="${item.url}"><c:out value="${item.title}"/></option>
           </c:if>
         </c:if>
       </c:forEach>

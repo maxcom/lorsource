@@ -79,7 +79,7 @@
   <c:if test="${multiPortal}">
     <div class="group">
       <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> —
-      <a href="${preparedMessage.group.url}">${preparedMessage.group.title}</a>
+      <a href="${preparedMessage.group.url}"><c:out value="${preparedMessage.group.title}"/></a>
 
       <c:if test="${not message.commited and preparedMessage.section.premoderated}">
         <c:out value=" "/><span>(не подтверждено)</span>

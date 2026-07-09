@@ -27,7 +27,7 @@
 <title>
 ${section.name}
   <c:if test="${group!=null}">
-    - ${group.title}
+    - <c:out value="${group.title}"/>
   </c:if>
   - Архив
 </title>
@@ -35,7 +35,7 @@ ${section.name}
 <H1>
 ${section.name}
   <c:if test="${group!=null}">
-    «${group.title}»
+    «<c:out value="${group.title}"/>»
   </c:if>
 </H1>
 

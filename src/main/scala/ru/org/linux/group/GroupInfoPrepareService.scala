@@ -15,14 +15,14 @@
 package ru.org.linux.group
 
 import org.springframework.stereotype.Service
-import ru.org.linux.util.bbcode.LorCodeService
+import ru.org.linux.util.markdown.MarkdownFormatter
 
 @Service
-class GroupInfoPrepareService(lorCodeService: LorCodeService):
+class GroupInfoPrepareService(markdownFormatter: MarkdownFormatter):
   def prepareGroupInfo(group: Group): PreparedGroupInfo =
     val longInfo =
       if group.longInfo != null then
-        lorCodeService.parseComment(group.longInfo, nofollow = false, LorCodeService.Plain)
+        markdownFormatter.renderToHtml(group.longInfo, nofollow = false)
       else
         null
 

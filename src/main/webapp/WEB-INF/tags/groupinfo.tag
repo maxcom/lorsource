@@ -16,10 +16,11 @@
 <%@ attribute name="group" required="true" type="ru.org.linux.group.PreparedGroupInfo" %>
 <%@ attribute name="activeTags" required="false" type="java.util.List<java.lang.String>" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <div class="infoblock">
   <c:if test="${not empty group.info}">
-    <p style="margin-top: 0"><em>${group.info}</em></p>
+    <p style="margin-top: 0"><em><c:out value="${group.info}"/></em></p>
   </c:if>
 
   <c:if test="${not empty group.longInfo}">

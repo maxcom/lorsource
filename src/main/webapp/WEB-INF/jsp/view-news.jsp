@@ -107,10 +107,10 @@
 
         <c:forEach items="${groupList}" var="item">
           <c:if test="${item.id == group.id}">
-            <option value="${item.url}" selected>${item.title}</option>
+            <option value="${item.url}" selected><c:out value="${item.title}"/></option>
           </c:if>
           <c:if test="${item.id != group.id}">
-            <option value="${item.url}">${item.title}</option>
+            <option value="${item.url}"><c:out value="${item.title}"/></option>
           </c:if>
         </c:forEach>
       </select>
