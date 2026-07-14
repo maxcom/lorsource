@@ -14,10 +14,10 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="error" type="java.lang.String"--%>
+<%--@elvariable id="form" type="ru.org.linux.user.LostPasswordRequest"--%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -26,19 +26,15 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Сбросить забытый пароль</H1>
-<form method=POST action="/lostpwd.jsp" class="form-horizontal">
+<form:form modelAttribute="form" method="POST" action="/lostpwd.jsp" class="form-horizontal">
 <lor:csrf/>
-
-  <c:if test="${not empty error}">
-    <div class="error">
-      <strong>Ошибка!</strong> <c:out escapeXml="true" value="${error}"/>
-    </div>
-  </c:if>
+  <form:errors element="div" cssClass="error"/>
 
   <div class="control-group">
     <label class="control-label" for="email-input">Email</label>
     <div class="controls">
-      <input id="email-input" type=email name=email size=40 autofocus="autofocus" required="required" value="${fn:escapeXml(email)}">
+      <form:input id="email-input" path="email" type="email" size="40" autofocus="autofocus" required="required"/>
+      <form:errors path="email" element="span" cssClass="help-inline"/>
       <span class="help-block">Инструкция по сбросу пароля будет отправлена на этот адрес</span>
     </div>
   </div>
@@ -52,5 +48,5 @@
       <button type=submit class="btn btn-primary">Сбросить</button>
     </div>
   </div>
-</form>
+</form:form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

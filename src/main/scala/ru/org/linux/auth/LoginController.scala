@@ -16,7 +16,7 @@ package ru.org.linux.auth
 
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
-import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.Scheduler
 import org.springframework.security.authentication.*
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.{UserDetailsService, UsernameNotFoundException}
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.{ModelAttribute, RequestAttribute
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.LoginController.delayResponse
 import ru.org.linux.user.{UserDao, UserService}
 
 import java.util.concurrent.CompletionStage
@@ -47,7 +48,7 @@ class LoginController(
     captchaService: CaptchaService,
     loginAttemptCache: LoginAttemptCache,
     authenticationManager: AuthenticationManager,
-    actorSystem: ActorSystem)
+    scheduler: Scheduler)
     extends StrictLogging:
 
   @RequestMapping(value = Array("/login_process"), method = Array(RequestMethod.POST))
@@ -61,48 +62,46 @@ class LoginController(
       if session.authorized then
         Future.successful(new ModelAndView(new RedirectView(safeRedirectUrl(form.redirectUrl)))).asJava
       else
-        val requireCaptcha =
-          session.ipBlockInfo.captchaRequired || loginAttemptCache.requireCaptchaForIp(request.getRemoteAddr) ||
-            loginAttemptCache.requireCaptchaForUser(form.nick)
+        delayResponse(scheduler):
+          val requireCaptcha =
+            session.ipBlockInfo.captchaRequired || loginAttemptCache.requireCaptchaForIp(request.getRemoteAddr) ||
+              loginAttemptCache.requireCaptchaForUser(form.nick)
 
-        if requireCaptcha then
-          captchaService.checkCaptcha(request, bindingResult)
+          if requireCaptcha then
+            captchaService.checkCaptcha(request, bindingResult)
+
           if bindingResult.hasErrors then
-            return delayResponse(loginErrorView(form, bindingResult, requireCaptcha))
+            loginErrorView(form, bindingResult, requireCaptcha)
+          else
+            try
+              val auth = authenticate(form.nick, form.passwd)
+              val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
-        try
-          val auth = authenticate(form.nick, form.passwd)
-          val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
+              if !userDetails.getUser.activated then
+                loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, form.nick)
+                bindingResult.reject(
+                  "login.not_activated",
+                  "Регистрация не завершена! Инструкция по активации отправлена на указанный при регистрации email.")
+                // captcha is required after the first failed attempt (see LoginAttemptCache)
+                loginErrorView(form, bindingResult, requireCaptcha = true)
+              else
+                SecurityContextHolder.getContext.setAuthentication(auth)
+                rememberMeServices.loginSuccess(request, response, auth)
 
-          if !userDetails.getUser.activated then
-            loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, form.nick)
-            bindingResult.reject(
-              "login.not_activated",
-              "Регистрация не завершена! Инструкция по активации отправлена на указанный при регистрации email.")
-            // captcha is required after the first failed attempt (see LoginAttemptCache)
-            return delayResponse(loginErrorView(form, bindingResult, requireCaptcha = true))
-
-          SecurityContextHolder.getContext.setAuthentication(auth)
-          rememberMeServices.loginSuccess(request, response, auth)
-
-          delayResponse {
-            AuthUtil.updateLastLogin(auth, userService)
-            new ModelAndView(new RedirectView(safeRedirectUrl(form.redirectUrl)))
-          }
-        catch
-          case e: LockedException =>
-            logger.warn("Login of {} failed; remote IP: {}; {}", form.nick, request.getRemoteAddr, e.toString)
-            delayResponse {
-              new ModelAndView(new RedirectView(s"/people/${form.nick}/profile"))
-            }
-          case e @ (_: AccountStatusException | _: BadCredentialsException | _: UsernameNotFoundException) =>
-            logger.warn("Login of {} failed; remote IP: {}; {}", form.nick, request.getRemoteAddr, e.toString)
-            loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, form.nick)
-            bindingResult.reject(
-              "login.failed",
-              "Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.")
-            // captcha is required after the first failed attempt (see LoginAttemptCache)
-            delayResponse(loginErrorView(form, bindingResult, requireCaptcha = true))
+                AuthUtil.updateLastLogin(auth, userService)
+                new ModelAndView(new RedirectView(safeRedirectUrl(form.redirectUrl)))
+            catch
+              case e: LockedException =>
+                logger.warn("Login of {} failed; remote IP: {}; {}", form.nick, request.getRemoteAddr, e.toString)
+                new ModelAndView(new RedirectView(s"/people/${form.nick}/profile"))
+              case e @ (_: AccountStatusException | _: BadCredentialsException | _: UsernameNotFoundException) =>
+                logger.warn("Login of {} failed; remote IP: {}; {}", form.nick, request.getRemoteAddr, e.toString)
+                loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, form.nick)
+                bindingResult.reject(
+                  "login.failed",
+                  "Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.")
+                // captcha is required after the first failed attempt (see LoginAttemptCache)
+                loginErrorView(form, bindingResult, requireCaptcha = true)
     }
 
   @RequestMapping(value = Array("/logout"), method = Array(RequestMethod.POST))
@@ -173,19 +172,6 @@ class LoginController(
 
   private def safeRedirectUrl(from: String): String = LoginController.safeRedirectUrl(from)
 
-  private def delayResponse[T](resp: => T): CompletionStage[T] =
-    val r = Random.nextInt(2000) + 1000
-
-    val p = Promise[T]()
-
-    actorSystem
-      .scheduler
-      .scheduleOnce(r.millis) {
-        p.complete(Try(resp))
-      }
-
-    p.future.asJava
-
 object LoginController:
   // Sanitizes the post-login redirect target. `from` is attacker-controllable via the `from`
   // query parameter, so only same-site relative paths are allowed; anything else falls back to "/".
@@ -201,3 +187,15 @@ object LoginController:
   private def isLocalRedirect(url: String): Boolean =
     url != null && url.nonEmpty && url.charAt(0) == '/' &&
       (url.length == 1 || (url.charAt(1) != '/' && url.charAt(1) != '\\'))
+
+  def delayResponse[T](scheduler: Scheduler)(resp: => T): CompletionStage[T] =
+    val r = Try(resp)
+
+    val delay = Random.nextInt(2000) + 1000
+
+    val p = Promise[T]()
+
+    scheduler.scheduleOnce(delay.millis):
+      p.complete(r)
+
+    p.future.asJava
