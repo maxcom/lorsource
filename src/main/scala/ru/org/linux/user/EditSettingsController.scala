@@ -108,6 +108,7 @@ class EditSettingsController(profileDao: ProfileDao, editProfileChecker: EditPro
     builder.setFormatMode(formatMode)
     builder.setStyle(request.getParameter("style"))
     builder.setOldTracker("on" == request.getParameter("oldTracker"))
+    builder.setOldNotifications("on" == request.getParameter("oldNotifications"))
     builder.setTrackerMode(TrackerFilterEnum.getByValue(request.getParameter("trackerMode")).getOrElse(DefaultProfile.DefaultTrackerMode))
 
     val avatar = request.getParameter("avatar")

@@ -53,6 +53,7 @@ object Profile {
       avatarMode = p.getString(AvatarProperty),
       trackerMode = TrackerFilterEnum.getByValue(p.getString(TrackerMode)).filter(_.canBeDefault).getOrElse(DefaultProfile.DefaultTrackerMode),
       oldTracker = p.getBoolean(OldTracker),
+      oldNotifications = p.getBoolean(OldNotifications),
       reactionNotification = p.getBoolean(ReactionNotificationProperty))
   }
 }
@@ -60,7 +61,8 @@ object Profile {
 case class Profile(style: String, formatMode: MarkupType, @BeanProperty messages: Int, @BeanProperty topics: Int,
                    @BooleanBeanProperty showPhotos: Boolean, @BooleanBeanProperty hideAdsense: Boolean,
                    @BooleanBeanProperty showGalleryOnMain: Boolean, @BeanProperty avatarMode: String,
-                   @BooleanBeanProperty oldTracker: Boolean, @BeanProperty trackerMode: TrackerFilterEnum,
+                   @BooleanBeanProperty oldTracker: Boolean, @BooleanBeanProperty oldNotifications: Boolean,
+                   @BeanProperty trackerMode: TrackerFilterEnum,
                    @BooleanBeanProperty reactionNotification: Boolean) {
   // java API
   def getBoxlets: util.List[String] =

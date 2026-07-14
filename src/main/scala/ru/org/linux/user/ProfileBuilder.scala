@@ -31,6 +31,7 @@ class ProfileBuilder(profile: Profile):
   private var showGalleryOnMain: Boolean = profile.showGalleryOnMain
   private var avatarMode: String = profile.avatarMode
   private var oldTracker: Boolean = profile.oldTracker
+  private var oldNotifications: Boolean = profile.oldNotifications
   private var trackerMode: TrackerFilterEnum = profile.trackerMode
   private var reactionNotification: Boolean = profile.reactionNotification
 
@@ -47,6 +48,7 @@ class ProfileBuilder(profile: Profile):
     p.setString(DefaultProfile.AvatarProperty, avatarMode)
     p.setString(DefaultProfile.TrackerMode, trackerMode.value)
     p.setBoolean(DefaultProfile.OldTracker, oldTracker)
+    p.setBoolean(DefaultProfile.OldNotifications, oldNotifications)
     p.setBoolean(DefaultProfile.ReactionNotificationProperty, reactionNotification)
 
     p.getSettings
@@ -68,6 +70,8 @@ class ProfileBuilder(profile: Profile):
   def setAvatarMode(avatarMode: String): Unit = this.avatarMode = avatarMode
 
   def setOldTracker(oldTracker: Boolean): Unit = this.oldTracker = oldTracker
+
+  def setOldNotifications(oldNotifications: Boolean): Unit = this.oldNotifications = oldNotifications
 
   def setTrackerMode(trackerMode: TrackerFilterEnum): Unit = this.trackerMode = trackerMode
 

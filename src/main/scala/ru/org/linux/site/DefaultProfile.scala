@@ -32,6 +32,7 @@ object DefaultProfile:
   val AvatarProperty = "avatar"
   val TrackerMode = "trackerMode"
   val OldTracker = "oldTracker"
+  val OldNotifications = "oldNotifications"
   val ReactionNotificationProperty = "reactionNotification"
 
   val TopicsValues: Set[Int] = Set(30, 50, 100, 200, 300, 500)
@@ -52,6 +53,7 @@ object DefaultProfile:
     builder.put(MainGalleryProperty, java.lang.Boolean.TRUE)
     builder.put(TrackerMode, DefaultTrackerMode.value)
     builder.put(OldTracker, java.lang.Boolean.FALSE)
+    builder.put(OldNotifications, java.lang.Boolean.FALSE)
     builder.put(ReactionNotificationProperty, java.lang.Boolean.TRUE)
 
     builder.put("DebugMode", java.lang.Boolean.FALSE)

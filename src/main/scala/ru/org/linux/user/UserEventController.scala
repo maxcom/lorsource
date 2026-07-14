@@ -169,7 +169,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
         OldEventsCleaner.MaxEventsPerUser, 0, eventFilter
       ).filterNot(r => r.eventType == UserEventFilterEnum.REACTION && r.reaction == NoReaction)
 
-      val prepared = prepareService.prepareGrouped(list, !currentUser.profile.oldTracker)
+      val prepared = prepareService.prepareGrouped(list, !currentUser.profile.oldNotifications)
 
       if (list.nonEmpty) {
         params.put("enableReset", true)
@@ -181,7 +181,7 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
       params.put("topicsList", sliced.asJava)
       params.put("hasMore", sliced.size == topics)
 
-      if (!currentUser.profile.oldTracker) {
+      if (!currentUser.profile.oldNotifications) {
         new ModelAndView("show-replies-new", params.asJava)
       } else {
         new ModelAndView("show-replies", params.asJava)

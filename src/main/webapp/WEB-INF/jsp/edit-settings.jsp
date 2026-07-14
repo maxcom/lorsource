@@ -65,6 +65,11 @@ $script.ready('jquery', function() {
                <c:if test="${template.prof.oldTracker}">checked</c:if> ></td>
   </tr>
   <tr>
+    <td><label for="oldNotifications">Старый вид уведомлений</label></td>
+    <td><input type="checkbox" id="oldNotifications" name="oldNotifications"
+               <c:if test="${template.prof.oldNotifications}">checked</c:if> ></td>
+  </tr>
+  <tr>
     <td><label for="reactionNotification">Уведомлять о реакциях</label></td>
     <td><input type="checkbox" id="reactionNotification" name="reactionNotification"
                <c:if test="${template.prof.reactionNotification}">checked</c:if> ></td>
