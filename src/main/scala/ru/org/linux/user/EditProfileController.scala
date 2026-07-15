@@ -15,7 +15,6 @@
 package ru.org.linux.user
 
 import com.google.common.base.Strings
-import org.eclipse.angus.mail.smtp.SMTPAddressFailedException
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -38,6 +37,7 @@ import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
 import jakarta.mail.internet.AddressException
 import jakarta.mail.internet.InternetAddress
+import org.eclipse.angus.mail.smtp.SMTPAddressFailedException
 import ru.org.linux.rights.{EditProfileChecker, IpBlockChecker}
 
 import javax.validation.Valid
@@ -208,7 +208,8 @@ class EditProfileController(
             catch
               case ex: SMTPAddressFailedException =>
                 logger.warn("Failed to send email to {}", newEmail, ex)
-                errors.rejectValue("newEmail", "Отправка e-mail на указанный адрес не возможна: " + ex.getMessage)
+                errors.rejectValue("email", null, "Не удалось отправить письмо активации на указанный адрес. " +
+                  "Проверьте корректность e-mail.")
                 mv
           case None =>
             new ModelAndView(new RedirectView("/people/" + user.nick + "/profile"))

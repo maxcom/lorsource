@@ -106,7 +106,7 @@ class RegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao) exten
       errors.rejectValue("email", null, "Не указан e-mail")
     } else {
       try {
-        val mail = new InternetAddress(form.getEmail)
+        val mail = new InternetAddress(form.getEmail, true)
         checkEmail(mail, errors)
       } catch {
         case e: AddressException =>
