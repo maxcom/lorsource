@@ -4,6 +4,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -182,12 +183,19 @@
   <button type=submit name=preview class="btn btn-default">Предпросмотр</button>
   <c:if test="${message.draft}">
     &nbsp;
-    <c:if test="${commit}">
-      <button type=submit name=publish class="btn btn-default">Опубликовать</button>
-    </c:if>
-    <c:if test="${not commit}">
-      <button type=submit name=publish class="btn btn-primary">Опубликовать</button>
-    </c:if>
+    <c:choose>
+      <c:when test="${not topicPublishingAllowed}">
+        <a class="btn btn-primary disabled" title="${fn:escapeXml(topicPublishingReason)}">Опубликовать</a>
+      </c:when>
+      <c:otherwise>
+        <c:if test="${commit}">
+          <button type=submit name=publish class="btn btn-default">Опубликовать</button>
+        </c:if>
+        <c:if test="${not commit}">
+          <button type=submit name=publish class="btn btn-primary">Опубликовать</button>
+        </c:if>
+      </c:otherwise>
+    </c:choose>
   </c:if>
   </div>
 

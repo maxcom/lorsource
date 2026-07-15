@@ -30,7 +30,7 @@ import ru.org.linux.gallery.UploadedImagePreview
 import ru.org.linux.group.{GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollVariant}
-import ru.org.linux.rights.EditTopicChecker
+import ru.org.linux.rights.{EditTopicChecker, Permission, TopicPublishChecker}
 import ru.org.linux.section.Section
 import ru.org.linux.site.BadInputException
 import ru.org.linux.tag.{TagName, TagRef, TagService}
@@ -53,7 +53,8 @@ class EditTopicController(
     editHistoryService: EditHistoryService,
     editTopicRequestValidator: EditTopicRequestValidator,
     tagService: TagService,
-    userService: UserService):
+    userService: UserService,
+    topicPublishChecker: TopicPublishChecker):
   @RequestMapping(value = Array("/commit.jsp"), method = Array(RequestMethod.GET))
   def showCommitForm(
       @RequestParam("msgid")
@@ -74,7 +75,11 @@ class EditTopicController(
 
       initForm(preparedTopic, form)
 
-      val mv = new ModelAndView("edit", prepareModel(preparedTopic).asJava)
+      val mv = new ModelAndView("edit", {
+        val params = prepareModel(preparedTopic)
+        publishParams(topic, preparedTopic, params)
+        params.asJava
+      })
 
       mv.getModel.put("commit", true)
 
@@ -95,8 +100,21 @@ class EditTopicController(
 
       initForm(preparedTopic, form)
 
-      new ModelAndView("edit", prepareModel(preparedTopic).asJava)
+      val params = prepareModel(preparedTopic)
+      publishParams(message, preparedTopic, params)
+      new ModelAndView("edit", params.asJava)
     }
+
+  private def publishCheck(preparedTopic: PreparedTopic)(using session: AuthorizedSession): Permission =
+    val topicLimitInfo = permissionService.topicLimitInfo(preparedTopic.section)
+    topicPublishChecker.checkPublish(preparedTopic.group, topicLimitInfo)
+
+  private def publishParams(topic: Topic, preparedTopic: PreparedTopic, params: mutable.HashMap[String, AnyRef])(using
+      session: AuthorizedSession): Unit =
+    if topic.draft then
+      val pc = publishCheck(preparedTopic)
+      params.put("topicPublishingAllowed", Boolean.box(pc.permitted))
+      params.put("topicPublishingReason", pc.reason)
 
   private def prepareModel(preparedTopic: PreparedTopic)(using
       currentUser: AuthorizedSession): mutable.HashMap[String, AnyRef] =
@@ -227,6 +245,8 @@ class EditTopicController(
 
       val params = prepareModel(preparedTopic)
 
+      publishParams(topic, preparedTopic, params)
+
       val editCheck = EditTopicChecker.checkContentEdit(preparedTopic)
       val editable = editCheck.permitted
 
@@ -306,6 +326,9 @@ class EditTopicController(
           oldText
 
       val doPublish = topic.draft && !newMsg.draft
+
+      if doPublish && !preview && !errors.hasErrors then
+        publishCheck(preparedTopic).checkOrError(errors)
 
       val performed = if !preview && !errors.hasErrors then
         val changed = topicService.updateAndCommit(
