@@ -81,6 +81,32 @@ class SecretTokenServiceTest extends FunSuite:
     val code2 = service.getActivationCode(hizelNick, hizelEmail, new Timestamp(hizelRegdate.getTime))
     assertEquals(code1, code2)
 
+  test("getActivationCode does not throw on null regdate"):
+    val service = makeService()
+    service.getActivationCode(hizelNick, hizelEmail, null)
+
+  test("getActivationCode treats null regdate same as epoch zero"):
+    val service = makeService()
+    val nullCode = service.getActivationCode(hizelNick, hizelEmail, null)
+    val zeroCode = service.getActivationCode(hizelNick, hizelEmail, new Timestamp(0L))
+    assertEquals(nullCode, zeroCode)
+
+  test("getActivationCode produces different codes for null and non-null regdate"):
+    val service = makeService()
+    val nullCode = service.getActivationCode(hizelNick, hizelEmail, null)
+    val nonNullCode = service.getActivationCode(hizelNick, hizelEmail, hizelRegdate)
+    assert(nullCode != nonNullCode)
+
+  test("verifyActivationCode roundtrips with null regdate"):
+    val service = makeService()
+    val code = service.getActivationCode(hizelNick, hizelEmail, null)
+    assert(service.verifyActivationCode(hizelNick, hizelEmail, null, code))
+
+  test("verifyActivationCode returns false for null regdate and code from non-null regdate"):
+    val service = makeService()
+    val nonNullCode = service.getActivationCode(hizelNick, hizelEmail, hizelRegdate)
+    assert(!service.verifyActivationCode(hizelNick, hizelEmail, null, nonNullCode))
+
   test("verifyActivationCode returns false for legacy code without regdate"):
     val service = makeService()
     assert(!service.verifyActivationCode(hizelNick, hizelEmail, hizelRegdate,

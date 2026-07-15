@@ -98,10 +98,12 @@ class SecretTokenService(siteConfig: SiteConfig) extends StrictLogging:
     StringUtil.verifyHash(hmacExpected, code)
 
   def getActivationCode(nick: String, email: String, regdate: Timestamp): String =
-    StringUtil.hmacSha256(base, s"$nick:$email:${regdate.getTime}:activate")
+    val rd = Option(regdate).map(_.getTime).getOrElse(0L)
+    StringUtil.hmacSha256(base, s"$nick:$email:$rd:activate")
 
   def verifyActivationCode(nick: String, email: String, regdate: Timestamp, code: String): Boolean =
-    val hmacExpected = StringUtil.hmacSha256(base, s"$nick:$email:${regdate.getTime}:activate")
+    val rd = Option(regdate).map(_.getTime).getOrElse(0L)
+    val hmacExpected = StringUtil.hmacSha256(base, s"$nick:$email:$rd:activate")
     StringUtil.verifyHash(hmacExpected, code)
 
   def makeRegisterPermit(now: Instant = Instant.now()): String =

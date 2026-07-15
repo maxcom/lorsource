@@ -25,7 +25,7 @@ case class UserInfo(
   @BeanProperty url: String,
   @BeanProperty town: String,
   @BeanProperty lastLogin: Timestamp,
-  @BeanProperty registrationDate: Timestamp,
+  @Nullable @BeanProperty registrationDate: Timestamp,
   @Nullable @BeanProperty freezingReason: String,
   @BeanProperty frozenBy: Int,
   @Nullable @BeanProperty text: String,
