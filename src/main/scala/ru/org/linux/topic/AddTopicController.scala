@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils
 import org.apache.pekko.actor.typed.ActorRef
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.WebDataBinder
@@ -29,29 +30,29 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.*
-import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.AuthUtil.{MaybeAuthorized, MaybeAuthorizedCtx}
 import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
 import ru.org.linux.gallery.UploadedImagePreview
+import ru.org.linux.group.GroupPermissionService.TopicLimitInfo
 import ru.org.linux.group.{Group, GroupPermissionService, GroupService}
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
-import ru.org.linux.rights.AddTopicChecker
+import ru.org.linux.rights.{AddTopicChecker, Permission, TopicPublishChecker}
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.tag.TagService.tagRef
 import ru.org.linux.tag.{TagName, TagService}
-import org.springframework.security.crypto.password.PasswordEncoder
-import ru.org.linux.user.{User, UserPermissionService, UserPropertyEditor, UserService}
+import ru.org.linux.user.{User, UserPropertyEditor, UserService}
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 import ru.org.linux.util.markdown.MarkdownFormatter
 
 import java.beans.PropertyEditorSupport
-import scala.beans.{BeanProperty, BooleanBeanProperty}
 import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
 import javax.validation.Valid
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
@@ -122,18 +123,19 @@ class AddTopicController(
                           addTopicRequestValidator: AddTopicRequestValidator,
                           topicService: TopicService,
                           @Qualifier("realtimeHubWS")
-    realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
+                          realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                           renderService: MarkdownFormatter,
                           groupService: GroupService,
                           dupeProtector: FloodProtector,
                           servletContext: ServletContext,
                           addTopicChecker: AddTopicChecker,
+                          topicPublishChecker: TopicPublishChecker,
                           passwordEncoder: PasswordEncoder):
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(
       @Valid @ModelAttribute("form")
       form: AddTopicRequest): ModelAndView =
-    MaybeAuthorized { implicit currentUser =>
+    MaybeAuthorizedCtx {
       val group = form.group
 
       addTopicChecker.checkTopicPosting(group).checkOrThrow("Недостаточно прав для создания топика")
@@ -142,14 +144,23 @@ class AddTopicController(
 
       form.additionalUploadedImages = new Array[String](permissionService.additionalImageLimit(section))
 
-      val params = prepareModel(Some(form.group), section)
-
       val topicLimitInfo = permissionService.topicLimitInfo(section)
+      val topicPostingCheck = topicPublishChecker.checkPublish(group, topicLimitInfo)
 
-      new ModelAndView("add", (params + ("topicLimitInfo" -> topicLimitInfo)).asJava)
+      val params = prepareModelForm(Some(form.group), section, topicLimitInfo, topicPostingCheck)
+
+      new ModelAndView("add", params.asJava)
     }
 
-  private def prepareModel(group: Option[Group], section: Section)(using currentUser: AnySession): Map[String, AnyRef] =
+  private def prepareModelForm(group: Option[Group], section: Section, topicLimitInfo: TopicLimitInfo,
+                               topicPostingCheck: Permission)
+                              (using AnySession): Map[String, AnyRef] =
+    prepareModel(group, section) +
+      ("topicLimitInfo" -> topicLimitInfo) +
+      ("topicPostingAllowed" -> Boolean.box(topicPostingCheck.permitted)) +
+      ("topicPostingReason" -> topicPostingCheck.reason)
+
+  private def prepareModel(group: Option[Group], section: Section)(using AnySession): Map[String, AnyRef] =
     val params = Map.newBuilder[String, AnyRef]
 
     val helpResource = servletContext.getResource("/help/new-topic-" + Section.getUrlName(section.id) + ".md")
@@ -182,7 +193,6 @@ class AddTopicController(
       val group = form.group
       val section = sectionService.getSection(group.sectionId)
 
-      val params = prepareModel(Some(group), section)(using sessionUserOpt).to(mutable.HashMap)
 
       if !form.isPreviewMode && !errors.hasErrors && captchaRequired then
         captcha.checkCaptcha(request, errors)
@@ -195,7 +205,10 @@ class AddTopicController(
       postingCheck.checkOrError(errors, "Недостаточно прав для создания топика")
 
       val topicLimitInfo = permissionService.topicLimitInfo(section)(using postingUser)
-      params.put("topicLimitInfo", topicLimitInfo)
+      val topicPostingCheck = topicPublishChecker.checkPublish(group, topicLimitInfo)(using postingUser)
+
+      val params = prepareModelForm(Some(group), section, topicLimitInfo, topicPostingCheck)
+        (using sessionUserOpt).to(mutable.HashMap)
 
       if !permissionService.enableAllowAnonymousCheckbox(group)(using postingUser) then
         form.allowAnonymous = true
@@ -253,9 +266,10 @@ class AddTopicController(
       if !form.isPreviewMode && !errors.hasErrors then
         dupeProtector.checkRateLimit(FloodProtector.AddTopic, request.getRemoteAddr, postingUser.userOpt.orNull, errors)
 
-      val topicLimitReached = !form.isDraftMode && !topicLimitInfo.exempt && topicLimitInfo.reached
+      if !errors.hasErrors && !form.isDraftMode && !form.isPreviewMode then
+        topicPostingCheck.checkOrError(errors)
 
-      if !form.isPreviewMode && !errors.hasErrors && !topicLimitReached then
+      if !form.isPreviewMode && !errors.hasErrors then
         createNewTopic(
           request,
           form,
@@ -311,7 +325,7 @@ class AddTopicController(
       sectionId: Int,
       @RequestParam(value = "tag", required = false)
       tag: String): ModelAndView =
-    MaybeAuthorized { implicit currentUser =>
+    MaybeAuthorizedCtx {
       val section = sectionService.getSection(sectionId)
 
       if tag != null then
@@ -374,7 +388,7 @@ class AddTopicController(
   def showFormAllSections(
       @RequestParam(value = "tag", required = false)
       tag: String): ModelAndView =
-    MaybeAuthorized { implicit currentUser =>
+    MaybeAuthorizedCtx {
       val sectionList = sectionService
         .sections
         .map { section =>

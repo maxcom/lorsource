@@ -29,7 +29,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
-<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <title>Добавить сообщение</title>
 <script type="text/javascript">
@@ -196,8 +196,8 @@
 
 <div class="form-actions">
   <c:choose>
-    <c:when test="${topicLimitInfo != null and not topicLimitInfo.exempt and topicLimitInfo.reached}">
-      <button type=submit class="btn-primary btn" disabled>Поместить</button>
+    <c:when test="${not topicPostingAllowed}">
+      <a class="btn btn-primary disabled" title="${fn:escapeXml(topicPostingReason)}">Поместить</a>
     </c:when>
     <c:otherwise>
       <button type=submit class="btn-primary btn">Поместить</button>

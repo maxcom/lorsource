@@ -141,6 +141,9 @@ object AuthUtil extends StrictLogging:
         case _ =>
           Profile.DEFAULT
 
+  def MaybeAuthorizedCtx[T](f: AnySession ?=> T): T =
+    MaybeAuthorized(s => f(using s))
+
   def MaybeAuthorized[T](f: AnySession => T): T =
     if isSessionAuthorized then
       val session = AuthorizedSession(

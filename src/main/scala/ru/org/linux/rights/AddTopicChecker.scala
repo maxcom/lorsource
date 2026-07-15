@@ -23,18 +23,22 @@ import ru.org.linux.user.User
 
 @Service
 class AddTopicChecker(sectionService: SectionService):
-  def checkTopicPosting(section: Section)(using session: AnySession): Permission =
-    checkTopicPostingImpl(section.topicsRestriction)
+  def checkTopicPosting(section: Section)(using AnySession): Permission =
+    checkTopicPostingImpl(section.topicsRestriction).seal
 
-  def checkTopicPosting(group: Group)(using session: AnySession): Permission =
+  def checkTopicPosting(group: Group)(using AnySession): Permission =
+    checkTopicPostingChain(group).seal
+
+  def checkTopicPostingChain(group: Group)(using AnySession): RestrictionChain =
     val section = sectionService.getSection(group.sectionId)
     val maxPostscore = Math.max(group.topicRestriction, section.topicsRestriction)
+
     checkTopicPostingImpl(maxPostscore)
 
-  def checkTopicPostingAnywhere(using session: AnySession): Permission =
+  def checkTopicPostingAnywhere(using AnySession): Permission =
     val minRestriction = sectionService.sections.view.map(_.topicsRestriction).min
 
-    checkTopicPostingImpl(minRestriction)
+    checkTopicPostingImpl(minRestriction).seal
 
   private def postScoreCheckerChain(user: User, postscore: Int): RestrictionChain =
     postscore match
@@ -59,9 +63,8 @@ class AddTopicChecker(sectionService: SectionService):
           user.anonymous || user.score < postscore,
           s"только для зарегистрированных, score>=$postscore")
 
-  private def checkTopicPostingImpl(restriction: Int)(using session: AnySession): Permission =
+  private def checkTopicPostingImpl(restriction: Int)(using session: AnySession): RestrictionChain =
     Unrestricted
       .restrict(FrozenUserChecker.checkChain)
       .restrict(postScoreCheckerChain(session.user, restriction))
       .restrict(IpBlockChecker.checkChain)
-      .seal
