@@ -135,30 +135,15 @@
   </c:if>
 
   <c:if test="${imagepost}">
-    <form:hidden path="uploadedImage"/>
-
-    <div class="control-group">
-      <c:if test="${preparedMessage.image!=null}">
-        <label for="image">Заменить изображение:</label>
-      </c:if>
-      <c:if test="${preparedMessage.image==null}">
-        <label for="image">Добавить изображение:</label>
-      </c:if>
-      <input id="image" type="file" name="image">
-    </div>
-
-    <c:if test="${not empty form.additionalUploadedImages}">
+    <c:if test="${not empty form.uploadedImages}">
       <div class="control-group">
-        <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
-          <form:hidden path="additionalUploadedImages[${i.index}]"/>
+        <c:forEach var="v" items="${form.uploadedImages}" varStatus="i">
+          <form:hidden path="uploadedImages[${i.index}]"/>
           <c:if test="${v == null}">
-            <label>Дополнительное изображение:
+            <label>Добавить Изображение:
+             <input type="file" name="images" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+            </label>
           </c:if>
-          <c:if test="${v != null}">
-            <label>Заменить изображение:
-          </c:if>
-          <input type="file" name="additionalImage" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
-          </label>
         </c:forEach>
       </div>
     </c:if>

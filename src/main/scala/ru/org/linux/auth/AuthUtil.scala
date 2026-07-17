@@ -183,6 +183,9 @@ object AuthUtil extends StrictLogging:
 
     NonAuthorizedSession(user, mkIpBlockInfo)
 
+  def AuthorizedOnlyCtx[T](f: AuthorizedSession ?=> T): T =
+    AuthorizedOnly(s => f(using s))
+
   def AuthorizedOnly[T](f: AuthorizedSession => T): T =
     if !isSessionAuthorized then
       throw new AccessViolationException("Not authorized")

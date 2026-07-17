@@ -16,58 +16,63 @@ package ru.org.linux.gallery
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestMethod, RequestParam, ResponseStatus}
+import org.springframework.web.bind.annotation.{ExceptionHandler, RequestMapping, RequestMethod, RequestParam,
+  ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.auth.AuthUtil.AuthorizedOnlyCtx
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.rights.EditTopicChecker
 import ru.org.linux.topic.*
 
-@Controller
-@RequestMapping(Array("/delete_image"))
-class DeleteImageController(imageDao: ImageDao, imageService: ImageService, topicDao: TopicDao,
-                            prepareService: TopicPrepareService) {
-  private def checkDelete(topic: PreparedTopic, image: Image)(using user: AuthorizedSession): Unit = {
+@Controller @RequestMapping(Array("/delete_image"))
+class DeleteImageController(
+    imageDao: ImageDao,
+    imageService: ImageService,
+    topicDao: TopicDao,
+    prepareService: TopicPrepareService):
+  private def checkDelete(topic: PreparedTopic, image: Image)(using AuthorizedSession): Unit =
     EditTopicChecker.checkContentEdit(topic).checkOrThrow()
 
-    if (topic.section.imagepost && image.main) {
-      throw new AccessViolationException("Нельзя удалить основное изображение")
-    }
-  }
+    if topic.section.imagepost && topic.images.size <= 1 then
+      throw new AccessViolationException("В этом разделе нельзя удалить единственное изображение")
 
   @RequestMapping(method = Array(RequestMethod.GET))
-  def deleteForm(@RequestParam id: Int): ModelAndView = AuthorizedOnly { implicit currentUser =>
-    val image = imageDao.getImage(id)
-    val topic = topicDao.getById(image.topicId)
+  def deleteForm(
+      @RequestParam
+      id: Int): ModelAndView =
+    AuthorizedOnlyCtx {
+      val image = imageDao.getImage(id)
+      val topic = topicDao.getById(image.topicId)
 
-    val preparedTopic = prepareService.prepareTopic(topic)
+      val preparedTopic = prepareService.prepareTopic(topic)
 
-    checkDelete(preparedTopic, image)
+      checkDelete(preparedTopic, image)
 
-    val mv = new ModelAndView("delete_image")
+      val mv = new ModelAndView("delete_image")
 
-    mv.addObject("image", imageService.prepareImage(image).get)
-    mv.addObject("preparedTopic", preparedTopic)
+      mv.addObject("image", imageService.prepareImage(image).get)
+      mv.addObject("preparedTopic", preparedTopic)
 
-    mv
-  }
+      mv
+    }
 
   @RequestMapping(method = Array(RequestMethod.POST))
-  def deleteImage(@RequestParam id: Int): RedirectView = AuthorizedOnly { implicit currentUser =>
-    val image = imageDao.getImage(id)
-    val topic = topicDao.getById(image.topicId)
+  def deleteImage(
+      @RequestParam
+      id: Int): RedirectView =
+    AuthorizedOnlyCtx {
+      val image = imageDao.getImage(id)
+      val topic = topicDao.getById(image.topicId)
 
-    val preparedTopic = prepareService.prepareTopic(topic)
+      val preparedTopic = prepareService.prepareTopic(topic)
 
-    checkDelete(preparedTopic, image)
+      checkDelete(preparedTopic, image)
 
-    imageService.deleteImage(image)
+      imageService.deleteImage(image)
 
-    new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build)
-  }
+      new RedirectView(TopicLinkBuilder.baseLink(topic).forceLastmod.build)
+    }
 
-  @ExceptionHandler(Array(classOf[ImageNotFoundException]))
-  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(Array(classOf[ImageNotFoundException])) @ResponseStatus(HttpStatus.NOT_FOUND)
   def handleImageNotFoundException(): ModelAndView = new ModelAndView("errors/code404")
-}

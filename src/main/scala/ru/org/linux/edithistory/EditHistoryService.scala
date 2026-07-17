@@ -49,28 +49,17 @@ class EditHistoryService(
       linktext: String,
       tags: util.List[TagRef],
       minor: Boolean,
-      image: PreparedImage,
       lastId: Integer,
       poll: Poll,
       first: Boolean,
-      additionalImages: Seq[PreparedImage]):
+      images: Seq[PreparedImage]):
     def next(dto: EditHistoryRecord): TopicEditHistoryState =
-      val image = dto
-        .oldimage
-        .map { oldimage =>
-          if oldimage == 0 then
-            null
-          else
-            imageService.prepareImage(imageDao.getImage(oldimage)).orNull
-        }
-        .getOrElse(this.image)
-
-      val additionalImages = dto
+      val images = dto
         .oldaddimages
-        .map { additionalImages =>
-          additionalImages.map(imageDao.getImage).flatMap(imageService.prepareImage)
+        .map { images =>
+          images.map(imageDao.getImage).flatMap(imageService.prepareImage)
         }
-        .getOrElse(this.additionalImages)
+        .getOrElse(this.images)
 
       val (message, lastId) = dto
         .oldmessage
@@ -87,7 +76,6 @@ class EditHistoryService(
       val poll = dto.oldPoll.getOrElse(this.poll)
 
       this.copy(
-        image = image,
         message = message,
         lastId = lastId,
         title = title,
@@ -97,29 +85,42 @@ class EditHistoryService(
         minor = minor,
         poll = poll,
         first = false,
-        additionalImages = additionalImages
+        images = images
       )
 
     def build(dto: EditHistoryRecord): PreparedEditHistory =
-      val imageDeleted = this.image == null && dto.oldimage.isDefined
-
-      val addedImages =
+      val (addedImages, removedImages, addedMainImage, removedMainImage) =
         if dto.oldaddimages.isDefined then
-          this.additionalImages.filterNot(img => dto.oldaddimages.get.contains(img.image.id)).asJava
-        else
-          null
+          val currentIds = this.images.map(_.image.id).toSet
 
-      val removedImages =
-        if dto.oldaddimages.isDefined then
-          dto
+          val added  = this.images.filterNot(img => dto.oldaddimages.get.contains(img.image.id))
+          val removed = dto
             .oldaddimages
             .get
-            .filterNot(this.additionalImages.map(_.image.id).contains)
+            .filterNot(currentIds.contains)
             .map(imageDao.getImage)
             .flatMap(imageService.prepareImage)
-            .asJava
+
+          (added.asJava, removed.asJava, null, null)
+
+        else if dto.legacyMainImage.contains(0) then
+          val addedMain =
+            this.images.headOption.map(_ => this.images.take(1).toList.asJava).orNull
+
+          (null, null, addedMain, null)
+
+        else if dto.legacyMainImage.isDefined && dto.legacyMainImage.get > 0 then
+          val xId = dto.legacyMainImage.get
+          val removedMain =
+            if this.images.exists(_.image.id == xId) then
+              null
+            else
+              Seq(imageDao.getImage(xId)).flatMap(imageService.prepareImage).asJava
+
+          (null, null, null, removedMain)
+
         else
-          null
+          (null, null, null, null)
 
       val (message, restoreFrom) =
         if dto.oldmessage.isDefined then
@@ -130,12 +131,6 @@ class EditHistoryService(
       PreparedEditHistory(
         original = false,
         editor = userService.getUserCached(dto.editor),
-        image =
-          if dto.oldimage.isDefined && this.image != null then
-            this.image
-          else
-            null
-        ,
         message = message,
         current = this.first,
         title =
@@ -169,7 +164,6 @@ class EditHistoryService(
             null
         ,
         editDate = new Timestamp(dto.editdate.toEpochMilli),
-        imageDeleted = imageDeleted,
         poll =
           if dto.oldPoll.isDefined then
             this.poll
@@ -178,14 +172,15 @@ class EditHistoryService(
         ,
         restoreFrom = restoreFrom,
         addedImages = addedImages,
-        removedImages = removedImages
+        removedImages = removedImages,
+        addedMainImage = addedMainImage,
+        removedMainImage = removedMainImage
       )
 
     def buildLast(topic: Topic): PreparedEditHistory =
       PreparedEditHistory(
         original = true,
         editor = userService.getUserCached(topic.authorUserId),
-        image = this.image,
         message = textService.renderCommentText(MessageText(this.message, this.markup), false),
         current = false,
         title = this.title,
@@ -199,18 +194,18 @@ class EditHistoryService(
         linktext = this.linktext,
         minor = null,
         editDate = topic.postdate,
-        imageDeleted = false,
         poll = this.poll,
         restoreFrom = this.lastId,
-        addedImages = this.additionalImages.asJava,
-        removedImages = null
+        addedImages = this.images.asJava,
+        removedImages = null,
+        addedMainImage = null,
+        removedMainImage = null
       )
 
   private object TopicEditHistoryState:
     def fromTopic(topic: Topic): TopicEditHistoryState =
       val messageText: MessageText = msgbaseDao.getMessageText(topic.id)
       val images = imageService.allImagesForTopic(topic)
-      val maybeImage = images.find(_.main)
 
       TopicEditHistoryState(
         message = messageText.text,
@@ -220,7 +215,6 @@ class EditHistoryService(
         linktext = topic.linktext,
         tags = topicTagService.getTagRefs(topic).asJava,
         minor = topic.minor,
-        image = maybeImage.flatMap(imageService.prepareImage).orNull,
         lastId = null,
         poll =
           try
@@ -230,7 +224,7 @@ class EditHistoryService(
               null
         ,
         first = true,
-        additionalImages = images.filterNot(_.main).flatMap(imageService.prepareImage)
+        images = images.flatMap(imageService.prepareImage)
       )
 
   private case class CommentEditHistoryState(message: String, markup: MarkupType, title: String, first: Boolean):
@@ -250,7 +244,6 @@ class EditHistoryService(
       PreparedEditHistory(
         original = false,
         editor = userService.getUserCached(dto.editor),
-        image = null,
         message = message,
         current = this.first,
         title =
@@ -264,18 +257,18 @@ class EditHistoryService(
         linktext = null,
         minor = null,
         editDate = new Timestamp(dto.editdate.toEpochMilli),
-        imageDeleted = false,
         poll = null,
         restoreFrom = null,
         addedImages = null,
-        removedImages = null
+        removedImages = null,
+        addedMainImage = null,
+        removedMainImage = null
       )
 
     def buildLast(comment: Comment): PreparedEditHistory =
       PreparedEditHistory(
         original = true,
         editor = userService.getUserCached(comment.userid),
-        image = null,
         message = textService.renderCommentText(MessageText(this.message, this.markup), false),
         current = false,
         title = this.title,
@@ -284,11 +277,12 @@ class EditHistoryService(
         linktext = null,
         minor = null,
         editDate = comment.postdate,
-        imageDeleted = false,
         poll = null,
         restoreFrom = null,
         addedImages = null,
-        removedImages = null
+        removedImages = null,
+        addedMainImage = null,
+        removedMainImage = null
       )
 
   private object CommentEditHistoryState:

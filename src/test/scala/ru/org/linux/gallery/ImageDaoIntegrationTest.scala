@@ -23,6 +23,8 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.ContextHierarchy
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
+import java.util.Date
+
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
   Array(
@@ -38,5 +40,14 @@ class ImageDaoIntegrationTest:
   def getGalleryItemsTest(): Unit =
     val galleryDtoList = imageDao.getGalleryItems(3)
     assertEquals(3, galleryDtoList.size)
+
+    val commitDates = galleryDtoList.map(_.commitDate)
+    val sortedDesc = commitDates.sorted(Ordering[Date].reverse)
+    assertEquals(
+      "gallery items must be ordered by commitdate DESC",
+      sortedDesc,
+      commitDates)
+
+  end getGalleryItemsTest
 
 end ImageDaoIntegrationTest

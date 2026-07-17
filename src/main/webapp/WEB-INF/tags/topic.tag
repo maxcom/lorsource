@@ -105,22 +105,22 @@
   <div class="msg_body">
     <c:set var="sizes" value="(min-width: 70em) 80vw, 100vw" />
 
-    <c:if test="${fn:length(preparedMessage.allImages) == 1}">
-      <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.allImages[0]}" enableSchema="true"
+    <c:if test="${fn:length(preparedMessage.images) == 1}">
+      <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.images[0]}" enableSchema="true"
                  preparedMessage="${preparedMessage}" showImage="true" sizes="${sizes}"
                  enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
     </c:if>
 
-    <c:if test="${fn:length(preparedMessage.allImages) > 1}">
+    <c:if test="${fn:length(preparedMessage.images) > 1}">
       <c:if test="${imageSlider}">
         <lor:imageslider title="${preparedMessage.message.title}"
                          classes="slider-indicators-outside slider-indicators-sm"
                          sizes="${sizes}"
-                         images="${preparedMessage.allImages}"/>
+                         images="${preparedMessage.images}"/>
       </c:if>
 
       <c:if test="${not imageSlider}">
-        <c:forEach var="image" items="${preparedMessage.allImages}">
+        <c:forEach var="image" items="${preparedMessage.images}">
           <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true" sizes="${sizes}"
                      preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
         </c:forEach>

@@ -30,8 +30,6 @@ case class PreparedEditHistory(
     @BeanProperty
     editor: User,
     @BeanProperty
-    image: PreparedImage,
-    @BeanProperty
     message: String,
     @BooleanBeanProperty
     current: Boolean,
@@ -47,8 +45,6 @@ case class PreparedEditHistory(
     minor: java.lang.Boolean,
     @BeanProperty
     editDate: Date,
-    @BooleanBeanProperty
-    imageDeleted: Boolean,
     @BeanProperty
     poll: Poll,
     @BeanProperty
@@ -56,4 +52,8 @@ case class PreparedEditHistory(
     @BeanProperty
     addedImages: util.List[PreparedImage],
     @BeanProperty
-    removedImages: util.List[PreparedImage])
+    removedImages: util.List[PreparedImage],
+    @BeanProperty
+    addedMainImage: util.List[PreparedImage],
+    @BeanProperty
+    removedMainImage: util.List[PreparedImage])

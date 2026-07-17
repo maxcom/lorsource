@@ -98,15 +98,8 @@ class GroupPermissionService(
     else
       false
 
-  def additionalImageLimit(section: Section)(using currentUser: AnySession): Int =
-    if isImagePostingAllowed(section) then
-      section.id match
-        case Articles | Gallery | News | Polls =>
-          3
-        case _ =>
-          0
-    else
-      0
+  def imageLimit(section: Section)(using AnySession): Int =
+    if isImagePostingAllowed(section) then 4 else 0
 
   def isDeletable(topic: Topic)(using user: AuthorizedSession): Boolean =
     if user.administrator then

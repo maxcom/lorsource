@@ -51,8 +51,7 @@ object Image {
 
 }
 
-case class Image(@BeanProperty id: Int, @BeanProperty topicId: Int, @BeanProperty original: String, deleted: Boolean,
-                 main: Boolean) {
+case class Image(@BeanProperty id: Int, @BeanProperty topicId: Int, @BeanProperty original: String, deleted: Boolean) {
   def getMedium: String = Image.main(original, id)
   def getSrcset: String = Image.srcset(original, id)
   def getSrcsetUpTo(width: Int): String = Image.srcset(original, id, width)

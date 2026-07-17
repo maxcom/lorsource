@@ -45,19 +45,18 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
                           warningService: WarningService) {
   def prepareTopic(message: Topic)(using session: AnySession): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message), minimizeCut = false, None,
-      msgbaseDao.getMessageText(message.id), image = None, imageLazyLoad = false)
+      msgbaseDao.getMessageText(message.id), imageLazyLoad = false)
 
   def prepareTopic(message: Topic, tags: Seq[TagRef], text: MessageText,
                    warnings: Seq[Warning])(using session: AnySession): PreparedTopic =
-    prepareTopic(message, tags, minimizeCut = false, None, text, None, Seq.empty, warnings, imageLazyLoad = false)
+    prepareTopic(message, tags, minimizeCut = false, None, text, Seq.empty, warnings, imageLazyLoad = false)
 
   def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
-                          image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview])(using AnySession): PreparedTopic = {
-    val imageObject = image.map(_.toImage(main = true))
-    val additionalImageObjects = additionalImages.map(_.toImage(main = false))
+                          images: Seq[UploadedImagePreview])(using AnySession): PreparedTopic = {
+    val imageObjects = images.map(_.toImage)
 
     prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
-      text, imageObject, additionalImageObjects, imageLazyLoad = false)
+      text, imageObjects, imageLazyLoad = false)
   }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(using session: AnySession): PreparedEditInfoSummary = {
@@ -79,7 +78,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
    * @return подготовленный топик
    */
   private def prepareTopic(topic: Topic, tags: Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
-                           text: MessageText, image: Option[Image], additionalImages: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty,
+                           text: MessageText, images: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty,
                            imageLazyLoad: Boolean)
                            (using session: AnySession): PreparedTopic = {
     val group = groupService.getGroup(topic.groupId)
@@ -109,20 +108,18 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
     val url = s"${siteConfig.getSecureUrlWithoutSlash}${topic.getLink}"
     val processedMessage = textService.renderTopic(text, minimizeCut, !topicPermissionService.followInTopic(topic, author), url)
 
-    val (preparedImage, additionalPreparedImages) = if (section.imagepost || section.imageAllowed) {
+    val preparedImages = if (section.imagepost || section.imageAllowed) {
       val currentImages = if (topic.id != 0) {
         imageService.allImagesForTopic(topic)
       } else {
         Seq.empty
       }
+      
+      val loadedImages = currentImages ++ images
 
-      val loadedImage = image.orElse(currentImages.find(_.main))
-
-      val loadedAdditionalImage = currentImages.filterNot(_.main) ++ additionalImages
-
-      (loadedImage.flatMap(imageService.prepareImage(_, imageLazyLoad)), loadedAdditionalImage.flatMap(imageService.prepareImage))
+      loadedImages.flatMap(imageService.prepareImage(_, imageLazyLoad))
     } else {
-      (None, Seq.empty)
+      Seq.empty
     }
 
     val remark = session.userOpt.flatMap { user =>
@@ -152,10 +149,10 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
     }
 
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
-      commiter.orNull, tags.asJava, group, section, text.markup, preparedImage.orNull,
+      commiter.orNull, tags.asJava, group, section, text.markup,
       postscoreInfo, remark.orNull, showRegisterInvite, userAgent.orNull,
       reactionPrepareService.prepare(topic.reactions, ignoreList, topic, None),
-      warningService.prepareWarning(warnings).asJava, additionalPreparedImages.asJava)
+      warningService.prepareWarning(warnings).asJava, preparedImages.asJava)
   }
 
   /**
@@ -174,7 +171,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
 
     messages.zipWithIndex.map { case (message, idx) =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        textMap(message.id), image = None, imageLazyLoad = idx >= 2)
+        textMap(message.id), imageLazyLoad = idx >= 2)
 
       val topicMenu = getTopicMenu(preparedMessage, loadUserpics)
       PersonalizedPreparedTopic(preparedMessage, topicMenu)
@@ -196,7 +193,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
 
     messages.view.map { message =>
       prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, textMap(message.id),
-        image = None, imageLazyLoad = false)
+        imageLazyLoad = false)
     }.toSeq
   }
 

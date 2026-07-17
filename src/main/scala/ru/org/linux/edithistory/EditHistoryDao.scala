@@ -38,34 +38,40 @@ case class EditHistoryRecord(
     oldlinktext: Option[String] = None,
     oldurl: Option[String] = None,
     oldminor: Option[Boolean] = None,
-    oldimage: Option[Int] = None,
     oldPoll: Option[Poll] = None,
-    oldaddimages: Option[Seq[Int]] = None)
+    oldaddimages: Option[Seq[Int]] = None,
+    /** Легаси-поле `edit_info.oldimage`. Сохраняется как есть,
+      * без слияния с `oldaddimages`, чтобы `EditHistoryService` мог различать.
+      */
+    legacyMainImage: Option[Int] = None)
 
 @Repository
 class EditHistoryDao(springDB: SpringDB):
 
   private def parseEditHistoryRecord(rs: WrappedResultSet): EditHistoryRecord =
-    val underlying = rs.underlying
+    val oldaddimages = rs
+      .arrayOpt("oldaddimages")
+      .map(_.getArray.asInstanceOf[Array[Integer]].toSeq.map(_.toInt))
+
     EditHistoryRecord(
       id = rs.int("id"),
       msgid = rs.int("msgid"),
       editor = rs.int("editor"),
-      editdate = underlying.getTimestamp("editdate").toInstant,
+      editdate = rs.timestamp("editdate").toInstant,
       oldmessage = rs.stringOpt("oldmessage"),
       oldtitle = rs.stringOpt("oldtitle"),
       oldtags = rs.stringOpt("oldtags").map(TagName.parseAndSanitizeTags),
       objectType = EditHistoryObjectTypeEnum.valueOf(rs.string("object_type")),
       oldurl = rs.stringOpt("oldurl"),
       oldlinktext = rs.stringOpt("oldlinktext"),
-      oldimage = rs.intOpt("oldimage"),
       oldminor = rs.booleanOpt("oldminor"),
       oldPoll = rs
         .stringOpt("oldpoll")
         .map { json =>
           parse(json).toTry.flatMap(_.as[Poll].toTry).get
         },
-      oldaddimages = rs.arrayOpt("oldaddimages").map(_.getArray.asInstanceOf[Array[Integer]].toSeq.map(_.toInt))
+      oldaddimages = oldaddimages,
+      legacyMainImage = rs.intOpt("oldimage")
     )
 
   /** Получить информации о редактировании топика/комментария.
@@ -110,8 +116,8 @@ class EditHistoryDao(springDB: SpringDB):
           binder =
             (stmt: PreparedStatement, idx: Int) => stmt.setArray(idx, stmt.getConnection.createArrayOf("integer", arr)))
     sql"""INSERT INTO edit_info (msgid, editor, oldmessage, oldtitle, oldtags, oldlinktext, oldurl,
-          object_type, oldminor, oldimage, oldpoll, oldaddimages)
+          object_type, oldminor, oldpoll, oldaddimages)
           VALUES (${record.msgid}, ${record.editor}, ${record.oldmessage}, ${record.oldtitle},
           ${record.oldtags.map(TagService.tagsToString)}, ${record.oldlinktext}, ${record.oldurl},
-          ${record.objectType.toString}::edit_event_type, ${record.oldminor}, ${record.oldimage},
+          ${record.objectType.toString}::edit_event_type, ${record.oldminor},
           $oldPollStr, $oldaddimagesBinder)""".update.apply()

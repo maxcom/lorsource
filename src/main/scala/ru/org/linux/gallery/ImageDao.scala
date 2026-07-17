@@ -31,14 +31,13 @@ class ImageDao(private val sectionService: SectionService, springDB: SpringDB):
       id = imageid,
       topicId = rs.int("topic"),
       original = s"images/$imageid/original.$extension",
-      deleted = rs.boolean("deleted"),
-      main = rs.boolean("main"))
+      deleted = rs.boolean("deleted"))
 
   private def galleryItemFromRs(rs: WrappedResultSet, gallery: Section): GalleryItem =
     val imageid = rs.int("imageid")
     val extension = rs.string("extension")
     val msgid = rs.int("msgid")
-    val image = Image(imageid, msgid, s"images/$imageid/original.$extension", deleted = false, main = true)
+    val image = Image(imageid, msgid, s"images/$imageid/original.$extension", deleted = false)
 
     GalleryItem(
       msgid = msgid,
@@ -53,48 +52,69 @@ class ImageDao(private val sectionService: SectionService, springDB: SpringDB):
   def getGalleryItems(countItems: Int): Seq[GalleryItem] =
     val gallery = sectionService.getSection(Section.Gallery)
     springDB.run:
-      sql"""SELECT t.msgid, t.stat1, t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate
-            FROM
-              (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
-                FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
-                 AND section=${Section.Gallery} AND NOT topics.deleted AND commitdate IS NOT NULL
-                 ORDER BY commitdate DESC LIMIT $countItems) as t JOIN images ON t.msgid = images.topic
-            WHERE NOT images.deleted AND images.main ORDER BY commitdate DESC"""
-        .map(rs => galleryItemFromRs(rs, gallery))
-        .list
-        .apply()
-        .toSeq
+      sql"""SELECT * FROM (
+                SELECT DISTINCT ON (t.msgid)
+                    t.msgid, t.stat1, t.title, t.userid, t.urlname,
+                    images.extension, images.id AS imageid, t.commitdate
+                FROM (
+                    SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
+                    FROM topics
+                    JOIN groups ON topics.groupid = groups.id
+                    WHERE topics.moderate
+                        AND section = ${Section.Gallery}
+                        AND NOT topics.deleted
+                        AND commitdate IS NOT NULL
+                    ORDER BY commitdate DESC
+                    LIMIT $countItems
+                ) as t
+                JOIN images ON t.msgid = images.topic
+                WHERE NOT images.deleted
+                ORDER BY t.msgid, images.main DESC, images.id, t.commitdate DESC
+            ) AS g
+            ORDER BY commitdate DESC""".map(rs => galleryItemFromRs(rs, gallery)).list.apply()
 
   def getGalleryItems(countItems: Int, tagId: Int): Seq[GalleryItem] =
     val gallery = sectionService.getSection(Section.Gallery)
     springDB.run:
-      sql"""SELECT t.msgid, t.stat1, t.title, t.userid, t.urlname, images.extension, images.id AS imageid, t.commitdate
-            FROM
-              (SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
-                FROM topics JOIN groups ON topics.groupid = groups.id WHERE topics.moderate
-                  AND section=${Section.Gallery} AND NOT topics.deleted AND commitdate IS NOT NULL AND
-                  topics.id IN (SELECT msgid FROM tags WHERE tagid=$tagId) ORDER BY commitdate DESC LIMIT $countItems) as t
-              JOIN images ON t.msgid = images.topic
-            WHERE NOT images.deleted AND images.main""".map(rs => galleryItemFromRs(rs, gallery)).list.apply().toSeq
+      sql"""SELECT * FROM (
+                SELECT DISTINCT ON (t.msgid)
+                    t.msgid, t.stat1, t.title, t.userid, t.urlname,
+                    images.extension, images.id AS imageid, t.commitdate
+                FROM (
+                    SELECT topics.id AS msgid, topics.stat1, topics.title, userid, urlname, topics.commitdate
+                    FROM topics
+                    JOIN groups ON topics.groupid = groups.id
+                    WHERE topics.moderate
+                        AND section = ${Section.Gallery}
+                        AND NOT topics.deleted
+                        AND commitdate IS NOT NULL
+                        AND topics.id IN (SELECT msgid FROM tags WHERE tagid = $tagId)
+                    ORDER BY commitdate DESC
+                    LIMIT $countItems
+                ) as t
+                JOIN images ON t.msgid = images.topic
+                WHERE NOT images.deleted
+                ORDER BY t.msgid, images.main DESC, images.id, t.commitdate DESC
+            ) AS g
+            ORDER BY commitdate DESC""".map(rs => galleryItemFromRs(rs, gallery)).list.apply()
 
   def allImagesForTopic(topicId: Int): Seq[Image] =
     springDB.run:
-      sql"SELECT id, topic, extension, deleted, main FROM images WHERE topic=$topicId AND NOT deleted ORDER BY id"
+      sql"SELECT id, topic, extension, deleted FROM images WHERE topic=$topicId AND NOT deleted ORDER BY main desc, id"
         .map(imageFromRs)
         .list
         .apply()
-        .toSeq
 
   def getImage(id: Int): Image =
     springDB.run:
-      sql"SELECT id, topic, extension, deleted, main FROM images WHERE id=$id"
+      sql"SELECT id, topic, extension, deleted FROM images WHERE id=$id"
         .map(imageFromRs)
         .single
         .apply()
         .getOrElse(throw ImageNotFoundException(id))
 
-  def saveImage(topicId: Int, extension: String, main: Boolean)(using Transaction): Int =
-    sql"INSERT INTO images (topic, extension, main) VALUES ($topicId, $extension, $main) RETURNING id"
+  def saveImage(topicId: Int, extension: String)(using Transaction): Int =
+    sql"INSERT INTO images (topic, extension, main) VALUES ($topicId, $extension, false) RETURNING id"
       .map(rs => rs.int("id"))
       .single
       .apply()

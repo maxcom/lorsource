@@ -52,10 +52,10 @@
   <meta property="article:modified_time" content="${DateFormats.formatIso8601(editInfo.lastEditDate())}">
 </c:if>
 
-<c:if test="${preparedMessage.image != null}">
-  <meta property="og:image" content="${preparedMessage.image.mediumName}">
+<c:if test="${not empty preparedMessage.images}">
+  <meta property="og:image" content="${preparedMessage.images[0].mediumName}">
 </c:if>
-<c:if test="${preparedMessage.image == null}">
+<c:if test="${empty preparedMessage.images}">
   <meta property="og:image" content="${configuration.secureUrlWithoutSlash}/img/good-penguin.png">
 </c:if>
 <c:if test="${not empty ogDescription}">
@@ -253,15 +253,15 @@
 </div>
 <script type="text/javascript">
   $script.ready('lorjs', function () {
-      var ads = [
-        {
-          type: 'rimg',
-          img320: '/adv/bare-metal-new-h2-320x100.png',
-          img728: '/adv/bare-metal-new-h2-728x90.png',
-          img1000: '/adv/bare-metal-new-h2-1000x120.png',
-          href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linuxorg&utm_medium=banner&utm_campaign=auction'
-        }
-      ];
+    const ads = [
+      {
+        type: 'rimg',
+        img320: '/adv/bare-metal-new-h2-320x100.png',
+        img728: '/adv/bare-metal-new-h2-728x90.png',
+        img1000: '/adv/bare-metal-new-h2-1000x120.png',
+        href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linuxorg&utm_medium=banner&utm_campaign=auction'
+      }
+    ];
 
     init_interpage_adv(ads);
   });

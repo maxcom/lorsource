@@ -1,5 +1,5 @@
 <%@ page session="false" %>
-<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.UploadedImagePreview"  %>
+<%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="ru.org.linux.tag.TagName" %>
 <%@ page import="ru.org.linux.topic.TopicTagService" %>
 <%@ page import="ru.org.linux.gallery.Image" %>
@@ -158,30 +158,15 @@
 <lor:captcha/>
 
 <c:if test="${imagepost}">
-  <form:hidden path="uploadedImage"/>
-  <div class="control-group">
-    <c:if test="${form.uploadedImage == null}">
-      <label>Изображение:
-    </c:if>
-    <c:if test="${form.uploadedImage != null}">
-      <label>Заменить изображение:
-    </c:if>
-    <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif" >
-    </label>
-  </div>
-
-  <c:if test="${not empty form.additionalUploadedImages}">
+  <c:if test="${not empty form.uploadedImages}">
     <div class="control-group">
-      <c:forEach var="v" items="${form.additionalUploadedImages}" varStatus="i">
-        <form:hidden path="additionalUploadedImages[${i.index}]"/>
+      <c:forEach var="v" items="${form.uploadedImages}" varStatus="i">
+        <form:hidden path="uploadedImages[${i.index}]"/>
         <c:if test="${v == null}">
-          <label>Дополнительное изображение #${i.index}:
+          <label>Изображение #${i.index}:
+            <input type="file" name="images" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+          </label>
         </c:if>
-        <c:if test="${v != null}">
-          <label>Заменить изображение #${i.index}:
-        </c:if>
-        <input type="file" name="additionalImage" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
-        </label>
       </c:forEach>
     </div>
   </c:if>

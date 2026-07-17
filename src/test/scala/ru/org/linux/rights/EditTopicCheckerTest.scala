@@ -176,14 +176,13 @@ class EditTopicCheckerTest extends FunSuite:
       group = defaultGroup.copy(sectionId = section.id),
       section = section,
       markupType = MarkupType.Lorcode,
-      image = null,
       postscoreInfo = "",
       remark = null,
       showRegisterInvite = false,
       userAgent = null,
       reactions = null,
       warnings = java.util.Collections.emptyList(),
-      additionalImages = java.util.Collections.emptyList()
+      images = java.util.Collections.emptyList()
     )
 
   // === Bug 2: committed-Articles edit deadline anchored on commitDate ===
@@ -233,8 +232,7 @@ class EditTopicCheckerTest extends FunSuite:
     val topic = makeTopic(
       authorUserId = 99,
       sectionId = Section.Articles,
-      postscore = POSTSCORE_NO_COMMENTS,
-      commited = false)
+      postscore = POSTSCORE_NO_COMMENTS)
     val prepared = makePrepared(topic, articlesSection, someoneElse)
     val session = makeSession(corrector, corrector = true)
 
@@ -269,7 +267,6 @@ class EditTopicCheckerTest extends FunSuite:
     val topic = makeTopic(
       authorUserId = 7,
       sectionId = Section.Forum,
-      commited = false,
       postdate = Timestamp.from(Instant.now().minus(1, ChronoUnit.DAYS)))
     val prepared = makePrepared(topic, forumSection, author)
     val session = makeSession(author)
@@ -284,7 +281,6 @@ class EditTopicCheckerTest extends FunSuite:
     val topic = makeTopic(
       authorUserId = 7,
       sectionId = Section.Forum,
-      commited = false,
       postdate = Timestamp.from(Instant.now().minus(1, ChronoUnit.DAYS)))
     val prepared = makePrepared(topic, forumSection, author)
     val session = makeSession(other)

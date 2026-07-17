@@ -103,15 +103,15 @@
 </header>
 
 
-<c:if test="${fn:length(preparedMessage.allImages) == 1}">
-  <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.allImages[0]}" sizes="(min-width: 47em) 40vw, 100vw"
+<c:if test="${fn:length(preparedMessage.images) == 1}">
+  <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.images[0]}" sizes="(min-width: 47em) 40vw, 100vw"
              preparedMessage="${preparedMessage}" showImage="true" heightLimit="70vh"/>
 </c:if>
-<c:if test="${fn:length(preparedMessage.allImages) > 1}">
+<c:if test="${fn:length(preparedMessage.images) > 1}">
   <lor:imageslider title="${preparedMessage.message.title}"
                    classes="slider-nav-autohide slider-nav-round slider-indicators-sm slider-indicators-outside"
                    sizes="(min-width: 47em) 40vw, 100vw"
-                   images="${preparedMessage.allImages}"
+                   images="${preparedMessage.images}"
                    heightLimit="70vh"/>
 </c:if>
 

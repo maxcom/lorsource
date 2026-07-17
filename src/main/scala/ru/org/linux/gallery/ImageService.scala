@@ -49,14 +49,8 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
 
   def deleteImage(image: Image)(using session: AuthorizedSession): Unit = {
     springDB.localTx {
-      val info = if (image.main) {
-        EditHistoryRecord(
-          editor = session.user.id,
-          msgid = image.topicId,
-          oldimage = Some(image.id),
-          objectType = EditHistoryObjectTypeEnum.TOPIC)
-      } else {
-        val oldImages = imageDao.allImagesForTopic(image.topicId).filterNot(_.main)
+      val info = {
+        val oldImages = imageDao.allImagesForTopic(image.topicId)
 
         EditHistoryRecord(
           editor = session.user.id,
@@ -199,8 +193,8 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
     }
   }
 
-  def saveImage(imagePreview: UploadedImagePreview, msgid: Int, main: Boolean): Unit = springDB.localTx {
-    val id = imageDao.saveImage(msgid, imagePreview.extension, main)
+  def saveImage(imagePreview: UploadedImagePreview, msgid: Int): Unit = springDB.localTx {
+    val id = imageDao.saveImage(msgid, imagePreview.extension)
 
     imagePreview.moveTo(galleryPath, id.toString)
   }

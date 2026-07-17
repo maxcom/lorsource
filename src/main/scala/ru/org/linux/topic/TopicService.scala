@@ -66,11 +66,11 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    searchQueueSender: SearchQueueSender) extends StrictLogging {
 
   def addMessage(request: HttpServletRequest, form: AddTopicRequest, message: MessageText, group: Group, user: User,
-                 image: Option[UploadedImagePreview], additionalImages: Seq[UploadedImagePreview],
+                 images: Seq[UploadedImagePreview],
                  previewMsg: Topic): (Int, Set[Int]) = springDB.localTx {
     val section = sectionService.getSection(group.sectionId)
 
-    if (section.imagepost && image.isEmpty) {
+    if (section.imagepost && images.isEmpty) {
       throw new ScriptErrorException("scrn is empty?!")
     }
 
@@ -78,12 +78,8 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
     msgbaseDao.saveNewMessage(message, msgid)
 
-    image.foreach { imagePreview =>
-      imageService.saveImage(imagePreview, msgid, main = true)
-    }
-
-    additionalImages.foreach { imagePreview =>
-      imageService.saveImage(imagePreview, msgid, main = false)
+    images.foreach { imagePreview =>
+      imageService.saveImage(imagePreview, msgid)
     }
 
     if (section.isPollPostAllowed) {
@@ -139,8 +135,7 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
 
   private def modifyTopic(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]], newText: MessageText,
                           pollVariants: Option[Seq[PollVariant]], multiselect: Boolean,
-                          imagePreview: Option[UploadedImagePreview],
-                          additionalImages: Seq[UploadedImagePreview])(using Transaction): Boolean = {
+                          images: Seq[UploadedImagePreview])(using Transaction): Boolean = {
     var editHistoryRecord = EditHistoryRecord(
       msgid = oldMsg.id,
       editor = user.id,
@@ -196,15 +191,9 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
       }
     }
 
-    imagePreview.foreach { imagePreview =>
-      editHistoryRecord = replaceImage(oldMsg, oldImages.find(_.main), imagePreview, editHistoryRecord)
-
-      modified = true
-    }
-
-    additionalImages.foreach { imagePreview =>
-      imageService.saveImage(imagePreview, oldMsg.id, main = false)
-      editHistoryRecord = editHistoryRecord.copy(oldaddimages = Some(oldImages.filterNot(_.main).map(_.id)))
+    images.foreach { imagePreview =>
+      imageService.saveImage(imagePreview, oldMsg.id)
+      editHistoryRecord = editHistoryRecord.copy(oldaddimages = Some(oldImages.map(_.id)))
 
       modified = true
     }
@@ -229,12 +218,10 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
   def updateAndCommit(newMsg: Topic, oldMsg: Topic, user: User, newTags: Option[Seq[String]],
                       newText: MessageText, commit: Boolean, publish: Boolean, changeGroupId: Option[Int], bonus: Int,
                       pollVariants: Option[Seq[PollVariant]], multiselect: Boolean,
-                      editorBonus: Map[User, Int], imagePreview: Option[UploadedImagePreview],
-                      additionalImages: Seq[UploadedImagePreview]): Boolean = {
+                      editorBonus: Map[User, Int], images: Seq[UploadedImagePreview]): Boolean = {
     val (modified, users) = springDB.localTx {
       val modified = modifyTopic(newMsg = newMsg, oldMsg = oldMsg, user = user, newTags = newTags, newText = newText,
-        pollVariants = pollVariants, multiselect = multiselect, imagePreview = imagePreview,
-        additionalImages = additionalImages)
+        pollVariants = pollVariants, multiselect = multiselect, images = images)
 
       val notified = if (!newMsg.draft && !newMsg.expired) {
         val section = sectionService.getSection(oldMsg.sectionId)
@@ -269,24 +256,6 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     modified
   }
 
-  private def replaceImage(oldMsg: Topic, oldImage: Option[Image], imagePreview: UploadedImagePreview, editHistoryRecord: EditHistoryRecord)(using Transaction): EditHistoryRecord = {
-    oldImage.foreach { oldImage =>
-      imageDao.deleteImage(oldImage)
-    }
-
-    val id = imageDao.saveImage(oldMsg.id, imagePreview.extension, main = true)
-
-    val galleryPath = new File(siteConfig.getUploadPath + "/images")
-
-    imagePreview.moveTo(galleryPath, Integer.toString(id))
-
-    if (oldImage.isDefined) {
-      editHistoryRecord.copy(oldimage = Some(oldImage.get.id))
-    } else {
-      editHistoryRecord.copy(oldimage = Some(0))
-    }
-  }
-
   private def doCommit(msg: Topic, commiter: User, bonus: Int, editorBonus: Map[User, Int])(using Transaction): Unit = {
     assert(bonus <= 20 && bonus >= 0, "Некорректное значение bonus")
 
@@ -303,44 +272,40 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
     }
   }
 
-  def processUploads(form: ImageTopicRequest, group: Group, errors: Errors, currentAdditionalCount: Int = 0,
-                     hasImage: Boolean = false)
-                     (using postingUser: AuthorizedSession): (Option[UploadedImagePreview], Seq[UploadedImagePreview]) = {
+  def processUploads(form: ImageTopicRequest, group: Group, errors: Errors, currentImageCount: Int = 0)
+                     (using postingUser: AuthorizedSession): Seq[UploadedImagePreview] = {
     val section = sectionService.getSection(group.sectionId)
 
-    val additionalImagesNonNull = Option(form.additionalImage).getOrElse(Array.empty[MultipartFile])
-    val additionalImagesLimit = Math.max(0, permissionService.additionalImageLimit(section) - currentAdditionalCount)
+    val imagesNonNull = Option(form.images).getOrElse(Array.empty[MultipartFile])
+    val imagesLimit = Math.max(0, permissionService.imageLimit(section) - currentImageCount)
 
-    val (imagePreview: Option[UploadedImagePreview], additionalImagePreviews: Seq[UploadedImagePreview]) =
+    val imagePreviews: Seq[UploadedImagePreview] =
       if (permissionService.isImagePostingAllowed(section) &&
         addTopicChecker.checkTopicPosting(group).permitted) {
-        val main = imageService.processUpload(Option(form.uploadedImage), form.image, errors)
 
-        val additionalImagePreviews =
-          Option(form.additionalUploadedImages)
+        val imagePreviews =
+          Option(form.uploadedImages)
             .getOrElse(Array.empty[String])
             .view
-            .zipAll(additionalImagesNonNull, null, null)
-            .take(additionalImagesLimit)
+            .zipAll(imagesNonNull, null, null)
+            .take(imagesLimit)
             .flatMap { case (existing, upload) =>
               imageService.processUpload(Option(existing), upload, errors)
             }.toVector
 
-        (main, additionalImagePreviews)
+        imagePreviews
       } else {
-        (None, Seq.empty)
+        Seq.empty
       }
 
-    form.uploadedImage = imagePreview.map(_.mainFile.getName).orNull
+    form.uploadedImages = (imagePreviews.map(_.mainFile.getName) ++
+      Vector.fill(imagesLimit - imagePreviews.size)(null)).toArray
 
-    form.additionalUploadedImages = (additionalImagePreviews.map(_.mainFile.getName) ++
-      Vector.fill(additionalImagesLimit - additionalImagePreviews.size)(null)).toArray
-
-    if (section.imagepost && imagePreview.isEmpty && !hasImage) {
-      errors.reject(null, "Изображение отсутствует")
+    if (section.imagepost && currentImageCount == 0 && imagePreviews.isEmpty) {
+      errors.reject(null, "Для этого раздела требуется как минимум одно изображение")
     }
 
-    (imagePreview, additionalImagePreviews)
+    imagePreviews
   }
 
   def getById(id: Int): Topic = topicDao.getById(id)

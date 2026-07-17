@@ -81,7 +81,6 @@ class EditHistoryDaoIntegrationTest:
     assertEquals(None, edit.oldlinktext)
     assertEquals(None, edit.oldurl)
     assertEquals(None, edit.oldminor)
-    assertEquals(None, edit.oldimage)
 
   @Test
   def testInsertWithPollAndAddimages(): Unit =
@@ -107,6 +106,7 @@ class EditHistoryDaoIntegrationTest:
     assertTrue("Should have oldPoll", edit.oldPoll.isDefined)
     assertEquals(false, edit.oldPoll.get.multiSelect)
     assertEquals(Some(Seq(100, 200, 300)), edit.oldaddimages)
+    assertEquals(None, edit.legacyMainImage)
 
   @Test
   def testInsertWithTags(): Unit =

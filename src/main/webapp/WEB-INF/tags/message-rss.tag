@@ -19,8 +19,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <description><![CDATA[
-  <c:if test="${preparedTopic.section.imagepost}">
-    <lor:image title="${preparedTopic.message.title}" image="${preparedTopic.image}" preparedMessage="${preparedTopic}" showImage="true"/>
+  <c:if test="${not empty preparedTopic.images}">
+    <lor:image title="${preparedTopic.message.title}" image="${preparedTopic.images[0]}" preparedMessage="${preparedTopic}" showImage="true"/>
   </c:if>
 
   ${preparedTopic.processedMessage}

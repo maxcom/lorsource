@@ -188,19 +188,18 @@ class EditTopicController(
       form.poll = PollVariant.toMap(poll.getVariants)
       form.multiselect = poll.multiSelect
 
-    form.additionalUploadedImages =
+    form.uploadedImages =
       new Array[String](
         Math.max(
           0,
-          permissionService.additionalImageLimit(preparedTopic.section) - preparedTopic.additionalImages.size()))
+          permissionService.imageLimit(preparedTopic.section) - preparedTopic.images.size()))
 
   private def checkModified(
       preparedTopic: PreparedTopic,
       newMsg: Topic,
       form: EditTopicRequest,
       oldText: MessageText,
-      imagePreview: Option[UploadedImagePreview],
-      additionalImagePreviews: Seq[UploadedImagePreview]): Boolean =
+      imagePreviews: Seq[UploadedImagePreview]): Boolean =
     var modified = false
     val topic = preparedTopic.message
 
@@ -224,7 +223,7 @@ class EditTopicController(
         else if !(topic.url == newMsg.url) then
           modified = true
 
-    if imagePreview.isDefined || additionalImagePreviews.nonEmpty then
+    if imagePreviews.nonEmpty then
       modified = true
 
     modified
@@ -279,14 +278,13 @@ class EditTopicController(
       val newMsg = Topic.fromEditRequest(preparedTopic.group, topic, form, request.getParameter("publish") != null)
       val oldText = msgbaseDao.getMessageText(topic.id)
 
-      val (imagePreview, additionalImagePreviews) = topicService.processUploads(
+      val imagePreviews = topicService.processUploads(
         form,
         preparedTopic.group,
         errors,
-        preparedTopic.additionalImages.size(),
-        hasImage = preparedTopic.image != null)
+        preparedTopic.images.size())
 
-      val modified = checkModified(preparedTopic, newMsg, form, oldText, imagePreview, additionalImagePreviews)
+      val modified = checkModified(preparedTopic, newMsg, form, oldText, imagePreviews)
 
       if !editable && modified then
         throw new AccessViolationException("нельзя править это сообщение, только теги")
@@ -344,8 +342,7 @@ class EditTopicController(
           pollVariants = newPoll.map(_.variants),
           multiselect = form.multiselect,
           editorBonus = form.editorBonusScala,
-          imagePreview = imagePreview,
-          additionalImages = additionalImagePreviews
+          images = imagePreviews
         )
 
         if changed || commit || doPublish then
@@ -372,8 +369,7 @@ class EditTopicController(
             newTags.map(t => TagService.namesToRefs(t.asJava).asScala.toSeq).getOrElse(Seq.empty),
             newPoll,
             newText,
-            imagePreview,
-            additionalImagePreviews)
+            imagePreviews)
         )
 
         new ModelAndView("edit", params.asJava)

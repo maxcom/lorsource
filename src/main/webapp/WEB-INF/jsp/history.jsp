@@ -60,25 +60,31 @@
         <h2>${editHistory.title}</h2>
       </div>
       <div class="msg_body">
-        <c:if test="${editHistory.image != null}">
-          <lor:image title="uploaded image" image="${editHistory.image}" enableSchema="true" showImage="true" enableEdit="false"/>
-        </c:if>
-
-        <c:if test="${editHistory.imageDeleted}">
-          <p>Основное изображение удалено</p>
-        </c:if>
-
         <c:if test="${not empty editHistory.addedImages}">
-          Добавлены дополнительные изображения:
+          Добавлены изображения:
           <c:forEach var="image" items="${editHistory.addedImages}">
             <lor:image title="additional image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
           </c:forEach>
         </c:if>
 
+        <c:if test="${not empty editHistory.addedMainImage}">
+          Основное изображение добавлено:
+          <c:forEach var="image" items="${editHistory.addedMainImage}">
+            <lor:image title="main image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
+          </c:forEach>
+        </c:if>
+
         <c:if test="${not empty editHistory.removedImages}">
-          Удалены дополнительные изображения:
+          Удалены изображения:
           <c:forEach var="image" items="${editHistory.removedImages}">
             <lor:image title="additional image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
+          </c:forEach>
+        </c:if>
+
+        <c:if test="${not empty editHistory.removedMainImage}">
+          Удалено основное изображение:
+          <c:forEach var="image" items="${editHistory.removedMainImage}">
+            <lor:image title="main image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
           </c:forEach>
         </c:if>
 

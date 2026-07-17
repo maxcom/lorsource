@@ -142,7 +142,7 @@ class AddTopicController(
 
       val section = sectionService.getSection(form.group.sectionId)
 
-      form.additionalUploadedImages = new Array[String](permissionService.additionalImageLimit(section))
+      form.uploadedImages = new Array[String](permissionService.imageLimit(section))
 
       val topicLimitInfo = permissionService.topicLimitInfo(section)
       val topicPostingCheck = topicPublishChecker.checkPublish(group, topicLimitInfo)
@@ -221,12 +221,12 @@ class AddTopicController(
       else if message.text.length > AddTopicController.MaxMessageLength then
         errors.rejectValue("msg", null, "Слишком большое сообщение")
 
-      val (imagePreview, additionalImagePreviews) =
+      val imagePreviews =
         postingUser.opt match
           case Some(authorized) =>
             topicService.processUploads(form, group, errors)(using authorized)
           case None =>
-            (None, Seq.empty)
+            Seq.empty
 
       val poll: Option[Poll] =
         if section.isPollPostAllowed then
@@ -252,8 +252,7 @@ class AddTopicController(
         tagNames.map(tagRef),
         poll,
         message,
-        imagePreview,
-        additionalImagePreviews)(using postingUser)
+        imagePreviews)(using postingUser)
 
       params.put("message", preparedTopic)
 
@@ -278,8 +277,7 @@ class AddTopicController(
           section,
           user,
           message,
-          imagePreview,
-          additionalImagePreviews,
+          imagePreviews,
           previewMsg)
       else
         new ModelAndView("add", params.asJava)
@@ -293,8 +291,7 @@ class AddTopicController(
       section: Section,
       user: User,
       message: MessageText,
-      image: Option[UploadedImagePreview],
-      additionalImages: Seq[UploadedImagePreview],
+      images: Seq[UploadedImagePreview],
       previewMsg: Topic) =
     val (msgid, notifyUsers) = topicService.addMessage(
       request,
@@ -302,8 +299,7 @@ class AddTopicController(
       message,
       group,
       user,
-      image,
-      additionalImages,
+      images,
       previewMsg)
 
     if !previewMsg.draft then

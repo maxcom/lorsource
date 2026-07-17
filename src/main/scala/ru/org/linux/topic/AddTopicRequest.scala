@@ -24,13 +24,10 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.jdk.CollectionConverters.*
 
 trait ImageTopicRequest:
-  def additionalImage: Array[MultipartFile]
-  def uploadedImage: String
-  def image: MultipartFile
-  def additionalUploadedImages: Array[String]
+  def images: Array[MultipartFile]
+  def uploadedImages: Array[String]
 
-  def uploadedImage_=(value: String): Unit
-  def additionalUploadedImages_=(value: Array[String]): Unit
+  def uploadedImages_=(value: Array[String]): Unit
 
 class AddTopicRequest(
     @BeanProperty
@@ -52,9 +49,9 @@ class AddTopicRequest(
     @BooleanBeanProperty
     var multiSelect: Boolean = false,
     @BeanProperty
-    var additionalUploadedImages: Array[String] = new Array[String](0),
+    var uploadedImages: Array[String] = new Array[String](0),
     @BeanProperty
-    var additionalImage: Array[MultipartFile] = null,
+    var images: Array[MultipartFile] = null,
     @BeanProperty
     var nick: User = null,
     @BeanProperty
@@ -64,11 +61,7 @@ class AddTopicRequest(
     @BeanProperty
     var draft: String = null,
     @BooleanBeanProperty
-    var allowAnonymous: Boolean = true,
-    @BeanProperty
-    var image: MultipartFile = null,
-    @BeanProperty
-    var uploadedImage: String = null)
+    var allowAnonymous: Boolean = true)
     extends ImageTopicRequest:
   def this() = this(title = null) // нужен конструктор по умолчанию для spring
 
@@ -103,13 +96,9 @@ class EditTopicRequest(
     @BeanProperty
     var fromHistory: Integer = null,
     @BeanProperty
-    var image: MultipartFile = null,
+    var uploadedImages: Array[String] = new Array[String](0),
     @BeanProperty
-    var uploadedImage: String = null,
-    @BeanProperty
-    var additionalUploadedImages: Array[String] = new Array[String](0),
-    @BeanProperty
-    var additionalImage: Array[MultipartFile] = null,
+    var images: Array[MultipartFile] = null,
     @BeanProperty
     var lastEdit: java.lang.Long = null)
     extends ImageTopicRequest:
