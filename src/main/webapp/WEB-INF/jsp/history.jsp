@@ -61,7 +61,9 @@
       </div>
       <div class="msg_body">
         <c:if test="${not empty editHistory.addedImages}">
-          Добавлены изображения:
+          <c:if test="${not editHistory.original}">
+            Добавлены изображения:
+          </c:if>
           <c:forEach var="image" items="${editHistory.addedImages}">
             <lor:image title="additional image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
           </c:forEach>
