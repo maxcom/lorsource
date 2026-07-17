@@ -42,7 +42,7 @@ class ImageDaoIntegrationTest:
     assertEquals(3, galleryDtoList.size)
 
     val commitDates = galleryDtoList.map(_.commitDate)
-    val sortedDesc = commitDates.sorted(Ordering[Date].reverse)
+    val sortedDesc = commitDates.sorted(using Ordering[Date].reverse)
     assertEquals(
       "gallery items must be ordered by commitdate DESC",
       sortedDesc,
