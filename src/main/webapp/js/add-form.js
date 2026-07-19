@@ -113,12 +113,42 @@ function initPreviewTabs(formElement) {
   previewPanel.appendChild(previewContent);
   panelsContainer.appendChild(previewPanel);
 
+  const uid = 'mt-' + (window.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2));
+  editorTab.id = editorTab.id || (uid + '-editor-tab');
+  editorPanel.id = editorPanel.id || (uid + '-editor-panel');
+  previewTab.id = uid + '-preview-tab';
+  previewPanel.id = uid + '-preview-panel';
+
+  nav.setAttribute('role', 'tablist');
+
+  editorTab.setAttribute('role', 'tab');
+  editorTab.setAttribute('aria-controls', editorPanel.id);
+  editorPanel.setAttribute('role', 'tabpanel');
+  editorPanel.setAttribute('aria-labelledby', editorTab.id);
+
+  previewTab.setAttribute('role', 'tab');
+  previewTab.setAttribute('aria-controls', previewPanel.id);
+  previewPanel.setAttribute('role', 'tabpanel');
+  previewPanel.setAttribute('aria-labelledby', previewTab.id);
+
   const previewButton = formElement.querySelector('button[name=preview]');
   if (previewButton) {
     previewButton.classList.add('preview-button-js-hidden');
   }
 
   let textareaHeight = 0;
+
+  const tabs = () => Array.from(nav.querySelectorAll('.markup-tabs__tab'));
+
+  const syncAria = (activeTab) => {
+    tabs().forEach(t => {
+      const isActive = t === activeTab;
+      t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      t.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+  };
+
+  syncAria(editorTab);
 
   const switchTab = (tabName, options = {}) => {
     textareaHeight = textarea.offsetHeight;
@@ -130,6 +160,7 @@ function initPreviewTabs(formElement) {
       editorTab.classList.add('active');
       editorPanel.classList.add('active');
       previewContent.style.minHeight = '';
+      syncAria(editorTab);
       if (options.focus !== false) {
         textarea.focus();
       }
@@ -137,7 +168,11 @@ function initPreviewTabs(formElement) {
       previewTab.classList.add('active');
       previewPanel.classList.add('active');
       previewContent.style.minHeight = Math.max(textareaHeight, 50) + 'px';
+      syncAria(previewTab);
       loadPreview();
+      if (options.focusTab) {
+        previewTab.focus();
+      }
     }
   };
 
@@ -189,6 +224,26 @@ function initPreviewTabs(formElement) {
     if (!tab || tab.classList.contains('active')) return;
     e.preventDefault();
     switchTab(tab.dataset.tab);
+  });
+
+  nav.addEventListener('keydown', (e) => {
+    const list = tabs();
+    if (!list.length) return;
+    const cur = list.findIndex(t => t === document.activeElement);
+    if (cur === -1) return;
+
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      const delta = e.key === 'ArrowRight' ? 1 : -1;
+      const next = list[(cur + delta + list.length) % list.length];
+      switchTab(next.dataset.tab, {focusTab: next === previewTab});
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      const tab = e.target.closest('.markup-tabs__tab');
+      if (tab && !tab.classList.contains('active')) {
+        switchTab(tab.dataset.tab, {focusTab: tab === previewTab});
+      }
+    }
   });
 
   formElement._switchTab = switchTab;
