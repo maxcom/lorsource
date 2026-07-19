@@ -55,14 +55,7 @@
   <h1>Редактирование</h1>
 </c:if>
 
-<c:if test="${newPreparedMessage==null && commit}">
-<div class=messages>
-  <lor:topic messageMenu="${topicMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" showImageDelete="true"/>
-</div>
-</c:if>
-
 <c:if test="${newPreparedMessage!=null}">
-<h2>Предпросмотр</h2>
 <div class=messages>
   <lor:topic messageMenu="${topicMenu}" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false"/>
 </div>
@@ -135,18 +128,36 @@
   </c:if>
 
   <c:if test="${imagepost}">
-    <c:if test="${not empty form.uploadedImages}">
-      <div class="control-group">
-        <c:forEach var="v" items="${form.uploadedImages}" varStatus="i">
-          <form:hidden path="uploadedImages[${i.index}]"/>
-          <c:if test="${v == null}">
-            <label>Добавить Изображение:
-             <input type="file" name="images" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
-            </label>
-          </c:if>
-        </c:forEach>
-      </div>
-    </c:if>
+    <div class="control-group">
+      <c:choose>
+        <c:when test="${newPreparedMessage !=null}">
+          <c:set var="images" value="${newPreparedMessage.images}"/>
+        </c:when>
+        <c:otherwise>
+          <c:set var="images" value="${preparedMessage.images}"/>
+        </c:otherwise>
+      </c:choose>
+      <c:forEach var="image" items="${images}">
+        <div style="display: flex; align-items: center; gap: 1em">
+            <a href="${image.fullName}" target="_blank">
+              <img src="${image.mediumName}" style="height: 50px; width: auto">
+            </a>
+            <c:if test="${image.image.id != 0}">
+              <a href="/delete_image?id=${image.image.id}">удалить изображение</a>
+            </c:if>
+        </div>
+      </c:forEach>
+
+      <c:forEach var="image" items="${form.uploadedImages}" varStatus="i">
+        <form:hidden path="uploadedImages[${i.index}]"/>
+
+        <c:if test="${image == null}">
+          <label>Добавить изображение:
+           <input type="file" name="images" accept=".jpg,.jpeg,.png,.gif,image/jpeg,image/png,image/gif">
+          </label>
+        </c:if>
+      </c:forEach>
+    </div>
   </c:if>
 
   <c:if test="${topicMenu.miniEditable}">

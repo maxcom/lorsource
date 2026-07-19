@@ -24,7 +24,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>Удаление изображения</h1>
 
-<lor:image image="${image}" title="" preparedMessage="${preparedTopic}" showImage="true"/>
+<lor:image image="${image}" title="" preparedMessage="${preparedTopic}"/>
 
 <form method="POST" action="/delete_image">
   <lor:csrf/>

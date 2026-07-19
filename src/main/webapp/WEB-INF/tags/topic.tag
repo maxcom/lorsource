@@ -12,9 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
-<%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="ru.org.linux.warning.WarningService" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
@@ -22,9 +20,7 @@
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="memoriesInfo" required="false" type="ru.org.linux.user.MemoriesInfo" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
-<%@ attribute name="showImageDelete" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
-<%@ attribute name="imageSlider" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="briefEditInfo" required="false" type="ru.org.linux.topic.PreparedEditInfoSummary" %>
 <%@ attribute name="reactionList" required="false" type="ru.org.linux.reaction.PreparedReactionList" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -107,24 +103,14 @@
 
     <c:if test="${fn:length(preparedMessage.images) == 1}">
       <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.images[0]}" enableSchema="true"
-                 preparedMessage="${preparedMessage}" showImage="true" sizes="${sizes}"
-                 enableEdit="${messageMenu.topicEditable && showImageDelete && not preparedMessage.section.imagepost}"/>
+                 preparedMessage="${preparedMessage}" sizes="${sizes}"/>
     </c:if>
 
     <c:if test="${fn:length(preparedMessage.images) > 1}">
-      <c:if test="${imageSlider}">
-        <lor:imageslider title="${preparedMessage.message.title}"
-                         classes="slider-indicators-outside slider-indicators-sm"
-                         sizes="${sizes}"
-                         images="${preparedMessage.images}"/>
-      </c:if>
-
-      <c:if test="${not imageSlider}">
-        <c:forEach var="image" items="${preparedMessage.images}">
-          <lor:image title="${preparedMessage.message.title}" image="${image}" enableSchema="true" sizes="${sizes}"
-                     preparedMessage="${preparedMessage}" showImage="true" enableEdit="${messageMenu.topicEditable && showImageDelete}"/>
-        </c:forEach>
-      </c:if>
+      <lor:imageslider title="${preparedMessage.message.title}"
+                       classes="slider-indicators-outside slider-indicators-sm"
+                       sizes="${sizes}"
+                       images="${preparedMessage.images}"/>
     </c:if>
 
     <c:if test="${memoriesInfo!=null}">

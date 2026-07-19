@@ -175,7 +175,7 @@
         preparedMessage="${preparedMessage}" 
         message="${message}"
         briefEditInfo="${editInfo}"
-        showMenu="true" enableSchema="true" imageSlider="true"/>
+        showMenu="true" enableSchema="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
 

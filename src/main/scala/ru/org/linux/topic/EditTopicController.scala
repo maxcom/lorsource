@@ -82,6 +82,7 @@ class EditTopicController(
       })
 
       mv.getModel.put("commit", true)
+      mv.getModel.put("info", "Подтверждение")
 
       mv
     }
@@ -274,6 +275,9 @@ class EditTopicController(
           commitCheck.checkOrError(errors)
 
       params.put("commit", Boolean.box(preparedTopic.committable && commitCheck.permitted))
+
+      if commit && preparedTopic.committable && commitCheck.permitted then
+        params.put("info", "Подтверждение")
 
       val newMsg = Topic.fromEditRequest(preparedTopic.group, topic, form, request.getParameter("publish") != null)
       val oldText = msgbaseDao.getMessageText(topic.id)

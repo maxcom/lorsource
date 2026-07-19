@@ -65,28 +65,28 @@
             Добавлены изображения:
           </c:if>
           <c:forEach var="image" items="${editHistory.addedImages}">
-            <lor:image title="additional image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
+            <lor:image title="additional image" image="${image}" enableSchema="true"/>
           </c:forEach>
         </c:if>
 
         <c:if test="${not empty editHistory.addedMainImage}">
           Основное изображение добавлено:
           <c:forEach var="image" items="${editHistory.addedMainImage}">
-            <lor:image title="main image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
+            <lor:image title="main image" image="${image}" enableSchema="true"/>
           </c:forEach>
         </c:if>
 
         <c:if test="${not empty editHistory.removedImages}">
           Удалены изображения:
           <c:forEach var="image" items="${editHistory.removedImages}">
-            <lor:image title="additional image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
+            <lor:image title="additional image" image="${image}" enableSchema="true"/>
           </c:forEach>
         </c:if>
 
         <c:if test="${not empty editHistory.removedMainImage}">
           Удалено основное изображение:
           <c:forEach var="image" items="${editHistory.removedMainImage}">
-            <lor:image title="main image" image="${image}" enableSchema="true" showImage="true" enableEdit="false"/>
+            <lor:image title="main image" image="${image}" enableSchema="true"/>
           </c:forEach>
         </c:if>
 

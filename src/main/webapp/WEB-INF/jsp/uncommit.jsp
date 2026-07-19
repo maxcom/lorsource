@@ -26,7 +26,7 @@
 <h1>Возврат в неподтверждённые</h1>
 Вы можете отменить подтверждение и вернуть топик в список неподтверждённых.
 <div class=messages>
-  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" imageSlider="true"/>
+  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
 </div>
 <form method=POST action="uncommit.jsp">
   <lor:csrf/>

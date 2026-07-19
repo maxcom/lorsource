@@ -26,7 +26,7 @@
 Вы можете восстановить удалённое сообщение.
 
 <div class=messages>
-  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" imageSlider="true"/>
+  <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
 </div>
 
 <form method=POST action="undelete">

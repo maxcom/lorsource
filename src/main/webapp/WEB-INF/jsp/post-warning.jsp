@@ -90,8 +90,7 @@
 
 <c:if test="${preparedTopic != null}">
   <div class=messages>
-    <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedTopic}" message="${request.topic}"
-      showMenu="false" imageSlider="true"/>
+    <lor:topic messageMenu="<%= null %>" preparedMessage="${preparedTopic}" message="${request.topic}" showMenu="false"/>
   </div>
 </c:if>
 

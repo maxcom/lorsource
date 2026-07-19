@@ -20,7 +20,7 @@
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <description><![CDATA[
   <c:if test="${not empty preparedTopic.images}">
-    <lor:image title="${preparedTopic.message.title}" image="${preparedTopic.images[0]}" preparedMessage="${preparedTopic}" showImage="true"/>
+    <lor:image title="${preparedTopic.message.title}" image="${preparedTopic.images[0]}" preparedMessage="${preparedTopic}"/>
   </c:if>
 
   ${preparedTopic.processedMessage}

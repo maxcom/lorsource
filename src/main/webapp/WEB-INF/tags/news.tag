@@ -105,7 +105,7 @@
 
 <c:if test="${fn:length(preparedMessage.images) == 1}">
   <lor:image title="${preparedMessage.message.title}" image="${preparedMessage.images[0]}" sizes="(min-width: 47em) 40vw, 100vw"
-             preparedMessage="${preparedMessage}" showImage="true" heightLimit="70vh"/>
+             preparedMessage="${preparedMessage}" heightLimit="70vh"/>
 </c:if>
 <c:if test="${fn:length(preparedMessage.images) > 1}">
   <lor:imageslider title="${preparedMessage.message.title}"

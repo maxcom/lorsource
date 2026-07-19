@@ -19,15 +19,13 @@
 <%@ attribute name="preparedMessage" required="false" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="image" required="true" type="ru.org.linux.topic.PreparedImage" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
-<%@ attribute name="showImage" required="false" type="java.lang.Boolean" %>
-<%@ attribute name="enableEdit" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="sizes" required="false" type="java.lang.String" %>
 <%@ attribute name="heightLimit" required="false" type="java.lang.String" %>
 <%@ attribute name="enableSchema" required="false" type="java.lang.Boolean" %>
 <c:set var="sizesValue" value="${(empty sizes) ? '100vw' : sizes}" />
 <c:set var="heightLimitValue" value="${(empty heightLimit) ? '90vh' : heightLimit}" />
 
-<c:if test="${showImage!=null and showImage and image!=null}">
+<c:if test="${image!=null}">
   <div class="medium-image-container" style="max-width: <%= Math.min(image.getFullInfo().getWidth(), Image.MaxScaledSize()) %>px; max-height: ${heightLimitValue};
     width: min(var(--image-width), calc(${heightLimitValue} * ${image.mediumInfo.width} / ${image.mediumInfo.height}))">
   <figure class="medium-image" <%-- padding продублирован Pale Moon и других для браузеров, не умеющих min() --%>
@@ -50,10 +48,5 @@
       </a>
     </c:if>
   </figure>
-    <c:if test="${enableEdit}">
-      <div>
-        <a href="/delete_image?id=${image.image.id}">удалить изображение</a>
-      </div>
-    </c:if>
   </div>
 </c:if>
