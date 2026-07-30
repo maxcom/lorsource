@@ -364,10 +364,6 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
       sql"update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and not blocked)"
         .update
         .apply())
-    springDB.run(
-      sql"update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and blocked is null)"
-        .update
-        .apply())
 
   def deleteInactivatedAccounts()(using Transaction): (Int, Int) =
     sql"delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)"
