@@ -22,6 +22,7 @@ import ru.org.linux.topic.TopicListRequest.CommitMode
 import ru.org.linux.topic.TopicListRequest.CommitMode.*
 import ru.org.linux.topic.TopicListRequest.DateLimit
 import ru.org.linux.user.User
+import ru.org.linux.warning.WarningService.TopicMaxWarnings
 import scalikejdbc.*
 
 import scala.collection.mutable
@@ -35,6 +36,9 @@ object TopicListDao:
     val sections = request.sections.filter(_ != 0).toSeq
 
     fragments += sqls"NOT deleted"
+
+    if currentUserOpt.isEmpty then
+      fragments += sqls"AND topics.open_warnings <= $TopicMaxWarnings"
 
     if !skipIgnoreList && request.commitMode != CommittedOnly && currentUserOpt.forall(_.id != request.userId) then
       currentUserOpt.foreach: user =>
