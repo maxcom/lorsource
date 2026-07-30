@@ -61,6 +61,8 @@ import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
+import scala.Option;
+
 public class UrlWithParamTag extends Tag {
   public UrlWithParamTag(ImmutableSet<String> allowedChildren, ParserParameters parserParameters) {
     super("url2", allowedChildren, "p", parserParameters);
@@ -115,8 +117,25 @@ public class UrlWithParamTag extends Tag {
         ret.append("<a href=\"")
                 .append(ToHtmlFormatter.strangeEscapeHtml(escapedUrl))
                 .append("\">")
-                .append(node.renderChildrenXHtml())
-                .append("</a>");
+                .append(node.renderChildrenXHtml());
+
+        String linkText = node.renderChildrenOg();
+
+        if (linkText.length() <= 3) {
+          Option<String> shortHost = URLUtil.extractShortHost(escapedUrl);
+
+          ret.append(" (");
+
+          if (shortHost.isDefined()) {
+            ret.append(ToHtmlFormatter.strangeEscapeHtml(shortHost.get()));
+          } else {
+            ret.append("---");
+          }
+
+          ret.append(")");
+        }
+
+        ret.append("</a>");
       } else {
         ret.append("<s title=\"")
             .append(ToHtmlFormatter.strangeEscapeHtml(escapedUrl))
