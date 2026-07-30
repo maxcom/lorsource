@@ -355,4 +355,8 @@
     </form>
   </fieldset>
 </c:if>
+<div>
+  <a href="/admin/email-domains">Блокировка почтовых доменов</a>
+</div>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
