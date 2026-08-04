@@ -132,6 +132,7 @@ class EmailDomainsBlockDaoIntegrationTest:
   @Test
   def testAutoBlockBlockedAtIsCreationTime(): Unit =
     val blockUntil = java.time.OffsetDateTime.now.plusDays(7)
+      .truncatedTo(java.time.temporal.ChronoUnit.MICROS)
     val beforeInsert = java.time.OffsetDateTime.now
 
     dao.blockDomains(Seq(EmailDomainsBlockDaoIntegrationTest.AutoDomain), blockUntil)
