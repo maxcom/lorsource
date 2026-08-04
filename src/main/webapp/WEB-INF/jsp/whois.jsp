@@ -224,7 +224,11 @@
         <b>Дата регистрации:</b> <lor:date date="${userInfo.registrationDate}"/><br>
     </c:if>
     <c:if test="${userInfo.lastLogin != null}">
-        <b>Последнее посещение:</b> <lor:date date="${userInfo.lastLogin}"/><br>
+        <b>Последнее посещение:</b>
+        <c:choose>
+            <c:when test="${not empty lastLoginFuzzy}"><c:out value="${lastLoginFuzzy}"/></c:when>
+            <c:otherwise><lor:date date="${userInfo.lastLogin}"/></c:otherwise>
+        </c:choose><br>
     </c:if>
 
     <b>Статус:</b> ${user.status}

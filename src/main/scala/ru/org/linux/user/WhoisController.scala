@@ -29,6 +29,7 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.rights.{EditProfileChecker, SlowModeChecker}
+import ru.org.linux.site.DateFormats
 import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
 import java.net.URLEncoder
@@ -106,6 +107,16 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     mv.getModel.put("moderatorOrCurrentUser", viewByOwner || currentUserOpt.moderator)
     mv.getModel.put("viewByOwner", viewByOwner)
+
+    val showFuzzy = !viewByOwner && {
+      !currentUserOpt.authorized ||
+        currentUserOpt.userOpt.exists(u =>
+          u.getScore < 100 || u.isFrozen || slowModeChecker.check(u).restricted)
+    }
+
+    if showFuzzy && userInfo.lastLogin != null then
+      val tz = request.getAttribute("timezone").asInstanceOf[ZoneId]
+      mv.getModel.put("lastLoginFuzzy", DateFormats.formatFuzzyDate(tz, userInfo.lastLogin))
 
     currentUserOpt.userOpt.foreach { currentUser =>
       if (!viewByOwner) {

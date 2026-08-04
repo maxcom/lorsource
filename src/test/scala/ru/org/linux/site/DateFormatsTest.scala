@@ -102,3 +102,18 @@ class DateFormatsTest extends FunSuite:
     val now = makeDate(2024, 6, 15, 12, 0, 0)
     val date = makeDate(2024, 6, 10, 10, 30, 0)
     assertEquals(DateFormats.formatCompactIntervalImpl(date, Moscow, now.toInstant), "10.06.24")
+
+  test("formatFuzzyDateImpl recently"):
+    val now = makeDate(2024, 6, 15, 12, 0, 0)
+    val date = makeDate(2024, 6, 13, 10, 30, 0)
+    assertEquals(DateFormats.formatFuzzyDateImpl(Moscow, date, now.toInstant), "недавно")
+
+  test("formatFuzzyDateImpl few days ago"):
+    val now = makeDate(2024, 6, 15, 12, 0, 0)
+    val date = makeDate(2024, 6, 10, 10, 30, 0)
+    assertEquals(DateFormats.formatFuzzyDateImpl(Moscow, date, now.toInstant), "10.06.24")
+
+  test("formatFuzzyDateImpl year ago"):
+    val now = makeDate(2024, 6, 15, 12, 0, 0)
+    val date = makeDate(2023, 4, 10, 10, 30, 0)
+    assertEquals(DateFormats.formatFuzzyDateImpl(Moscow, date, now.toInstant), "2023")

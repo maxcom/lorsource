@@ -14,7 +14,7 @@
  */
 package ru.org.linux.site
 
-import java.time.{Instant, ZoneId}
+import java.time.{Duration, Instant, ZoneId}
 import java.time.format.{DateTimeFormatter, FormatStyle}
 import java.time.temporal.ChronoUnit
 import java.util.{Date, Locale}
@@ -25,7 +25,10 @@ object DateFormats:
   private val Short = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm").withLocale(RussianLocale)
   private val Time = DateTimeFormatter.ofPattern("HH:mm").withLocale(RussianLocale)
   private val Date = DateTimeFormatter.ofPattern("dd.MM.yy").withLocale(RussianLocale)
+  private val Year = DateTimeFormatter.ofPattern("yyyy").withLocale(RussianLocale)
   private val Moscow = ZoneId.of("Europe/Moscow")
+  private val RecentlyThreshold = Duration.ofDays(3)
+  private val YearThreshold = Duration.ofDays(365)
 
   private val Iso8601: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
   private val Rfc822: DateTimeFormatter = DateTimeFormatter.RFC_1123_DATE_TIME
@@ -38,6 +41,19 @@ object DateFormats:
   def formatDateOnly(tz: ZoneId, date: Date) = Date.withZone(tz).format(date.toInstant)
   private[site] def formatTime(tz: ZoneId, date: Date) = Time.withZone(tz).format(date.toInstant)
   private[site] def formatShort(tz: ZoneId, date: Date) = Short.withZone(tz).format(date.toInstant)
+
+  def formatFuzzyDate(tz: ZoneId, date: Date): String =
+    formatFuzzyDateImpl(tz, date, Instant.now)
+
+  private[site] def formatFuzzyDateImpl(tz: ZoneId, date: Date, now: Instant): String =
+    val elapsed = Duration.between(date.toInstant, now)
+
+    if elapsed.compareTo(RecentlyThreshold) < 0 then
+      "недавно"
+    else if elapsed.compareTo(YearThreshold) < 0 then
+      formatDateOnly(tz, date)
+    else
+      Year.withZone(tz).format(date.toInstant)
 
   def formatInterval(date: Date, timezone: ZoneId): String =
     formatIntervalImpl(date, timezone, Instant.now)
