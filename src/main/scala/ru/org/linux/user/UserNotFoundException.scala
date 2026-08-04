@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,13 +12,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.user
 
-package ru.org.linux.util;
+class UserNotFoundException private (message: String) extends RuntimeException(message)
 
-public class BadDateException extends Exception
-{
-	BadDateException(String info)
-	{
-		super(info);
-	}
-}
+object UserNotFoundException:
+  def apply(name: String): UserNotFoundException = new UserNotFoundException(s"Пользователь \"$name\" не существует")
+  def apply(id: Int): UserNotFoundException = new UserNotFoundException(s"Пользователь id=$id не существует")

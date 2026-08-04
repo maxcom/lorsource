@@ -56,7 +56,7 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
     }
 
     if (!user.activated && !currentUserOpt.moderator) {
-      throw new UserNotFoundException(user.getName)
+      throw UserNotFoundException(user.getName)
     }
 
     val userStatsF = userStatisticsService.getStats(user)

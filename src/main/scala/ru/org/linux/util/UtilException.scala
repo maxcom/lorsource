@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,18 +12,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.util
 
-package ru.org.linux.util;
-
-public class ServletParameterMissingException extends ServletParameterException {
-  private final String name;
-
-  public ServletParameterMissingException(String n) {
-    super("missing parameter `" + n + '\'');
-    name = n;
-  }
-
-  public String getName() {
-    return name;
-  }
-}
+class UtilException private[util] (info: String) extends Exception(info)

@@ -39,12 +39,12 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
       throw new NullPointerException()
 
     if !StringUtil.checkLoginName(nick) then
-      throw new UserNotFoundException("<invalid name>")
+      throw UserNotFoundException("<invalid name>")
 
     val list = springDB.run(sql"SELECT id FROM users WHERE nick=${nick}".map(rs => rs.int("id")).list.apply())
 
     if list.isEmpty then
-      throw new UserNotFoundException(nick)
+      throw UserNotFoundException(nick)
 
     if list.size > 1 then
       throw new RuntimeException("list.size()>1 ???")
@@ -58,7 +58,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
         .map(rs => User.fromResultSet(rs.underlying))
         .single
         .apply()
-        .getOrElse(throw new UserNotFoundException(id)))
+        .getOrElse(throw UserNotFoundException(id)))
 
   def getUserInfo(user: User): UserInfo =
     springDB.run(
@@ -167,7 +167,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
   def changeScore(id: Int, delta: Int)(using Transaction): Unit =
     val updated = sql"UPDATE users SET score=score+${delta} WHERE id=${id}".update.apply()
     if updated == 0 then
-      throw new IllegalArgumentException(new UserNotFoundException(id))
+      throw new IllegalArgumentException(UserNotFoundException(id))
 
   def setCorrector(user: User)(using Transaction): Unit =
     if !user.corrector then

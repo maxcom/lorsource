@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,30 +12,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.site
 
-package ru.org.linux.user;
-
-public class UserBanedException extends Exception {
-  private final User user;
-  private final BanInfo banInfo;
-
-  public UserBanedException() {
-    super("Пользователь забанен.");
-    user = null;
-    banInfo = null;
-  }
-  
-  public UserBanedException(User user, BanInfo banInfo) {
-    super("Пользователь забанен.");
-    this.user = user;
-    this.banInfo = banInfo;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public BanInfo getBanInfo() {
-    return banInfo;
-  }
-}
+class ScriptErrorException(info: String, th: Throwable) extends RuntimeException(info, th):
+  def this() = this("неизвестная ошибка скрипта", null)
+  def this(info: String) = this(info, null)

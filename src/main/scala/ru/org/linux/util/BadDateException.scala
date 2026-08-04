@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,20 +12,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.util
 
-package ru.org.linux.poll;
-
-import ru.org.linux.site.ScriptErrorException;
-
-public class PollNotFoundException extends ScriptErrorException {
-  public PollNotFoundException(int id) {
-    super("Голосование #" + id + " не существует");    
-  }
-  public PollNotFoundException() {
-    super("Голосование не существует");
-  }
-
-  public PollNotFoundException(String info) {
-    super(info);
-  }
-}
+class BadDateException private[util] (info: String) extends Exception(info)

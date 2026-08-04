@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,11 +12,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.poll
 
-package ru.org.linux.util;
+import ru.org.linux.site.ScriptErrorException
 
-public class UtilException extends Exception {
-  UtilException(String info) {
-    super(info);
-  }
-}
+class PollNotFoundException(message: String) extends ScriptErrorException(message):
+  def this(id: Int) = this(s"Голосование #$id не существует")
+  def this() = this("Голосование не существует")

@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,13 +12,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.util
 
-package ru.org.linux.util;
+import scala.beans.BeanProperty
 
-import jakarta.servlet.ServletException;
-
-public class ServletParameterException extends ServletException {
-  public ServletParameterException(String info) {
-    super(info);
-  }
-}
+class ServletParameterMissingException(
+    @BeanProperty
+    val name: String)
+    extends ServletParameterException(s"missing parameter `$name'")

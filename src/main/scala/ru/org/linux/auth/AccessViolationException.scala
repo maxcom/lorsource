@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,19 +12,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.auth
 
-package ru.org.linux.site;
+import ru.org.linux.user.UserErrorException
 
-public class ScriptErrorException extends RuntimeException {
-  public ScriptErrorException() {
-    super("неизвестная ошибка скрипта");
-  }
-
-  public ScriptErrorException(String info) {
-    super(info);
-  }
-
-  public ScriptErrorException(String info, Throwable th) {
-    super(info, th);
-  }
-}
+class AccessViolationException(info: String) extends UserErrorException(info)

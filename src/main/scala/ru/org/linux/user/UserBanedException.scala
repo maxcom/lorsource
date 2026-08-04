@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,21 +12,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.user
 
-package ru.org.linux.util;
+import javax.annotation.Nullable
+import scala.beans.BeanProperty
 
-import javax.imageio.IIOException;
-
-public class BadImageException extends Exception {
-  public BadImageException() {
-    super("Некорректное изображение");
-  }
-
-  public BadImageException(String info) {
-    super(info);
-  }
-
-  public BadImageException(String info, IIOException ex) {
-    super(info, ex);
-  }
-}
+class UserBanedException(
+    @BeanProperty @Nullable
+    val user: User,
+    @BeanProperty @Nullable
+    val banInfo: BanInfo)
+    extends Exception("Пользователь забанен."):
+  def this() = this(null, null)

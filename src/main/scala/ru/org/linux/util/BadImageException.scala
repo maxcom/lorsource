@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -12,16 +12,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.util
 
-package ru.org.linux.user;
+import javax.imageio.IIOException
 
-public class UserNotFoundException extends RuntimeException {
-  public UserNotFoundException(String name) {
-    super("Пользователь \"" + name + "\" не существует");
-  }
-
-  public UserNotFoundException(int id) {
-    super("Пользователь id=" + id + " не существует");
-  }
-
-}
+class BadImageException(info: String) extends Exception(info):
+  def this() = this("Некорректное изображение")
+  def this(info: String, ex: IIOException) =
+    this(info)
+    initCause(ex)

@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.user.User;
-import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.user.UserNotFoundException$;
 import ru.org.linux.user.UserService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
@@ -57,7 +57,7 @@ public class MemberTagTest {
     when(userService.getUserCached("maxcom")).thenReturn(maxcom);
     when(userService.getUserCached("JB")).thenReturn(JB);
     when(userService.getUserCached("isden")).thenReturn(isden);
-    when(userService.getUserCached("hizel")).thenThrow(new UserNotFoundException("hizel"));
+    when(userService.getUserCached("hizel")).thenThrow(UserNotFoundException$.MODULE$.apply("hizel"));
 
     String mainUrl = "http://127.0.0.1:8080/";
     URI mainURI = new URI(mainUrl, true, "UTF-8");
