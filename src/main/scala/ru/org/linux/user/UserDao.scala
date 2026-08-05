@@ -156,6 +156,14 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
   def setPhoto(user: User, photo: String)(using Transaction): Unit =
     sql"UPDATE users SET photo=${photo} WHERE id=${user.id}".update.apply()
 
+  /** Все активные имена файлов аватарок. Используется для того, чтобы не удалять файлы, которые сейчас привязаны к
+    * пользователям.
+    */
+  def getAllActivePhotos: Set[String] =
+    springDB.run {
+      sql"SELECT photo FROM users WHERE photo IS NOT NULL".map(rs => rs.string("photo")).list.apply().toSet
+    }
+
   def updateUserInfo(userid: Int, text: String, markup: MarkupType)(using Transaction): Boolean =
     sql"UPDATE users SET userinfo=${text}, userinfo_markup=${markup
         .id} WHERE id=${userid} AND (userinfo IS DISTINCT FROM ${text} OR userinfo_markup IS DISTINCT FROM ${markup

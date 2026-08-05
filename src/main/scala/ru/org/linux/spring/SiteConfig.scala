@@ -136,5 +136,17 @@ class SiteConfig(
 
   def getFallbackProxyPort: Int = properties.getProperty("fallback.proxy.port").toInt
 
+  /** Удалять ли физически старые аватарки пользователей.
+    *
+    * @return
+    *   true если разрешено удалять, иначе false (только логгирование)
+    */
+  def cleanOldUserpics: Boolean =
+    val property = properties.getProperty("cleanOldUserpics")
+    if property == null then
+      false
+    else
+      property.toBoolean
+
 object SiteConfig:
   private val ErrMsg = "Invalid MainUrl property: "

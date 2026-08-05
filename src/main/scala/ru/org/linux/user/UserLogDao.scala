@@ -168,6 +168,27 @@ class UserLogDao(springDB: SpringDB):
         .apply()
     }
 
+  /** Для каждого имени файла аватарки возвращает самое позднее упоминание в user_log (по столбцам info->>'old_userpic'
+    * и info->>'new_userpic' для действий set_userpic/reset_userpic). Файлы без записей (None) считаются загруженными до
+    * 2013 года.
+    */
+  def getLatestUserpicMentions(filenames: Seq[String]): Map[String, Option[OffsetDateTime]] =
+    if filenames.isEmpty then
+      Map.empty
+    else
+      springDB.run {
+        sql"""SELECT name, MAX(action_date) FROM (
+                SELECT info->'old_userpic' name, action_date FROM user_log
+                  WHERE action IN (${UserLogAction.SetUserpic.toDbName}::user_log_action,
+                                   ${UserLogAction.ResetUserpic.toDbName}::user_log_action)
+                    AND info->'old_userpic' IN ($filenames)
+                UNION ALL
+                SELECT info->'new_userpic', action_date FROM user_log
+                  WHERE action = ${UserLogAction.SetUserpic.toDbName}::user_log_action
+                    AND info->'new_userpic' IN ($filenames)
+              ) t GROUP BY name""".map(rs => rs.string("name") -> rs.offsetDateTimeOpt(2)).list.apply().toMap
+      }
+
   def logRegister(userid: Int, ip: String, userAgent: Int, language: Option[String])(using Transaction): Unit =
     val info: ju.Map[String, String] = (
       Map(UserLogDao.OptionIp -> ip, UserLogDao.OptionUserAgent -> userAgent.toString) ++

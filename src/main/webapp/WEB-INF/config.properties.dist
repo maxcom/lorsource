@@ -56,3 +56,6 @@ jdbc.poolSize=10
 telegram.token=false
 fallback.proxy.host=localhost
 fallback.proxy.port=3128
+
+# удалять старые аватарки пользователей (при false — только логгируем кандидатов)
+cleanOldUserpics=false
