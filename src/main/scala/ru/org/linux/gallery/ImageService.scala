@@ -31,7 +31,7 @@ import ru.org.linux.util.BadImageException
 import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 
 import java.io.{File, FileNotFoundException, IOException}
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import java.time.{Duration, Instant}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -74,23 +74,27 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
   def prepareImage(image: Image, lazyLoad: Boolean): Option[PreparedImage] = {
     Preconditions.checkNotNull(image)
 
-    val mediumName = image.getMedium
+    if image.purged then
+      logger.info(s"Image purged, skip prepare id=${image.id}")
+      None
+    else
+      val mediumName = image.getMedium
 
-    try {
-      val mediumImageInfo = new ImageInfo(htmlPath + mediumName)
-      val fullInfo = new ImageInfo(htmlPath + image.original)
-      val medURI = siteConfig.getSecureUrl + mediumName
-      val fullURI = siteConfig.getSecureUrl + image.original
+      try {
+        val mediumImageInfo = new ImageInfo(htmlPath + mediumName)
+        val fullInfo = new ImageInfo(htmlPath + image.original)
+        val medURI = siteConfig.getSecureUrl + mediumName
+        val fullURI = siteConfig.getSecureUrl + image.original
 
-      Some(PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image, lazyLoad))
-    } catch {
-      case e: FileNotFoundException =>
-        logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")
-        None
-      case NonFatal(e) =>
-        logger.error(s"Bad image id=${image.id}", e)
-        None
-    }
+        Some(PreparedImage(medURI, mediumImageInfo, fullURI, fullInfo, image, lazyLoad))
+      } catch {
+        case e: FileNotFoundException =>
+          logger.error(s"Image not found! id=${image.id}: ${e.getMessage}")
+          None
+        case NonFatal(e) =>
+          logger.error(s"Bad image id=${image.id}", e)
+          None
+      }
   }
 
   def prepareGalleryItem(items: java.util.List[GalleryItem]): java.util.List[PreparedGalleryItem] =
@@ -212,5 +216,39 @@ class ImageService(imageDao: ImageDao, editHistoryDao: EditHistoryDao,
           p.toFile.delete()
         }
     }
+  }
+
+  /** Физически удалить с диска все файлы изображения (каталог `images/{id}/`).
+    *
+    * @return
+    *   true если каталог существовал и был удалён (или уже отсутствовал, но считаем успешным no-op для идемпотности).
+    *   false при ошибке удаления.
+    */
+  def purgeImageFiles(image: Image): Boolean = {
+    val dir = Path.of(siteConfig.getUploadPath, "images", image.id.toString)
+
+    try
+      if Files.isDirectory(dir) then
+        val stream = Files.newDirectoryStream(dir)
+        try
+          stream.asScala.foreach { f =>
+            Files.deleteIfExists(f)
+          }
+          Files.deleteIfExists(dir)
+        finally
+          stream.close()
+        logger.info(s"Purged image files id=${image.id} dir=$dir")
+      else
+        logger.info(s"Image dir already absent id=${image.id} dir=$dir")
+      true
+    catch
+      case e: IOException =>
+        logger.warn(s"Failed to purge image files id=${image.id} dir=$dir: ${e.getMessage}")
+        false
+  }
+
+  /** Пометить изображения как физически удалённые в одной транзакции. */
+  def markPurged(ids: Seq[Int]): Unit = springDB.localTx {
+    imageDao.markPurged(ids)
   }
 }

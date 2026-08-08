@@ -17,7 +17,7 @@ package ru.org.linux.edithistory
 import cats.data.Chain
 import org.springframework.stereotype.Service
 import ru.org.linux.comment.Comment
-import ru.org.linux.gallery.{ImageDao, ImageService}
+import ru.org.linux.gallery.{Image, ImageDao, ImageService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.poll.{Poll, PollDao, PollNotFoundException}
@@ -41,6 +41,20 @@ class EditHistoryService(
     imageService: ImageService,
     pollDao: PollDao):
 
+  /** Разделить изображения на подготовленные (файл есть на диске) и отсутствующие (purged или файл потерян).
+    * Отсутствующие остаются как `Image`-ряды, чтобы история рендерила плейсхолдер «Изображение удалено»
+    * без обращения к файлу.
+    */
+  private def preparedOr(images: Seq[Image]): (List[PreparedImage], List[Image]) =
+    val present = List.newBuilder[PreparedImage]
+    val missing = List.newBuilder[Image]
+    images.foreach { img =>
+      imageService.prepareImage(img) match
+        case Some(p) => present += p
+        case None    => missing += img
+    }
+    (present.result(), missing.result())
+
   private case class TopicEditHistoryState(
       message: String,
       markup: MarkupType,
@@ -52,12 +66,12 @@ class EditHistoryService(
       lastId: Integer,
       poll: Poll,
       first: Boolean,
-      images: Seq[PreparedImage]):
+      images: Seq[Image]):
     def next(dto: EditHistoryRecord): TopicEditHistoryState =
-      val images = dto
+      val images: Seq[Image] = dto
         .oldaddimages
-        .map { images =>
-          images.map(imageDao.getImage).flatMap(imageService.prepareImage)
+        .map { ids =>
+          ids.map(imageDao.getImage)
         }
         .getOrElse(this.images)
 
@@ -89,38 +103,43 @@ class EditHistoryService(
       )
 
     def build(dto: EditHistoryRecord): PreparedEditHistory =
-      val (addedImages, removedImages, addedMainImage, removedMainImage) =
+      val (addedImages, addedMissing, removedImages, removedMissing,
+           addedMainImage, addedMainMissing, removedMainImage, removedMainMissing) =
         if dto.oldaddimages.isDefined then
-          val currentIds = this.images.map(_.image.id).toSet
+          val currentIds = this.images.map(_.id).toSet
 
-          val added  = this.images.filterNot(img => dto.oldaddimages.get.contains(img.image.id))
-          val removed = dto
+          val added: Seq[Image] = this.images.filterNot(img => dto.oldaddimages.get.contains(img.id))
+          val removed: Seq[Image] = dto
             .oldaddimages
             .get
             .filterNot(currentIds.contains)
             .map(imageDao.getImage)
-            .flatMap(imageService.prepareImage)
 
-          (added.asJava, removed.asJava, null, null)
+          val (addedPresent, addedAbsent) = preparedOr(added)
+          val (removedPresent, removedAbsent) = preparedOr(removed)
+
+          (addedPresent.asJava, addedAbsent.asJava, removedPresent.asJava, removedAbsent.asJava,
+            null, null, null, null)
 
         else if dto.legacyMainImage.contains(0) then
-          val addedMain =
-            this.images.headOption.map(_ => this.images.take(1).toList.asJava).orNull
+          val (addedPresent, addedAbsent) = this.images.headOption match
+            case Some(_) => preparedOr(this.images.take(1))
+            case None => (Nil, Nil)
 
-          (null, null, addedMain, null)
+          (null, null, null, null, addedPresent.asJava, addedAbsent.asJava, null, null)
 
         else if dto.legacyMainImage.isDefined && dto.legacyMainImage.get > 0 then
           val xId = dto.legacyMainImage.get
-          val removedMain =
-            if this.images.exists(_.image.id == xId) then
-              null
+          val (removedPresent, removedAbsent) =
+            if this.images.exists(_.id == xId) then
+              (Nil, Nil)
             else
-              Seq(imageDao.getImage(xId)).flatMap(imageService.prepareImage).asJava
+              preparedOr(Seq(imageDao.getImage(xId)))
 
-          (null, null, null, removedMain)
+          (null, null, null, null, null, null, removedPresent.asJava, removedAbsent.asJava)
 
         else
-          (null, null, null, null)
+          (null, null, null, null, null, null, null, null)
 
       val (message, restoreFrom) =
         if dto.oldmessage.isDefined then
@@ -174,10 +193,16 @@ class EditHistoryService(
         addedImages = addedImages,
         removedImages = removedImages,
         addedMainImage = addedMainImage,
-        removedMainImage = removedMainImage
+        removedMainImage = removedMainImage,
+        addedMissingImages = addedMissing,
+        removedMissingImages = removedMissing,
+        addedMainMissingImage = addedMainMissing,
+        removedMainMissingImage = removedMainMissing
       )
 
     def buildLast(topic: Topic): PreparedEditHistory =
+      val (addedPresent, addedAbsent) = preparedOr(this.images)
+
       PreparedEditHistory(
         original = true,
         editor = userService.getUserCached(topic.authorUserId),
@@ -196,16 +221,20 @@ class EditHistoryService(
         editDate = topic.postdate,
         poll = this.poll,
         restoreFrom = this.lastId,
-        addedImages = this.images.asJava,
+        addedImages = addedPresent.asJava,
         removedImages = null,
         addedMainImage = null,
-        removedMainImage = null
+        removedMainImage = null,
+        addedMissingImages = addedAbsent.asJava,
+        removedMissingImages = null,
+        addedMainMissingImage = null,
+        removedMainMissingImage = null
       )
 
   private object TopicEditHistoryState:
     def fromTopic(topic: Topic): TopicEditHistoryState =
       val messageText: MessageText = msgbaseDao.getMessageText(topic.id)
-      val images = imageService.allImagesForTopic(topic)
+      val images: Seq[Image] = imageService.allImagesForTopic(topic)
 
       TopicEditHistoryState(
         message = messageText.text,
@@ -224,7 +253,7 @@ class EditHistoryService(
               null
         ,
         first = true,
-        images = images.flatMap(imageService.prepareImage)
+        images = images
       )
 
   private case class CommentEditHistoryState(message: String, markup: MarkupType, title: String, first: Boolean):
@@ -262,7 +291,11 @@ class EditHistoryService(
         addedImages = null,
         removedImages = null,
         addedMainImage = null,
-        removedMainImage = null
+        removedMainImage = null,
+        addedMissingImages = null,
+        removedMissingImages = null,
+        addedMainMissingImage = null,
+        removedMainMissingImage = null
       )
 
     def buildLast(comment: Comment): PreparedEditHistory =
@@ -282,7 +315,11 @@ class EditHistoryService(
         addedImages = null,
         removedImages = null,
         addedMainImage = null,
-        removedMainImage = null
+        removedMainImage = null,
+        addedMissingImages = null,
+        removedMissingImages = null,
+        addedMainMissingImage = null,
+        removedMainMissingImage = null
       )
 
   private object CommentEditHistoryState:

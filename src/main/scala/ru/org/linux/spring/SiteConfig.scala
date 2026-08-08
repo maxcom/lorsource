@@ -148,5 +148,17 @@ class SiteConfig(
     else
       property.toBoolean
 
+  /** Удалять ли физически файлы старых удалённых изображений (раз в день).
+    *
+    * @return
+    *   true если разрешено удалять, иначе false (по умолчанию выключено)
+    */
+  def cleanOldImages: Boolean =
+    val property = properties.getProperty("cleanOldImages")
+    if property == null then
+      false
+    else
+      property.toBoolean
+
 object SiteConfig:
   private val ErrMsg = "Invalid MainUrl property: "

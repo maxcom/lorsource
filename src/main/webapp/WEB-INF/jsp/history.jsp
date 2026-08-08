@@ -60,33 +60,45 @@
         <h2>${editHistory.title}</h2>
       </div>
       <div class="msg_body">
-        <c:if test="${not empty editHistory.addedImages}">
+        <c:if test="${not empty editHistory.addedImages or not empty editHistory.addedMissingImages}">
           <c:if test="${not editHistory.original}">
             Добавлены изображения:
           </c:if>
           <c:forEach var="image" items="${editHistory.addedImages}">
             <lor:image title="additional image" image="${image}" enableSchema="true"/>
           </c:forEach>
+          <c:forEach var="image" items="${editHistory.addedMissingImages}">
+            <span class="missing-image">Изображение удалено (id=<c:out value="${image.id}"/>)</span>
+          </c:forEach>
         </c:if>
 
-        <c:if test="${not empty editHistory.addedMainImage}">
+        <c:if test="${not empty editHistory.addedMainImage or not empty editHistory.addedMainMissingImage}">
           Основное изображение добавлено:
           <c:forEach var="image" items="${editHistory.addedMainImage}">
             <lor:image title="main image" image="${image}" enableSchema="true"/>
           </c:forEach>
+          <c:forEach var="image" items="${editHistory.addedMainMissingImage}">
+            <span class="missing-image">Изображение удалено (id=<c:out value="${image.id}"/>)</span>
+          </c:forEach>
         </c:if>
 
-        <c:if test="${not empty editHistory.removedImages}">
+        <c:if test="${not empty editHistory.removedImages or not empty editHistory.removedMissingImages}">
           Удалены изображения:
           <c:forEach var="image" items="${editHistory.removedImages}">
             <lor:image title="additional image" image="${image}" enableSchema="true"/>
           </c:forEach>
+          <c:forEach var="image" items="${editHistory.removedMissingImages}">
+            <span class="missing-image">Изображение удалено (id=<c:out value="${image.id}"/>)</span>
+          </c:forEach>
         </c:if>
 
-        <c:if test="${not empty editHistory.removedMainImage}">
+        <c:if test="${not empty editHistory.removedMainImage or not empty editHistory.removedMainMissingImage}">
           Удалено основное изображение:
           <c:forEach var="image" items="${editHistory.removedMainImage}">
             <lor:image title="main image" image="${image}" enableSchema="true"/>
+          </c:forEach>
+          <c:forEach var="image" items="${editHistory.removedMainMissingImage}">
+            <span class="missing-image">Изображение удалено (id=<c:out value="${image.id}"/>)</span>
           </c:forEach>
         </c:if>
 

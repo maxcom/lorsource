@@ -14,6 +14,7 @@
  */
 package ru.org.linux.edithistory
 
+import ru.org.linux.gallery.Image
 import ru.org.linux.poll.Poll
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.PreparedImage
@@ -56,4 +57,12 @@ case class PreparedEditHistory(
     @BeanProperty
     addedMainImage: util.List[PreparedImage],
     @BeanProperty
-    removedMainImage: util.List[PreparedImage])
+    removedMainImage: util.List[PreparedImage],
+    @BeanProperty
+    addedMissingImages: util.List[Image],
+    @BeanProperty
+    removedMissingImages: util.List[Image],
+    @BeanProperty
+    addedMainMissingImage: util.List[Image],
+    @BeanProperty
+    removedMainMissingImage: util.List[Image])
