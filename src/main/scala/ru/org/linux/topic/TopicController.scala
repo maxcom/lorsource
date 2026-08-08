@@ -197,10 +197,9 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       }
     }
 
-    if (showDeleted || topic.deleted) {
+    if showDeleted || topic.deleted then
       logger.info(s"View deleted ${topic.getLink} by " +
-        s"${session.userOpt.map(_.nick).getOrElse("<none>")} (deleted = ${topic.deleted})")
-    }
+        s"${session.user.nick} (topic deleted = ${topic.deleted}; show deleted comments = $showDeleted)")
 
     params.put("showDeleted", Boolean.box(showDeleted))
     params.put("message", topic)
