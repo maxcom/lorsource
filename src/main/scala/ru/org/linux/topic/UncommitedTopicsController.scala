@@ -19,12 +19,10 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.IpBlockInfo
-import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 
-import java.util.{Calendar, Date}
+import java.time.ZonedDateTime
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller @RequestMapping(value = Array("/view-all.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
@@ -68,12 +66,8 @@ class UncommitedTopicsController(
       val title = section.map(_.uncommitedName).getOrElse("Просмотр неподтверждённых сообщений")
 
       modelAndView.addObject("title", title)
-
-      val calendar = Calendar.getInstance
-      calendar.setTime(new Date)
-      calendar.add(Calendar.MONTH, -3)
-
-      val messages = topicListService.getUncommitedTopic(section, calendar.getTime)
+      
+      val messages = topicListService.getUncommitedTopic(section, ZonedDateTime.now().minusMonths(6).toInstant)
 
       val topics = prepareService.prepareTopics(messages, loadUserpics = false)
 

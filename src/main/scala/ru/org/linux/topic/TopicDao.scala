@@ -279,14 +279,14 @@ class TopicDao(springDB: SpringDB):
     springDB.run:
       sql"""select section, count(*) from topics,groups,sections where section=sections.id AND
             sections.moderate and not draft and topics.groupid=groups.id and not deleted and
-            not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval)
+            not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'6 month'::interval)
             group by section order by section""".map(rs => rs.int("section") -> rs.int("count")).list.apply().toVector
 
   def getUncommitedCount(sectionId: Int): Int =
     springDB.run:
       sql"""SELECT count(*) FROM topics,groups,sections WHERE section=sections.id
             AND sections.moderate AND NOT draft AND topics.groupid=groups.id AND NOT deleted
-            AND NOT topics.moderate AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) AND section=$sectionId"""
+            AND NOT topics.moderate AND postdate>(CURRENT_TIMESTAMP-'6 month'::interval) AND section=$sectionId"""
         .map(rs => rs.int(1))
         .single
         .apply()

@@ -135,11 +135,11 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
 
     topicListDao.getTopics(dto)
 
-  def getUncommitedTopic(section: Option[Section], fromDate: Date)(using AnySession): Seq[Topic] =
+  def getUncommitedTopic(section: Option[Section], fromDate: Instant)(using AnySession): Seq[Topic] =
     val dto = TopicListRequest(
       commitMode = CommitMode.UncommittedOnly,
       sections = section.map(s => Set(s.id)).getOrElse(Set.empty),
-      dateLimit = DateLimit.FromDate(fromDate))
+      dateLimit = DateLimit.FromDate(Date.from(fromDate)))
 
     topicListDao.getTopics(dto)
 
