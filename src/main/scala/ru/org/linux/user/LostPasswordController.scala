@@ -28,6 +28,7 @@ import ru.org.linux.email.EmailService
 
 import java.time.Instant
 import java.util.concurrent.CompletionStage
+import scala.annotation.unused
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
@@ -40,7 +41,8 @@ class LostPasswordController(
     captchaService: CaptchaService,
     scheduler: Scheduler):
   @RequestMapping(method = Array(RequestMethod.GET))
-  def showForm(): ModelAndView = new ModelAndView("lostpwd-form")
+  def showForm(@unused @ModelAttribute("form") form: LostPasswordRequest): ModelAndView =
+    new ModelAndView("lostpwd-form")
 
   @RequestMapping(method = Array(RequestMethod.POST))
   def sendPassword(

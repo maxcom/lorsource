@@ -29,6 +29,7 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import javax.validation.Valid
 import scala.beans.{BeanProperty, BooleanBeanProperty}
+import scala.annotation.unused
 
 @Controller
 class DeregisterController(userService: UserService, captcha: CaptchaService) {
@@ -47,7 +48,7 @@ class DeregisterController(userService: UserService, captcha: CaptchaService) {
   }
 
   @RequestMapping(value = Array("/deregister.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def show(): ModelAndView = AuthorizedOnly { currentUser =>
+  def show(@unused @ModelAttribute("form") form: DeregisterRequest): ModelAndView = AuthorizedOnly { currentUser =>
     checkUser(currentUser)
 
     new ModelAndView("deregister")
