@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component
 import ru.org.linux.spring.SiteConfig
 
 import java.nio.file.{Files, Path}
-import java.nio.file.attribute.FileTime
 import java.time.{Duration, OffsetDateTime}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
@@ -117,7 +116,7 @@ class OldUserpicCleaner(siteConfig: SiteConfig, userDao: UserDao, userLogDao: Us
                 deleteFile(path, name, reason, () => deleted += 1)
               else
                 logger.info(s"Would delete userpic $name ($reason)")
-            case Some(date) =>
+            case Some(_) =>
             // упоминание свежее 3 лет — не трогаем
         }
       }

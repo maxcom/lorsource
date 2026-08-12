@@ -27,7 +27,7 @@ import ru.org.linux.warning.RuleWarning
 import scalikejdbc.*
 
 import java.sql.Timestamp
-import java.time.{LocalDate, OffsetDateTime, ZoneId}
+import java.time.{LocalDate, ZoneId}
 
 @Repository
 object TopicDao:

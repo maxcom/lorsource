@@ -17,11 +17,10 @@ package ru.org.linux.topic
 
 import org.apache.pekko.actor.typed.ActorRef
 import org.mockito.Mockito
-import org.opensearch.client.opensearch.OpenSearchAsyncClient
-import org.opensearch.client.opensearch.OpenSearchClient
-import org.springframework.context.annotation.{Bean, ComponentScan, Configuration, FilterType, ImportResource}
+import org.opensearch.client.opensearch.{OpenSearchAsyncClient, OpenSearchClient}
+import org.springframework.context.annotation.*
 import org.springframework.stereotype.Controller
-import ru.org.linux.auth.{BlackListUpdater, IpBlockDao}
+import ru.org.linux.auth.BlackListUpdater
 import ru.org.linux.comment.{CommentPrepareService, CommentReadService}
 import ru.org.linux.edithistory.EditHistoryService
 import ru.org.linux.email.EmailService

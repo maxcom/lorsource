@@ -21,9 +21,9 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.validation.Errors
 import org.springframework.web.multipart.MultipartFile
-import ru.org.linux.auth.{AuthorizedSession, IpBlockInfo}
+import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
-import ru.org.linux.gallery.{Image, ImageDao, ImageService, UploadedImagePreview}
+import ru.org.linux.gallery.{ImageService, UploadedImagePreview}
 import ru.org.linux.group.{Group, GroupPermissionService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
@@ -31,18 +31,14 @@ import ru.org.linux.poll.{PollDao, PollVariant}
 import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.site.ScriptErrorException
-import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.TagName
 import ru.org.linux.user.*
 import ru.org.linux.util.LorHttpUtils
 
-import java.io.File
-import java.time.{Instant, OffsetDateTime}
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import java.time.OffsetDateTime
 
 object TopicService {
   private def sendTagEventsNeeded(section: Section, oldMsg: Topic, commit: Boolean): Boolean = {
@@ -59,8 +55,8 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
                    imageService: ImageService, pollDao: PollDao, userEventService: UserEventService,
                    topicTagService: TopicTagService, userService: UserService, userTagService: UserTagService,
                    textService: MessageTextService, editHistoryDao: EditHistoryDao,
-                   imageDao: ImageDao, siteConfig: SiteConfig, permissionService: GroupPermissionService,
-                   springDB: SpringDB, addTopicChecker: AddTopicChecker,
+                   permissionService: GroupPermissionService, springDB: SpringDB, 
+                   addTopicChecker: AddTopicChecker,
                    @Qualifier("realtimeHubWS")
                    realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                    searchQueueSender: SearchQueueSender) extends StrictLogging {

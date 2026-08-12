@@ -29,7 +29,7 @@ class OldImageCleanerTest:
 
   private val purgeCaptor = ArgumentCaptor.forClass(classOf[Seq[Int]])
 
-  private def image(id: Int, topicId: Int = 1, deleted: Boolean = false): Image =
+  private def image(id: Int, topicId: Int = 1, deleted: Boolean): Image =
     Image(id, topicId, s"images/$id/original.jpg", deleted = deleted, purged = false)
 
   @Test

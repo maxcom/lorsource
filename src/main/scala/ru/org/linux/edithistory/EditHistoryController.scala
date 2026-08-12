@@ -20,7 +20,7 @@ import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.comment.CommentReadService
-import ru.org.linux.group.{GroupPermissionService, GroupService}
+import ru.org.linux.group.GroupService
 import ru.org.linux.rights.EditTopicChecker
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService

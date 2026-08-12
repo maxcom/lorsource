@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2025 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -26,7 +26,6 @@ import ru.org.linux.warning.PreparedWarning
 
 import javax.annotation.Nullable
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 case class PreparedTopic(
     @BeanProperty

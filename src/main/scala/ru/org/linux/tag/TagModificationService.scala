@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2023 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,8 +16,7 @@ package ru.org.linux.tag
 
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Service
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.TopicTagDao
 import ru.org.linux.user.UserTagDao

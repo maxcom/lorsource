@@ -25,8 +25,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
 
-import javax.sql.DataSource
-
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(classes = Array(classOf[IPBlockDaoIntegrationTestConfiguration])) @Transactional
 class IpBlockDaoIntegrationTest:

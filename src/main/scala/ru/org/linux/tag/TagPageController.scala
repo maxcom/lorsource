@@ -20,10 +20,9 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.{AnySession, IpBlockInfo}
+import ru.org.linux.auth.AnySession
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.gallery.ImageService
-import ru.org.linux.group.GroupPermissionService
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.tag.TagPageController.isRecent

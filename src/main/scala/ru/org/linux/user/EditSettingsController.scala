@@ -33,7 +33,7 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 @RequestMapping (path = Array ("/people/{nick}/settings") )
-class EditSettingsController(profileDao: ProfileDao, editProfileChecker: EditProfileChecker, userService: UserService) {
+class EditSettingsController(profileDao: ProfileDao, editProfileChecker: EditProfileChecker) {
   @RequestMapping(method = Array(RequestMethod.GET))
   def showForm(@PathVariable nick: String): ModelAndView = AuthorizedOnly { implicit currentUser =>
     if (!(currentUser.user.nick == nick)) {

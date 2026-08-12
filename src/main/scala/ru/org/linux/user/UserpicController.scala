@@ -25,7 +25,6 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriTemplate
-import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.rights.EditProfileChecker
 import ru.org.linux.spring.SiteConfig

@@ -26,7 +26,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.markup.{MarkupType, MessageTextService}
+import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.rights.{EditProfileChecker, SlowModeChecker}
 import ru.org.linux.site.DateFormats

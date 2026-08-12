@@ -16,11 +16,9 @@ package ru.org.linux.topic
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestAttribute, RequestMapping,
-  ResponseStatus}
+import org.springframework.web.bind.annotation.{ExceptionHandler, PathVariable, RequestMapping, ResponseStatus}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.{GroupNotFoundException, GroupService}
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionService}

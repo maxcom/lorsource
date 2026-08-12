@@ -19,8 +19,7 @@ import org.jsoup.Jsoup
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import ru.org.linux.csrf.CSRFProtectionService
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.test.{SpringTestSupport, WebHelper}
 import scalikejdbc.*
 import sttp.client4.*

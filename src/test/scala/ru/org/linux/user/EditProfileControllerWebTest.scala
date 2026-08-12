@@ -20,8 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.markup.MarkupType
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.test.{SpringTestSupport, WebHelper}
 import sttp.client4.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
@@ -43,7 +42,7 @@ object EditProfileControllerWebTest:
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
 class EditProfileControllerWebTest extends FunSuite with WebHelper with SpringTestSupport:
-  import EditProfileControllerWebTest._
+  import EditProfileControllerWebTest.*
 
   @Autowired
   private var userDao: UserDao = scala.compiletime.uninitialized

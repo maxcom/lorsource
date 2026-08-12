@@ -17,8 +17,7 @@ package ru.org.linux.user
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagService}
 
 import scala.jdk.CollectionConverters.*

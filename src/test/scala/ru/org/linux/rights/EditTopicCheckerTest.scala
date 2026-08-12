@@ -28,7 +28,6 @@ import ru.org.linux.user.{Profile, User}
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import scala.jdk.CollectionConverters.*
 
 class EditTopicCheckerTest extends FunSuite:
 
@@ -76,7 +75,7 @@ class EditTopicCheckerTest extends FunSuite:
     )
 
   private def makeUser(
-      id: Int = 1,
+      id: Int,
       nick: String = "author",
       corrector: Boolean = false,
       moderator: Boolean = false,
@@ -117,8 +116,8 @@ class EditTopicCheckerTest extends FunSuite:
       ipBlockInfo = IpBlockInfo("127.0.0.1"))
 
   private def makeTopic(
-      authorUserId: Int = 1,
-      sectionId: Int = Section.Articles,
+      authorUserId: Int,
+      sectionId: Int,
       postscore: Int = POSTSCORE_UNRESTRICTED,
       commited: Boolean = false,
       sticky: Boolean = false,

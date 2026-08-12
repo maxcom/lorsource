@@ -14,17 +14,15 @@
  */
 package ru.org.linux.user
 
-import org.junit.{Assert, Before, Test}
 import org.junit.runner.RunWith
+import org.junit.{Assert, Before, Test}
 import org.mockito.ArgumentMatchers.{any, anyBoolean, anyString, eq as eqTo}
-import org.mockito.Mockito.{doThrow, mock, never, reset, verify, when}
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.tag.{TagDao, TagNotFoundException, TagService}
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
 
 import java.sql.{ResultSet, SQLException}
 import scala.jdk.CollectionConverters.*
@@ -44,19 +42,13 @@ class UserTagServiceTest {
   @Autowired
   private var userTagService: UserTagService = scala.compiletime.uninitialized
 
-  @Autowired
-  private var springDB: SpringDB = scala.compiletime.uninitialized
-
   private var user: User = scala.compiletime.uninitialized
 
   @Before
   def resetMockObjects(): Unit = {
     reset(userTagDao)
     reset(tagService)
-
-    val txMock = mock(classOf[scalikejdbc.DBSession])
-    given Transaction = txMock.asInstanceOf[Transaction]
-
+    
     when(tagService.getTagId(eqTo("tag1"), anyBoolean())).thenReturn(2)
     when(tagService.getTagIdOptWithSynonym(eqTo("tag1"))).thenReturn(Some(2))
     user = getUser(1)

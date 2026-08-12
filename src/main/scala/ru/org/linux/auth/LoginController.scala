@@ -23,8 +23,7 @@ import org.springframework.security.core.userdetails.{UserDetailsService, Userna
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.{ModelAttribute, RequestAttribute, RequestMapping, RequestMethod,
-  RequestParam}
+import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized

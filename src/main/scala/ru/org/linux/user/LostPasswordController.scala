@@ -40,9 +40,7 @@ class LostPasswordController(
     captchaService: CaptchaService,
     scheduler: Scheduler):
   @RequestMapping(method = Array(RequestMethod.GET))
-  def showForm(
-      @ModelAttribute("form")
-      form: LostPasswordRequest): ModelAndView = new ModelAndView("lostpwd-form")
+  def showForm(): ModelAndView = new ModelAndView("lostpwd-form")
 
   @RequestMapping(method = Array(RequestMethod.POST))
   def sendPassword(

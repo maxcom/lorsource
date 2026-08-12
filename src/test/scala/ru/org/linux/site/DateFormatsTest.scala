@@ -23,7 +23,7 @@ class DateFormatsTest extends FunSuite:
   private val Moscow = ZoneId.of("Europe/Moscow")
   private val Novosibirsk = ZoneId.of("Asia/Novosibirsk")
 
-  private def makeDate(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0, second: Int = 0): Date =
+  private def makeDate(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): Date =
     Date.from(LocalDateTime.of(year, month, day, hour, minute, second).atZone(Moscow).toInstant)
 
   test("formatDefault"):

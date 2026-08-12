@@ -23,7 +23,6 @@ import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.group.{Group, GroupNotFoundException, GroupService}
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}

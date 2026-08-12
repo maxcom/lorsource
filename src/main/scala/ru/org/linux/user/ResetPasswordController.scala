@@ -15,7 +15,6 @@
 package ru.org.linux.user
 
 import com.typesafe.scalalogging.StrictLogging
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -48,7 +47,7 @@ class ResetPasswordController(userDao: UserDao, userService: UserService, secret
   def showCodeForm = new ModelAndView("reset-password-form")
 
   @RequestMapping(value = Array("/reset-password"), method = Array(RequestMethod.POST))
-  def resetPassword(request: HttpServletRequest, @RequestParam("nick") nick: String,
+  def resetPassword(@RequestParam("nick") nick: String,
                     @RequestParam("code") formCode: String): ModelAndView = {
     val user = userService.getUser(nick)
 

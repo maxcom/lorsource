@@ -35,7 +35,6 @@ import ru.org.linux.email.EmailService
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 import jakarta.mail.internet.InternetAddress
 import javax.validation.Valid
-import java.sql.Timestamp
 import scala.jdk.CollectionConverters.*
 
 @Controller
@@ -48,8 +47,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   private val registerRequestValidator = new RegisterRequestValidator(emailDomainsBlockDao)
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
-  def register(@ModelAttribute("form") form: RegisterRequest, response: HttpServletResponse
-              ): ModelAndView = AuthUtil.MaybeAuthorized { session =>
+  def register(response: HttpServletResponse): ModelAndView = AuthUtil.MaybeAuthorized { session =>
     if session.authorized then
       new ModelAndView(new RedirectView("/people/" + session.user.nick + "/profile"))
     else

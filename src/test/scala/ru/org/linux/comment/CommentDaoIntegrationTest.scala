@@ -16,8 +16,8 @@
 package ru.org.linux.comment
 
 import org.junit.Assert.*
-import org.junit.{Before, Test}
 import org.junit.runner.RunWith
+import org.junit.{Before, Test}
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
@@ -25,8 +25,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.msgbase.DeleteInfoDao
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
 import scalikejdbc.*

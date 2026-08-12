@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.comment.Comment
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.{Topic, TopicDao}
 import ru.org.linux.user.{User, UserEventService, UserService}
 

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AccessViolationException, AnySession, IpBlockInfo}
+import ru.org.linux.auth.{AccessViolationException, AnySession}
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionController, SectionService}
 import ru.org.linux.tag.{TagInfo, TagPageController, TagService}
@@ -32,7 +32,7 @@ import java.util
 import java.util.concurrent.CompletionStage
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
+import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.FutureConverters.FutureOps
 
 private object GroupController {

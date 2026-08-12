@@ -16,7 +16,6 @@ package ru.org.linux.scalikejdbc
 
 import org.mockito.Mockito
 import org.springframework.transaction.PlatformTransactionManager
-import scalikejdbc.DBSession
 
 import javax.sql.DataSource
 

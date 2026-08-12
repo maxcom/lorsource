@@ -101,9 +101,7 @@ class AddTopicCheckerTest extends FunSuite:
       administrator = false,
       profile = Profile.DEFAULT,
       ipBlockInfo = IpBlockInfo("127.0.0.1"))
-
-  private val unblockedIpInfo = IpBlockInfo("127.0.0.1")
-
+  
   private def makeChecker(sectionService: SectionService = mock(classOf[SectionService])): AddTopicChecker =
     new AddTopicChecker(sectionService)
 

@@ -26,8 +26,7 @@ import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentPrepareService, CommentReadService}
 import ru.org.linux.common.DeleteReasons
 import ru.org.linux.group.{Group, GroupService}
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService

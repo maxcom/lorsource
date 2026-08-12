@@ -26,7 +26,6 @@ import ru.org.linux.user.UserEventFilterEnum.DELETED
 import ru.org.linux.util.StringUtil
 import scalikejdbc.*
 
-import java.sql.Timestamp
 import java.util as ju
 import scala.jdk.CollectionConverters.*
 

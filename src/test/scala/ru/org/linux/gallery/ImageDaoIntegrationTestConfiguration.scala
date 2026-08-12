@@ -20,8 +20,6 @@ import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.user.UserDao
 
-import javax.sql.DataSource
-
 @Configuration @ImportResource(Array("classpath:common.xml"))
 class ImageDaoIntegrationTestConfiguration:
 

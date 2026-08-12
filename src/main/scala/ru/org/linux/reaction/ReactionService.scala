@@ -24,8 +24,7 @@ import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.reaction.PreparedReactions.allZeros
 import ru.org.linux.reaction.ReactionService.DefinedReactions
 import ru.org.linux.realtime.RealtimeEventHub
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.Section
 import ru.org.linux.site.DateFormats
 import ru.org.linux.topic.{Topic, TopicDao}

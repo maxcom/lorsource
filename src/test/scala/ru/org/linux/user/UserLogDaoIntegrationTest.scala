@@ -19,11 +19,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import scalikejdbc.*
 
 import java.time.{OffsetDateTime, ZoneOffset}

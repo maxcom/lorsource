@@ -19,7 +19,6 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestAttribute, RequestMapping}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.IpBlockInfo
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.*

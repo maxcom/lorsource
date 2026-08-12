@@ -22,8 +22,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.servlet.{ModelAndView, View}
 import org.springframework.web.util.{UriComponentsBuilder, UriTemplate}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.IpBlockInfo
-import ru.org.linux.group.{GroupListDao, GroupPermissionService}
+import ru.org.linux.group.GroupListDao
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionNotFoundException, SectionService}
 import ru.org.linux.tag.{TagName, TagNotFoundException, TagPageController, TagService}

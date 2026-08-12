@@ -31,7 +31,7 @@ class DeleteImageController(
     imageService: ImageService,
     topicDao: TopicDao,
     prepareService: TopicPrepareService):
-  private def checkDelete(topic: PreparedTopic, image: Image)(using AuthorizedSession): Unit =
+  private def checkDelete(topic: PreparedTopic)(using AuthorizedSession): Unit =
     EditTopicChecker.checkContentEdit(topic).checkOrThrow()
 
     if topic.section.imagepost && topic.images.size <= 1 then
@@ -47,7 +47,7 @@ class DeleteImageController(
 
       val preparedTopic = prepareService.prepareTopic(topic)
 
-      checkDelete(preparedTopic, image)
+      checkDelete(preparedTopic)
 
       val mv = new ModelAndView("delete_image")
 
@@ -67,7 +67,7 @@ class DeleteImageController(
 
       val preparedTopic = prepareService.prepareTopic(topic)
 
-      checkDelete(preparedTopic, image)
+      checkDelete(preparedTopic)
 
       imageService.deleteImage(image)
 

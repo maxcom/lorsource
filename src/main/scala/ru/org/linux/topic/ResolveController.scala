@@ -21,8 +21,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.group.GroupService
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 
 @Controller
 class ResolveController(messageDao: TopicDao, groupService: GroupService, springDB: SpringDB) {

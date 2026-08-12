@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service
 import ru.org.linux.auth.{AnySession, AuthorizedSession}
 import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.rights.SlowModeChecker
-import ru.org.linux.section.Section.{Articles, Gallery, News, Polls}
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
 import ru.org.linux.user.User
@@ -110,7 +109,7 @@ class GroupPermissionService(
       val deletableByUser = isDeletableByUser(topic, user.user, section)
 
       if !deletableByUser && user.moderator then
-        isDeletableByModerator(topic, user.user, section)
+        isDeletableByModerator(topic, section)
       else
         deletableByUser
 
@@ -121,7 +120,7 @@ class GroupPermissionService(
     * @return
     *   признак возможности удаления
     */
-  private def isDeletableByModerator(topic: Topic, moderator: User, section: Section) =
+  private def isDeletableByModerator(topic: Topic, section: Section) =
     val deleteDeadline = topic.postdate.toInstant.atZone(ZoneId.systemDefault()).plusMonths(1).toInstant
 
     if section.premoderated && !topic.commited then

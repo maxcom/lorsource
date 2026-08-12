@@ -48,7 +48,7 @@ class SearchServiceIntegrationTest extends FunSuite with SpringTestSupport:
   var topicTagService: TopicTagService = scala.compiletime.uninitialized
 
   private val indexFixture = FunFixture[Unit](
-    setup = { test =>
+    setup = { _ =>
       elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
       indexCreationService.createIndexIfNeeded()
     },

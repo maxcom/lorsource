@@ -20,8 +20,7 @@ import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, R
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
 

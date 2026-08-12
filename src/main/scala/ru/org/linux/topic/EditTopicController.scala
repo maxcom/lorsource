@@ -40,7 +40,7 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor
 import java.beans.PropertyEditorSupport
 import javax.validation.Valid
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, MapHasAsScala, SeqHasAsJava, SetHasAsJava}
+import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava, SetHasAsJava}
 
 @Controller
 class EditTopicController(

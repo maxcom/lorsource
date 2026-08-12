@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component
 import org.springframework.validation.Errors
 import ru.org.linux.rights.SlowModeChecker
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.user.{User, UserPermissionService}
+import ru.org.linux.user.User
 
 import java.time.{Duration, Instant}
 import javax.annotation.Nullable

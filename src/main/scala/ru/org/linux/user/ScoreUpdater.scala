@@ -17,8 +17,7 @@ package ru.org.linux.user
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 
 @Component
 class ScoreUpdater(userDao: UserDao, springDB: SpringDB) extends StrictLogging:

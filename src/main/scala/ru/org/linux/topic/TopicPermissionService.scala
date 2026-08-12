@@ -91,8 +91,7 @@ object TopicPermissionService {
 
 @Service
 class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupService: GroupService,
-                             deleteInfoDao: DeleteInfoDao, userPermissionService: UserPermissionService,
-                             slowModeChecker: SlowModeChecker) {
+                             deleteInfoDao: DeleteInfoDao, slowModeChecker: SlowModeChecker) {
   def allowViewAllDeletedComments(message: Topic)(using currentUser: AnySession): Boolean = {
     if !currentUser.moderator then
       val topicForbidden = message.expired || message.draft ||

@@ -546,6 +546,7 @@
 -->
             <arg>-language:postfixOps</arg>
             <arg>-release:25</arg>
+            <arg>-Wunused:all</arg>
 <!--
             <arg>-rewrite</arg>
             <arg>-source</arg>

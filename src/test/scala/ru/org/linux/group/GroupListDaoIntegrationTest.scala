@@ -24,7 +24,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.auth.{AuthorizedSession, IpBlockInfo, NonAuthorizedSession}
 import ru.org.linux.scalikejdbc.SpringDB
-import ru.org.linux.section.Section
 import ru.org.linux.tracker.TrackerFilterEnum
 import ru.org.linux.user.{Profile, UserDao, UserService}
 

@@ -22,8 +22,7 @@ import org.springframework.validation.Errors
 import org.springframework.web.multipart.MultipartFile
 import ru.org.linux.auth.AuthorizedSession
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryObjectTypeEnum, EditHistoryRecord}
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{PreparedGalleryItem, PreparedImage, Topic, TopicDao}
 import ru.org.linux.user.{User, UserService}

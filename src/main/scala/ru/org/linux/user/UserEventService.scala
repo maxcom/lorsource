@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service
 import ru.org.linux.comment.Comment
 import ru.org.linux.msgbase.InsertDeleteInfo
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.UserEventFilterEnum.*
 import ru.org.linux.user.UserEventFilterEnum.DELETED

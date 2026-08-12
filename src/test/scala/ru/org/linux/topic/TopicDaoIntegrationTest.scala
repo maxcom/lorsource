@@ -20,10 +20,10 @@ import org.junit.{Assert, Test}
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.PlatformTransactionManager
-import ru.org.linux.auth.IpBlockDao
+import ru.org.linux.auth.{IpBlockDao, PasswordEncoderImpl}
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.gallery.{ImageDao, ImageService}
 import ru.org.linux.group.{GroupDao, GroupService}
@@ -34,9 +34,7 @@ import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDaoIntegrationTest.*
-import ru.org.linux.user.{IgnoreListDao, ProfileDao, UserDao, UserInvitesDao, UserLogDao, UserService}
-import org.springframework.security.crypto.password.PasswordEncoder
-import ru.org.linux.auth.PasswordEncoderImpl
+import ru.org.linux.user.*
 import ru.org.linux.util.bbcode.LorCodeService
 
 

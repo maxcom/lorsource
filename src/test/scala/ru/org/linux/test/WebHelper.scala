@@ -14,7 +14,7 @@
  */
 package ru.org.linux.test
 
-import munit.{BaseFunSuite, FunFixtures, FunSuite}
+import munit.{BaseFunSuite, FunFixtures}
 import org.jsoup.Jsoup
 import org.junit.Assert
 import ru.org.linux.csrf.CSRFProtectionService
@@ -104,6 +104,6 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
 
   def authorized(user: String = TestUser, password: String = TestPassword): FunFixture[String] = FunFixture[String](
     setup = { _ => doLogin(user, password) },
-    teardown = { s => },
+    teardown = { _ => },
   )
 }

@@ -23,8 +23,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.group.GroupService
-import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
-import ru.org.linux.scalikejdbc.Transaction.given
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.user.{UserErrorException, UserService}

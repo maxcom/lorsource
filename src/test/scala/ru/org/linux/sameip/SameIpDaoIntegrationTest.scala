@@ -15,13 +15,12 @@
 
 package ru.org.linux.sameip
 
-import org.junit.{Assert, Test}
 import org.junit.runner.RunWith
+import org.junit.{Assert, Test}
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import org.springframework.transaction.annotation.Transactional
-import ru.org.linux.scalikejdbc.SpringDB
 
 @RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(

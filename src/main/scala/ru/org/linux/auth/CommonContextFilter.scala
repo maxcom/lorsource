@@ -17,7 +17,6 @@ package ru.org.linux.auth
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import jakarta.servlet.{FilterChain, ServletRequest, ServletResponse}
 import org.springframework.beans.factory.InitializingBean
-import org.springframework.web.context.support.WebApplicationContextUtils
 import org.springframework.web.filter.GenericFilterBean
 import ru.org.linux.auth.CommonContextFilter.{BadTimezones, Russian}
 import ru.org.linux.csrf.CSRFProtectionService
@@ -37,8 +36,6 @@ class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao, userSe
     extends GenericFilterBean
     with InitializingBean:
   override def doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain): Unit =
-    val ctx = WebApplicationContextUtils.getWebApplicationContext(getServletContext)
-
     val request = req.asInstanceOf[HttpServletRequest]
     val response = res.asInstanceOf[HttpServletResponse]
     val currentUser = AuthUtil.getCurrentUser

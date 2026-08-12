@@ -28,7 +28,6 @@ import ru.org.linux.util.{LorURL, URLUtil}
 
 import java.util
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.RichOptional
 
 class LorLinkExtension(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: CommentDao) extends HtmlRenderer.HtmlRendererExtension {
   override def rendererOptions(options: MutableDataHolder): Unit = {}

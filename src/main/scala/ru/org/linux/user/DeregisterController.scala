@@ -47,7 +47,7 @@ class DeregisterController(userService: UserService, captcha: CaptchaService) {
   }
 
   @RequestMapping(value = Array("/deregister.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def show(@ModelAttribute("form") form: DeregisterRequest): ModelAndView = AuthorizedOnly { currentUser =>
+  def show(): ModelAndView = AuthorizedOnly { currentUser =>
     checkUser(currentUser)
 
     new ModelAndView("deregister")
