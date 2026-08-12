@@ -65,3 +65,7 @@ cleanOldUserpics=false
 #   - для soft-deleted изображений неактивных топиков старше 3 лет (по topics.lastmod).
 # При false — только логгируются найденные кандидаты (dry-run).
 cleanOldImages=false
+
+# удалять заблокированных пользователей без активности (раз в день ночью, по умолчанию выключено).
+# При false — только логгируются найденные кандидаты (dry-run).
+cleanOldBlockedUsers=false

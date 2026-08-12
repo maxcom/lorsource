@@ -397,3 +397,57 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
       .update
       .apply()
     (deleted, deletedBlocked)
+
+  /** Заблокированные пользователи без активности, подлежащие удалению.
+    *
+    * Пользователь является кандидатом, если:
+    *   - заблокирован (`blocked`);
+    *   - не является автором топиков/комментариев, не ставил реакций, не голосовал в опросах, не приглашал и не получал
+    *     инвайты, не имеет предупреждений, и нигде не упомянут как редактор/модератор (защита от экс-модераторов);
+    *   - дата блокировки старше 3 лет. В качестве даты блокировки используется `ban_info.bandate`, при отсутствии —
+    *     `lastlogin`, затем `regdate`. Если ни одна из дат неизвестна, пользователь удаляется сразу.
+    */
+  def getDeletableBlockedUserIds: Seq[Int] =
+    springDB.run(
+      sql"""SELECT u.id FROM users u
+            LEFT JOIN ban_info b ON b.userid = u.id
+            WHERE u.blocked
+            AND NOT EXISTS (SELECT 1 FROM topics WHERE userid = u.id)
+            AND NOT EXISTS (SELECT 1 FROM topics WHERE commitby = u.id)
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE userid = u.id)
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE editor_id = u.id)
+            AND NOT EXISTS (SELECT 1 FROM reactions_log WHERE origin_user = u.id)
+            AND NOT EXISTS (SELECT 1 FROM vote_users WHERE userid = u.id)
+            AND NOT EXISTS (SELECT 1 FROM user_invites WHERE owner = u.id OR invited_user = u.id)
+            AND NOT EXISTS (SELECT 1 FROM message_warnings WHERE author = u.id OR closed_by = u.id)
+            AND NOT EXISTS (SELECT 1 FROM del_info WHERE delby = u.id)
+            AND NOT EXISTS (SELECT 1 FROM edit_info WHERE editor = u.id)
+            AND NOT EXISTS (SELECT 1 FROM users fu WHERE fu.frozen_by = u.id)
+            AND NOT EXISTS (SELECT 1 FROM ban_info bb WHERE bb.ban_by = u.id)
+            AND (COALESCE(b.bandate, u.lastlogin, u.regdate) < CURRENT_TIMESTAMP - interval '3 years'
+                 OR (b.bandate IS NULL AND u.lastlogin IS NULL AND u.regdate IS NULL))"""
+        .map(rs => rs.int("id"))
+        .list
+        .apply())
+
+  /** Удаляет заблокированных пользователей вместе с их личными данными (в одной транзакции). Все ссылки, оставшиеся
+    * от активности пользователя (топики, комментарии, реакции, голоса, инвайты, предупреждения, правки), уже отсечены в
+    * [[getDeletableBlockedUserIds]], поэтому здесь удаляются только персональные записи пользователя. Записи `user_log`
+    * удаляются автоматически (FK с ON DELETE CASCADE).
+    */
+  def deleteBlockedUsers(ids: Seq[Int]): Int =
+    if ids.isEmpty then
+      0
+    else
+      springDB.localTx {
+        sql"DELETE FROM ban_info WHERE userid IN ($ids)".update.apply()
+        sql"DELETE FROM user_events WHERE userid IN ($ids) OR origin_user IN ($ids)".update.apply()
+        sql"DELETE FROM topic_users_notified WHERE userid IN ($ids)".update.apply()
+        sql"DELETE FROM memories WHERE userid IN ($ids)".update.apply()
+        sql"DELETE FROM ignore_list WHERE userid IN ($ids) OR ignored IN ($ids)".update.apply()
+        sql"DELETE FROM user_remarks WHERE user_id IN ($ids) OR ref_user_id IN ($ids)".update.apply()
+        sql"DELETE FROM user_tags WHERE user_id IN ($ids)".update.apply()
+        sql"DELETE FROM user_settings WHERE id IN ($ids)".update.apply()
+        sql"DELETE FROM reactions_log WHERE origin_user IN ($ids)".update.apply()
+        sql"DELETE FROM users WHERE id IN ($ids)".update.apply()
+      }

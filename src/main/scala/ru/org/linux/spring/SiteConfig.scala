@@ -160,5 +160,17 @@ class SiteConfig(
     else
       property.toBoolean
 
+  /** Удалять ли заблокированных пользователей без активности (раз в день ночью).
+    *
+    * @return
+    *   true если разрешено удалять, иначе false (только логгирование кандидатов)
+    */
+  def cleanOldBlockedUsers: Boolean =
+    val property = properties.getProperty("cleanOldBlockedUsers")
+    if property == null then
+      false
+    else
+      property.toBoolean
+
 object SiteConfig:
   private val ErrMsg = "Invalid MainUrl property: "

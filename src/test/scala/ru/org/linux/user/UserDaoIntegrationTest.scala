@@ -26,6 +26,8 @@ import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
+import java.sql.Timestamp
+
 object UserDaoIntegrationTest:
   private val TestId = 7806
 
@@ -53,7 +55,9 @@ class UserDaoIntegrationTest:
   @Test
   def testBlock(): Unit =
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
-    springDB.localTx { userDao.block(user, user, "") }
+    springDB.localTx {
+      userDao.block(user, user, "")
+    }
     val userAfter = userDao.getUser(UserDaoIntegrationTest.TestId)
     assertTrue(userAfter.blocked)
 
@@ -62,11 +66,61 @@ class UserDaoIntegrationTest:
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
     val tm = userDao.getResetDate(user)
 
-    springDB.localTx { userDao.updateResetDate(user, tm.plusSeconds(60)) }
+    springDB.localTx {
+      userDao.updateResetDate(user, tm.plusSeconds(60))
+    }
 
     val after = userDao.getResetDate(user)
 
     assertEquals(tm.plusSeconds(60), after)
+
+  private def ts(value: String): Timestamp = Timestamp.valueOf(value + " 00:00:00")
+
+  private def createBlockedUser(
+      nick: String,
+      bandate: Option[Timestamp],
+      lastlogin: Option[Timestamp],
+      regdate: Option[Timestamp]): Int =
+    springDB.run {
+      val id =
+        sql"""INSERT INTO users (id, name, nick, passwd, score, max_score, regdate, blocked, lastlogin)
+                     VALUES (nextval('s_uid'), '', $nick, 'x', 45, 45, ${regdate.orNull}, 't', ${lastlogin.orNull})
+                     RETURNING id""".map(_.int("id")).single.apply().get
+
+      bandate.foreach { d =>
+        sql"""INSERT INTO ban_info (userid, bandate, reason, ban_by)
+              VALUES ($id, $d, 'test', ${UserDaoIntegrationTest.TestId})""".update.apply()
+      }
+
+      id
+    }
+
+  @Test
+  def testGetDeletableBlockedUsers(): Unit =
+    val oldBan = createBlockedUser("test-old-ban", Some(ts("2015-01-01")), None, None)
+    val recentBan = createBlockedUser("test-recent-ban", Some(ts("2026-01-01")), None, None)
+    val oldLogin = createBlockedUser("test-old-login", None, Some(ts("2015-01-01")), None)
+    val oldReg = createBlockedUser("test-old-reg", None, None, Some(ts("2015-01-01")))
+    val noDates = createBlockedUser("test-no-dates", None, None, None)
+    val recentLogin = createBlockedUser("test-recent-login", None, Some(ts("2026-01-01")), Some(ts("2015-01-01")))
+
+    val ids = userDao.getDeletableBlockedUserIds
+
+    assertTrue("old ban date should be a candidate", ids.contains(oldBan))
+    assertFalse("recent ban date should not be a candidate", ids.contains(recentBan))
+    assertTrue("old lastlogin should be a candidate", ids.contains(oldLogin))
+    assertTrue("old regdate should be a candidate", ids.contains(oldReg))
+    assertTrue("no dates should be a candidate", ids.contains(noDates))
+    assertFalse("recent lastlogin should take priority over old regdate", ids.contains(recentLogin))
+
+  @Test
+  def testDeleteBlockedUsers(): Unit =
+    val id = createBlockedUser("test-delete-blocked", Some(ts("2015-01-01")), None, None)
+
+    val deleted = userDao.deleteBlockedUsers(Seq(id))
+
+    assertEquals(1, deleted)
+    assertThrows(classOf[UserNotFoundException], () => userDao.getUser(id))
 
 end UserDaoIntegrationTest
 
