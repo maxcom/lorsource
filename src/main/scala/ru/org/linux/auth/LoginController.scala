@@ -23,20 +23,23 @@ import org.springframework.security.core.userdetails.{UserDetailsService, Userna
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.{ModelAttribute, RequestMapping, RequestMethod, RequestParam}
+import org.springframework.web.bind.annotation.{ModelAttribute, RequestAttribute, RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.LoginController.delayResponse
-import ru.org.linux.user.{UserDao, UserService}
+import ru.org.linux.email.EmailService
+import ru.org.linux.user.{UserDao, UserPermissionService, UserService}
 
+import java.time.ZoneId
 import java.util.concurrent.CompletionStage
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{blocking, Future, Promise}
 import scala.concurrent.duration.*
 import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.jdk.FutureConverters.FutureOps
 import scala.util.{Random, Try}
+import scala.util.control.NonFatal
 
 @Controller
 class LoginController(
@@ -47,7 +50,8 @@ class LoginController(
     captchaService: CaptchaService,
     loginAttemptCache: LoginAttemptCache,
     authenticationManager: AuthenticationManager,
-    scheduler: Scheduler)
+    scheduler: Scheduler,
+    emailService: EmailService)
     extends StrictLogging:
 
   @RequestMapping(value = Array("/login_process"), method = Array(RequestMethod.POST))
@@ -56,7 +60,9 @@ class LoginController(
       form: LoginForm,
       bindingResult: BindingResult,
       request: HttpServletRequest,
-      response: HttpServletResponse): CompletionStage[ModelAndView] =
+      response: HttpServletResponse,
+      @RequestAttribute(name = "timezone")
+      tz: ZoneId): CompletionStage[ModelAndView] =
     MaybeAuthorized { session =>
       if session.authorized then
         Future.successful(new ModelAndView(new RedirectView(safeRedirectUrl(form.redirectUrl)))).asJava
@@ -88,6 +94,20 @@ class LoginController(
                 rememberMeServices.loginSuccess(request, response, auth)
 
                 AuthUtil.updateLastLogin(auth, userService)
+
+                val user = userDetails.getUser
+                if user.hasEmail && UserPermissionService.shouldNotifyLogin(user) then
+                  val ip = request.getRemoteAddr
+
+                  // Fire-and-forget: сбой SMTP-отправки никогда не влияет на процесс входа.
+                  Future:
+                    blocking:
+                      try
+                        emailService.sendLoginNotification(user, ip, tz)
+                      catch
+                        case NonFatal(e) =>
+                          logger.warn(s"Login notification email failed for ${user.nick} (ip=$ip): {}", e.toString)
+
                 new ModelAndView(new RedirectView(safeRedirectUrl(form.redirectUrl)))
             catch
               case e: LockedException =>

@@ -251,4 +251,73 @@ public class Users {
     return resultSet;
   }
 
+  public static ResultSet getModeratorLowScore() throws Exception {
+    ResultSet resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(2001);
+    when(resultSet.getString("nick")).thenReturn("modLowScore");
+    when(resultSet.getString("style")).thenReturn("tango");
+    when(resultSet.getBoolean("canmod")).thenReturn(true);
+    when(resultSet.getBoolean("candel")).thenReturn(false);
+    when(resultSet.getBoolean("corrector")).thenReturn(false);
+    when(resultSet.getBoolean("activated")).thenReturn(true);
+    when(resultSet.getBoolean("blocked")).thenReturn(false);
+    when(resultSet.getInt("score")).thenReturn(100);
+    when(resultSet.getInt("max_score")).thenReturn(100);
+    when(resultSet.getString("name")).thenReturn("Moderator Low Score");
+    when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
+    when(resultSet.getString("photo")).thenReturn(null);
+    when(resultSet.getString("email")).thenReturn(null);
+    when(resultSet.getInt("unread_events")).thenReturn(0);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
+    return resultSet;
+  }
+
+  public static ResultSet getAdministratorLowScore() throws Exception {
+    ResultSet resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(2002);
+    when(resultSet.getString("nick")).thenReturn("adminLowScore");
+    when(resultSet.getString("style")).thenReturn("tango");
+    when(resultSet.getBoolean("canmod")).thenReturn(false);
+    when(resultSet.getBoolean("candel")).thenReturn(true);
+    when(resultSet.getBoolean("corrector")).thenReturn(false);
+    when(resultSet.getBoolean("activated")).thenReturn(true);
+    when(resultSet.getBoolean("blocked")).thenReturn(false);
+    when(resultSet.getInt("score")).thenReturn(100);
+    when(resultSet.getInt("max_score")).thenReturn(100);
+    when(resultSet.getString("name")).thenReturn("Administrator Low Score");
+    when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
+    when(resultSet.getString("photo")).thenReturn(null);
+    when(resultSet.getString("email")).thenReturn(null);
+    when(resultSet.getInt("unread_events")).thenReturn(0);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
+    return resultSet;
+  }
+
+  public static ResultSet getCorrector() throws Exception {
+    ResultSet resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(2003);
+    when(resultSet.getString("nick")).thenReturn("corrector");
+    when(resultSet.getString("style")).thenReturn("tango");
+    when(resultSet.getBoolean("canmod")).thenReturn(false);
+    when(resultSet.getBoolean("candel")).thenReturn(false);
+    when(resultSet.getBoolean("corrector")).thenReturn(true);
+    when(resultSet.getBoolean("activated")).thenReturn(true);
+    when(resultSet.getBoolean("blocked")).thenReturn(false);
+    when(resultSet.getInt("score")).thenReturn(100);
+    when(resultSet.getInt("max_score")).thenReturn(100);
+    when(resultSet.getString("name")).thenReturn("Corrector Low Score");
+    when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
+    when(resultSet.getString("photo")).thenReturn(null);
+    when(resultSet.getString("email")).thenReturn(null);
+    when(resultSet.getInt("unread_events")).thenReturn(0);
+    when(resultSet.getTimestamp("frozen_until")).thenReturn(null);
+    when(resultSet.getInt("frozen_by")).thenReturn(0);
+    when(resultSet.getString("freezing_reason")).thenReturn("");
+    return resultSet;
+  }
+
 }

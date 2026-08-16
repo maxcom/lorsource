@@ -27,12 +27,14 @@ import org.springframework.stereotype.Service
 import ru.org.linux.auth.SecretTokenService
 import ru.org.linux.email.EmailService.createMessage
 import ru.org.linux.exception.ExceptionMailingActor
+import ru.org.linux.site.DateFormats
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.User
 
 import java.io.{PrintWriter, StringWriter}
 import java.net.URLEncoder
 import java.sql.Timestamp
+import java.time.ZoneId
 import java.util.{Date, Properties}
 import javax.annotation.Nullable
 import scala.jdk.CollectionConverters.*
@@ -185,6 +187,58 @@ class EmailService(siteConfig: SiteConfig, @Qualifier("exceptionMailingActor") e
 
     Transport.send(msg)
   }
+
+  /**
+   * Уведомление пользователя о новой аутентификации в его учётную запись.
+   *
+   * Администраторам письмо отправляется без ссылки на форму сброса пароля, т.к. сброс
+   * пароля по email для администраторов запрещён (см. UserPermissionService.canResetPasswordByCode).
+   *
+   * @param user     пользователь, выполнивший вход (должен иметь email)
+   * @param ip       IP-адрес, с которого выполнен вход
+   * @param timezone часовой пояс пользователя для форматирования даты (из cookie "tz")
+   */
+  @throws[MessagingException]
+  def sendLoginNotification(user: User, ip: String, timezone: ZoneId): Unit =
+    val when = DateFormats.formatDefault(timezone, new Date)
+    val loginInfo =
+      s"""Здравствуйте!
+         |
+         |На форуме Linux.org.ru выполнен вход в учётную запись с вашим ником:
+         |  ник: ${user.nick}
+         |  дата: $when
+         |  IP-адрес: $ip
+         |
+         |Если это были вы — проигнорируйте данное письмо.
+         |""".stripMargin
+
+    val footer =
+      if user.isAdministrator then
+        s"""
+           |Если вход выполнен не вами, обратитесь к администрации сайта
+           |для блокировки учётной записи и перевыпуска учётных данных.
+           |
+           |Удачи!""".stripMargin
+      else
+        s"""
+           |Если вход выполнен не вами, рекомендуем немедленно сменить пароль.
+           |Перейдите по ссылке, чтобы сбросить пароль:
+           |  ${siteConfig.getSecureUrlWithoutSlash}/lostpwd.jsp
+           |
+           |Удачи!""".stripMargin
+
+    val text = loginInfo + footer
+
+    val msg = createMessage
+    msg.setFrom(new InternetAddress("no-reply@linux.org.ru"))
+    msg.addRecipient(Message.RecipientType.TO, new InternetAddress(user.email))
+    msg.setSubject("Вход в учётную запись Linux.org.ru")
+    msg.setSentDate(new Date)
+    msg.setText(text, "UTF-8")
+
+    Transport.send(msg)
+
+    logger.info(s"Sent login notification to ${user.nick} (ip=$ip)")
 }
 
 object EmailService {

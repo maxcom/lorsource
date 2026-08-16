@@ -25,6 +25,7 @@ import java.time.Duration
 object UserPermissionService {
   private val MaxUnactivatedPerIp = 2
   val DeprecatedFeaturesScore = 500
+  val LoginNotificationScore = 500
 
   def allowedFormats(user: User): Set[MarkupType] = {
     if (user==null) { // anonymous
@@ -42,6 +43,14 @@ object UserPermissionService {
     val base = allowedFormats(user)
     if (user!=null && user.isAdministrator) base + Html else base
   }
+
+  /**
+    * Должен ли пользователь получать email-уведомление о новом входе в свою учётную запись.
+    * Условие: score >= LoginNotificationScore, либо наличие одной из ролей — модератор,
+    * корректор, администратор.
+    */
+  def shouldNotifyLogin(user: User): Boolean =
+    user.score >= LoginNotificationScore || user.isModerator || user.isAdministrator || user.corrector
 
   val ResetCodeMaxAge: Duration = Duration.ofDays(1)
 }
