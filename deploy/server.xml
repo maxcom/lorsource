@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<Server port="-1" shutdown="SHUTDOWN">
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+  <Service name="Catalina">
+   <Executor name="tomcatThreadPool" namePrefix="tomcat-" prestartminSpareThreads="true"
+        maxThreads="256" minSpareThreads="32" maxQueueSize="256"/>
+
+    <Connector port="8080" scheme="http" SSLEnabled="false" secure="false" address="127.0.0.1"
+               protocol="org.apache.coyote.http11.Http11NioProtocol"
+               connectionTimeout="20000" executor="tomcatThreadPool"
+               compression="off" proxyPort="80"
+               asyncTimeout="30000"
+               compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript"
+               redirectPort="8443" URIEncoding="UTF-8"/>
+
+    <Connector port="8444" proxyPort="443" address="127.0.0.1"
+               protocol="org.apache.coyote.http11.Http11NioProtocol"
+               scheme="https" secure="true" URIEncoding="UTF-8" executor="tomcatThreadPool"
+               compression="off" 
+               asyncTimeout="30000"
+               compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript"
+               clientAuth="false"/>
+
+    <Engine name="Catalina" defaultHost="localhost">
+        <Valve
+            className="org.apache.catalina.valves.RemoteIpValve"
+            protocolHeader="X-Forwarded-Proto"
+            protocolHeaderHttpsValue="https"
+            internalProxies="127\.0\.0\.1"/>
+
+      <Host name="localhost"  appBase="webapps"
+            unpackWARs="true" autoDeploy="true">
+      </Host>
+    </Engine>
+  </Service>
+</Server>

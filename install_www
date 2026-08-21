@@ -17,6 +17,8 @@ sudo rsync --delete-after -t -r target/lor-1.0-SNAPSHOT/WEB-INF/classes /var/lib
 sudo rsync -t -r -v target/lor-1.0-SNAPSHOT/ /var/lib/tomcat/webapps/ROOT
 sudo touch /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 
+sudo cp deploy/server.xml /opt/tomcat/conf/server.xml
+
 sudo systemctl start $SERVICE
 
 echo done
