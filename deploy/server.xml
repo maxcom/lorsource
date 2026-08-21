@@ -33,7 +33,7 @@
             className="org.apache.catalina.valves.RemoteIpValve"
             protocolHeader="X-Forwarded-Proto"
             protocolHeaderHttpsValue="https"
-            internalProxies="127\.0\.0\.1"/>
+            internalProxies="127\.0\.0\.1|185\.94\.108\..*"/>
 
       <Host name="localhost"  appBase="webapps"
             unpackWARs="true" autoDeploy="true">
