@@ -16,6 +16,7 @@
                compression="off" proxyPort="80"
                asyncTimeout="30000"
                compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript"
+               maxPartCount="200"
                redirectPort="8443" URIEncoding="UTF-8"/>
 
     <Connector port="8444" proxyPort="443" address="127.0.0.1"
@@ -24,6 +25,7 @@
                compression="off" 
                asyncTimeout="30000"
                compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,application/javascript"
+               maxPartCount="200"
                clientAuth="false"/>
 
     <Engine name="Catalina" defaultHost="localhost">
