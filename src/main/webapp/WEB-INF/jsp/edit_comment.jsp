@@ -71,6 +71,6 @@
         autoFocus="true"
         formatModeFormId="${formatModeFormId}"
         formatModeTitle="${formatModeTitle}"
-        postscoreInfo="${postscoreInfo}"/>
+        postscoreInfo=""/>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

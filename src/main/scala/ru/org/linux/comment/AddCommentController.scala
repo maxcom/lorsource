@@ -28,14 +28,15 @@ import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
-import ru.org.linux.auth.AuthUtil.MaybeAuthorized
-import ru.org.linux.auth.{AccessViolationException, AuthUtil, CaptchaService}
+import ru.org.linux.auth.AuthUtil.{MaybeAuthorized, MaybeAuthorizedCtx}
+import ru.org.linux.auth.{AuthUtil, CaptchaService}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.realtime.RealtimeEventHub
+import ru.org.linux.rights.{AddCommentChecker, PostScoreChecker}
 import ru.org.linux.search.SearchQueueSender
-import ru.org.linux.topic.{TopicPermissionService, TopicPrepareService}
+import ru.org.linux.topic.TopicPrepareService
 import ru.org.linux.util.ServletParameterException
 
 import javax.validation.Valid
@@ -43,25 +44,25 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 class AddCommentController(commentPrepareService: CommentPrepareService,
-                           commentService: CommentCreateService, topicPermissionService: TopicPermissionService,
+                           commentService: CommentCreateService, addCommentChecker: AddCommentChecker,
                            topicPrepareService: TopicPrepareService, searchQueueSender: SearchQueueSender,
                            @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol],
                            textService: MessageTextService, passwordEncoder: PasswordEncoder,
-                           captcha: CaptchaService) {
+                           captcha: CaptchaService, postScoreChecker: PostScoreChecker) {
   /**
     * Показ формы добавления ответа на комментарий.
     */
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.GET))
-  def showFormReply(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors): ModelAndView = MaybeAuthorized { implicit currentUser =>
+  def showFormReply(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors): ModelAndView = MaybeAuthorizedCtx { 
     if (add.getTopic == null)
       throw new ServletParameterException("тема не задана")
 
-    topicPermissionService.checkCommentsAllowed(add.getTopic, errors)
+    addCommentChecker.checkCommentPosting(add.getTopic).checkOrError(errors)
 
-    val postscore = topicPermissionService.getPostscore(add.getTopic)
+    val postscore = postScoreChecker.commentRestrictionScore(add.getTopic)
 
     new ModelAndView("add_comment", (commentService.prepareReplyto(add, add.getTopic) + (
-      "postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore)
+      "postscoreInfo" -> PostScoreChecker.getPostScoreInfo(postscore)
     )).asJava)
   }
 
@@ -69,12 +70,11 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     * Показ топика с формой добавления комментария верхнего уровня.
     */
   @RequestMapping(path = Array("/comment-message.jsp"))
-  def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = MaybeAuthorized { implicit currentUser =>
+  def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = MaybeAuthorizedCtx { 
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic)
-
-    if (!topicPermissionService.isCommentsAllowed(preparedTopic.group, add.getTopic))
-      throw new AccessViolationException("Это сообщение нельзя комментировать")
-
+    
+    addCommentChecker.checkCommentPosting(preparedTopic.group, add.getTopic).checkOrThrow()
+    
     new ModelAndView("comment-message", "preparedMessage", preparedTopic)
   }
 
@@ -100,9 +100,8 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
 
     val comment = commentService.getComment(add, user, request)
 
-    if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(using postingUser)
-    }
+    if add.getTopic != null then
+      addCommentChecker.checkCommentPosting(add.getTopic)(using postingUser).checkOrError(errors)
 
     if (textService.isEmpty(MessageText(add.getMsg, postingUser.profile.formatMode))) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым")
@@ -112,9 +111,9 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {
       val info = if (add.getTopic != null) {
-        val postscore = topicPermissionService.getPostscore(add.getTopic)
+        val postscore = postScoreChecker.commentRestrictionScore(add.getTopic)
 
-        Map("postscoreInfo" -> TopicPermissionService.getPostScoreInfo(postscore),
+        Map("postscoreInfo" -> PostScoreChecker.getPostScoreInfo(postscore),
           "comment" -> commentPrepareService.prepareCommentForEdit(comment, msg))
       } else {
         Map.empty
@@ -150,9 +149,8 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     val msg = commentService.getCommentBody(add, user, errors, postingUser.profile.formatMode)
     val comment = commentService.getComment(add, user, request)
 
-    if (add.getTopic != null) {
-      topicPermissionService.checkCommentsAllowed(add.getTopic, errors)(using postingUser)
-    }
+    if add.getTopic != null then
+      addCommentChecker.checkCommentPosting(add.getTopic)(using postingUser).checkOrError(errors)
 
     if (add.isPreviewMode || errors.hasErrors || comment == null) {
       val errorsList = errors.getAllErrors.asScala.map(_.getDefaultMessage).toSeq

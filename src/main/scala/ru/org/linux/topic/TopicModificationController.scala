@@ -23,6 +23,7 @@ import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.group.GroupService
+import ru.org.linux.rights.PostScoreChecker
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.section.{Section, SectionService}
@@ -193,7 +194,7 @@ class TopicModificationController(prepareService: TopicPrepareService, messageDa
   }
 
   private def postScoreInfoFull(postscore: Int): String = {
-    val info = TopicPermissionService.getPostScoreInfo(postscore)
+    val info = PostScoreChecker.getPostScoreInfo(postscore)
 
     if (info.isEmpty) {
       "без ограничений"

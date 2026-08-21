@@ -23,7 +23,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.{Poll, PollPrepareService, PreparedPoll}
 import ru.org.linux.reaction.ReactionService
-import ru.org.linux.rights.EditTopicChecker
+import ru.org.linux.rights.{AddCommentChecker, EditTopicChecker, PostScoreChecker}
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.TagRef
@@ -42,7 +42,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
                           groupPermissionService: GroupPermissionService, topicTagService: TopicTagService,
                           msgbaseDao: MsgbaseDao, imageService: ImageService, userAgentDao: UserAgentDao,
                           reactionPrepareService: ReactionService, ignoreListDao: IgnoreListDao,
-                          warningService: WarningService) {
+                          warningService: WarningService, addCommentChecker: AddCommentChecker, postScoreChecker: PostScoreChecker) {
   def prepareTopic(message: Topic)(using session: AnySession): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message), minimizeCut = false, None,
       msgbaseDao.getMessageText(message.id), imageLazyLoad = false)
@@ -130,14 +130,14 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
       ignoreListDao.get(user.id)
     }.getOrElse(Set.empty[Int])
 
-    lazy val postscore = topicPermissionService.getPostscore(group, topic)
+    lazy val postscore = postScoreChecker.commentRestrictionScore(group, topic)
 
-    val showRegisterInvite = !session.authorized &&
+    val showRegisterInvite = !session.authorized && !topic.expired && !topic.deleted &&
       (session.user.isFrozen || postscore <= 45 &&
         postscore != TopicPermissionService.POSTSCORE_UNRESTRICTED)
 
     val postscoreInfo = if (!topic.expired) {
-      TopicPermissionService.getPostScoreInfo(postscore)
+      PostScoreChecker.getPostScoreInfo(postscore)
     } else {
       ""
     }
@@ -222,12 +222,14 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
 
     val commitCheck = EditTopicChecker.checkCommit(topic.message)
     val commitable = topic.committable && commitCheck.permitted
+
+    val commentPostingCheck = addCommentChecker.checkCommentPosting(topic.group, topic.message)
     
     TopicMenu(topicEditable = topicEditable, tagsEditable = tagsEditable, resolvable = resolvable,
-      commentsAllowed = topicPermissionService.isCommentsAllowed(topic.group, topic.message), deletable = deletable,
+      commentsAllowed = commentPostingCheck.permitted, deletable = deletable,
       undeletable = undeletable, commitable = commitable, userpic = userpic.orNull,
       showComments = showComments, warningsAllowed = topicPermissionService.canPostWarning(topic.message, comment = None),
-      miniEditable = topic.canBeMini && commitCheck.permitted)
+      miniEditable = topic.canBeMini && commitCheck.permitted, commentsAllowedReason = commentPostingCheck.reason)
   }
 
   def prepareBrief(topic: Topic, groupInTitle: Boolean = false, sectionInTitle: Boolean = false): BriefTopicRef =

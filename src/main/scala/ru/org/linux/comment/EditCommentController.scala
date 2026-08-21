@@ -26,6 +26,7 @@ import ru.org.linux.auth.CaptchaService
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
+import ru.org.linux.rights.AddCommentChecker
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.TopicPermissionService
 import ru.org.linux.user.IgnoreListDao
@@ -41,7 +42,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
                             topicPermissionService: TopicPermissionService, commentPrepareService: CommentPrepareService,
                             searchQueueSender: SearchQueueSender, textService: MessageTextService,
                             commentReadService: CommentReadService, ignoreListDao: IgnoreListDao,
-                            captcha: CaptchaService) {
+                            captcha: CaptchaService, addCommentChecker: AddCommentChecker) {
   @InitBinder(Array("edit"))
   def requestValidator(binder: WebDataBinder): Unit = commentService.requestValidator(binder)
 
@@ -117,9 +118,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     val msg = commentService.getCommentBody(commentRequest, user, errors, originalMessageText.markup)
 
     if (commentRequest.getTopic != null) {
-      val postscore = topicPermissionService.getPostscore(commentRequest.getTopic)
-      formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(postscore))
-      topicPermissionService.checkCommentsAllowed(commentRequest.getTopic, errors)
+      addCommentChecker.checkCommentPosting(commentRequest.getTopic).checkOrError(errors)
       formParams.put("comment", commentPrepareService.prepareCommentForEdit(comment, msg))
     }
 

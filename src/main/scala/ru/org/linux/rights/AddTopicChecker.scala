@@ -17,54 +17,23 @@ package ru.org.linux.rights
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AnySession
 import ru.org.linux.group.Group
-import ru.org.linux.section.{Section, SectionService}
-import ru.org.linux.topic.TopicPermissionService.*
-import ru.org.linux.user.User
+import ru.org.linux.section.Section
 
 @Service
-class AddTopicChecker(sectionService: SectionService):
+class AddTopicChecker(postScoreChecker: PostScoreChecker):
   def checkTopicPosting(section: Section)(using AnySession): Permission =
-    checkTopicPostingImpl(section.topicsRestriction).seal
+    checkTopicPostingImpl(postScoreChecker.topicRestrictionScore(section)).seal
 
-  def checkTopicPosting(group: Group)(using AnySession): Permission =
-    checkTopicPostingChain(group).seal
+  def checkTopicPosting(group: Group)(using AnySession): Permission = checkTopicPostingChain(group).seal
 
   def checkTopicPostingChain(group: Group)(using AnySession): RestrictionChain =
-    val section = sectionService.getSection(group.sectionId)
-    val maxPostscore = Math.max(group.topicRestriction, section.topicsRestriction)
-
-    checkTopicPostingImpl(maxPostscore)
+    checkTopicPostingImpl(postScoreChecker.topicRestrictionScore(group))
 
   def checkTopicPostingAnywhere(using AnySession): Permission =
-    val minRestriction = sectionService.sections.view.map(_.topicsRestriction).min
-
-    checkTopicPostingImpl(minRestriction).seal
-
-  private def postScoreCheckerChain(user: User, postscore: Int): RestrictionChain =
-    postscore match
-      case POSTSCORE_UNRESTRICTED =>
-        Unrestricted
-      case POSTSCORE_MODERATORS_ONLY =>
-        Unrestricted.restrict(!user.isModerator, "только для модераторов")
-      case POSTSCORE_REGISTERED_ONLY =>
-        Unrestricted.restrict(user.anonymous, "только для зарегистрированных")
-      case POSTSCORE_NO_COMMENTS | POSTSCORE_HIDE_COMMENTS =>
-        Restricted("постинг запрещен") // в топиках не бывает, но пусть будет на всякий случай
-      case 100 | 200 | 300 | 400 =>
-        Unrestricted.restrict(
-          user.anonymous || user.score < postscore,
-          s"только для зарегистрированных, минимум ${User.getStars(postscore, postscore, false)}")
-      case 500 =>
-        Unrestricted.restrict(
-          user.anonymous || user.score < postscore,
-          s"только для зарегистрированных, ${User.getStars(postscore, postscore, false)}")
-      case _ =>
-        Unrestricted.restrict(
-          user.anonymous || user.score < postscore,
-          s"только для зарегистрированных, score>=$postscore")
+    checkTopicPostingImpl(postScoreChecker.topicRestrictionAnywhere).seal
 
   private def checkTopicPostingImpl(restriction: Int)(using session: AnySession): RestrictionChain =
     Unrestricted
       .restrict(FrozenUserChecker.checkChain)
-      .restrict(postScoreCheckerChain(session.user, restriction))
+      .restrict(postScoreChecker.postScoreCheckerChain(session.user, restriction))
       .restrict(IpBlockChecker.checkChain)

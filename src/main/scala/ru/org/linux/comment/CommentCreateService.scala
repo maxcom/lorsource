@@ -25,7 +25,6 @@ import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryRecord, EditHistoryService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
-import ru.org.linux.rights.{FrozenUserChecker, IpBlockChecker}
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService}
@@ -117,13 +116,9 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
       commentRequest.setMsg("")
     }
     
-    if (!commentRequest.isPreviewMode && !errors.hasErrors) {
+    if !commentRequest.isPreviewMode && !errors.hasErrors then
       CSRFProtectionService.checkCSRF(request, errors)
-    }
-
-    FrozenUserChecker.check(using postingUser).checkOrError(errors)
-    IpBlockChecker.check.checkOrError(errors)
-
+    
     if (!commentRequest.isPreviewMode && !errors.hasErrors && !editMode) {
       floodProtector.checkRateLimit(FloodProtector.AddComment, request.getRemoteAddr, postingUser.user, errors)
     }

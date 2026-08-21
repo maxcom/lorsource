@@ -19,14 +19,13 @@ import org.springframework.stereotype.Service
 import org.springframework.validation.{Errors, MapBindingResult}
 import ru.org.linux.auth.{AccessViolationException, AnySession, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentReadService}
-import ru.org.linux.group.{Group, GroupService}
+import ru.org.linux.group.Group
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.msgbase.DeleteInfoDao
-import ru.org.linux.rights.SlowModeChecker
-import ru.org.linux.section.Section
+import ru.org.linux.rights.{AddCommentChecker, SlowModeChecker}
 import ru.org.linux.site.{DeleteInfo, MessageNotFoundException}
 import ru.org.linux.spring.SiteConfig
-import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, POSTSCORE_UNRESTRICTED, ViewDeletedScore}
+import ru.org.linux.topic.TopicPermissionService.{POSTSCORE_HIDE_COMMENTS, ViewDeletedScore}
 import ru.org.linux.user.{User, UserConstants, UserPermissionService}
 import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
@@ -48,50 +47,12 @@ object TopicPermissionService {
   private val ViewDeletedScore = 200
   private val DeletePeriod = Duration.ofHours(3)
   private val ViewAfterDeleteDays = 14
-
-  def getPostScoreInfo(postscore: Int): String = postscore match {
-    case POSTSCORE_UNRESTRICTED =>
-      ""
-    case 50 =>
-      "Закрыто добавление комментариев для недавно зарегистрированных пользователей (со score < 50)"
-    case 100 | 200 | 300 | 400 | 500 =>
-      "<b>Ограничение на отправку комментариев</b>: " + User.getStars(postscore, postscore, true)
-    case POSTSCORE_MOD_AUTHOR =>
-      "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора"
-    case POSTSCORE_MODERATORS_ONLY =>
-      "<b>Ограничение на отправку комментариев</b>: только для модераторов"
-    case POSTSCORE_NO_COMMENTS =>
-      "<b>Ограничение на отправку комментариев</b>: комментарии запрещены"
-    case POSTSCORE_HIDE_COMMENTS =>
-      "<b>Ограничение на отправку комментариев</b>: без комментариев"
-    case POSTSCORE_REGISTERED_ONLY =>
-      "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей"
-    case _ =>
-      "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>=" + postscore
-  }
-
-  private def getCommentCountRestriction(topic: Topic) = {
-    if (!topic.sticky) {
-      val commentCount = topic.commentCount
-
-      if (commentCount > 3000) {
-        200
-      } else if (commentCount > 2000) {
-        100
-      } else if (commentCount > 1000) {
-        50
-      } else {
-        POSTSCORE_UNRESTRICTED
-      }
-    } else {
-      POSTSCORE_UNRESTRICTED
-    }
-  }
 }
 
 @Service
-class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig, groupService: GroupService,
-                             deleteInfoDao: DeleteInfoDao, slowModeChecker: SlowModeChecker) {
+class TopicPermissionService(commentService: CommentReadService, siteConfig: SiteConfig,
+                             deleteInfoDao: DeleteInfoDao, slowModeChecker: SlowModeChecker,
+                             addCommentChecker: AddCommentChecker) {
   def allowViewAllDeletedComments(message: Topic)(using currentUser: AnySession): Boolean = {
     if !currentUser.moderator then
       val topicForbidden = message.expired || message.draft ||
@@ -172,115 +133,6 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
     }
   }
 
-  def checkCommentsAllowed(topic: Topic, errors: Errors)(using anySession: AnySession): Unit = {
-    if (topic.deleted) {
-      errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению")
-    }
-
-    if (topic.draft) {
-      errors.reject(null, "Нельзя добавлять комментарии к черновику")
-    }
-
-    if (topic.expired) {
-      errors.reject(null, "Сообщение уже устарело")
-    }
-
-    val group = groupService.getGroup(topic.groupId)
-
-    if (!isCommentsAllowed(group, topic)) {
-      errors.reject(null, "Вы не можете добавлять комментарии в эту тему")
-    }
-  }
-
-  private def getAllowAnonymousPostscore(topic: Topic) =
-    if (topic.allowAnonymous) {
-      TopicPermissionService.POSTSCORE_UNRESTRICTED
-    } else {
-      TopicPermissionService.POSTSCORE_REGISTERED_ONLY
-    }
-
-  private def getScoreLossPostscore(topic: Topic): Int = {
-    if (!topic.sticky && !topic.expired) {
-      val scoreLoss = deleteInfoDao.scoreLoss(topic.id)
-
-      if (scoreLoss >= 150) {
-        100
-      } else if (scoreLoss >= 100) {
-        50
-      } else {
-        POSTSCORE_UNRESTRICTED
-      }
-    } else {
-      POSTSCORE_UNRESTRICTED
-    }
-  }
-
-  private def getOpenWarningsPostscore(topic: Topic): Int =
-    if (topic.openWarnings > TopicMaxWarnings) {
-      100
-    } else {
-      POSTSCORE_UNRESTRICTED
-    }
-
-  def getPostscore(group: Group, topic: Topic): Int = Seq(topic.postscore, group.commentsRestriction,
-    Section.getCommentPostscore(topic.sectionId), TopicPermissionService.getCommentCountRestriction(topic),
-    getAllowAnonymousPostscore(topic), getScoreLossPostscore(topic), getOpenWarningsPostscore(topic)).max
-
-  def getPostscore(topic: Topic): Int = {
-    val group = groupService.getGroup(topic.groupId)
-
-    getPostscore(group, topic)
-  }
-
-  def isCommentsAllowed(group: Group, topic: Topic)(using anySession: AnySession): Boolean =
-    isCommentsAllowedByUser(group, topic, anySession.user, ignoreFrozen = false)
-
-  def isCommentsAllowedByUser(group: Group, topic: Topic, user: User, ignoreFrozen: Boolean): Boolean = {
-    if (topic.deleted || topic.expired || topic.draft) {
-      return false
-    }
-
-    val effectiveUser = user
-
-    if (effectiveUser.blocked || (!ignoreFrozen && effectiveUser.isFrozen)) {
-      return false
-    }
-
-    val score = getPostscore(group, topic)
-
-    if (score == TopicPermissionService.POSTSCORE_NO_COMMENTS || score == POSTSCORE_HIDE_COMMENTS) {
-      return false
-    }
-
-    if (score == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
-      return true
-    }
-
-    if (effectiveUser.anonymous) {
-      false
-    } else {
-      if (user.isModerator) {
-        return true
-      }
-
-      if (score == TopicPermissionService.POSTSCORE_REGISTERED_ONLY) {
-        return true
-      }
-
-      if (score == TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
-        return false
-      }
-
-      val viewByAuthor = user.id == topic.authorUserId
-
-      if (score == TopicPermissionService.POSTSCORE_MOD_AUTHOR) {
-        return viewByAuthor
-      }
-
-      viewByAuthor || user.getScore >= score
-    }
-  }
-
   /**
    * Проверка на права редактирования комментария.
    */
@@ -312,7 +164,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
                            markup: MarkupType)(using anySession: AnySession): Boolean = {
     val errors = new MapBindingResult(Map.empty.asJava, "obj")
 
-    checkCommentsAllowed(topic, errors)
+    addCommentChecker.checkCommentPosting(topic).checkOrError(errors)
     checkCommentEditableNow(comment, anySession.userOpt.orNull, haveAnswers, topic, errors, markup)
 
     !errors.hasErrors

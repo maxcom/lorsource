@@ -21,13 +21,13 @@ import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.reaction.{PreparedReactions, ReactionService}
+import ru.org.linux.rights.AddCommentChecker
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.user.*
 import ru.org.linux.warning.{Warning, WarningService}
 
 import java.time.Duration
-
 import scala.jdk.OptionConverters.*
 
 @Service
@@ -35,7 +35,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
                             topicPermissionService: TopicPermissionService, userService: UserService,
                             deleteInfoDao: DeleteInfoDao, userAgentDao: UserAgentDao, remarkDao: RemarkDao,
                             groupService: GroupService, reactionPrepareService: ReactionService,
-                            warningService: WarningService) {
+                            warningService: WarningService, addCommentChecker: AddCommentChecker) {
 
   private def prepareComment(messageText: MessageText, author: User, remark: Option[String], comment: Comment,
                              comments: Option[CommentList], topic: Topic, hideSet: Set[Int], samePageComments: Set[Int],
@@ -109,7 +109,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     val editable = topicPermissionService.isCommentEditableNow(comment, hasAnswers, topic, messageText.markup)(using session)
     val warningsAllowed = topicPermissionService.canPostWarning(topic, Some(comment))(using session)
 
-    val authorReadonly = !topicPermissionService.isCommentsAllowedByUser(group, topic, author, ignoreFrozen = true)
+    val authorReadonly = addCommentChecker.checkCommentPostingForUser(group, topic, author).restricted
 
     val preparedWarnings = warningService.prepareWarning(warnings)
 

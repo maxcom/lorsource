@@ -301,20 +301,11 @@
 <c:if test="${not messageMenu.commentsAllowed}">
   <div class="infoblock">
     <c:choose>
-      <c:when test="${message.deleted}">
-        Вы не можете добавлять комментарии в эту тему. Тема удалена.
-      </c:when>
-      <c:when test="${message.expired}">
-        Вы не можете добавлять комментарии в эту тему. Тема перемещена в архив.
-      </c:when>
       <c:when test="${preparedMessage.showRegisterInvite}">
         Для того чтобы оставить комментарий <lor:login-link>войдите</lor:login-link> или <a href="register.jsp">зарегистрируйтесь</a>.
       </c:when>
-      <c:when test="${template.sessionAuthorized && currentUser.frozen}">
-        ⚠️${' '} Для вашей учетной записи установлен режим только для чтения до <lor:date date="${currentUser.frozenUntil}"/>.
-      </c:when>
       <c:otherwise>
-        ${preparedMessage.postscoreInfo}
+        Вы не можете добавлять комментарии в эту тему: ${messageMenu.commentsAllowedReason}.
       </c:otherwise>
     </c:choose>
   </div>

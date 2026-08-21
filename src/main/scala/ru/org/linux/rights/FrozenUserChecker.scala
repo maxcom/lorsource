@@ -18,8 +18,6 @@ package ru.org.linux.rights
 import ru.org.linux.auth.AnySession
 
 object FrozenUserChecker:
-  def check(using session: AnySession): Permission = checkChain.seal
-
   def checkChain(using session: AnySession): RestrictionChain =
     Unrestricted
       .restrict(session.user.anonymous && session.user.isFrozen, "только для зарегистрированных")
