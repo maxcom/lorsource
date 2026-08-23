@@ -16,7 +16,7 @@
 package ru.org.linux.util.markdown
 
 import com.vladsch.flexmark.ast.{Image, ImageRef}
-import com.vladsch.flexmark.ast.util.TextCollectingVisitor
+import com.vladsch.flexmark.util.ast.TextCollectingVisitor
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{NodeRenderer, NodeRenderingHandler}
 import com.vladsch.flexmark.util.data.MutableDataHolder

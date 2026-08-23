@@ -206,7 +206,7 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
               accum.append(" " + link + " ")
             }
           } else if (element.isBlock &&
-            (next.isInstanceOf[TextNode] || next.isInstanceOf[Element] && !next.asInstanceOf[Element].tag.formatAsBlock) &&
+            (next.isInstanceOf[TextNode] || next.isInstanceOf[Element] && next.asInstanceOf[Element].tag.isInline) &&
             !lastCharIsWhitespace(accum)) {
               accum.append(' ')
           }

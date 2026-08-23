@@ -49,14 +49,14 @@ class CutRenderer(options: DataHolder) extends NodeRenderer {
     new NodeRenderingHandler[CutNode](classOf[CutNode], (node, ctx, html) => {
       val id = ctx.getNodeId(node)
 
-      if (options.get(CutExtension.CutCollapsed)) {
+      if (CutExtension.CutCollapsed.get(options)) {
         html.tag("p")
 
         html.text("( ")
 
         html
           .withAttr()
-          .attr("href", options.get(CutExtension.CutLink) + "#" + id)
+          .attr("href", CutExtension.CutLink.get(options) + "#" + id)
           .tag("a")
           .text("читать дальше...")
           .closeTag("a")
