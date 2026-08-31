@@ -22,7 +22,7 @@ import ru.org.linux.user.UserService
 class LastLoginInterceptor(userService: UserService) extends HandlerInterceptor {
   override def preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any) = {
     if (AuthUtil.isSessionAuthorized) {
-      userService.updateLastLogin(AuthUtil.getCurrentUser, force = false)
+      userService.updateLastLogin(AuthUtil.getCurrentUser, force = false, request.getRemoteAddr)
     }
 
     true

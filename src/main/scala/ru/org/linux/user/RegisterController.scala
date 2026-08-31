@@ -147,7 +147,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
 
           SecurityContextHolder.getContext.setAuthentication(updatedAuth)
           rememberMeServices.loginSuccess(request, response, updatedAuth)
-          AuthUtil.updateLastLogin(updatedAuth, userService)
+          AuthUtil.updateLastLogin(updatedAuth, userService, request.getRemoteAddr)
 
           new ModelAndView(new RedirectView("/"))
         } else {

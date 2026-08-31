@@ -93,12 +93,14 @@ class LoginController(
                 SecurityContextHolder.getContext.setAuthentication(auth)
                 rememberMeServices.loginSuccess(request, response, auth)
 
-                AuthUtil.updateLastLogin(auth, userService)
-
                 val user = userDetails.getUser
-                if user.hasEmail && UserPermissionService.shouldNotifyLogin(user) then
-                  val ip = request.getRemoteAddr
+                val ip = request.getRemoteAddr
 
+                val knownNetwork = userService.sameNetworkAsLastLogin(user, ip)
+
+                AuthUtil.updateLastLogin(auth, userService, ip)
+
+                if user.hasEmail && UserPermissionService.shouldNotifyLogin(user) && !knownNetwork then
                   // Fire-and-forget: сбой SMTP-отправки никогда не влияет на процесс входа.
                   Future:
                     blocking:

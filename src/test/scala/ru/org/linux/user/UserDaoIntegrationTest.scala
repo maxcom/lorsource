@@ -121,6 +121,60 @@ class UserDaoIntegrationTest:
     assertEquals(1, deleted)
     assertThrows(classOf[UserNotFoundException], () => userDao.getUser(id))
 
+  private def setIp(id: Int, ip: Option[String]): Unit =
+    springDB.run:
+      ip match
+        case Some(v) =>
+          sql"UPDATE users SET lastip=${v}::inet WHERE id=${id}".update.apply()
+        case None =>
+          sql"UPDATE users SET lastip=NULL WHERE id=${id}".update.apply()
+
+  private def getIp(id: Int): String =
+    springDB.run(
+      sql"SELECT host(lastip) AS ip FROM users WHERE id=${id}".map(rs => rs.string("ip")).single.apply().orNull)
+
+  @Test
+  def testUpdateLastloginStoresIp(): Unit =
+    val user = userDao.getUser(UserDaoIntegrationTest.TestId)
+
+    val updated = userDao.updateLastlogin(user, force = true, "192.168.1.10")
+
+    assertTrue(updated)
+    assertEquals("192.168.1.10", getIp(UserDaoIntegrationTest.TestId))
+
+  @Test
+  def testUpdateLastloginThrottled(): Unit =
+    val user = userDao.getUser(UserDaoIntegrationTest.TestId)
+    val id = UserDaoIntegrationTest.TestId
+
+    springDB.run:
+      sql"UPDATE users SET lastlogin=CURRENT_TIMESTAMP-'2 hours'::interval, lastip=NULL WHERE id=${id}".update.apply()
+
+    assertTrue(userDao.updateLastlogin(user, force = false, "10.1.2.3"))
+    assertEquals("10.1.2.3", getIp(id))
+
+    assertFalse(userDao.updateLastlogin(user, force = false, "10.1.9.9"))
+    assertEquals("lastip must not change within 1 hour", "10.1.2.3", getIp(id))
+
+  @Test
+  def testSameNetworkAsLastLogin(): Unit =
+    val user = userDao.getUser(UserDaoIntegrationTest.TestId)
+    val id = UserDaoIntegrationTest.TestId
+
+    setIp(id, None)
+    assertFalse("unknown previous ip must not match", userDao.sameNetworkAsLastLogin(user, "10.1.2.3"))
+
+    setIp(id, Some("10.1.2.3"))
+    assertTrue("same /24 must match", userDao.sameNetworkAsLastLogin(user, "10.1.2.250"))
+    assertFalse("different /24 must not match", userDao.sameNetworkAsLastLogin(user, "10.1.3.3"))
+
+    setIp(id, Some("2001:db8:1::1"))
+    assertTrue("same /64 must match", userDao.sameNetworkAsLastLogin(user, "2001:db8:1::9"))
+    assertFalse("different /64 must not match", userDao.sameNetworkAsLastLogin(user, "2001:db8:2::5"))
+
+    setIp(id, Some("10.1.2.3"))
+    assertFalse("different address families must not match", userDao.sameNetworkAsLastLogin(user, "2001:db8:1::1"))
+
 end UserDaoIntegrationTest
 
 @Configuration @ImportResource(Array("classpath:database.xml", "classpath:common.xml"))

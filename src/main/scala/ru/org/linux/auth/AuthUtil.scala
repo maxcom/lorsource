@@ -72,14 +72,14 @@ case class NonAuthorizedSession(anonymous: User, ipBlockInfo: IpBlockInfo) exten
   override def profile: Profile = Profile.DEFAULT
 
 object AuthUtil extends StrictLogging:
-  def updateLastLogin(authentication: Authentication, userService: UserService): Unit =
+  def updateLastLogin(authentication: Authentication, userService: UserService, ip: String): Unit =
     if authentication != null && authentication.isAuthenticated then
       val principal = authentication.getPrincipal
 
       principal match
         case userDetails: UserDetailsImpl =>
           val user = userDetails.getUser
-          userService.updateLastLogin(user, force = true)
+          userService.updateLastLogin(user, force = true, ip)
         case _ =>
 
   def isSessionAuthorized: Boolean =

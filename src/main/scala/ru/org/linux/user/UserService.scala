@@ -527,9 +527,9 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
   }
 
-  def updateLastLogin(user: User, force: Boolean): Unit = {
-    if (userDao.updateLastlogin(user, force)) {
+  def updateLastLogin(user: User, force: Boolean, ip: String): Unit =
+    if userDao.updateLastlogin(user, force, ip) then
       idToUserCache.invalidate(user.id)
-    }
-  }
+
+  def sameNetworkAsLastLogin(user: User, ip: String): Boolean = userDao.sameNetworkAsLastLogin(user, ip)
 }

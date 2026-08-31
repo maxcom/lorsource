@@ -310,14 +310,30 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
   def acceptNewEmail(user: User, newEmail: String)(using Transaction): Unit =
     sql"UPDATE users SET email=${newEmail}, new_email=null WHERE id=${user.id}".update.apply()
 
-  def updateLastlogin(user: User, force: Boolean): Boolean =
+  def updateLastlogin(user: User, force: Boolean, ip: String): Boolean =
     if force then
-      springDB.run(sql"UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=${user.id}".update.apply())
+      springDB.run(
+        sql"UPDATE users SET lastlogin=CURRENT_TIMESTAMP, lastip=${ip}::inet WHERE id=${user.id}".update.apply())
       true
     else
       springDB.run(
-        sql"UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=${user
-            .id} AND CURRENT_TIMESTAMP-lastlogin > '1 hour'::interval".update.apply()) > 0
+        sql"""UPDATE users SET lastlogin=CURRENT_TIMESTAMP, lastip=${ip}::inet WHERE id=${user
+            .id} AND CURRENT_TIMESTAMP-lastlogin > '1 hour'::interval""".update.apply()) > 0
+
+  /** Совпадает ли адрес с сетью последнего входа: /24 для IPv4, /64 для IPv6.
+    *
+    * Вызывать до updateLastlogin — сравнивается с предыдущим сохранённым lastip. Возвращает false, если предыдущий
+    * адрес неизвестен (lastip IS NULL), адресы из разных семейств или пользователь не найден.
+    */
+  def sameNetworkAsLastLogin(user: User, ip: String): Boolean =
+    springDB.run(
+      sql"""SELECT network(set_masklen(lastip, case family(lastip) when 6 then 64 else 24 end))
+                   = network(set_masklen(${ip}::inet, case family(${ip}::inet) when 6 then 64 else 24 end)) AS same
+            FROM users WHERE id=${user.id}"""
+        .map(rs => rs.booleanOpt("same").getOrElse(false))
+        .single
+        .apply()
+        .getOrElse(false))
 
   def unloginAllSessions(user: User): Unit =
     springDB.run(sql"UPDATE users SET token_generation=token_generation+1 WHERE id=${user.id}".update.apply())
