@@ -172,5 +172,17 @@ class SiteConfig(
     else
       property.toBoolean
 
+  /** Удалять ли физически старые удалённые комментарии неактивных пользователей (раз в день ночью).
+    *
+    * @return
+    *   true если разрешено удалять, иначе false (только логгирование кандидатов)
+    */
+  def cleanOldDeletedComments: Boolean =
+    val property = properties.getProperty("cleanOldDeletedComments")
+    if property == null then
+      false
+    else
+      property.toBoolean
+
 object SiteConfig:
   private val ErrMsg = "Invalid MainUrl property: "

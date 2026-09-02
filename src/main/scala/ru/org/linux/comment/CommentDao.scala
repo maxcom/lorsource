@@ -218,3 +218,83 @@ class CommentDao(springDB: SpringDB):
           ))
         .list
         .apply()
+
+  /** Старые удалённые комментарии неактивных пользователей, подлежащие окончательному удалению.
+    *
+    * Комментарий является кандидатом, если:
+    *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет;
+    *   - не имеет ответов (включая сами удалённые);
+    *   - его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет назад),
+    *     либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч.
+    *     anonymous).
+    *
+    * @return
+    *   список идентификаторов кандидатов, упорядоченный по возрастанию id
+    */
+  def getDeletableDeletedCommentIds: Seq[Int] =
+    springDB.run(sql"""SELECT comments.id
+            FROM del_info
+            JOIN comments ON comments.id = del_info.msgid
+            JOIN users ON users.id = comments.userid
+            WHERE comments.deleted
+            AND del_info.deldate < CURRENT_TIMESTAMP - interval '3 years'
+            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
+            AND (
+              COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
+              OR (users.blocked
+                  AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
+              OR (users.lastlogin IS NULL AND users.regdate IS NULL)
+            )
+            ORDER BY comments.id""".map(rs => rs.int("id")).list.apply())
+
+  /** Окончательно удаляет комментарии со всеми зависимыми записями (в одной транзакции).
+    *
+    * Удаляются записи из `user_events` (события любых типов по `comment_id`, а также события привязанных к комментариям
+    * предупреждений по `warning_id`), `reactions_log`, `message_warnings`, `edit_info`, `del_info`, `msgbase` и сами
+    * комментарии. Перед удалением строки комментариев блокируются (`FOR UPDATE`); восстановленные к этому моменту
+    * комментарии пропускаются. Счётчики непрочитанных уведомлений затронутых пользователей пересчитываются.
+    *
+    * @param ids
+    *   идентификаторы окончательно удаляемых комментариев
+    * @return
+    *   число фактически удалённых комментариев
+    */
+  def purgeDeletedComments(ids: Seq[Int]): Int =
+    if ids.isEmpty then
+      0
+    else
+      springDB.localTx {
+        val locked = sql"SELECT id FROM comments WHERE id IN ($ids) AND deleted ORDER BY id FOR UPDATE"
+          .map(rs => rs.int("id"))
+          .list
+          .apply()
+
+        if locked.isEmpty then
+          0
+        else
+          val affectedUsers =
+            sql"""SELECT DISTINCT userid FROM user_events
+                WHERE comment_id IN ($locked)
+                OR warning_id IN (SELECT id FROM message_warnings WHERE comment IN ($locked))"""
+              .map(rs => rs.int("userid"))
+              .list
+              .apply()
+
+          sql"""DELETE FROM user_events
+                WHERE comment_id IN ($locked)
+                OR warning_id IN (SELECT id FROM message_warnings WHERE comment IN ($locked))""".update.apply()
+
+          if affectedUsers.nonEmpty then
+            sql"""UPDATE users SET unread_events =
+                  (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
+                  WHERE users.id IN ($affectedUsers)""".update.apply()
+
+          sql"DELETE FROM reactions_log WHERE comment_id IN ($locked)".update.apply()
+          sql"DELETE FROM message_warnings WHERE comment IN ($locked)".update.apply()
+          sql"DELETE FROM edit_info WHERE msgid IN ($locked)".update.apply()
+          sql"DELETE FROM del_info WHERE msgid IN ($locked)".update.apply()
+          sql"DELETE FROM msgbase WHERE id IN ($locked)".update.apply()
+          sql"DELETE FROM comments WHERE id IN ($locked)".update.apply()
+
+          locked.size
+      }
