@@ -35,7 +35,7 @@ class PostScoreCheckerTest extends FunSuite:
       canmod: Boolean = false,
       anonymous: Boolean = false,
       blocked: Boolean = false,
-      score: Int = 50,
+      score: Int,
       maxScore: Int = 50,
       frozenUntil: Timestamp = null): User =
     User(

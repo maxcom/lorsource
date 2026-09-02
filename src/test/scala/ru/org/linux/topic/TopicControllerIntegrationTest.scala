@@ -43,7 +43,7 @@ class TopicControllerIntegrationTest {
   var wac: WebApplicationContext = scala.compiletime.uninitialized
 
   @Autowired
-  private var userService: UserService = scala.compiletime.uninitialized
+  var userService: UserService = scala.compiletime.uninitialized
 
   private var mockMvc: MockMvc = scala.compiletime.uninitialized
 

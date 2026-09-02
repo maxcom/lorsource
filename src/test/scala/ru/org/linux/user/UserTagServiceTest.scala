@@ -31,16 +31,16 @@ import scala.jdk.CollectionConverters.*
 @ContextConfiguration(Array("unit-tests-context.xml"))
 class UserTagServiceTest {
   @Autowired
-  private var tagDao: TagDao = scala.compiletime.uninitialized
+  var tagDao: TagDao = scala.compiletime.uninitialized
 
   @Autowired
-  private var tagService: TagService = scala.compiletime.uninitialized
+  var tagService: TagService = scala.compiletime.uninitialized
 
   @Autowired
-  private var userTagDao: UserTagDao = scala.compiletime.uninitialized
+  var userTagDao: UserTagDao = scala.compiletime.uninitialized
 
   @Autowired
-  private var userTagService: UserTagService = scala.compiletime.uninitialized
+  var userTagService: UserTagService = scala.compiletime.uninitialized
 
   private var user: User = scala.compiletime.uninitialized
 

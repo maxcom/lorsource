@@ -43,6 +43,8 @@ import java.util.concurrent.{Callable, TimeUnit}
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters.*
+import scala.util.boundary
+import scala.util.boundary.break
 
 object TopicController {
   private val MoreLikeThisTimeout = Duration.apply(500, TimeUnit.MILLISECONDS)
@@ -399,51 +401,53 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
   }
 
   private def jumpMessage(msgid: Int, cid: Int, skipDeleted: Boolean): ModelAndView = MaybeAuthorized { session =>
-    val topic = topicDao.getById(msgid)
+    boundary {
+      val topic = topicDao.getById(msgid)
 
-    var comments = getCommentList(topic, showDeleted = false)
+      var comments = getCommentList(topic, showDeleted = false)
 
-    var node = comments.getNodeOpt(cid).orNull
+      var node = comments.getNodeOpt(cid).orNull
 
-    if (node == null && skipDeleted) {
-      val list = comments.comments
+      if (node == null && skipDeleted) {
+        val list = comments.comments
 
-      if (list.isEmpty) {
-        return new ModelAndView(new RedirectView(topic.getLink))
+        if (list.isEmpty) {
+          break(new ModelAndView(new RedirectView(topic.getLink)))
+        }
+
+        val c = list.find(_.id > cid).getOrElse(list.last)
+        node = comments.getNode(c.id)
       }
 
-      val c = list.find(_.id > cid).getOrElse(list.last)
-      node = comments.getNode(c.id)
-    }
+      var deleted = false
 
-    var deleted = false
-
-    if (node == null && session.moderator) {
-      comments = getCommentList(topic, showDeleted = true)
-      node = comments.getNode(cid)
-      deleted = true
-    }
-
-    if (node == null) {
-      throw new MessageNotFoundException(topic, cid, s"Сообщение #$cid было удалено или не существует")
-    }
-
-    val pagenum = if (deleted) 0 else comments.getCommentPage(node.comment, session.profile.messages)
-
-    var redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum).lastmod(session.profile.messages).comment(node.comment.id)
-
-    if (deleted) redirectUrl = redirectUrl.showDeleted
-
-    if (session.authorized && !deleted) {
-      val ignoreList = ignoreListDao.get(session.userOpt.get.id)
-      val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(ignoreList.isEmpty), ignoreList)
-
-      if (hideSet.contains(node.comment.id)) {
-        redirectUrl = redirectUrl.filterShow()
+      if (node == null && session.moderator) {
+        comments = getCommentList(topic, showDeleted = true)
+        node = comments.getNode(cid)
+        deleted = true
       }
-    }
 
-    new ModelAndView(new RedirectView(redirectUrl.build))
+      if (node == null) {
+        throw new MessageNotFoundException(topic, cid, s"Сообщение #$cid было удалено или не существует")
+      }
+
+      val pagenum = if (deleted) 0 else comments.getCommentPage(node.comment, session.profile.messages)
+
+      var redirectUrl = TopicLinkBuilder.pageLink(topic, pagenum).lastmod(session.profile.messages).comment(node.comment.id)
+
+      if (deleted) redirectUrl = redirectUrl.showDeleted
+
+      if (session.authorized && !deleted) {
+        val ignoreList = ignoreListDao.get(session.userOpt.get.id)
+        val hideSet = commentService.makeHideSet(comments, TopicController.getDefaultFilter(ignoreList.isEmpty), ignoreList)
+
+        if (hideSet.contains(node.comment.id)) {
+          redirectUrl = redirectUrl.filterShow()
+        }
+      }
+
+      new ModelAndView(new RedirectView(redirectUrl.build))
+    }
   }
 
   @RequestMapping(value = Array("/jump-message.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))

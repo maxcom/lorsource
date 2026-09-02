@@ -541,9 +541,7 @@
             <arg>-deprecation</arg>
             <arg>-feature</arg>
             <arg>-unchecked</arg>
-<!--
-            <arg>-Xfatal-warnings</arg>
--->
+            <arg>-Werror</arg>
             <arg>-language:postfixOps</arg>
             <arg>-release:25</arg>
             <arg>-Wunused:all</arg>

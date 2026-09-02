@@ -31,10 +31,10 @@ import java.io.File
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
 class UserpicControllerWebTest extends FunSuite with WebHelper with SpringTestSupport:
   @Autowired
-  private var userDao: UserDao = scala.compiletime.uninitialized
+  var userDao: UserDao = scala.compiletime.uninitialized
 
   @Autowired
-  private var springDB: SpringDB = scala.compiletime.uninitialized
+  var springDB: SpringDB = scala.compiletime.uninitialized
 
   private def rescueJB(): Unit =
     val user = userDao.getUser(userDao.findUserId("JB"))

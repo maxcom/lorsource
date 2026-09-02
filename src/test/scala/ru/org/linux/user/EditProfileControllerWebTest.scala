@@ -45,13 +45,13 @@ class EditProfileControllerWebTest extends FunSuite with WebHelper with SpringTe
   import EditProfileControllerWebTest.*
 
   @Autowired
-  private var userDao: UserDao = scala.compiletime.uninitialized
+  var userDao: UserDao = scala.compiletime.uninitialized
 
   @Autowired
-  private var springDB: SpringDB = scala.compiletime.uninitialized
+  var springDB: SpringDB = scala.compiletime.uninitialized
 
   @Autowired
-  private var userService: UserService = scala.compiletime.uninitialized
+  var userService: UserService = scala.compiletime.uninitialized
 
   private def rescueMaxcom(): Unit =
     val user = userDao.getUser(userDao.findUserId("maxcom"))
