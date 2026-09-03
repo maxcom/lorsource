@@ -86,7 +86,7 @@
     <dependency>
       <groupId>org.scalameta</groupId>
       <artifactId>munit_${scala.suffix}</artifactId>
-      <version>1.3.5</version>
+      <version>1.3.6</version>
       <scope>test</scope>
     </dependency>
 
@@ -499,7 +499,7 @@
     <dependency>
       <groupId>org.opensearch.client</groupId>
       <artifactId>opensearch-java</artifactId>
-      <version>3.9.0</version>
+      <version>3.10.0</version>
     </dependency>
 
     <dependency>
