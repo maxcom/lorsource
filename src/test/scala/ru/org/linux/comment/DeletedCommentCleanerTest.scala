@@ -14,6 +14,7 @@
  */
 package ru.org.linux.comment
 
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, never, times, verify, when}
@@ -67,17 +68,9 @@ class DeletedCommentCleanerTest:
       (DeletedCommentCleaner.BatchSize + 1 to DeletedCommentCleaner.BatchSize * 2).toSeq)
 
   @Test
-  def failedBatchDoesNotAbortOthers(): Unit =
-    val ids = (1 to DeletedCommentCleaner.BatchSize * 2).toSeq
-    when(commentDao.getDeletableDeletedCommentIds).thenReturn(ids)
+  def purgeFailurePropagates(): Unit =
+    when(commentDao.getDeletableDeletedCommentIds).thenReturn(Seq(1, 2, 3))
     when(siteConfig.cleanOldDeletedComments).thenReturn(true)
-    when(commentDao.purgeDeletedComments((1 to DeletedCommentCleaner.BatchSize).toSeq)).thenThrow(
-      new RuntimeException("batch failed"))
-    when(
-      commentDao.purgeDeletedComments(
-        (DeletedCommentCleaner.BatchSize + 1 to DeletedCommentCleaner.BatchSize * 2).toSeq)).thenReturn(
-      DeletedCommentCleaner.BatchSize)
+    when(commentDao.purgeDeletedComments(Seq(1, 2, 3))).thenThrow(new RuntimeException("batch failed"))
 
-    cleaner.cleanDeletedComments()
-
-    verify(commentDao, times(2)).purgeDeletedComments(any(classOf[Seq[Int]]))
+    assertThrows(classOf[RuntimeException], () => cleaner.cleanDeletedComments())

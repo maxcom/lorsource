@@ -14,6 +14,7 @@
  */
 package ru.org.linux.user
 
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, never, times, verify, when}
@@ -64,15 +65,9 @@ class BlockedUserCleanerTest:
     verify(userDao).deleteBlockedUsers((BlockedUserCleaner.BatchSize + 1 to BlockedUserCleaner.BatchSize * 2).toSeq)
 
   @Test
-  def failedBatchDoesNotAbortOthers(): Unit =
-    val ids = (1 to BlockedUserCleaner.BatchSize * 2).toSeq
-    when(userDao.getDeletableBlockedUserIds).thenReturn(ids)
+  def deleteFailurePropagates(): Unit =
+    when(userDao.getDeletableBlockedUserIds).thenReturn(Seq(1, 2, 3))
     when(siteConfig.cleanOldBlockedUsers).thenReturn(true)
-    when(userDao.deleteBlockedUsers((1 to BlockedUserCleaner.BatchSize).toSeq)).thenThrow(
-      new RuntimeException("batch failed"))
-    when(userDao.deleteBlockedUsers((BlockedUserCleaner.BatchSize + 1 to BlockedUserCleaner.BatchSize * 2).toSeq))
-      .thenReturn(BlockedUserCleaner.BatchSize)
+    when(userDao.deleteBlockedUsers(Seq(1, 2, 3))).thenThrow(new RuntimeException("batch failed"))
 
-    cleaner.cleanBlockedUsers()
-
-    verify(userDao, times(2)).deleteBlockedUsers(any(classOf[Seq[Int]]))
+    assertThrows(classOf[RuntimeException], () => cleaner.cleanBlockedUsers())

@@ -19,8 +19,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.org.linux.spring.SiteConfig
 
-import scala.util.control.NonFatal
-
 /** Периодическое окончательное удаление старых удалённых комментариев неактивных пользователей.
   *
   * Кандидаты определяются в [[CommentDao.getDeletableDeletedCommentIds]]: комментарий удалён более 3 лет назад (по
@@ -29,7 +27,8 @@ import scala.util.control.NonFatal
   * Комментарии с удалёнными ответами вычищаются постепенно: сначала листья цепочки, затем их родители.
   *
   * При выключенном флаге `cleanOldDeletedComments` (по умолчанию) вместо удаления кандидаты только логгируются
-  * (dry-run).
+  * (dry-run). При ошибке удаления исключение пробрасывается наружу — его обработает обработчик ошибок планировщика (лог
+  * + письмо администратору); оставшиеся кандидаты будут удалены следующим запуском.
   */
 @Component
 class DeletedCommentCleaner(siteConfig: SiteConfig, commentDao: CommentDao) extends StrictLogging:
@@ -45,13 +44,9 @@ class DeletedCommentCleaner(siteConfig: SiteConfig, commentDao: CommentDao) exte
       ids
         .grouped(DeletedCommentCleaner.BatchSize)
         .foreach { batch =>
-          try
-            val purged = commentDao.purgeDeletedComments(batch)
-            deleted += purged
-            logger.info(s"DeletedCommentCleaner: purged $purged of ${batch.size}: ${batch.mkString(", ")}")
-          catch
-            case NonFatal(e) =>
-              logger.error(s"DeletedCommentCleaner: failed to purge ${batch.size} comments", e)
+          val purged = commentDao.purgeDeletedComments(batch)
+          deleted += purged
+          logger.info(s"DeletedCommentCleaner: purged $purged of ${batch.size}: ${batch.mkString(", ")}")
         }
       logger.info(s"DeletedCommentCleaner: deleted $deleted of ${ids.size} candidates")
     else

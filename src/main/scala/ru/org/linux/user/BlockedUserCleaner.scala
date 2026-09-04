@@ -19,15 +19,14 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import ru.org.linux.spring.SiteConfig
 
-import scala.util.control.NonFatal
-
 /** Периодическое удаление заблокированных пользователей без активности.
   *
   * Удаляются пользователи, заблокированные более 3 лет назад и не имеющие топиков, комментариев или реакций (а также
   * прочей активности). Дата блокировки берётся из `ban_info.bandate`, при отсутствии — из `lastlogin`, затем из
   * `regdate`; если ни одна дата не известна, пользователь удаляется сразу.
   *
-  * При выключенном флаге `cleanOldBlockedUsers` только логгируются кандидаты на удаление.
+  * При выключенном флаге `cleanOldBlockedUsers` только логгируются кандидаты на удаление. При ошибке удаления
+  * исключение пробрасывается наружу — его обработает обработчик ошибок планировщика (лог + письмо администратору).
   */
 @Component
 class BlockedUserCleaner(siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging:
@@ -43,11 +42,7 @@ class BlockedUserCleaner(siteConfig: SiteConfig, userDao: UserDao) extends Stric
       ids
         .grouped(BlockedUserCleaner.BatchSize)
         .foreach { batch =>
-          try
-            deleted += userDao.deleteBlockedUsers(batch)
-          catch
-            case NonFatal(e) =>
-              logger.error(s"BlockedUserCleaner: failed to delete ${batch.size} users", e)
+          deleted += userDao.deleteBlockedUsers(batch)
         }
       logger.info(s"BlockedUserCleaner: deleted $deleted of ${ids.size} candidates")
     else

@@ -37,13 +37,13 @@ class ExceptionHandlingConfiguration extends StrictLogging:
 
     scheduler.setErrorHandler(ex =>
       val text = new StringBuilder("Periodic task failed\n\n")
-      
+
       val exceptionStackTrace = new StringWriter
       ex.printStackTrace(new PrintWriter(exceptionStackTrace))
       text.append(exceptionStackTrace.toString)
 
       logger.warn("Periodic task failed", ex)
 
-      exceptionMailingActor ! ExceptionMailingActor.Report(ex.getClass, ex.toString()))
+      exceptionMailingActor ! ExceptionMailingActor.Report(ex.getClass, text.toString()))
 
     scheduler
