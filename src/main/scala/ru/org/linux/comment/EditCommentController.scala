@@ -34,7 +34,7 @@ import ru.org.linux.util.ServletParameterException
 
 import java.util
 import java.util.Date
-import javax.validation.Valid
+import jakarta.validation.Valid
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller

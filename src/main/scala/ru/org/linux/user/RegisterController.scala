@@ -34,7 +34,7 @@ import ru.org.linux.auth.*
 import ru.org.linux.email.EmailService
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 import jakarta.mail.internet.InternetAddress
-import javax.validation.Valid
+import jakarta.validation.Valid
 import scala.annotation.unused
 import scala.jdk.CollectionConverters.*
 

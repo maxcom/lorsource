@@ -38,7 +38,7 @@ import ru.org.linux.user.{User, UserErrorException, UserPropertyEditor, UserServ
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
-import javax.validation.Valid
+import jakarta.validation.Valid
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava, SetHasAsJava}
 

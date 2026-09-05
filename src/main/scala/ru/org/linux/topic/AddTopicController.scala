@@ -51,7 +51,7 @@ import ru.org.linux.util.markdown.MarkdownFormatter
 import java.beans.PropertyEditorSupport
 import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
-import javax.validation.Valid
+import jakarta.validation.Valid
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*

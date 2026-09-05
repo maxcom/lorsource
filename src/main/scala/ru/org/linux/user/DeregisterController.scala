@@ -27,7 +27,7 @@ import ru.org.linux.auth.{AccessViolationException, AuthorizedSession, CaptchaSe
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
-import javax.validation.Valid
+import jakarta.validation.Valid
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.annotation.unused
 

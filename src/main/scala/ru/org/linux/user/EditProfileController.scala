@@ -40,7 +40,7 @@ import jakarta.mail.internet.InternetAddress
 import org.eclipse.angus.mail.smtp.SMTPAddressFailedException
 import ru.org.linux.rights.{EditProfileChecker, IpBlockChecker}
 
-import javax.validation.Valid
+import jakarta.validation.Valid
 
 @Controller @RequestMapping(Array("/people/{nick}/edit"))
 class EditProfileController(

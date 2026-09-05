@@ -39,7 +39,7 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.TopicPrepareService
 import ru.org.linux.util.ServletParameterException
 
-import javax.validation.Valid
+import jakarta.validation.Valid
 import scala.jdk.CollectionConverters.*
 
 @Controller
