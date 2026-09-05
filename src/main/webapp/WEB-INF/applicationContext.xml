@@ -16,14 +16,12 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:amq="http://activemq.apache.org/schema/core"
        xmlns:task="http://www.springframework.org/schema/task"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
-            http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
             http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
             http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
@@ -79,26 +77,42 @@
   <tx:annotation-driven transaction-manager="txManager" proxy-target-class="true"/>
 
   <!-- enabling jmx causes tomcat stop lock -->
-  <amq:broker useJmx="false" persistent="true" dataDirectory="${activemq.path}">
-    <amq:transportConnectors>
-      <amq:transportConnector uri="vm://localhost"/>
-    </amq:transportConnectors>
+  <bean id="broker" class="org.apache.activemq.broker.BrokerService" init-method="start"
+        destroy-method="stop">
+    <property name="useJmx" value="false"/>
+    <property name="persistent" value="true"/>
+    <property name="dataDirectory" value="${activemq.path}"/>
+    <property name="transportConnectors">
+      <list>
+        <bean class="org.apache.activemq.broker.TransportConnector">
+          <property name="uri" value="vm://localhost"/>
+        </bean>
+      </list>
+    </property>
+    <property name="destinationPolicy">
+      <bean class="org.apache.activemq.broker.region.policy.PolicyMap">
+        <property name="policyEntries">
+          <list>
+            <bean class="org.apache.activemq.broker.region.policy.PolicyEntry">
+              <property name="queue" value="&gt;"/>
+              <property name="prioritizedMessages" value="true"/>
+              <property name="queuePrefetch" value="1"/>
+              <property name="useCache" value="false"/>
+            </bean>
+          </list>
+        </property>
+      </bean>
+    </property>
+  </bean>
 
-    <amq:destinationPolicy>
-      <amq:policyMap>
-        <amq:policyEntries>
-          <amq:policyEntry queue=">" prioritizedMessages="true" queuePrefetch="1" useCache="false"/>
-        </amq:policyEntries>
-      </amq:policyMap>
-    </amq:destinationPolicy>
-  </amq:broker>
-
-  <amq:redeliveryPolicy id="redeliveryPolicy" maximumRedeliveries="-1"
-                        initialRedeliveryDelay="60000">
+  <bean id="redeliveryPolicy" class="org.apache.activemq.RedeliveryPolicy">
+    <property name="maximumRedeliveries" value="-1"/>
+    <property name="initialRedeliveryDelay" value="60000"/>
     <property name="queue" value="*"/>
-  </amq:redeliveryPolicy>
+  </bean>
 
-  <amq:connectionFactory id="jmsFactory" brokerURL="vm://localhost?create=false">
+  <bean id="jmsFactory" class="org.apache.activemq.ActiveMQConnectionFactory" depends-on="broker">
+    <property name="brokerURL" value="vm://localhost?create=false"/>
     <property name="redeliveryPolicy" ref="redeliveryPolicy"/>
     <property name="trustedPackages">
       <list>
@@ -108,9 +122,11 @@
         <value>scala.collection</value>
       </list>
     </property>
-  </amq:connectionFactory>
+  </bean>
 
-  <amq:queue id="searchQueue" physicalName="lor.searchQueue"/>
+  <bean id="searchQueue" class="org.apache.activemq.command.ActiveMQQueue">
+    <constructor-arg value="lor.searchQueue"/>
+  </bean>
 
   <!-- lets wrap in a pool to avoid creating a connection per send -->
   <bean
