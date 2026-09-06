@@ -116,7 +116,7 @@ mvn dependency:tree      # Show dependency tree
 ### Java Conventions
 
 - Use Spring annotations: `@Repository`, `@Service`, `@Controller`, etc.
-- Use `@Nullable` and `@Nonnull` annotations from `javax.annotation`
+- Use `@Nullable` and `@Nonnull` annotations from `javax.annotation` (provided by the `com.google.code.findbugs:jsr305` dependency; do not re-add `javax.annotation-api`, it is not needed)
 - Use Java 17+ features (records, pattern matching) where appropriate
 - Use `Optional` instead of null returns
 - Use constructor injection over field injection
