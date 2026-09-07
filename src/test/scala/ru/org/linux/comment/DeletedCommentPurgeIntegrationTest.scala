@@ -64,12 +64,18 @@ class DeletedCommentPurgeIntegrationTest:
             VALUES (nextval('s_uid'), '', $nick, 'x', 45, 45, ${regdate.orNull}, $blocked, ${lastlogin.orNull})
             RETURNING id""".map(rs => rs.int("id")).single.apply().get
 
-  private def insertComment(commentId: Int, userId: Int, replyTo: Option[Int], deleted: Boolean, body: String): Unit =
+  private def insertComment(
+      commentId: Int,
+      userId: Int,
+      replyTo: Option[Int],
+      deleted: Boolean,
+      body: String,
+      topic: Int = topicId): Unit =
     springDB.run:
       val replyToValue = replyTo.getOrElse(null: Integer)
       sql"""INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id)
             VALUES ($commentId, $userId, 'test comment', CURRENT_TIMESTAMP,
-                    $replyToValue, $deleted, $topicId, '127.0.0.1'::inet,
+                    $replyToValue, $deleted, $topic, '127.0.0.1'::inet,
                     create_user_agent('Integration test User Agent'))""".update.apply()
       sql"INSERT INTO msgbase (id, message) VALUES ($commentId, $body)".update.apply()
 
@@ -78,10 +84,25 @@ class DeletedCommentPurgeIntegrationTest:
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
             VALUES ($msgid, $delby, 'test reason', $deldate, 0)""".update.apply()
 
-  private def insertUserEvent(userId: Int, eventType: String, commentId: Option[Int], warningId: Option[Int]): Unit =
+  private def nextTopicId(after: Int): Int =
+    springDB.run:
+      sql"select min(id) from topics where not deleted and id > $after".map(rs => rs.int(1)).single.apply().get
+
+  private def markTopicDeleted(topic: Int, deldate: Timestamp, delby: Int): Unit =
+    springDB.run:
+      sql"UPDATE topics SET deleted='t' WHERE id = $topic".update.apply()
+      sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
+            VALUES ($topic, $delby, 'test topic deletion', $deldate, 0)""".update.apply()
+
+  private def insertUserEvent(
+      userId: Int,
+      eventType: String,
+      commentId: Option[Int],
+      warningId: Option[Int],
+      topic: Int = topicId): Unit =
     springDB.run:
       sql"""INSERT INTO user_events (userid, type, private, message_id, comment_id, warning_id)
-            VALUES ($userId, ${eventType}::event_type, false, $topicId, ${commentId.orNull}, ${warningId.orNull})"""
+            VALUES ($userId, ${eventType}::event_type, false, $topic, ${commentId.orNull}, ${warningId.orNull})"""
         .update
         .apply()
 
@@ -167,6 +188,67 @@ class DeletedCommentPurgeIntegrationTest:
     assertFalse("not deleted comment should not be a candidate", ids.contains(ctrlNotDeleted))
 
   @Test
+  def testGetDeletableCommentIdsInDeletedTopics(): Unit =
+    val moderator = createUser("test-purge-topic-mod", blocked = false, Some(ts("2026-08-01")), None)
+
+    val deletedTopic = nextTopicId(topicId)
+    val recentTopic = nextTopicId(deletedTopic)
+    markTopicDeleted(deletedTopic, ts("2015-01-01"), moderator)
+    markTopicDeleted(recentTopic, ts("2026-08-01"), moderator)
+
+    val blockedOld = createUser("test-purge-topic-blocked-old", blocked = true, Some(ts("2023-01-01")), None)
+    val inactive = createUser(
+      "test-purge-topic-inactive",
+      blocked = false,
+      Some(ts("2015-01-01")),
+      Some(ts("2015-01-01")))
+    val noDates = createUser("test-purge-topic-no-dates", blocked = false, None, None)
+    val active = createUser("test-purge-topic-active", blocked = false, Some(ts("2026-08-01")), Some(ts("2015-01-01")))
+    val blockedRecent = createUser("test-purge-topic-blocked-recent", blocked = true, Some(ts("2026-01-01")), None)
+
+    val candBlocked = nextMsgId
+    insertComment(candBlocked, blockedOld, None, deleted = false, "topic cand blocked", deletedTopic)
+
+    val candInactive = nextMsgId
+    insertComment(candInactive, inactive, None, deleted = false, "topic cand inactive", deletedTopic)
+
+    val candNoDates = nextMsgId
+    insertComment(candNoDates, noDates, None, deleted = false, "topic cand no dates", deletedTopic)
+
+    val candBoth = nextMsgId
+    insertComment(candBoth, inactive, None, deleted = true, "topic cand both branches", deletedTopic)
+    insertDelInfo(candBoth, inactive, ts("2015-01-01"))
+
+    val ctrlActive = nextMsgId
+    insertComment(ctrlActive, active, None, deleted = false, "topic ctrl active", deletedTopic)
+
+    val ctrlBlockedRecent = nextMsgId
+    insertComment(ctrlBlockedRecent, blockedRecent, None, deleted = false, "topic ctrl blocked recent", deletedTopic)
+
+    val ctrlRecentDelete = nextMsgId
+    insertComment(ctrlRecentDelete, blockedOld, None, deleted = false, "topic ctrl recent delete", recentTopic)
+
+    val ctrlHasReply = nextMsgId
+    insertComment(ctrlHasReply, blockedOld, None, deleted = false, "topic ctrl has reply", deletedTopic)
+    insertComment(nextMsgId, active, Some(ctrlHasReply), deleted = false, "topic ctrl reply", deletedTopic)
+
+    val ctrlNotDeletedTopic = nextMsgId
+    insertComment(ctrlNotDeletedTopic, blockedOld, None, deleted = false, "topic ctrl not deleted topic")
+
+    val ids = commentDao.getDeletableDeletedCommentIds
+
+    assertTrue("blocked author in deleted topic should be a candidate", ids.contains(candBlocked))
+    assertTrue("inactive author in deleted topic should be a candidate", ids.contains(candInactive))
+    assertTrue("author without dates in deleted topic should be a candidate", ids.contains(candNoDates))
+    assertTrue("individually deleted comment in deleted topic should be a candidate", ids.contains(candBoth))
+    assertEquals("comment matching both branches should be listed once", 1, ids.count(_ == candBoth))
+    assertFalse("active author in deleted topic should not be a candidate", ids.contains(ctrlActive))
+    assertFalse("blocked author with recent lastlogin should not be a candidate", ids.contains(ctrlBlockedRecent))
+    assertFalse("comment in recently deleted topic should not be a candidate", ids.contains(ctrlRecentDelete))
+    assertFalse("comment with reply in deleted topic should not be a candidate", ids.contains(ctrlHasReply))
+    assertFalse("comment in not deleted topic should not be a candidate", ids.contains(ctrlNotDeletedTopic))
+
+  @Test
   def testPurgeDeletedComments(): Unit =
     val author = createUser("test-purge-author", blocked = false, Some(ts("2026-08-01")), Some(ts("2015-01-01")))
     val eventOwner = createUser("test-purge-event-owner", blocked = false, Some(ts("2026-08-01")), None)
@@ -219,6 +301,54 @@ class DeletedCommentPurgeIntegrationTest:
     assertEquals("unread events counter should be recalculated", unreadBefore - 3, unreadAfter)
 
     assertThrows(classOf[MessageNotFoundException], () => commentDao.getById(targetId))
+
+  @Test
+  def testPurgeCommentInDeletedTopic(): Unit =
+    val author = createUser("test-purge-in-topic-author", blocked = true, Some(ts("2023-01-01")), None)
+    val eventOwner = createUser("test-purge-in-topic-event-owner", blocked = false, Some(ts("2026-08-01")), None)
+
+    val deletedTopic = nextTopicId(topicId)
+    markTopicDeleted(deletedTopic, ts("2015-01-01"), author)
+
+    val targetId = nextMsgId
+    insertComment(targetId, author, None, deleted = false, "to be purged from deleted topic", deletedTopic)
+
+    val controlId = nextMsgId
+    insertComment(controlId, author, None, deleted = false, "control comment in not deleted topic")
+
+    springDB.run:
+      sql"""INSERT INTO edit_info (msgid, editor, object_type)
+            VALUES ($targetId, $author, 'COMMENT')""".update.apply()
+      sql"""INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction)
+            VALUES ($eventOwner, $deletedTopic, $targetId, 'like')""".update.apply()
+
+    insertUserEvent(eventOwner, "REPLY", Some(targetId), None, deletedTopic)
+    insertUserEvent(eventOwner, "REF", None, None, deletedTopic)
+
+    val warningId = springDB.run:
+      sql"""INSERT INTO message_warnings (topic, comment, author, message, warning_type)
+            VALUES ($deletedTopic, $targetId, $author, 'test warning', 'rule')
+            RETURNING id""".map(rs => rs.int("id")).single.apply().get
+    insertUserEvent(eventOwner, "WARNING", None, Some(warningId), deletedTopic)
+
+    val unreadBefore = getUnreadEvents(eventOwner)
+
+    val purged = commentDao.purgeDeletedComments(Seq(targetId, controlId))
+
+    assertEquals(1, purged)
+    assertEquals(0, countRows("comments", "id", targetId))
+    assertEquals(0, countRows("msgbase", "id", targetId))
+    assertEquals(0, countRows("del_info", "msgid", targetId))
+    assertEquals(0, countRows("edit_info", "msgid", targetId))
+    assertEquals(0, countRows("reactions_log", "comment_id", targetId))
+    assertEquals(0, countRows("message_warnings", "comment", targetId))
+    assertEquals(0, countRows("user_events", "comment_id", targetId))
+    assertEquals(0, countRows("user_events", "warning_id", warningId))
+    assertEquals(1, countRows("comments", "id", controlId))
+    assertEquals(1, countRows("msgbase", "id", controlId))
+
+    val unreadAfter = getUnreadEvents(eventOwner)
+    assertEquals("unread events counter should be recalculated", unreadBefore - 2, unreadAfter)
 
   @Test
   def testPurgeSkipsNotDeletedComments(): Unit =
