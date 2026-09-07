@@ -43,7 +43,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
                             searchQueueSender: SearchQueueSender, textService: MessageTextService,
                             commentReadService: CommentReadService, ignoreListDao: IgnoreListDao,
                             captcha: CaptchaService, addCommentChecker: AddCommentChecker) {
-  @InitBinder(Array("edit"))
+  @InitBinder(Array("add"))
   def requestValidator(binder: WebDataBinder): Unit = commentService.requestValidator(binder)
 
   @InitBinder
