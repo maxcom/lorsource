@@ -17,6 +17,7 @@ package ru.org.linux.comment
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -34,7 +35,6 @@ import ru.org.linux.util.ServletParameterException
 
 import java.util
 import java.util.Date
-import jakarta.validation.Valid
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 @Controller
@@ -53,7 +53,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     * Показ формы изменения комментария.
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.GET))
-  def editCommentShowHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
+  def editCommentShowHandler(@ModelAttribute("add") @Validated commentRequest: CommentRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = commentRequest.getTopic
     if (topic == null) throw new ServletParameterException("тема не задана")
 
@@ -96,7 +96,7 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
-  def editCommentPostHandler(@ModelAttribute("add") @Valid commentRequest: CommentRequest, errors: Errors,
+  def editCommentPostHandler(@ModelAttribute("add") @Validated commentRequest: CommentRequest, errors: Errors,
                              request: HttpServletRequest, @RequestAttribute("captchaRequired")
                              captchaRequired: Boolean): ModelAndView = AuthorizedOnly { implicit currentUser =>
     if !commentRequest.isPreviewMode && !errors.hasErrors && captchaRequired then

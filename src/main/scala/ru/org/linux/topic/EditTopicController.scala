@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.text.StringEscapeUtils
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -38,7 +39,6 @@ import ru.org.linux.user.{User, UserErrorException, UserPropertyEditor, UserServ
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
 import java.beans.PropertyEditorSupport
-import jakarta.validation.Valid
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava, SeqHasAsJava, SetHasAsJava}
 
@@ -235,7 +235,7 @@ class EditTopicController(
       request: HttpServletRequest,
       @RequestParam(value = "chgrp", required = false)
       changeGroupId: Integer,
-      @Valid @ModelAttribute("form")
+      @Validated @ModelAttribute("form")
       form: EditTopicRequest,
       errors: Errors): ModelAndView =
     AuthorizedOnly { implicit currentUser =>

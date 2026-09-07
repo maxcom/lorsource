@@ -25,6 +25,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -34,7 +35,6 @@ import ru.org.linux.auth.*
 import ru.org.linux.email.EmailService
 import ru.org.linux.util.{ExceptionBindingErrorProcessor, LorHttpUtils, StringUtil}
 import jakarta.mail.internet.InternetAddress
-import jakarta.validation.Valid
 import scala.annotation.unused
 import scala.jdk.CollectionConverters.*
 
@@ -63,7 +63,7 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
   }
   
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
-  def doRegister(request: HttpServletRequest, @Valid @ModelAttribute("form") form: RegisterRequest,
+  def doRegister(request: HttpServletRequest, @Validated @ModelAttribute("form") form: RegisterRequest,
                  errors: Errors, @RequestParam(required = false) permit: String): ModelAndView = {
     if (permit == null || !secretTokenService.checkRegisterPermit(permit)) {
       new ModelAndView("no-register")

@@ -17,6 +17,7 @@ package ru.org.linux.user
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.validation.{Errors, Validator}
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.InitBinder
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -27,7 +28,6 @@ import ru.org.linux.auth.{AccessViolationException, AuthorizedSession, CaptchaSe
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.util.ExceptionBindingErrorProcessor
 
-import jakarta.validation.Valid
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.annotation.unused
 
@@ -55,7 +55,7 @@ class DeregisterController(userService: UserService, captcha: CaptchaService) {
   }
 
   @RequestMapping(value = Array("/deregister.jsp"), method = Array(RequestMethod.POST))
-  def deregister(@Valid @ModelAttribute("form") form: DeregisterRequest, errors: Errors,
+  def deregister(@Validated @ModelAttribute("form") form: DeregisterRequest, errors: Errors,
                  request: HttpServletRequest): ModelAndView = AuthorizedOnly { currentUser =>
     checkUser(currentUser)
 

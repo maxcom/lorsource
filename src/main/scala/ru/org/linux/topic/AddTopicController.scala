@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -51,7 +52,6 @@ import ru.org.linux.util.markdown.MarkdownFormatter
 import java.beans.PropertyEditorSupport
 import java.nio.charset.StandardCharsets
 import javax.annotation.Nullable
-import jakarta.validation.Valid
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
@@ -133,7 +133,7 @@ class AddTopicController(
                           passwordEncoder: PasswordEncoder):
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(
-      @Valid @ModelAttribute("form")
+      @Validated @ModelAttribute("form")
       form: AddTopicRequest): ModelAndView =
     MaybeAuthorizedCtx {
       val group = form.group
@@ -183,7 +183,7 @@ class AddTopicController(
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.POST)) @CSRFNoAuto
   def doAdd(
       request: HttpServletRequest,
-      @Valid @ModelAttribute("form")
+      @Validated @ModelAttribute("form")
       form: AddTopicRequest,
       errors: BindingResult,
       @RequestAttribute("captchaRequired")

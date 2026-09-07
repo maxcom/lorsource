@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -39,8 +40,6 @@ import jakarta.mail.internet.AddressException
 import jakarta.mail.internet.InternetAddress
 import org.eclipse.angus.mail.smtp.SMTPAddressFailedException
 import ru.org.linux.rights.{EditProfileChecker, IpBlockChecker}
-
-import jakarta.validation.Valid
 
 @Controller @RequestMapping(Array("/people/{nick}/edit"))
 class EditProfileController(
@@ -105,7 +104,7 @@ class EditProfileController(
       response: HttpServletResponse,
       @PathVariable("nick")
       nick: String,
-      @Valid @ModelAttribute("form")
+      @Validated @ModelAttribute("form")
       form: EditProfileRequest,
       errors: Errors): ModelAndView =
     AuthorizedOnly { implicit currentUser =>

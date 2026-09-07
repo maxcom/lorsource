@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -39,7 +40,6 @@ import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.topic.TopicPrepareService
 import ru.org.linux.util.ServletParameterException
 
-import jakarta.validation.Valid
 import scala.jdk.CollectionConverters.*
 
 @Controller
@@ -53,7 +53,7 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     * Показ формы добавления ответа на комментарий.
     */
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.GET))
-  def showFormReply(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors): ModelAndView = MaybeAuthorizedCtx { 
+  def showFormReply(@ModelAttribute("add") @Validated add: CommentRequest, errors: Errors): ModelAndView = MaybeAuthorizedCtx { 
     if (add.getTopic == null)
       throw new ServletParameterException("тема не задана")
 
@@ -70,7 +70,7 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     * Показ топика с формой добавления комментария верхнего уровня.
     */
   @RequestMapping(path = Array("/comment-message.jsp"))
-  def showFormTopic(@ModelAttribute("add") @Valid add: CommentRequest): ModelAndView = MaybeAuthorizedCtx { 
+  def showFormTopic(@ModelAttribute("add") @Validated add: CommentRequest): ModelAndView = MaybeAuthorizedCtx { 
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic)
     
     addCommentChecker.checkCommentPosting(preparedTopic.group, add.getTopic).checkOrThrow()
@@ -88,7 +88,7 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     */
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.POST))
   @CSRFNoAuto
-  def addComment(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
+  def addComment(@ModelAttribute("add") @Validated add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @RequestAttribute("captchaRequired") captchaRequired: Boolean): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
     if !add.isPreviewMode && !errors.hasErrors && captchaRequired then
       captcha.checkCaptcha(request, errors)
@@ -135,7 +135,7 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
   @RequestMapping(value = Array("/add_comment_ajax"), produces = Array("application/json; charset=UTF-8"),
     method = Array(RequestMethod.POST))
   @ResponseBody
-  def addCommentAjax(@ModelAttribute("add") @Valid add: CommentRequest, errors: Errors, request: HttpServletRequest,
+  def addCommentAjax(@ModelAttribute("add") @Validated add: CommentRequest, errors: Errors, request: HttpServletRequest,
                      @RequestAttribute("captchaRequired")
                      captchaRequired: Boolean): Json = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
     if !add.isPreviewMode && !errors.hasErrors && captchaRequired then

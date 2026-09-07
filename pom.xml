@@ -191,11 +191,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>jakarta.validation</groupId>
-      <artifactId>jakarta.validation-api</artifactId>
-      <version>3.1.1</version>
-    </dependency>
-    <dependency>
       <groupId>jakarta.jms</groupId>
       <artifactId>jakarta.jms-api</artifactId>
       <version>3.1.0</version>
