@@ -19,4 +19,6 @@ import org.springframework.test.context.TestContextManager
 
 trait SpringTestSupport:
   self: FunSuite =>
-  new TestContextManager(this.getClass).prepareTestInstance(this)
+
+  protected val testContextManager = new TestContextManager(this.getClass)
+  testContextManager.prepareTestInstance(this)

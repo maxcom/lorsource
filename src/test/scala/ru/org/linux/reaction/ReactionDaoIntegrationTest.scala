@@ -15,24 +15,20 @@
 
 package ru.org.linux.reaction
 
-import org.junit.Assert.*
-import org.junit.runner.RunWith
-import org.junit.{Before, Test}
+import munit.FunSuite
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.comment.Comment
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
 import scalikejdbc.*
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[ReactionDaoIntegrationTestConfiguration])) @Transactional
-class ReactionDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[ReactionDaoIntegrationTestConfiguration]))
+class ReactionDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var reactionDao: ReactionDao = scala.compiletime.uninitialized
@@ -44,8 +40,8 @@ class ReactionDaoIntegrationTest:
   private var testCommentId: Int = scala.compiletime.uninitialized
   private val TestUserId = 1
 
-  @Before
-  def setUp(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
     testTopicId = springDB.run:
       sql"select min(id) from topics where not deleted".map(rs => rs.int(1)).single.apply().get
     testCommentId = springDB.run:
@@ -73,98 +69,111 @@ class ReactionDaoIntegrationTest:
       sql"UPDATE topics SET reactions = '{}'::jsonb WHERE id = $testTopicId".update.apply()
       sql"DELETE FROM reactions_log WHERE origin_user = $TestUserId".update.apply()
 
-  @Test
-  def testSetCommentReaction(): Unit =
+  test("setCommentReaction"):
     clearReactions()
     val comment = mockComment(testCommentId, testTopicId)
     val user = mockUser(TestUserId)
 
-    val count = springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true) }
-    assertEquals(1, count)
+    val count = springDB.localTx {
+      reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
+    }
+    assertEquals(count, 1)
 
     val log = reactionDao.getLogByComment(comment)
-    assertTrue("Should have log entries", log.nonEmpty)
-    assertEquals(TestUserId, log.head.originUserId)
-    assertEquals(testTopicId, log.head.topicId)
-    assertEquals(Some(testCommentId), log.head.commentId)
-    assertEquals("\uD83D\uDC4D", log.head.reaction)
+    assert(log.nonEmpty, "Should have log entries")
+    assertEquals(log.head.originUserId, TestUserId)
+    assertEquals(log.head.topicId, testTopicId)
+    assertEquals(log.head.commentId, Some(testCommentId))
+    assertEquals(log.head.reaction, "\uD83D\uDC4D")
 
-  @Test
-  def testUnsetCommentReaction(): Unit =
+  test("unsetCommentReaction"):
     clearReactions()
     val comment = mockComment(testCommentId, testTopicId)
     val user = mockUser(TestUserId)
 
-    springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true) }
+    springDB.localTx {
+      reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
+    }
 
-    val count = springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = false) }
-    assertEquals(0, count)
+    val count = springDB.localTx {
+      reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = false)
+    }
+    assertEquals(count, 0)
 
     val log = reactionDao.getLogByComment(comment)
-    assertTrue("Should have no log entries after unset", log.isEmpty)
+    assert(log.isEmpty, "Should have no log entries after unset")
 
-  @Test
-  def testSetTopicReaction(): Unit =
+  test("setTopicReaction"):
     clearReactions()
     val topic = mockTopic(testTopicId)
     val user = mockUser(TestUserId)
 
-    val count = springDB.localTx { reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = true) }
-    assertEquals(1, count)
+    val count = springDB.localTx {
+      reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = true)
+    }
+    assertEquals(count, 1)
 
     val log = reactionDao.getLogByTopic(topic)
-    assertTrue("Should have log entries", log.nonEmpty)
-    assertEquals(TestUserId, log.head.originUserId)
-    assertEquals(None, log.head.commentId)
+    assert(log.nonEmpty, "Should have log entries")
+    assertEquals(log.head.originUserId, TestUserId)
+    assertEquals(log.head.commentId, None)
 
-  @Test
-  def testUnsetTopicReaction(): Unit =
+  test("unsetTopicReaction"):
     clearReactions()
     val topic = mockTopic(testTopicId)
     val user = mockUser(TestUserId)
 
-    springDB.localTx { reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = true) }
+    springDB.localTx {
+      reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = true)
+    }
 
-    val count = springDB.localTx { reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = false) }
-    assertEquals(0, count)
+    val count = springDB.localTx {
+      reactionDao.setTopicReaction(topic, user, "\uD83D\uDC4D", set = false)
+    }
+    assertEquals(count, 0)
 
     val log = reactionDao.getLogByTopic(topic)
-    assertTrue("Should have no log entries after unset", log.isEmpty)
+    assert(log.isEmpty, "Should have no log entries after unset")
 
-  @Test
-  def testRecentReactionCount(): Unit =
+  test("recentReactionCount"):
     clearReactions()
     val user = mockUser(TestUserId)
 
     val before = reactionDao.recentReactionCount(user)
 
     val comment = mockComment(testCommentId, testTopicId)
-    springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true) }
+    springDB.localTx {
+      reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
+    }
 
     val after = reactionDao.recentReactionCount(user)
-    assertEquals(before + 1, after)
+    assertEquals(after, before + 1)
 
-  @Test
-  def testUpdateReactionOnConflict(): Unit =
+  test("updateReactionOnConflict"):
     clearReactions()
     val comment = mockComment(testCommentId, testTopicId)
     val user = mockUser(TestUserId)
 
-    springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true) }
-    val countAfterFirst = springDB.localTx { reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4E", set = true) }
-    assertEquals(1, countAfterFirst)
+    springDB.localTx {
+      reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
+    }
+    val countAfterFirst = springDB.localTx {
+      reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4E", set = true)
+    }
+    assertEquals(countAfterFirst, 1)
 
     val log = reactionDao.getLogByComment(comment)
-    assertEquals(1, log.size)
-    assertEquals("\uD83D\uDC4E", log.head.reaction)
+    assertEquals(log.size, 1)
+    assertEquals(log.head.reaction, "\uD83D\uDC4E")
 
-  @Test
-  def testGetReactionsViewByUser(): Unit =
+  test("getReactionsViewByUser"):
     clearReactions()
     val originUser = mockUser(TestUserId)
     val topic = mockTopic(testTopicId)
 
-    springDB.localTx { reactionDao.setTopicReaction(topic, originUser, "\uD83D\uDC4D", set = true) }
+    springDB.localTx {
+      reactionDao.setTopicReaction(topic, originUser, "\uD83D\uDC4D", set = true)
+    }
 
     val view = reactionDao.getReactionsView(
       originUser,
@@ -172,20 +181,18 @@ class ReactionDaoIntegrationTest:
       size = 10,
       isReactionsOn = false,
       includeDeleted = false)
-    assertTrue("Should have reactions view entries", view.nonEmpty)
-    assertEquals(testTopicId, view.head.item.topicId)
+    assert(view.nonEmpty, "Should have reactions view entries")
+    assertEquals(view.head.item.topicId, testTopicId)
 
-  @Test
-  def testGetLogByTopicEmpty(): Unit =
+  test("getLogByTopicEmpty"):
     val topic = mockTopic(999999)
     val log = reactionDao.getLogByTopic(topic)
-    assertTrue("Should be empty for non-existent topic", log.isEmpty)
+    assert(log.isEmpty, "Should be empty for non-existent topic")
 
-  @Test
-  def testGetLogByCommentEmpty(): Unit =
+  test("getLogByCommentEmpty"):
     val comment = mockComment(999999, 999999)
     val log = reactionDao.getLogByComment(comment)
-    assertTrue("Should be empty for non-existent comment", log.isEmpty)
+    assert(log.isEmpty, "Should be empty for non-existent comment")
 
 end ReactionDaoIntegrationTest
 
