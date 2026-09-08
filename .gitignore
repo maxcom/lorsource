@@ -15,6 +15,7 @@ docker/db/
 .bloop/
 .metals/
 .vscode/
+.zcode
 server.log
 trace.json
 src/main/webapp/WEB-INF/config.properties
