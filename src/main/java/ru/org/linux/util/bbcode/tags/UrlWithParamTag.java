@@ -103,7 +103,7 @@ public class UrlWithParamTag extends Tag {
         ret.append("<a href=\"")
                 .append(ToHtmlFormatter.strangeEscapeHtml(escapedUrl))
                 .append("\">")
-                .append(escapedUrl)
+                .append(ToHtmlFormatter.strangeEscapeHtml(escapedUrl))
                 .append("</a>");
       } else {
         ret.append("<s title=\"")

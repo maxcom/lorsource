@@ -47,3 +47,24 @@ class UrlWithParamTagTest extends FunSuite:
   test("short link text with invalid url renders as s without domain") {
     assertEquals(parse("[url=http://#$#@$@QW]@[/url]"), """<p><s title="http://#$#@$@QW">@</s></p>""")
   }
+
+  test("whitespace link text escapes url in link body") {
+    assertEquals(
+      parse("""[url=http://example.com/<img/src=x/onerror=alert(1)>] [/url]"""),
+      """<p><a href="http://example.com/&lt;img/src=x/onerror=alert(1)&gt;">http://example.com/&lt;img/src=x/onerror=alert(1)&gt;</a></p>"""
+    )
+  }
+
+  test("empty link text escapes url in link body") {
+    assertEquals(
+      parse("""[url=http://example.com/<img/src=x/onerror=alert(1)>][/url]"""),
+      """<p><a href="http://example.com/&lt;img/src=x/onerror=alert(1)&gt;">http://example.com/&lt;img/src=x/onerror=alert(1)&gt;</a></p>"""
+    )
+  }
+
+  test("javascript scheme with empty link text is not rendered as link") {
+    assertEquals(
+      parse("[url=javascript:alert(1)] [/url]"),
+      """<p><s title="javascript:alert(1)">javascript:alert(1)</s></p>"""
+    )
+  }

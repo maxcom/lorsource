@@ -275,7 +275,7 @@ public class ToHtmlFormatter {
         out.append("</s>");
       }
     } catch (MessageNotFoundException ex) {
-      out.append("<a href=\"").append(url).append("\">").append(strangeEscapeHtml(url.formatUrlBody(maxLength))).append("</a>");
+      out.append("<a href=\"").append(strangeEscapeHtml(url.toString())).append("\">").append(strangeEscapeHtml(url.formatUrlBody(maxLength))).append("</a>");
     }
   }
 
