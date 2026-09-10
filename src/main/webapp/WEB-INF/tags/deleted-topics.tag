@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2022 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -35,7 +35,7 @@
 
     <tr>
       <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick})</td>
-      <td>${topic.reason}</td>
+      <td><c:out value="${topic.reason}" escapeXml="true"/></td>
       <c:if test="${showDates}">
         <td>${topic.bonus}</td>
         <td>

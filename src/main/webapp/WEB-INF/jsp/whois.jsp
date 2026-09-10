@@ -133,7 +133,7 @@
 <c:if test="${moderatorOrCurrentUser}">
   <c:if test="${slowMode}">
     <div class="infoblock">
-      ⚠️${' '} Для учетной записи был автоматически установлен медленный режим: ${slowModeReason}.
+      ⚠️${' '} Для учетной записи был автоматически установлен медленный режим: <c:out value="${slowModeReason}" escapeXml="true"/>.
     </div>
   </c:if>
 

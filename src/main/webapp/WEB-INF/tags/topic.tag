@@ -37,7 +37,7 @@
         </c:if>
         <c:if test="${preparedMessage.deleteInfo != null}">
             <strong>Сообщение удалено ${preparedMessage.deleteUser.nick}
-                по причине: '${preparedMessage.deleteInfo.reason}'</strong>
+                по причине: '<c:out value="${preparedMessage.deleteInfo.reason}" escapeXml="true"/>'</strong>
         </c:if>
 
         <c:if test="${messageMenu.undeletable}">
