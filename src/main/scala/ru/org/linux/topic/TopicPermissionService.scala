@@ -283,23 +283,17 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       (!group.premoderated || msg.commited || msg.authorUserId != UserConstants.ANONYMOUS_ID)
   }
 
-  def canViewHistory(msg: Topic)(using session: AnySession): Boolean = {
-    val viewer = session.userOpt.orNull
+  def canViewHistory(msg: Topic)(using session: AnySession): Boolean =
+    session.moderator ||
+      (session.authorized && msg.authorUserId == session.user.id) ||
+      (session.authorized && !msg.expired)
 
-    if (viewer != null && viewer.canmod) {
-      return true
-    }
+  def canViewHistory(topic: Topic, comment: Comment)(using session: AnySession): Boolean =
+    assert(comment.topicId == topic.id)
 
-    if (viewer != null && msg.authorUserId == viewer.id) {
-      return true
-    }
-
-    if (viewer != null && !msg.expired) {
-      return true
-    }
-
-    false
-  }
+    session.moderator ||
+      (session.authorized && comment.userid == session.user.id) ||
+      (!comment.deleted && session.authorized && !topic.expired)
 
   def canPostWarning(topic: Topic, comment: Option[Comment])(using currentUserOpt: AnySession): Boolean = {
     !topic.deleted && !topic.expired && !topic.draft && comment.forall(!_.deleted) && currentUserOpt.opt.exists { user =>

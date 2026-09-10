@@ -92,9 +92,14 @@
             Последнее исправление: ${comment.editSummary.editNick}<c:out value=" "/>
             <lor:date date="${comment.editSummary.editDate}"/>
             (всего
-              <a href="${topic.link}/${comment.id}/history">
+              <c:if test="${comment.editSummary.showHistory}">
+                <a href="${topic.link}/${comment.id}/history">
+                  исправлений: ${comment.editSummary.editCount}
+                </a>
+              </c:if>
+              <c:if test="${not comment.editSummary.showHistory}">
                 исправлений: ${comment.editSummary.editCount}
-              </a>)
+              </c:if>)
           </span>
         </c:if>
 

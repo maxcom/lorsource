@@ -96,7 +96,7 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
 
     val deleteInfo = loadDeleteInfo(comment)
     val apiDeleteInfo = deleteInfo.map(i => new ApiDeleteInfo(userService.getUserCached(i.userid).nick, i.getReason))
-    val editSummary = loadEditSummary(comment)
+    val editSummary = loadEditSummary(topic, comment)
 
     val (postIP, userAgent) = if (session != null && session.moderator) {
       (Option(comment.postIP), userAgentDao.getUserAgentById(comment.userAgentId).toScala)
@@ -130,13 +130,16 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
     }
   }
 
-  private def loadEditSummary(comment: Comment): Option[EditSummary] = {
-    if (comment.editCount > 0) {
-      Some(new EditSummary(userService.getUserCached(comment.editorId).nick, comment.editDate, comment.editCount))
-    } else {
+  private def loadEditSummary(topic: Topic, comment: Comment)(using session: AnySession): Option[EditSummary] =
+    if comment.editCount > 0 then
+      Some(
+        EditSummary(
+          userService.getUserCached(comment.editorId).nick,
+          comment.editDate,
+          comment.editCount,
+          topicPermissionService.canViewHistory(topic, comment)))
+    else
       None
-    }
-  }
 
   def prepareCommentOnly(comment: Comment, topic: Topic, ignoreList: Set[Int])
                         (using currentUser: AnySession): PreparedComment = {

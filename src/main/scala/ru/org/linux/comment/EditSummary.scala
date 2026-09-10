@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -13,30 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.comment;
+package ru.org.linux.comment
 
-import java.sql.Timestamp;
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 
-public class EditSummary {
-  private final String editNick;
-  private final Timestamp editDate;
-  private final int editCount;
+import java.sql.Timestamp
 
-  public EditSummary(String editNick, Timestamp editDate, int editCount) {
-    this.editNick = editNick;
-    this.editDate = editDate;
-    this.editCount = editCount;
-  }
-
-  public String getEditNick() {
-    return editNick;
-  }
-
-  public Timestamp getEditDate() {
-    return editDate;
-  }
-
-  public int getEditCount() {
-    return editCount;
-  }
-}
+case class EditSummary(
+    @BeanProperty
+    editNick: String,
+    @BeanProperty
+    editDate: Timestamp,
+    @BeanProperty
+    editCount: Int,
+    @BooleanBeanProperty
+    showHistory: Boolean)

@@ -18,64 +18,93 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestMapping}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.AuthUtil.MaybeAuthorizedCtx
 import ru.org.linux.comment.CommentReadService
 import ru.org.linux.group.GroupService
 import ru.org.linux.rights.EditTopicChecker
+import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.*
 import ru.org.linux.user.UserService
 
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Controller
-class EditHistoryController(messageDao: TopicDao, editHistoryService: EditHistoryService,
-                            commentService: CommentReadService, topicPermissionService: TopicPermissionService,
-                            groupService: GroupService, userService: UserService, 
-                            topicPrepareService: TopicPrepareService) {
-  @RequestMapping(Array("/news/{group}/{id}/history", "/forum/{group}/{id}/history", "/gallery/{group}/{id}/history",
-    "/polls/{group}/{id}/history", "/articles/{group}/{id}/history"))
-  def showEditInfo(@PathVariable("id") msgid: Int): ModelAndView = MaybeAuthorized { implicit currentUserOpt =>
-    val topic = messageDao.getById(msgid)
-    val group = groupService.getGroup(topic.groupId)
+class EditHistoryController(
+    messageDao: TopicDao,
+    editHistoryService: EditHistoryService,
+    commentService: CommentReadService,
+    topicPermissionService: TopicPermissionService,
+    groupService: GroupService,
+    userService: UserService,
+    topicPrepareService: TopicPrepareService):
+  @RequestMapping(
+    Array(
+      "/news/{group}/{id}/history",
+      "/forum/{group}/{id}/history",
+      "/gallery/{group}/{id}/history",
+      "/polls/{group}/{id}/history",
+      "/articles/{group}/{id}/history"
+    ))
+  def showEditInfo(
+      @PathVariable("id")
+      msgid: Int): ModelAndView =
+    MaybeAuthorizedCtx {
+      val topic = messageDao.getById(msgid)
+      val group = groupService.getGroup(topic.groupId)
 
-    val preparedMessage = topicPrepareService.prepareTopic(topic)
+      val preparedMessage = topicPrepareService.prepareTopic(topic)
 
-    topicPermissionService.checkView(group, topic, preparedMessage.author, showDeleted = false)
+      topicPermissionService.checkView(group, topic, preparedMessage.author, showDeleted = false)
 
-    if (!topicPermissionService.canViewHistory(topic)) {
-      throw new AccessViolationException("Forbidden")
+      if !topicPermissionService.canViewHistory(topic) then
+        throw new AccessViolationException("Forbidden")
+
+      val editHistories = editHistoryService.prepareEditInfo(topic)
+
+      val modelAndView = new ModelAndView("history")
+
+      modelAndView.getModel.put("message", topic)
+      modelAndView.getModel.put("editHistories", editHistories.asJava)
+      modelAndView.getModel.put("canRestore", EditTopicChecker.checkContentEdit(preparedMessage).permitted)
+
+      modelAndView
     }
 
-    val editHistories = editHistoryService.prepareEditInfo(topic)
+  @RequestMapping(
+    Array(
+      "/news/{group}/{id}/{commentid}/history",
+      "/forum/{group}/{id}/{commentid}/history",
+      "/gallery/{group}/{id}/{commentid}/history",
+      "/polls/{group}/{id}/{commentid}/history",
+      "/articles/{group}/{id}/{commentid}/history"
+    ))
+  def showCommentEditInfo(
+      @PathVariable("id")
+      msgid: Int,
+      @PathVariable("commentid")
+      commentId: Int): ModelAndView =
+    MaybeAuthorizedCtx {
+      val topic = messageDao.getById(msgid)
+      val comment = commentService.getById(commentId)
 
-    val modelAndView = new ModelAndView("history")
+      if comment.topicId != topic.id then
+        throw new MessageNotFoundException(topic, commentId, s"Сообщение #$commentId было удалено или не существует")
 
-    modelAndView.getModel.put("message", topic)
-    modelAndView.getModel.put("editHistories", editHistories.asJava)
-    modelAndView.getModel.put("canRestore", EditTopicChecker.checkContentEdit(preparedMessage).permitted)
+      val topicAuthor = userService.getUserCached(topic.authorUserId)
 
-    modelAndView
-  }
+      val group = groupService.getGroup(topic.groupId)
+      topicPermissionService.checkView(group, topic, topicAuthor, showDeleted = false)
 
-  @RequestMapping(Array("/news/{group}/{id}/{commentid}/history", "/forum/{group}/{id}/{commentid}/history",
-    "/gallery/{group}/{id}/{commentid}/history", "/polls/{group}/{id}/{commentid}/history",
-    "/articles/{group}/{id}/{commentid}/history"))
-  def showCommentEditInfo(@PathVariable("id") msgid: Int,
-                          @PathVariable("commentid") commentId: Int): ModelAndView = MaybeAuthorized { implicit session =>
-    val topic = messageDao.getById(msgid)
-    val group = groupService.getGroup(topic.groupId)
-    val comment = commentService.getById(commentId)
-    val editHistories = editHistoryService.prepareEditInfo(comment)
-    val topicAuthor = userService.getUserCached(topic.authorUserId)
+      if !topicPermissionService.canViewHistory(topic, comment) then
+        throw new AccessViolationException("Forbidden")
 
-    topicPermissionService.checkView(group, topic, topicAuthor, showDeleted = false)
+      val editHistories = editHistoryService.prepareEditInfo(comment)
 
-    val modelAndView = new ModelAndView("history")
+      val modelAndView = new ModelAndView("history")
 
-    modelAndView.getModel.put("message", topic)
-    modelAndView.getModel.put("editHistories", editHistories.asJava)
-    modelAndView.getModel.put("canRestore", false)
+      modelAndView.getModel.put("message", topic)
+      modelAndView.getModel.put("editHistories", editHistories.asJava)
+      modelAndView.getModel.put("canRestore", false)
 
-    modelAndView
-  }
-}
+      modelAndView
+    }
