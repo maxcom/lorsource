@@ -15,67 +15,58 @@
 
 package ru.org.linux.auth
 
-import org.junit.Assert.*
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[IPBlockDaoIntegrationTestConfiguration])) @Transactional
-class IpBlockDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[IPBlockDaoIntegrationTestConfiguration]))
+class IpBlockDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var ipBlockDao: IpBlockDao = scala.compiletime.uninitialized
 
-  @Test
-  def testGetBlockInfoNotBlocked(): Unit =
+  test("getBlockInfoNotBlocked"):
     val info = ipBlockDao.getBlockInfo("192.168.1.1")
-    assertFalse("Should not be initialized for unknown IP", info.initialized)
-    assertEquals("192.168.1.1", info.ip)
-    assertFalse("Should not be blocked for unknown IP", info.isBlocked)
+    assert(!info.initialized, "Should not be initialized for unknown IP")
+    assertEquals(info.ip, "192.168.1.1")
+    assert(!info.isBlocked, "Should not be blocked for unknown IP")
 
-  @Test
-  def testBlockIPAndRetrieve(): Unit =
+  test("blockIPAndRetrieve"):
     ipBlockDao.blockIP("10.0.0.1", 1, "test reason", None, allowPosting = false, captchaRequired = true)
 
     val info = ipBlockDao.getBlockInfo("10.0.0.1")
-    assertTrue("Should be initialized after blocking", info.initialized)
-    assertEquals("10.0.0.1", info.ip)
-    assertEquals("test reason", info.reason)
-    assertTrue("Should be blocked", info.isBlocked)
-    assertFalse("Should not allow posting", info.isAllowRegisteredPosting)
-    assertTrue("Should require captcha", info.captchaRequired)
-    assertEquals(1, info.moderator)
+    assert(info.initialized, "Should be initialized after blocking")
+    assertEquals(info.ip, "10.0.0.1")
+    assertEquals(info.reason, "test reason")
+    assert(info.isBlocked, "Should be blocked")
+    assert(!info.isAllowRegisteredPosting, "Should not allow posting")
+    assert(info.captchaRequired, "Should require captcha")
+    assertEquals(info.moderator, 1)
 
-  @Test
-  def testBlockIPWithBanDate(): Unit =
+  test("blockIPWithBanDate"):
     val banUntil = java.time.OffsetDateTime.now.plusDays(7)
     ipBlockDao.blockIP("10.0.0.2", 2, "temporary ban", Some(banUntil), allowPosting = true, captchaRequired = false)
 
     val info = ipBlockDao.getBlockInfo("10.0.0.2")
-    assertTrue("Should be initialized", info.initialized)
-    assertTrue("Should be blocked with future ban date", info.isBlocked)
-    assertTrue("Should allow registered posting", info.isAllowRegisteredPosting)
-    assertFalse("Should not require captcha", info.captchaRequired)
+    assert(info.initialized, "Should be initialized")
+    assert(info.isBlocked, "Should be blocked with future ban date")
+    assert(info.isAllowRegisteredPosting, "Should allow registered posting")
+    assert(!info.captchaRequired, "Should not require captcha")
 
-  @Test
-  def testUpdateBlock(): Unit =
+  test("updateBlock"):
     ipBlockDao.blockIP("10.0.0.3", 1, "initial reason", None, allowPosting = false, captchaRequired = false)
     ipBlockDao.blockIP("10.0.0.3", 2, "updated reason", None, allowPosting = true, captchaRequired = true)
 
     val info = ipBlockDao.getBlockInfo("10.0.0.3")
-    assertTrue("Should be initialized", info.initialized)
-    assertEquals("updated reason", info.reason)
-    assertEquals(2, info.moderator)
-    assertTrue("Should allow registered posting after update", info.isAllowRegisteredPosting)
+    assert(info.initialized, "Should be initialized")
+    assertEquals(info.reason, "updated reason")
+    assertEquals(info.moderator, 2)
+    assert(info.isAllowRegisteredPosting, "Should allow registered posting after update")
 
-  @Test
-  def testUnblockBySettingPastBanDate(): Unit =
+  test("unblockBySettingPastBanDate"):
     ipBlockDao.blockIP(
       "10.0.0.4",
       1,
@@ -85,11 +76,10 @@ class IpBlockDaoIntegrationTest:
       captchaRequired = false)
 
     val info = ipBlockDao.getBlockInfo("10.0.0.4")
-    assertTrue("Should be initialized", info.initialized)
-    assertFalse("Should not be blocked with past ban date", info.isBlocked)
+    assert(info.initialized, "Should be initialized")
+    assert(!info.isBlocked, "Should not be blocked with past ban date")
 
-  @Test
-  def testGetRecentlyBlocked(): Unit =
+  test("getRecentlyBlocked"):
     ipBlockDao.blockIP(
       "10.0.0.5",
       1,
@@ -99,15 +89,14 @@ class IpBlockDaoIntegrationTest:
       captchaRequired = false)
 
     val blocked = ipBlockDao.getRecentlyBlocked
-    assertTrue("Should contain recently blocked IP", blocked.contains("10.0.0.5"))
+    assert(blocked.contains("10.0.0.5"), "Should contain recently blocked IP")
 
-  @Test
-  def testGetRecentlyUnBlocked(): Unit =
+  test("getRecentlyUnBlocked"):
     val expiredBan = java.time.OffsetDateTime.now.minusDays(1)
     ipBlockDao.blockIP("10.0.0.6", 1, "expired block", Some(expiredBan), allowPosting = false, captchaRequired = false)
 
     val unblocked = ipBlockDao.getRecentlyUnBlocked
-    assertTrue("Should contain recently unblocked IP", unblocked.contains("10.0.0.6"))
+    assert(unblocked.contains("10.0.0.6"), "Should contain recently unblocked IP")
 
 end IpBlockDaoIntegrationTest
 
@@ -116,5 +105,5 @@ class IPBlockDaoIntegrationTestConfiguration:
 
   @Bean
   def ipBlockDao(springDB: SpringDB) = new IpBlockDao(springDB)
-  
+
 end IPBlockDaoIntegrationTestConfiguration

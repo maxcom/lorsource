@@ -14,8 +14,7 @@
  */
 package ru.org.linux.user
 
-import org.junit.Assert.{assertFalse, assertTrue}
-import org.junit.Test
+import munit.FunSuite
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, never, verify, when}
 import ru.org.linux.spring.SiteConfig
@@ -28,16 +27,26 @@ import java.time.{OffsetDateTime, ZoneOffset}
   * `Files.createTempDirectory`, т.к. JUnit4 `@Rule TemporaryFolder` требует public-поле, что в Scala 3 (без
   * `@JvmField`) невозможно.
   */
-class OldUserpicCleanerTest:
-  private val siteConfig = mock(classOf[SiteConfig])
-  private val userDao = mock(classOf[UserDao])
-  private val userLogDao = mock(classOf[UserLogDao])
-  private val cleaner = OldUserpicCleaner(siteConfig, userDao, userLogDao)
+class OldUserpicCleanerTest extends FunSuite:
+  private var siteConfig: SiteConfig = scala.compiletime.uninitialized
+  private var userDao: UserDao = scala.compiletime.uninitialized
+  private var userLogDao: UserLogDao = scala.compiletime.uninitialized
+  private var cleaner: OldUserpicCleaner = scala.compiletime.uninitialized
 
   private val Now = OffsetDateTime.now(ZoneOffset.UTC)
   private val HoursAgo = Now.minusHours(2)
   private val FiveYearsAgo = Now.minusYears(5)
   private val OneYearAgo = Now.minusYears(1)
+
+  // В JUnit каждый тест получал новый экземпляр класса (и новые моки); в munit экземпляр один,
+  // поэтому моки пересоздаются в beforeEach — иначе verify(never())/verify(times(n)) учитывал бы
+  // вызовы из предыдущих тестов.
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
+    siteConfig = mock(classOf[SiteConfig])
+    userDao = mock(classOf[UserDao])
+    userLogDao = mock(classOf[UserLogDao])
+    cleaner = OldUserpicCleaner(siteConfig, userDao, userLogDao)
 
   /** Создаёт временный каталог `photos` и возвращает его путь. */
   private def newPhotosDir(): Path =
@@ -51,8 +60,7 @@ class OldUserpicCleanerTest:
     Files.setLastModifiedTime(p, FileTime.from(mtime.toInstant))
     p
 
-  @Test
-  def deleteOffDoesNotDelete(): Unit =
+  test("deleteOffDoesNotDelete"):
     val dir = newPhotosDir()
     val file = touch(dir, "123:456.jpg", HoursAgo)
 
@@ -64,11 +72,10 @@ class OldUserpicCleanerTest:
 
     cleaner.cleanOldUserpics()
 
-    assertTrue(Files.exists(file))
+    assert(Files.exists(file))
     verify(userLogDao).getLatestUserpicMentions(any(classOf[Seq[String]]))
 
-  @Test
-  def deleteOnRemovesOldFile(): Unit =
+  test("deleteOnRemovesOldFile"):
     val dir = newPhotosDir()
     val file = touch(dir, "123:456.jpg", HoursAgo)
 
@@ -80,10 +87,9 @@ class OldUserpicCleanerTest:
 
     cleaner.cleanOldUserpics()
 
-    assertFalse(Files.exists(file))
+    assert(!Files.exists(file))
 
-  @Test
-  def noLogEntryMeansPre2013Deleted(): Unit =
+  test("noLogEntryMeansPre2013Deleted"):
     val dir = newPhotosDir()
     val file = touch(dir, "42.jpg", HoursAgo)
 
@@ -95,10 +101,9 @@ class OldUserpicCleanerTest:
 
     cleaner.cleanOldUserpics()
 
-    assertFalse(Files.exists(file))
+    assert(!Files.exists(file))
 
-  @Test
-  def recentLogEntryIsKept(): Unit =
+  test("recentLogEntryIsKept"):
     val dir = newPhotosDir()
     val file = touch(dir, "123:456.jpg", HoursAgo)
 
@@ -110,10 +115,9 @@ class OldUserpicCleanerTest:
 
     cleaner.cleanOldUserpics()
 
-    assertTrue(Files.exists(file))
+    assert(Files.exists(file))
 
-  @Test
-  def activeFileIsKept(): Unit =
+  test("activeFileIsKept"):
     val dir = newPhotosDir()
     val file = touch(dir, "123:456.jpg", HoursAgo)
 
@@ -126,12 +130,11 @@ class OldUserpicCleanerTest:
 
     cleaner.cleanOldUserpics()
 
-    assertTrue(Files.exists(file))
+    assert(Files.exists(file))
     // активные файлы не попадают в батч, поэтому DAO не должен вызываться
     verify(userLogDao, never()).getLatestUserpicMentions(any(classOf[Seq[String]]))
 
-  @Test
-  def freshUploadIsKept(): Unit =
+  test("freshUploadIsKept"):
     val dir = newPhotosDir()
     // файл создан «только что», mtime сейчас
     val file = touch(dir, "123:456.jpg", Now)
@@ -144,10 +147,9 @@ class OldUserpicCleanerTest:
 
     cleaner.cleanOldUserpics()
 
-    assertTrue(Files.exists(file))
+    assert(Files.exists(file))
 
-  @Test
-  def unexpectedFileNameIsKept(): Unit =
+  test("unexpectedFileNameIsKept"):
     val dir = newPhotosDir()
     val file = touch(dir, "garbage.txt", HoursAgo)
 
@@ -159,11 +161,10 @@ class OldUserpicCleanerTest:
 
     cleaner.cleanOldUserpics()
 
-    assertTrue(Files.exists(file))
+    assert(Files.exists(file))
     verify(userLogDao, never()).getLatestUserpicMentions(any(classOf[Seq[String]]))
 
-  @Test
-  def missingDirectoryIsIgnored(): Unit =
+  test("missingDirectoryIsIgnored"):
     when(siteConfig.getUploadPath).thenReturn("/nonexistent-path-for-OldUserpicCleanerTest")
     when(siteConfig.cleanOldUserpics).thenReturn(true)
     // не должно быть исключений и не должно быть обращений к DAO

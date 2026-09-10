@@ -14,15 +14,12 @@
  */
 package ru.org.linux.user
 
-import org.junit.Assert.{assertEquals, assertNotNull}
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
 
 import java.time.{OffsetDateTime, ZoneOffset}
@@ -30,21 +27,19 @@ import java.time.{OffsetDateTime, ZoneOffset}
 object UserLogDaoIntegrationTest:
   private val TestId = 1
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
   Array(
     new ContextConfiguration(value = Array("classpath:database.xml")),
     new ContextConfiguration(classes = Array(classOf[UserLogDaoIntegrationTestConfiguration]))
-  )) @Transactional
-class UserLogDaoIntegrationTest:
+  ))
+class UserLogDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var userLogDao: UserLogDao = scala.compiletime.uninitialized
 
   @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
 
-  @Test
-  def testLogAcceptEmail(): Unit =
+  test("logAcceptEmail"):
     val user = mock(classOf[User])
     when(user.id).thenReturn(UserLogDaoIntegrationTest.TestId)
     when(user.email).thenReturn("old@email")
@@ -57,15 +52,14 @@ class UserLogDaoIntegrationTest:
 
     val logItems = userLogDao.getLogItems(user, includeSelf = true)
 
-    assertEquals(1, logItems.size - oldLogItems.size)
+    assertEquals(logItems.size - oldLogItems.size, 1)
 
     val item = logItems.head
 
-    assertNotNull(item)
-    assertEquals(UserLogAction.AcceptNewEmail, item.action)
+    assert(item != null)
+    assertEquals(item.action, UserLogAction.AcceptNewEmail)
 
-  @Test
-  def testLogScore50(): Unit =
+  test("logScore50"):
     val user = mock(classOf[User])
     when(user.id).thenReturn(UserLogDaoIntegrationTest.TestId)
 
@@ -77,23 +71,21 @@ class UserLogDaoIntegrationTest:
 
     val logItems = userLogDao.getLogItems(user, includeSelf = true)
 
-    assertEquals(1, logItems.size - oldLogItems.size)
+    assertEquals(logItems.size - oldLogItems.size, 1)
 
     val item = logItems.head
 
-    assertNotNull(item)
-    assertEquals(UserLogAction.Score50, item.action)
+    assert(item != null)
+    assertEquals(item.action, UserLogAction.Score50)
 
-  @Test
-  def getLatestUserpicMentionsEmpty(): Unit = assertEquals(Map.empty, userLogDao.getLatestUserpicMentions(Seq.empty))
+  test("getLatestUserpicMentionsEmpty"):
+    assertEquals(userLogDao.getLatestUserpicMentions(Seq.empty), Map.empty)
 
-  @Test
-  def getLatestUserpicMentionsNoRows(): Unit =
+  test("getLatestUserpicMentionsNoRows"):
     val res = userLogDao.getLatestUserpicMentions(Seq("does-not-exist-12345.jpg"))
-    assertEquals(None, res.get("does-not-exist-12345.jpg"))
+    assertEquals(res.get("does-not-exist-12345.jpg"), None)
 
-  @Test
-  def getLatestUserpicMentionsRecent(): Unit =
+  test("getLatestUserpicMentionsRecent"):
     val user = mock(classOf[User])
     when(user.id).thenReturn(UserLogDaoIntegrationTest.TestId)
     when(user.photo).thenReturn("old.jpg")
@@ -113,8 +105,7 @@ class UserLogDaoIntegrationTest:
     val newDate = res("new.jpg").getOrElse(throw new AssertionError("expected date"))
     assert(newDate.isAfter(OffsetDateTime.now(ZoneOffset.UTC).minusMinutes(1)))
 
-  @Test
-  def getLatestUserpicMentionsPicksLatest(): Unit =
+  test("getLatestUserpicMentionsPicksLatest"):
     // вставляем две записи напрямую с разными датами, проверяем что берётся MAX(action_date)
     springDB.run {
       sql"""INSERT INTO user_log (userid, action_userid, action_date, action, info)

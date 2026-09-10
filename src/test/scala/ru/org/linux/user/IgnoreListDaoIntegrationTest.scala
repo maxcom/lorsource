@@ -15,21 +15,17 @@
 
 package ru.org.linux.user
 
-import org.junit.Assert.*
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[IgnoreListDaoIntegrationTestConfiguration])) @Transactional
-class IgnoreListDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[IgnoreListDaoIntegrationTestConfiguration]))
+class IgnoreListDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var ignoreListDao: IgnoreListDao = scala.compiletime.uninitialized
@@ -40,29 +36,26 @@ class IgnoreListDaoIntegrationTest:
     when(user.isModerator).thenReturn(moderator)
     user
 
-  @Test
-  def testAddAndGetIgnored(): Unit =
+  test("addAndGetIgnored"):
     val owner = mockUser(1)
     val ignored = mockUser(2)
 
     ignoreListDao.addUser(owner, ignored)
 
     val result = ignoreListDao.get(1)
-    assertTrue("Should contain ignored user", result.contains(2))
+    assert(result.contains(2), "Should contain ignored user")
 
-  @Test
-  def testAddDuplicateIsNoop(): Unit =
+  test("addDuplicateIsNoop"):
     val owner = mockUser(1)
     val ignored = mockUser(2)
 
     val initialSize = ignoreListDao.get(1).size
     ignoreListDao.addUser(owner, ignored)
-    assertEquals("Should have one more entry", initialSize + 1, ignoreListDao.get(1).size)
+    assertEquals(ignoreListDao.get(1).size, initialSize + 1, "Should have one more entry")
     ignoreListDao.addUser(owner, ignored)
-    assertEquals("Should not add duplicate", initialSize + 1, ignoreListDao.get(1).size)
+    assertEquals(ignoreListDao.get(1).size, initialSize + 1, "Should not add duplicate")
 
-  @Test
-  def testRemoveIgnored(): Unit =
+  test("removeIgnored"):
     val owner = mockUser(1)
     val ignored = mockUser(2)
 
@@ -70,34 +63,32 @@ class IgnoreListDaoIntegrationTest:
     ignoreListDao.remove(owner, ignored)
 
     val result = ignoreListDao.get(1)
-    assertFalse("Should not contain removed user", result.contains(2))
+    assert(!result.contains(2), "Should not contain removed user")
 
-  @Test
-  def testCannotIgnoreModerator(): Unit =
+  test("cannotIgnoreModerator"):
     val owner = mockUser(1)
     val moderator = mockUser(2, moderator = true)
 
-    assertThrows(classOf[AccessViolationException], () => ignoreListDao.addUser(owner, moderator))
+    intercept[AccessViolationException] {
+      ignoreListDao.addUser(owner, moderator)
+    }
 
-  @Test
-  def testGetIgnoreCount(): Unit =
+  test("getIgnoreCount"):
     val ignored = mockUser(2)
     val owner = mockUser(1)
 
     ignoreListDao.addUser(owner, ignored)
 
     val count = ignoreListDao.getIgnoreCount(ignored)
-    assertTrue("Ignore count should be at least 1", count >= 1)
+    assert(count >= 1, "Ignore count should be at least 1")
 
-  @Test
-  def testIsIgnoredReturnsFalseWhenNotIgnored(): Unit =
+  test("isIgnoredReturnsFalseWhenNotIgnored"):
     val result = ignoreListDao.isIgnored(99999, 99999)
-    assertFalse("Should not be ignored", result)
+    assert(!result, "Should not be ignored")
 
-  @Test
-  def testGetReturnsEmptyForNoIgnores(): Unit =
+  test("getReturnsEmptyForNoIgnores"):
     val result = ignoreListDao.get(99999)
-    assertTrue("Should be empty for unknown user", result.isEmpty)
+    assert(result.isEmpty, "Should be empty for unknown user")
 
 end IgnoreListDaoIntegrationTest
 

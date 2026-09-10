@@ -15,22 +15,18 @@
 
 package ru.org.linux.user
 
-import org.junit.Assert.*
-import org.junit.{Before, Test}
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import ru.org.linux.topic.Topic
 import scalikejdbc.*
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[MemoriesDaoIntegrationTestConfiguration])) @Transactional
-class MemoriesDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[MemoriesDaoIntegrationTestConfiguration]))
+class MemoriesDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var memoriesDao: MemoriesDao = scala.compiletime.uninitialized
@@ -43,8 +39,8 @@ class MemoriesDaoIntegrationTest:
 
   private var testTopicId: Int = scala.compiletime.uninitialized
 
-  @Before
-  def setUp(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
     testTopicId = springDB.run:
       sql"select min(id) from topics where not deleted".map(rs => rs.int(1)).single.apply().get
 
@@ -53,60 +49,51 @@ class MemoriesDaoIntegrationTest:
     when(topic.id).thenReturn(id)
     topic
 
-  @Test
-  def testGetWatchCountForUser(): Unit =
+  test("getWatchCountForUser"):
     val maxcom = userDao.getUser(1)
-    assertTrue("Should have watch count > 0", memoriesDao.getWatchCountForUser(maxcom) > 0)
+    assert(memoriesDao.getWatchCountForUser(maxcom) > 0, "Should have watch count > 0")
 
-  @Test
-  def testIsWatchPresetForUser(): Unit =
+  test("isWatchPresetForUser"):
     val maxcom = userDao.getUser(1)
-    assertTrue("Should have watch preset", memoriesDao.isWatchPresetForUser(maxcom))
+    assert(memoriesDao.isWatchPresetForUser(maxcom), "Should have watch preset")
 
-  @Test
-  def testGetWatchCountForUserWithNoMemories(): Unit =
+  test("getWatchCountForUserWithNoMemories"):
     val anonymous = userDao.getUser(2)
-    assertEquals(0, memoriesDao.getWatchCountForUser(anonymous))
+    assertEquals(memoriesDao.getWatchCountForUser(anonymous), 0)
 
-  @Test
-  def testIsFavPresetForUserWithNoMemories(): Unit =
+  test("isFavPresetForUserWithNoMemories"):
     val anonymous = userDao.getUser(2)
-    assertFalse("Should not have fav preset", memoriesDao.isFavPresetForUser(anonymous))
+    assert(!memoriesDao.isFavPresetForUser(anonymous), "Should not have fav preset")
 
-  @Test
-  def testAddToMemoriesWatch(): Unit =
+  test("addToMemoriesWatch"):
     val user = userDao.getUser(1)
     val topic = mockTopic(testTopicId)
     val id = memoriesDao.addToMemories(user, topic, watch = true)
-    assertTrue("Should return valid id", id > 0)
+    assert(id > 0, "Should return valid id")
 
-  @Test
-  def testAddToMemoriesIdempotent(): Unit =
+  test("addToMemoriesIdempotent"):
     val user = userDao.getUser(1)
     val topic = mockTopic(testTopicId)
     val id1 = memoriesDao.addToMemories(user, topic, watch = true)
     val id2 = memoriesDao.addToMemories(user, topic, watch = true)
-    assertEquals("Should return same id on duplicate", id1, id2)
+    assertEquals(id2, id1, "Should return same id on duplicate")
 
-  @Test
-  def testGetTopicInfoWithUser(): Unit =
+  test("getTopicInfoWithUser"):
     val user = userDao.getUser(1)
     val info = memoriesDao.getTopicInfo(testTopicId, Some(user))
-    assertNotNull(info)
+    assert(info != null)
 
-  @Test
-  def testGetTopicInfoWithoutUser(): Unit =
+  test("getTopicInfoWithoutUser"):
     val info = memoriesDao.getTopicInfo(testTopicId, None)
-    assertNotNull(info)
+    assert(info != null)
 
-  @Test
-  def testDeleteMemories(): Unit =
+  test("deleteMemories"):
     val user = userDao.getUser(1)
     val topic = mockTopic(testTopicId)
     val id = memoriesDao.addToMemories(user, topic, watch = true)
     memoriesDao.delete(id)
     val item = memoriesDao.getMemoriesListItem(id)
-    assertFalse("Should be empty after delete", item.isPresent)
+    assert(!item.isPresent, "Should be empty after delete")
 
 end MemoriesDaoIntegrationTest
 

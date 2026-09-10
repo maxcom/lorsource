@@ -14,26 +14,35 @@
  */
 package ru.org.linux.gallery
 
-import org.junit.Test
+import munit.FunSuite
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito.{never, verify, when}
 import org.mockito.ArgumentMatchers.any
 import ru.org.linux.spring.SiteConfig
 
 /** Юнит-тесты для [[OldImageCleaner]] на моках DAO и SiteConfig. */
-class OldImageCleanerTest:
-  private val siteConfig = Mockito.mock(classOf[SiteConfig])
-  private val imageDao = Mockito.mock(classOf[ImageDao])
-  private val imageService = Mockito.mock(classOf[ImageService])
-  private val cleaner = OldImageCleaner(siteConfig, imageDao, imageService)
+class OldImageCleanerTest extends FunSuite:
+  private var siteConfig: SiteConfig = scala.compiletime.uninitialized
+  private var imageDao: ImageDao = scala.compiletime.uninitialized
+  private var imageService: ImageService = scala.compiletime.uninitialized
+  private var cleaner: OldImageCleaner = scala.compiletime.uninitialized
+  private var purgeCaptor: ArgumentCaptor[Seq[Int]] = scala.compiletime.uninitialized
 
-  private val purgeCaptor = ArgumentCaptor.forClass(classOf[Seq[Int]])
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
+    // munit создаёт один экземпляр класса на все тесты (в JUnit был новый экземпляр на каждый тест),
+    // поэтому моки и cleaner пересоздаются перед каждым тестом, чтобы сохранялась изоляция
+    // (verify(never()) / verify(..., times(1)) не должны видеть вызовы из предыдущих тестов)
+    siteConfig = Mockito.mock(classOf[SiteConfig])
+    imageDao = Mockito.mock(classOf[ImageDao])
+    imageService = Mockito.mock(classOf[ImageService])
+    cleaner = OldImageCleaner(siteConfig, imageDao, imageService)
+    purgeCaptor = ArgumentCaptor.forClass(classOf[Seq[Int]])
 
   private def image(id: Int, topicId: Int = 1, deleted: Boolean): Image =
     Image(id, topicId, s"images/$id/original.jpg", deleted = deleted, purged = false)
 
-  @Test
-  def disabledFlagLogsCandidatesDoesNotDelete(): Unit =
+  test("disabledFlagLogsCandidatesDoesNotDelete"):
     val img1 = image(id = 1, topicId = 10, deleted = false)
     val img2 = image(id = 2, topicId = 20, deleted = true)
 
@@ -50,8 +59,7 @@ class OldImageCleanerTest:
     verify(imageService, never()).purgeImageFiles(any(classOf[Image]))
     verify(imageService, never()).markPurged(any(classOf[Seq[Int]]))
 
-  @Test
-  def caseADeletedTopicImagesArePurged(): Unit =
+  test("caseADeletedTopicImagesArePurged"):
     val img1 = image(id = 1, topicId = 10, deleted = false)
     val img2 = image(id = 2, topicId = 10, deleted = false)
 
@@ -68,8 +76,7 @@ class OldImageCleanerTest:
     val marked = purgeCaptor.getValue
     assert(marked.contains(1) && marked.contains(2) && marked.size == 2)
 
-  @Test
-  def caseBDeletedImagesArePurged(): Unit =
+  test("caseBDeletedImagesArePurged"):
     val img1 = image(id = 5, topicId = 20, deleted = true)
     val img2 = image(id = 6, topicId = 21, deleted = true)
 
@@ -86,8 +93,7 @@ class OldImageCleanerTest:
     val marked = purgeCaptor.getValue
     assert(marked.contains(5) && marked.contains(6) && marked.size == 2)
 
-  @Test
-  def emptyCandidatesDoesNotMarkPurged(): Unit =
+  test("emptyCandidatesDoesNotMarkPurged"):
     when(siteConfig.cleanOldImages).thenReturn(true)
     when(imageDao.imagesOfOldDeletedTopics(any(classOf[Int]))).thenReturn(Seq.empty)
     when(imageDao.deletedImagesOfOldTopics(any(classOf[Int]))).thenReturn(Seq.empty)
@@ -97,8 +103,7 @@ class OldImageCleanerTest:
     verify(imageService, never()).purgeImageFiles(any(classOf[Image]))
     verify(imageService, never()).markPurged(any(classOf[Seq[Int]]))
 
-  @Test
-  def failedPurgeExcludedFromMark(): Unit =
+  test("failedPurgeExcludedFromMark"):
     val img1 = image(id = 1, deleted = false)
     val img2 = image(id = 2, deleted = false)
 
@@ -116,8 +121,7 @@ class OldImageCleanerTest:
     val marked = purgeCaptor.getValue
     assert(marked.contains(1) && !marked.contains(2) && marked.size == 1)
 
-  @Test
-  def caseAandBAreBothProcessed(): Unit =
+  test("caseAandBAreBothProcessed"):
     val imgA = image(id = 1, topicId = 10, deleted = false)
     val imgB = image(id = 2, topicId = 20, deleted = true)
 

@@ -14,22 +14,20 @@
  */
 package ru.org.linux.user
 
-import org.junit.runner.RunWith
-import org.junit.{Assert, Before, Test}
+import munit.FunSuite
 import org.mockito.ArgumentMatchers.{any, anyBoolean, anyString, eq as eqTo}
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.tag.{TagDao, TagNotFoundException, TagService}
+import ru.org.linux.test.SpringTestSupport
 
 import java.sql.{ResultSet, SQLException}
 import scala.jdk.CollectionConverters.*
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(Array("unit-tests-context.xml"))
-class UserTagServiceTest {
+class UserTagServiceTest extends FunSuite with SpringTestSupport:
   @Autowired
   var tagDao: TagDao = scala.compiletime.uninitialized
 
@@ -44,124 +42,102 @@ class UserTagServiceTest {
 
   private var user: User = scala.compiletime.uninitialized
 
-  @Before
-  def resetMockObjects(): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
     reset(userTagDao)
     reset(tagService)
-    
+
     when(tagService.getTagId(eqTo("tag1"), anyBoolean())).thenReturn(2)
     when(tagService.getTagIdOptWithSynonym(eqTo("tag1"))).thenReturn(Some(2))
     user = getUser(1)
-  }
 
-  private def getUser(id: Int): User = {
+  private def getUser(id: Int): User =
     val rs = mock(classOf[ResultSet])
-    try {
+    try
       when(rs.getInt("id")).thenReturn(id)
       User.fromResultSet(rs)
-    } catch {
+    catch
       case _: SQLException =>
         null
-    }
-  }
 
-  @Test
-  def favoriteAddTest(): Unit = {
+  test("favoriteAddTest"):
     when(tagDao.getTagId("tag1", false)).thenReturn(Some(2))
     userTagService.favoriteAdd(user, "tag1")
     verify(userTagDao).addTag(eqTo(1), eqTo(2), eqTo(true))(using any())
-  }
 
-  @Test
-  def favoriteDelTest(): Unit = {
+  test("favoriteDelTest"):
     userTagService.favoriteDel(user, "tag1")
     verify(userTagDao).deleteTag(eqTo(1), eqTo(2), eqTo(true))(using any())
-  }
 
-  @Test
-  def ignoreAddTest(): Unit = {
+  test("ignoreAddTest"):
     userTagService.ignoreAdd(user, "tag1")
     verify(userTagDao).addTag(eqTo(1), eqTo(2), eqTo(false))(using any())
-  }
 
-  @Test
-  def ignoreDelTest(): Unit = {
+  test("ignoreDelTest"):
     userTagService.ignoreDel(user, "tag1")
     verify(userTagDao).deleteTag(eqTo(1), eqTo(2), eqTo(false))(using any())
-  }
 
-  @Test
-  def favoritesGetTest(): Unit = {
+  test("favoritesGetTest"):
     val etalon = List("tag1")
     when(userTagDao.getTags(1, true)).thenReturn(etalon)
 
     val actual = userTagService.favoritesGet(user)
-    Assert.assertEquals(etalon.size, actual.size)
-    Assert.assertEquals(etalon.head, actual.get(0))
-  }
+    assertEquals(actual.size, etalon.size)
+    assertEquals(actual.get(0), etalon.head)
 
-  @Test
-  def ignoresGetTest(): Unit = {
+  test("ignoresGetTest"):
     val etalon = List("tag1")
     when(userTagDao.getTags(1, false)).thenReturn(etalon)
 
     val actual = userTagService.ignoresGet(user)
-    Assert.assertEquals(etalon.size, actual.size)
-    Assert.assertEquals(etalon.head, actual.get(0))
-  }
+    assertEquals(actual.size, etalon.size)
+    assertEquals(actual.get(0), etalon.head)
 
-  @Test
-  def getUserIdListByTagsTest(): Unit = {
+  test("getUserIdListByTagsTest"):
     val etalon = List(123)
     when(userTagDao.getUserIdListByTags(1, Seq(2))).thenReturn(etalon)
 
     val actual = userTagService.getUserIdListByTagsJava(user.id, List("tag1").asJava)
-    Assert.assertEquals(etalon.size, actual.size)
-    Assert.assertEquals(etalon.head, actual.get(0))
-  }
+    assertEquals(actual.size, etalon.size)
+    assertEquals(actual.get(0).intValue(), etalon.head)
 
-  @Test
-  def addMultiplyTagsTest(): Unit = {
+  test("addMultiplyTagsTest"):
     val mockUserTagService = mock(classOf[UserTagService])
     when(mockUserTagService.addMultiplyTags(any(classOf[User]), anyString, anyBoolean)).thenCallRealMethod()
-    try {
+    try
       doThrow(new TagNotFoundException()).when(mockUserTagService).favoriteAdd(eqTo(user), eqTo("uytutut"))
       doThrow(new DuplicateKeyException("duplicate")).when(mockUserTagService).favoriteAdd(eqTo(user), eqTo("tag3"))
-    } catch {
+    catch
       case _: Exception =>
-    }
 
     var strErrors = mockUserTagService.addMultiplyTags(user, "tag1, tag2, tag3, uytutut, @#$%$#", true)
-    try {
+    try
       verify(mockUserTagService).favoriteAdd(eqTo(user), eqTo("tag1"))
       verify(mockUserTagService).favoriteAdd(eqTo(user), eqTo("tag2"))
       verify(mockUserTagService).favoriteAdd(eqTo(user), eqTo("uytutut"))
       verify(mockUserTagService, never()).favoriteAdd(eqTo(user), eqTo("@#$%$#"))
       verify(mockUserTagService, never()).ignoreAdd(any(classOf[User]), anyString)
-    } catch {
+    catch
       case _: Exception =>
-    }
-    Assert.assertEquals(3, strErrors.size)
+    assertEquals(strErrors.size, 3)
 
     reset(mockUserTagService)
     when(mockUserTagService.addMultiplyTags(any(classOf[User]), anyString, anyBoolean)).thenCallRealMethod()
-    try {
+    try
       doThrow(new TagNotFoundException()).when(mockUserTagService).ignoreAdd(eqTo(user), eqTo("uytutut"))
       doThrow(new DuplicateKeyException("duplicate")).when(mockUserTagService).ignoreAdd(eqTo(user), eqTo("tag3"))
-    } catch {
+    catch
       case _: Exception =>
-    }
 
     strErrors = mockUserTagService.addMultiplyTags(user, "tag1, tag2, tag3, uytutut, @#$%$#", false)
-    try {
+    try
       verify(mockUserTagService).ignoreAdd(eqTo(user), eqTo("tag1"))
       verify(mockUserTagService).ignoreAdd(eqTo(user), eqTo("tag2"))
       verify(mockUserTagService).ignoreAdd(eqTo(user), eqTo("uytutut"))
       verify(mockUserTagService, never()).ignoreAdd(eqTo(user), eqTo("@#$%$#"))
       verify(mockUserTagService, never()).favoriteAdd(any(classOf[User]), anyString)
-    } catch {
+    catch
       case _: Exception =>
-    }
-    Assert.assertEquals(3, strErrors.size)
-  }
-}
+    assertEquals(strErrors.size, 3)
+
+end UserTagServiceTest

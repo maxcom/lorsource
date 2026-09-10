@@ -15,33 +15,28 @@
 
 package ru.org.linux.user
 
-import org.junit.Assert.{assertEquals, assertNotNull, assertNotSame}
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
+import ru.org.linux.test.TransactionalTestSupport
 
 object ProfileDaoIntegrationTest:
   private val TestId = 1
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
   Array(
     new ContextConfiguration(value = Array("classpath:database.xml")),
     new ContextConfiguration(classes = Array(classOf[ProfileDaoIntegrationTestConfiguration]))
-  )) @Transactional
-class ProfileDaoIntegrationTest:
+  ))
+class ProfileDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var profileDao: ProfileDao = scala.compiletime.uninitialized
 
-  @Test
-  def testWriteAndRead(): Unit =
+  test("writeAndRead"):
     val profile = Profile.DEFAULT
 
-    assertNotSame(125, profile.messages)
+    assert(profile.messages != 125)
 
     val builder = new ProfileBuilder(profile)
     builder.setMessages(125)
@@ -55,10 +50,9 @@ class ProfileDaoIntegrationTest:
 
     profileDao.deleteProfile(testUser)
 
-    assertEquals(125, profile1.messages)
+    assertEquals(profile1.messages, 125)
 
-  @Test
-  def testUpdateProfile(): Unit =
+  test("updateProfile"):
     val testUser = mock(classOf[User])
     when(testUser.id).thenReturn(ProfileDaoIntegrationTest.TestId)
 
@@ -67,19 +61,18 @@ class ProfileDaoIntegrationTest:
     profileDao.writeProfile(testUser, builder1)
 
     val profile1 = profileDao.readProfile(testUser.id)
-    assertEquals(50, profile1.messages)
+    assertEquals(profile1.messages, 50)
 
     val builder2 = new ProfileBuilder(profile1)
     builder2.setMessages(200)
     profileDao.writeProfile(testUser, builder2)
 
     val profile2 = profileDao.readProfile(testUser.id)
-    assertEquals(200, profile2.messages)
+    assertEquals(profile2.messages, 200)
 
     profileDao.deleteProfile(testUser)
 
-  @Test
-  def testDeleteProfile(): Unit =
+  test("deleteProfile"):
     val testUser = mock(classOf[User])
     when(testUser.id).thenReturn(ProfileDaoIntegrationTest.TestId)
 
@@ -88,10 +81,12 @@ class ProfileDaoIntegrationTest:
     profileDao.writeProfile(testUser, builder)
 
     val profile1 = profileDao.readProfile(testUser.id)
-    assertEquals(99, profile1.messages)
+    assertEquals(profile1.messages, 99)
 
     profileDao.deleteProfile(testUser)
 
     val profile2 = profileDao.readProfile(testUser.id)
-    assertNotNull(profile2)
-    assertEquals(Profile.DEFAULT.messages, profile2.messages)
+    assert(profile2 != null)
+    assertEquals(profile2.messages, Profile.DEFAULT.messages)
+
+end ProfileDaoIntegrationTest

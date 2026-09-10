@@ -15,11 +15,9 @@
 
 package ru.org.linux.topic
 
-import org.junit.{Before, Test}
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.context.WebApplicationContext
@@ -29,16 +27,11 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.{redirectedUrl, status}
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
 import ru.org.linux.auth.IpBlockInfo
+import ru.org.linux.test.SpringTestSupport
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @WebAppConfiguration
-@ContextConfiguration(
-  classes = Array(
-    classOf[TopicIntegrationTestConfiguration],
-    classOf[PekkoConfiguration]
-  )
-)
-class TopicControllerIntegrationTest {
+@ContextConfiguration(classes = Array(classOf[TopicIntegrationTestConfiguration], classOf[PekkoConfiguration]))
+class TopicControllerIntegrationTest extends FunSuite with SpringTestSupport:
   @Autowired
   var wac: WebApplicationContext = scala.compiletime.uninitialized
 
@@ -47,8 +40,8 @@ class TopicControllerIntegrationTest {
 
   private var mockMvc: MockMvc = scala.compiletime.uninitialized
 
-  @Before
-  def setup(): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
     val defaultReq = get("/")
     defaultReq.requestAttr("currentUser", userService.getAnonymous)
     defaultReq.requestAttr("ipBlockInfo", IpBlockInfo("127.0.0.1"))
@@ -56,43 +49,29 @@ class TopicControllerIntegrationTest {
     val builder = webAppContextSetup(wac)
     builder.defaultRequest(defaultReq)
     mockMvc = builder.build()
-  }
 
-  @Test
-  def testJumpToComment(): Unit = {
+  test("jumpToComment"):
     mockMvc
       .perform(get("/forum/talks/1920001?cid=1920019"))
       .andExpect(status.isFound)
       .andExpect(redirectedUrl("/forum/talks/1920001#comment-1920019"))
-  }
 
-  @Test
-  def testLoadBase(): Unit = {
-    mockMvc
-      .perform(get("/forum/talks/1920001"))
-      .andExpect(status.isOk)
-  }
+  test("loadBase"):
+    mockMvc.perform(get("/forum/talks/1920001")).andExpect(status.isOk)
 
-  @Test
-  def testLoadBaseZeroComments(): Unit = {
-    mockMvc
-      .perform(get("/polls/polls/98075"))
-      .andExpect(status.isOk)
-  }
+  test("loadBaseZeroComments"):
+    mockMvc.perform(get("/polls/polls/98075")).andExpect(status.isOk)
 
-  @Test
-  def testWrongPage(): Unit = {
+  test("wrongPage"):
     mockMvc
       .perform(get("/forum/talks/1920001/page10"))
       .andExpect(status.isFound)
       .andExpect(redirectedUrl("/forum/talks/1920001"))
-  }
 
-  @Test
-  def testZeroCommentsWrongPage(): Unit = {
+  test("zeroCommentsWrongPage"):
     mockMvc
       .perform(get("/polls/polls/98075/page10"))
       .andExpect(status.isFound)
       .andExpect(redirectedUrl("/polls/polls/98075"))
-  }
-}
+
+end TopicControllerIntegrationTest

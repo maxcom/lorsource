@@ -6,36 +6,42 @@
  *
  *        http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package ru.org.linux.user
 
-import org.junit.Assert.assertThrows
-import org.junit.Test
+import munit.FunSuite
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, never, times, verify, when}
 import ru.org.linux.spring.SiteConfig
 
 /** Юнит-тесты для [[BlockedUserCleaner]] на моках DAO и SiteConfig. */
-class BlockedUserCleanerTest:
-  private val siteConfig = mock(classOf[SiteConfig])
-  private val userDao = mock(classOf[UserDao])
-  private val cleaner = BlockedUserCleaner(siteConfig, userDao)
+class BlockedUserCleanerTest extends FunSuite:
+  private var siteConfig: SiteConfig = scala.compiletime.uninitialized
+  private var userDao: UserDao = scala.compiletime.uninitialized
+  private var cleaner: BlockedUserCleaner = scala.compiletime.uninitialized
 
-  @Test
-  def noCandidatesDoesNothing(): Unit =
+  // В JUnit каждый тест получал новый экземпляр класса (и новые моки); в munit экземпляр один,
+  // поэтому моки пересоздаются в beforeEach — иначе verify(never())/verify(times(n)) учитывал бы
+  // вызовы из предыдущих тестов.
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
+    siteConfig = mock(classOf[SiteConfig])
+    userDao = mock(classOf[UserDao])
+    cleaner = BlockedUserCleaner(siteConfig, userDao)
+
+  test("noCandidatesDoesNothing"):
     when(userDao.getDeletableBlockedUserIds).thenReturn(Seq.empty[Int])
 
     cleaner.cleanBlockedUsers()
 
     verify(userDao, never()).deleteBlockedUsers(any(classOf[Seq[Int]]))
 
-  @Test
-  def flagOffDoesNotDelete(): Unit =
+  test("flagOffDoesNotDelete"):
     when(userDao.getDeletableBlockedUserIds).thenReturn(Seq(1, 2, 3))
     when(siteConfig.cleanOldBlockedUsers).thenReturn(false)
 
@@ -43,8 +49,7 @@ class BlockedUserCleanerTest:
 
     verify(userDao, never()).deleteBlockedUsers(any(classOf[Seq[Int]]))
 
-  @Test
-  def flagOnDeletesCandidates(): Unit =
+  test("flagOnDeletesCandidates"):
     when(userDao.getDeletableBlockedUserIds).thenReturn(Seq(1, 2, 3))
     when(siteConfig.cleanOldBlockedUsers).thenReturn(true)
 
@@ -52,8 +57,7 @@ class BlockedUserCleanerTest:
 
     verify(userDao).deleteBlockedUsers(Seq(1, 2, 3))
 
-  @Test
-  def flagOnDeletesInBatches(): Unit =
+  test("flagOnDeletesInBatches"):
     val ids = (1 to BlockedUserCleaner.BatchSize * 3).toSeq
     when(userDao.getDeletableBlockedUserIds).thenReturn(ids)
     when(siteConfig.cleanOldBlockedUsers).thenReturn(true)
@@ -64,10 +68,11 @@ class BlockedUserCleanerTest:
     verify(userDao).deleteBlockedUsers((1 to BlockedUserCleaner.BatchSize).toSeq)
     verify(userDao).deleteBlockedUsers((BlockedUserCleaner.BatchSize + 1 to BlockedUserCleaner.BatchSize * 2).toSeq)
 
-  @Test
-  def deleteFailurePropagates(): Unit =
+  test("deleteFailurePropagates"):
     when(userDao.getDeletableBlockedUserIds).thenReturn(Seq(1, 2, 3))
     when(siteConfig.cleanOldBlockedUsers).thenReturn(true)
     when(userDao.deleteBlockedUsers(Seq(1, 2, 3))).thenThrow(new RuntimeException("batch failed"))
 
-    assertThrows(classOf[RuntimeException], () => cleaner.cleanBlockedUsers())
+    intercept[RuntimeException] {
+      cleaner.cleanBlockedUsers()
+    }

@@ -14,16 +14,13 @@
  */
 package ru.org.linux.comment
 
-import org.junit.Assert.*
-import org.junit.{Before, Test}
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.site.MessageNotFoundException
+import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
 
 import java.sql.Timestamp
@@ -31,9 +28,8 @@ import java.sql.Timestamp
 /** Интеграционные тесты окончательного удаления старых удалённых комментариев
   * ([[CommentDao.getDeletableDeletedCommentIds]] и [[CommentDao.purgeDeletedComments]]).
   */
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[DeletedCommentPurgeIntegrationTestConfiguration])) @Transactional
-class DeletedCommentPurgeIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[DeletedCommentPurgeIntegrationTestConfiguration]))
+class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var commentDao: CommentDao = scala.compiletime.uninitialized
@@ -45,8 +41,8 @@ class DeletedCommentPurgeIntegrationTest:
 
   private def ts(value: String): Timestamp = Timestamp.valueOf(value + " 00:00:00")
 
-  @Before
-  def setUp(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
     topicId = springDB.run:
       sql"select min(id) from topics where not deleted".map(rs => rs.int(1)).single.apply().get
 
@@ -116,8 +112,7 @@ class DeletedCommentPurgeIntegrationTest:
     springDB.run:
       sql"SELECT unread_events FROM users WHERE id = $userId".map(rs => rs.int("unread_events")).single.apply().get
 
-  @Test
-  def testGetDeletableDeletedCommentIds(): Unit =
+  test("getDeletableDeletedCommentIds"):
     val oldLogin = createUser("test-purge-old-login", blocked = false, Some(ts("2015-01-01")), Some(ts("2015-01-01")))
     val blockedOldLogin = createUser("test-purge-blocked-old", blocked = true, Some(ts("2023-01-01")), None)
     val blockedRecentLogin = createUser("test-purge-blocked-recent", blocked = true, Some(ts("2026-01-01")), None)
@@ -175,20 +170,19 @@ class DeletedCommentPurgeIntegrationTest:
 
     val ids = commentDao.getDeletableDeletedCommentIds
 
-    assertTrue("old lastlogin author should be a candidate", ids.contains(candOldLogin))
-    assertTrue("blocked author with old lastlogin should be a candidate", ids.contains(candBlocked))
-    assertTrue("author without dates should be a candidate", ids.contains(candNullDates))
-    assertTrue("unknown lastlogin should fall back to old regdate", ids.contains(candRegdateFallback))
-    assertFalse("active author should not be a candidate", ids.contains(ctrlActiveAuthor))
-    assertFalse("blocked author with recent lastlogin should not be a candidate", ids.contains(ctrlBlockedRecent))
-    assertFalse("recent regdate fallback should not be a candidate", ids.contains(ctrlRecentRegdate))
-    assertFalse("recently deleted comment should not be a candidate", ids.contains(ctrlRecentDelete))
-    assertFalse("comment with reply should not be a candidate", ids.contains(ctrlHasReply))
-    assertFalse("comment with deleted reply should not be a candidate", ids.contains(ctrlHasDeletedReply))
-    assertFalse("not deleted comment should not be a candidate", ids.contains(ctrlNotDeleted))
+    assert(ids.contains(candOldLogin), "old lastlogin author should be a candidate")
+    assert(ids.contains(candBlocked), "blocked author with old lastlogin should be a candidate")
+    assert(ids.contains(candNullDates), "author without dates should be a candidate")
+    assert(ids.contains(candRegdateFallback), "unknown lastlogin should fall back to old regdate")
+    assert(!ids.contains(ctrlActiveAuthor), "active author should not be a candidate")
+    assert(!ids.contains(ctrlBlockedRecent), "blocked author with recent lastlogin should not be a candidate")
+    assert(!ids.contains(ctrlRecentRegdate), "recent regdate fallback should not be a candidate")
+    assert(!ids.contains(ctrlRecentDelete), "recently deleted comment should not be a candidate")
+    assert(!ids.contains(ctrlHasReply), "comment with reply should not be a candidate")
+    assert(!ids.contains(ctrlHasDeletedReply), "comment with deleted reply should not be a candidate")
+    assert(!ids.contains(ctrlNotDeleted), "not deleted comment should not be a candidate")
 
-  @Test
-  def testGetDeletableCommentIdsInDeletedTopics(): Unit =
+  test("getDeletableCommentIdsInDeletedTopics"):
     val moderator = createUser("test-purge-topic-mod", blocked = false, Some(ts("2026-08-01")), None)
 
     val deletedTopic = nextTopicId(topicId)
@@ -237,19 +231,18 @@ class DeletedCommentPurgeIntegrationTest:
 
     val ids = commentDao.getDeletableDeletedCommentIds
 
-    assertTrue("blocked author in deleted topic should be a candidate", ids.contains(candBlocked))
-    assertTrue("inactive author in deleted topic should be a candidate", ids.contains(candInactive))
-    assertTrue("author without dates in deleted topic should be a candidate", ids.contains(candNoDates))
-    assertTrue("individually deleted comment in deleted topic should be a candidate", ids.contains(candBoth))
-    assertEquals("comment matching both branches should be listed once", 1, ids.count(_ == candBoth))
-    assertFalse("active author in deleted topic should not be a candidate", ids.contains(ctrlActive))
-    assertFalse("blocked author with recent lastlogin should not be a candidate", ids.contains(ctrlBlockedRecent))
-    assertFalse("comment in recently deleted topic should not be a candidate", ids.contains(ctrlRecentDelete))
-    assertFalse("comment with reply in deleted topic should not be a candidate", ids.contains(ctrlHasReply))
-    assertFalse("comment in not deleted topic should not be a candidate", ids.contains(ctrlNotDeletedTopic))
+    assert(ids.contains(candBlocked), "blocked author in deleted topic should be a candidate")
+    assert(ids.contains(candInactive), "inactive author in deleted topic should be a candidate")
+    assert(ids.contains(candNoDates), "author without dates in deleted topic should be a candidate")
+    assert(ids.contains(candBoth), "individually deleted comment in deleted topic should be a candidate")
+    assertEquals(ids.count(_ == candBoth), 1, "comment matching both branches should be listed once")
+    assert(!ids.contains(ctrlActive), "active author in deleted topic should not be a candidate")
+    assert(!ids.contains(ctrlBlockedRecent), "blocked author with recent lastlogin should not be a candidate")
+    assert(!ids.contains(ctrlRecentDelete), "comment in recently deleted topic should not be a candidate")
+    assert(!ids.contains(ctrlHasReply), "comment with reply in deleted topic should not be a candidate")
+    assert(!ids.contains(ctrlNotDeletedTopic), "comment in not deleted topic should not be a candidate")
 
-  @Test
-  def testPurgeDeletedComments(): Unit =
+  test("purgeDeletedComments"):
     val author = createUser("test-purge-author", blocked = false, Some(ts("2026-08-01")), Some(ts("2015-01-01")))
     val eventOwner = createUser("test-purge-event-owner", blocked = false, Some(ts("2026-08-01")), None)
 
@@ -282,28 +275,29 @@ class DeletedCommentPurgeIntegrationTest:
 
     val purged = commentDao.purgeDeletedComments(Seq(targetId))
 
-    assertEquals(1, purged)
-    assertEquals(0, countRows("comments", "id", targetId))
-    assertEquals(0, countRows("msgbase", "id", targetId))
-    assertEquals(0, countRows("del_info", "msgid", targetId))
-    assertEquals(0, countRows("edit_info", "msgid", targetId))
-    assertEquals(0, countRows("reactions_log", "comment_id", targetId))
-    assertEquals(0, countRows("message_warnings", "comment", targetId))
-    assertEquals(0, countRows("user_events", "comment_id", targetId))
-    assertEquals(0, countRows("user_events", "warning_id", warningId))
+    assertEquals(purged, 1)
+    assertEquals(countRows("comments", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("edit_info", "msgid", targetId), 0)
+    assertEquals(countRows("reactions_log", "comment_id", targetId), 0)
+    assertEquals(countRows("message_warnings", "comment", targetId), 0)
+    assertEquals(countRows("user_events", "comment_id", targetId), 0)
+    assertEquals(countRows("user_events", "warning_id", warningId), 0)
 
-    assertEquals(1, countRows("comments", "id", controlId))
-    assertEquals(1, countRows("msgbase", "id", controlId))
-    assertEquals(1, countRows("del_info", "msgid", controlId))
-    assertEquals(1, countRows("user_events", "comment_id", controlId))
+    assertEquals(countRows("comments", "id", controlId), 1)
+    assertEquals(countRows("msgbase", "id", controlId), 1)
+    assertEquals(countRows("del_info", "msgid", controlId), 1)
+    assertEquals(countRows("user_events", "comment_id", controlId), 1)
 
     val unreadAfter = getUnreadEvents(eventOwner)
-    assertEquals("unread events counter should be recalculated", unreadBefore - 3, unreadAfter)
+    assertEquals(unreadAfter, unreadBefore - 3, "unread events counter should be recalculated")
 
-    assertThrows(classOf[MessageNotFoundException], () => commentDao.getById(targetId))
+    intercept[MessageNotFoundException] {
+      commentDao.getById(targetId)
+    }
 
-  @Test
-  def testPurgeCommentInDeletedTopic(): Unit =
+  test("purgeCommentInDeletedTopic"):
     val author = createUser("test-purge-in-topic-author", blocked = true, Some(ts("2023-01-01")), None)
     val eventOwner = createUser("test-purge-in-topic-event-owner", blocked = false, Some(ts("2026-08-01")), None)
 
@@ -335,35 +329,34 @@ class DeletedCommentPurgeIntegrationTest:
 
     val purged = commentDao.purgeDeletedComments(Seq(targetId, controlId))
 
-    assertEquals(1, purged)
-    assertEquals(0, countRows("comments", "id", targetId))
-    assertEquals(0, countRows("msgbase", "id", targetId))
-    assertEquals(0, countRows("del_info", "msgid", targetId))
-    assertEquals(0, countRows("edit_info", "msgid", targetId))
-    assertEquals(0, countRows("reactions_log", "comment_id", targetId))
-    assertEquals(0, countRows("message_warnings", "comment", targetId))
-    assertEquals(0, countRows("user_events", "comment_id", targetId))
-    assertEquals(0, countRows("user_events", "warning_id", warningId))
-    assertEquals(1, countRows("comments", "id", controlId))
-    assertEquals(1, countRows("msgbase", "id", controlId))
+    assertEquals(purged, 1)
+    assertEquals(countRows("comments", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("edit_info", "msgid", targetId), 0)
+    assertEquals(countRows("reactions_log", "comment_id", targetId), 0)
+    assertEquals(countRows("message_warnings", "comment", targetId), 0)
+    assertEquals(countRows("user_events", "comment_id", targetId), 0)
+    assertEquals(countRows("user_events", "warning_id", warningId), 0)
+    assertEquals(countRows("comments", "id", controlId), 1)
+    assertEquals(countRows("msgbase", "id", controlId), 1)
 
     val unreadAfter = getUnreadEvents(eventOwner)
-    assertEquals("unread events counter should be recalculated", unreadBefore - 2, unreadAfter)
+    assertEquals(unreadAfter, unreadBefore - 2, "unread events counter should be recalculated")
 
-  @Test
-  def testPurgeSkipsNotDeletedComments(): Unit =
+  test("purgeSkipsNotDeletedComments"):
     val author = createUser("test-purge-skip", blocked = false, Some(ts("2026-08-01")), None)
     val commentId = nextMsgId
     insertComment(commentId, author, None, deleted = false, "not deleted")
 
     val purged = commentDao.purgeDeletedComments(Seq(commentId))
 
-    assertEquals(0, purged)
-    assertEquals(1, countRows("comments", "id", commentId))
-    assertEquals(1, countRows("msgbase", "id", commentId))
+    assertEquals(purged, 0)
+    assertEquals(countRows("comments", "id", commentId), 1)
+    assertEquals(countRows("msgbase", "id", commentId), 1)
 
-  @Test
-  def testPurgeEmptyList(): Unit = assertEquals(0, commentDao.purgeDeletedComments(Seq.empty))
+  test("purgeEmptyList"):
+    assertEquals(commentDao.purgeDeletedComments(Seq.empty), 0)
 
 end DeletedCommentPurgeIntegrationTest
 

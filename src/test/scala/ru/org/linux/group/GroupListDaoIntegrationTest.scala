@@ -14,22 +14,18 @@
  */
 package ru.org.linux.group
 
-import org.junit.Assert.*
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.auth.{AuthorizedSession, IpBlockInfo, NonAuthorizedSession}
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import ru.org.linux.tracker.TrackerFilterEnum
 import ru.org.linux.user.{Profile, UserDao, UserService}
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[GroupListDaoIntegrationTestConfiguration])) @Transactional
-class GroupListDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[GroupListDaoIntegrationTestConfiguration]))
+class GroupListDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var groupListDao: GroupListDao = scala.compiletime.uninitialized
@@ -43,13 +39,11 @@ class GroupListDaoIntegrationTest:
   @Autowired
   var groupDao: GroupDao = scala.compiletime.uninitialized
 
-  @Test
-  def testGetGroupTrackerTopicsNonAuthorized(): Unit =
+  test("getGroupTrackerTopicsNonAuthorized"):
     val topics = groupListDao.getGroupTrackerTopics(126, 0, None)(using anonymousSession)
-    assertNotNull("Topics should not be null", topics)
+    assert(topics != null, "Topics should not be null")
 
-  @Test
-  def testGetGroupTrackerTopicsAuthorized(): Unit =
+  test("getGroupTrackerTopicsAuthorized"):
     val user = userDao.getUser(1)
     val session = AuthorizedSession(
       user,
@@ -59,17 +53,15 @@ class GroupListDaoIntegrationTest:
       profile = Profile.DEFAULT,
       ipBlockInfo = IpBlockInfo("127.0.0.1"))
     val topics = groupListDao.getGroupTrackerTopics(126, 0, None)(using session)
-    assertNotNull("Topics should not be null", topics)
+    assert(topics != null, "Topics should not be null")
 
-  @Test
-  def testGetGroupListTopicsNonAuthorized(): Unit =
+  test("getGroupListTopicsNonAuthorized"):
     val topics =
       groupListDao.getGroupListTopics(126, 0, showIgnored = false, showDeleted = false, yearMonth = None, tagId = None)(
         using anonymousSession)
-    assertNotNull("Topics should not be null", topics)
+    assert(topics != null, "Topics should not be null")
 
-  @Test
-  def testGetGroupListTopicsWithYearMonth(): Unit =
+  test("getGroupListTopicsWithYearMonth"):
     val topics =
       groupListDao.getGroupListTopics(
         126,
@@ -78,36 +70,30 @@ class GroupListDaoIntegrationTest:
         showDeleted = false,
         yearMonth = Some((2025, 1)),
         tagId = None)(using anonymousSession)
-    assertNotNull("Topics should not be null", topics)
+    assert(topics != null, "Topics should not be null")
 
-  @Test
-  def testGetGroupStickyTopicsNonAuthorized(): Unit =
+  test("getGroupStickyTopicsNonAuthorized"):
     val group = groupDao.getGroup(126)
     val topics = groupListDao.getGroupStickyTopics(group, None)(using anonymousSession)
-    assertNotNull("Sticky topics should not be null", topics)
+    assert(topics != null, "Sticky topics should not be null")
 
-  @Test
-  def testGetTrackerTopicsAll(): Unit =
+  test("getTrackerTopicsAll"):
     val topics = groupListDao.getTrackerTopics(TrackerFilterEnum.ALL, 0)(using anonymousSession)
-    assertNotNull("Tracker topics should not be null", topics)
+    assert(topics != null, "Tracker topics should not be null")
 
-  @Test
-  def testGetTrackerTopicsMain(): Unit =
+  test("getTrackerTopicsMain"):
     val topics = groupListDao.getTrackerTopics(TrackerFilterEnum.MAIN, 0)(using anonymousSession)
-    assertNotNull("Tracker topics should not be null", topics)
+    assert(topics != null, "Tracker topics should not be null")
 
-  @Test
-  def testGetTrackerTopicsNotalks(): Unit =
+  test("getTrackerTopicsNotalks"):
     val topics = groupListDao.getTrackerTopics(TrackerFilterEnum.NOTALKS, 0)(using anonymousSession)
-    assertNotNull("Tracker topics should not be null", topics)
+    assert(topics != null, "Tracker topics should not be null")
 
-  @Test
-  def testGetTrackerTopicsTech(): Unit =
+  test("getTrackerTopicsTech"):
     val topics = groupListDao.getTrackerTopics(TrackerFilterEnum.TECH, 0)(using anonymousSession)
-    assertNotNull("Tracker topics should not be null", topics)
+    assert(topics != null, "Tracker topics should not be null")
 
-  @Test
-  def testGetTrackerTopicsAuthorized(): Unit =
+  test("getTrackerTopicsAuthorized"):
     val user = userDao.getUser(1)
     val session = AuthorizedSession(
       user,
@@ -117,17 +103,16 @@ class GroupListDaoIntegrationTest:
       profile = Profile.DEFAULT,
       ipBlockInfo = IpBlockInfo("127.0.0.1"))
     val topics = groupListDao.getTrackerTopics(TrackerFilterEnum.MAIN, 0)(using session)
-    assertNotNull("Tracker topics should not be null", topics)
+    assert(topics != null, "Tracker topics should not be null")
 
-  @Test
-  def testTrackerTopicsResultsStructure(): Unit =
+  test("trackerTopicsResultsStructure"):
     val topics = groupListDao.getTrackerTopics(TrackerFilterEnum.ALL, 0)(using anonymousSession)
     topics.foreach { topic =>
-      assertNotEquals("Topic ID should not be 0", 0, topic.topicId)
-      assertNotEquals("Topic author should not be 0", 0, topic.topicAuthor)
-      assertNotNull("Group title should not be null", topic.groupTitle)
-      assertNotNull("Group URL name should not be null", topic.groupUrlName)
-      assertTrue("Section should be positive", topic.section > 0)
+      assertNotEquals(topic.topicId, 0, "Topic ID should not be 0")
+      assertNotEquals(topic.topicAuthor, 0, "Topic author should not be 0")
+      assert(topic.groupTitle != null, "Group title should not be null")
+      assert(topic.groupUrlName != null, "Group URL name should not be null")
+      assert(topic.section > 0, "Section should be positive")
     }
 
 end GroupListDaoIntegrationTest

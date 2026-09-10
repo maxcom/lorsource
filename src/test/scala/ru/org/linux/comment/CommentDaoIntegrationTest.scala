@@ -15,24 +15,20 @@
 
 package ru.org.linux.comment
 
-import org.junit.Assert.*
-import org.junit.runner.RunWith
-import org.junit.{Before, Test}
+import munit.FunSuite
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.site.MessageNotFoundException
+import ru.org.linux.test.TransactionalTestSupport
 import ru.org.linux.user.User
 import scalikejdbc.*
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[CommentDaoIntegrationTestConfiguration])) @Transactional
-class CommentDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[CommentDaoIntegrationTestConfiguration]))
+class CommentDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var commentDao: CommentDao = scala.compiletime.uninitialized
@@ -43,8 +39,8 @@ class CommentDaoIntegrationTest:
   private var topicId: Int = scala.compiletime.uninitialized
   private var testUserId: Int = scala.compiletime.uninitialized
 
-  @Before
-  def setUp(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
     topicId = springDB.run:
       sql"select min(id) from topics where not deleted".map(rs => rs.int(1)).single.apply().get
     testUserId = springDB.run:
@@ -60,24 +56,24 @@ class CommentDaoIntegrationTest:
         .apply()
       sql"INSERT INTO msgbase (id, message) VALUES ($commentId, $body)".update.apply()
 
-  @Test
-  def testGetById(): Unit =
+  test("getById"):
     val commentId = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     insertComment(commentId, None, "testGetById comment", "test body")
 
     val comment = commentDao.getById(commentId)
-    assertEquals(commentId, comment.id)
-    assertEquals("testGetById comment", comment.title)
-    assertEquals(topicId, comment.topicId)
-    assertEquals(testUserId, comment.userid)
-    assertFalse(comment.deleted)
+    assertEquals(comment.id, commentId)
+    assertEquals(comment.title, "testGetById comment")
+    assertEquals(comment.topicId, topicId)
+    assertEquals(comment.userid, testUserId)
+    assert(!comment.deleted)
 
-  @Test(expected = classOf[MessageNotFoundException])
-  def testGetByIdNotFound(): Unit = commentDao.getById(999999999)
+  test("getByIdNotFound"):
+    intercept[MessageNotFoundException] {
+      commentDao.getById(999999999)
+    }
 
-  @Test
-  def testGetCommentListWithDeleted(): Unit =
+  test("getCommentListWithDeleted"):
     val commentId1 = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     val commentId2 = springDB.run:
@@ -88,11 +84,10 @@ class CommentDaoIntegrationTest:
       sql"UPDATE comments SET deleted='t' WHERE id = $commentId2".update.apply()
 
     val comments = commentDao.getCommentList(topicId, showDeleted = true)
-    assertTrue("Should contain at least 2 comments", comments.size >= 2)
-    assertTrue("Should contain deleted comment", comments.exists(_.id == commentId2))
+    assert(comments.size >= 2, "Should contain at least 2 comments")
+    assert(comments.exists(_.id == commentId2), "Should contain deleted comment")
 
-  @Test
-  def testGetCommentListWithoutDeleted(): Unit =
+  test("getCommentListWithoutDeleted"):
     val commentId1 = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     val commentId2 = springDB.run:
@@ -103,25 +98,27 @@ class CommentDaoIntegrationTest:
       sql"UPDATE comments SET deleted='t' WHERE id = $commentId2".update.apply()
 
     val comments = commentDao.getCommentList(topicId, showDeleted = false)
-    assertTrue("Should not contain deleted comment", comments.forall(_.id != commentId2))
+    assert(comments.forall(_.id != commentId2), "Should not contain deleted comment")
 
-  @Test
-  def testDeleteComment(): Unit =
+  test("deleteComment"):
     val commentId = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     insertComment(commentId, None, "to be deleted", "body")
 
-    val deleted = springDB.localTx { commentDao.deleteComment(commentId) }
-    assertTrue("Should delete existing comment", deleted)
+    val deleted = springDB.localTx {
+      commentDao.deleteComment(commentId)
+    }
+    assert(deleted, "Should delete existing comment")
 
     val comment = commentDao.getById(commentId)
-    assertTrue("Comment should be marked as deleted", comment.deleted)
+    assert(comment.deleted, "Comment should be marked as deleted")
 
-    val deletedAgain = springDB.localTx { commentDao.deleteComment(commentId) }
-    assertFalse("Should not delete already-deleted comment", deletedAgain)
+    val deletedAgain = springDB.localTx {
+      commentDao.deleteComment(commentId)
+    }
+    assert(!deletedAgain, "Should not delete already-deleted comment")
 
-  @Test
-  def testUndeleteComment(): Unit =
+  test("undeleteComment"):
     val commentId = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     insertComment(commentId, None, "to be undeleted", "body")
@@ -129,15 +126,14 @@ class CommentDaoIntegrationTest:
       sql"UPDATE comments SET deleted='t' WHERE id = $commentId".update.apply()
 
     val comment = commentDao.getById(commentId)
-    assertTrue("Comment should be deleted", comment.deleted)
+    assert(comment.deleted, "Comment should be deleted")
 
     springDB.localTx:
       commentDao.undeleteComment(comment)
     val restored = commentDao.getById(commentId)
-    assertFalse("Comment should be restored", restored.deleted)
+    assert(!restored.deleted, "Comment should be restored")
 
-  @Test
-  def testGetRepliesCount(): Unit =
+  test("getRepliesCount"):
     val parentId = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     val childId = springDB.run:
@@ -145,11 +141,10 @@ class CommentDaoIntegrationTest:
     insertComment(parentId, None, "parent comment", "body")
     insertComment(childId, Some(parentId), "child comment", "body")
 
-    assertEquals(1, commentDao.getRepliesCount(parentId))
-    assertEquals(0, commentDao.getRepliesCount(childId))
+    assertEquals(commentDao.getRepliesCount(parentId), 1)
+    assertEquals(commentDao.getRepliesCount(childId), 0)
 
-  @Test
-  def testUpdateStatsAfterDelete(): Unit =
+  test("updateStatsAfterDelete"):
     val commentId = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     insertComment(commentId, None, "stats test", "body")
@@ -161,7 +156,9 @@ class CommentDaoIntegrationTest:
         .apply()
         .get
 
-    springDB.localTx { commentDao.updateStatsAfterDelete(commentId, 1) }
+    springDB.localTx {
+      commentDao.updateStatsAfterDelete(commentId, 1)
+    }
 
     val statAfter = springDB.run:
       sql"SELECT stat1, stat3 FROM topics WHERE id = $topicId"
@@ -170,53 +167,52 @@ class CommentDaoIntegrationTest:
         .apply()
         .get
 
-    assertEquals(statBefore._1 - 1, statAfter._1)
+    assertEquals(statAfter._1, statBefore._1 - 1)
 
-  @Test
-  def testChangeTitle(): Unit =
+  test("changeTitle"):
     val commentId = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     insertComment(commentId, None, "original title", "body")
 
     val oldComment = commentDao.getById(commentId)
-    assertEquals("original title", oldComment.title)
+    assertEquals(oldComment.title, "original title")
 
-    springDB.localTx { commentDao.changeTitle(oldComment, "new title") }
+    springDB.localTx {
+      commentDao.changeTitle(oldComment, "new title")
+    }
 
     val updated = commentDao.getById(commentId)
-    assertEquals("new title", updated.title)
+    assertEquals(updated.title, "new title")
 
-  @Test
-  def testUpdateLatestEditorInfo(): Unit =
+  test("updateLatestEditorInfo"):
     val commentId = springDB.run:
       sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     insertComment(commentId, None, "editor test", "body")
 
     val editDate = new java.sql.Timestamp(System.currentTimeMillis())
-    springDB.localTx { commentDao.updateLatestEditorInfo(commentId, testUserId, editDate, 5) }
+    springDB.localTx {
+      commentDao.updateLatestEditorInfo(commentId, testUserId, editDate, 5)
+    }
 
     val comment = commentDao.getById(commentId)
-    assertEquals(testUserId, comment.editorId)
-    assertEquals(5, comment.editCount)
+    assertEquals(comment.editorId, testUserId)
+    assertEquals(comment.editCount, 5)
 
-  @Test
-  def testGetCommentsByIPAddressForUpdate(): Unit =
+  test("getCommentsByIPAddressForUpdate"):
     val ip = "127.0.0.1"
     val timedelta = new java.sql.Timestamp(System.currentTimeMillis() - 86400000)
     val result = springDB.localTx:
       commentDao.getCommentsByIPAddressForUpdate(ip, timedelta)
-    assertNotNull(result)
+    assert(result != null)
 
-  @Test
-  def testGetAllByUserForUpdate(): Unit =
+  test("getAllByUserForUpdate"):
     val user = mock(classOf[User])
     when(user.id).thenReturn(testUserId)
     val result = springDB.localTx:
       commentDao.getAllByUserForUpdate(user)
-    assertNotNull(result)
+    assert(result != null)
 
-  @Test
-  def testGetDeletedCommentsWhenTopicDeletedNotComment(): Unit =
+  test("getDeletedCommentsWhenTopicDeletedNotComment"):
     val groupId = springDB.run:
       sql"SELECT id FROM groups LIMIT 1".map(rs => rs.int("id")).single.apply().get
 
@@ -237,25 +233,21 @@ class CommentDaoIntegrationTest:
       sql"""INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id)
             VALUES ($commentId, $testUserId, 'test comment', CURRENT_TIMESTAMP,
                     ${null: Integer}, 'f', $newTopicId, '127.0.0.1'::inet,
-                    create_user_agent('Integration test User Agent'))"""
-        .update
-        .apply()
+                    create_user_agent('Integration test User Agent'))""".update.apply()
       sql"INSERT INTO msgbase (id, message) VALUES ($commentId, 'test body')".update.apply()
 
     springDB.run:
       sql"UPDATE topics SET deleted='t' WHERE id = $newTopicId".update.apply()
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
-            VALUES ($newTopicId, $testUserId, 'topic reason', CURRENT_TIMESTAMP, -5)"""
-        .update
-        .apply()
+            VALUES ($newTopicId, $testUserId, 'topic reason', CURRENT_TIMESTAMP, -5)""".update.apply()
 
     val result = commentDao.getDeletedComments(testUserId, DeletedCommentsFilterEnum.ALL, 0)
     val item = result.find(_.commentId == commentId)
-    assertTrue("Should find comment deleted with its topic", item.isDefined)
-    assertNull("No reason from comdel when comment not individually deleted", item.get.reason)
-    assertEquals(0, item.get.bonus)
-    assertTrue(item.get.topicDeleted)
-    assertFalse(item.get.deleted)
+    assert(item.isDefined, "Should find comment deleted with its topic")
+    assertEquals(item.get.reason, null, "No reason from comdel when comment not individually deleted")
+    assertEquals(item.get.bonus, 0)
+    assert(item.get.topicDeleted)
+    assert(!item.get.deleted)
 
 end CommentDaoIntegrationTest
 

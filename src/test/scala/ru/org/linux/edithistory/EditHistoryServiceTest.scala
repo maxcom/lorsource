@@ -14,8 +14,7 @@
  */
 package ru.org.linux.edithistory
 
-import org.junit.Assert.*
-import org.junit.Test
+import munit.FunSuite
 import org.mockito.Mockito
 import ru.org.linux.gallery.{Image, ImageDao, ImageService}
 import ru.org.linux.markup.{MarkupType, MessageTextService}
@@ -35,7 +34,7 @@ import java.sql.Timestamp
   * `addedMainImage`/`removedMainImage` (а не в обычные `addedImages`/`removedImages`), и что при отсутствии файла
   * попадают в `*MainMissingImage` плейсхолдеры.
   */
-class EditHistoryServiceTest:
+class EditHistoryServiceTest extends FunSuite:
   private val topicTagService = Mockito.mock(classOf[TopicTagService])
   private val userService = Mockito.mock(classOf[UserService])
   private val textService = Mockito.mock(classOf[MessageTextService])
@@ -107,8 +106,7 @@ class EditHistoryServiceTest:
       Mockito.when(imageService.prepareImage(img, false)).thenReturn(Some(preparedImage(img)))
     }
 
-  @Test
-  def legacyMainImageAddedRoutesToAddedMainImage(): Unit =
+  test("legacyMainImageAddedRoutesToAddedMainImage"):
     val t = topic(100)
     val img = Image(id = 7, topicId = 100, original = "images/7/original.jpg", deleted = false, purged = false)
     stubCommon(t, Seq(img))
@@ -124,17 +122,16 @@ class EditHistoryServiceTest:
 
     val result = service.prepareEditInfo(t)
 
-    assertEquals(2, result.size)
+    assertEquals(result.size, 2)
     val edit = result.head
     // legacy main-image edit must populate addedMainImage, not regular addedImages
-    assertNotNull("addedMainImage must be populated for legacy main-image add", edit.addedMainImage)
-    assertFalse("addedMainImage must be non-empty", edit.addedMainImage.isEmpty)
-    assertNull("addedImages must be null for legacy main-image add", edit.addedImages)
+    assert(edit.addedMainImage != null, "addedMainImage must be populated for legacy main-image add")
+    assert(!edit.addedMainImage.isEmpty, "addedMainImage must be non-empty")
+    assertEquals(edit.addedImages, null, "addedImages must be null for legacy main-image add")
     // missing variant empty (not null) because file (mock) present
-    assertTrue("addedMainMissingImage must be empty when file present", edit.addedMainMissingImage.isEmpty)
+    assert(edit.addedMainMissingImage.isEmpty, "addedMainMissingImage must be empty when file present")
 
-  @Test
-  def legacyMainImageRemovedRoutesToRemovedMainImage(): Unit =
+  test("legacyMainImageRemovedRoutesToRemovedMainImage"):
     val t = topic(101)
     // current images do not contain xId=9
     stubCommon(t, Seq.empty)
@@ -154,15 +151,14 @@ class EditHistoryServiceTest:
 
     val result = service.prepareEditInfo(t)
 
-    assertEquals(2, result.size)
+    assertEquals(result.size, 2)
     val edit = result.head
-    assertNotNull("removedMainImage must be populated for legacy main-image remove", edit.removedMainImage)
-    assertFalse("removedMainImage must be non-empty", edit.removedMainImage.isEmpty)
-    assertNull("removedImages must be null for legacy main-image remove", edit.removedImages)
-    assertTrue("removedMainMissingImage must be empty when file present", edit.removedMainMissingImage.isEmpty)
+    assert(edit.removedMainImage != null, "removedMainImage must be populated for legacy main-image remove")
+    assert(!edit.removedMainImage.isEmpty, "removedMainImage must be non-empty")
+    assertEquals(edit.removedImages, null, "removedImages must be null for legacy main-image remove")
+    assert(edit.removedMainMissingImage.isEmpty, "removedMainMissingImage must be empty when file present")
 
-  @Test
-  def legacyMainImageRemovedPurgedRoutesToRemovedMainMissingImage(): Unit =
+  test("legacyMainImageRemovedPurgedRoutesToRemovedMainMissingImage"):
     val t = topic(102)
     stubCommon(t, Seq.empty)
     val purgedImg = Image(id = 11, topicId = 102, original = "images/11/original.jpg", deleted = true, purged = true)
@@ -182,15 +178,14 @@ class EditHistoryServiceTest:
 
     val result = service.prepareEditInfo(t)
 
-    assertEquals(2, result.size)
+    assertEquals(result.size, 2)
     val edit = result.head
-    assertTrue("removedMainImage must be empty when purged", edit.removedMainImage.isEmpty)
-    assertNotNull("removedMainMissingImage must be populated when purged", edit.removedMainMissingImage)
-    assertFalse("removedMainMissingImage must be non-empty", edit.removedMainMissingImage.isEmpty)
-    assertEquals(Integer.valueOf(11), edit.removedMainMissingImage.get(0).id)
+    assert(edit.removedMainImage.isEmpty, "removedMainImage must be empty when purged")
+    assert(edit.removedMainMissingImage != null, "removedMainMissingImage must be populated when purged")
+    assert(!edit.removedMainMissingImage.isEmpty, "removedMainMissingImage must be non-empty")
+    assertEquals(edit.removedMainMissingImage.get(0).id, 11)
 
-  @Test
-  def oldaddimagesRoutesToRegularBuckets(): Unit =
+  test("oldaddimagesRoutesToRegularBuckets"):
     val t = topic(103)
     val img = Image(id = 20, topicId = 103, original = "images/20/original.jpg", deleted = false, purged = false)
     stubCommon(t, Seq(img))
@@ -211,11 +206,11 @@ class EditHistoryServiceTest:
 
     val result = service.prepareEditInfo(t)
 
-    assertEquals(2, result.size)
+    assertEquals(result.size, 2)
     val edit = result.head
-    assertNotNull("addedImages must be populated for oldaddimages edit", edit.addedImages)
-    assertFalse(edit.addedImages.isEmpty)
-    assertNotNull("removedImages must be populated for oldaddimages edit", edit.removedImages)
-    assertFalse(edit.removedImages.isEmpty)
-    assertNull("addedMainImage must be null for oldaddimages edit", edit.addedMainImage)
-    assertNull("removedMainImage must be null for oldaddimages edit", edit.removedMainImage)
+    assert(edit.addedImages != null, "addedImages must be populated for oldaddimages edit")
+    assert(!edit.addedImages.isEmpty)
+    assert(edit.removedImages != null, "removedImages must be populated for oldaddimages edit")
+    assert(!edit.removedImages.isEmpty)
+    assertEquals(edit.addedMainImage, null, "addedMainImage must be null for oldaddimages edit")
+    assertEquals(edit.removedMainImage, null, "removedMainImage must be null for oldaddimages edit")

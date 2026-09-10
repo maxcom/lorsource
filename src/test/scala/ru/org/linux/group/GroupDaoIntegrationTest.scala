@@ -14,59 +14,52 @@
  */
 package ru.org.linux.group
 
-import org.junit.Assert.*
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{Section, SectionScrollModeEnum}
+import ru.org.linux.test.TransactionalTestSupport
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[GroupDaoIntegrationTestConfiguration])) @Transactional
-class GroupDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[GroupDaoIntegrationTestConfiguration]))
+class GroupDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var groupDao: GroupDao = scala.compiletime.uninitialized
 
-  @Test
-  def testGetGroupById(): Unit =
+  test("getGroupById"):
     val group = groupDao.getGroup(126)
-    assertNotNull(group)
-    assertEquals("General", group.title)
-    assertEquals(126, group.id)
+    assert(group != null)
+    assertEquals(group.title, "General")
+    assertEquals(group.id, 126)
 
-  @Test
-  def testGetGroupByIdNotFound(): Unit = assertThrows(classOf[GroupNotFoundException], () => groupDao.getGroup(99999))
+  test("getGroupByIdNotFound"):
+    intercept[GroupNotFoundException] {
+      groupDao.getGroup(99999)
+    }
 
-  @Test
-  def testGetGroups(): Unit =
+  test("getGroups"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val groups = groupDao.getGroups(section)
-    assertTrue("Should have groups in forum section", groups.nonEmpty)
+    assert(groups.nonEmpty, "Should have groups in forum section")
 
-  @Test
-  def testGetGroupByName(): Unit =
+  test("getGroupByName"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val group = groupDao.getGroup(section, "general")
-    assertNotNull(group)
-    assertEquals("General", group.title)
+    assert(group != null)
+    assertEquals(group.title, "General")
 
-  @Test
-  def testGetGroupOptFound(): Unit =
+  test("getGroupOptFound"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val groupOpt = groupDao.getGroupOpt(section, "general", false)
-    assertTrue("Should find group", groupOpt.isDefined)
-    assertEquals("General", groupOpt.get.title)
+    assert(groupOpt.isDefined, "Should find group")
+    assertEquals(groupOpt.get.title, "General")
 
-  @Test
-  def testGetGroupOptNotFound(): Unit =
+  test("getGroupOptNotFound"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val groupOpt = groupDao.getGroupOpt(section, "nonexistent-group-12345", false)
-    assertTrue("Should not find group", groupOpt.isEmpty)
+    assert(groupOpt.isEmpty, "Should not find group")
 
 end GroupDaoIntegrationTest
 

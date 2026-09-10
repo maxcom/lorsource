@@ -14,8 +14,7 @@
  */
 package ru.org.linux.gallery
 
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import munit.FunSuite
 import org.mockito.Mockito
 import ru.org.linux.edithistory.EditHistoryDao
 import ru.org.linux.scalikejdbc.SpringDB
@@ -24,7 +23,7 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserService
 
 /** Юнит-тесты для [[ImageService]] (выборочно). */
-class ImageServiceTest:
+class ImageServiceTest extends FunSuite:
   private val siteConfig = Mockito.mock(classOf[SiteConfig])
   private val imageDao = Mockito.mock(classOf[ImageDao])
   private val editHistoryDao = Mockito.mock(classOf[EditHistoryDao])
@@ -37,20 +36,18 @@ class ImageServiceTest:
     Mockito.when(siteConfig.getSecureUrl).thenReturn("http://localhost/")
     new ImageService(imageDao, editHistoryDao, topicDao, userService, siteConfig, springDB)
 
-  @Test
-  def prepareImageReturnsNoneForPurged(): Unit =
+  test("prepareImageReturnsNoneForPurged"):
     val service = newService()
     val image = Image(id = 42, topicId = 1, original = "images/42/original.jpg", deleted = true, purged = true)
 
     val prepared = service.prepareImage(image)
 
-    assertTrue("purged image should not be prepared", prepared.isEmpty)
+    assert(prepared.isEmpty, "purged image should not be prepared")
 
-  @Test
-  def prepareImageReturnsNoneForPurgedLazy(): Unit =
+  test("prepareImageReturnsNoneForPurgedLazy"):
     val service = newService()
     val image = Image(id = 43, topicId = 1, original = "images/43/original.jpg", deleted = false, purged = true)
 
     val prepared = service.prepareImage(image, lazyLoad = true)
 
-    assertTrue("purged image should not be prepared (lazy)", prepared.isEmpty)
+    assert(prepared.isEmpty, "purged image should not be prepared (lazy)")

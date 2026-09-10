@@ -14,14 +14,11 @@
  */
 package ru.org.linux.user
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
 
 import java.sql.BatchUpdateException
@@ -30,13 +27,12 @@ object UserEventDaoIntegrationTest:
   private val TestTopicId = 98075
   private val TestUserId = 32670
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
   Array(
     new ContextConfiguration(value = Array("classpath:database.xml")),
     new ContextConfiguration(classes = Array(classOf[UserEventDaoIntegrationTestConfiguration]))
-  )) @Transactional
-class UserEventDaoIntegrationTest:
+  ))
+class UserEventDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var userEventDao: UserEventDao = scala.compiletime.uninitialized
 
@@ -46,8 +42,7 @@ class UserEventDaoIntegrationTest:
   @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
 
-  @Test
-  def testAdd(): Unit =
+  test("add"):
     createSimpleEvent()
 
     val events = userEventDao.getRepliesForUser(
@@ -57,22 +52,22 @@ class UserEventDaoIntegrationTest:
       0,
       UserEventFilterEnum.ALL)
 
-    assertEquals(1, events.size)
+    assertEquals(events.size, 1)
 
-  @Test
-  def testInsertTopicUserNotification(): Unit =
+  test("insertTopicUserNotification"):
     userEventDao.insertTopicNotification(
       UserEventDaoIntegrationTest.TestTopicId,
       Seq(UserEventDaoIntegrationTest.TestUserId))
 
-  @Test(expected = classOf[BatchUpdateException])
-  def testInsertTopicUserNotificationDup(): Unit =
-    userEventDao.insertTopicNotification(
-      UserEventDaoIntegrationTest.TestTopicId,
-      Seq(UserEventDaoIntegrationTest.TestUserId))
-    userEventDao.insertTopicNotification(
-      UserEventDaoIntegrationTest.TestTopicId,
-      Seq(UserEventDaoIntegrationTest.TestUserId))
+  test("insertTopicUserNotificationDup"):
+    intercept[BatchUpdateException] {
+      userEventDao.insertTopicNotification(
+        UserEventDaoIntegrationTest.TestTopicId,
+        Seq(UserEventDaoIntegrationTest.TestUserId))
+      userEventDao.insertTopicNotification(
+        UserEventDaoIntegrationTest.TestTopicId,
+        Seq(UserEventDaoIntegrationTest.TestUserId))
+    }
 
   private def createSimpleEvent(): Unit =
     userEventDao.addEvent(
@@ -84,46 +79,59 @@ class UserEventDaoIntegrationTest:
       message = None
     )
 
-  @Test
-  def testAddRemove(): Unit =
+  test("addRemove"):
     createSimpleEvent()
-    val events = userEventDao.getRepliesForUser(UserEventDaoIntegrationTest.TestUserId, showPrivate = true, 50, 0, UserEventFilterEnum.ALL)
-    assertEquals(1, events.size)
-    springDB.localTx { userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId)) }
+    val events = userEventDao.getRepliesForUser(
+      UserEventDaoIntegrationTest.TestUserId,
+      showPrivate = true,
+      50,
+      0,
+      UserEventFilterEnum.ALL)
+    assertEquals(events.size, 1)
+    springDB.localTx {
+      userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId))
+    }
     val eventsAfterDelete = userEventDao.getRepliesForUser(
       UserEventDaoIntegrationTest.TestUserId,
       showPrivate = true,
       50,
       0,
       UserEventFilterEnum.ALL)
-    assertEquals(0, eventsAfterDelete.size)
+    assertEquals(eventsAfterDelete.size, 0)
 
-  @Test
-  def testRemoveSyntax(): Unit = springDB.localTx { userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId)) }
+  test("removeSyntax"):
+    springDB.localTx {
+      userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId))
+    }
 
-  @Test
-  def testRecalc(): Unit =
+  test("recalc"):
     createSimpleEvent()
-    assertEquals(1, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents)
-    val affected = springDB.localTx { userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId)) }
-    assertEquals(1, affected.size)
-    assertEquals(1, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents)
-    springDB.localTx { userEventDao.recalcEventCount(Seq(UserEventDaoIntegrationTest.TestUserId)) }
-    assertEquals(0, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents)
+    assertEquals(userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents, 1)
+    val affected = springDB.localTx {
+      userEventDao.deleteTopicEvents(Seq(UserEventDaoIntegrationTest.TestTopicId))
+    }
+    assertEquals(affected.size, 1)
+    assertEquals(userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents, 1)
+    springDB.localTx {
+      userEventDao.recalcEventCount(Seq(UserEventDaoIntegrationTest.TestUserId))
+    }
+    assertEquals(userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents, 0)
 
-  @Test
-  def testResetUnreadReactionGroup(): Unit =
-    val topicId =
-      springDB.run {
-        sql"SELECT topic FROM comments WHERE NOT deleted GROUP BY topic HAVING count(*) >= 2 ORDER BY topic LIMIT 1"
-          .map(rs => rs.int("topic")).single.apply().get
-      }
-    val commentIds =
-      springDB.run {
-        sql"SELECT id FROM comments WHERE topic=$topicId AND NOT deleted ORDER BY id LIMIT 2"
-          .map(rs => rs.int("id")).list.apply()
-      }
-    assertEquals(2, commentIds.size)
+  test("resetUnreadReactionGroup"):
+    val topicId = springDB.run {
+      sql"SELECT topic FROM comments WHERE NOT deleted GROUP BY topic HAVING count(*) >= 2 ORDER BY topic LIMIT 1"
+        .map(rs => rs.int("topic"))
+        .single
+        .apply()
+        .get
+    }
+    val commentIds = springDB.run {
+      sql"SELECT id FROM comments WHERE topic=$topicId AND NOT deleted ORDER BY id LIMIT 2"
+        .map(rs => rs.int("id"))
+        .list
+        .apply()
+    }
+    assertEquals(commentIds.size, 2)
 
     val firstCommentId = commentIds.head
     val secondCommentId = commentIds(1)
@@ -161,10 +169,13 @@ class UserEventDaoIntegrationTest:
     )
 
     val insertedEvents = springDB.run {
-      sql"""SELECT id, comment_id, unread FROM user_events WHERE userid=${UserEventDaoIntegrationTest.TestUserId} AND id>${maxEventIdBefore} AND type='REACTION' ORDER BY id"""
-        .map(rs => (rs.int("id"), rs.int("comment_id"), rs.boolean("unread"))).list.apply()
+      sql"""SELECT id, comment_id, unread FROM user_events WHERE userid=${UserEventDaoIntegrationTest
+          .TestUserId} AND id>${maxEventIdBefore} AND type='REACTION' ORDER BY id"""
+        .map(rs => (rs.int("id"), rs.int("comment_id"), rs.boolean("unread")))
+        .list
+        .apply()
     }
-    assertEquals(3, insertedEvents.size)
+    assertEquals(insertedEvents.size, 3)
 
     val firstEventId = insertedEvents.head._1
     val lastEventId = insertedEvents(1)._1
@@ -177,12 +188,18 @@ class UserEventDaoIntegrationTest:
         topicId,
         firstCommentId)
 
-    val unreadFlagsAfterReset = springDB.run {
-      sql"""SELECT id, unread FROM user_events WHERE userid=${UserEventDaoIntegrationTest.TestUserId} AND id>${maxEventIdBefore} AND type='REACTION' ORDER BY id"""
-        .map(rs => rs.int("id") -> rs.boolean("unread")).list.apply()
-    }.toMap
+    val unreadFlagsAfterReset =
+      springDB
+        .run {
+          sql"""SELECT id, unread FROM user_events WHERE userid=${UserEventDaoIntegrationTest
+              .TestUserId} AND id>${maxEventIdBefore} AND type='REACTION' ORDER BY id"""
+            .map(rs => rs.int("id") -> rs.boolean("unread"))
+            .list
+            .apply()
+        }
+        .toMap
 
-    assertEquals(false, unreadFlagsAfterReset(firstEventId))
-    assertEquals(false, unreadFlagsAfterReset(lastEventId))
-    assertEquals(true, unreadFlagsAfterReset(insertedEvents(2)._1))
-    assertEquals(unreadBefore + 1, userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents)
+    assertEquals(unreadFlagsAfterReset(firstEventId), false)
+    assertEquals(unreadFlagsAfterReset(lastEventId), false)
+    assertEquals(unreadFlagsAfterReset(insertedEvents(2)._1), true)
+    assertEquals(userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents, unreadBefore + 1)

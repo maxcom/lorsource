@@ -15,14 +15,12 @@
 
 package ru.org.linux.topic
 
-import org.junit.runner.RunWith
-import org.junit.{Assert, Test}
+import munit.FunSuite
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.auth.{IpBlockDao, PasswordEncoderImpl}
 import ru.org.linux.edithistory.{EditHistoryDao, EditHistoryService}
 import ru.org.linux.gallery.{ImageDao, ImageService}
@@ -33,51 +31,44 @@ import ru.org.linux.poll.PollDao
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
+import ru.org.linux.test.SpringTestSupport
 import ru.org.linux.topic.TopicDaoIntegrationTest.*
 import ru.org.linux.user.*
 import ru.org.linux.util.bbcode.LorCodeService
 
-
-
-@RunWith (classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration (classes = Array (classOf[TopicDaoIntegrationTestConfiguration] ) )
-class TopicDaoIntegrationTest {
+@ContextConfiguration(classes = Array(classOf[TopicDaoIntegrationTestConfiguration]))
+class TopicDaoIntegrationTest extends FunSuite with SpringTestSupport:
   @Autowired
   var topicDao: TopicDao = scala.compiletime.uninitialized
 
   @Autowired
   var sectionService: SectionService = scala.compiletime.uninitialized
 
-  @Test
-  def testLoadTopic(): Unit = {
+  test("loadTopic"):
     val topic = topicDao.getById(TestTopic)
 
-    Assert.assertNotNull(topic)
-    Assert.assertEquals(TestTopic, topic.id)
-  }
+    assert(topic != null)
+    assertEquals(topic.id, TestTopic)
 
-  @Test
-  def testNextPrev():Unit = {
+  test("nextPrev"):
     val topic = topicDao.getById(TestTopic)
     val scrollMode = sectionService.getScrollMode(topic.sectionId)
 
     val nextTopic = topicDao.getNextMessage(topic, null, scrollMode)
     val prevTopic = topicDao.getPreviousMessage(topic, null, scrollMode)
 
-    Assert.assertTrue(nextTopic.isDefined)
-    Assert.assertTrue(prevTopic.isDefined)
-    Assert.assertNotSame(topic.id, nextTopic.get.id)
-    Assert.assertNotSame(topic.id, prevTopic.get.id)
-  }
-}
+    assert(nextTopic.isDefined)
+    assert(prevTopic.isDefined)
+    assert(topic.id != nextTopic.get.id)
+    assert(topic.id != prevTopic.get.id)
 
-object TopicDaoIntegrationTest {
+end TopicDaoIntegrationTest
+
+object TopicDaoIntegrationTest:
   val TestTopic = 1937347
-}
 
-@Configuration
-@ImportResource (Array ("classpath:database.xml", "classpath:common.xml") )
-class TopicDaoIntegrationTestConfiguration {
+@Configuration @ImportResource(Array("classpath:database.xml", "classpath:common.xml"))
+class TopicDaoIntegrationTestConfiguration:
   @Bean
   def passwordEncoder: PasswordEncoder = new PasswordEncoderImpl
 
@@ -92,7 +83,7 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def sectionDao(springDB: SpringDB) = new SectionDaoImpl(springDB)
-  
+
   @Bean
   def topicDao(springDB: SpringDB) = new TopicDao(springDB)
 
@@ -118,12 +109,27 @@ class TopicDaoIntegrationTestConfiguration {
   def profileDao(springDB: SpringDB) = new ProfileDao(springDB)
 
   @Bean
-  def userService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
-                   springDB: SpringDB, profileDao: ProfileDao, passwordEncoder: PasswordEncoder) =
-    new UserService(siteConfig = siteConfig, userDao = userDao, ignoreListDao = ignoreListDao,
-      userInvitesDao = userInvitesDao, userLogDao = userLogDao, userAgentDao = userAgentDao, profileDao = profileDao,
-      springDB = springDB, passwordEncoder = passwordEncoder)
+  def userService(
+      siteConfig: SiteConfig,
+      userDao: UserDao,
+      ignoreListDao: IgnoreListDao,
+      userInvitesDao: UserInvitesDao,
+      userLogDao: UserLogDao,
+      userAgentDao: UserAgentDao,
+      springDB: SpringDB,
+      profileDao: ProfileDao,
+      passwordEncoder: PasswordEncoder) =
+    new UserService(
+      siteConfig = siteConfig,
+      userDao = userDao,
+      ignoreListDao = ignoreListDao,
+      userInvitesDao = userInvitesDao,
+      userLogDao = userLogDao,
+      userAgentDao = userAgentDao,
+      profileDao = profileDao,
+      springDB = springDB,
+      passwordEncoder = passwordEncoder
+    )
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])
@@ -154,4 +160,3 @@ class TopicDaoIntegrationTestConfiguration {
 
   @Bean
   def pollDao = Mockito.mock(classOf[PollDao])
-}

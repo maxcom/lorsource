@@ -14,28 +14,34 @@
  */
 package ru.org.linux.comment
 
-import org.junit.Assert.assertThrows
-import org.junit.Test
+import munit.FunSuite
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, never, times, verify, when}
 import ru.org.linux.spring.SiteConfig
 
 /** Юнит-тесты для [[DeletedCommentCleaner]] на моках DAO и SiteConfig. */
-class DeletedCommentCleanerTest:
-  private val siteConfig = mock(classOf[SiteConfig])
-  private val commentDao = mock(classOf[CommentDao])
-  private val cleaner = DeletedCommentCleaner(siteConfig, commentDao)
+class DeletedCommentCleanerTest extends FunSuite:
+  // В JUnit на каждый тест создавался новый экземпляр с свежими моками; в munit экземпляр один,
+  // поэтому моки и cleaner пересоздаются перед каждым тестом (иначе verify(..., times(...)) видел бы
+  // вызовы из предыдущих тестов)
+  private var siteConfig: SiteConfig = scala.compiletime.uninitialized
+  private var commentDao: CommentDao = scala.compiletime.uninitialized
+  private var cleaner: DeletedCommentCleaner = scala.compiletime.uninitialized
 
-  @Test
-  def noCandidatesDoesNothing(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
+    siteConfig = mock(classOf[SiteConfig])
+    commentDao = mock(classOf[CommentDao])
+    cleaner = DeletedCommentCleaner(siteConfig, commentDao)
+
+  test("noCandidatesDoesNothing"):
     when(commentDao.getDeletableDeletedCommentIds).thenReturn(Seq.empty[Int])
 
     cleaner.cleanDeletedComments()
 
     verify(commentDao, never()).purgeDeletedComments(any(classOf[Seq[Int]]))
 
-  @Test
-  def flagOffDoesNotDelete(): Unit =
+  test("flagOffDoesNotDelete"):
     when(commentDao.getDeletableDeletedCommentIds).thenReturn(Seq(1, 2, 3))
     when(siteConfig.cleanOldDeletedComments).thenReturn(false)
 
@@ -43,8 +49,7 @@ class DeletedCommentCleanerTest:
 
     verify(commentDao, never()).purgeDeletedComments(any(classOf[Seq[Int]]))
 
-  @Test
-  def flagOnDeletesCandidates(): Unit =
+  test("flagOnDeletesCandidates"):
     when(commentDao.getDeletableDeletedCommentIds).thenReturn(Seq(1, 2, 3))
     when(siteConfig.cleanOldDeletedComments).thenReturn(true)
     when(commentDao.purgeDeletedComments(Seq(1, 2, 3))).thenReturn(3)
@@ -53,8 +58,7 @@ class DeletedCommentCleanerTest:
 
     verify(commentDao).purgeDeletedComments(Seq(1, 2, 3))
 
-  @Test
-  def flagOnDeletesInBatches(): Unit =
+  test("flagOnDeletesInBatches"):
     val ids = (1 to DeletedCommentCleaner.BatchSize * 3).toSeq
     when(commentDao.getDeletableDeletedCommentIds).thenReturn(ids)
     when(siteConfig.cleanOldDeletedComments).thenReturn(true)
@@ -67,10 +71,11 @@ class DeletedCommentCleanerTest:
     verify(commentDao).purgeDeletedComments(
       (DeletedCommentCleaner.BatchSize + 1 to DeletedCommentCleaner.BatchSize * 2).toSeq)
 
-  @Test
-  def purgeFailurePropagates(): Unit =
+  test("purgeFailurePropagates"):
     when(commentDao.getDeletableDeletedCommentIds).thenReturn(Seq(1, 2, 3))
     when(siteConfig.cleanOldDeletedComments).thenReturn(true)
     when(commentDao.purgeDeletedComments(Seq(1, 2, 3))).thenThrow(new RuntimeException("batch failed"))
 
-    assertThrows(classOf[RuntimeException], () => cleaner.cleanDeletedComments())
+    intercept[RuntimeException] {
+      cleaner.cleanDeletedComments()
+    }

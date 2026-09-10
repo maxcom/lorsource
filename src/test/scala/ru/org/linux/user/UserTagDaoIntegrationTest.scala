@@ -14,24 +14,20 @@
  */
 package ru.org.linux.user
 
-import org.junit.Assert.assertEquals
-import org.junit.runner.RunWith
-import org.junit.{Before, Test}
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
 
 object UserTagDaoIntegrationTest
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
   Array(
     new ContextConfiguration(value = Array("classpath:database.xml")),
-    new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration])))) @Transactional
-class UserTagDaoIntegrationTest:
+    new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
+class UserTagDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var userTagDao: UserTagDao = scala.compiletime.uninitialized
 
@@ -77,8 +73,8 @@ class UserTagDaoIntegrationTest:
     springDB.run:
       sql"SELECT count(user_id) FROM user_tags WHERE tag_id=$tagId".map(rs => rs.int(1)).single.apply().get
 
-  @Before
-  def prepareTestData(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
     user1Id = createUser("UserTagDaoIntegrationTest_user1")
     user2Id = createUser("UserTagDaoIntegrationTest_user2")
 
@@ -89,7 +85,7 @@ class UserTagDaoIntegrationTest:
     tag5Id = createTag("UserTagDaoIntegrationTest_tag5")
 
   private def prepareUserTags(): Unit =
-    springDB.localTx: 
+    springDB.localTx:
       userTagDao.addTag(user1Id, tag1Id, true)
       userTagDao.addTag(user2Id, tag1Id, true)
       userTagDao.addTag(user1Id, tag2Id, true)
@@ -103,74 +99,86 @@ class UserTagDaoIntegrationTest:
       userTagDao.addTag(user2Id, tag5Id, true)
       userTagDao.addTag(user1Id, tag5Id, true)
 
-  @Test
-  def addTest(): Unit =
+  test("addTest"):
     prepareUserTags()
 
-    springDB.localTx { userTagDao.addTag(user1Id, tag1Id, false) }
+    springDB.localTx {
+      userTagDao.addTag(user1Id, tag1Id, false)
+    }
 
-    assertEquals("Wrong count of user tags.", 5, countFavoriteByUser(user1Id))
-    assertEquals("Wrong count of user tags.", 3, countIgnoreByUser(user1Id))
-    assertEquals("Wrong count of user tags.", 5, countFavoriteByUser(user2Id))
-    assertEquals("Wrong count of user tags.", 0, countIgnoreByUser(user2Id))
-    assertEquals("Wrong count of user tags.", 3, countByTagId(tag1Id))
+    assertEquals(countFavoriteByUser(user1Id), 5, "Wrong count of user tags.")
+    assertEquals(countIgnoreByUser(user1Id), 3, "Wrong count of user tags.")
+    assertEquals(countFavoriteByUser(user2Id), 5, "Wrong count of user tags.")
+    assertEquals(countIgnoreByUser(user2Id), 0, "Wrong count of user tags.")
+    assertEquals(countByTagId(tag1Id), 3, "Wrong count of user tags.")
 
-  @Test
-  def deleteOneTest(): Unit =
+  test("deleteOneTest"):
     prepareUserTags()
 
-    springDB.localTx { userTagDao.deleteTag(user1Id, tag1Id, true) }
-    springDB.localTx { userTagDao.deleteTag(user1Id, tag2Id, true) }
+    springDB.localTx {
+      userTagDao.deleteTag(user1Id, tag1Id, true)
+    }
+    springDB.localTx {
+      userTagDao.deleteTag(user1Id, tag2Id, true)
+    }
 
-    assertEquals("Wrong count of user tags.", 3, countFavoriteByUser(user1Id))
+    assertEquals(countFavoriteByUser(user1Id), 3, "Wrong count of user tags.")
 
-    springDB.localTx { userTagDao.deleteTag(user1Id, tag2Id, false) }
+    springDB.localTx {
+      userTagDao.deleteTag(user1Id, tag2Id, false)
+    }
 
-    assertEquals("Wrong count of user tags.", 3, countFavoriteByUser(user1Id))
-    assertEquals("Wrong count of user tags.", 1, countIgnoreByUser(user1Id))
+    assertEquals(countFavoriteByUser(user1Id), 3, "Wrong count of user tags.")
+    assertEquals(countIgnoreByUser(user1Id), 1, "Wrong count of user tags.")
 
-  @Test
-  def deleteAllTest(): Unit =
+  test("deleteAllTest"):
     prepareUserTags()
 
-    springDB.localTx { userTagDao.deleteTags(tag2Id) }
+    springDB.localTx {
+      userTagDao.deleteTags(tag2Id)
+    }
 
-    assertEquals("Wrong count of user tags.", 4, countFavoriteByUser(user1Id))
-    assertEquals("Wrong count of user tags.", 1, countIgnoreByUser(user1Id))
-    assertEquals("Wrong count of user tags.", 4, countFavoriteByUser(user2Id))
+    assertEquals(countFavoriteByUser(user1Id), 4, "Wrong count of user tags.")
+    assertEquals(countIgnoreByUser(user1Id), 1, "Wrong count of user tags.")
+    assertEquals(countFavoriteByUser(user2Id), 4, "Wrong count of user tags.")
 
-  @Test
-  def getTest(): Unit =
+  test("getTest"):
     prepareUserTags()
 
     var tags = userTagDao.getTags(user1Id, true)
-    assertEquals("Wrong count of user tags.", 5, tags.size)
+    assertEquals(tags.size, 5, "Wrong count of user tags.")
 
     tags = userTagDao.getTags(user1Id, false)
-    assertEquals("Wrong count of user tags.", 2, tags.size)
+    assertEquals(tags.size, 2, "Wrong count of user tags.")
 
-  @Test
-  def getUserIdListByTagsTest(): Unit =
+  test("getUserIdListByTagsTest"):
     prepareUserTags()
     var userIdList = userTagDao.getUserIdListByTags(user1Id, Seq(tag1Id))
-    assertEquals("Wrong count of user ID's.", 1, userIdList.size)
+    assertEquals(userIdList.size, 1, "Wrong count of user ID's.")
 
     userIdList = userTagDao.getUserIdListByTags(user1Id, Seq(tag1Id, tag2Id))
-    assertEquals("Wrong count of user ID's.", 1, userIdList.size)
+    assertEquals(userIdList.size, 1, "Wrong count of user ID's.")
 
-    springDB.localTx { userTagDao.deleteTag(user1Id, tag5Id, true) }
+    springDB.localTx {
+      userTagDao.deleteTag(user1Id, tag5Id, true)
+    }
     userIdList = userTagDao.getUserIdListByTags(user1Id, Seq(tag5Id))
-    assertEquals("Wrong count of user ID's.", 1, userIdList.size)
+    assertEquals(userIdList.size, 1, "Wrong count of user ID's.")
 
-  @Test
-  def replaceTagTest(): Unit =
+  test("replaceTagTest"):
     prepareUserTags()
 
-    springDB.localTx { userTagDao.replaceTag(tag2Id, tag1Id) }
-    assertEquals("Wrong count of user tags.", 2, countByTagId(tag1Id))
+    springDB.localTx {
+      userTagDao.replaceTag(tag2Id, tag1Id)
+    }
+    assertEquals(countByTagId(tag1Id), 2, "Wrong count of user tags.")
 
-    springDB.localTx { userTagDao.deleteTags(tag1Id) }
-    springDB.localTx { userTagDao.replaceTag(tag2Id, tag1Id) }
-    assertEquals("Wrong count of user tags.", 3, countByTagId(tag1Id))
+    springDB.localTx {
+      userTagDao.deleteTags(tag1Id)
+    }
+    springDB.localTx {
+      userTagDao.replaceTag(tag2Id, tag1Id)
+    }
+    assertEquals(countByTagId(tag1Id), 3, "Wrong count of user tags.")
 
 end UserTagDaoIntegrationTest

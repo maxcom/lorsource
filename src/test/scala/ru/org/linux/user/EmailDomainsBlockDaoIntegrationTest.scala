@@ -14,15 +14,12 @@
  */
 package ru.org.linux.user
 
-import org.junit.Assert.*
-import org.junit.{After, Before, Test}
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
 
 object EmailDomainsBlockDaoIntegrationTest:
@@ -30,9 +27,8 @@ object EmailDomainsBlockDaoIntegrationTest:
   private val AutoDomain = "auto-example-test.example"
   private val ModeratorId = 2
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[EmailDomainsBlockDaoIntegrationTestConfiguration])) @Transactional
-class EmailDomainsBlockDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[EmailDomainsBlockDaoIntegrationTestConfiguration]))
+class EmailDomainsBlockDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var dao: EmailDomainsBlockDao = scala.compiletime.uninitialized
@@ -40,36 +36,41 @@ class EmailDomainsBlockDaoIntegrationTest:
   @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
 
-  @Before @After
-  def cleanup(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
+    cleanup()
+
+  override def afterEach(context: AfterEach): Unit =
+    cleanup()
+    super.afterEach(context)
+
+  private def cleanup(): Unit =
     springDB.run:
       sql"delete from email_domains_block where domain in (${EmailDomainsBlockDaoIntegrationTest
           .ManualDomain}, ${EmailDomainsBlockDaoIntegrationTest.AutoDomain})".update.apply()
 
-  @Test
-  def testIsBlockedEmpty(): Unit = assertFalse(dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.ManualDomain))
+  test("isBlockedEmpty"):
+    assert(!dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.ManualDomain))
 
-  @Test
-  def testManualBlock(): Unit =
+  test("manualBlock"):
     val until = java.time.OffsetDateTime.now.plusYears(3)
     dao.blockDomainManual(
       EmailDomainsBlockDaoIntegrationTest.ManualDomain,
       until,
       EmailDomainsBlockDaoIntegrationTest.ModeratorId)
 
-    assertTrue(dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.ManualDomain))
+    assert(dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.ManualDomain))
 
     val blocks = dao.getManualDomains(0, 50)
     val block = blocks.find(_.domain == EmailDomainsBlockDaoIntegrationTest.ManualDomain)
-    assertTrue("Manual block should be in list", block.isDefined)
-    assertFalse("Manual block should have auto=false", block.get.auto)
+    assert(block.isDefined, "Manual block should be in list")
+    assert(!block.get.auto, "Manual block should have auto=false")
     assertEquals(
-      "Manual block should have moderator",
+      block.get.moderatorId,
       Some(EmailDomainsBlockDaoIntegrationTest.ModeratorId),
-      block.get.moderatorId)
+      "Manual block should have moderator")
 
-  @Test
-  def testManualBlockExtends(): Unit =
+  test("manualBlockExtends"):
     dao.blockDomainManual(
       EmailDomainsBlockDaoIntegrationTest.ManualDomain,
       java.time.OffsetDateTime.now.plusDays(10),
@@ -84,11 +85,10 @@ class EmailDomainsBlockDaoIntegrationTest:
     val secondUntil =
       dao.getManualDomains(0, 50).find(_.domain == EmailDomainsBlockDaoIntegrationTest.ManualDomain).get.blockUntil
 
-    assertTrue("Block should be extended", secondUntil.isAfter(firstUntil))
-    assertEquals(1L, dao.manualCount)
+    assert(secondUntil.isAfter(firstUntil), "Block should be extended")
+    assertEquals(dao.manualCount, 1L)
 
-  @Test
-  def testAutoDoesNotOverrideManual(): Unit =
+  test("autoDoesNotOverrideManual"):
     dao.blockDomainManual(
       EmailDomainsBlockDaoIntegrationTest.ManualDomain,
       java.time.OffsetDateTime.now.plusYears(3),
@@ -100,25 +100,23 @@ class EmailDomainsBlockDaoIntegrationTest:
 
     val after = dao.getManualDomains(0, 50).find(_.domain == EmailDomainsBlockDaoIntegrationTest.ManualDomain).get
 
-    assertFalse("After auto-update block should still be manual", after.auto)
+    assert(!after.auto, "After auto-update block should still be manual")
     assertEquals(
-      "Moderator should be preserved",
+      after.moderatorId,
       Some(EmailDomainsBlockDaoIntegrationTest.ModeratorId),
-      after.moderatorId)
-    assertEquals("block_until should not change", before.blockUntil, after.blockUntil)
+      "Moderator should be preserved")
+    assertEquals(after.blockUntil, before.blockUntil, "block_until should not change")
 
-  @Test
-  def testAutoBlockDoesNotAppearInManualList(): Unit =
+  test("autoBlockDoesNotAppearInManualList"):
     dao.blockDomains(Seq(EmailDomainsBlockDaoIntegrationTest.AutoDomain), java.time.OffsetDateTime.now.plusDays(7))
 
-    assertTrue(dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.AutoDomain))
+    assert(dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.AutoDomain))
     val blocks = dao.getManualDomains(0, 50)
-    assertTrue(
-      "Auto block should not appear in manual list",
-      blocks.forall(_.domain != EmailDomainsBlockDaoIntegrationTest.AutoDomain))
+    assert(
+      blocks.forall(_.domain != EmailDomainsBlockDaoIntegrationTest.AutoDomain),
+      "Auto block should not appear in manual list")
 
-  @Test
-  def testManualOverridesAuto(): Unit =
+  test("manualOverridesAuto"):
     dao.blockDomains(Seq(EmailDomainsBlockDaoIntegrationTest.AutoDomain), java.time.OffsetDateTime.now.plusDays(7))
 
     dao.blockDomainManual(
@@ -127,12 +125,10 @@ class EmailDomainsBlockDaoIntegrationTest:
       EmailDomainsBlockDaoIntegrationTest.ModeratorId)
 
     val block = dao.getManualDomains(0, 50).find(_.domain == EmailDomainsBlockDaoIntegrationTest.AutoDomain).get
-    assertFalse("After manual override block should be manual", block.auto)
+    assert(!block.auto, "After manual override block should be manual")
 
-  @Test
-  def testAutoBlockBlockedAtIsCreationTime(): Unit =
-    val blockUntil = java.time.OffsetDateTime.now.plusDays(7)
-      .truncatedTo(java.time.temporal.ChronoUnit.MICROS)
+  test("autoBlockBlockedAtIsCreationTime"):
+    val blockUntil = java.time.OffsetDateTime.now.plusDays(7).truncatedTo(java.time.temporal.ChronoUnit.MICROS)
     val beforeInsert = java.time.OffsetDateTime.now
 
     dao.blockDomains(Seq(EmailDomainsBlockDaoIntegrationTest.AutoDomain), blockUntil)
@@ -145,19 +141,18 @@ class EmailDomainsBlockDaoIntegrationTest:
         .apply()
         .get
 
-    assertTrue("blocked_at should be the creation time, not the expiry", row._1.isBefore(blockUntil))
-    assertTrue("blocked_at should be at or after the insert moment", !row._1.isBefore(beforeInsert.minusSeconds(2)))
-    assertEquals("block_until should match the requested expiry", blockUntil, row._2)
+    assert(row._1.isBefore(blockUntil), "blocked_at should be the creation time, not the expiry")
+    assert(!row._1.isBefore(beforeInsert.minusSeconds(2)), "blocked_at should be at or after the insert moment")
+    assertEquals(row._2, blockUntil, "block_until should match the requested expiry")
 
-  @Test
-  def testUnblock(): Unit =
+  test("unblock"):
     dao.blockDomainManual(
       EmailDomainsBlockDaoIntegrationTest.ManualDomain,
       java.time.OffsetDateTime.now.plusYears(3),
       EmailDomainsBlockDaoIntegrationTest.ModeratorId)
 
     dao.unblockDomain(EmailDomainsBlockDaoIntegrationTest.ManualDomain)
-    assertFalse(dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.ManualDomain))
+    assert(!dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.ManualDomain))
 
 end EmailDomainsBlockDaoIntegrationTest
 

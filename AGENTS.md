@@ -2,218 +2,174 @@
 
 ## Project Overview
 
-This is a Java 21 + Scala 3 web application (WAR) for Linux.org.ru. It uses Maven for build,
-Spring Framework, and includes both unit and integration tests.
+Java 25 + Scala 3.9 web application (WAR) for Linux.org.ru. Mixed-language codebase: most code is Scala
+(`src/main/scala`), some Java (`src/main/java`), JSP views (`src/main/webapp/WEB-INF/jsp`). All tests are Scala.
 
-Project uses PostgreSQL 16 database, Opensearch 3.x for full text seach and analytics. It contains embedded
-ActiveMQ.
+Stack: Maven (≥3.9.13, enforcer-checked; `./mvnw` wrapper available), Spring Framework 6.x + Spring Security 6.x,
+ScalikeJDBC 4.x, PostgreSQL 16, OpenSearch 3.x (client `opensearch-java`), embedded ActiveMQ, Apache Pekko for async,
+Log4j2.
+
+**Important:** Spring beans are wired via XML in `src/main/webapp/WEB-INF/` (`applicationContext.xml`,
+`springapp-servlet.xml`, `springapp-security.xml`) plus Scala config classes (`SpringSecurityConfiguration.scala`,
+`PekkoConfiguration.scala`, ...). Do not assume annotation-only wiring.
 
 ## Build Commands
 
-### Building the Project
 ```bash
-mvn package -DskipTests    # Build WAR without running tests
+mvn package -DskipTests    # Build WAR (exploded, in target/lor-1.0-SNAPSHOT/) without tests
 mvn compile               # Compile main sources only
 mvn test-compile          # Compile main and test sources
 ```
 
 ### Running Tests
 
-**Run all unit tests only (no integration tests):**
+Test selection by class name suffix (all tests are MUnit `FunSuite` classes in `src/test/scala`):
+- `*Test` → unit tests, run by Surefire (`mvn test`; parallel classes, 2 threads/core)
+- `*IntegrationTest`, `*WebTest` → integration tests, run by Failsafe (`mvn integration-test` / `mvn verify`)
+
+**Run all unit tests:**
 ```bash
 mvn test
 ```
 
-**Run a single test class:**
+**Run a single test class / method:**
 ```bash
-mvn test -Dtest=StringUtilTest
-mvn test -Dtest=ru.org.linux.util.StringUtilTest
-```
-
-**Run a single test method:**
-```bash
+mvn test -Dtest=TopicControllerIntegrationTest
+mvn test -Dtest=ru.org.linux.topic.TopicControllerIntegrationTest
 mvn test -Dtest=StringUtilTest#processTitle
 ```
 
-**Run integration tests:**
+**Run integration tests / a single one:**
 ```bash
-mvn integration-test 
-```
-
-**Run a single integration test:**
-```bash
+mvn integration-test
 mvn integration-test -Dit.test=TopicControllerIntegrationTest
 ```
 
-**Run all tests (unit + integration):**
+**Run everything:** `mvn verify`
+
+`mvn verify` lifecycle (all automatic, per pom.xml):
+1. Liquibase `update` (phase `pre-integration-test`)
+2. Jetty starts the built webapp on port 8080 (`pre-integration-test`)
+3. Failsafe runs `*IntegrationTest` (Spring context, DB) and `*WebTest` (HTTP against the live Jetty)
+4. Jetty stops (`post-integration-test`)
+
+### Database & Environment Prerequisites
+
+- Integration tests and the dev server need PostgreSQL with **hostname `postgres` resolvable** — the JDBC URL
+  `jdbc:postgresql://postgres:5432/lor` (user `linuxweb`/`linuxweb`) is hard-coded in `src/test/resources/database.xml`.
+  Devcontainer and CI provide this host; on bare metal add a `postgres` alias (e.g. in `/etc/hosts` → 127.0.0.1).
+- Database `lor` must exist with extensions `hstore` and `fuzzystrmatch`, loaded from `sql/demo.db`, with users
+  `maxcom`, `linuxweb`, `jamwiki` (created by `.devcontainer/init-db.sh`; CI in `.github/workflows/it.yml` mirrors it).
+- Liquibase migrations: add a changeset XML to `sql/updates/` and reference it from `sql/main.xml`; applied by
+  `mvn liquibase:update` (auto-runs before integration tests). Production uses profile `-P production` with
+  `sql/production-liquibase.config`.
+- `src/main/webapp/WEB-INF/config.properties` is **gitignored** (required at runtime). The devcontainer init creates a
+  minimal one; full template: `config.properties.dist` (DB URL, uploads path, Elasticsearch URL, etc.).
+- CI (`.github/workflows/it.yml`): PostgreSQL 16 service container + Temurin JDK 25, runs `mvn verify`.
+
+### Devcontainer (Docker Compose: Maven + PostgreSQL 16 + OpenSearch 3.6)
+
 ```bash
-mvn verify
+devcontainer up                # also runs init-db.sh: creates users, rebuilds DB 'lor' from sql/demo.db,
+                               # runs liquibase:update, creates WEB-INF/config.properties
+devcontainer exec bash         # shell inside the container
+devcontainer exec mvn verify   # run tests
+devcontainer up --workspace-folder . --remove-existing-container   # rebuild from scratch (DB is reset)
 ```
 
-### Run application in development web server
-
-Run in background shell:
+### Development Web Server
 
 ```bash
 mvn -DskipTests package jetty:run-war > server.log 2>&1 &
 ```
 
-**Important:** The development web server must be restarted after any changes to the code.
+Server: http://127.0.0.1:8080/ — **must be restarted after any code change.** Stop with `mvn jetty:stop` (stopPort 9999).
 
-Stop server with:
-
-```bash
-mvn jetty:stop
-```
-
-Server starts at http://127.0.0.1:8080/
-
-All users in test development database has password 'passwd'. Use following users for testing:
-
+All users in the test database have password `passwd`:
 * maxcom: administrator, full permissions
 * svu: moderator
 * edo: user (score >= 50)
 
-### Test/Development Database
+### JavaScript & CSS Build (Maven-only — no Node.js/npm)
 
-Integration tests and development web server uses pre-installed PostgreSQL at `postgresql:///lor`.
+- CSS: `src/main/webapp/sass/*.scss` → `dart-sass-maven-plugin` compiles (COMPRESSED, no BOM), `yuicompressor-maven-plugin`
+  minifies and aggregates per-theme `combined.css` (tango, waltz, black, white2, zomg_ponies, qrerror).
+- JS: `closure-compiler-maven-plugin` merges `src/main/webapp/js/lor/*.js` into `lor.js` and minifies individual files
+  (`add-form.js`, `realtime.js`, ...); WebJar JS libraries are unpacked and concatenated into `plugins.js` by
+  `maven-antrun-plugin` at `compile` phase.
+- The WAR excludes raw source CSS/JS (`warSourceExcludes`) — only processed copies ship.
+- Committed pre-built artifacts: `js/highlight.min.js` (rebuild via `./build-hljs <path-to-highlight.js-checkout>`),
+  `js/script.min.js`.
 
-### JavaScript & CSS Build
+### Ops Scripts (production)
 
-This project uses **Maven-only** frontend tooling — no Node.js, npm, or package.json is required.
+- `./install_www` — full production deploy: `mvn -P production clean package`, production Liquibase, rsync to Tomcat.
+- `deploy/server.xml` — production Tomcat config.
 
-**CSS Pipeline:**
-- Source: `src/main/webapp/sass/*.scss` (Sass source files)
-- `dart-sass-maven-plugin` (phase: `generate-resources`) compiles Sass to CSS in compressed style
-- `yuicompressor-maven-plugin` (phase: `generate-resources`) minifies CSS and aggregates per-theme `combined.css` bundles.
-- `maven-war-plugin` excludes raw source CSS from the final WAR; only minified/aggregated copies are included
+## Code Style
 
-**JS Pipeline:**
-- Custom JS source: `src/main/webapp/js/`
-- `closure-compiler-maven-plugin` (phase: `generate-resources` / `process-resources`):
-  - Merges `js/lor/*.js` into a single `lor.js`
-  - Minifies individual files: `add-form.js`, `lor_view_diff_history.js`, `realtime.js`, `tagsAutocomplete.js`
-  - Minifies individual plugins: `jquery.hotkeys.js`, `pattern.js`
-- `maven-dependency-plugin` (phase: `generate-sources`) unpacks third-party JS libraries from WebJar dependencies
-- `maven-antrun-plugin` (phase: `compile`) concatenates WebJar libraries into `plugins.js`
-- Pre-minified files are copied as-is
-- `maven-war-plugin` excludes raw source JS from the final WAR; only processed copies are included
+- All source files carry the Apache License header (see existing files; `Copyright 1998-2026 Linux.org.ru`)
+- Max line length 120 (Scalafmt, `.scalafmt.conf`); package structure `ru.org.linux.*`
+- Scala compiles with **`-Werror -Wunused:all`** — unused imports/locals/params fail the build
 
-### Other Commands
-```bash
-mvn clean                 # Clean target directory
-mvn dependency:tree      # Show dependency tree
-```
+### Scala (3.9)
 
-## Code Style Guidelines
+- Follow `.scalafmt.conf` (scala3 dialect, new syntax: `rewrite.scala3.convertToNewSyntax`, optional braces removed)
+- Strict logging: `com.typesafe.scalalogging.StrictLogging`
+- `if then` / `if then else` without parens; indentation-based `match`; `end` markers where clarity benefits
+- Prefer `given`/`using`, extension methods, enums over sealed trait ADTs
+- Constants: `UpperCamelCase`
 
-### General
+### Java
 
-- All source files must include the Apache License header (see existing files)
-- Maximum line length: 120 characters (enforced by Scalafmt)
-- Package structure: `ru.org.linux.*`
-
-### Java Conventions
-
-- Use Spring annotations: `@Repository`, `@Service`, `@Controller`, etc.
-- Use `@Nullable` and `@Nonnull` annotations from `javax.annotation` (provided by the `com.google.code.findbugs:jsr305` dependency; do not re-add `javax.annotation-api`, it is not needed)
-- Use Java 17+ features (records, pattern matching) where appropriate
-- Use `Optional` instead of null returns
-- Use constructor injection over field injection
-- Import order: java.*, javax.*, org.*, com.*, ru.*
-
-### Scala Conventions
-
-- Follow `.scalafmt.conf` configuration (version 3.10.7, Scala 3 dialect)
-- Use strict logging: `com.typesafe.scalalogging.StrictLogging`
-- Use Akka/Pekko for async operations
-- Use `if then` / `if then else` instead of `if () {}` / `if () {} else {}`
-- Use `match` with indentation-based syntax instead of curly braces where appropriate
-- Use `end` markers for significant indentation blocks when clarity benefits
-- Prefer `given`/`using` over `implicit`
-- Use `extension` methods instead of implicit classes
-- Prefer enums over sealed trait hierarchies for ADTs
-- Use optional braces (significant indentation) consistently
-
-### Naming Conventions
-
-- Java classes: `CamelCase` (e.g., `UserDao`, `TopicController`)
-- Scala classes/objects: `CamelCase` (e.g., `CommentCreateService`)
-- Methods/fields: `camelCase`
-- Java constants: `UPPER_SNAKE_CASE`
-- Scala constants: `UpperCamelCase`
-- Test classes: `*Test`, `*IntegrationTest`, `*WebTest.scala`
-
-### Error Handling
-
-- Use custom exceptions (e.g., `MessageNotFoundException`, `UserNotFoundException`)
-- Return `Optional<T>` for potentially missing values
-- Use Spring's `@ExceptionHandler` for controller-level error handling
-- Log errors with appropriate levels (error for exceptions, info/debug for flow)
+- `@Nullable`/`@Nonnull` from `javax.annotation` (provided by `com.google.code.findbugs:jsr305`; do **not** re-add
+  `javax.annotation-api`)
+- `Optional` instead of null returns; constructor injection over field injection
+- Spring annotations (`@Repository`, `@Service`, `@Controller`); import order: java.*, javax.*, org.*, com.*, ru.*
 
 ### Testing
 
-- Use JUnit 4/5 for Java unit tests
-- Use MUnit for Scala tests
-- Follow AAA pattern (Arrange/Act/Assert or Given/When/Then)
-- Place test classes in same package under `src/test/java` or `src/test/scala`
-- Integration tests require database
+- MUnit (`munit.FunSuite`) only — JUnit is gone. Suffixes are load-bearing: `*Test`, `*IntegrationTest`, `*WebTest`
+  (see test selection above); same package under `src/test/scala`
+- Spring tests: mix in `SpringTestSupport` (`ru.org.linux.test`); for per-test rolled-back transactions mix in
+  `TransactionalTestSupport` (analog of `@Transactional` + rollback). If a test overrides `beforeEach`/`afterEach`,
+  it **must** call `super` — otherwise the test silently runs without a transaction
+- Transactional test bodies must be synchronous (transaction is bound to the thread via ThreadLocal)
+- Integration tests require the database; OpenSearch tests use Testcontainers (Docker required)
 
 ### Database Access
 
-- Use ScalikeJDBC
-- Connection management and transactions are made by Spring
-- Use `SpringDB.run` to run SQL with auto commit. Use `SpringDB.localTx` for transactions.
-- Repository pattern with `@Repository` annotation
-
-### Dependencies
-
-- Spring Framework 6.x
-- ScalikeJDBC 4.x
-- Spring Security 6.x
-- PostgreSQL JDBC driver
-- OpenSearch 3 via opensearch-java.
-- Pekko for async
+- ScalikeJDBC; connections/transactions managed by Spring
+- `SpringDB.run` — SQL with autocommit; `SpringDB.localTx` — inside a transaction
+- Repository pattern with `@Repository`
 
 ## Project Structure
 
 ```
 src/
 ├── main/
-│   ├── java/ru/org/linux/          # Java sources
-│   ├── scala/ru/org/linux/         # Scala sources
-│   └── webapp/                     # Web application root (Maven WAR)
-│       ├── js/                     # JavaScript source files
-│       │   └── lor/                # Modular JS → merged into lor.js
-│       ├── sass/                   # SASS source files (compiled to CSS)
-│       ├── WEB-INF/                # JSP templates, Spring configs, web.xml
-│       ├── help/                   # Help documentation pages (markdown)
-│       ├── img/                    # Site images
-│       ├── font/                   # Web fonts
-│       ├── black/                  # Theme: Black (ir_black.css + static assets)
-│       ├── tango/                  # Theme: Tango (syntax.css + static assets)
-│       ├── waltz/                  # Theme: Waltz (syntax.css + static assets)
-│       ├── white2/                 # Theme: White2 (idea.css + static assets)
-│       ├── zomg_ponies/            # Theme: ZOMG Ponies (static assets)
-│       └── qrerror/                # Standalone 502 error page for CDN (self-contained, no external references)
+│   ├── java/ru/org/linux/          # Java sources (smaller part)
+│   ├── scala/ru/org/linux/         # Scala sources (most business logic)
+│   └── webapp/                     # webapp root
+│       ├── WEB-INF/                # JSP templates, Spring XML configs, web.xml, config.properties[.dist]
+│       ├── js/                     # JS sources; js/lor/ → merged into lor.js
+│       ├── sass/                   # SASS sources (compiled to per-theme CSS)
+│       ├── help/                   # Help pages (markdown)
+│       ├── black|tango|waltz|white2|zomg_ponies/   # theme assets
+│       └── qrerror/                # standalone 502 page for CDN (self-contained)
 ├── test/
-│   ├── java/ru/org/linux/          # Java test sources
-│   ├── scala/ru/org/linux/         # Scala test sources
-│   └── resources/                  # Test resources (spring configs, etc.)
+│   ├── scala/ru/org/linux/         # ALL tests (MUnit); no src/test/java
+│   └── resources/                  # test Spring configs (common.xml, database.xml), log4j2-test.xml
+sql/                                # liquibase (main.xml, updates/) + demo.db
+.devcontainer/                      # Docker Compose dev environment + init-db.sh
 ```
-
-## IDE Recommendations
-
-- IntelliJ IDEA (has good Scala/Java support)
-- For VS Code: Use Java extension with null analysis mode set to "automatic"
 
 ## Git & Commit Rules
 
 * **Wait for Approval:** Do not commit or push changes without explicit user confirmation.
-* Update copyright year in all modified files to 2026
+* Update the copyright year in all modified files to 2026.
 
 ## To LLM
 
-Update this file if the changes you have done are worth updating here. The intent of this file is to give you 
-a rough idea of the project, from where you can explore further, if needed.
-
+Update this file if the changes you have done are worth updating here. The intent of this file is to give you a rough
+idea of the project, from where you can explore further, if needed.

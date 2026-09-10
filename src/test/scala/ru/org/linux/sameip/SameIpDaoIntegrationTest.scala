@@ -15,29 +15,26 @@
 
 package ru.org.linux.sameip
 
-import org.junit.runner.RunWith
-import org.junit.{Assert, Test}
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
-import org.springframework.transaction.annotation.Transactional
+import ru.org.linux.test.TransactionalTestSupport
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
   Array(
     new ContextConfiguration(value = Array("classpath:database.xml")),
     new ContextConfiguration(classes = Array(classOf[SameIpDaoIntegrationTestConfiguration]))
-  )) @Transactional
-class SameIpDaoIntegrationTest:
+  ))
+class SameIpDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var sameIpDao: SameIpDao = scala.compiletime.uninitialized
 
-  @Test
-  def testGetCommentsNoFilters(): Unit =
+  test("getCommentsNoFilters"):
     val result = sameIpDao.getComments(ip = None, userAgent = None, score = None, limit = 10)
-    Assert.assertNotNull(result)
+    assert(result != null)
 
-  @Test
-  def testGetCommentsWithIpFilter(): Unit =
+  test("getCommentsWithIpFilter"):
     val result = sameIpDao.getComments(ip = Some("127.0.0.1"), userAgent = None, score = None, limit = 10)
-    Assert.assertNotNull(result)
+    assert(result != null)
+
+end SameIpDaoIntegrationTest

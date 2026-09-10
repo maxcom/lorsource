@@ -16,7 +16,6 @@ package ru.org.linux.test
 
 import munit.{BaseFunSuite, FunFixtures}
 import org.jsoup.Jsoup
-import org.junit.Assert
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.section.Section
 import sttp.client4.*
@@ -40,7 +39,7 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
       .followRedirects(false)
       .send(backend)
 
-    Assert.assertEquals(StatusCode.Found, response.code)
+    assertEquals(response.code, StatusCode.Found)
 
     response.unsafeCookies.find(_.name == AuthCookie).map(_.value).orNull
   }
@@ -83,7 +82,7 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
       .post(MainUrl.addPath("delete_comment.jsp"))
       .send(backend)
 
-    Assert.assertTrue(s"Delete comment $commentId failed: ${response.code}", response.code == StatusCode.Ok)
+    assert(response.code == StatusCode.Ok, s"Delete comment $commentId failed: ${response.code}")
   }
 
   def deleteTopic(auth: String, topicId: Int, reason: String = "test cleanup"): Unit = {
@@ -99,7 +98,7 @@ trait WebHelper extends FunFixtures { self: BaseFunSuite =>
       .post(MainUrl.addPath("delete.jsp"))
       .send(backend)
 
-    Assert.assertTrue(s"Delete topic $topicId failed: ${response.code}", response.code == StatusCode.Ok)
+    assert(response.code == StatusCode.Ok, s"Delete topic $topicId failed: ${response.code}")
   }
 
   def authorized(user: String = TestUser, password: String = TestPassword): FunFixture[String] = FunFixture[String](

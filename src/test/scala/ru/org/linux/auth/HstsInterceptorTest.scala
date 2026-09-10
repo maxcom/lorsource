@@ -15,16 +15,14 @@
 
 package ru.org.linux.auth
 
-import org.junit.Assert.{assertEquals, assertNull}
-import org.junit.Test
+import munit.FunSuite
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 import ru.org.linux.spring.SiteConfig
 
 import java.util.Properties
 
-class HstsInterceptorTest:
-  @Test
-  def addsContentSecurityPolicyWithConfiguredOrigins(): Unit =
+class HstsInterceptorTest extends FunSuite:
+  test("addsContentSecurityPolicyWithConfiguredOrigins"):
     val response = new MockHttpServletResponse
 
     interceptor("https://www.linux.org.ru/", Some("wss://www.linux.org.ru:8443/ws"), enableHsts = false).preHandle(
@@ -33,18 +31,17 @@ class HstsInterceptorTest:
       null)
 
     assertEquals(
+      response.getHeader("Content-Security-Policy"),
       "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; " +
         "form-action 'self' https://www.linux.org.ru; manifest-src 'self'; " +
         "script-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
         "style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
         "img-src 'self' data: https://images.ping-admin.ru https://cdn.jsdelivr.net https://secure.gravatar.com; font-src 'self'; " +
         "connect-src 'self' https://hcaptcha.com https://*.hcaptcha.com wss://www.linux.org.ru:8443; " +
-        "frame-src 'self' https://hcaptcha.com https://*.hcaptcha.com",
-      response.getHeader("Content-Security-Policy")
+        "frame-src 'self' https://hcaptcha.com https://*.hcaptcha.com"
     )
 
-  @Test
-  def omitsWebSocketOriginWhenWsUrlIsMissing(): Unit =
+  test("omitsWebSocketOriginWhenWsUrlIsMissing"):
     val response = new MockHttpServletResponse
 
     interceptor("https://www.linux.org.ru/", None, enableHsts = false).preHandle(
@@ -53,18 +50,17 @@ class HstsInterceptorTest:
       null)
 
     assertEquals(
+      response.getHeader("Content-Security-Policy"),
       "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; " +
         "form-action 'self' https://www.linux.org.ru; manifest-src 'self'; " +
         "script-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
         "style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com; " +
         "img-src 'self' data: https://images.ping-admin.ru https://cdn.jsdelivr.net https://secure.gravatar.com; font-src 'self'; " +
         "connect-src 'self' https://hcaptcha.com https://*.hcaptcha.com; " +
-        "frame-src 'self' https://hcaptcha.com https://*.hcaptcha.com",
-      response.getHeader("Content-Security-Policy")
+        "frame-src 'self' https://hcaptcha.com https://*.hcaptcha.com"
     )
 
-  @Test
-  def addsHstsOnlyForSecureRequests(): Unit =
+  test("addsHstsOnlyForSecureRequests"):
     val interceptor = this.interceptor(
       "https://www.linux.org.ru/",
       Some("wss://www.linux.org.ru:8443/ws"),
@@ -75,12 +71,12 @@ class HstsInterceptorTest:
     val secureResponse = new MockHttpServletResponse
     interceptor.preHandle(secureRequest, secureResponse, null)
 
-    assertEquals("max-age=31536000; includeSubDomains", secureResponse.getHeader("Strict-Transport-Security"))
+    assertEquals(secureResponse.getHeader("Strict-Transport-Security"), "max-age=31536000; includeSubDomains")
 
     val insecureResponse = new MockHttpServletResponse
     interceptor.preHandle(new MockHttpServletRequest, insecureResponse, null)
 
-    assertNull(insecureResponse.getHeader("Strict-Transport-Security"))
+    assertEquals(insecureResponse.getHeader("Strict-Transport-Security"), null)
 
   private def interceptor(secureUrl: String, wsUrl: Option[String], enableHsts: Boolean): HstsInterceptor =
     val properties = new Properties()

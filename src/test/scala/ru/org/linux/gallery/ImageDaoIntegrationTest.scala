@@ -15,39 +15,29 @@
 
 package ru.org.linux.gallery
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.ContextHierarchy
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
+import ru.org.linux.test.SpringTestSupport
 
 import java.util.Date
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
   Array(
     new ContextConfiguration(value = Array("classpath:database.xml")),
     new ContextConfiguration(classes = Array(classOf[ImageDaoIntegrationTestConfiguration]))
   ))
-class ImageDaoIntegrationTest:
+class ImageDaoIntegrationTest extends FunSuite with SpringTestSupport:
 
   @Autowired
   var imageDao: ImageDao = scala.compiletime.uninitialized
 
-  @Test
-  def getGalleryItemsTest(): Unit =
+  test("getGalleryItemsTest"):
     val galleryDtoList = imageDao.getGalleryItems(3)
-    assertEquals(3, galleryDtoList.size)
+    assertEquals(galleryDtoList.size, 3)
 
     val commitDates = galleryDtoList.map(_.commitDate)
     val sortedDesc = commitDates.sorted(using Ordering[Date].reverse)
-    assertEquals(
-      "gallery items must be ordered by commitdate DESC",
-      sortedDesc,
-      commitDates)
-
-  end getGalleryItemsTest
+    assertEquals(commitDates, sortedDesc, "gallery items must be ordered by commitdate DESC")
 
 end ImageDaoIntegrationTest

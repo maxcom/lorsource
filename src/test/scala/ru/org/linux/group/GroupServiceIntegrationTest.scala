@@ -14,66 +14,59 @@
  */
 package ru.org.linux.group
 
-import org.junit.Assert.{assertEquals, assertNotNull, assertSame}
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{Section, SectionScrollModeEnum}
+import ru.org.linux.test.SpringTestSupport
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextConfiguration(classes = Array(classOf[GroupServiceIntegrationTestConfiguration]))
-class GroupServiceIntegrationTest:
+class GroupServiceIntegrationTest extends FunSuite with SpringTestSupport:
   @Autowired
   var groupService: GroupService = scala.compiletime.uninitialized
 
-  @Test
-  def testGetGroups(): Unit =
+  test("getGroups"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val groups = groupService.getGroups(section)
-    assertEquals(16, groups.size)
+    assertEquals(groups.size, 16)
 
-  @Test
-  def testGetGroupBySection(): Unit =
+  test("getGroupBySection"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val group = groupService.getGroup(section, "general")
-    assertNotNull(group)
-    assertEquals("General", group.title)
+    assert(group != null)
+    assertEquals(group.title, "General")
 
-  @Test
-  def testGetGroupById(): Unit =
+  test("getGroupById"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val group = groupService.getGroup(section, "general")
     val groupById = groupService.getGroup(group.id)
-    assertNotNull(groupById)
-    assertEquals(group.id, groupById.id)
-    assertEquals(group.title, groupById.title)
+    assert(groupById != null)
+    assertEquals(groupById.id, group.id)
+    assertEquals(groupById.title, group.title)
 
-  @Test
-  def testCachingWorksOnGetGroupById(): Unit =
+  test("cachingWorksOnGetGroupById"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val group = groupService.getGroup(section, "general")
 
     // Вызываем дважды — второй раз должен прийти из кеша (тот же объект)
     val first = groupService.getGroup(group.id)
     val second = groupService.getGroup(group.id)
-    assertSame(first, second)
+    assert(second eq first)
 
-  @Test
-  def testGetGroupOptFound(): Unit =
+  test("getGroupOptFound"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val groupOpt = groupService.getGroupOpt(section, "general", false)
     assert(groupOpt.isDefined)
-    assertEquals("General", groupOpt.get.title)
+    assertEquals(groupOpt.get.title, "General")
 
-  @Test
-  def testGetGroupOptNotFound(): Unit =
+  test("getGroupOptNotFound"):
     val section = new Section("forum", false, false, Section.Forum, false, SectionScrollModeEnum.SECTION, 0, false)
     val groupOpt = groupService.getGroupOpt(section, "nonexistent-group-12345", false)
     assert(groupOpt.isEmpty)
+
+end GroupServiceIntegrationTest
 
 @Configuration @ImportResource(Array("classpath:database.xml", "classpath:common.xml"))
 class GroupServiceIntegrationTestConfiguration:

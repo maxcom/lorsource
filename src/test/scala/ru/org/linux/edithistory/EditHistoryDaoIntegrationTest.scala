@@ -14,20 +14,16 @@
  */
 package ru.org.linux.edithistory
 
-import org.junit.Assert.*
-import org.junit.Test
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.poll.{Poll, PollVariant}
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[EditHistoryDaoIntegrationTestConfiguration])) @Transactional
-class EditHistoryDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[EditHistoryDaoIntegrationTestConfiguration]))
+class EditHistoryDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var editHistoryDao: EditHistoryDao = scala.compiletime.uninitialized
@@ -35,54 +31,53 @@ class EditHistoryDaoIntegrationTest:
   @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
 
-  @Test
-  def testGetEditInfoEmpty(): Unit =
+  test("getEditInfoEmpty"):
     val result = editHistoryDao.getEditInfo(99999, EditHistoryObjectTypeEnum.TOPIC)
-    assertNotNull(result)
-    assertTrue("Should be empty for nonexistent topic", result.isEmpty)
+    assert(result != null)
+    assert(result.isEmpty, "Should be empty for nonexistent topic")
 
-  @Test
-  def testGetBriefEditInfoEmpty(): Unit =
+  test("getBriefEditInfoEmpty"):
     val result = editHistoryDao.getBriefEditInfo(99999, EditHistoryObjectTypeEnum.TOPIC)
-    assertNotNull(result)
-    assertTrue("Should be empty for nonexistent topic", result.isEmpty)
+    assert(result != null)
+    assert(result.isEmpty, "Should be empty for nonexistent topic")
 
-  @Test
-  def testInsertAndGetEditInfo(): Unit =
+  test("insertAndGetEditInfo"):
     val record = EditHistoryRecord(
       msgid = 98075,
       editor = 1,
       objectType = EditHistoryObjectTypeEnum.TOPIC,
       oldmessage = Some("test old message"),
       oldtitle = Some("test old title"))
-    springDB.localTx { editHistoryDao.insert(record) }
+    springDB.localTx {
+      editHistoryDao.insert(record)
+    }
 
     val edits = editHistoryDao.getEditInfo(98075, EditHistoryObjectTypeEnum.TOPIC)
-    assertTrue("Should have at least one edit", edits.nonEmpty)
+    assert(edits.nonEmpty, "Should have at least one edit")
     val edit = edits.head
-    assertEquals(98075, edit.msgid)
-    assertEquals(1, edit.editor)
-    assertEquals(EditHistoryObjectTypeEnum.TOPIC, edit.objectType)
-    assertEquals(Some("test old message"), edit.oldmessage)
-    assertEquals(Some("test old title"), edit.oldtitle)
+    assertEquals(edit.msgid, 98075)
+    assertEquals(edit.editor, 1)
+    assertEquals(edit.objectType, EditHistoryObjectTypeEnum.TOPIC)
+    assertEquals(edit.oldmessage, Some("test old message"))
+    assertEquals(edit.oldtitle, Some("test old title"))
 
-  @Test
-  def testInsertWithNulls(): Unit =
+  test("insertWithNulls"):
     val record = EditHistoryRecord(msgid = 98076, editor = 1, objectType = EditHistoryObjectTypeEnum.COMMENT)
-    springDB.localTx { editHistoryDao.insert(record) }
+    springDB.localTx {
+      editHistoryDao.insert(record)
+    }
 
     val edits = editHistoryDao.getEditInfo(98076, EditHistoryObjectTypeEnum.COMMENT)
-    assertTrue("Should have at least one edit", edits.nonEmpty)
+    assert(edits.nonEmpty, "Should have at least one edit")
     val edit = edits.head
-    assertEquals(None, edit.oldmessage)
-    assertEquals(None, edit.oldtitle)
-    assertEquals(None, edit.oldtags)
-    assertEquals(None, edit.oldlinktext)
-    assertEquals(None, edit.oldurl)
-    assertEquals(None, edit.oldminor)
+    assertEquals(edit.oldmessage, None)
+    assertEquals(edit.oldtitle, None)
+    assertEquals(edit.oldtags, None)
+    assertEquals(edit.oldlinktext, None)
+    assertEquals(edit.oldurl, None)
+    assertEquals(edit.oldminor, None)
 
-  @Test
-  def testInsertWithPollAndAddimages(): Unit =
+  test("insertWithPollAndAddimages"):
     val poll = Poll(
       id = 1,
       topic = 98077,
@@ -96,30 +91,33 @@ class EditHistoryDaoIntegrationTest:
       oldPoll = Some(poll),
       oldaddimages = Some(Seq(100, 200, 300))
     )
-    springDB.localTx { editHistoryDao.insert(record) }
+    springDB.localTx {
+      editHistoryDao.insert(record)
+    }
 
     val edits = editHistoryDao.getEditInfo(98077, EditHistoryObjectTypeEnum.TOPIC)
-    assertTrue("Should have at least one edit", edits.nonEmpty)
+    assert(edits.nonEmpty, "Should have at least one edit")
     val edit = edits.head
-    assertEquals(Some("test with poll"), edit.oldmessage)
-    assertTrue("Should have oldPoll", edit.oldPoll.isDefined)
-    assertEquals(false, edit.oldPoll.get.multiSelect)
-    assertEquals(Some(Seq(100, 200, 300)), edit.oldaddimages)
-    assertEquals(None, edit.legacyMainImage)
+    assertEquals(edit.oldmessage, Some("test with poll"))
+    assert(edit.oldPoll.isDefined, "Should have oldPoll")
+    assertEquals(edit.oldPoll.get.multiSelect, false)
+    assertEquals(edit.oldaddimages, Some(Seq(100, 200, 300)))
+    assertEquals(edit.legacyMainImage, None)
 
-  @Test
-  def testInsertWithTags(): Unit =
+  test("insertWithTags"):
     val record = EditHistoryRecord(
       msgid = 98078,
       editor = 1,
       objectType = EditHistoryObjectTypeEnum.TOPIC,
-      oldtags = Some(Seq("linux", "kernel"))    )
-    springDB.localTx { editHistoryDao.insert(record) }
+      oldtags = Some(Seq("linux", "kernel")))
+    springDB.localTx {
+      editHistoryDao.insert(record)
+    }
 
     val edits = editHistoryDao.getEditInfo(98078, EditHistoryObjectTypeEnum.TOPIC)
-    assertTrue("Should have at least one edit", edits.nonEmpty)
+    assert(edits.nonEmpty, "Should have at least one edit")
     val edit = edits.head
-    assertEquals(Some(Seq("linux", "kernel")), edit.oldtags)
+    assertEquals(edit.oldtags, Some(Seq("linux", "kernel")))
 
 end EditHistoryDaoIntegrationTest
 

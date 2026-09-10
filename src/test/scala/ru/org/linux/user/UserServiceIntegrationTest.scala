@@ -14,74 +14,75 @@
  */
 package ru.org.linux.user
 
-import org.junit.Assert.*
-import org.junit.{After, Before, Test}
-import org.junit.runner.RunWith
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
 
 object UserServiceIntegrationTest:
   private val TestId = 7806
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
 @ContextHierarchy(
   Array(
     new ContextConfiguration(value = Array("classpath:database.xml")),
-    new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration])))) @Transactional
-class UserServiceIntegrationTest:
+    new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
+class UserServiceIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var userService: UserService = scala.compiletime.uninitialized
 
   @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
 
-  @Before @After
-  def fixUser(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
+    fixUser()
+    clearCache()
+
+  override def afterEach(context: AfterEach): Unit =
+    fixUser()
+    super.afterEach(context)
+
+  // бывший @Before @After fixUser(): выполняется и до, и после каждого теста
+  private def fixUser(): Unit =
     springDB.run:
       sql"UPDATE users SET blocked='f' WHERE id=${UserServiceIntegrationTest.TestId}".update.apply()
       sql"DELETE FROM ban_info WHERE userid=${UserServiceIntegrationTest.TestId}".update.apply()
 
-  @Before
-  def clearCache(): Unit = userService.idToUserCache.invalidateAll()
+  // бывший @Before clearCache()
+  private def clearCache(): Unit = userService.idToUserCache.invalidateAll()
 
-  @Test
-  def testUserCached(): Unit =
+  test("userCached"):
     val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
 
     springDB.run:
       sql"UPDATE users SET blocked='t' WHERE id=${UserServiceIntegrationTest.TestId}".update.apply()
 
     val userCached = userService.getUserCached(UserServiceIntegrationTest.TestId)
-    assertFalse(userCached.blocked)
+    assert(!userCached.blocked)
 
     val userNotCached = userService.getUser(user.nick)
-    assertTrue(userNotCached.blocked)
+    assert(userNotCached.blocked)
 
-  @Test
-  def testCachePutOnGet(): Unit =
+  test("cachePutOnGet"):
     userService.idToUserCache.invalidate(UserServiceIntegrationTest.TestId)
 
     val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
-    assertNotNull(user)
-    assertFalse(user.blocked)
-    assertNotNull(userService.idToUserCache.get(user.id))
+    assert(user != null)
+    assert(!user.blocked)
+    assert(userService.idToUserCache.get(user.id) != null)
 
-  @Test
-  def testBlock(): Unit =
+  test("block"):
     val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
     userService.block(user, user, "")
     val userAfter = userService.getUserCached(UserServiceIntegrationTest.TestId)
-    assertTrue(userAfter.blocked)
+    assert(userAfter.blocked)
 
-  @Test
-  def testCacheResetOnBlock(): Unit =
+  test("cacheResetOnBlock"):
     val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
     userService.block(user, user, "")
     val userAfter = userService.getUserCached(UserServiceIntegrationTest.TestId)
-    assertTrue(userAfter.blocked)
+    assert(userAfter.blocked)
 
 end UserServiceIntegrationTest

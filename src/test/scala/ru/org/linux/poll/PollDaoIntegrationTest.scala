@@ -15,22 +15,18 @@
 
 package ru.org.linux.poll
 
-import org.junit.Assert.*
-import org.junit.runner.RunWith
-import org.junit.{Before, Test}
+import munit.FunSuite
 import org.mockito.Mockito.{mock, when}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import ru.org.linux.user.User
 import scalikejdbc.*
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[PollDaoIntegrationTestConfiguration])) @Transactional
-class PollDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[PollDaoIntegrationTestConfiguration]))
+class PollDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var pollDao: PollDao = scala.compiletime.uninitialized
 
@@ -39,8 +35,8 @@ class PollDaoIntegrationTest:
 
   private var pollId: Int = scala.compiletime.uninitialized
 
-  @Before
-  def setUp(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
     pollId = springDB.run:
       sql"SELECT max(polls.id) FROM polls,topics WHERE topics.id=polls.topic AND topics.moderate AND NOT topics.deleted"
         .map(rs => rs.int(1))
@@ -48,58 +44,54 @@ class PollDaoIntegrationTest:
         .apply()
         .get
 
-  @Test
-  def testGetMostRecentPoll(): Unit =
+  test("getMostRecentPoll"):
     val poll = pollDao.getMostRecentPoll()
-    assertNotNull("Should return a poll", poll)
-    assertTrue("Poll should have variants", poll.variants.nonEmpty)
+    assert(poll != null, "Should return a poll")
+    assert(poll.variants.nonEmpty, "Poll should have variants")
 
-  @Test
-  def testGetPoll(): Unit =
+  test("getPoll"):
     val poll = pollDao.getPoll(pollId)
-    assertEquals(pollId, poll.id)
-    assertNotNull("Poll should have a topic", poll.topic)
-    assertTrue("Poll should have variants", poll.variants.nonEmpty)
+    assertEquals(poll.id, pollId)
+    assert(poll.topic != 0, "Poll should have a topic")
+    assert(poll.variants.nonEmpty, "Poll should have variants")
 
-  @Test(expected = classOf[PollNotFoundException])
-  def testGetPollNotFound(): Unit = pollDao.getPoll(999999999)
+  test("getPollNotFound"):
+    intercept[PollNotFoundException] {
+      pollDao.getPoll(999999999)
+    }
 
-  @Test
-  def testGetPollByTopicId(): Unit =
+  test("getPollByTopicId"):
     val poll = pollDao.getPoll(pollId)
     val pollByTopic = pollDao.getPollByTopicId(poll.topic)
-    assertEquals(poll.id, pollByTopic.id)
+    assertEquals(pollByTopic.id, poll.id)
 
-  @Test(expected = classOf[PollNotFoundException])
-  def testGetPollByTopicIdNotFound(): Unit = pollDao.getPollByTopicId(999999999)
+  test("getPollByTopicIdNotFound"):
+    intercept[PollNotFoundException] {
+      pollDao.getPollByTopicId(999999999)
+    }
 
-  @Test
-  def testGetPollResultsOrderId(): Unit =
+  test("getPollResultsOrderId"):
     val poll = pollDao.getPoll(pollId)
     val results = pollDao.getPollResults(poll)
-    assertEquals(poll.variants.size, results.size)
+    assertEquals(results.size, poll.variants.size)
     for r <- results do
-      assertNotNull("Each result should have a label", r.label)
+      assert(r.label != null, "Each result should have a label")
 
-  @Test
-  def testGetPollResultsOrderVotes(): Unit =
+  test("getPollResultsOrderVotes"):
     val poll = pollDao.getPoll(pollId)
     val results = pollDao.getPollResults(poll, Poll.OrderVotes, None)
-    assertEquals(poll.variants.size, results.size)
+    assertEquals(results.size, poll.variants.size)
 
-  @Test
-  def testGetCountUsers(): Unit =
+  test("getCountUsers"):
     val poll = pollDao.getPoll(pollId)
     val count = pollDao.getCountUsers(poll)
-    assertTrue("Count should be non-negative", count >= 0)
+    assert(count >= 0, "Count should be non-negative")
 
-  @Test
-  def testGetVotersCount(): Unit =
+  test("getVotersCount"):
     val count = pollDao.getVotersCount(pollId)
-    assertTrue("Voters count should be non-negative", count >= 0)
+    assert(count >= 0, "Voters count should be non-negative")
 
-  @Test
-  def testCreatePoll(): Unit =
+  test("createPoll"):
     val topicId = springDB.run:
       sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
             VALUES (19387, 1, 'Test poll topic', '', 't', CURRENT_TIMESTAMP, nextval('s_msgid'), '', 'f',
@@ -112,13 +104,14 @@ class PollDaoIntegrationTest:
         .apply()
         .get
     val pollList = Seq("Test Case 1", "Test Case 2", "Test Case 3")
-    springDB.localTx { pollDao.createPoll(pollList, true, topicId) }
+    springDB.localTx {
+      pollDao.createPoll(pollList, true, topicId)
+    }
     val poll = pollDao.getPollByTopicId(topicId)
-    assertEquals(3, poll.variants.size)
-    assertTrue("Poll should be multiselect", poll.multiSelect)
+    assertEquals(poll.variants.size, 3)
+    assert(poll.multiSelect, "Poll should be multiselect")
 
-  @Test
-  def testUpdatePoll(): Unit =
+  test("updatePoll"):
     val topicId = springDB.run:
       sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
             VALUES (19387, 1, 'Test update poll topic', '', 't', CURRENT_TIMESTAMP, nextval('s_msgid'), '', 'f',
@@ -131,19 +124,22 @@ class PollDaoIntegrationTest:
         .apply()
         .get
     val pollList = Seq("Alpha", "Beta")
-    springDB.localTx { pollDao.createPoll(pollList, false, topicId) }
+    springDB.localTx {
+      pollDao.createPoll(pollList, false, topicId)
+    }
     val poll = pollDao.getPollByTopicId(topicId)
 
     val modifiedVariants =
       poll.variants.map(v => PollVariant(v.id, "Modified " + v.label)) :+ PollVariant(0, "New Variant")
-    val modified = springDB.localTx { pollDao.updatePoll(poll, modifiedVariants, true) }
-    assertTrue("Poll should be modified", modified)
+    val modified = springDB.localTx {
+      pollDao.updatePoll(poll, modifiedVariants, true)
+    }
+    assert(modified, "Poll should be modified")
 
     val updatedPoll = pollDao.getPoll(poll.id)
-    assertTrue("Multiselect should be changed", updatedPoll.multiSelect)
+    assert(updatedPoll.multiSelect, "Multiselect should be changed")
 
-  @Test
-  def testUpdateVotesIncrementsCounts(): Unit =
+  test("updateVotesIncrementsCounts"):
     val topicId = springDB.run:
       sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
             VALUES (19387, 1, 'Test vote count topic', '', 't', CURRENT_TIMESTAMP, nextval('s_msgid'), '', 'f',
@@ -155,7 +151,9 @@ class PollDaoIntegrationTest:
         .single
         .apply()
         .get
-    springDB.localTx { pollDao.createPoll(Seq("Option A", "Option B"), false, topicId) }
+    springDB.localTx {
+      pollDao.createPoll(Seq("Option A", "Option B"), false, topicId)
+    }
     val poll = pollDao.getPollByTopicId(topicId)
     val variantA = poll.variants.find(_.label == "Option A").get
 
@@ -166,7 +164,9 @@ class PollDaoIntegrationTest:
         .apply()
         .getOrElse(0)
 
-    springDB.localTx { pollDao.updateVotes(poll.id, Array(variantA.id), mockUser(1)) }
+    springDB.localTx {
+      pollDao.updateVotes(poll.id, Array(variantA.id), mockUser(1))
+    }
 
     val votesAfter = springDB.run:
       sql"SELECT sum(votes) FROM polls_variants WHERE vote = ${poll.id}"
@@ -175,10 +175,9 @@ class PollDaoIntegrationTest:
         .apply()
         .getOrElse(0)
 
-    assertEquals("Vote count should increase by 1 after voting once", votesBefore + 1, votesAfter)
+    assertEquals(votesAfter, votesBefore + 1, "Vote count should increase by 1 after voting once")
 
-  @Test
-  def testUpdateVotesIdempotentOnConflict(): Unit =
+  test("updateVotesIdempotentOnConflict"):
     val topicId = springDB.run:
       sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
             VALUES (19387, 1, 'Test idempotent vote topic', '', 't', CURRENT_TIMESTAMP, nextval('s_msgid'), '', 'f',
@@ -190,29 +189,34 @@ class PollDaoIntegrationTest:
         .single
         .apply()
         .get
-    springDB.localTx { pollDao.createPoll(Seq("Option X", "Option Y"), false, topicId) }
+    springDB.localTx {
+      pollDao.createPoll(Seq("Option X", "Option Y"), false, topicId)
+    }
     val poll = pollDao.getPollByTopicId(topicId)
     val variantX = poll.variants.find(_.label == "Option X").get
 
     val votesBefore = springDB.run:
       sql"SELECT votes FROM polls_variants WHERE id = ${variantX.id}".map(rs => rs.int("votes")).single.apply().get
 
-    springDB.localTx { pollDao.updateVotes(poll.id, Array(variantX.id), mockUser(2)) }
+    springDB.localTx {
+      pollDao.updateVotes(poll.id, Array(variantX.id), mockUser(2))
+    }
 
     val votesAfterFirst = springDB.run:
       sql"SELECT votes FROM polls_variants WHERE id = ${variantX.id}".map(rs => rs.int("votes")).single.apply().get
 
-    assertEquals("Votes should increase by 1 after first vote", votesBefore + 1, votesAfterFirst)
+    assertEquals(votesAfterFirst, votesBefore + 1, "Votes should increase by 1 after first vote")
 
-    springDB.localTx { pollDao.updateVotes(poll.id, Array(variantX.id), mockUser(2)) }
+    springDB.localTx {
+      pollDao.updateVotes(poll.id, Array(variantX.id), mockUser(2))
+    }
 
     val votesAfterSecond = springDB.run:
       sql"SELECT votes FROM polls_variants WHERE id = ${variantX.id}".map(rs => rs.int("votes")).single.apply().get
 
-    assertEquals("Votes should not increase on duplicate vote (idempotent)", votesAfterFirst, votesAfterSecond)
+    assertEquals(votesAfterSecond, votesAfterFirst, "Votes should not increase on duplicate vote (idempotent)")
 
-  @Test
-  def testUpdateVotesInvalidVariantThrowsBadVote(): Unit =
+  test("updateVotesInvalidVariantThrowsBadVote"):
     val topicId = springDB.run:
       sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
             VALUES (19387, 1, 'Test invalid vote topic', '', 't', CURRENT_TIMESTAMP, nextval('s_msgid'), '', 'f',
@@ -224,14 +228,18 @@ class PollDaoIntegrationTest:
         .single
         .apply()
         .get
-    springDB.localTx { pollDao.createPoll(Seq("Option M", "Option N"), false, topicId) }
+    springDB.localTx {
+      pollDao.createPoll(Seq("Option M", "Option N"), false, topicId)
+    }
     val poll = pollDao.getPollByTopicId(topicId)
 
     val invalidVariantId = springDB.run:
       sql"SELECT max(id) + 1 FROM polls_variants".map(rs => rs.int(1)).single.apply().get
 
     try
-      springDB.localTx { pollDao.updateVotes(poll.id, Array(invalidVariantId), mockUser(3)) }
+      springDB.localTx {
+        pollDao.updateVotes(poll.id, Array(invalidVariantId), mockUser(3))
+      }
       fail("Should throw BadVoteException for invalid poll variant")
     catch
       case _: BadVoteException =>

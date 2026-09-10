@@ -14,15 +14,12 @@
  */
 package ru.org.linux.user
 
-import org.junit.Assert.*
-import org.junit.runner.RunWith
-import org.junit.{After, Before, Test}
+import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
-import org.springframework.transaction.annotation.Transactional
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
 
 import java.sql.Timestamp
@@ -30,38 +27,41 @@ import java.sql.Timestamp
 object UserDaoIntegrationTest:
   private val TestId = 7806
 
-@RunWith(classOf[SpringJUnit4ClassRunner])
-@ContextConfiguration(classes = Array(classOf[UserDaoIntegrationTestConfiguration])) @Transactional
-class UserDaoIntegrationTest:
+@ContextConfiguration(classes = Array(classOf[UserDaoIntegrationTestConfiguration]))
+class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var userDao: UserDao = scala.compiletime.uninitialized
 
   @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
 
-  @Before @After
-  def fixUser(): Unit =
+  override def beforeEach(context: BeforeEach): Unit =
+    super.beforeEach(context)
+    fixUser()
+
+  override def afterEach(context: AfterEach): Unit =
+    fixUser()
+    super.afterEach(context)
+
+  private def fixUser(): Unit =
     springDB.run:
       sql"UPDATE users SET blocked='f' WHERE id=${UserDaoIntegrationTest.TestId}".update.apply()
       sql"DELETE FROM ban_info WHERE userid=${UserDaoIntegrationTest.TestId}".update.apply()
 
-  @Test
-  def testUser(): Unit =
+  test("user"):
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
-    assertNotNull(user)
-    assertFalse(user.blocked)
+    assert(user != null)
+    assert(!user.blocked)
 
-  @Test
-  def testBlock(): Unit =
+  test("block"):
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
     springDB.localTx {
       userDao.block(user, user, "")
     }
     val userAfter = userDao.getUser(UserDaoIntegrationTest.TestId)
-    assertTrue(userAfter.blocked)
+    assert(userAfter.blocked)
 
-  @Test
-  def testReset(): Unit =
+  test("reset"):
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
     val tm = userDao.getResetDate(user)
 
@@ -71,7 +71,7 @@ class UserDaoIntegrationTest:
 
     val after = userDao.getResetDate(user)
 
-    assertEquals(tm.plusSeconds(60), after)
+    assertEquals(after, tm.plusSeconds(60))
 
   private def ts(value: String): Timestamp = Timestamp.valueOf(value + " 00:00:00")
 
@@ -94,8 +94,7 @@ class UserDaoIntegrationTest:
       id
     }
 
-  @Test
-  def testGetDeletableBlockedUsers(): Unit =
+  test("getDeletableBlockedUsers"):
     val oldBan = createBlockedUser("test-old-ban", Some(ts("2015-01-01")), None, None)
     val recentBan = createBlockedUser("test-recent-ban", Some(ts("2026-01-01")), None, None)
     val oldLogin = createBlockedUser("test-old-login", None, Some(ts("2015-01-01")), None)
@@ -105,21 +104,22 @@ class UserDaoIntegrationTest:
 
     val ids = userDao.getDeletableBlockedUserIds
 
-    assertTrue("old ban date should be a candidate", ids.contains(oldBan))
-    assertFalse("recent ban date should not be a candidate", ids.contains(recentBan))
-    assertTrue("old lastlogin should be a candidate", ids.contains(oldLogin))
-    assertTrue("old regdate should be a candidate", ids.contains(oldReg))
-    assertTrue("no dates should be a candidate", ids.contains(noDates))
-    assertFalse("recent lastlogin should take priority over old regdate", ids.contains(recentLogin))
+    assert(ids.contains(oldBan), "old ban date should be a candidate")
+    assert(!ids.contains(recentBan), "recent ban date should not be a candidate")
+    assert(ids.contains(oldLogin), "old lastlogin should be a candidate")
+    assert(ids.contains(oldReg), "old regdate should be a candidate")
+    assert(ids.contains(noDates), "no dates should be a candidate")
+    assert(!ids.contains(recentLogin), "recent lastlogin should take priority over old regdate")
 
-  @Test
-  def testDeleteBlockedUsers(): Unit =
+  test("deleteBlockedUsers"):
     val id = createBlockedUser("test-delete-blocked", Some(ts("2015-01-01")), None, None)
 
     val deleted = userDao.deleteBlockedUsers(Seq(id))
 
-    assertEquals(1, deleted)
-    assertThrows(classOf[UserNotFoundException], () => userDao.getUser(id))
+    assertEquals(deleted, 1)
+    intercept[UserNotFoundException] {
+      userDao.getUser(id)
+    }
 
   private def setIp(id: Int, ip: Option[String]): Unit =
     springDB.run:
@@ -133,47 +133,44 @@ class UserDaoIntegrationTest:
     springDB.run(
       sql"SELECT host(lastip) AS ip FROM users WHERE id=${id}".map(rs => rs.string("ip")).single.apply().orNull)
 
-  @Test
-  def testUpdateLastloginStoresIp(): Unit =
+  test("updateLastloginStoresIp"):
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
 
     val updated = userDao.updateLastlogin(user, force = true, "192.168.1.10")
 
-    assertTrue(updated)
-    assertEquals("192.168.1.10", getIp(UserDaoIntegrationTest.TestId))
+    assert(updated)
+    assertEquals(getIp(UserDaoIntegrationTest.TestId), "192.168.1.10")
 
-  @Test
-  def testUpdateLastloginThrottled(): Unit =
+  test("updateLastloginThrottled"):
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
     val id = UserDaoIntegrationTest.TestId
 
     springDB.run:
       sql"UPDATE users SET lastlogin=CURRENT_TIMESTAMP-'2 hours'::interval, lastip=NULL WHERE id=${id}".update.apply()
 
-    assertTrue(userDao.updateLastlogin(user, force = false, "10.1.2.3"))
-    assertEquals("10.1.2.3", getIp(id))
+    assert(userDao.updateLastlogin(user, force = false, "10.1.2.3"))
+    assertEquals(getIp(id), "10.1.2.3")
 
-    assertFalse(userDao.updateLastlogin(user, force = false, "10.1.9.9"))
-    assertEquals("lastip must not change within 1 hour", "10.1.2.3", getIp(id))
+    assert(!userDao.updateLastlogin(user, force = false, "10.1.9.9"))
+    assertEquals(getIp(id), "10.1.2.3", "lastip must not change within 1 hour")
 
-  @Test
-  def testSameNetworkAsLastLogin(): Unit =
+  test("sameNetworkAsLastLogin"):
     val user = userDao.getUser(UserDaoIntegrationTest.TestId)
     val id = UserDaoIntegrationTest.TestId
 
     setIp(id, None)
-    assertFalse("unknown previous ip must not match", userDao.sameNetworkAsLastLogin(user, "10.1.2.3"))
+    assert(!userDao.sameNetworkAsLastLogin(user, "10.1.2.3"), "unknown previous ip must not match")
 
     setIp(id, Some("10.1.2.3"))
-    assertTrue("same /24 must match", userDao.sameNetworkAsLastLogin(user, "10.1.2.250"))
-    assertFalse("different /24 must not match", userDao.sameNetworkAsLastLogin(user, "10.1.3.3"))
+    assert(userDao.sameNetworkAsLastLogin(user, "10.1.2.250"), "same /24 must match")
+    assert(!userDao.sameNetworkAsLastLogin(user, "10.1.3.3"), "different /24 must not match")
 
     setIp(id, Some("2001:db8:1::1"))
-    assertTrue("same /64 must match", userDao.sameNetworkAsLastLogin(user, "2001:db8:1::9"))
-    assertFalse("different /64 must not match", userDao.sameNetworkAsLastLogin(user, "2001:db8:2::5"))
+    assert(userDao.sameNetworkAsLastLogin(user, "2001:db8:1::9"), "same /64 must match")
+    assert(!userDao.sameNetworkAsLastLogin(user, "2001:db8:2::5"), "different /64 must not match")
 
     setIp(id, Some("10.1.2.3"))
-    assertFalse("different address families must not match", userDao.sameNetworkAsLastLogin(user, "2001:db8:1::1"))
+    assert(!userDao.sameNetworkAsLastLogin(user, "2001:db8:1::1"), "different address families must not match")
 
 end UserDaoIntegrationTest
 
