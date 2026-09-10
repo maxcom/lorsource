@@ -23,30 +23,31 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserService
 import ru.org.linux.util.formatter.ToHtmlFormatter
+import ru.org.linux.util.URLUtil
 
 class MarkdownFormatterTest extends FunSuite:
   private val Text1 =
     """|# First header 
-      |
-      |## Second Header
-      |
-      |```sql
-      |select id from table1;
-      |```
-      |
-      |Вот такой должно получиться
-      |
-      |И это тоже должно работать""".stripMargin
+       |
+       |## Second Header
+       |
+       |```sql
+       |select id from table1;
+       |```
+       |
+       |Вот такой должно получиться
+       |
+       |И это тоже должно работать""".stripMargin
 
   private val Text1Result =
     """|<h1>First header</h1>
-      |<h2>Second Header</h2>
-      |<div class="code"><pre><code class="language-sql">select id from table1;
-      |</code></pre>
-      |</div>
-      |<p>Вот такой должно получиться</p>
-      |<p>И это тоже должно работать</p>
-      |""".stripMargin
+       |<h2>Second Header</h2>
+       |<div class="code"><pre><code class="language-sql">select id from table1;
+       |</code></pre>
+       |</div>
+       |<p>Вот такой должно получиться</p>
+       |<p>И это тоже должно работать</p>
+       |""".stripMargin
 
   private lazy val markdownFormatter = initFormatter()
 
@@ -61,27 +62,134 @@ class MarkdownFormatterTest extends FunSuite:
     when(siteConfig.getMainURI).thenReturn(mainURI)
     when(siteConfig.getSecureURI).thenReturn(secureURI)
 
-    new FlexmarkMarkdownFormatter(siteConfig, topicDao, commentDao, mock(classOf[UserService]),
-      new ToHtmlFormatter)
+    new FlexmarkMarkdownFormatter(siteConfig, topicDao, commentDao, mock(classOf[UserService]), new ToHtmlFormatter)
 
   test("testMarkdownFormatter"):
     assertEquals(Text1Result, markdownFormatter.renderToHtml(Text1, false))
 
   test("testLinkText"):
-    assertEquals("https://www.linux.org.ru/",
-      markdownFormatter.renderToText("https://www.linux.org.ru/"))
+    assertEquals("https://www.linux.org.ru/", markdownFormatter.renderToText("https://www.linux.org.ru/"))
 
-    assertEquals("test https://www.linux.org.ru/",
-      markdownFormatter.renderToText("[test](https://www.linux.org.ru/)"))
+    assertEquals("test https://www.linux.org.ru/", markdownFormatter.renderToText("[test](https://www.linux.org.ru/)"))
 
-    assertEquals("X".repeat(100) + "test https://www.linux.org.ru/ 1234",
+    assertEquals(
+      "X".repeat(100) + "test https://www.linux.org.ru/ 1234",
       markdownFormatter.renderToText("X".repeat(100) + "[test](https://www.linux.org.ru/) 1234"))
 
-    assertEquals("@ (linux.org.ru) https://www.linux.org.ru/",
+    assertEquals(
+      "@ (linux.org.ru) https://www.linux.org.ru/",
       markdownFormatter.renderToText("[@](https://www.linux.org.ru/)"))
 
-    assertEquals("@ (---) http://#$#@$@QW",
-      markdownFormatter.renderToText("[@](http://#$#@$@QW)"))
+    assertEquals("@ (---) http://#$#@$@QW", markdownFormatter.renderToText("[@](http://#$#@$@QW)"))
+
+  test("testUnsafeLinkSchemesSuppressed"):
+    for url <- Seq(
+        "javascript:alert(1)",
+        "JaVaScRiPt:alert(document.cookie)",
+        "JAVASCRIPT:alert(1)",
+        "vbscript:msgbox(1)",
+        "VBScript:msgbox(1)",
+        "data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==",
+        "DATA:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg=="
+      )
+    do
+      val rendered = markdownFormatter.renderToHtml(s"[x]($url)", false)
+
+      assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
+      assertEquals("<p>x</p>\n", rendered)
+
+  test("testUnsafeLinkSchemesInImagesSuppressed"):
+    for url <- Seq(
+        "javascript:alert(1)",
+        "JaVaScRiPt:alert(1)",
+        "data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==")
+    do
+      val rendered = markdownFormatter.renderToHtml(s"![alt]($url)", false)
+
+      assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
+      assertEquals("<p>alt</p>\n", rendered)
+
+  test("testUnsafeLinkSchemeInReferenceLinkSuppressed"):
+    val rendered = markdownFormatter.renderToHtml("[x][r]\n\n[r]: JAVASCRIPT:alert(1)", false)
+
+    assert(!rendered.contains("<a"), s"expected no anchor: $rendered")
+    assertEquals("<p>x</p>\n", rendered)
+
+  test("testNonAllowlistedSchemeInReferenceLinkSuppressed"):
+    for url <- Seq(
+        "file:///etc/passwd",
+        "tel:+79990001100",
+        "magnet:?xt=urn:btih:deadbeef")
+    do
+      val rendered = markdownFormatter.renderToHtml(s"[x][r]\n\n[r]: $url", false)
+
+      assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
+      assertEquals("<p>x</p>\n", rendered)
+
+  test("testUnsafeLinkSchemeEntityEncodedSuppressed"):
+    for url <- Seq(
+        "java&Tab;script:alert(1)",
+        "javascript&colon;alert(1)",
+        "jav&NewLine;ascript:alert(1)")
+    do
+      val rendered = markdownFormatter.renderToHtml(s"[x]($url)", false)
+
+      assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
+      assertEquals("<p>x</p>\n", rendered)
+
+  test("testUnsafeLinkSchemeEntityEncodedInReferenceLinkSuppressed"):
+    val rendered = markdownFormatter.renderToHtml("[x][r]\n\n[r]: javascript&colon;alert(1)", false)
+
+    assert(!rendered.contains("<a"), s"expected no anchor: $rendered")
+    assertEquals("<p>x</p>\n", rendered)
+
+  test("testSafeSchemeInReferenceLinkAllowed"):
+    val rendered = markdownFormatter.renderToHtml("[x][r]\n\n[r]: https://linux.org.ru/", false)
+
+    assert(rendered.contains("<a href="), s"expected anchor: $rendered")
+
+  test("testUnsafeLinkSchemeInAutolinkSuppressed"):
+    for url <- Seq(
+        "<javascript:alert(1)>",
+        "<JaVaScRiPt:alert(1)>",
+        "<data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==>")
+    do
+      val rendered = markdownFormatter.renderToHtml(url, false)
+
+      assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
+      assert(!rendered.contains("href"), s"expected no href for $url: $rendered")
+
+  test("testSafeLinkSchemesAllowed"):
+    for url <- Seq(
+        "https://linux.org.ru/",
+        "http://example.com/a",
+        "ftp://ftp.example.com/pub/",
+        "mailto:user@example.com",
+        "news:comp.lang.linux",
+        "/forum/linux-org-ru/",
+        "//example.com/x",
+        "#anchor"
+      )
+    do
+      val rendered = markdownFormatter.renderToHtml(s"[x]($url)", false)
+
+      assert(rendered.contains("<a href="), s"expected anchor for $url: $rendered")
+      assert(!rendered.contains("javascript") && !rendered.contains("data:"), s"unexpected scheme in $url: $rendered")
+
+  test("testUrlUtilIsSafeLinkUrl"):
+    assert(!URLUtil.isSafeLinkUrl("javascript:alert(1)"))
+    assert(!URLUtil.isSafeLinkUrl("jav\tascript:alert(1)"))
+    assert(!URLUtil.isSafeLinkUrl(" javascript:alert(1)"))
+    assert(!URLUtil.isSafeLinkUrl("JavaScript:alert(1)"))
+    assert(!URLUtil.isSafeLinkUrl("data:text/html,x"))
+    assert(!URLUtil.isSafeLinkUrl("vbscript:x"))
+    assert(URLUtil.isSafeLinkUrl("https://linux.org.ru/"))
+    assert(URLUtil.isSafeLinkUrl("HTTPS://linux.org.ru/"))
+    assert(URLUtil.isSafeLinkUrl("mailto:a@b.ru"))
+    assert(URLUtil.isSafeLinkUrl("/forum?a=b:c"))
+    assert(URLUtil.isSafeLinkUrl("#a:b"))
+    assert(URLUtil.isSafeLinkUrl("//example.com/x"))
+    assert(URLUtil.isSafeLinkUrl("no-scheme-text"))
 
   // упоминание пользователя через @ должно подсвечиваться, даже если оно
   // стоит в начале строки внутри абзаца (после мягкого переноса \n или \r\n).
@@ -104,7 +212,10 @@ class MarkdownFormatterTest extends FunSuite:
   private def countOccurrences(haystack: String, needle: String): Int =
     var count = 0
     var idx = 0
-    while { idx = haystack.indexOf(needle, idx); idx != -1 } do
+    while {
+      idx = haystack.indexOf(needle, idx);
+      idx != -1
+    } do
       count += 1
       idx += needle.length
     count

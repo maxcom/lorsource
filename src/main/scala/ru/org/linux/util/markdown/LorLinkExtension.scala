@@ -59,6 +59,15 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
 
   private val link = new NodeRenderingHandler[Link](classOf[Link], (node, context, html) => renderLink(node, context, html))
 
+  private val linkRef = new NodeRenderingHandler[LinkRef](classOf[LinkRef], (node, context, _) => {
+    val reference = if node.isDefined then node.getReferenceNode(node.getDocument) else null
+
+    if reference != null && !URLUtil.isSafeLinkUrl(reference.getUrl.unescape) then
+      context.renderChildren(node)
+    else
+      context.delegateRender()
+  })
+
   private def renderLorUrl(node: AutoLink, html: HtmlWriter, url: LorURL, ctx: NodeRendererContext): Unit = {
     val canonical = url.canonize(siteConfig.getSecureURI)
     val resolvedLink = ctx.resolveLink(LinkType.LINK, canonical, null)
@@ -116,10 +125,13 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
   }
 
   private def renderLink(node: Link, context: NodeRendererContext, html: HtmlWriter): Unit = {
-    if (context.isDoNotRenderLinks || CoreNodeRenderer.isSuppressedLinkPrefix(node.getUrl, context)) {
+    val url = node.getUrl.unescape
+
+    if (context.isDoNotRenderLinks || CoreNodeRenderer.isSuppressedLinkPrefix(node.getUrl, context) ||
+      !URLUtil.isSafeLinkUrl(url)) {
       context.renderChildren(node)
     } else {
-      var resolvedLink = context.resolveLink(LinkType.LINK, node.getUrl.unescape, null, null)
+      var resolvedLink = context.resolveLink(LinkType.LINK, url, null, null)
       html.attr("href", resolvedLink.getUrl)
       // we have a title part, use that
       if (node.getTitle.isNotNull) {
@@ -148,5 +160,5 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
 
 
   override def getNodeRenderingHandlers: util.Set[NodeRenderingHandler[?]] =
-    Set[NodeRenderingHandler[?]](autolink, link).asJava
+    Set[NodeRenderingHandler[?]](autolink, link, linkRef).asJava
 }

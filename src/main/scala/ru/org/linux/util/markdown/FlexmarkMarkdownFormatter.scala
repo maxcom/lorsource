@@ -60,7 +60,7 @@ class FlexmarkMarkdownFormatter(siteConfig: SiteConfig, topicDao: TopicDao, comm
 
     options.set(Parser.EXTENSIONS, allExtensions)
 
-    options.set(HtmlRenderer.SUPPRESSED_LINKS, "javascript:.*")
+    options.set(HtmlRenderer.SUPPRESSED_LINKS, "(?i)(javascript|vbscript|data):.*")
     options.set(HtmlRenderer.SUPPRESS_HTML, Boolean.box(true))
     options.set(HtmlRenderer.FENCED_CODE_NO_LANGUAGE_CLASS, "no-highlight")
 

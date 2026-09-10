@@ -50,6 +50,8 @@ class RelaxedURI(url: String) extends URI {
 }
 
 object URLUtil {
+  private val AllowedLinkSchemes = Set("http", "https", "ftp", "mailto", "news")
+
   private val IsUrl: Pattern = Pattern.compile(
     "(((https?)|(ftp))://(([0-9\\p{L}.-]+\\.[0-9\\p{L}]+)|(\\d+\\.\\d+\\.\\d+\\.\\d+))(:[0-9]+)?(/[^ ]*)?)|(mailto:[a-z0-9_+-.]+@[0-9a-z.-]+\\.[a-z]+)|(news:[a-z0-9.-]+)|(((www)|(ftp))\\.(([0-9a-z.-]+\\.[a-z]+(:[0-9]+)?(/[^ ]*)?)|([a-z]+(/[^ ]*)?)))",
     Pattern.CASE_INSENSITIVE
@@ -70,6 +72,23 @@ object URLUtil {
   }
 
   def isUrl(x: String): Boolean = IsUrl.matcher(x).matches
+
+  def isSafeLinkUrl(url: String): Boolean = {
+    val cleaned = url.replaceAll("[\\t\\n\\r]", "").trim
+    val colon = cleaned.indexOf(':')
+
+    if (colon <= 0) {
+      true
+    } else {
+      val scheme = cleaned.substring(0, colon)
+
+      if (!scheme.matches("[a-zA-Z][a-zA-Z0-9+\\-.]*")) {
+        true
+      } else {
+        AllowedLinkSchemes.contains(scheme.toLowerCase)
+      }
+    }
+  }
 
   def extractShortHost(url: String): Option[String] = {
     try {

@@ -20,37 +20,34 @@ import com.vladsch.flexmark.util.ast.TextCollectingVisitor
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.html.renderer.{NodeRenderer, NodeRenderingHandler}
 import com.vladsch.flexmark.util.data.MutableDataHolder
+import ru.org.linux.util.URLUtil
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-class SuppressImagesExtension extends HtmlRenderer.HtmlRendererExtension {
+class SuppressImagesExtension extends HtmlRenderer.HtmlRendererExtension:
   override def rendererOptions(options: MutableDataHolder): Unit = {}
 
-  override def extend(rendererBuilder: HtmlRenderer.Builder, rendererType: String): Unit = {
-    if (rendererBuilder.isRendererType("HTML")) {
+  override def extend(rendererBuilder: HtmlRenderer.Builder, rendererType: String): Unit =
+    if rendererBuilder.isRendererType("HTML") then
       rendererBuilder.nodeRendererFactory(_ => new SuppressImagesRenderer)
-    }
-  }
-}
 
-class SuppressImagesRenderer extends NodeRenderer {
-  override def getNodeRenderingHandlers = {
-    Set(new NodeRenderingHandler[Image](classOf[Image], (node, _, html) => {
-      val altText = new TextCollectingVisitor().collectAndGetText(node)
+class SuppressImagesRenderer extends NodeRenderer:
+  override def getNodeRenderingHandlers =
+    Set(
+      new NodeRenderingHandler[Image](
+        classOf[Image],
+        (node, _, html) =>
+          val altText = new TextCollectingVisitor().collectAndGetText(node)
 
-      html
-        .withAttr()
-        .attr("href", node.getUrl)
-        .attr("rel", "nofollow")
-        .tag("a")
-        .text(altText)
-        .closeTag("a")
-    }), new NodeRenderingHandler[ImageRef](classOf[ImageRef], (node, _, html) => {
-      val altText = new TextCollectingVisitor().collectAndGetText(node)
+          if !URLUtil.isSafeLinkUrl(node.getUrl.unescape) then
+            html.text(altText)
+          else
+            html.withAttr().attr("href", node.getUrl).attr("rel", "nofollow").tag("a").text(altText).closeTag("a")
+      ),
+      new NodeRenderingHandler[ImageRef](
+        classOf[ImageRef],
+        (node, _, html) =>
+          val altText = new TextCollectingVisitor().collectAndGetText(node)
 
-      html.text(altText)
-    })
+          html.text(altText))
     ).asJava.asInstanceOf[java.util.Set[NodeRenderingHandler[?]]]
-  }
-}
-
