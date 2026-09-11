@@ -225,7 +225,8 @@ object AuthUtil extends StrictLogging:
       formPassword: Option[String],
       errors: Errors,
       passwordEncoder: PasswordEncoder,
-      request: HttpServletRequest): AnySession =
+      request: HttpServletRequest,
+      loginAttemptCache: LoginAttemptCache): AnySession =
     if errors.hasErrors then
       session
     else if session.authorized then
@@ -240,10 +241,10 @@ object AuthUtil extends StrictLogging:
           if formUser.blocked || !formUser.activated then
             errors.rejectValue("user", null, s"Пользователь \"${formUser.nick}\" заблокирован или не активирован")
             session
-          else if !(formUser.anonymous && formPassword.get.isEmpty) &&
-            !passwordEncoder.matches(formPassword.get, formUser.password)
-          then
+          else if !passwordEncoder.matches(formPassword.get, formUser.password) then
             logger.warn("Password of {} does not match; remote IP: {}; {}", formUser.nick, request.getRemoteAddr)
+
+            loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, formUser.nick)
 
             errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.nick}\" задан неверно!")
             session

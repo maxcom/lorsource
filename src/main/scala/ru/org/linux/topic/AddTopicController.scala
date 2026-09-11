@@ -130,7 +130,8 @@ class AddTopicController(
                           servletContext: ServletContext,
                           addTopicChecker: AddTopicChecker,
                           topicPublishChecker: TopicPublishChecker,
-                          passwordEncoder: PasswordEncoder):
+                          passwordEncoder: PasswordEncoder,
+                          loginAttemptCache: LoginAttemptCache):
   @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.GET))
   def add(
       @Validated @ModelAttribute("form")
@@ -194,10 +195,24 @@ class AddTopicController(
       val section = sectionService.getSection(group.sectionId)
 
 
-      if !form.isPreviewMode && !errors.hasErrors && captchaRequired then
-        captcha.checkCaptcha(request, errors)
+      // В preview-режиме credы (nick/password) тоже проверяются, поэтому preview с указанным ником
+      // не должен обходить схему captcha из /login_process: captcha требуется при отметке неудачи
+      // в LoginAttemptCache или если IP помечен модераторами (ipBlockInfo.captchaRequired).
+      val credentialCheck = !sessionUserOpt.authorized && form.nick != null && !form.nick.anonymous
 
-      val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors, passwordEncoder, request)
+      if !errors.hasErrors then
+        val needCaptcha =
+          if !form.isPreviewMode then
+            captchaRequired
+          else
+            credentialCheck && (sessionUserOpt.ipBlockInfo.captchaRequired ||
+              loginAttemptCache.requireCaptchaForIp(request.getRemoteAddr) ||
+              loginAttemptCache.requireCaptchaForUser(form.nick.nick))
+
+        if needCaptcha then
+          captcha.checkCaptcha(request, errors)
+
+      val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(form.nick), Option(form.password), errors, passwordEncoder, request, loginAttemptCache)
       val user = postingUser.user
 
       val postingCheck = addTopicChecker.checkTopicPosting(group)(using postingUser)
