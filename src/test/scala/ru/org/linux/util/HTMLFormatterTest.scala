@@ -346,6 +346,38 @@ class HTMLFormatterTest extends FunSuite:
       "&quot;<a href=\"http://www.google.com/&quot;\">http://www.google.com/&quot;</a>")
   }
 
+  test("urlTokenOverLimitDoesNotAutolinkOrOverflow") {
+    val payload = "www.a/" + "a" * 60000 + "!"
+    val rendered = toHtmlFormatter.format(payload, false)
+    assert(!rendered.contains("<a "))
+    assert(rendered.startsWith("www.a/"))
+  }
+
+  test("urlTokenUnderLimitAutolinks") {
+    val url = "www.example.com/" + "a" * 900
+    val rendered = toHtmlFormatter.format(url, false)
+    assert(rendered.contains("<a href=\"http://www.example.com/"))
+  }
+
+  test("longUrlTokenViaCommentParseDoesNotOverflow") {
+    val payload = "www.a/" + "a" * 60000 + "!"
+    val rendered = lorCodeService.parseComment(payload, false, LorCodeService.Plain)
+    assert(rendered.contains("<p>www.a/"))
+    assert(!rendered.contains("<a "))
+  }
+
+  test("newlineRunDoesNotOverflow") {
+    val rendered = lorCodeService.parseComment("x" + "\n" * 6500, false, LorCodeService.Plain)
+    assert(rendered.contains("<p>x</p>"))
+    assert(!rendered.contains("\n\n"))
+  }
+
+  test("manyParagraphsDoNotOverflow") {
+    val payload = ("para" + "\n\n") * 10000
+    val rendered = lorCodeService.parseTopic(payload, false, LorCodeService.Plain)
+    assert(rendered.contains("<p>para</p>"))
+  }
+
   test("testHTMLEscape") {
     val str1 = "This is an entity &#1999;"
     val s1 = ToHtmlFormatter.strangeEscapeHtml(str1)

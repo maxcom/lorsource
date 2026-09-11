@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2016 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -75,11 +75,6 @@ public class Parser {
    */
   private static final Pattern BBTAG_REGEXP = Pattern.compile("\\[\\[?/?([A-Za-z\\*]+)(:[a-f0-9]+)?(=[^\\]]+)?\\]?\\]");
 
-  /**
-   * Регулярное выражения поиска двойного перевода строки
-   */
-  private static final Pattern P_REGEXP = Pattern.compile("(\r?\n){2,}");
-
   private final ParserParameters parserParameters;
 
   /**
@@ -139,6 +134,65 @@ public class Parser {
   }
 
   /**
+   * Ищет первый последовательный набор из двух и более переводов строки
+   * (ручной линейный аналог выражения (\r?\n){2,}).
+   *
+   * @param text текст
+   * @param from индекс начала поиска
+   * @return массив {начало, конец} набора или null, если не найден
+   */
+  private static int[] firstParagraphBreak(String text, int from) {
+    int len = text.length();
+    int i = from;
+    while (i < len) {
+      char c = text.charAt(i);
+      if (c != '\r' && c != '\n') {
+        i++;
+        continue;
+      }
+      int runStart = i;
+      int count = 0;
+      int end = i;
+      int j = i;
+      while (j < len) {
+        char cj = text.charAt(j);
+        if (cj == '\n') {
+          count++;
+          j++;
+          end = j;
+        } else if (cj == '\r' && j + 1 < len && text.charAt(j + 1) == '\n') {
+          count++;
+          j += 2;
+          end = j;
+        } else {
+          break;
+        }
+      }
+      if (count >= 2) {
+        return new int[]{runStart, end};
+      }
+      i = j > i ? j : i + 1;
+    }
+    return null;
+  }
+
+  private static String removeParagraphBreaks(String text) {
+    int[] run = firstParagraphBreak(text, 0);
+    if (run == null) {
+      return text;
+    }
+    StringBuilder sb = new StringBuilder(text.length());
+    int copied = 0;
+    while (run != null) {
+      sb.append(text, copied, run[0]);
+      copied = run[1];
+      run = firstParagraphBreak(text, copied);
+    }
+    sb.append(text, copied, text.length());
+    return sb.toString();
+  }
+
+  /**
    * Добавление текстового узда
    *
    * @param automatonState текущее состояние автомата
@@ -147,77 +201,81 @@ public class Parser {
    * @return возвращает новый текущий узел
    */
   private Node pushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {
-    if (text.trim().isEmpty() && !currentNode.allows("text")) {
+    process:
+    while (true) {
+      if (text.trim().isEmpty() && !currentNode.allows("text")) {
+        return currentNode;
+      }
+
+      while (!currentNode.allows("text")) {
+        if (currentNode.allows("p")) {
+          TagNode node = new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode());
+          currentNode.addChildren(node);
+          currentNode = node;
+        } else if (currentNode.allows("div")) {
+          TagNode node = new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode());
+          currentNode.addChildren(node);
+          currentNode = node;
+        } else {
+          currentNode = currentNode.getParent();
+        }
+      }
+
+      boolean isParagraph = false;
+      boolean isAllow = true;
+      boolean isParagraphed = false;
+
+      if (currentNode instanceof TagNode) {
+        TagNode tempNode = (TagNode) currentNode;
+        Set<String> disallowedParagraphTags = parserParameters.getDisallowedParagraphTags();
+        Set<String> paragraphedTags = parserParameters.getParagraphedTags();
+        if (disallowedParagraphTags.contains(tempNode.getBbtag().getName())) {
+          isAllow = false;
+        }
+        if (paragraphedTags.contains(tempNode.getBbtag().getName())) {
+          isParagraphed = true;
+        }
+        if ("p".equals(tempNode.getBbtag().getName())) {
+          isParagraph = true;
+        }
+      }
+
+      /**
+       * Если мы находим двойной перенос строки и в тексте
+       * и в текущем тэге разрешена вставка нового тэга p -
+       * вставляем p
+       * за исключеним, если текущий тэг p, тогда поднимаемся на уровень
+       * выше в дереве и вставляем p с текстом
+       */
+      int[] breakRun = isAllow ? firstParagraphBreak(text, 0) : null;
+
+      if (breakRun != null) {
+        String head = text.substring(0, breakRun[0]);
+        String tail = text.substring(breakRun[1]);
+
+        if (!head.isEmpty()) {
+          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, head));
+        }
+        if (isParagraph) {
+          currentNode = currentNode.getParent();
+        }
+        if (!tail.isEmpty()) {
+          TagNode node = new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode());
+          currentNode.addChildren(node);
+          currentNode = node;
+          text = tail;
+          continue process;
+        }
+      } else {
+        if (isParagraphed) {
+          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text));
+        } else {
+          currentNode.addChildren(rawPushTextNode(automatonState, currentNode, removeParagraphBreaks(text)));
+        }
+      }
+
       return currentNode;
     }
-
-    while (!currentNode.allows("text")) {
-      if (currentNode.allows("p")) {
-        TagNode node = new TagNode(currentNode, parserParameters, "p", "", automatonState.getRootNode());
-        currentNode.addChildren(node);
-        currentNode = node;
-      } else if (currentNode.allows("div")) {
-        TagNode node = new TagNode(currentNode, parserParameters, "div", "", automatonState.getRootNode());
-        currentNode.addChildren(node);
-        currentNode = node;
-      } else {
-        currentNode = currentNode.getParent();
-      }
-    }
-
-    boolean isParagraph = false;
-    boolean isAllow = true;
-    boolean isParagraphed = false;
-
-    if (currentNode instanceof TagNode) {
-      TagNode tempNode = (TagNode) currentNode;
-      Set<String> disallowedParagraphTags = parserParameters.getDisallowedParagraphTags();
-      Set<String> paragraphedTags = parserParameters.getParagraphedTags();
-      if (disallowedParagraphTags.contains(tempNode.getBbtag().getName())) {
-        isAllow = false;
-      }
-      if (paragraphedTags.contains(tempNode.getBbtag().getName())) {
-        isParagraphed = true;
-      }
-      if ("p".equals(tempNode.getBbtag().getName())) {
-        isParagraph = true;
-      }
-    }
-
-    /**
-     * Если мы находим двойной перенос строки и в тексте
-     * и в текущем тэге разрешена вставка нового тэга p -
-     * вставляем p
-     * за исключеним, если текущий тэг p, тогда поднимаемся на уровень
-     * выше в дереве и вставляем p с текстом
-     */
-    Matcher matcher = P_REGEXP.matcher(text);
-
-    if (isAllow && matcher.find()) {
-      String head = text.substring(0, matcher.start());
-      String tail = text.substring(matcher.end());
-
-      if (!head.isEmpty()) {
-        currentNode.addChildren(rawPushTextNode(automatonState, currentNode, head));
-      }
-      if (isParagraph) {
-        currentNode = currentNode.getParent();
-      }
-      if (!tail.isEmpty()) {
-        TagNode node = new TagNode(currentNode, parserParameters, "p", " ", automatonState.getRootNode());
-        currentNode.addChildren(node);
-        currentNode = node;
-        currentNode = pushTextNode(automatonState, currentNode, tail);
-      }
-    } else {
-      if (isParagraphed) {
-        currentNode.addChildren(rawPushTextNode(automatonState, currentNode, text));
-      } else {
-        currentNode.addChildren(rawPushTextNode(automatonState, currentNode, matcher.replaceAll("")));
-      }
-    }
-
-    return currentNode;
   }
 
   private TextNode rawPushTextNode(ParserAutomatonState automatonState, Node currentNode, String text) {

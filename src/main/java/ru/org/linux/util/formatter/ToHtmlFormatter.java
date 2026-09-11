@@ -50,6 +50,12 @@ public class ToHtmlFormatter {
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
   /**
+   * java.util.regex рекурсирует на каждой итерации повторяющейся группы,
+   * поэтому длинный токен вызывает StackOverflowError; длинные токены не автолинкуются
+   */
+  private static final int MAX_URL_TOKEN_LENGTH = 1000;
+
+  /**
    * Convert special SGML (HTML) chars to
    * SGML entities
    */
@@ -142,6 +148,10 @@ public class ToHtmlFormatter {
   }
 
   private String formatURL(String line, boolean nofollow, RuTypoChanger changer) {
+    if (line.length() > MAX_URL_TOKEN_LENGTH) {
+      return formatWithMagic(line, changer);
+    }
+
     StringBuilder out = new StringBuilder();
     Matcher m = URL_PATTERN.matcher(line);
     int index = 0;
