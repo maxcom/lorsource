@@ -28,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.LoginController.delayResponse
+import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.email.EmailService
 import ru.org.linux.user.{UserDao, UserPermissionService, UserService}
 
@@ -130,10 +131,11 @@ class LoginController(
     val auth = SecurityContextHolder.getContext.getAuthentication
     if auth != null then
       new SecurityContextLogoutHandler().logout(request, response, auth)
-    val cookie = new Cookie("remember_me", null)
-    cookie.setMaxAge(0)
-    cookie.setPath("/")
-    response.addCookie(cookie)
+
+    clearCookie(response, "remember_me")
+    clearCookie(response, "JSESSIONID")
+    clearCookie(response, CSRFProtectionService.CSRF_COOKIE)
+
     new ModelAndView(new RedirectView("/login.jsp"))
 
   @RequestMapping(value = Array("/logout_all_sessions"), method = Array(RequestMethod.POST))
@@ -174,6 +176,12 @@ class LoginController(
     mav.addObject(BindingResult.MODEL_KEY_PREFIX + "loginForm", bindingResult)
     mav.addObject("requireCaptcha", requireCaptcha)
     mav
+
+  private def clearCookie(response: HttpServletResponse, name: String): Unit =
+    val cookie = new Cookie(name, null)
+    cookie.setMaxAge(0)
+    cookie.setPath("/")
+    response.addCookie(cookie)
 
   // Authenticates the user and returns an Authentication whose principal reflects the *current*
   // stored password. DaoAuthenticationProvider may upgrade the password hash (legacy jasypt ->
