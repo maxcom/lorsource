@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;
 
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -75,7 +76,16 @@ public class CSRFProtectionService {
       return false;
     }
 
-    boolean r = inputValue.trim().equals(cookieValue.trim());
+    boolean r;
+
+    try {
+      byte[] cookieBytes = Base64.getDecoder().decode(cookieValue.trim());
+      byte[] inputBytes = Base64.getDecoder().decode(inputValue.trim());
+
+      r = MessageDigest.isEqual(cookieBytes, inputBytes);
+    } catch (IllegalArgumentException e) {
+      r = false;
+    }
 
     if (!r) {
       logger.info(String.format(
