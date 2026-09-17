@@ -21,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.test.TransactionalTestSupport
+import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import scalikejdbc.*
 
 import java.sql.Timestamp
@@ -89,6 +90,11 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
       sql"UPDATE topics SET deleted='t' WHERE id = $topic".update.apply()
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
             VALUES ($topic, $delby, 'test topic deletion', $deldate, 0)""".update.apply()
+
+  private def hideTopicComments(topic: Int, lastmod: Timestamp): Unit =
+    springDB.run:
+      sql"""UPDATE topics SET postscore=$POSTSCORE_HIDE_COMMENTS, lastmod=$lastmod
+            WHERE id = $topic""".update.apply()
 
   private def insertUserEvent(
       userId: Int,
@@ -242,6 +248,67 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     assert(!ids.contains(ctrlHasReply), "comment with reply in deleted topic should not be a candidate")
     assert(!ids.contains(ctrlNotDeletedTopic), "comment in not deleted topic should not be a candidate")
 
+  test("getDeletableCommentIdsInHiddenCommentsTopics"):
+    // вставка комментария обновляет topics.lastmod (триггер comins), поэтому топики помечаются
+    // ПОСЛЕ вставки всех комментариев в них
+    val hiddenTopic = nextTopicId(topicId)
+    val recentHiddenTopic = nextTopicId(hiddenTopic)
+    val oldPlainTopic = nextTopicId(recentHiddenTopic)
+
+    val blockedOld = createUser("test-purge-hide-blocked-old", blocked = true, Some(ts("2023-01-01")), None)
+    val inactive = createUser(
+      "test-purge-hide-inactive",
+      blocked = false,
+      Some(ts("2015-01-01")),
+      Some(ts("2015-01-01")))
+    val noDates = createUser("test-purge-hide-no-dates", blocked = false, None, None)
+    val active = createUser("test-purge-hide-active", blocked = false, Some(ts("2026-08-01")), Some(ts("2015-01-01")))
+
+    val candBlocked = nextMsgId
+    insertComment(candBlocked, blockedOld, None, deleted = false, "hide cand blocked", hiddenTopic)
+
+    val candInactive = nextMsgId
+    insertComment(candInactive, inactive, None, deleted = false, "hide cand inactive", hiddenTopic)
+
+    val candNoDates = nextMsgId
+    insertComment(candNoDates, noDates, None, deleted = false, "hide cand no dates", hiddenTopic)
+
+    val candBoth = nextMsgId
+    insertComment(candBoth, inactive, None, deleted = true, "hide cand both branches", hiddenTopic)
+    insertDelInfo(candBoth, inactive, ts("2015-01-01"))
+
+    val ctrlActive = nextMsgId
+    insertComment(ctrlActive, active, None, deleted = false, "hide ctrl active", hiddenTopic)
+
+    val ctrlRecentLastmod = nextMsgId
+    insertComment(ctrlRecentLastmod, blockedOld, None, deleted = false, "hide ctrl recent lastmod", recentHiddenTopic)
+
+    val ctrlNoPostscore = nextMsgId
+    insertComment(ctrlNoPostscore, blockedOld, None, deleted = false, "hide ctrl no postscore", oldPlainTopic)
+
+    val ctrlHasReply = nextMsgId
+    insertComment(ctrlHasReply, blockedOld, None, deleted = false, "hide ctrl has reply", hiddenTopic)
+    insertComment(nextMsgId, active, Some(ctrlHasReply), deleted = false, "hide ctrl reply", hiddenTopic)
+
+    hideTopicComments(hiddenTopic, ts("2015-01-01"))
+    hideTopicComments(recentHiddenTopic, ts("2026-08-01"))
+    springDB.run:
+      sql"UPDATE topics SET postscore=NULL, lastmod=${ts("2015-01-01")} WHERE id = $oldPlainTopic".update.apply()
+
+    val ids = commentDao.getDeletableDeletedCommentIds
+
+    assert(ids.contains(candBlocked), "blocked author in hidden-comments topic should be a candidate")
+    assert(ids.contains(candInactive), "inactive author in hidden-comments topic should be a candidate")
+    assert(ids.contains(candNoDates), "author without dates in hidden-comments topic should be a candidate")
+    assert(ids.contains(candBoth), "individually deleted comment in hidden-comments topic should be a candidate")
+    assertEquals(ids.count(_ == candBoth), 1, "comment matching several branches should be listed once")
+    assert(!ids.contains(ctrlActive), "active author in hidden-comments topic should not be a candidate")
+    assert(
+      !ids.contains(ctrlRecentLastmod),
+      "comment in recently modified hidden-comments topic should not be a candidate")
+    assert(!ids.contains(ctrlNoPostscore), "comment in old topic without hidden comments should not be a candidate")
+    assert(!ids.contains(ctrlHasReply), "comment with reply in hidden-comments topic should not be a candidate")
+
   test("purgeDeletedComments"):
     val author = createUser("test-purge-author", blocked = false, Some(ts("2026-08-01")), Some(ts("2015-01-01")))
     val eventOwner = createUser("test-purge-event-owner", blocked = false, Some(ts("2026-08-01")), None)
@@ -343,6 +410,81 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
 
     val unreadAfter = getUnreadEvents(eventOwner)
     assertEquals(unreadAfter, unreadBefore - 2, "unread events counter should be recalculated")
+
+  test("purgeCommentInHiddenCommentsTopic"):
+    val author = createUser("test-purge-hide-purge-author", blocked = true, Some(ts("2023-01-01")), None)
+    val eventOwner = createUser("test-purge-hide-purge-events", blocked = false, Some(ts("2026-08-01")), None)
+
+    val hiddenTopic = nextTopicId(topicId)
+
+    val targetId = nextMsgId
+    insertComment(targetId, author, None, deleted = false, "to be purged from hidden-comments topic", hiddenTopic)
+
+    val controlId = nextMsgId
+    insertComment(controlId, author, None, deleted = false, "control comment in normal topic")
+
+    // вставка комментария обновляет topics.lastmod (триггер comins) — помечаем после вставки
+    hideTopicComments(hiddenTopic, ts("2015-01-01"))
+
+    springDB.run:
+      sql"""INSERT INTO edit_info (msgid, editor, object_type)
+            VALUES ($targetId, $author, 'COMMENT')""".update.apply()
+      sql"""INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction)
+            VALUES ($eventOwner, $hiddenTopic, $targetId, 'like')""".update.apply()
+
+    insertUserEvent(eventOwner, "REPLY", Some(targetId), None, hiddenTopic)
+    insertUserEvent(eventOwner, "REF", None, None, hiddenTopic)
+
+    val warningId = springDB.run:
+      sql"""INSERT INTO message_warnings (topic, comment, author, message, warning_type)
+            VALUES ($hiddenTopic, $targetId, $author, 'test warning', 'rule')
+            RETURNING id""".map(rs => rs.int("id")).single.apply().get
+    insertUserEvent(eventOwner, "WARNING", None, Some(warningId), hiddenTopic)
+
+    val unreadBefore = getUnreadEvents(eventOwner)
+
+    val ids = commentDao.getDeletableDeletedCommentIds
+    assert(ids.contains(targetId), "comment in hidden-comments topic should be a candidate")
+
+    val purged = commentDao.purgeDeletedComments(Seq(targetId, controlId))
+
+    assertEquals(purged, 1)
+    assertEquals(countRows("comments", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("edit_info", "msgid", targetId), 0)
+    assertEquals(countRows("reactions_log", "comment_id", targetId), 0)
+    assertEquals(countRows("message_warnings", "comment", targetId), 0)
+    assertEquals(countRows("user_events", "comment_id", targetId), 0)
+    assertEquals(countRows("user_events", "warning_id", warningId), 0)
+    assertEquals(countRows("comments", "id", controlId), 1)
+    assertEquals(countRows("msgbase", "id", controlId), 1)
+
+    val unreadAfter = getUnreadEvents(eventOwner)
+    assertEquals(unreadAfter, unreadBefore - 2, "unread events counter should be recalculated")
+
+  test("purgeSkipsCommentsInUnhiddenTopics"):
+    val author = createUser("test-purge-unhide-author", blocked = true, Some(ts("2023-01-01")), None)
+
+    val unhiddenTopic = nextTopicId(topicId)
+
+    val commentId = nextMsgId
+    insertComment(commentId, author, None, deleted = false, "comment in unhidden topic", unhiddenTopic)
+
+    // вставка комментария обновляет topics.lastmod (триггер comins) — помечаем после вставки
+    hideTopicComments(unhiddenTopic, ts("2015-01-01"))
+
+    val ids = commentDao.getDeletableDeletedCommentIds
+    assert(ids.contains(commentId), "comment in hidden-comments topic should be a candidate")
+
+    springDB.run:
+      sql"UPDATE topics SET postscore=NULL, lastmod=CURRENT_TIMESTAMP WHERE id = $unhiddenTopic".update.apply()
+
+    val purged = commentDao.purgeDeletedComments(Seq(commentId))
+
+    assertEquals(purged, 0)
+    assertEquals(countRows("comments", "id", commentId), 1)
+    assertEquals(countRows("msgbase", "id", commentId), 1)
 
   test("purgeSkipsNotDeletedComments"):
     val author = createUser("test-purge-skip", blocked = false, Some(ts("2026-08-01")), None)

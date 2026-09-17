@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
+import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
 import ru.org.linux.util.StringUtil
 import scalikejdbc.*
@@ -223,13 +224,14 @@ class CommentDao(springDB: SpringDB):
     *
     * Комментарий является кандидатом, если:
     *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет, либо находится в
-    *     топике, удалённом более 3 лет назад (удаление топика не помечает его комментарии как удалённые);
+    *     топике, удалённом более 3 лет назад (удаление топика не помечает его комментарии как удалённые), либо находится
+    *     в топике со скрытыми комментариями (`postscore = POSTSCORE_HIDE_COMMENTS`) и `lastmod` топика старше 3 лет;
     *   - не имеет ответов (включая сами удалённые);
     *   - его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет назад),
     *     либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч.
     *     anonymous).
     *
-    * Комментарии, подходящие по обоим критериям удаления, попадают в результат один раз (`UNION`). Комментарии с
+    * Комментарии, подходящие по нескольким критериям удаления, попадают в результат один раз (`UNION`). Комментарии с
     * удалёнными ответами вычищаются постепенно: сначала листья цепочки, затем их родители.
     *
     * @return
@@ -264,6 +266,20 @@ class CommentDao(springDB: SpringDB):
                   AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
               OR (users.lastlogin IS NULL AND users.regdate IS NULL)
             )
+            UNION
+            SELECT comments.id
+            FROM comments
+            JOIN topics ON topics.id = comments.topic
+            JOIN users ON users.id = comments.userid
+            WHERE topics.postscore = $POSTSCORE_HIDE_COMMENTS
+            AND topics.lastmod < CURRENT_TIMESTAMP - interval '3 years'
+            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
+            AND (
+              COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
+              OR (users.blocked
+                  AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
+              OR (users.lastlogin IS NULL AND users.regdate IS NULL)
+            )
             ORDER BY id""".map(rs => rs.int("id")).list.apply())
 
   /** Окончательно удаляет комментарии со всеми зависимыми записями (в одной транзакции).
@@ -271,8 +287,10 @@ class CommentDao(springDB: SpringDB):
     * Удаляются записи из `user_events` (события любых типов по `comment_id`, а также события привязанных к комментариям
     * предупреждений по `warning_id`), `reactions_log`, `message_warnings`, `edit_info`, `del_info`, `msgbase` и сами
     * комментарии. Перед удалением блокируются строки комментариев и их топиков (`FOR UPDATE`); комментарии,
-    * восстановленные к этому моменту напрямую или вместе с топиком, пропускаются. Счётчики непрочитанных уведомлений
-    * затронутых пользователей пересчитываются; счётчики комментариев топиков (`stat1`/`stat3`) не пересчитываются.
+    * восстановленные к этому моменту напрямую или вместе с топиком, а также находящиеся в топиках, в которых к этому
+    * моменту уже не скрыты комментарии (`postscore` отличен от `POSTSCORE_HIDE_COMMENTS`), пропускаются. Счётчики
+    * непрочитанных уведомлений затронутых пользователей пересчитываются; счётчики комментариев топиков (`stat1`/`stat3`)
+    * не пересчитываются.
     *
     * @param ids
     *   идентификаторы окончательно удаляемых комментариев
@@ -287,7 +305,8 @@ class CommentDao(springDB: SpringDB):
         val locked =
           sql"""SELECT comments.id FROM comments
                 JOIN topics ON topics.id = comments.topic
-                WHERE comments.id IN ($ids) AND (comments.deleted OR topics.deleted)
+                WHERE comments.id IN ($ids)
+                AND (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
                 ORDER BY comments.id FOR UPDATE"""
             .map(rs => rs.int("id"))
             .list
