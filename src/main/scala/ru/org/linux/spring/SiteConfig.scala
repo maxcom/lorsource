@@ -184,5 +184,17 @@ class SiteConfig(
     else
       property.toBoolean
 
+  /** Удалять ли физически старые удалённые топики без комментариев неактивных пользователей (раз в день ночью).
+    *
+    * @return
+    *   true если разрешено удалять, иначе false (только логгирование кандидатов)
+    */
+  def cleanOldDeletedTopics: Boolean =
+    val property = properties.getProperty("cleanOldDeletedTopics")
+    if property == null then
+      false
+    else
+      property.toBoolean
+
 object SiteConfig:
   private val ErrMsg = "Invalid MainUrl property: "

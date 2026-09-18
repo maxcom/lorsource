@@ -91,8 +91,8 @@ class TopicDao(springDB: SpringDB):
     val truncatedUserAgent = userAgent.substring(0, Math.min(511, userAgent.length))
     sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
           VALUES (${group.id}, ${user.id}, ${msg.title}, ${msg.url}, 'f', CURRENT_TIMESTAMP, $msgid, ${msg
-          .linktext}, 'f', create_user_agent($truncatedUserAgent), ${msg.postIP}::inet, ${msg
-          .draft}, CURRENT_TIMESTAMP, ${msg.allowAnonymous})""".update.apply()
+        .linktext}, 'f', create_user_agent($truncatedUserAgent), ${msg.postIP}::inet, ${msg
+        .draft}, CURRENT_TIMESTAMP, ${msg.allowAnonymous})""".update.apply()
     msgid
 
   def updateTitle(msgid: Int, title: String)(using Transaction): Unit =
@@ -327,3 +327,102 @@ class TopicDao(springDB: SpringDB):
           mw.author in (select id from users where score>100)) where open_warnings > 0""".update.apply()
 
   def recalcAllWarningsCountInTx(): Unit = springDB.localTx(recalcAllWarningsCount())
+
+  /** Старые удалённые топики без комментариев неактивных пользователей, подлежащие окончательному удалению.
+    *
+    * Топик является кандидатом, если:
+    *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет;
+    *   - не имеет комментариев (включая удалённые — их строки постепенно вычищает
+    *     [[ru.org.linux.comment.DeletedCommentCleaner]], после чего топик станет кандидатом);
+    *   - не имеет непрочищенных картинок (`images.purged = false` — файлы ещё не удалены
+    *     [[ru.org.linux.gallery.OldImageCleaner]]);
+    *   - его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет назад),
+    *     либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч.
+    *     anonymous).
+    *
+    * @return
+    *   список идентификаторов кандидатов, упорядоченный по возрастанию id
+    */
+  def getDeletableDeletedTopicIds: Seq[Int] =
+    springDB.run:
+      sql"""SELECT topics.id
+            FROM topics
+            JOIN del_info ON del_info.msgid = topics.id
+            JOIN users ON users.id = topics.userid
+            WHERE topics.deleted
+            AND del_info.deldate < CURRENT_TIMESTAMP - interval '3 years'
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
+            AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
+            AND (
+              COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
+              OR (users.blocked
+                  AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
+              OR (users.lastlogin IS NULL AND users.regdate IS NULL)
+            )
+            ORDER BY topics.id""".map(rs => rs.int("id")).list.apply()
+
+  /** Окончательно удаляет топики со всеми зависимыми записями (в одной транзакции).
+    *
+    * Удаляются записи из `user_events` (события любых типов по `message_id`, а также события привязанных к топикам
+    * предупреждений по `warning_id`), `reactions_log`, `message_warnings`, `edit_info`, `del_info`, `memories`, `tags`,
+    * `images` (файлы картинок должны быть предварительно удалены [[ru.org.linux.gallery.OldImageCleaner]]),
+    * `topic_users_notified`, `telegram_posts`, опросы (`vote_users`, `polls_variants`, `polls`), `msgbase` и сами
+    * топики. Перед удалением блокируются строки топиков (`FOR UPDATE`); топики, восстановленные к этому моменту,
+    * получившие комментарии или имеющие непрочищенные картинки, пропускаются. Счётчики непрочитанных уведомлений
+    * затронутых пользователей пересчитываются.
+    *
+    * @param ids
+    *   идентификаторы окончательно удаляемых топиков
+    * @return
+    *   число фактически удалённых топиков
+    */
+  def purgeDeletedTopics(ids: Seq[Int]): Int =
+    if ids.isEmpty then
+      0
+    else
+      springDB.localTx {
+        val locked =
+          sql"""SELECT topics.id FROM topics
+                WHERE topics.id IN ($ids)
+                AND topics.deleted
+                AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
+                AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
+                ORDER BY topics.id FOR UPDATE""".map(rs => rs.int("id")).list.apply()
+
+        if locked.isEmpty then
+          0
+        else
+          val affectedUsers =
+            sql"""SELECT DISTINCT userid FROM user_events
+                WHERE message_id IN ($locked)
+                OR warning_id IN (SELECT id FROM message_warnings WHERE topic IN ($locked))"""
+              .map(rs => rs.int("userid"))
+              .list
+              .apply()
+
+          sql"""DELETE FROM user_events
+                WHERE message_id IN ($locked)
+                OR warning_id IN (SELECT id FROM message_warnings WHERE topic IN ($locked))""".update.apply()
+
+          if affectedUsers.nonEmpty then
+            sql"""UPDATE users SET unread_events =
+                  (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
+                  WHERE users.id IN ($affectedUsers)""".update.apply()
+
+          sql"DELETE FROM reactions_log WHERE topic_id IN ($locked)".update.apply()
+          sql"DELETE FROM message_warnings WHERE topic IN ($locked)".update.apply()
+          sql"DELETE FROM edit_info WHERE msgid IN ($locked)".update.apply()
+          sql"DELETE FROM del_info WHERE msgid IN ($locked)".update.apply()
+          sql"DELETE FROM memories WHERE topic IN ($locked)".update.apply()
+          sql"DELETE FROM tags WHERE msgid IN ($locked)".update.apply()
+          sql"DELETE FROM images WHERE topic IN ($locked)".update.apply()
+          sql"DELETE FROM topic_users_notified WHERE topic IN ($locked)".update.apply()
+          sql"DELETE FROM telegram_posts WHERE topic_id IN ($locked)".update.apply()
+          sql"DELETE FROM vote_users WHERE vote IN (SELECT id FROM polls WHERE topic IN ($locked))".update.apply()
+          sql"DELETE FROM polls_variants WHERE vote IN (SELECT id FROM polls WHERE topic IN ($locked))".update.apply()
+          sql"DELETE FROM polls WHERE topic IN ($locked)".update.apply()
+          sql"DELETE FROM msgbase WHERE id IN ($locked)".update.apply()
+          sql"DELETE FROM topics WHERE id IN ($locked)".update.apply()
+
+          locked.size
+      }
