@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -90,13 +90,6 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     HttpServletRequest request,
     Exception exception
   ) {
-    modelAndView.addObject("headTitle", StringUtil.escapeHtml(exception.getClass().getName()));
-
-    String errorMessage = exception.getMessage() == null
-      ? StringUtil.escapeHtml(exception.getClass().getName())
-      : StringUtil.escapeHtml(exception.getMessage());
-    modelAndView.addObject("errorMessage", errorMessage);
-
     ExceptionType exceptionType = ExceptionType.OTHER;
     if (exception instanceof UserErrorException) {
       exceptionType = ExceptionType.IGNORED;
@@ -104,10 +97,23 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
       logger.debug("errors/common.jsp", exception);
       exceptionType = ExceptionType.SCRIPT_ERROR;
     } else {
-      logger.warn("Unexcepted exception caught", exception);
+      logger.warn("Unexpected exception caught", exception);
       String infoMessage = emailService.sendExceptionReport(request, exception, AuthUtil.getCurrentUser());
       modelAndView.addObject("infoMessage", infoMessage);
     }
     modelAndView.addObject("exceptionType", exceptionType.name());
+
+    modelAndView.addObject("headTitle", switch (exceptionType) {
+      case OTHER -> "внутренняя ошибка";
+      case IGNORED, SCRIPT_ERROR -> "неверный запрос";
+    });
+
+    String errorMessage = switch (exceptionType) {
+      case IGNORED, SCRIPT_ERROR -> exception.getMessage() == null
+        ? StringUtil.escapeHtml(exception.getClass().getName())
+        : StringUtil.escapeHtml(exception.getMessage());
+      case OTHER -> "Произошла внутренняя ошибка сервера";
+    };
+    modelAndView.addObject("errorMessage", errorMessage);
   }
 }
