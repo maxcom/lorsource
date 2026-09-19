@@ -60,6 +60,12 @@
 
     <div class="control-group">
       <div class="controls">
+        <lor:captcha forced="true"/>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <div class="controls">
         <button type=submit class="btn btn-primary">Активировать</button>
       </div>
     </div>
@@ -79,6 +85,8 @@
       <dt><label for="field_code">Код активации:</label></dt>
       <dd><input type="text" name="activation" required autofocus id="field_code" value="${fn:escapeXml(activation)}"></dd>
     </dl>
+
+    <lor:captcha/>
 
     <button type=submit>Активировать</button>
   </form>

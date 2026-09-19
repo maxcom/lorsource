@@ -57,7 +57,7 @@ class CaptchaService(@Qualifier("directBackend") httpClient: SyncBackend, siteCo
       } catch {
         case NonFatal(e) =>
           logger.warn("Unable to check captcha", e)
-          errors.reject(null, "Unable to check captcha: " + e.toString)
+          errors.reject(null, "Не удалось проверить код защиты от роботов, попробуйте еще раз")
       }
     }
   }

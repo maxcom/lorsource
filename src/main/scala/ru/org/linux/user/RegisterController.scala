@@ -19,11 +19,13 @@ import io.circe.Json
 import io.circe.syntax.EncoderOps
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException, UsernamePasswordAuthenticationToken}
+import org.springframework.security.authentication.{AuthenticationManager, BadCredentialsException,
+  UsernamePasswordAuthenticationToken}
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.stereotype.Controller
+import org.springframework.validation.BeanPropertyBindingResult
 import org.springframework.validation.Errors
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.WebDataBinder
@@ -39,55 +41,77 @@ import scala.annotation.unused
 import scala.jdk.CollectionConverters.*
 
 @Controller
-class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMeServices,
-                          @Qualifier("authenticationManager") authenticationManager: AuthenticationManager,
-                          userDetailsService: UserDetailsServiceImpl, userDao: UserDao, emailService: EmailService,
-                          userService: UserService, secretTokenService: SecretTokenService,
-                          emailDomainsBlockDao: EmailDomainsBlockDao,
-                          userPermissionService: UserPermissionService) extends StrictLogging {
+class RegisterController(
+    captcha: CaptchaService,
+    rememberMeServices: RememberMeServices,
+    @Qualifier("authenticationManager")
+    authenticationManager: AuthenticationManager,
+    userDetailsService: UserDetailsServiceImpl,
+    userDao: UserDao,
+    emailService: EmailService,
+    userService: UserService,
+    secretTokenService: SecretTokenService,
+    emailDomainsBlockDao: EmailDomainsBlockDao,
+    userPermissionService: UserPermissionService)
+    extends StrictLogging:
   private val registerRequestValidator = new RegisterRequestValidator(emailDomainsBlockDao)
 
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.GET))
-  def register(@unused @ModelAttribute("form") form: RegisterRequest,
-               response: HttpServletResponse): ModelAndView = AuthUtil.MaybeAuthorized { session =>
-    if session.authorized then
-      new ModelAndView(new RedirectView("/people/" + session.user.nick + "/profile"))
-    else
-      response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
+  def register(
+      @unused @ModelAttribute("form")
+      form: RegisterRequest,
+      response: HttpServletResponse): ModelAndView =
+    AuthUtil.MaybeAuthorized { session =>
+      if session.authorized then
+        new ModelAndView(new RedirectView("/people/" + session.user.nick + "/profile"))
+      else
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
 
-      if (userPermissionService.canRegister(session.ipBlockInfo)) {
-        new ModelAndView("register", "permit", secretTokenService.makeRegisterPermit())
-      } else {
-        new ModelAndView("no-register")
-      }
-  }
-  
+        if userPermissionService.canRegister(session.ipBlockInfo) then
+          new ModelAndView("register", "permit", secretTokenService.makeRegisterPermit())
+        else
+          new ModelAndView("no-register")
+    }
+
   @RequestMapping(value = Array("/register.jsp"), method = Array(RequestMethod.POST))
-  def doRegister(request: HttpServletRequest, @Validated @ModelAttribute("form") form: RegisterRequest,
-                 errors: Errors, @RequestParam(required = false) permit: String): ModelAndView = {
-    if (permit == null || !secretTokenService.checkRegisterPermit(permit)) {
+  def doRegister(
+      request: HttpServletRequest,
+      @Validated @ModelAttribute("form")
+      form: RegisterRequest,
+      errors: Errors,
+      @RequestParam(required = false)
+      permit: String): ModelAndView =
+    if permit == null || !secretTokenService.checkRegisterPermit(permit) then
       new ModelAndView("no-register")
-    } else {
-      if (!errors.hasErrors) {
+    else
+      if !errors.hasErrors then
         captcha.checkCaptcha(request, errors)
 
-        if (userDao.isUserExists(form.getNick) || userDao.hasSimilarUsers(form.getNick)) {
+        if userDao.isUserExists(form.getNick) || userDao.hasSimilarUsers(form.getNick) then
           errors.rejectValue("nick", null, "Это имя пользователя уже используется. Пожалуйста выберите другое имя.")
-        }
 
-        userService.getByEmail(form.getEmail, searchBlocked = true).foreach { byEmail =>
-          if (!byEmail.blocked || userService.wasRecentlyBlocker(byEmail)) {
-            errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
-              "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля.")
+        userService
+          .getByEmail(form.getEmail, searchBlocked = true)
+          .foreach { byEmail =>
+            if !byEmail.blocked || userService.wasRecentlyBlocker(byEmail) then
+              errors.rejectValue(
+                "email",
+                null,
+                "пользователь с таким e-mail уже зарегистрирован. " +
+                  "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля."
+              )
           }
-        }
-      }
 
-      if (!errors.hasErrors) {
+      if !errors.hasErrors then
         val mail = new InternetAddress(form.getEmail.toLowerCase)
-        val (userid, regdate) = userService.createUser(nick = form.getNick, password = form.getPassword, mail = mail,
-          ip = request.getRemoteAddr, userAgent = Option(request.getHeader("user-agent")),
-          language = Option(request.getHeader("accept-language")))
+        val (userid, regdate) = userService.createUser(
+          nick = form.getNick,
+          password = form.getPassword,
+          mail = mail,
+          ip = request.getRemoteAddr,
+          userAgent = Option(request.getHeader("user-agent")),
+          language = Option(request.getHeader("accept-language"))
+        )
 
         logger.info(s"Зарегистрирован пользователь ${form.getNick} (id=$userid) ${LorHttpUtils.getRequestIP(request)}")
 
@@ -97,118 +121,152 @@ class RegisterController(captcha: CaptchaService, rememberMeServices: RememberMe
           "action-done",
           "message",
           "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.")
-      } else {
+      else
         val params = Map("permit" -> permit)
         new ModelAndView("register", params.asJava)
-      }
-    }
-  }
 
-  private def activationFormParams(nick: String, activation: String) = {
+  private def activationFormParams(nick: String, activation: String) =
     val nickSanitized = Option(nick).filter(StringUtil.checkLoginName).orNull
     val activationSanitized = Option(activation).filter(_.forall(_.isLetterOrDigit)).orNull
 
-    Map(
-      "nick" -> nickSanitized,
-      "activation" -> activationSanitized
-    )
-  }
+    Map("nick" -> nickSanitized, "activation" -> activationSanitized)
+
+  private def captchaErrorMessage(errors: Errors): String =
+    errors.getAllErrors.asScala.map(_.getDefaultMessage).mkString("; ")
 
   @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.GET))
-  def activateForm(@RequestParam(required = false) nick: String,
-                   @RequestParam(required = false) activation: String): ModelAndView = {
-    new ModelAndView("activate", activationFormParams(nick, activation).asJava)
-  }
+  def activateForm(
+      @RequestParam(required = false)
+      nick: String,
+      @RequestParam(required = false)
+      activation: String): ModelAndView = new ModelAndView("activate", activationFormParams(nick, activation).asJava)
 
-  @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.POST), params = Array("action"))
-  def activateNew(request: HttpServletRequest, response: HttpServletResponse,
-                  @RequestParam activation: String, @RequestParam nick: String,
-                  @RequestParam passwd: String): ModelAndView = {
-    try {
-      val details = userDetailsService.loadUserByUsername(nick)
+  @RequestMapping(
+    value = Array("/activate", "/activate.jsp"),
+    method = Array(RequestMethod.POST),
+    params = Array("action"))
+  def activateNew(
+      request: HttpServletRequest,
+      response: HttpServletResponse,
+      @RequestParam
+      activation: String,
+      @RequestParam
+      nick: String,
+      @RequestParam
+      passwd: String): ModelAndView =
+    val captchaErrors = new BeanPropertyBindingResult(null, "activate")
 
-      if (!details.getUser.activated) {
-        val token = new UsernamePasswordAuthenticationToken(nick, passwd)
+    captcha.checkCaptcha(request, captchaErrors)
 
-        token.setDetails(details)
-
-        val auth = authenticationManager.authenticate(token)
-        val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
-
-        val regdate = userDao.getUserInfo(userDetails.getUser).registrationDate
-
-        if (secretTokenService.verifyActivationCode(userDetails.getUser.nick, userDetails.getUser.email, regdate, activation)) {
-          logger.info(s"Activated user ${userDetails.getUser.nick}")
-          userService.activateUser(userDetails.getUser)
-
-          val updatedDetails = userDetailsService.loadUserByUsername(nick)
-          token.setDetails(updatedDetails)
-          val updatedAuth = authenticationManager.authenticate(token)
-
-          SecurityContextHolder.getContext.setAuthentication(updatedAuth)
-          rememberMeServices.loginSuccess(request, response, updatedAuth)
-          AuthUtil.updateLastLogin(updatedAuth, userService, request.getRemoteAddr)
-
-          new ModelAndView(new RedirectView("/"))
-        } else {
-          logger.warn(s"Wrong activation code for ${userDetails.getUser.nick}")
-          
-          val params = activationFormParams(nick, activation) + ("error" -> "Неправильный код активации")
-          new ModelAndView("activate", params.asJava)
-        }
-      } else {
-        new ModelAndView(new RedirectView("/"))
-      }
-    } catch {
-      case _: UsernameNotFoundException =>
-        val params = activationFormParams(nick, activation) + ("error" -> "Пользователь не найден")
-        new ModelAndView("activate", params.asJava)
-      case _: BadCredentialsException =>
-        val params = activationFormParams(nick, activation) + ("error" -> "Неправильный логин или пароль")
-        new ModelAndView("activate", params.asJava)
-    }
-  }
-
-  @RequestMapping(value = Array("/activate", "/activate.jsp"), method = Array(RequestMethod.POST), params = Array("!action"))
-  def activate(@RequestParam activation: String): ModelAndView = AuthorizedOnly { currentUser =>
-    val newEmail = userDao.getNewEmail(currentUser.user)
-
-    if (newEmail == null) {
-      throw new AccessViolationException("new_email == null?!")
-    }
-
-    val regdate = userDao.getUserInfo(currentUser.user).registrationDate
-
-    if (!secretTokenService.verifyActivationCode(currentUser.user.nick, newEmail, regdate, activation)) {
-      val params = activationFormParams(currentUser.user.nick, activation) + ("error" -> "Неправильный код активации")
+    if captchaErrors.hasErrors then
+      val params = activationFormParams(nick, activation) + ("error" -> captchaErrorMessage(captchaErrors))
 
       new ModelAndView("activate", params.asJava)
-    } else {
-      userService.acceptNewEmail(currentUser.user, newEmail)
+    else
+      try
+        val details = userDetailsService.loadUserByUsername(nick)
 
-      new ModelAndView(new RedirectView("/people/" + currentUser.user.nick + "/profile"))
+        if !details.getUser.activated then
+          val token = new UsernamePasswordAuthenticationToken(nick, passwd)
+
+          token.setDetails(details)
+
+          val auth = authenticationManager.authenticate(token)
+          val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
+
+          val regdate = userDao.getUserInfo(userDetails.getUser).registrationDate
+
+          if secretTokenService.verifyActivationCode(
+              userDetails.getUser.nick,
+              userDetails.getUser.email,
+              regdate,
+              activation)
+          then
+            logger.info(s"Activated user ${userDetails.getUser.nick}")
+            userService.activateUser(userDetails.getUser)
+
+            val updatedDetails = userDetailsService.loadUserByUsername(nick)
+            token.setDetails(updatedDetails)
+            val updatedAuth = authenticationManager.authenticate(token)
+
+            SecurityContextHolder.getContext.setAuthentication(updatedAuth)
+            rememberMeServices.loginSuccess(request, response, updatedAuth)
+            AuthUtil.updateLastLogin(updatedAuth, userService, request.getRemoteAddr)
+
+            new ModelAndView(new RedirectView("/"))
+          else
+            logger.warn(s"Wrong activation code for ${userDetails.getUser.nick}")
+
+            val params = activationFormParams(nick, activation) + ("error" -> "Неправильный код активации")
+            new ModelAndView("activate", params.asJava)
+        else
+          new ModelAndView(new RedirectView("/"))
+      catch
+        case _: UsernameNotFoundException =>
+          val params = activationFormParams(nick, activation) + ("error" -> "Пользователь не найден")
+          new ModelAndView("activate", params.asJava)
+        case _: BadCredentialsException =>
+          val params = activationFormParams(nick, activation) + ("error" -> "Неправильный логин или пароль")
+          new ModelAndView("activate", params.asJava)
+
+  @RequestMapping(
+    value = Array("/activate", "/activate.jsp"),
+    method = Array(RequestMethod.POST),
+    params = Array("!action"))
+  def activate(
+      request: HttpServletRequest,
+      @RequestAttribute("captchaRequired")
+      captchaRequired: Boolean,
+      @RequestParam
+      activation: String): ModelAndView =
+    AuthorizedOnly { currentUser =>
+      val newEmail = userDao.getNewEmail(currentUser.user)
+
+      if newEmail == null then
+        throw new AccessViolationException("new_email == null?!")
+
+      val captchaErrors = new BeanPropertyBindingResult(null, "activate")
+
+      if captchaRequired then
+        captcha.checkCaptcha(request, captchaErrors)
+
+      val regdate = userDao.getUserInfo(currentUser.user).registrationDate
+
+      if captchaErrors.hasErrors then
+        val params =
+          activationFormParams(currentUser.user.nick, activation) +
+            ("error" -> captchaErrorMessage(captchaErrors))
+
+        new ModelAndView("activate", params.asJava)
+      else if !secretTokenService.verifyActivationCode(currentUser.user.nick, newEmail, regdate, activation) then
+        val params = activationFormParams(currentUser.user.nick, activation) + ("error" -> "Неправильный код активации")
+
+        new ModelAndView("activate", params.asJava)
+      else
+        userService.acceptNewEmail(currentUser.user, newEmail)
+
+        new ModelAndView(new RedirectView("/people/" + currentUser.user.nick + "/profile"))
     }
-  }
 
-  @ResponseBody
-  @RequestMapping(path = Array("check-login"))
-  def ajaxLoginCheck(@RequestParam nick: String): Json = {
-    (if (nick.isEmpty) {
-      "Не задан nick."
-    } else if (!StringUtil.checkLoginName(nick)) {
-      "Некорректное имя пользователя."
-    } else if (nick != null && nick.length > UserConstants.MAX_NICK_LENGTH) {
-      "Слишком длинное имя пользователя."
-    } else if (userDao.isUserExists(nick) || userDao.hasSimilarUsers(nick)) {
-      "Это имя пользователя уже используется. Пожалуйста выберите другое имя."
-    } else {
-      "true"
-    }).asJson
-  }
+  @ResponseBody @RequestMapping(path = Array("check-login"))
+  def ajaxLoginCheck(
+      @RequestParam
+      nick: String): Json =
+    (
+      if nick.isEmpty then
+        "Не задан nick."
+      else if !StringUtil.checkLoginName(nick) then
+        "Некорректное имя пользователя."
+      else if nick != null && nick.length > UserConstants.MAX_NICK_LENGTH then
+        "Слишком длинное имя пользователя."
+      else if userDao.isUserExists(nick) || userDao.hasSimilarUsers(nick) then
+        "Это имя пользователя уже используется. Пожалуйста выберите другое имя."
+      else
+        "true"
+    )
+    .asJson
 
   @InitBinder(Array("form"))
-  def requestValidator(binder: WebDataBinder):Unit = {
+  def requestValidator(binder: WebDataBinder): Unit =
     binder.setValidator(registerRequestValidator)
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
-  }
-}
