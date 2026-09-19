@@ -211,6 +211,12 @@ class TopicListDao(springDB: SpringDB):
             AND delDate is not null AND topics.userid = ${user.id}
             ORDER BY del_info.delDate DESC LIMIT $topics""".map(rs => DeletedTopic(rs.underlying)).list.apply()
 
+  def hasDeletedUserTopics(user: User): Boolean =
+    springDB.run:
+      sql"""SELECT EXISTS (SELECT 1 FROM topics JOIN del_info ON del_info.msgid=topics.id
+            WHERE topics.userid=${user.id} AND topics.deleted AND delDate is not null)"""
+        .map(rs => rs.boolean(1)).single.apply().getOrElse(false)
+
   def getUserSections(user: User): Seq[Int] =
     springDB.run:
       sql"""select distinct section from

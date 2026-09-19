@@ -78,6 +78,8 @@ class CommentReadService(commentDao: CommentDao) {
   def getDeletedComments(user: User, filter: DeletedCommentsFilterEnum, offset: Int): Seq[CommentsListItem] =
     commentDao.getDeletedComments(user.id, filter, offset)
 
+  def hasDeletedComments(user: User): Boolean = commentDao.hasDeletedComments(user.id)
+
   def makeHideSet(comments: CommentList, filterChain: Int, ignoreList: Set[Int]): Set[Int] = {
     if (filterChain == CommentFilter.FILTER_NONE) {
       Set.empty[Int]

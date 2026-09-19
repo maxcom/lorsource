@@ -167,4 +167,6 @@ class TopicListService(tagService: TagService, topicListDao: TopicListDao, secti
 
   def getDeletedUserTopics(user: User, topics: Int): Seq[DeletedTopic] = topicListDao.getDeletedUserTopics(user, topics)
 
+  def hasDeletedUserTopics(user: User): Boolean = topicListDao.hasDeletedUserTopics(user)
+
   def getUserSections(user: User): Seq[Section] = topicListDao.getUserSections(user).map(sectionService.idToSection)

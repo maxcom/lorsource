@@ -220,6 +220,12 @@ class CommentDao(springDB: SpringDB):
         .list
         .apply()
 
+  def hasDeletedComments(userId: Int): Boolean =
+    springDB.run:
+      sql"""SELECT EXISTS (SELECT 1 FROM comments JOIN topics ON comments.topic=topics.id
+            WHERE comments.userid=$userId AND (comments.deleted OR topics.deleted))"""
+        .map(rs => rs.boolean(1)).single.apply().getOrElse(false)
+
   /** Старые удалённые комментарии неактивных пользователей, подлежащие окончательному удалению.
     *
     * Комментарий является кандидатом, если:

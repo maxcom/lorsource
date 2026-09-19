@@ -26,11 +26,12 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.comment.CommentReadService
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.rights.{EditProfileChecker, SlowModeChecker}
 import ru.org.linux.site.DateFormats
-import ru.org.linux.topic.{TopicDao, TopicPermissionService}
+import ru.org.linux.topic.{TopicDao, TopicListService, TopicPermissionService}
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -45,8 +46,9 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
                       textService: MessageTextService, userTagService: UserTagService,
                       topicPermissionService: TopicPermissionService, userService: UserService, userLogDao: UserLogDao,
                       userLogPrepareService: UserLogPrepareService, remarkDao: RemarkDao, memoriesDao: MemoriesDao,
-                      topicDao: TopicDao, editProfileChecker: EditProfileChecker,
-                      slowModeChecker: SlowModeChecker) extends StrictLogging {
+                       topicDao: TopicDao, editProfileChecker: EditProfileChecker,
+                       slowModeChecker: SlowModeChecker, topicListService: TopicListService,
+                       commentReadService: CommentReadService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def getInfoNew(@PathVariable nick: String, request: HttpServletRequest): CompletionStage[ModelAndView] = MaybeAuthorized { currentUserOpt =>
     val user = userService.getUser(nick)
@@ -107,6 +109,14 @@ class WhoisController(userStatisticsService: UserStatisticsService, userDao: Use
 
     mv.getModel.put("moderatorOrCurrentUser", viewByOwner || currentUserOpt.moderator)
     mv.getModel.put("viewByOwner", viewByOwner)
+
+    if (viewByOwner || currentUserOpt.moderator) {
+      mv.getModel.put("deletedTopicsPresent", Boolean.box(topicListService.hasDeletedUserTopics(user)))
+    }
+
+    if (currentUserOpt.moderator) {
+      mv.getModel.put("deletedCommentsPresent", Boolean.box(commentReadService.hasDeletedComments(user)))
+    }
 
     val showFuzzy = !viewByOwner && {
       !currentUserOpt.authorized ||

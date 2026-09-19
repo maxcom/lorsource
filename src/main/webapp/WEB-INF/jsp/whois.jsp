@@ -35,6 +35,8 @@
 <%--@elvariable id="userlog" type="java.util.List<ru.org.linux.user.PreparedUserLogItem>"--%>
 <%--@elvariable id="otherUsers" type="java.util.List<ru.org.linux.user.User>"--%>
 <%--@elvariable id="currentUser" type="ru.org.linux.user.User"--%>
+<%--@elvariable id="deletedTopicsPresent" type="java.lang.Boolean"--%>
+<%--@elvariable id="deletedCommentsPresent" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -594,7 +596,7 @@
                     Темы
                 </c:otherwise>
             </c:choose>
-            <c:if test="${moderatorOrCurrentUser}">
+            <c:if test="${moderatorOrCurrentUser && deletedTopicsPresent}">
                 (<a href="/people/${user.nick}/deleted-topics">удаленные</a>)
             </c:if>
         </li>
@@ -611,7 +613,7 @@
               </c:otherwise>
           </c:choose>
 
-            <c:if test="${template.moderatorSession}">
+            <c:if test="${template.moderatorSession && deletedCommentsPresent}">
             (<a href="/people/${user.nick}/deleted-comments">удаленные</a>)
           </c:if>
         </li>
