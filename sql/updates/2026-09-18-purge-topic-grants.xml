@@ -23,4 +23,9 @@
     <sql>grant DELETE on images to linuxweb</sql>
     <sql>grant DELETE on vote_users to linuxweb</sql>
   </changeSet>
+
+  <changeSet id="2026092001" author="Maxim Valyanskiy">
+    <comment>Права на удаление строк для окончательного удаления старых топиков</comment>
+    <sql>grant DELETE on topics to linuxweb</sql>
+  </changeSet>
 </databaseChangeLog>
