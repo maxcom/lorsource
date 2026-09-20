@@ -75,7 +75,7 @@
       <li>СУБД PostgreSQL 16;</li>
       <li>OpenJDK 25;</li>
       <li>Scala 3;</li>
-      <li>Apache Tomcat 10.1;</li>
+      <li>Apache Tomcat 11.0;</li>
       <li>ActiveMQ 6.x;</li>
       <li>Spring 6.x;</li>
       <li>OpenSearch 3.x;</li>
