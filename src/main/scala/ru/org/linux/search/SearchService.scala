@@ -32,7 +32,6 @@ import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.user.UserService
-import ru.org.linux.util.StringUtil
 
 import java.time.{Instant, ZoneId}
 import java.util
@@ -157,7 +156,6 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
         .postTags("</em>")
         .requireFieldMatch(false)
         .fields("title", HighlightField.of(hf => hf.numberOfFragments(0)))
-        .fields("topicTitle", HighlightField.of(hf => hf.numberOfFragments(0)))
         .fields("message", HighlightField.of(hf =>
           hf
             .`type`(HighlighterType.of(ht => ht.builtin(BuiltinHighlighterType.FastVector)))
@@ -260,12 +258,12 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
     val highlight = Option(doc.highlight).map(_.asScala.toMap).getOrElse(Map.empty)
     val source = doc.source
 
-    val itemTitle = highlight.get("title").flatMap(_.asScala.headOption)
-      .orElse(source.title.map { v => StringUtil.escapeHtml(v) })
-
-    itemTitle.filter(_.trim.nonEmpty).orElse(
-      highlight.get("topic_title").flatMap(_.asScala.headOption))
-      .getOrElse(StringUtil.escapeHtml(source.topicTitle))
+    // в индексе title/topic_title хранятся уже заэкранированными (см. OpenSearchIndexService),
+    // поэтому подсветка <em class=search-hl> вставляется в display-ready текст — выводим как есть
+    highlight.get("title").flatMap(_.asScala.headOption)
+      .orElse(source.title)
+      .filter(_.trim.nonEmpty)
+      .getOrElse(source.topicTitle)
   }
 
   private def getMessage(doc: Hit[MessageIndexDocument]): String = {

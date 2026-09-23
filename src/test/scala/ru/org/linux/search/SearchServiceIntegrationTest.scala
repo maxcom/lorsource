@@ -23,12 +23,12 @@ import org.springframework.test.context.ContextConfiguration
 import ru.org.linux.PekkoConfiguration
 import ru.org.linux.test.SpringTestSupport
 import ru.org.linux.topic.TopicTagService
+import ru.org.linux.util.StringUtil
 
 import java.time.ZoneId
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-@ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration],
-  classOf[PekkoConfiguration]))
+@ContextConfiguration(classes = Array(classOf[SearchIntegrationTestConfiguration], classOf[PekkoConfiguration]))
 @DirtiesContext
 class SearchServiceIntegrationTest extends FunSuite with SpringTestSupport:
 
@@ -47,15 +47,15 @@ class SearchServiceIntegrationTest extends FunSuite with SpringTestSupport:
   @Autowired
   var topicTagService: TopicTagService = scala.compiletime.uninitialized
 
-  private val indexFixture = FunFixture[Unit](
-    setup = { _ =>
-      elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
-      indexCreationService.createIndexIfNeeded()
-    },
-    teardown = { _ =>
-      elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
-    }
-  )
+  private val indexFixture =
+    FunFixture[Unit](
+      setup =
+        _ =>
+          elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
+          indexCreationService.createIndexIfNeeded()
+      ,
+      teardown = _ => elastic.indices().delete(DeleteIndexRequest.of(d => d.index("*")))
+    )
 
   indexFixture.test("SearchService make valid default search"): _ =>
     val response = service.performSearch(new SearchServiceRequest(), ZoneId.systemDefault())
@@ -70,3 +70,47 @@ class SearchServiceIntegrationTest extends FunSuite with SpringTestSupport:
 
     assert(response.hits.nonEmpty)
     assertEquals(response.hits.head.tags.asScala.map(_.name).toSeq, Seq("lor"))
+
+  indexFixture.test("SearchService renders escaped title with highlight as-is"): _ =>
+    // title/topic_title хранятся в индексе уже заэкранированными (см. OpenSearchIndexService),
+    // search.jsp выводит их без c:out (должна проходить подсветка <em>) — рендер pass-through
+    val doc = MessageIndexDocument(
+      section = "forum",
+      topicAuthor = "maxcom",
+      topicId = 90001,
+      author = "maxcom",
+      group = "linux-org-ru",
+      title = Some(StringUtil.escapeHtml("<img src=x onerror=alert(1)> uniquezzztitle")),
+      topicTitle = StringUtil.escapeHtml("<img src=x onerror=alert(1)> uniquezzztitle"),
+      message = "plain text",
+      postdate = java.time.Instant.now().toString,
+      tags = Seq.empty,
+      isComment = false,
+      topicAwaitsCommit = false
+    )
+
+    elastic.index(
+      org
+        .opensearch
+        .client
+        .opensearch
+        .core
+        .IndexRequest
+        .of(i => i.index(OpenSearchIndexService.MessageIndex).id("90001").document(doc)))
+    elastic.indices().refresh(RefreshRequest.of(r => r.index("*")))
+
+    val query = new SearchServiceRequest()
+    query.q = "uniquezzztitle"
+
+    val response = service.performSearch(query, ZoneId.systemDefault())
+
+    assert(response.hits.nonEmpty, "document should be found")
+
+    val title = response.hits.head.title
+
+    // заэкранированный payload проходит в литеральном виде, сырого HTML-тега нет
+    assert(title.contains("&lt;img src=x onerror=alert(1)&gt;"), title)
+    assert(!title.contains("<img"), title)
+    // подсветка сохранена (pre-tag из запроса приходит verbatim, без jsoup-сериализации)
+    assert(title.contains("<em class=search-hl>"), title)
+    assert(title.contains("uniquezzztitle"), title)

@@ -28,6 +28,7 @@ import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicTagService}
 import ru.org.linux.user.UserService
+import ru.org.linux.util.StringUtil
 
 import scala.jdk.CollectionConverters.*
 
@@ -166,12 +167,16 @@ class OpenSearchIndexService(sectionService: SectionService, groupService: Group
 
     val commentTitle = comment.title
 
-    // comment.title и topic.title хранятся в БД в исходном виде (raw)
+    // comment.title и topic.title хранятся в БД в исходном виде (raw).
+    // В индекс пишем display-ready значения: title/topic_title рендерятся в
+    // поиске как есть (search.jsp выводит без c:out — должна проходить
+    // подсветка <em>), поэтому экранируем при индексации
     val title =
       Option(commentTitle)
         .filter(_.nonEmpty)
         .filterNot(_ == topicTitle)
         .filterNot(_.startsWith("Re:"))
+        .map(StringUtil.escapeHtml)
 
     MessageIndexDocument(
       section = section.getUrlName,
@@ -180,7 +185,7 @@ class OpenSearchIndexService(sectionService: SectionService, groupService: Group
       author = author.nick,
       group = group.urlName,
       title = title,
-      topicTitle = topicTitle,
+      topicTitle = StringUtil.escapeHtml(topicTitle),
       message = html,
       postdate = comment.postdate.toInstant.toString,
       tags = topicTagService.getTags(topic),
@@ -213,8 +218,8 @@ class OpenSearchIndexService(sectionService: SectionService, groupService: Group
       topicId = topic.id,
       author = author.nick,
       group = group.urlName,
-      title = Some(topic.title),
-      topicTitle = topic.title,
+      title = Some(StringUtil.escapeHtml(topic.title)),
+      topicTitle = StringUtil.escapeHtml(topic.title),
       message = html,
       postdate = topic.postdate.toInstant.toString,
       tags = topicTagService.getTags(topic),

@@ -164,7 +164,8 @@ class MoreLikeThisService(
     val title = source.title.getOrElse("")
 
     MoreLikeThisTopic(
-      title = StringUtil.processTitle(StringUtil.escapeHtml(title)),
+      // title в индексе уже заэкранирован (см. OpenSearchIndexService)
+      title = StringUtil.processTitle(title),
       link = link,
       year = postdate.atZone(ZoneId.systemDefault()).getYear,
       sectionService.getSectionByName(section).getTitle)
