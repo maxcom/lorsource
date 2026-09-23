@@ -328,6 +328,16 @@ class TopicDao(springDB: SpringDB):
 
   def recalcAllWarningsCountInTx(): Unit = springDB.localTx(recalcAllWarningsCount())
 
+  /** Общий критерий неактивности автора для кандидатов окончательного удаления и их перепроверки в
+    * [[purgeDeletedTopics]].
+    */
+  private val AuthorInactivityCondition = sqls"""(
+    COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
+    OR (users.blocked
+        AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
+    OR (users.lastlogin IS NULL AND users.regdate IS NULL)
+  )"""
+
   /** Старые удалённые топики без комментариев неактивных пользователей, подлежащие окончательному удалению.
     *
     * Топик является кандидатом, если:
@@ -353,23 +363,58 @@ class TopicDao(springDB: SpringDB):
             AND del_info.deldate < CURRENT_TIMESTAMP - interval '3 years'
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
             AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
-            AND (
-              COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
-              OR (users.blocked
-                  AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
-              OR (users.lastlogin IS NULL AND users.regdate IS NULL)
-            )
+            AND ${AuthorInactivityCondition}
+            ORDER BY topics.id""".map(rs => rs.int("id")).list.apply()
+
+  /** Черновики неактивных пользователей, подлежащие окончательному удалению.
+    *
+    * Черновик является кандидатом, если:
+    *   - не опубликован (`draft`) и не помечен как удалённый (мягко-удалённые черновики обрабатываются
+    *     [[getDeletableDeletedTopicIds]] по `del_info.deldate`);
+    *   - не имеет комментариев (в норме невозможны — черновики не публикуются; проверка защищает от гонки с публикацией
+    *     между выборкой и удалением);
+    *   - его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет назад),
+    *     либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч.
+    *     anonymous).
+    *
+    * В отличие от [[getDeletableDeletedTopicIds]] не фильтрует непрочищенные картинки: файлы картинок неопубликованных
+    * черновиков ([[ru.org.linux.gallery.OldImageCleaner]] их не обрабатывает) удаляет непосредственно перед purge сам
+    * [[DeletedTopicCleaner]] — с перепроверкой статуса топика в
+    * [[ru.org.linux.gallery.ImageDao.unpurgedImagesOfDrafts]], сужающей окно гонки с публикацией; строка топика
+    * пропускается проверкой в [[purgeDeletedTopics]], если файлы удалить не удалось. Неактивность автора также
+    * перепроверяется в [[purgeDeletedTopics]] при блокировке строки — вернувшийся между выборкой и purge автор своё
+    * содержание не теряет.
+    *
+    * @return
+    *   список идентификаторов кандидатов, упорядоченный по возрастанию id
+    */
+  def getDeletableDraftTopicIds: Seq[Int] =
+    springDB.run:
+      sql"""SELECT topics.id
+            FROM topics
+            JOIN users ON users.id = topics.userid
+            WHERE topics.draft
+            AND NOT topics.deleted
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
+            AND ${AuthorInactivityCondition}
             ORDER BY topics.id""".map(rs => rs.int("id")).list.apply()
 
   /** Окончательно удаляет топики со всеми зависимыми записями (в одной транзакции).
     *
+    * Обрабатывает как удалённые топики (кандидаты [[getDeletableDeletedTopicIds]]), так и черновики неактивных
+    * пользователей (кандидаты [[getDeletableDraftTopicIds]]).
+    *
     * Удаляются записи из `user_events` (события любых типов по `message_id`, а также события привязанных к топикам
     * предупреждений по `warning_id`), `reactions_log`, `message_warnings`, `edit_info`, `del_info`, `memories`, `tags`,
-    * `images` (файлы картинок должны быть предварительно удалены [[ru.org.linux.gallery.OldImageCleaner]]),
-    * `topic_users_notified`, `telegram_posts`, опросы (`vote_users`, `polls_variants`, `polls`), `msgbase` и сами
-    * топики. Перед удалением блокируются строки топиков (`FOR UPDATE`); топики, восстановленные к этому моменту,
-    * получившие комментарии или имеющие непрочищенные картинки, пропускаются. Счётчики непрочитанных уведомлений
-    * затронутых пользователей пересчитываются.
+    * `images` (файлы картинок должны быть предварительно удалены [[ru.org.linux.gallery.OldImageCleaner]] или
+    * [[DeletedTopicCleaner]]), `topic_users_notified`, `telegram_posts`, опросы (`vote_users`, `polls_variants`,
+    * `polls`), `msgbase` и сами топики. Перед удалением блокируются строки топиков и их авторов (`FOR UPDATE` по
+    * соединению с `users` — блокировка строки автора делает перепроверку неактивности стабильной до фиксации
+    * транзакции); топики,
+    * восстановленные (или, для черновиков, опубликованные) к этому моменту, получившие комментарии, имеющие
+    * непрочищенные картинки, а также топики, чей автор перестал удовлетворять критериям неактивности (например, вернулся
+    * на сайт) между выборкой кандидатов и purge, пропускаются. Счётчики непрочитанных уведомлений затронутых
+    * пользователей пересчитываются.
     *
     * @param ids
     *   идентификаторы окончательно удаляемых топиков
@@ -383,10 +428,12 @@ class TopicDao(springDB: SpringDB):
       springDB.localTx {
         val locked =
           sql"""SELECT topics.id FROM topics
+                JOIN users ON users.id = topics.userid
                 WHERE topics.id IN ($ids)
-                AND topics.deleted
+                AND (topics.deleted OR topics.draft)
                 AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
                 AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
+                AND ${AuthorInactivityCondition}
                 ORDER BY topics.id FOR UPDATE""".map(rs => rs.int("id")).list.apply()
 
         if locked.isEmpty then

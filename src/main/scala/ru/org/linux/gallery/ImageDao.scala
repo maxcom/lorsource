@@ -160,6 +160,27 @@ class ImageDao(private val sectionService: SectionService, springDB: SpringDB):
               AND NOT i.purged
             ORDER BY i.id""".map(imageFromRs).list.apply()
 
+  /** Непрочищенные изображения (`images.purged = false`) указанных черновиков. Используется
+    * [[ru.org.linux.topic.DeletedTopicCleaner]] для удаления файлов картинок черновиков непосредственно
+    * перед purge топиков. Соединение с `topics` и условия `t.draft AND NOT t.deleted` перепроверяют статус
+    * топика на момент подготовки батча: черновик, опубликованный после выборки кандидатов, исключается
+    * (его файлы — обычные файлы опубликованного топика), мягко-удалённый — тоже (его файлы удаляет
+    * [[OldImageCleaner]] Случай A по `del_info.deldate`).
+    */
+  def unpurgedImagesOfDrafts(topicIds: Seq[Int]): Seq[Image] =
+    if topicIds.isEmpty then
+      Seq.empty
+    else
+      springDB.run:
+        sql"""SELECT i.id, i.topic, i.extension, i.deleted, i.purged
+              FROM images i
+              JOIN topics t ON t.id = i.topic
+              WHERE i.topic IN ($topicIds)
+                AND t.draft
+                AND NOT t.deleted
+                AND NOT i.purged
+              ORDER BY i.id""".map(imageFromRs).list.apply()
+
   /** Размер батча для `IN (...)` в `markPurged`. Ограничивает число bind-параметров в одном
     * prepared statement с запасом под лимит PostgreSQL (65535). Помещает большие батчи
     * (десятки тысяч изображений при первом запуске чистильщика) в безопасный диапазон.

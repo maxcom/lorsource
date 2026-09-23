@@ -18,7 +18,9 @@ import munit.FunSuite
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
 import org.springframework.test.context.ContextConfiguration
+import ru.org.linux.gallery.ImageDao
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
@@ -26,7 +28,8 @@ import scalikejdbc.*
 import java.sql.Timestamp
 import java.time.LocalDate
 
-/** Интеграционные тесты окончательного удаления старых удалённых топиков ([[TopicDao.getDeletableDeletedTopicIds]] и
+/** Интеграционные тесты окончательного удаления старых удалённых топиков и черновиков неактивных пользователей
+  * ([[TopicDao.getDeletableDeletedTopicIds]], [[TopicDao.getDeletableDraftTopicIds]] и
   * [[TopicDao.purgeDeletedTopics]]).
   *
   * Даты вычисляются относительно текущей даты: пороги запросов — 3 года (дата удаления, заблокированные авторы) и 10
@@ -37,6 +40,9 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
   @Autowired
   var topicDao: TopicDao = scala.compiletime.uninitialized
+
+  @Autowired
+  var imageDao: ImageDao = scala.compiletime.uninitialized
 
   @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
@@ -66,13 +72,18 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
             VALUES (nextval('s_uid'), '', $nick, 'x', 45, 45, ${regdate.orNull}, $blocked, ${lastlogin.orNull})
             RETURNING id""".map(rs => rs.int("id")).single.apply().get
 
-  private def insertTopic(topicId: Int, userId: Int, title: String): Unit =
+  private def insertTopic(topicId: Int, userId: Int, title: String, draft: Boolean = false): Unit =
     springDB.run:
-      sql"""INSERT INTO topics (id, groupid, userid, title, postdate, deleted, lastmod)
-            VALUES ($topicId, $baseGroupId, $userId, $title, CURRENT_TIMESTAMP, 'f', CURRENT_TIMESTAMP)"""
+      sql"""INSERT INTO topics (id, groupid, userid, title, postdate, deleted, draft, lastmod)
+            VALUES ($topicId, $baseGroupId, $userId, $title, CURRENT_TIMESTAMP, 'f', $draft, CURRENT_TIMESTAMP)"""
         .update
         .apply()
       sql"INSERT INTO msgbase (id, message) VALUES ($topicId, 'test message')".update.apply()
+
+  private def insertDraft(userId: Int, title: String): Int =
+    val id = nextMsgId
+    insertTopic(id, userId, title, draft = true)
+    id
 
   private def markTopicDeleted(topic: Int, deldate: Timestamp, delby: Int): Unit =
     springDB.run:
@@ -306,6 +317,191 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     assertEquals(countRows("topics", "id", topicId), 0)
     assertEquals(countRows("images", "id", imageId), 0)
 
+  test("getDeletableDraftTopicIds"):
+    val inactive = createUser("test-draft-purge-inactive", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+    val blockedOld = createUser("test-draft-purge-blocked-old", blocked = true, Some(yearsAgo(4)), None)
+    val noDates = createUser("test-draft-purge-no-dates", blocked = false, None, None)
+    val regdateFallback = createUser("test-draft-purge-reg-fallback", blocked = false, None, Some(yearsAgo(11)))
+    val active = createUser("test-draft-purge-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))
+    val blockedRecent = createUser("test-draft-purge-blocked-recent", blocked = true, Some(monthsAgo(6)), None)
+    val recentRegdate = createUser("test-draft-purge-recent-reg", blocked = false, None, Some(monthsAgo(6)))
+
+    val candInactive = insertDraft(inactive, "cand inactive draft")
+    val candBlocked = insertDraft(blockedOld, "cand blocked draft")
+    val candNoDates = insertDraft(noDates, "cand no dates draft")
+    val candRegdateFallback = insertDraft(regdateFallback, "cand regdate fallback draft")
+
+    val ctrlActiveAuthor = insertDraft(active, "ctrl active author draft")
+    val ctrlBlockedRecent = insertDraft(blockedRecent, "ctrl blocked recent draft")
+    val ctrlRecentRegdate = insertDraft(recentRegdate, "ctrl recent regdate draft")
+
+    val ctrlPublished = nextMsgId
+    insertTopic(ctrlPublished, inactive, "ctrl published topic")
+
+    val ctrlDeletedDraft = insertDraft(inactive, "ctrl deleted draft")
+    markTopicDeleted(ctrlDeletedDraft, yearsAgo(4), inactive)
+
+    val ctrlWithComment = insertDraft(inactive, "ctrl with comment")
+    insertComment(nextMsgId, active, ctrlWithComment)
+
+    val ids = topicDao.getDeletableDraftTopicIds
+
+    assert(ids.contains(candInactive), "draft of inactive author should be a candidate")
+    assert(ids.contains(candBlocked), "draft of blocked author with old lastlogin should be a candidate")
+    assert(ids.contains(candNoDates), "draft of author without dates should be a candidate")
+    assert(ids.contains(candRegdateFallback), "unknown lastlogin should fall back to old regdate for drafts")
+    assert(!ids.contains(ctrlActiveAuthor), "draft of active author should not be a candidate")
+    assert(!ids.contains(ctrlBlockedRecent), "draft of blocked author with recent lastlogin should not be a candidate")
+    assert(!ids.contains(ctrlRecentRegdate), "draft with recent regdate fallback should not be a candidate")
+    assert(!ids.contains(ctrlPublished), "published topic should not be a candidate")
+    assert(!ids.contains(ctrlDeletedDraft), "soft-deleted draft should not be a candidate")
+    assert(!ids.contains(ctrlWithComment), "draft with comment should not be a candidate")
+
+  test("purgeDeletedTopicsPurgesDraft"):
+    val author = createUser("test-draft-purge-author", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+    val eventOwner = createUser("test-draft-purge-event-owner", blocked = false, Some(monthsAgo(1)), None)
+
+    val targetId = nextMsgId
+    insertTopic(targetId, author, "draft to be purged", draft = true)
+
+    val controlId = nextMsgId
+    insertTopic(controlId, author, "draft control", draft = true)
+
+    val tagId = springDB.run:
+      sql"SELECT id FROM tags_values ORDER BY id LIMIT 1".map(rs => rs.int("id")).single.apply().get
+
+    springDB.run:
+      sql"INSERT INTO tags VALUES ($targetId, $tagId)".update.apply()
+      sql"INSERT INTO memories (userid, topic, watch) VALUES ($eventOwner, $targetId, false)".update.apply()
+      sql"""INSERT INTO reactions_log (origin_user, topic_id, comment_id, reaction)
+            VALUES ($eventOwner, $targetId, NULL, 'like')""".update.apply()
+      sql"INSERT INTO images (topic, extension, purged) VALUES ($targetId, 'jpg', true)".update.apply()
+      sql"INSERT INTO topic_users_notified (topic, userid) VALUES ($targetId, $eventOwner)".update.apply()
+      sql"""INSERT INTO telegram_posts (topic_id, telegram_id, postdate)
+            VALUES ($targetId, 987654, CURRENT_TIMESTAMP)""".update.apply()
+      sql"INSERT INTO tags VALUES ($controlId, $tagId)".update.apply()
+
+    insertUserEvent(eventOwner, "WATCH", targetId)
+
+    val unreadBefore = getUnreadEvents(eventOwner)
+
+    assert(topicDao.getDeletableDraftTopicIds.contains(targetId), "target draft should be a candidate")
+    assert(topicDao.getDeletableDraftTopicIds.contains(controlId), "control draft should be a candidate")
+
+    val purged = topicDao.purgeDeletedTopics(Seq(targetId))
+
+    assertEquals(purged, 1)
+    assertEquals(countRows("topics", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("edit_info", "msgid", targetId), 0)
+    assertEquals(countRows("memories", "topic", targetId), 0)
+    assertEquals(countRows("reactions_log", "topic_id", targetId), 0)
+    assertEquals(countRows("images", "topic", targetId), 0)
+    assertEquals(countRows("topic_users_notified", "topic", targetId), 0)
+    assertEquals(countRows("telegram_posts", "topic_id", targetId), 0)
+    assertEquals(countRows("tags", "msgid", targetId), 0)
+    assertEquals(countRows("user_events", "message_id", targetId), 0)
+
+    assertEquals(countRows("topics", "id", controlId), 1)
+    assertEquals(countRows("tags", "msgid", controlId), 1)
+
+    val unreadAfter = getUnreadEvents(eventOwner)
+    assertEquals(unreadAfter, unreadBefore - 1, "unread events counter should be recalculated")
+
+    intercept[MessageNotFoundException] {
+      topicDao.getById(targetId)
+    }
+
+  test("purgeSkipsPublishedDraft"):
+    val author = createUser("test-draft-purge-published", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+
+    val topicId = nextMsgId
+    insertTopic(topicId, author, "draft to be published", draft = true)
+
+    assert(topicDao.getDeletableDraftTopicIds.contains(topicId))
+
+    springDB.run:
+      sql"UPDATE topics SET draft='f' WHERE id = $topicId".update.apply()
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(topicId)), 0)
+    assertEquals(countRows("topics", "id", topicId), 1)
+
+  test("purgeSkipsDraftsWithUnpurgedImages"):
+    val author = createUser("test-draft-purge-image", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+
+    val topicId = nextMsgId
+    insertTopic(topicId, author, "draft with image", draft = true)
+    val imageId = insertImage(topicId, purged = false)
+
+    assert(topicDao.getDeletableDraftTopicIds.contains(topicId), "draft with unpurged image is a candidate")
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(topicId)), 0)
+    assertEquals(countRows("topics", "id", topicId), 1)
+    assertEquals(countRows("images", "id", imageId), 1)
+
+    springDB.run:
+      sql"UPDATE images SET purged=true WHERE id = $imageId".update.apply()
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(topicId)), 1)
+    assertEquals(countRows("topics", "id", topicId), 0)
+    assertEquals(countRows("images", "id", imageId), 0)
+
+  test("purgeSkipsDraftOfReturnedUser"):
+    val author = createUser("test-draft-purge-returned", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+
+    val topicId = insertDraft(author, "draft of returned user")
+
+    assert(topicDao.getDeletableDraftTopicIds.contains(topicId), "draft of inactive author should be a candidate")
+
+    springDB.run:
+      sql"UPDATE users SET lastlogin = CURRENT_TIMESTAMP WHERE id = $author".update.apply()
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(topicId)), 0)
+    assertEquals(countRows("topics", "id", topicId), 1)
+    assertEquals(countRows("msgbase", "id", topicId), 1)
+
+  test("purgeSkipsDeletedTopicOfReturnedUser"):
+    val author = createUser("test-topic-purge-returned", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+
+    val topicId = nextMsgId
+    insertTopic(topicId, author, "deleted topic of returned user")
+    markTopicDeleted(topicId, yearsAgo(4), author)
+
+    assert(topicDao.getDeletableDeletedTopicIds.contains(topicId), "topic of inactive author should be a candidate")
+
+    springDB.run:
+      sql"UPDATE users SET lastlogin = CURRENT_TIMESTAMP WHERE id = $author".update.apply()
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(topicId)), 0)
+    assertEquals(countRows("topics", "id", topicId), 1)
+    assertEquals(countRows("msgbase", "id", topicId), 1)
+
+  test("unpurgedImagesOfDrafts"):
+    val author = createUser("test-image-dao-author", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+
+    val draft1 = nextMsgId
+    insertTopic(draft1, author, "draft 1", draft = true)
+    val draft2 = nextMsgId
+    insertTopic(draft2, author, "draft 2", draft = true)
+    val published = nextMsgId
+    insertTopic(published, author, "published topic")
+    val deletedDraft = nextMsgId
+    insertTopic(deletedDraft, author, "deleted draft", draft = true)
+    markTopicDeleted(deletedDraft, yearsAgo(4), author)
+
+    val unpurged1 = insertImage(draft1, purged = false)
+    val unpurged2 = insertImage(draft1, purged = false)
+    insertImage(draft1, purged = true)
+    insertImage(draft2, purged = true)
+    insertImage(published, purged = false)
+    insertImage(deletedDraft, purged = false)
+
+    val images = imageDao.unpurgedImagesOfDrafts(Seq(draft1, draft2, published, deletedDraft))
+
+    assertEquals(images.map(_.id).toSet, Set(unpurged1, unpurged2), "only images of non-deleted drafts are returned")
+    assertEquals(images.map(_.topicId).toSet, Set(draft1))
+    assertEquals(imageDao.unpurgedImagesOfDrafts(Seq.empty), Seq.empty)
+
   test("purgeEmptyList"):
     assertEquals(topicDao.purgeDeletedTopics(Seq.empty), 0)
 
@@ -316,5 +512,14 @@ class DeletedTopicPurgeIntegrationTestConfiguration:
 
   @Bean
   def topicDao(springDB: SpringDB): TopicDao = TopicDao(springDB)
+
+  @Bean
+  def sectionDao(springDB: SpringDB): SectionDao = SectionDaoImpl(springDB)
+
+  @Bean
+  def sectionService(sectionDao: SectionDao): SectionService = SectionService(sectionDao)
+
+  @Bean
+  def imageDao(sectionService: SectionService, springDB: SpringDB): ImageDao = ImageDao(sectionService, springDB)
 
 end DeletedTopicPurgeIntegrationTestConfiguration
