@@ -41,8 +41,8 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title><l:title>${message.title}</l:title> — <l:title><c:out value="${preparedMessage.group.title}"/></l:title> — ${preparedMessage.section.title}</title>
-<meta property="og:title" content="<l:title>${message.title}</l:title>">
+<title><l:title><c:out value="${message.title}"/></l:title> — <l:title><c:out value="${preparedMessage.group.title}"/></l:title> — ${preparedMessage.section.title}</title>
+<meta property="og:title" content="<l:title><c:out value="${message.title}"/></l:title>">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:type" content="article">
 <meta property="og:url" content="${configuration.secureUrlWithoutSlash}${message.link}">
@@ -95,7 +95,7 @@
       <c:if test="${prevMessage != null}">
         <a class="scroller-arrow" href="${fn:escapeXml(prevMessage.link)}">←</a>
         <a class="scroller-title hideon-phone" href="${fn:escapeXml(prevMessage.link)}">
-          <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
+          <l:title><l:mkTitle><c:out value="${prevMessage.title}"/></l:mkTitle></l:title>
         </a>
       </c:if>
     </div>
@@ -104,7 +104,7 @@
     <div class="scroller-next">
       <c:if test="${nextMessage != null}">
         <a class="scroller-title hideon-phone" href="${fn:escapeXml(nextMessage.link)}">
-          <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
+          <l:title><l:mkTitle><c:out value="${nextMessage.title}"/></l:mkTitle></l:title>
         </a>
         <a class="scroller-arrow" href="${fn:escapeXml(nextMessage.link)}">→</a>
       </c:if>
@@ -120,7 +120,7 @@
       <c:if test="${prevMessage != null}">
         <a class="scroller-arrow" href="${fn:escapeXml(prevMessage.link)}">←</a>
         <a class="scroller-title hideon-phone" href="${fn:escapeXml(prevMessage.link)}">
-          <l:title><l:mkTitle>${prevMessage.title}</l:mkTitle></l:title>
+          <l:title><l:mkTitle><c:out value="${prevMessage.title}"/></l:mkTitle></l:title>
         </a>
       </c:if>
     </div>
@@ -133,7 +133,7 @@
     <div class="scroller-next">
       <c:if test="${nextMessage != null}">
         <a class="scroller-title hideon-phone" href="${fn:escapeXml(nextMessage.link)}">
-          <l:title><l:mkTitle>${nextMessage.title}</l:mkTitle></l:title>
+          <l:title><l:mkTitle><c:out value="${nextMessage.title}"/></l:mkTitle></l:title>
         </a>
         <a class="scroller-arrow" href="${fn:escapeXml(nextMessage.link)}">→</a>
       </c:if>

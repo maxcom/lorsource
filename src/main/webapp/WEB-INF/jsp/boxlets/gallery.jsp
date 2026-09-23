@@ -29,13 +29,13 @@
             <img sizes="(min-width: 70em) 24vw, (min-width: 47em) 50vw, 100vw"
                  srcset="${item.item.image.srcset}"
                  src="${item.item.image.medium}"
-                 alt="<l:title>${item.item.title}</l:title>"
+                 alt="<l:title><c:out value="${item.item.title}"/></l:title>"
                  ${item.mediumInfo.code}
                  loading="lazy">
           </a>
         </div>
 
-        <a href="${url}">${item.item.title}</a> от ${item.user.nick} (${item.item.stat})
+        <a href="${url}"><c:out value="${item.item.title}"/></a> от ${item.user.nick} (${item.item.stat})
       </div>
     </c:forEach>
 

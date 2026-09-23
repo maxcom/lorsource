@@ -103,9 +103,9 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
             canonical
           } else {
              if (url.isCommentUrl) {
-              message.getTitleUnescaped + " (комментарий)"
+              message.title + " (комментарий)"
             } else {
-              message.getTitleUnescaped
+              message.title
             }
           }
 

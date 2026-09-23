@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 package ru.org.linux.comment
 
 import com.google.common.base.Strings
-import org.apache.commons.text.StringEscapeUtils
 import ru.org.linux.reaction.PreparedReactions
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.user.{User, Userpic}
@@ -32,13 +31,8 @@ object PreparedComment {
             deleteInfo: Option[ApiDeleteInfo], editSummary: Option[EditSummary], userAgent: Option[String],
             answerLink: Option[String], answerSamepage: Boolean, authorReadonly: Boolean, postIP: Option[String],
             reactions: PreparedReactions, warningsAllowed: Boolean, warnings: Seq[PreparedWarning]): PreparedComment = {
-    val encodedTitle = Strings.emptyToNull(comment.title.trim)
-
-    val title = if (encodedTitle != null) {
-      StringEscapeUtils.unescapeHtml4(encodedTitle)
-    } else {
-      null
-    }
+    // title хранится в БД в исходном виде; экранирование — при отображении (comment.tag)
+    val title = Strings.emptyToNull(comment.title.trim)
 
     PreparedComment(
       id = comment.id,

@@ -174,7 +174,7 @@ class MoreLikeThisService(
     Query.of(q => q
       .moreLikeThis(MoreLikeThisQuery.of(m => m
         .fields("title")
-        .like(Like.of(l => l.text(topic.getTitleUnescaped)))
+        .like(Like.of(l => l.text(topic.title)))
         .minTermFreq(1)
         .minDocFreq(2)
         .stopWords(StopWords.asJava)

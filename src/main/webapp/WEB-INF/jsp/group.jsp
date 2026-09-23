@@ -199,13 +199,13 @@
 
     <c:if test="${firstPage}">
         <a href="${topic.firstPageUrl}">
-          ${topic_tags}<c:out value=" "/><l:title>${topic.title}</l:title>
+          ${topic_tags}<c:out value=" "/><l:title><c:out value="${topic.title}"/></l:title>
         </a>
     </c:if>
 
     <c:if test="${not firstPage}">
       <a href="${topic.canonicalUrl}">
-          ${topic_tags}<c:out value=" "/><l:title>${topic.title}</l:title>
+          ${topic_tags}<c:out value=" "/><l:title><c:out value="${topic.title}"/></l:title>
       </a>
     </c:if>
 

@@ -15,7 +15,6 @@
 package ru.org.linux.user
 
 import com.rometools.rome.feed.synd.{SyndContentImpl, SyndEntryImpl, SyndFeed}
-import org.apache.commons.text.StringEscapeUtils
 import ru.org.linux.spring.AbstractRomeView
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.StringUtil
@@ -50,7 +49,7 @@ class UserEventFeedView(siteConfig: SiteConfig) extends AbstractRomeView:
 
       val feedEntry = new SyndEntryImpl()
       feedEntry.setPublishedDate(item.eventDate)
-      feedEntry.setTitle(StringEscapeUtils.unescapeHtml4(item.subj))
+      feedEntry.setTitle(item.subj) // subj = raw topic title; Rome экранирует XML при выводе
 
       if item.cid != 0 then
         feedEntry.setAuthor(preparedUserEvent.author.nick)

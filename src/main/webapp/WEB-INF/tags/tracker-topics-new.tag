@@ -52,7 +52,7 @@
             <i class="icon-check" title="решено"></i>
           </c:if>
 
-          <l:title>${msg.title}</l:title>
+          <l:title><c:out value="${msg.title}"/></l:title>
         </p>
       </div>
 

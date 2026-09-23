@@ -56,7 +56,19 @@ public final class StringUtil {
 
   public static String makeTitle(String title) {
     if (title != null && !title.trim().isEmpty()) {
-      return new RuTypoChanger().format(title);
+      String formatted = new RuTypoChanger().format(title);
+
+      // Заголовки хранятся и передаются в отображение в исходном (raw) виде,
+      // поэтому вставленные RuTypoChanger HTML-сущности декодируем обратно в символы.
+      // Экранирование выполняется на этапе отображения (JSP c:out).
+      formatted = formatted.replace("&quot;", "\"")
+          .replace("&#171;", "«")
+          .replace("&#187;", "»")
+          .replace("&#8222;", "„")
+          .replace("&#8220;", "“")
+          .replace("&#8221;", "”");
+
+      return formatted;
     }
     return "Без заглавия";
   }

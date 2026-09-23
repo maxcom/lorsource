@@ -57,7 +57,7 @@
     <div class="msg">
       <div class="msg-container">
       <div class="msg_header">
-        <h2>${editHistory.title}</h2>
+        <h2><c:out value="${editHistory.title}"/></h2>
       </div>
       <div class="msg_body">
         <c:if test="${not empty editHistory.addedImages or not empty editHistory.addedMissingImages}">

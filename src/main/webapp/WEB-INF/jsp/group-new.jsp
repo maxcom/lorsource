@@ -189,7 +189,7 @@
               <i class="icon-check" title="решено"></i>
             </c:if>
 
-            <l:title>${msg.title}</l:title>
+            <l:title><c:out value="${msg.title}"/></l:title>
             <span class="group-author"> (<lor:user user="${msg.topicAuthor}"/>)</span>
           </p>
         </div>

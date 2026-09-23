@@ -93,7 +93,7 @@
     </c:if>
 
     <a href="${fn:escapeXml(message.link)}">
-      <l:title>${message.title}</l:title>
+      <l:title><c:out value="${message.title}"/></l:title>
     </a>
   </h1>
 
@@ -228,7 +228,7 @@
     <lor:dateonly date="${message.commitDate}"/>:
   </c:if>
 
-  <a href="${fn:escapeXml(message.link)}"><l:title>${message.title}</l:title></a>
+  <a href="${fn:escapeXml(message.link)}"><l:title><c:out value="${message.title}"/></l:title></a>
 
 <c:if test="${multiPortal}">
     <c:if test="${not message.commited and preparedMessage.section.premoderated}">

@@ -140,7 +140,7 @@
                     <c:if test="${msg.group.defined}">
                       <span class="group-label">${msg.group.get()}</span>
                     </c:if>
-                    <a href="${msg.url}"><l:title>${msg.title}</l:title></a>
+                    <a href="${msg.url}"><l:title><c:out value="${msg.title}"/></l:title></a>
                     <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
                   </li>
                 </c:forEach>
@@ -183,7 +183,7 @@
                     <c:if test="${msg.group.defined}">
                       <span class="group-label">${msg.group.get()}</span>
                     </c:if>
-                    <a href="${msg.url}">${msg.title}</a>
+                    <a href="${msg.url}"><c:out value="${msg.title}"/></a>
                     <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
                   </li>
                 </c:forEach>
@@ -232,7 +232,7 @@
                   <c:if test="${msg.group.defined}">
                     <span class="group-label">${msg.group.get()}</span>
                   </c:if>
-                  <a href="${msg.url}">${msg.title}</a>
+                  <a href="${msg.url}"><c:out value="${msg.title}"/></a>
                   <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
                 </li>
               </c:forEach>
@@ -271,9 +271,9 @@
                   src="${item.item.image.medium}"
                   srcset="${item.item.image.srcset}"
                   sizes="(min-width: 40em) 32vw, 100vw"
-                  alt="Скриншот: <l:title>${item.item.title}</l:title>">
+                  alt="Скриншот: <l:title><c:out value="${item.item.title}"/></l:title>">
         </a><br>
-        <a href="${url}"><l:title>${item.item.title}</l:title></a><br>
+        <a href="${url}"><l:title><c:out value="${item.item.title}"/></l:title></a><br>
         ${item.user.nick}, <lor:dateinterval date="${item.item.commitDate}"/><br>
         (<lor:comment-count count="${item.item.stat}"/>)
       </article>
@@ -311,7 +311,7 @@
               <c:if test="${msg.group.defined}">
                 <span class="group-label">${msg.group.get()}</span>
               </c:if>
-              <a href="${msg.url}">${msg.title}</a>
+              <a href="${msg.url}"><c:out value="${msg.title}"/></a>
               <c:if test="${msg.commentCount>0}">(<lor:comment-count count="${msg.commentCount}"/>)</c:if>
             </li>
           </c:forEach>

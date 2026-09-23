@@ -45,7 +45,7 @@
         <c:if test="${not comment.reply.deleted}">
           <a href="${topic.link}?cid=${comment.reply.id}" data-samepage="${comment.reply.samePage}">
             <c:if test="${comment.reply.title!=null}">
-              <l:title>${comment.reply.title}</l:title>
+              <l:title><c:out value="${comment.reply.title}"/></l:title>
             </c:if>
             <c:if test="${comment.reply.title==null}">комментарий</c:if>
           </a>

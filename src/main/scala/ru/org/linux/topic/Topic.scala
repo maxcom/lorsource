@@ -15,7 +15,6 @@
 package ru.org.linux.topic
 
 import com.google.common.base.Strings
-import org.apache.commons.text.StringEscapeUtils
 import ru.org.linux.group.Group
 import ru.org.linux.reaction.{ReactionDao, Reactions}
 import ru.org.linux.section.Section
@@ -44,8 +43,6 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
                  @BooleanBeanProperty resolved: Boolean, @BooleanBeanProperty minor: Boolean,
                  @BooleanBeanProperty draft: Boolean, @BooleanBeanProperty allowAnonymous: Boolean,
                  reactions: Reactions, @Nullable expireDate: Timestamp, @BeanProperty openWarnings: Int) {
-  def getTitleUnescaped: String = StringEscapeUtils.unescapeHtml4(title)
-
   def getPageCount(messages: Int): Int = Math.ceil(commentCount / messages.toDouble).toInt
 
   /**
@@ -129,7 +126,7 @@ object Topic {
       groupId = form.group.id,
       linktext = if (form.linktext != null) form.linktext else null,
       url = if (!Strings.isNullOrEmpty(form.url)) URLUtil.fixURL(form.url) else null,
-      title = if (form.title!=null) StringUtil.escapeHtml(form.title) else "",
+      title = if (form.title != null) form.title else "",
       sectionId = group.sectionId,
       // Defaults
       id = 0,
@@ -170,7 +167,7 @@ object Topic {
       groupId = original.groupId,
       linktext = if (form.linktext != null && group.linksAllowed) form.linktext else original.linktext,
       url = if (form.url != null && group.linksAllowed) URLUtil.fixURL(form.url) else original.url,
-      title = if (form.title != null) StringUtil.escapeHtml(form.title) else original.title,
+      title = if (form.title != null) form.title else original.title,
       resolved = original.resolved,
       sectionId = sectionId,
       id = original.id,

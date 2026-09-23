@@ -1,0 +1,93 @@
+<!--
+  ~ Copyright 1998-2026 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!--
+    Перевод storage-конвенции title с HTML-escaped на raw (topics, comments, edit_info.oldtitle).
+    Экранирование переносится на этап отображения (JSP c:out) и подготовку (makeTitle больше
+    не вставляет HTML-сущности). Порядок replace важен: &amp; разворачивается последним,
+    чтобы не задеть сохранённые escapeHtml &#NNN;/&entity;. &#39; включён, т.к. escapeHtml
+    экранирует одинарную кавычку (в отличие от миграции linktext 2026-07-02, где он не требовался).
+    Un-escape только укорачивает, риска усечения по varchar(255) нет.
+  -->
+  <changeSet id="2026092301" author="maxcom">
+    <comment>Un-escape title in topics (store raw, escape at render)</comment>
+    <sql><![CDATA[
+      UPDATE topics SET title =
+        replace(replace(replace(replace(replace(title, '&lt;', '<'), '&gt;', '>'), '&quot;', '"'), '&#39;', ''''), '&amp;', '&')
+      WHERE title IS NOT NULL
+    ]]></sql>
+  </changeSet>
+
+  <changeSet id="2026092302" author="maxcom">
+    <comment>Un-escape legacy title in comments (store raw, escape at render)</comment>
+    <sql><![CDATA[
+      UPDATE comments SET title =
+        replace(replace(replace(replace(replace(title, '&lt;', '<'), '&gt;', '>'), '&quot;', '"'), '&#39;', ''''), '&amp;', '&')
+      WHERE title IS NOT NULL
+    ]]></sql>
+  </changeSet>
+
+  <changeSet id="2026092303" author="maxcom">
+    <comment>Un-escape oldtitle in edit_info history (topics and comments)</comment>
+    <sql><![CDATA[
+      UPDATE edit_info SET oldtitle =
+        replace(replace(replace(replace(replace(oldtitle, '&lt;', '<'), '&gt;', '>'), '&quot;', '"'), '&#39;', ''''), '&amp;', '&')
+      WHERE oldtitle IS NOT NULL
+    ]]></sql>
+  </changeSet>
+
+  <!--
+    Дополнение по результатам предполётной проверки production:
+    1) &#039; — zero-padded вариант обрабатываемого &#39;, встречается в legacy-данных; разворачивается
+       в topics.title, comments.title и edit_info.oldtitle;
+    2) edit_info.oldtitle хранил вывод старого makeTitle/RuTypoChanger (&quot; &#171; &#187; &#8222; &#8220;)
+       как в двойном экранировании (после 2026092303 остаётся &quot;/&#171;/...), так и в raw-виде эпохи
+       до escape-конвенции. Декодируем эти сущности в символы, чтобы oldtitle хранился raw, как
+       topics/comments. &#8221; добавлен для симметрии с &#8220; (синхронно с decode-цепочкой makeTitle).
+  -->
+  <changeSet id="2026092304" author="maxcom">
+    <comment>Decode legacy makeTitle entities in oldtitle; un-escape zero-padded &#039; in titles</comment>
+    <sql><![CDATA[
+      UPDATE topics SET title = replace(title, '&#039;', '''') WHERE title LIKE '%&#039;%';
+
+      UPDATE comments SET title = replace(title, '&#039;', '''') WHERE title LIKE '%&#039;%';
+
+      UPDATE edit_info SET oldtitle =
+        replace(replace(replace(replace(replace(replace(replace(oldtitle,
+          '&quot;', '"'), '&#171;', '«'), '&#187;', '»'), '&#8222;', '„'), '&#8220;', '“'), '&#8221;', '”'), '&#039;', '''')
+      WHERE oldtitle IS NOT NULL
+        AND oldtitle ~ '&(quot|#(039|171|187|8222|8220|8221));'
+    ]]></sql>
+  </changeSet>
+
+  <!--
+    Остаточное &#39; после 2026092303 — след двойного экранирования &amp;#39;:
+    &amp; разворачивается последним, уже после прохода &#39; -> '. Возникает
+    только в edit_info.oldtitle — двойное экранирование было только в пути
+    makeTitle -> история правок; topics/comments хранили одно экранирование.
+  -->
+  <changeSet id="2026092305" author="maxcom">
+    <comment>Decode residual &#39; (double-escape residue) in oldtitle</comment>
+    <sql><![CDATA[
+      UPDATE edit_info SET oldtitle = replace(oldtitle, '&#39;', '''') WHERE oldtitle LIKE '%&#39;%'
+    ]]></sql>
+  </changeSet>
+
+</databaseChangeLog>

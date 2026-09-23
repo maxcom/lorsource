@@ -16,7 +16,6 @@
 package ru.org.linux.search
 
 import com.typesafe.scalalogging.StrictLogging
-import org.apache.commons.text.StringEscapeUtils
 import org.opensearch.client.opensearch.OpenSearchClient
 import org.opensearch.client.opensearch.core.BulkRequest
 import org.opensearch.client.opensearch.core.bulk.{BulkOperation, DeleteOperation, IndexOperation}
@@ -163,16 +162,16 @@ class OpenSearchIndexService(sectionService: SectionService, groupService: Group
     val html = messageTextService.renderCommentText(msgbaseDao.getMessageText(comment.id),
       nofollow = !topicPermissionService.followAuthorLinks(author))
 
-    val topicTitle = topic.getTitleUnescaped
+    val topicTitle = topic.title
 
     val commentTitle = comment.title
 
+    // comment.title и topic.title хранятся в БД в исходном виде (raw)
     val title =
       Option(commentTitle)
         .filter(_.nonEmpty)
         .filterNot(_ == topicTitle)
         .filterNot(_.startsWith("Re:"))
-        .map(StringEscapeUtils.unescapeHtml4)
 
     MessageIndexDocument(
       section = section.getUrlName,
@@ -214,8 +213,8 @@ class OpenSearchIndexService(sectionService: SectionService, groupService: Group
       topicId = topic.id,
       author = author.nick,
       group = group.urlName,
-      title = Some(topic.getTitleUnescaped),
-      topicTitle = topic.getTitleUnescaped,
+      title = Some(topic.title),
+      topicTitle = topic.title,
       message = html,
       postdate = topic.postdate.toInstant.toString,
       tags = topicTagService.getTags(topic),

@@ -34,6 +34,7 @@ import ru.org.linux.search.{MoreLikeThisService, MoreLikeThisTopic}
 import ru.org.linux.section.{Section, SectionScrollModeEnum, SectionService}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.{IgnoreListDao, MemoriesDao, User}
+import ru.org.linux.util.StringUtil
 import ru.org.linux.warning.WarningService
 
 import java.time.Instant
@@ -478,7 +479,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       val topic = ex.topic
       mav.addObject("msgTitle", "Ошибка: сообщения не существует")
       mav.addObject("msgHeader", "Сообщение удалено или не существует")
-      mav.addObject("msgMessage", String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует", ex.id, topic.getLink, topic.title))
+      mav.addObject("msgMessage", String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует", ex.id, topic.getLink, StringUtil.escapeHtml(topic.title)))
       mav
     } else {
       new ModelAndView("errors/code404")

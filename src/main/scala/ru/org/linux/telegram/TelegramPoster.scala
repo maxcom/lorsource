@@ -45,7 +45,7 @@ class TelegramPoster(
           logger.info("Posting disabled")
         else
           val text =
-            s"${topic.getTitleUnescaped} ${tags.map("#" + _.name.filterNot(_ == ' ')).mkString(" ")}\n\n${config
+            s"${topic.title} ${tags.map("#" + _.name.filterNot(_ == ' ')).mkString(" ")}\n\n${config
                 .getSecureUrlWithoutSlash + topic.getLink}"
 
           try

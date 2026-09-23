@@ -34,7 +34,7 @@
     <c:forEach items="${topics}" var="topic">
 
     <tr>
-      <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick})</td>
+      <td><a href="view-message.jsp?msgid=${topic.id}"><c:out value="${topic.title}"/></a> (${topic.nick})</td>
       <td><c:out value="${topic.reason}" escapeXml="true"/></td>
       <c:if test="${showDates}">
         <td>${topic.bonus}</td>

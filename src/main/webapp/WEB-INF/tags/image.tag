@@ -38,12 +38,12 @@
               itemprop="thumbnail"
               class="medium-image"
               src="${image.mediumName}"
-              alt="<l:title>${title}</l:title>"
+              alt="<l:title><c:out value="${title}"/></l:title>"
               srcset="${image.srcset}"
               sizes="${sizesValue}" style="position: absolute; max-height: ${heightLimitValue}"
               ${image.loadingCode}
               ${image.mediumInfo.code}>
-      <meta itemprop="caption" content="${preparedMessage.message.title}">
+      <meta itemprop="caption" content="<c:out value="${preparedMessage.message.title}"/>">
     <c:if test="${preparedMessage.section.imagepost || image.fullInfo.width >= 1920 || image.fullInfo.height >= 1080}">
       </a>
     </c:if>

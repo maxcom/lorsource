@@ -122,7 +122,7 @@
   <div class="notifications-title">
     <p>
     <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
-    <l:title>${topic.event.subj}</l:title>
+    <l:title><c:out value="${topic.event.subj}"/></l:title>
     (${topic.section.name})
     </p>
   </div>

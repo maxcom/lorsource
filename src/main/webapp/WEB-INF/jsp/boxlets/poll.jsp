@@ -25,7 +25,7 @@
 
   <div class="boxlet_content">
     <p>
-      ${message.title}
+      <c:out value="${message.title}"/>
     </p>
 
     <lor:poll-form poll="${poll}" enabled="${template.sessionAuthorized and not userVoted}" votedVariants="${votedVariants}" commited="true"/>

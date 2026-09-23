@@ -46,7 +46,7 @@
     <div class="reactions-view-title">
       <p>
         <c:if test="${item.comment}"><i class="icon-comment"></i></c:if>
-      ${item.title}
+        <c:out value="${item.title}"/>
       </p>
     </div>
 

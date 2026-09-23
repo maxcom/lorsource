@@ -24,4 +24,17 @@ class StringUtilTest extends FunSuite:
 
   test("makeTitle"):
     val actualResult = StringUtil.makeTitle("\"Test of \"quotes '' \"in quotes\" in title\"\"")
-    assertEquals("&#171;Test of &#8222;quotes &quot; &#8222;in quotes&#8220; in title&#8220;&#187;", actualResult)
+    assertEquals("«Test of „quotes \" „in quotes“ in title“»", actualResult)
+
+  test("makeTitle returns raw text without HTML entities"):
+    // заголовки хранятся в исходном виде; экранирование — при отображении
+    val actualResult = StringUtil.makeTitle("\"a\" <b> &amp; &#39; c")
+    assertEquals("«a» <b> &amp; &#39; c", actualResult)
+
+  test("makeTitle decodes legacy RuTypoChanger quote entities"):
+    val actualResult = StringUtil.makeTitle("Сладкий вкус &#8220;свободного&#8221; кофе")
+    assertEquals("Сладкий вкус “свободного” кофе", actualResult)
+
+  test("makeTitle empty"):
+    assertEquals("Без заглавия", StringUtil.makeTitle("  "))
+    assertEquals("Без заглавия", StringUtil.makeTitle(null))

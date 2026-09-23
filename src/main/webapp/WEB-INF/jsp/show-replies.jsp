@@ -135,7 +135,7 @@
       <c:forEach var="tag" items="${topic.tags}">
         <span class="tag">${tag}</span>
       </c:forEach>
-      <l:title>${topic.event.subj}</l:title>
+      <l:title><c:out value="${topic.event.subj}"/></l:title>
     </a>
     (${topic.section.name})
 

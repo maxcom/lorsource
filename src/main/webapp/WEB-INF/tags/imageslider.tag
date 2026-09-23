@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -33,7 +33,7 @@
         <a href="${image.fullName}">
           <img
             src="${image.mediumName}"
-            alt="<l:title>${title}</l:title>"
+            alt="<l:title><c:out value="${title}"/></l:title>"
             srcset="${image.srcset}"
             sizes="${sizesValue}"
             style="max-width: 100%; height: auto; max-height: 100%; top: 50%; transform: translateY(-50%)"

@@ -141,7 +141,7 @@
                 <c:if test="${msg.group.defined}">
                   <span class="group-label">${msg.group.get()}</span>
                 </c:if>
-                <a href="${msg.url}"><l:title>${msg.title}</l:title></a>
+                <a href="${msg.url}"><l:title><c:out value="${msg.title}"/></l:title></a>
                 <c:if test="${msg.commentCount>0}">(<lorDir:comment-count count="${msg.commentCount}"/>)</c:if>
               </li>
             </c:forEach>

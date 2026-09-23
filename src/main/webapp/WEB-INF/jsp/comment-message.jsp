@@ -23,7 +23,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title><l:title>${add.topic.title}</l:title> - <l:title><c:out value="${preparedMessage.group.title}"/></l:title> - ${preparedMessage.section.title}</title>
+<title><l:title><c:out value="${add.topic.title}"/></l:title> - <l:title><c:out value="${preparedMessage.group.title}"/></l:title> - ${preparedMessage.section.title}</title>
 <script type="text/javascript">
   $script('/js/add-form.js?MAVEN_BUILD_TIMESTAMP');
 </script>

@@ -182,7 +182,7 @@
     <div class="text-preview-box">
       <div class="text-preview">
         <c:if test="${comment.comment}"><i class="icon-comment"></i></c:if>
-        <l:title>${comment.title}</l:title>
+        <l:title><c:out value="${comment.title}"/></l:title>
       </div>
     </div>
   </div>

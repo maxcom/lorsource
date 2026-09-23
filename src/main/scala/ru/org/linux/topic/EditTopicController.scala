@@ -16,7 +16,6 @@ package ru.org.linux.topic
 
 import com.google.common.base.Strings
 import jakarta.servlet.http.HttpServletRequest
-import org.apache.commons.text.StringEscapeUtils
 import org.springframework.stereotype.Controller
 import org.springframework.validation.Errors
 import org.springframework.validation.annotation.Validated
@@ -168,7 +167,7 @@ class EditTopicController(
       form.linktext = message.linktext
       form.url = message.url
 
-    form.title = StringEscapeUtils.unescapeHtml4(message.title)
+    form.title = message.title
 
     val messageText = msgbaseDao.getMessageText(message.id)
 

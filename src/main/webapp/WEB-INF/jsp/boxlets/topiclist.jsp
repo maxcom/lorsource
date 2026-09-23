@@ -37,7 +37,7 @@
           <c:param name="lastmod" value="${message.lastmod.time}"/>
         </c:if>
       </c:url>
-      <a href="${fn:escapeXml(msg_link)}"><l:title>${message.title}</l:title></a>
+      <a href="${fn:escapeXml(msg_link)}"><l:title><c:out value="${message.title}"/></l:title></a>
       <c:if test="${message.pages gt 1}">
         <c:url value="${message.url}/page${message.pages-1}" var="page_link">
           <c:param name="lastmod" value="${message.lastmod.time}"/>
