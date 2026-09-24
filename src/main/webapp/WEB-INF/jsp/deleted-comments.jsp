@@ -17,7 +17,6 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="user" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="deletedList" type="java.util.List<ru.org.linux.comment.CommentDao.DeletedListItem>"--%>
 <%--@elvariable id="filters" type="java.util.List<ru.org.linux.comment.DeletedCommentsFilterEnum>"--%>
@@ -66,11 +65,11 @@
         </c:if>
 
         <c:if test="${item.deleted}">
-          <a href="/view-deleted?id=${item.commentId}#comment-${item.commentId}"><l:title><c:out value="${item.title}"/></l:title></a>
+          <a href="/view-deleted?id=${item.commentId}#comment-${item.commentId}"><c:out value="${item.title}"/></a>
         </c:if>
 
         <c:if test="${not item.deleted}">
-          <a href="jump-message.jsp?msgid=${item.msgid}&cid=${item.commentId}"><l:title><c:out value="${item.title}"/></l:title></a>
+          <a href="jump-message.jsp?msgid=${item.msgid}&cid=${item.commentId}"><c:out value="${item.title}"/></a>
         </c:if>
 
         <c:if test="${item.topicDeleted}">

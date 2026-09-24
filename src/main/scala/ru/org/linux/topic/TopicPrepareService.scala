@@ -51,11 +51,11 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
                    warnings: Seq[Warning])(using session: AnySession): PreparedTopic =
     prepareTopic(message, tags, minimizeCut = false, None, text, Seq.empty, warnings, imageLazyLoad = false)
 
-  def prepareTopicPreview(message: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
+  def prepareTopicPreview(topic: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
                           images: Seq[UploadedImagePreview])(using AnySession): PreparedTopic = {
     val imageObjects = images.map(_.toImage)
-
-    prepareTopic(message, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
+    
+    prepareTopic(topic, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
       text, imageObjects, imageLazyLoad = false)
   }
 
@@ -249,7 +249,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
       else
         None
 
-    BriefTopicRef(topic.getLink, StringUtil.processTitle(topic.title), commentCount, groupTitle)
+    BriefTopicRef(topic.getLink, topic.title, commentCount, groupTitle)
 
   def prepareListItem(item: TopicsListItem)(using session: AnySession): PreparedTopicsListItem = {
     val author = userService.getUserCached(item.topicAuthor)

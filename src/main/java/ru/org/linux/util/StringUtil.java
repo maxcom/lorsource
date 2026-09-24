@@ -18,7 +18,6 @@ package ru.org.linux.util;
 import com.google.common.hash.Hashing;
 import com.google.common.html.HtmlEscapers;
 import ru.org.linux.util.formatter.RuTypoChanger;
-import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -50,17 +49,27 @@ public final class StringUtil {
     return loginCheckRE.matcher(login).matches();
   }
 
-  public static String processTitle(String title) {
-    return title.trim().replaceAll(ToHtmlFormatter.MDASH_REGEX, ToHtmlFormatter.MDASH_REPLACE);
-  }
+  /**
+   * Замена двойного минуса на тире. Символы, а не HTML-сущности:
+   * заголовки хранятся в исходном (raw) виде, экранирование выполняется
+   * на этапе отображения (JSP c:out). См. также ToHtmlFormatter.MDASH_* для текстов сообщений.
+   */
+  private static final String MDASH_REGEX = " -- ";
+  private static final String MDASH_REPLACE = "\u00A0\u2014 ";
 
+  /**
+   * Единая типографика заголовков: обрезка пробелов, длинное тире и кавычки.
+   *
+   * @param title сырой заголовок
+   * @return типографированный заголовок в виде символов (не HTML), либо "Без заглавия"
+   */
   public static String makeTitle(String title) {
     if (title != null && !title.trim().isEmpty()) {
-      String formatted = new RuTypoChanger().format(title);
+      String formatted = title.trim().replaceAll(MDASH_REGEX, MDASH_REPLACE);
 
-      // Заголовки хранятся и передаются в отображение в исходном (raw) виде,
-      // поэтому вставленные RuTypoChanger HTML-сущности декодируем обратно в символы.
-      // Экранирование выполняется на этапе отображения (JSP c:out).
+      formatted = new RuTypoChanger().format(formatted);
+
+      // Вставленные RuTypoChanger HTML-сущности декодируем обратно в символы.
       formatted = formatted.replace("&quot;", "\"")
           .replace("&#171;", "«")
           .replace("&#187;", "»")

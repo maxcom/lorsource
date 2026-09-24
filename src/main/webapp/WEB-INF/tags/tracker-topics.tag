@@ -15,7 +15,6 @@
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="messages" required="false" type="java.util.List" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
@@ -47,7 +46,7 @@
               <span class="tag">${tag}</span>
             </c:forEach>
 
-            <l:title><c:out value="${msg.title}"/></l:title>
+            <c:out value="${msg.title}"/>
           </a>
 
           (<%--

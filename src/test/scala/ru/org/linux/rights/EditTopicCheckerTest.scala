@@ -132,7 +132,7 @@ class EditTopicCheckerTest extends FunSuite:
       sticky = sticky,
       linktext = null,
       url = null,
-      title = "title",
+      rawTitle = "title",
       authorUserId = authorUserId,
       groupId = 1,
       deleted = deleted,

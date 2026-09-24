@@ -3,7 +3,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
@@ -41,12 +40,12 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title><l:title><c:out value="${message.title}"/></l:title> — <l:title><c:out value="${preparedMessage.group.title}"/></l:title> — ${preparedMessage.section.title}</title>
-<meta property="og:title" content="<l:title><c:out value="${message.title}"/></l:title>">
+<title><c:out value="${message.title}"/> — <c:out value="${preparedMessage.group.title}"/> — ${preparedMessage.section.title}</title>
+<meta property="og:title" content="<c:out value="${message.title}"/>">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:type" content="article">
 <meta property="og:url" content="${configuration.secureUrlWithoutSlash}${message.link}">
-<meta property="article:section" content="${preparedMessage.section.title}: <l:title><c:out value="${preparedMessage.group.title}"/></l:title>">
+<meta property="article:section" content="${preparedMessage.section.title}: <c:out value="${preparedMessage.group.title}"/>">
 <meta property="article:published_time" content="${DateFormats.formatIso8601(preparedMessage.message.effectiveDateJsp)}">
 <c:if test="${editInfo.editCount > 0}">
   <meta property="article:modified_time" content="${DateFormats.formatIso8601(editInfo.lastEditDate())}">
@@ -95,7 +94,7 @@
       <c:if test="${prevMessage != null}">
         <a class="scroller-arrow" href="${fn:escapeXml(prevMessage.link)}">←</a>
         <a class="scroller-title hideon-phone" href="${fn:escapeXml(prevMessage.link)}">
-          <l:title><l:mkTitle><c:out value="${prevMessage.title}"/></l:mkTitle></l:title>
+          <c:out value="${prevMessage.title}"/>
         </a>
       </c:if>
     </div>
@@ -104,7 +103,7 @@
     <div class="scroller-next">
       <c:if test="${nextMessage != null}">
         <a class="scroller-title hideon-phone" href="${fn:escapeXml(nextMessage.link)}">
-          <l:title><l:mkTitle><c:out value="${nextMessage.title}"/></l:mkTitle></l:title>
+          <c:out value="${nextMessage.title}"/>
         </a>
         <a class="scroller-arrow" href="${fn:escapeXml(nextMessage.link)}">→</a>
       </c:if>
@@ -120,20 +119,20 @@
       <c:if test="${prevMessage != null}">
         <a class="scroller-arrow" href="${fn:escapeXml(prevMessage.link)}">←</a>
         <a class="scroller-title hideon-phone" href="${fn:escapeXml(prevMessage.link)}">
-          <l:title><l:mkTitle><c:out value="${prevMessage.title}"/></l:mkTitle></l:title>
+          <c:out value="${prevMessage.title}"/>
         </a>
       </c:if>
     </div>
     <div class="scroller-group">
-      <a title="${preparedMessage.section.title} - <l:title><c:out value="${preparedMessage.group.title}"/></l:title>"
+      <a title="${preparedMessage.section.title} - <c:out value="${preparedMessage.group.title}"/>"
          href="${group.url}">
-          <l:title><c:out value="${preparedMessage.group.title}"/></l:title>
+          <c:out value="${preparedMessage.group.title}"/>
       </a>
     </div>
     <div class="scroller-next">
       <c:if test="${nextMessage != null}">
         <a class="scroller-title hideon-phone" href="${fn:escapeXml(nextMessage.link)}">
-          <l:title><l:mkTitle><c:out value="${nextMessage.title}"/></l:mkTitle></l:title>
+          <c:out value="${nextMessage.title}"/>
         </a>
         <a class="scroller-arrow" href="${fn:escapeXml(nextMessage.link)}">→</a>
       </c:if>

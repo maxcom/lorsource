@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -182,7 +181,7 @@
     <div class="text-preview-box">
       <div class="text-preview">
         <c:if test="${comment.comment}"><i class="icon-comment"></i></c:if>
-        <l:title><c:out value="${comment.title}"/></l:title>
+        <c:out value="${comment.title}"/>
       </div>
     </div>
   </div>

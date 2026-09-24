@@ -14,10 +14,10 @@
  */
 package ru.org.linux.comment
 
-import com.google.common.base.Strings
 import ru.org.linux.reaction.PreparedReactions
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.user.{User, Userpic}
+import ru.org.linux.util.StringUtil
 import ru.org.linux.warning.PreparedWarning
 
 import java.sql.Timestamp
@@ -31,8 +31,10 @@ object PreparedComment {
             deleteInfo: Option[ApiDeleteInfo], editSummary: Option[EditSummary], userAgent: Option[String],
             answerLink: Option[String], answerSamepage: Boolean, authorReadonly: Boolean, postIP: Option[String],
             reactions: PreparedReactions, warningsAllowed: Boolean, warnings: Seq[PreparedWarning]): PreparedComment = {
-    // title хранится в БД в исходном виде; экранирование — при отображении (comment.tag)
-    val title = Strings.emptyToNull(comment.title.trim)
+    // title хранится в БД в исходном виде; типографика (makeTitle) и экранирование — при подготовке/отображении.
+    // Пустой заголовок остаётся пустым (JSP скрывает h1)
+    val title =
+      Option(comment.title).map(_.trim).filter(_.nonEmpty).map(StringUtil.makeTitle).orNull
 
     PreparedComment(
       id = comment.id,

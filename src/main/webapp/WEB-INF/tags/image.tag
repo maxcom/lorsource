@@ -1,9 +1,8 @@
 <%@ tag import="ru.org.linux.gallery.Image" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
-  ~ Copyright 1998-2025 Linux.org.ru
+  ~ Copyright 1998-2026 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -38,7 +37,7 @@
               itemprop="thumbnail"
               class="medium-image"
               src="${image.mediumName}"
-              alt="<l:title><c:out value="${title}"/></l:title>"
+              alt="<c:out value="${title}"/>"
               srcset="${image.srcset}"
               sizes="${sizesValue}" style="position: absolute; max-height: ${heightLimitValue}"
               ${image.loadingCode}

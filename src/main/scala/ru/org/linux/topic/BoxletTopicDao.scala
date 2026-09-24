@@ -17,6 +17,7 @@ package ru.org.linux.topic
 import org.springframework.stereotype.Repository
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{Section, SectionService}
+import ru.org.linux.util.StringUtil
 import ru.org.linux.warning.WarningService.TopicMaxWarnings
 import scalikejdbc.*
 
@@ -63,7 +64,7 @@ class BoxletTopicDao(sectionService: SectionService, springDB: SpringDB):
 
     BoxletTopic(
       section.getSectionLink + rs.string("urlname") + '/' + rs.int("msgid"),
-      rs.string("title"),
+      StringUtil.makeTitle(rs.string("title")),
       rs.timestamp("lastmod"),
       commentCount,
       Topic.pageCount(commentCount, commentsPerPage)

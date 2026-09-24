@@ -19,6 +19,7 @@ import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.Section
 import ru.org.linux.section.SectionService
+import ru.org.linux.util.StringUtil
 import scalikejdbc.*
 
 @Repository
@@ -43,7 +44,7 @@ class ImageDao(private val sectionService: SectionService, springDB: SpringDB):
     GalleryItem(
       msgid = msgid,
       userid = rs.int("userid"),
-      title = rs.string("title"),
+      title = StringUtil.makeTitle(rs.string("title")),
       stat = rs.int("stat1"),
       link = gallery.getSectionLink + rs.string("urlname") + '/' + msgid,
       image = image,

@@ -1,7 +1,6 @@
 <%@ page session="false" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
@@ -23,7 +22,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title><l:title><c:out value="${add.topic.title}"/></l:title> - <l:title><c:out value="${preparedMessage.group.title}"/></l:title> - ${preparedMessage.section.title}</title>
+<title><c:out value="${add.topic.title}"/> - <c:out value="${preparedMessage.group.title}"/> - ${preparedMessage.section.title}</title>
 <script type="text/javascript">
   $script('/js/add-form.js?MAVEN_BUILD_TIMESTAMP');
 </script>

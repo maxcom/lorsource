@@ -33,7 +33,7 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBeanProperty sticky: Boolean,
                  @Nullable @BeanProperty linktext: String, @Nullable @BeanProperty url: String,
-                 @BeanProperty title: String, @BeanProperty authorUserId: Int, @BeanProperty groupId: Int,
+                 rawTitle: String, @BeanProperty authorUserId: Int, @BeanProperty groupId: Int,
                  @BooleanBeanProperty deleted: Boolean, @BooleanBeanProperty expired: Boolean,
                  @BeanProperty commitby: Int, @BeanProperty postdate: Timestamp,
                  @BeanProperty @Nullable commitDate: Timestamp, @BeanProperty groupUrl: String,
@@ -44,6 +44,9 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
                  @BooleanBeanProperty draft: Boolean, @BooleanBeanProperty allowAnonymous: Boolean,
                  reactions: Reactions, @Nullable expireDate: Timestamp, @BeanProperty openWarnings: Int) {
   def getPageCount(messages: Int): Int = Math.ceil(commentCount / messages.toDouble).toInt
+
+  def title: String = StringUtil.makeTitle(rawTitle)
+  def getTitle: String = title
 
   /**
    * Дата размещения сообщения на сайте
@@ -92,7 +95,7 @@ object Topic {
       sticky = sticky,
       linktext = rs.getString("linktext"),
       url = rs.getString("url"),
-      title = StringUtil.makeTitle(rs.getString("title")),
+      rawTitle = rs.getString("title"),
       authorUserId = rs.getInt("userid"),
       groupId = rs.getInt("guid"),
       deleted = rs.getBoolean("deleted"),
@@ -126,7 +129,7 @@ object Topic {
       groupId = form.group.id,
       linktext = if (form.linktext != null) form.linktext else null,
       url = if (!Strings.isNullOrEmpty(form.url)) URLUtil.fixURL(form.url) else null,
-      title = if (form.title != null) form.title else "",
+      rawTitle = if (form.title != null) form.title else "",
       sectionId = group.sectionId,
       // Defaults
       id = 0,
@@ -167,7 +170,7 @@ object Topic {
       groupId = original.groupId,
       linktext = if (form.linktext != null && group.linksAllowed) form.linktext else original.linktext,
       url = if (form.url != null && group.linksAllowed) URLUtil.fixURL(form.url) else original.url,
-      title = if (form.title != null) form.title else original.title,
+      rawTitle = if (form.title != null) form.title else original.rawTitle,
       resolved = original.resolved,
       sectionId = sectionId,
       id = original.id,

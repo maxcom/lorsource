@@ -45,7 +45,7 @@
         <c:if test="${not comment.reply.deleted}">
           <a href="${topic.link}?cid=${comment.reply.id}" data-samepage="${comment.reply.samePage}">
             <c:if test="${comment.reply.title!=null}">
-              <l:title><c:out value="${comment.reply.title}"/></l:title>
+              <c:out value="${comment.reply.title}"/>
             </c:if>
             <c:if test="${comment.reply.title==null}">комментарий</c:if>
           </a>
@@ -65,7 +65,7 @@
     <div class="msg_body ${body_style}">
       <div class="msg-text">
         <c:if test="${comment.title!=null}">
-          <h1><l:title><c:out value="${comment.title}" escapeXml="true"/></l:title></h1>
+          <h1><c:out value="${comment.title}" escapeXml="true"/></h1>
         </c:if>
 
         ${comment.processedMessage}

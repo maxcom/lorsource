@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -14,6 +14,8 @@
  */
 package ru.org.linux.topic
 
+import ru.org.linux.util.StringUtil
+
 import java.sql.{ResultSet, Timestamp}
 import scala.beans.BeanProperty
 
@@ -26,7 +28,7 @@ object DeletedTopic {
     DeletedTopic(
       nick = rs.getString("nick"),
       id = rs.getInt("msgid"),
-      title = rs.getString("subj"),
+      title = StringUtil.makeTitle(rs.getString("subj")),
       reason = rs.getString("reason"),
       postdate = rs.getTimestamp("postdate"),
       delDate = rs.getTimestamp("delDate"),

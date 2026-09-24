@@ -149,10 +149,14 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
       modified = true
     }
 
-    if (!(oldMsg.title == newMsg.title)) {
-      topicDao.updateTitle(oldMsg.id, newMsg.title)
+    // Заголовок в newMsg приходит из формы в raw-виде (как хранится в БД);
+    // сравниваем и сохраняем raw, чтобы типографика не «утекала» в БД
+    val oldRawTitle = oldMsg.rawTitle
 
-      editHistoryRecord = editHistoryRecord.copy(oldtitle = Some(oldMsg.title))
+    if (!(oldRawTitle == newMsg.rawTitle)) {
+      topicDao.updateTitle(oldMsg.id, newMsg.rawTitle)
+
+      editHistoryRecord = editHistoryRecord.copy(oldtitle = Some(oldRawTitle))
       modified = true
     }
 

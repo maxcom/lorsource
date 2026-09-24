@@ -126,7 +126,7 @@
       <article class="msg">
         <h1>
           <c:if test="${item.comment}"><i class="icon-comment"></i></c:if>
-          <a href="${item.url}"><l:title>${item.title}</l:title></a>
+          <a href="${item.url}">${item.title}</a>
         </h1>
 
         <div class="msg_body">

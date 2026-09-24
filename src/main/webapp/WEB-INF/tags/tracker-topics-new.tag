@@ -15,7 +15,6 @@
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ attribute name="messages" required="false" type="java.util.List" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
@@ -52,7 +51,7 @@
             <i class="icon-check" title="решено"></i>
           </c:if>
 
-          <l:title><c:out value="${msg.title}"/></l:title>
+          <c:out value="${msg.title}"/>
         </p>
       </div>
 

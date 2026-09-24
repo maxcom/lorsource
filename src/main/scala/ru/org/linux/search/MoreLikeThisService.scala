@@ -33,7 +33,6 @@ import ru.org.linux.search.OpenSearchIndexService.{COLUMN_TOPIC_AWAITS_COMMIT, M
 import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
-import ru.org.linux.util.StringUtil
 
 import java.time.{Duration, Instant, ZoneId}
 import scala.beans.BeanProperty
@@ -164,8 +163,8 @@ class MoreLikeThisService(
     val title = source.title.getOrElse("")
 
     MoreLikeThisTopic(
-      // title в индексе уже заэкранирован (см. OpenSearchIndexService)
-      title = StringUtil.processTitle(title),
+      // title в индексе уже заэкранирован и типографирован (см. OpenSearchIndexService, Topic)
+      title = title,
       link = link,
       year = postdate.atZone(ZoneId.systemDefault()).getYear,
       sectionService.getSectionByName(section).getTitle)

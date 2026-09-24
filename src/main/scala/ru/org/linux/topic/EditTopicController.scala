@@ -167,7 +167,9 @@ class EditTopicController(
       form.linktext = message.linktext
       form.url = message.url
 
-    form.title = message.title
+    // В форму подставляем заголовок в том виде, в каком он хранится в БД (без типографики),
+    // чтобы типографика не «утекала» обратно в БД при сохранении.
+    form.title = message.rawTitle
 
     val messageText = msgbaseDao.getMessageText(message.id)
 
@@ -198,12 +200,14 @@ class EditTopicController(
       preparedTopic: PreparedTopic,
       newMsg: Topic,
       form: EditTopicRequest,
+      oldRawTitle: String,
       oldText: MessageText,
       imagePreviews: Seq[UploadedImagePreview]): Boolean =
     var modified = false
     val topic = preparedTopic.message
 
-    if !(topic.title == newMsg.title) then
+    // Заголовок в форме — raw (как в БД), сравниваем raw с raw
+    if !(oldRawTitle == newMsg.rawTitle) then
       modified = true
 
     if form.msg != null then
@@ -278,6 +282,12 @@ class EditTopicController(
       if commit && preparedTopic.committable && commitCheck.permitted then
         params.put("info", "Подтверждение")
 
+      // Заголовок в форме — raw (как в БД), чтобы типографика не попадала обратно в БД
+      val oldRawTitle = topic.rawTitle
+
+      if form.title == null then
+        form.title = oldRawTitle
+
       val newMsg = Topic.fromEditRequest(preparedTopic.group, topic, form, request.getParameter("publish") != null)
       val oldText = msgbaseDao.getMessageText(topic.id)
 
@@ -287,7 +297,7 @@ class EditTopicController(
         errors,
         preparedTopic.images.size())
 
-      val modified = checkModified(preparedTopic, newMsg, form, oldText, imagePreviews)
+      val modified = checkModified(preparedTopic, newMsg, form, oldRawTitle, oldText, imagePreviews)
 
       if !editable && modified then
         throw new AccessViolationException("нельзя править это сообщение, только теги")

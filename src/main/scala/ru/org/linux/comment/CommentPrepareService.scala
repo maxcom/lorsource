@@ -14,7 +14,6 @@
  */
 package ru.org.linux.comment
 
-import com.google.common.base.Strings
 import org.springframework.stereotype.Service
 import ru.org.linux.auth.AnySession
 import ru.org.linux.group.{Group, GroupService}
@@ -25,6 +24,7 @@ import ru.org.linux.rights.AddCommentChecker
 import ru.org.linux.site.ApiDeleteInfo
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.user.*
+import ru.org.linux.util.StringUtil
 import ru.org.linux.warning.{Warning, WarningService}
 
 import java.time.Duration
@@ -52,7 +52,8 @@ class CommentPrepareService(textService: MessageTextService, msgbaseDao: Msgbase
             val reply = replyNode.comment
             val samePage = samePageComments.contains(reply.id)
             val replyAuthor = userService.getUserCached(reply.userid).nick
-            Some(new ReplyInfo(reply.id, replyAuthor, Strings.emptyToNull(reply.title.trim), reply.postdate, samePage, false))
+            val replyTitle = Option(reply.title).map(_.trim).filter(_.nonEmpty).map(StringUtil.makeTitle).orNull
+            Some(new ReplyInfo(reply.id, replyAuthor, replyTitle, reply.postdate, samePage, false))
         }
       } else {
         None

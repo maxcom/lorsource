@@ -16,7 +16,6 @@
   --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.PreparedUserEvent>"--%>
 <%--@elvariable id="firstPage" type="Boolean"--%>
 <%--@elvariable id="nick" type="String"--%>
@@ -122,7 +121,7 @@
   <div class="notifications-title">
     <p>
     <c:if test="${topic.commentId() != 0}"><i class="icon-comment"></i></c:if>
-    <l:title><c:out value="${topic.event.subj}"/></l:title>
+    <c:out value="${topic.event.subj}"/>
     (${topic.section.name})
     </p>
   </div>

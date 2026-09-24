@@ -87,7 +87,7 @@
       <c:if test="${message.resolved}">
         <i class="icon-check" title="решено"></i>
       </c:if>
-      <a href="${message.link}"><l:title><c:out value="${message.title}"/></l:title></a>
+      <a href="${message.link}"><c:out value="${message.title}"/></a>
       <c:if test="${message.draft}"><span style="color:red">(черновик)</span></c:if>
     </h1>
 

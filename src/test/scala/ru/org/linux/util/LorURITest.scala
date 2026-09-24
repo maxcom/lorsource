@@ -35,7 +35,7 @@ class LorURITest extends FunSuite:
   private val Now = Timestamp.from(Instant.now())
 
   private def mkTopic(id: Int, groupId: Int): Topic =
-    Topic(id = id, postscore = 0, sticky = false, linktext = null, url = null, title = "",
+    Topic(id = id, postscore = 0, sticky = false, linktext = null, url = null, rawTitle = "",
       authorUserId = 0, groupId = groupId, deleted = false, expired = false, commitby = 0,
       postdate = Now, commitDate = null, groupUrl = "", lastModified = Now, sectionId = 0,
       commentCount = 0, commited = false, notop = false, userAgentId = 0, postIP = "",

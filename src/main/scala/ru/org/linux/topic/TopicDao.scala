@@ -90,14 +90,14 @@ class TopicDao(springDB: SpringDB):
     val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
     val truncatedUserAgent = userAgent.substring(0, Math.min(511, userAgent.length))
     sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
-          VALUES (${group.id}, ${user.id}, ${msg.title}, ${msg.url}, 'f', CURRENT_TIMESTAMP, $msgid, ${msg
+          VALUES (${group.id}, ${user.id}, ${msg.rawTitle}, ${msg.url}, 'f', CURRENT_TIMESTAMP, $msgid, ${msg
         .linktext}, 'f', create_user_agent($truncatedUserAgent), ${msg.postIP}::inet, ${msg
         .draft}, CURRENT_TIMESTAMP, ${msg.allowAnonymous})""".update.apply()
     msgid
 
   def updateTitle(msgid: Int, title: String)(using Transaction): Unit =
     sql"UPDATE topics SET title=$title WHERE id=$msgid".update.apply()
-
+  
   def updateLinktext(msgid: Int, linktext: String)(using Transaction): Unit =
     sql"UPDATE topics SET linktext=$linktext WHERE id=$msgid".update.apply()
 

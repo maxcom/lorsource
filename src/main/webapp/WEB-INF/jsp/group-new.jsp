@@ -33,9 +33,9 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="ftm" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -189,7 +189,7 @@
               <i class="icon-check" title="решено"></i>
             </c:if>
 
-            <l:title><c:out value="${msg.title}"/></l:title>
+            <c:out value="${msg.title}"/>
             <span class="group-author"> (<lor:user user="${msg.topicAuthor}"/>)</span>
           </p>
         </div>

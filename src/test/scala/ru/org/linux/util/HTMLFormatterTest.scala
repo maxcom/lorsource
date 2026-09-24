@@ -123,7 +123,7 @@ class HTMLFormatterTest extends FunSuite:
       sticky = false,
       linktext = null,
       url = null,
-      title = title,
+      rawTitle = title,
       authorUserId = 0,
       groupId = groupId,
       deleted = false,

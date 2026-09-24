@@ -62,7 +62,7 @@ class EditHistoryServiceTest extends FunSuite:
       sticky = false,
       linktext = null,
       url = null,
-      title = "test",
+      rawTitle = "test",
       authorUserId = 1,
       groupId = 1,
       deleted = false,

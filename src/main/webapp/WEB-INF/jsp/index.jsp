@@ -2,7 +2,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
@@ -141,7 +140,7 @@
                 <c:if test="${msg.group.defined}">
                   <span class="group-label">${msg.group.get()}</span>
                 </c:if>
-                <a href="${msg.url}"><l:title><c:out value="${msg.title}"/></l:title></a>
+                <a href="${msg.url}"><c:out value="${msg.title}"/></a>
                 <c:if test="${msg.commentCount>0}">(<lorDir:comment-count count="${msg.commentCount}"/>)</c:if>
               </li>
             </c:forEach>

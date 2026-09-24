@@ -17,7 +17,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.PreparedUserEvent>"--%>
 <%--@elvariable id="firstPage" type="Boolean"--%>
 <%--@elvariable id="nick" type="String"--%>
@@ -135,7 +134,7 @@
       <c:forEach var="tag" items="${topic.tags}">
         <span class="tag">${tag}</span>
       </c:forEach>
-      <l:title><c:out value="${topic.event.subj}"/></l:title>
+      <c:out value="${topic.event.subj}"/>
     </a>
     (${topic.section.name})
 

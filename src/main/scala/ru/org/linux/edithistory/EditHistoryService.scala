@@ -25,6 +25,7 @@ import ru.org.linux.scalikejdbc.Transaction
 import ru.org.linux.tag.{TagRef, TagService}
 import ru.org.linux.topic.{PreparedImage, Topic, TopicTagService}
 import ru.org.linux.user.{User, UserService}
+import ru.org.linux.util.StringUtil
 
 import java.sql.Timestamp
 import java.util
@@ -82,7 +83,8 @@ class EditHistoryService(
         }
         .getOrElse((this.message, this.lastId))
 
-      val title = dto.oldtitle.getOrElse(this.title)
+      // oldtitle хранится в БД в исходном виде (raw) — типографируем для отображения
+      val title = dto.oldtitle.map(StringUtil.makeTitle).getOrElse(this.title)
       val url = dto.oldurl.getOrElse(this.url)
       val linktext = dto.oldlinktext.getOrElse(this.linktext)
       val tags = dto.oldtags.map(_.map(TagService.tagRef).asJava).getOrElse(this.tags)
@@ -259,7 +261,8 @@ class EditHistoryService(
   private case class CommentEditHistoryState(message: String, markup: MarkupType, title: String, first: Boolean):
     def next(dto: EditHistoryRecord): CommentEditHistoryState =
       val message = dto.oldmessage.getOrElse(this.message)
-      val title = dto.oldtitle.getOrElse(this.title)
+      // oldtitle хранится в БД в исходном виде (raw) — типографируем для отображения
+      val title = dto.oldtitle.map(StringUtil.makeTitle).getOrElse(this.title)
 
       this.copy(first = false, message = message, title = title)
 
@@ -329,7 +332,7 @@ class EditHistoryService(
       CommentEditHistoryState(
         markup = messageText.markup,
         message = messageText.text,
-        title = comment.title,
+        title = Option(comment.title).map(_.trim).filter(_.nonEmpty).map(StringUtil.makeTitle).orNull,
         first = true)
 
   /** Получить историю изменений топика

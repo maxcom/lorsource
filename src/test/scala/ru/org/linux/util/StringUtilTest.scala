@@ -18,13 +18,17 @@ import munit.FunSuite
 
 /** Тесты для [[StringUtil]]. */
 class StringUtilTest extends FunSuite:
-  test("processTitle"):
-    val actualResult = StringUtil.processTitle("one -- two --- three -- four-- five --six --")
-    assertEquals("one&nbsp;&mdash; two --- three&nbsp;&mdash; four-- five --six --", actualResult)
+  test("makeTitle mdash"):
+    val actualResult = StringUtil.makeTitle("one -- two --- three -- four-- five --six --")
+    assertEquals("one\u00A0— two --- three\u00A0— four-- five --six --", actualResult)
 
-  test("makeTitle"):
+  test("makeTitle quotes"):
     val actualResult = StringUtil.makeTitle("\"Test of \"quotes '' \"in quotes\" in title\"\"")
     assertEquals("«Test of „quotes \" „in quotes“ in title“»", actualResult)
+
+  test("makeTitle quotes and mdash together"):
+    val actualResult = StringUtil.makeTitle("\"linux -- \"the kernel\"\"")
+    assertEquals("«linux\u00A0— „the kernel“»", actualResult)
 
   test("makeTitle returns raw text without HTML entities"):
     // заголовки хранятся в исходном виде; экранирование — при отображении
@@ -34,6 +38,9 @@ class StringUtilTest extends FunSuite:
   test("makeTitle decodes legacy RuTypoChanger quote entities"):
     val actualResult = StringUtil.makeTitle("Сладкий вкус &#8220;свободного&#8221; кофе")
     assertEquals("Сладкий вкус “свободного” кофе", actualResult)
+
+  test("makeTitle trims whitespace"):
+    assertEquals("Заголовок", StringUtil.makeTitle("  Заголовок  "))
 
   test("makeTitle empty"):
     assertEquals("Без заглавия", StringUtil.makeTitle("  "))

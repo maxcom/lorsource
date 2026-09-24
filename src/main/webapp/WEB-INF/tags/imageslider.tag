@@ -14,7 +14,6 @@
   --%>
 <%@ tag import="ru.org.linux.gallery.Image" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
 <%@ attribute name="classes" required="false" type="java.lang.String" %>
@@ -33,7 +32,7 @@
         <a href="${image.fullName}">
           <img
             src="${image.mediumName}"
-            alt="<l:title><c:out value="${title}"/></l:title>"
+            alt="<c:out value="${title}"/>"
             srcset="${image.srcset}"
             sizes="${sizesValue}"
             style="max-width: 100%; height: auto; max-height: 100%; top: 50%; transform: translateY(-50%)"
