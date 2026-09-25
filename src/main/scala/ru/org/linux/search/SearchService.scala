@@ -260,10 +260,12 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
 
     // в индексе title/topic_title хранятся уже заэкранированными (см. OpenSearchIndexService),
     // поэтому подсветка <em class=search-hl> вставляется в display-ready текст — выводим как есть
-    highlight.get("title").flatMap(_.asScala.headOption)
+    val title = highlight.get("title").flatMap(_.asScala.headOption)
       .orElse(source.title)
       .filter(_.trim.nonEmpty)
       .getOrElse(source.topicTitle)
+
+    Jsoup.clean(title, siteConfig.getSecureUrl, TitleSafelist)
   }
 
   private def getMessage(doc: Hit[MessageIndexDocument]): String = {
@@ -364,4 +366,5 @@ object SearchService {
     "section", "message", "group", "is_comment", "tag")
 
   private val TextSafelist: Safelist = Safelist.relaxed().addAttributes(":all", "class")
+  private val TitleSafelist = Safelist.none().addTags("em").addAttributes("em", "class")
 }

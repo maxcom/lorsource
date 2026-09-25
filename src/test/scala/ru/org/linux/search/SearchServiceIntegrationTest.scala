@@ -111,6 +111,6 @@ class SearchServiceIntegrationTest extends FunSuite with SpringTestSupport:
     // заэкранированный payload проходит в литеральном виде, сырого HTML-тега нет
     assert(title.contains("&lt;img src=x onerror=alert(1)&gt;"), title)
     assert(!title.contains("<img"), title)
-    // подсветка сохранена (pre-tag из запроса приходит verbatim, без jsoup-сериализации)
-    assert(title.contains("<em class=search-hl>"), title)
+    // подсветка сохранена (теги подсветки не удаляются и не экранируются)
+    assert(title.contains("<em class=\"search-hl\">"), title)
     assert(title.contains("uniquezzztitle"), title)

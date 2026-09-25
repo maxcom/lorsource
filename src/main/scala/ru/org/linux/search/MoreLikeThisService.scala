@@ -22,6 +22,8 @@ import org.apache.lucene.analysis.ru.RussianAnalyzer
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
 import org.apache.pekko.actor.Scheduler
 import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
+import org.jsoup.Jsoup
+import org.jsoup.safety.Safelist
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch._types.FieldValue
 import org.opensearch.client.opensearch._types.query_dsl.*
@@ -163,8 +165,7 @@ class MoreLikeThisService(
     val title = source.title.getOrElse("")
 
     MoreLikeThisTopic(
-      // title в индексе уже заэкранирован и типографирован (см. OpenSearchIndexService, Topic)
-      title = title,
+      title = Jsoup.clean(title, "", Safelist.none()),
       link = link,
       year = postdate.atZone(ZoneId.systemDefault()).getYear,
       sectionService.getSectionByName(section).getTitle)
