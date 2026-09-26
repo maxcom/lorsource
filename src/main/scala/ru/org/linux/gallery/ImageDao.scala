@@ -133,7 +133,8 @@ class ImageDao(private val sectionService: SectionService, springDB: SpringDB):
   def deleteImage(image: Image)(using Transaction): Unit =
     sql"UPDATE images SET deleted='true' WHERE id=${image.id}".update.apply()
 
-  /** Изображения удалённых топиков, удалённых более чем `years` лет назад (по `del_info.deldate`).
+  /** Изображения удалённых топиков, удалённых более чем `years` лет назад (по `del_info.deldate`, а при `deldate
+    * IS NULL` — удалённых до начала ведения даты, только сообщения до 2010 года, т.е. заведомо старше порога).
     * Файлы этих изображений подлежат физическому удалению, независимо от флага `images.deleted`.
     */
   def imagesOfOldDeletedTopics(years: Int): Seq[Image] =
@@ -143,7 +144,7 @@ class ImageDao(private val sectionService: SectionService, springDB: SpringDB):
             JOIN topics t ON t.id = i.topic
             JOIN del_info d ON d.msgid = t.id
             WHERE t.deleted
-              AND d.deldate < CURRENT_TIMESTAMP - make_interval(years => $years)
+              AND (d.deldate < CURRENT_TIMESTAMP - make_interval(years => $years) OR d.deldate IS NULL)
               AND NOT i.purged
             ORDER BY i.id""".map(imageFromRs).list.apply()
 

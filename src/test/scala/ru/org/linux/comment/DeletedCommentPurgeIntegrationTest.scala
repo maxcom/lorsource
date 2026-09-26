@@ -82,20 +82,20 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
                     create_user_agent('Integration test User Agent'))""".update.apply()
       sql"INSERT INTO msgbase (id, message) VALUES ($commentId, $body)".update.apply()
 
-  private def insertDelInfo(msgid: Int, delby: Int, deldate: Timestamp): Unit =
+  private def insertDelInfo(msgid: Int, delby: Int, deldate: Option[Timestamp]): Unit =
     springDB.run:
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
-            VALUES ($msgid, $delby, 'test reason', $deldate, 0)""".update.apply()
+            VALUES ($msgid, $delby, 'test reason', ${deldate.orNull}, 0)""".update.apply()
 
   private def nextTopicId(after: Int): Int =
     springDB.run:
       sql"select min(id) from topics where not deleted and id > $after".map(rs => rs.int(1)).single.apply().get
 
-  private def markTopicDeleted(topic: Int, deldate: Timestamp, delby: Int): Unit =
+  private def markTopicDeleted(topic: Int, deldate: Option[Timestamp], delby: Int): Unit =
     springDB.run:
       sql"UPDATE topics SET deleted='t' WHERE id = $topic".update.apply()
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
-            VALUES ($topic, $delby, 'test topic deletion', $deldate, 0)""".update.apply()
+            VALUES ($topic, $delby, 'test topic deletion', ${deldate.orNull}, 0)""".update.apply()
 
   private def hideTopicComments(topic: Int, lastmod: Timestamp): Unit =
     springDB.run:
@@ -135,47 +135,55 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
 
     val candOldLogin = nextMsgId
     insertComment(candOldLogin, oldLogin, None, deleted = true, "cand old login")
-    insertDelInfo(candOldLogin, oldLogin, yearsAgo(4))
+    insertDelInfo(candOldLogin, oldLogin, Some(yearsAgo(4)))
 
     val candBlocked = nextMsgId
     insertComment(candBlocked, blockedOldLogin, None, deleted = true, "cand blocked")
-    insertDelInfo(candBlocked, blockedOldLogin, yearsAgo(4))
+    insertDelInfo(candBlocked, blockedOldLogin, Some(yearsAgo(4)))
 
     val candNullDates = nextMsgId
     insertComment(candNullDates, nullDates, None, deleted = true, "cand null dates")
-    insertDelInfo(candNullDates, nullDates, yearsAgo(4))
+    insertDelInfo(candNullDates, nullDates, Some(yearsAgo(4)))
 
     val candRegdateFallback = nextMsgId
     insertComment(candRegdateFallback, regdateFallback, None, deleted = true, "cand regdate fallback")
-    insertDelInfo(candRegdateFallback, regdateFallback, yearsAgo(4))
+    insertDelInfo(candRegdateFallback, regdateFallback, Some(yearsAgo(4)))
+
+    val candNoDeldate = nextMsgId
+    insertComment(candNoDeldate, oldLogin, None, deleted = true, "cand no deldate")
+    insertDelInfo(candNoDeldate, oldLogin, None)
 
     val ctrlActiveAuthor = nextMsgId
     insertComment(ctrlActiveAuthor, active, None, deleted = true, "ctrl active author")
-    insertDelInfo(ctrlActiveAuthor, active, yearsAgo(4))
+    insertDelInfo(ctrlActiveAuthor, active, Some(yearsAgo(4)))
 
     val ctrlBlockedRecent = nextMsgId
     insertComment(ctrlBlockedRecent, blockedRecentLogin, None, deleted = true, "ctrl blocked recent login")
-    insertDelInfo(ctrlBlockedRecent, blockedRecentLogin, yearsAgo(4))
+    insertDelInfo(ctrlBlockedRecent, blockedRecentLogin, Some(yearsAgo(4)))
 
     val ctrlRecentRegdate = nextMsgId
     insertComment(ctrlRecentRegdate, recentRegdate, None, deleted = true, "ctrl recent regdate")
-    insertDelInfo(ctrlRecentRegdate, recentRegdate, yearsAgo(4))
+    insertDelInfo(ctrlRecentRegdate, recentRegdate, Some(yearsAgo(4)))
 
     val ctrlRecentDelete = nextMsgId
     insertComment(ctrlRecentDelete, oldLogin, None, deleted = true, "ctrl recent delete")
-    insertDelInfo(ctrlRecentDelete, oldLogin, monthsAgo(1))
+    insertDelInfo(ctrlRecentDelete, oldLogin, Some(monthsAgo(1)))
+
+    val ctrlNoDeldateActive = nextMsgId
+    insertComment(ctrlNoDeldateActive, active, None, deleted = true, "ctrl no deldate active author")
+    insertDelInfo(ctrlNoDeldateActive, active, None)
 
     val ctrlHasReply = nextMsgId
     insertComment(ctrlHasReply, oldLogin, None, deleted = true, "ctrl has reply")
-    insertDelInfo(ctrlHasReply, oldLogin, yearsAgo(4))
+    insertDelInfo(ctrlHasReply, oldLogin, Some(yearsAgo(4)))
     insertComment(nextMsgId, active, Some(ctrlHasReply), deleted = false, "reply")
 
     val ctrlHasDeletedReply = nextMsgId
     insertComment(ctrlHasDeletedReply, oldLogin, None, deleted = true, "ctrl has deleted reply")
-    insertDelInfo(ctrlHasDeletedReply, oldLogin, yearsAgo(4))
+    insertDelInfo(ctrlHasDeletedReply, oldLogin, Some(yearsAgo(4)))
     val deletedReplyId = nextMsgId
     insertComment(deletedReplyId, active, Some(ctrlHasDeletedReply), deleted = true, "deleted reply")
-    insertDelInfo(deletedReplyId, active, yearsAgo(4))
+    insertDelInfo(deletedReplyId, active, Some(yearsAgo(4)))
 
     val ctrlNotDeleted = nextMsgId
     insertComment(ctrlNotDeleted, oldLogin, None, deleted = false, "ctrl not deleted")
@@ -186,10 +194,12 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     assert(ids.contains(candBlocked), "blocked author with old lastlogin should be a candidate")
     assert(ids.contains(candNullDates), "author without dates should be a candidate")
     assert(ids.contains(candRegdateFallback), "unknown lastlogin should fall back to old regdate")
+    assert(ids.contains(candNoDeldate), "deleted comment without deldate should be a candidate")
     assert(!ids.contains(ctrlActiveAuthor), "active author should not be a candidate")
     assert(!ids.contains(ctrlBlockedRecent), "blocked author with recent lastlogin should not be a candidate")
     assert(!ids.contains(ctrlRecentRegdate), "recent regdate fallback should not be a candidate")
     assert(!ids.contains(ctrlRecentDelete), "recently deleted comment should not be a candidate")
+    assert(!ids.contains(ctrlNoDeldateActive), "comment without deldate of active author should not be a candidate")
     assert(!ids.contains(ctrlHasReply), "comment with reply should not be a candidate")
     assert(!ids.contains(ctrlHasDeletedReply), "comment with deleted reply should not be a candidate")
     assert(!ids.contains(ctrlNotDeleted), "not deleted comment should not be a candidate")
@@ -199,8 +209,10 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
 
     val deletedTopic = nextTopicId(topicId)
     val recentTopic = nextTopicId(deletedTopic)
-    markTopicDeleted(deletedTopic, yearsAgo(4), moderator)
-    markTopicDeleted(recentTopic, monthsAgo(1), moderator)
+    val nullDeldateTopic = nextTopicId(recentTopic)
+    markTopicDeleted(deletedTopic, Some(yearsAgo(4)), moderator)
+    markTopicDeleted(recentTopic, Some(monthsAgo(1)), moderator)
+    markTopicDeleted(nullDeldateTopic, None, moderator)
 
     val blockedOld = createUser("test-purge-topic-blocked-old", blocked = true, Some(yearsAgo(4)), None)
     val inactive = createUser("test-purge-topic-inactive", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
@@ -219,10 +231,17 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
 
     val candBoth = nextMsgId
     insertComment(candBoth, inactive, None, deleted = true, "topic cand both branches", deletedTopic)
-    insertDelInfo(candBoth, inactive, yearsAgo(4))
+    insertDelInfo(candBoth, inactive, Some(yearsAgo(4)))
+
+    val candNoDeldateTopic = nextMsgId
+    insertComment(candNoDeldateTopic, inactive, None, deleted = false, "topic cand no deldate", nullDeldateTopic)
 
     val ctrlActive = nextMsgId
     insertComment(ctrlActive, active, None, deleted = false, "topic ctrl active", deletedTopic)
+
+    val ctrlNoDeldateTopicActive = nextMsgId
+    insertComment(
+      ctrlNoDeldateTopicActive, active, None, deleted = false, "topic ctrl no deldate active", nullDeldateTopic)
 
     val ctrlBlockedRecent = nextMsgId
     insertComment(ctrlBlockedRecent, blockedRecent, None, deleted = false, "topic ctrl blocked recent", deletedTopic)
@@ -244,7 +263,11 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     assert(ids.contains(candNoDates), "author without dates in deleted topic should be a candidate")
     assert(ids.contains(candBoth), "individually deleted comment in deleted topic should be a candidate")
     assertEquals(ids.count(_ == candBoth), 1, "comment matching both branches should be listed once")
+    assert(ids.contains(candNoDeldateTopic), "comment in deleted topic without deldate should be a candidate")
     assert(!ids.contains(ctrlActive), "active author in deleted topic should not be a candidate")
+    assert(
+      !ids.contains(ctrlNoDeldateTopicActive),
+      "comment in topic without deldate of active author should not be a candidate")
     assert(!ids.contains(ctrlBlockedRecent), "blocked author with recent lastlogin should not be a candidate")
     assert(!ids.contains(ctrlRecentDelete), "comment in recently deleted topic should not be a candidate")
     assert(!ids.contains(ctrlHasReply), "comment with reply in deleted topic should not be a candidate")
@@ -273,7 +296,7 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
 
     val candBoth = nextMsgId
     insertComment(candBoth, inactive, None, deleted = true, "hide cand both branches", hiddenTopic)
-    insertDelInfo(candBoth, inactive, yearsAgo(4))
+    insertDelInfo(candBoth, inactive, Some(yearsAgo(4)))
 
     val ctrlActive = nextMsgId
     insertComment(ctrlActive, active, None, deleted = false, "hide ctrl active", hiddenTopic)
@@ -313,11 +336,11 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
 
     val targetId = nextMsgId
     insertComment(targetId, author, None, deleted = true, "to be purged")
-    insertDelInfo(targetId, author, yearsAgo(4))
+    insertDelInfo(targetId, author, None)
 
     val controlId = nextMsgId
     insertComment(controlId, author, None, deleted = true, "control comment")
-    insertDelInfo(controlId, author, yearsAgo(4))
+    insertDelInfo(controlId, author, Some(yearsAgo(4)))
 
     springDB.run:
       sql"""INSERT INTO edit_info (msgid, editor, object_type)
@@ -367,7 +390,7 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     val eventOwner = createUser("test-purge-in-topic-event-owner", blocked = false, Some(monthsAgo(1)), None)
 
     val deletedTopic = nextTopicId(topicId)
-    markTopicDeleted(deletedTopic, yearsAgo(4), author)
+    markTopicDeleted(deletedTopic, Some(yearsAgo(4)), author)
 
     val targetId = nextMsgId
     insertComment(targetId, author, None, deleted = false, "to be purged from deleted topic", deletedTopic)

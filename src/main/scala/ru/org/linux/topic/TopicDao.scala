@@ -341,7 +341,9 @@ class TopicDao(springDB: SpringDB):
   /** Старые удалённые топики без комментариев неактивных пользователей, подлежащие окончательному удалению.
     *
     * Топик является кандидатом, если:
-    *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет;
+    *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет либо без даты
+    *     (`deldate IS NULL` — удаления до начала ведения даты, только сообщения до 2010 года, т.е. заведомо старше
+    *     порога);
     *   - не имеет комментариев (включая удалённые — их строки постепенно вычищает
     *     [[ru.org.linux.comment.DeletedCommentCleaner]], после чего топик станет кандидатом);
     *   - не имеет непрочищенных картинок (`images.purged = false` — файлы ещё не удалены
@@ -360,7 +362,7 @@ class TopicDao(springDB: SpringDB):
             JOIN del_info ON del_info.msgid = topics.id
             JOIN users ON users.id = topics.userid
             WHERE topics.deleted
-            AND del_info.deldate < CURRENT_TIMESTAMP - interval '3 years'
+            AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
             AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
             AND ${AuthorInactivityCondition}

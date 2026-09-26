@@ -229,9 +229,11 @@ class CommentDao(springDB: SpringDB):
   /** Старые удалённые комментарии неактивных пользователей, подлежащие окончательному удалению.
     *
     * Комментарий является кандидатом, если:
-    *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет, либо находится в
-    *     топике, удалённом более 3 лет назад (удаление топика не помечает его комментарии как удалённые), либо находится
-    *     в топике со скрытыми комментариями (`postscore = POSTSCORE_HIDE_COMMENTS`) и `lastmod` топика старше 3 лет;
+    *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет либо без даты
+    *     (`deldate IS NULL` — удаления до начала ведения даты, только сообщения до 2010 года, т.е. заведомо старше
+    *     порога), либо находится в топике, удалённом более 3 лет назад или с `deldate IS NULL` (удаление топика не
+    *     помечает его комментарии как удалённые), либо находится в топике со скрытыми комментариями
+    *     (`postscore = POSTSCORE_HIDE_COMMENTS`) и `lastmod` топика старше 3 лет;
     *   - не имеет ответов (включая сами удалённые);
     *   - его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет назад),
     *     либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч.
@@ -249,7 +251,7 @@ class CommentDao(springDB: SpringDB):
             JOIN comments ON comments.id = del_info.msgid
             JOIN users ON users.id = comments.userid
             WHERE comments.deleted
-            AND del_info.deldate < CURRENT_TIMESTAMP - interval '3 years'
+            AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
             AND (
               COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
@@ -264,7 +266,7 @@ class CommentDao(springDB: SpringDB):
             JOIN del_info ON del_info.msgid = topics.id
             JOIN users ON users.id = comments.userid
             WHERE topics.deleted
-            AND del_info.deldate < CURRENT_TIMESTAMP - interval '3 years'
+            AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
             AND (
               COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'

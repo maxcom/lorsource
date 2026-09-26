@@ -85,11 +85,11 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     insertTopic(id, userId, title, draft = true)
     id
 
-  private def markTopicDeleted(topic: Int, deldate: Timestamp, delby: Int): Unit =
+  private def markTopicDeleted(topic: Int, deldate: Option[Timestamp], delby: Int): Unit =
     springDB.run:
       sql"UPDATE topics SET deleted='t' WHERE id = $topic".update.apply()
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
-            VALUES ($topic, $delby, 'test topic deletion', $deldate, 0)""".update.apply()
+            VALUES ($topic, $delby, 'test topic deletion', ${deldate.orNull}, 0)""".update.apply()
 
   private def insertComment(commentId: Int, userId: Int, topic: Int): Unit =
     springDB.run:
@@ -134,29 +134,31 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     val blockedRecent = createUser("test-topic-purge-blocked-recent", blocked = true, Some(monthsAgo(6)), None)
     val recentRegdate = createUser("test-topic-purge-recent-reg", blocked = false, None, Some(monthsAgo(6)))
 
-    def deletedTopic(userId: Int, title: String, deldate: Timestamp): Int =
+    def deletedTopic(userId: Int, title: String, deldate: Option[Timestamp]): Int =
       val id = nextMsgId
       insertTopic(id, userId, title)
       markTopicDeleted(id, deldate, userId)
       id
 
-    val candInactive = deletedTopic(inactive, "cand inactive", yearsAgo(4))
-    val candBlocked = deletedTopic(blockedOld, "cand blocked", yearsAgo(4))
-    val candNoDates = deletedTopic(noDates, "cand no dates", yearsAgo(4))
-    val candRegdateFallback = deletedTopic(regdateFallback, "cand regdate fallback", yearsAgo(4))
+    val candInactive = deletedTopic(inactive, "cand inactive", Some(yearsAgo(4)))
+    val candBlocked = deletedTopic(blockedOld, "cand blocked", Some(yearsAgo(4)))
+    val candNoDates = deletedTopic(noDates, "cand no dates", Some(yearsAgo(4)))
+    val candRegdateFallback = deletedTopic(regdateFallback, "cand regdate fallback", Some(yearsAgo(4)))
+    val candNoDeldate = deletedTopic(inactive, "cand no deldate", None)
 
-    val ctrlActiveAuthor = deletedTopic(active, "ctrl active author", yearsAgo(4))
-    val ctrlBlockedRecent = deletedTopic(blockedRecent, "ctrl blocked recent", yearsAgo(4))
-    val ctrlRecentRegdate = deletedTopic(recentRegdate, "ctrl recent regdate", yearsAgo(4))
-    val ctrlRecentDelete = deletedTopic(inactive, "ctrl recent delete", monthsAgo(1))
+    val ctrlActiveAuthor = deletedTopic(active, "ctrl active author", Some(yearsAgo(4)))
+    val ctrlBlockedRecent = deletedTopic(blockedRecent, "ctrl blocked recent", Some(yearsAgo(4)))
+    val ctrlRecentRegdate = deletedTopic(recentRegdate, "ctrl recent regdate", Some(yearsAgo(4)))
+    val ctrlRecentDelete = deletedTopic(inactive, "ctrl recent delete", Some(monthsAgo(1)))
+    val ctrlNoDeldateActive = deletedTopic(active, "ctrl no deldate active author", None)
 
-    val ctrlWithComment = deletedTopic(inactive, "ctrl with comment", yearsAgo(4))
+    val ctrlWithComment = deletedTopic(inactive, "ctrl with comment", Some(yearsAgo(4)))
     insertComment(nextMsgId, active, ctrlWithComment)
 
     val ctrlNotDeleted = nextMsgId
     insertTopic(ctrlNotDeleted, inactive, "ctrl not deleted")
 
-    val ctrlUnpurgedImage = deletedTopic(inactive, "ctrl unpurged image", yearsAgo(4))
+    val ctrlUnpurgedImage = deletedTopic(inactive, "ctrl unpurged image", Some(yearsAgo(4)))
     insertImage(ctrlUnpurgedImage, purged = false)
 
     val ids = topicDao.getDeletableDeletedTopicIds
@@ -165,10 +167,12 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     assert(ids.contains(candBlocked), "blocked author with old lastlogin should be a candidate")
     assert(ids.contains(candNoDates), "author without dates should be a candidate")
     assert(ids.contains(candRegdateFallback), "unknown lastlogin should fall back to old regdate")
+    assert(ids.contains(candNoDeldate), "deleted topic without deldate should be a candidate")
     assert(!ids.contains(ctrlActiveAuthor), "active author should not be a candidate")
     assert(!ids.contains(ctrlBlockedRecent), "blocked author with recent lastlogin should not be a candidate")
     assert(!ids.contains(ctrlRecentRegdate), "recent regdate fallback should not be a candidate")
     assert(!ids.contains(ctrlRecentDelete), "recently deleted topic should not be a candidate")
+    assert(!ids.contains(ctrlNoDeldateActive), "topic without deldate of active author should not be a candidate")
     assert(!ids.contains(ctrlWithComment), "topic with comment should not be a candidate")
     assert(!ids.contains(ctrlNotDeleted), "not deleted topic should not be a candidate")
     assert(!ids.contains(ctrlUnpurgedImage), "topic with unpurged image should not be a candidate")
@@ -179,11 +183,11 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val targetId = nextMsgId
     insertTopic(targetId, author, "to be purged")
-    markTopicDeleted(targetId, yearsAgo(4), author)
+    markTopicDeleted(targetId, None, author)
 
     val controlId = nextMsgId
     insertTopic(controlId, author, "control topic")
-    markTopicDeleted(controlId, yearsAgo(4), author)
+    markTopicDeleted(controlId, Some(yearsAgo(4)), author)
 
     val tagId = springDB.run:
       sql"SELECT id FROM tags_values ORDER BY id LIMIT 1".map(rs => rs.int("id")).single.apply().get
@@ -265,7 +269,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val topicId = nextMsgId
     insertTopic(topicId, author, "restored topic")
-    markTopicDeleted(topicId, yearsAgo(4), author)
+    markTopicDeleted(topicId, Some(yearsAgo(4)), author)
 
     assert(topicDao.getDeletableDeletedTopicIds.contains(topicId))
 
@@ -284,7 +288,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val topicId = nextMsgId
     insertTopic(topicId, author, "topic with comment")
-    markTopicDeleted(topicId, yearsAgo(4), author)
+    markTopicDeleted(topicId, Some(yearsAgo(4)), author)
     insertComment(nextMsgId, commenter, topicId)
 
     assert(!topicDao.getDeletableDeletedTopicIds.contains(topicId))
@@ -299,7 +303,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val topicId = nextMsgId
     insertTopic(topicId, author, "topic with image")
-    markTopicDeleted(topicId, yearsAgo(4), author)
+    markTopicDeleted(topicId, Some(yearsAgo(4)), author)
     val imageId = insertImage(topicId, purged = false)
 
     assert(!topicDao.getDeletableDeletedTopicIds.contains(topicId), "topic with unpurged image is not a candidate")
@@ -339,7 +343,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     insertTopic(ctrlPublished, inactive, "ctrl published topic")
 
     val ctrlDeletedDraft = insertDraft(inactive, "ctrl deleted draft")
-    markTopicDeleted(ctrlDeletedDraft, yearsAgo(4), inactive)
+    markTopicDeleted(ctrlDeletedDraft, Some(yearsAgo(4)), inactive)
 
     val ctrlWithComment = insertDraft(inactive, "ctrl with comment")
     insertComment(nextMsgId, active, ctrlWithComment)
@@ -465,7 +469,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val topicId = nextMsgId
     insertTopic(topicId, author, "deleted topic of returned user")
-    markTopicDeleted(topicId, yearsAgo(4), author)
+    markTopicDeleted(topicId, Some(yearsAgo(4)), author)
 
     assert(topicDao.getDeletableDeletedTopicIds.contains(topicId), "topic of inactive author should be a candidate")
 
@@ -487,7 +491,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     insertTopic(published, author, "published topic")
     val deletedDraft = nextMsgId
     insertTopic(deletedDraft, author, "deleted draft", draft = true)
-    markTopicDeleted(deletedDraft, yearsAgo(4), author)
+    markTopicDeleted(deletedDraft, Some(yearsAgo(4)), author)
 
     val unpurged1 = insertImage(draft1, purged = false)
     val unpurged2 = insertImage(draft1, purged = false)
