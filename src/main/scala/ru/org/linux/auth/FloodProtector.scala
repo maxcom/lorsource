@@ -48,15 +48,12 @@ class FloodProtector(siteConfig: SiteConfig, slowModeChecker: SlowModeChecker) {
 
   private def check(action: FloodProtector.Action, ip: String, threshold: Duration): Boolean = {
     val key = action.toString + ':' + ip
+    val now = Instant.now
 
-    val date = Option(performedActions.getIfPresent(key))
-
-    if (date.exists(_.plus(threshold).isAfter(Instant.now))) {
-      false
-    } else {
-      performedActions.put(key, Instant.now)
-      true
-    }
+    val prev = performedActions.asMap().putIfAbsent(key, now)
+    if prev == null then true
+    else if prev.plus(threshold).isAfter(now) then false
+    else performedActions.asMap().replace(key, prev, now)
   }
 
   def checkRateLimit(action: FloodProtector.Action, ip: String, @Nullable user: User, errors: Errors): Unit = {
