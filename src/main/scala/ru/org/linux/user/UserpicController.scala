@@ -93,9 +93,13 @@ class UserpicController(siteConfig: SiteConfig, userService: UserService,
 
         new ModelAndView(new RedirectView(profileUri))
       } catch {
-        case ex@(_: IOException | _: BadImageException | _: UserErrorException) =>
+        case ex@(_: BadImageException | _: UserErrorException) =>
           response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
           new ModelAndView("addphoto", "error", ex.getMessage)
+        case ex: IOException =>
+          logger.warn("Ошибка загрузки фотографии", ex)
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+          new ModelAndView("addphoto", "error", "Сбой загрузки изображения")
       } finally {
         Files.deleteIfExists(uploadedFile)
       }
