@@ -21,6 +21,7 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
+import ru.org.linux.user.UserDao.AuthorInactivityCondition
 import ru.org.linux.util.StringUtil
 import scalikejdbc.*
 
@@ -253,12 +254,7 @@ class CommentDao(springDB: SpringDB):
             WHERE comments.deleted
             AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-            AND (
-              COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
-              OR (users.blocked
-                  AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
-              OR (users.lastlogin IS NULL AND users.regdate IS NULL)
-            )
+            AND ${AuthorInactivityCondition}
             UNION
             SELECT comments.id
             FROM comments
@@ -268,12 +264,7 @@ class CommentDao(springDB: SpringDB):
             WHERE topics.deleted
             AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-            AND (
-              COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
-              OR (users.blocked
-                  AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
-              OR (users.lastlogin IS NULL AND users.regdate IS NULL)
-            )
+            AND ${AuthorInactivityCondition}
             UNION
             SELECT comments.id
             FROM comments
@@ -282,12 +273,7 @@ class CommentDao(springDB: SpringDB):
             WHERE topics.postscore = $POSTSCORE_HIDE_COMMENTS
             AND topics.lastmod < CURRENT_TIMESTAMP - interval '3 years'
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-            AND (
-              COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
-              OR (users.blocked
-                  AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
-              OR (users.lastlogin IS NULL AND users.regdate IS NULL)
-            )
+            AND ${AuthorInactivityCondition}
             ORDER BY id""".map(rs => rs.int("id")).list.apply())
 
   /** Окончательно удаляет комментарии со всеми зависимыми записями (в одной транзакции).

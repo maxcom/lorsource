@@ -23,6 +23,7 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.SectionScrollModeEnum
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
+import ru.org.linux.user.UserDao.AuthorInactivityCondition
 import ru.org.linux.warning.RuleWarning
 import scalikejdbc.*
 
@@ -327,16 +328,6 @@ class TopicDao(springDB: SpringDB):
           mw.author in (select id from users where score>100)) where open_warnings > 0""".update.apply()
 
   def recalcAllWarningsCountInTx(): Unit = springDB.localTx(recalcAllWarningsCount())
-
-  /** Общий критерий неактивности автора для кандидатов окончательного удаления и их перепроверки в
-    * [[purgeDeletedTopics]].
-    */
-  private val AuthorInactivityCondition = sqls"""(
-    COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
-    OR (users.blocked
-        AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
-    OR (users.lastlogin IS NULL AND users.regdate IS NULL)
-  )"""
 
   /** Старые удалённые топики без комментариев неактивных пользователей, подлежащие окончательному удалению.
     *

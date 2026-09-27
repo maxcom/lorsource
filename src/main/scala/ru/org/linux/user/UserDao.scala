@@ -31,6 +31,20 @@ import javax.annotation.Nullable
 import jakarta.mail.internet.{AddressException, InternetAddress}
 
 @Repository
+object UserDao:
+  /** Критерий неактивности пользователя для кандидатов окончательного удаления (общий для TopicDao и CommentDao):
+    * пользователь не заходил на сайт более 10 лет (при неизвестном `lastlogin` — с даты регистрации), либо заблокирован
+    * и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч. anonymous). Предполагает, что
+    * запрос соединяется с таблицей `users` под этим именем.
+    */
+  val AuthorInactivityCondition: SQLSyntax = sqls"""(
+    COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
+    OR (users.blocked
+        AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
+    OR (users.lastlogin IS NULL AND users.regdate IS NULL)
+  )"""
+
+@Repository
 class UserDao(springDB: SpringDB) extends StrictLogging:
 
   @throws(classOf[UserNotFoundException])
