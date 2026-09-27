@@ -160,13 +160,14 @@ class SiteConfig(
     else
       property.toBoolean
 
-  /** Удалять ли заблокированных пользователей без активности (раз в день ночью).
+  /** Удалять ли неактивных пользователей без активности: заблокированных более 3 лет назад и не заходивших более 10
+    * лет (раз в день ночью).
     *
     * @return
     *   true если разрешено удалять, иначе false (только логгирование кандидатов)
     */
-  def cleanOldBlockedUsers: Boolean =
-    val property = properties.getProperty("cleanOldBlockedUsers")
+  def cleanInactiveUsers: Boolean =
+    val property = properties.getProperty("cleanInactiveUsers")
     if property == null then
       false
     else

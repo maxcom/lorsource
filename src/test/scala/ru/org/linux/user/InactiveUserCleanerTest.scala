@@ -19,11 +19,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, never, times, verify, when}
 import ru.org.linux.spring.SiteConfig
 
-/** Юнит-тесты для [[BlockedUserCleaner]] на моках DAO и SiteConfig. */
-class BlockedUserCleanerTest extends FunSuite:
+/** Юнит-тесты для [[InactiveUserCleaner]] на моках DAO и SiteConfig. */
+class InactiveUserCleanerTest extends FunSuite:
   private var siteConfig: SiteConfig = scala.compiletime.uninitialized
   private var userDao: UserDao = scala.compiletime.uninitialized
-  private var cleaner: BlockedUserCleaner = scala.compiletime.uninitialized
+  private var cleaner: InactiveUserCleaner = scala.compiletime.uninitialized
 
   // В JUnit каждый тест получал новый экземпляр класса (и новые моки); в munit экземпляр один,
   // поэтому моки пересоздаются в beforeEach — иначе verify(never())/verify(times(n)) учитывал бы
@@ -32,47 +32,50 @@ class BlockedUserCleanerTest extends FunSuite:
     super.beforeEach(context)
     siteConfig = mock(classOf[SiteConfig])
     userDao = mock(classOf[UserDao])
-    cleaner = BlockedUserCleaner(siteConfig, userDao)
+    cleaner = InactiveUserCleaner(siteConfig, userDao)
+    when(userDao.getDeletableBlockedUserIds).thenReturn(Seq.empty[Int])
+    when(userDao.getDeletableInactiveUserIds).thenReturn(Seq.empty[Int])
 
   test("noCandidatesDoesNothing"):
-    when(userDao.getDeletableBlockedUserIds).thenReturn(Seq.empty[Int])
+    cleaner.cleanInactiveUsers()
 
-    cleaner.cleanBlockedUsers()
-
-    verify(userDao, never()).deleteBlockedUsers(any(classOf[Seq[Int]]))
+    verify(userDao, never()).deleteUsers(any(classOf[Seq[Int]]))
 
   test("flagOffDoesNotDelete"):
     when(userDao.getDeletableBlockedUserIds).thenReturn(Seq(1, 2, 3))
-    when(siteConfig.cleanOldBlockedUsers).thenReturn(false)
+    when(userDao.getDeletableInactiveUserIds).thenReturn(Seq(4, 5))
+    when(siteConfig.cleanInactiveUsers).thenReturn(false)
 
-    cleaner.cleanBlockedUsers()
+    cleaner.cleanInactiveUsers()
 
-    verify(userDao, never()).deleteBlockedUsers(any(classOf[Seq[Int]]))
+    verify(userDao, never()).deleteUsers(any(classOf[Seq[Int]]))
 
   test("flagOnDeletesCandidates"):
     when(userDao.getDeletableBlockedUserIds).thenReturn(Seq(1, 2, 3))
-    when(siteConfig.cleanOldBlockedUsers).thenReturn(true)
+    when(userDao.getDeletableInactiveUserIds).thenReturn(Seq(4, 5))
+    when(siteConfig.cleanInactiveUsers).thenReturn(true)
 
-    cleaner.cleanBlockedUsers()
+    cleaner.cleanInactiveUsers()
 
-    verify(userDao).deleteBlockedUsers(Seq(1, 2, 3))
+    verify(userDao).deleteUsers(Seq(1, 2, 3))
+    verify(userDao).deleteUsers(Seq(4, 5))
 
   test("flagOnDeletesInBatches"):
-    val ids = (1 to BlockedUserCleaner.BatchSize * 3).toSeq
-    when(userDao.getDeletableBlockedUserIds).thenReturn(ids)
-    when(siteConfig.cleanOldBlockedUsers).thenReturn(true)
+    val ids = (1 to InactiveUserCleaner.BatchSize * 3).toSeq
+    when(userDao.getDeletableInactiveUserIds).thenReturn(ids)
+    when(siteConfig.cleanInactiveUsers).thenReturn(true)
 
-    cleaner.cleanBlockedUsers()
+    cleaner.cleanInactiveUsers()
 
-    verify(userDao, times(3)).deleteBlockedUsers(any(classOf[Seq[Int]]))
-    verify(userDao).deleteBlockedUsers((1 to BlockedUserCleaner.BatchSize).toSeq)
-    verify(userDao).deleteBlockedUsers((BlockedUserCleaner.BatchSize + 1 to BlockedUserCleaner.BatchSize * 2).toSeq)
+    verify(userDao, times(3)).deleteUsers(any(classOf[Seq[Int]]))
+    verify(userDao).deleteUsers((1 to InactiveUserCleaner.BatchSize).toSeq)
+    verify(userDao).deleteUsers((InactiveUserCleaner.BatchSize + 1 to InactiveUserCleaner.BatchSize * 2).toSeq)
 
   test("deleteFailurePropagates"):
-    when(userDao.getDeletableBlockedUserIds).thenReturn(Seq(1, 2, 3))
-    when(siteConfig.cleanOldBlockedUsers).thenReturn(true)
-    when(userDao.deleteBlockedUsers(Seq(1, 2, 3))).thenThrow(new RuntimeException("batch failed"))
+    when(userDao.getDeletableInactiveUserIds).thenReturn(Seq(1, 2, 3))
+    when(siteConfig.cleanInactiveUsers).thenReturn(true)
+    when(userDao.deleteUsers(Seq(1, 2, 3))).thenThrow(new RuntimeException("batch failed"))
 
     intercept[RuntimeException] {
-      cleaner.cleanBlockedUsers()
+      cleaner.cleanInactiveUsers()
     }

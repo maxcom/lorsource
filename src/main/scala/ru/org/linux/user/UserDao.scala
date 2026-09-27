@@ -460,12 +460,45 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
         .list
         .apply())
 
-  /** Удаляет заблокированных пользователей вместе с их личными данными (в одной транзакции). Все ссылки, оставшиеся
-    * от активности пользователя (топики, комментарии, реакции, голоса, инвайты, предупреждения, правки), уже отсечены в
-    * [[getDeletableBlockedUserIds]], поэтому здесь удаляются только персональные записи пользователя. Записи `user_log`
-    * удаляются автоматически (FK с ON DELETE CASCADE).
+  /** Незаблокированные пользователи без активности, не заходившие на сайт более 10 лет, подлежащие удалению.
+    *
+    * Пользователь является кандидатом, если:
+    *   - не заблокирован (`blocked`) — заблокированные удаляются по правилу 3 лет в [[getDeletableBlockedUserIds]];
+    *   - не системный пользователь `anonymous`;
+    *   - не является автором топиков/комментариев, не ставил реакций, не голосовал в опросах, не приглашал и не получал
+    *     инвайты, не имеет предупреждений, и нигде не упомянут как редактор/модератор (защита от экс-модераторов);
+    *   - не заходил более 10 лет. Используется `lastlogin`, при отсутствии — `regdate`. Если ни одна из дат
+    *     неизвестна, пользователь удаляется сразу.
     */
-  def deleteBlockedUsers(ids: Seq[Int]): Int =
+  def getDeletableInactiveUserIds: Seq[Int] =
+    springDB.run(
+      sql"""SELECT u.id FROM users u
+            WHERE NOT u.blocked
+            AND u.nick != 'anonymous'
+            AND NOT EXISTS (SELECT 1 FROM topics WHERE userid = u.id)
+            AND NOT EXISTS (SELECT 1 FROM topics WHERE commitby = u.id)
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE userid = u.id)
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE editor_id = u.id)
+            AND NOT EXISTS (SELECT 1 FROM reactions_log WHERE origin_user = u.id)
+            AND NOT EXISTS (SELECT 1 FROM vote_users WHERE userid = u.id)
+            AND NOT EXISTS (SELECT 1 FROM user_invites WHERE owner = u.id OR invited_user = u.id)
+            AND NOT EXISTS (SELECT 1 FROM message_warnings WHERE author = u.id OR closed_by = u.id)
+            AND NOT EXISTS (SELECT 1 FROM del_info WHERE delby = u.id)
+            AND NOT EXISTS (SELECT 1 FROM edit_info WHERE editor = u.id)
+            AND NOT EXISTS (SELECT 1 FROM users fu WHERE fu.frozen_by = u.id)
+            AND NOT EXISTS (SELECT 1 FROM ban_info bb WHERE bb.ban_by = u.id)
+            AND (COALESCE(u.lastlogin, u.regdate) < CURRENT_TIMESTAMP - interval '10 years'
+                 OR (u.lastlogin IS NULL AND u.regdate IS NULL))"""
+        .map(rs => rs.int("id"))
+        .list
+        .apply())
+
+  /** Удаляет пользователей вместе с их личными данными (в одной транзакции). Все ссылки, оставшиеся от активности
+    * пользователя (топики, комментарии, реакции, голоса, инвайты, предупреждения, правки), уже отсечены в
+    * [[getDeletableBlockedUserIds]] и [[getDeletableInactiveUserIds]], поэтому здесь удаляются только персональные
+    * записи пользователя. Записи `user_log` удаляются автоматически (FK с ON DELETE CASCADE).
+    */
+  def deleteUsers(ids: Seq[Int]): Int =
     if ids.isEmpty then
       0
     else

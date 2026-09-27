@@ -75,15 +75,16 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   private def ts(value: String): Timestamp = Timestamp.valueOf(value + " 00:00:00")
 
-  private def createBlockedUser(
+  private def createUser(
       nick: String,
-      bandate: Option[Timestamp],
-      lastlogin: Option[Timestamp],
-      regdate: Option[Timestamp]): Int =
+      blocked: Boolean,
+      bandate: Option[Timestamp] = None,
+      lastlogin: Option[Timestamp] = None,
+      regdate: Option[Timestamp] = None): Int =
     springDB.run {
       val id =
         sql"""INSERT INTO users (id, name, nick, passwd, score, max_score, regdate, blocked, lastlogin)
-                     VALUES (nextval('s_uid'), '', $nick, 'x', 45, 45, ${regdate.orNull}, 't', ${lastlogin.orNull})
+                     VALUES (nextval('s_uid'), '', $nick, 'x', 45, 45, ${regdate.orNull}, $blocked, ${lastlogin.orNull})
                      RETURNING id""".map(_.int("id")).single.apply().get
 
       bandate.foreach { d =>
@@ -95,12 +96,12 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     }
 
   test("getDeletableBlockedUsers"):
-    val oldBan = createBlockedUser("test-old-ban", Some(ts("2015-01-01")), None, None)
-    val recentBan = createBlockedUser("test-recent-ban", Some(ts("2026-01-01")), None, None)
-    val oldLogin = createBlockedUser("test-old-login", None, Some(ts("2015-01-01")), None)
-    val oldReg = createBlockedUser("test-old-reg", None, None, Some(ts("2015-01-01")))
-    val noDates = createBlockedUser("test-no-dates", None, None, None)
-    val recentLogin = createBlockedUser("test-recent-login", None, Some(ts("2026-01-01")), Some(ts("2015-01-01")))
+    val oldBan = createUser("test-old-ban", blocked = true, bandate = Some(ts("2015-01-01")))
+    val recentBan = createUser("test-recent-ban", blocked = true, bandate = Some(ts("2026-01-01")))
+    val oldLogin = createUser("test-old-login", blocked = true, lastlogin = Some(ts("2015-01-01")))
+    val oldReg = createUser("test-old-reg", blocked = true, regdate = Some(ts("2015-01-01")))
+    val noDates = createUser("test-no-dates", blocked = true)
+    val recentLogin = createUser("test-recent-login", blocked = true, lastlogin = Some(ts("2026-01-01")), regdate = Some(ts("2015-01-01")))
 
     val ids = userDao.getDeletableBlockedUserIds
 
@@ -111,10 +112,25 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     assert(ids.contains(noDates), "no dates should be a candidate")
     assert(!ids.contains(recentLogin), "recent lastlogin should take priority over old regdate")
 
-  test("deleteBlockedUsers"):
-    val id = createBlockedUser("test-delete-blocked", Some(ts("2015-01-01")), None, None)
+  test("getDeletableInactiveUsers"):
+    val oldLogin = createUser("test-inactive-old-login", blocked = false, lastlogin = Some(ts("2010-01-01")))
+    val oldReg = createUser("test-inactive-old-reg", blocked = false, regdate = Some(ts("2010-01-01")))
+    val noDates = createUser("test-inactive-no-dates", blocked = false)
+    val recentLogin = createUser("test-inactive-recent-login", blocked = false, lastlogin = Some(ts("2026-01-01")))
+    val blockedOldLogin = createUser("test-inactive-blocked", blocked = true, lastlogin = Some(ts("2010-01-01")))
 
-    val deleted = userDao.deleteBlockedUsers(Seq(id))
+    val ids = userDao.getDeletableInactiveUserIds
+
+    assert(ids.contains(oldLogin), "old lastlogin should be a candidate")
+    assert(ids.contains(oldReg), "old regdate should be a candidate when lastlogin is null")
+    assert(ids.contains(noDates), "no dates should be a candidate")
+    assert(!ids.contains(recentLogin), "recent lastlogin should not be a candidate")
+    assert(!ids.contains(blockedOldLogin), "blocked users should be handled by the blocked rule")
+
+  test("deleteUsers"):
+    val id = createUser("test-delete-user", blocked = true, bandate = Some(ts("2015-01-01")))
+
+    val deleted = userDao.deleteUsers(Seq(id))
 
     assertEquals(deleted, 1)
     intercept[UserNotFoundException] {
