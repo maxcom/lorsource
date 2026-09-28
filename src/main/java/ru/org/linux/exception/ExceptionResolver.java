@@ -37,8 +37,21 @@ import ru.org.linux.util.StringUtil;
 public class ExceptionResolver extends SimpleMappingExceptionResolver {
   private static final Logger logger = LoggerFactory.getLogger(ExceptionResolver.class);
 
+  /**
+   * Tomcat выбрасывает это исключение из getParameter() при недекодируемых параметрах запроса
+   * (например, мусорные %-последовательности в query string у сканеров уязвимостей).
+   * Класс контейнера недоступен на classpath приложения (тесты исполняются под Jetty),
+   * поэтому сопоставляется по имени — как и ClientAbortException выше.
+   */
+  private static final String TOMCAT_INVALID_PARAMETER_EXCEPTION =
+      "org.apache.tomcat.util.http.InvalidParameterException";
+
   @Autowired
   private EmailService emailService;
+
+  private static boolean isInvalidParameterException(Throwable exception) {
+    return exception != null && TOMCAT_INVALID_PARAMETER_EXCEPTION.equals(exception.getClass().getName());
+  }
 
   enum ExceptionType {
     IGNORED,
@@ -74,7 +87,10 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
       prepareModelForCommonException(modelAndView, request, ex);
     }
     modelAndView.addObject("exception", ex);
-    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    response.setStatus(
+        isInvalidParameterException(ex)
+            ? HttpServletResponse.SC_BAD_REQUEST
+            : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     return modelAndView;
   }
 
@@ -93,7 +109,8 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     ExceptionType exceptionType = ExceptionType.OTHER;
     if (exception instanceof UserErrorException) {
       exceptionType = ExceptionType.IGNORED;
-    } else if (exception instanceof ScriptErrorException || exception instanceof RequestRejectedException) {
+    } else if (exception instanceof ScriptErrorException || exception instanceof RequestRejectedException
+        || isInvalidParameterException(exception)) {
       logger.debug("errors/common.jsp", exception);
       exceptionType = ExceptionType.SCRIPT_ERROR;
     } else {
