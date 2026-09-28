@@ -1,7 +1,7 @@
 <%@ page session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="org.apache.commons.logging.Log,org.apache.commons.logging.LogFactory" isErrorPage="true" %>
+<%@ page import="org.apache.logging.log4j.LogManager,org.apache.logging.log4j.Logger" isErrorPage="true" %>
 <%@ page import="org.springframework.validation.BindException"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%--
@@ -20,7 +20,7 @@
   --%>
 
 <%
-  Log logger = LogFactory.getLog("ru.org.linux");
+  Logger logger = LogManager.getLogger("ru.org.linux");
 
   if (exception==null) {
     exception = (Throwable) request.getAttribute("exception");

@@ -16,10 +16,10 @@
 package ru.org.linux.util.bbcode
 
 import munit.FunSuite
-import org.apache.commons.httpclient.URI
 import org.mockito.Mockito.{mock, when}
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.{User, UserNotFoundException, UserService}
+import ru.org.linux.util.LorURI
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
 import scala.compiletime.uninitialized
@@ -58,7 +58,7 @@ class MemberTagTest extends FunSuite:
     when(userService.getUserCached("hizel")).thenThrow(UserNotFoundException("hizel"))
 
     val mainUrl = "http://127.0.0.1:8080/"
-    val mainURI = new URI(mainUrl, true, "UTF-8")
+    val mainURI = LorURI.parse(mainUrl)
 
     val siteConfig = mock(classOf[SiteConfig])
     when(siteConfig.getMainURI).thenReturn(mainURI)

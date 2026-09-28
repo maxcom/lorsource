@@ -16,9 +16,10 @@
 package ru.org.linux.auth
 
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
-import org.apache.commons.httpclient.{URI, URIException}
 import org.springframework.web.servlet.HandlerInterceptor
 import ru.org.linux.spring.SiteConfig
+import ru.org.linux.util.LorURI
+import ru.org.linux.util.LorURIException
 
 class HstsInterceptor(config: SiteConfig) extends HandlerInterceptor:
   private val HCaptchaSources = "https://hcaptcha.com https://*.hcaptcha.com"
@@ -45,12 +46,12 @@ class HstsInterceptor(config: SiteConfig) extends HandlerInterceptor:
 
   private def parseOrigin(url: String): String =
     try
-      origin(new URI(url, true, "UTF-8"), "WSUrl")
+      origin(LorURI.parse(url), "WSUrl")
     catch
-      case e: URIException =>
+      case e: LorURIException =>
         throw new RuntimeException(s"Invalid WSUrl property: ${e.getMessage}")
 
-  private def origin(uri: URI, propertyName: String): String =
+  private def origin(uri: LorURI, propertyName: String): String =
     val scheme = Option(uri.getScheme).getOrElse {
       throw new RuntimeException(s"Invalid $propertyName property: missing scheme")
     }

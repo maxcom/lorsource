@@ -15,9 +15,9 @@
 
 package ru.org.linux.spring
 
-import org.apache.commons.httpclient.{URI, URIException}
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import ru.org.linux.util.LorURI
 
 import java.util.Properties
 
@@ -27,27 +27,19 @@ import java.util.Properties
 class SiteConfig(
     @Qualifier("properties")
     properties: Properties):
-  val mainURI: URI =
+  val mainURI: LorURI =
     try
-      new URI(properties.getProperty("MainUrl"), true, "UTF-8")
+      LorURI.parse(properties.getProperty("MainUrl"))
     catch
       case e: Exception =>
         throw new RuntimeException(SiteConfig.ErrMsg + e.getMessage)
 
-  if !mainURI.isAbsoluteURI then
+  if !mainURI.isAbsolute then
     throw new RuntimeException(SiteConfig.ErrMsg + "URI not absolute path")
 
-  try
-    val mainHost = mainURI.getHost
-    if mainHost == null then
-      throw new RuntimeException(SiteConfig.ErrMsg + "bad URI host")
-  catch
-    case e: URIException =>
-      throw new RuntimeException(SiteConfig.ErrMsg + e.getMessage)
-
-  val secureURI: URI =
+  val secureURI: LorURI =
     try
-      new URI(properties.getProperty("SecureUrl", mainURI.toString.replaceFirst("http", "https")), true, "UTF-8")
+      LorURI.parse(properties.getProperty("SecureUrl", mainURI.toString.replaceFirst("http", "https")))
     catch
       case e: Exception =>
         throw new RuntimeException(SiteConfig.ErrMsg + e.getMessage)
@@ -56,11 +48,11 @@ class SiteConfig(
 
   def getSecureUrl: String = secureURI.toString
 
-  def getSecureURI: URI = secureURI
+  def getSecureURI: LorURI = secureURI
 
   def getWSUrl: String = properties.getProperty("WSUrl")
 
-  def getMainURI: URI = mainURI
+  def getMainURI: LorURI = mainURI
 
   def getElasticsearch: String = properties.getProperty("Elasticsearch")
 

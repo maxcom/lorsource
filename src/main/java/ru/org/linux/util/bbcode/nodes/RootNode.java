@@ -53,9 +53,9 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
-import org.apache.commons.httpclient.URI;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserService;
+import ru.org.linux.util.LorURI;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.ParserParameters.CutType;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
@@ -70,7 +70,7 @@ public class RootNode extends Node {
   private int cutCount;
   //
   private CutType cutType;
-  private URI cutURI;
+  private LorURI cutURI;
   private UserService userService;
   private ToHtmlFormatter toHtmlFormatter;
   private final Set<User> replier;
@@ -84,7 +84,7 @@ public class RootNode extends Node {
     replier = new HashSet<>();
   }
 
-  public URI getCutURI() {
+  public LorURI getCutURI() {
     return cutURI;
   }
 
@@ -136,7 +136,7 @@ public class RootNode extends Node {
     cutType = CutType.INTOPIC_MAXIMIZED;
   }
 
-  public void setMinimizedTopicCutOptions(URI cutURI) {
+  public void setMinimizedTopicCutOptions(LorURI cutURI) {
     cutType = CutType.INTOPIC_MINIMIZED;
     this.cutURI = cutURI;
   }

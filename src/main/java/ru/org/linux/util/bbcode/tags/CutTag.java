@@ -54,7 +54,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.httpclient.URI;
+import ru.org.linux.util.LorURI;
 import ru.org.linux.util.bbcode.NodeUtils;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
@@ -86,9 +86,9 @@ public class CutTag extends HtmlEquivTag {
     } else if (rootNode.isTopicMaximized()) { // топик не свернутым cut, содежимое в div
       return "<div id=\"cut" + rootNode.getCutCount() + "\">" + node.renderChildrenXHtml() + "</div>";
     } else if(rootNode.isTopicMinimized()) { // топик со свернутым cut, вместо содержимого ссылка
-      URI uri = rootNode.getCutURI();
+      LorURI uri = rootNode.getCutURI();
       try {
-        uri.setFragment("cut"+ rootNode.getCutCount());
+        uri = uri.withFragment("cut"+ rootNode.getCutCount());
         if (!node.getParameter().isEmpty()) {
           ToHtmlFormatter formatter = rootNode.getToHtmlFormatter();
           String parameter;
@@ -97,9 +97,9 @@ public class CutTag extends HtmlEquivTag {
           } else {
              parameter = Parser.escape(node.getParameter().replaceAll("\"", ""));
           }
-          return String.format("<p>( <a href=\"%s\">%s</a> )</p>", uri.getEscapedURIReference(), parameter);
+          return String.format("<p>( <a href=\"%s\">%s</a> )</p>", uri.escaped(), parameter);
         } else {
-          return String.format("<p>( <a href=\"%s\">читать дальше...</a> )</p>", uri.getEscapedURIReference());
+          return String.format("<p>( <a href=\"%s\">читать дальше...</a> )</p>", uri.escaped());
         }
       } catch (Exception e) {
         return node.renderChildrenXHtml();

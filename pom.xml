@@ -316,12 +316,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.softwaremill.sttp.client4</groupId>
       <artifactId>core_${scala.suffix}</artifactId>
       <version>${sttp.version}</version>

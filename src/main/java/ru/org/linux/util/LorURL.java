@@ -14,16 +14,12 @@
  */
 package ru.org.linux.util;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
-import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,30 +31,24 @@ public class LorURL {
   private static final Pattern requestCommentPatternNew = Pattern.compile("cid=(\\d+)");
   private static final Pattern requestOldJumpPathPattern = Pattern.compile("^/jump-message.jsp$");
   private static final Pattern requestOldJumpQueryPattern = Pattern.compile("^msgid=(\\d+)&amp;cid=(\\d+)");
-  
+
   private boolean _true_lor_url = false;
 
   private int _topic_id = -1;
   private int _comment_id = -1;
 
-  private final URI parsed;
+  private final LorURI parsed;
 
-  public LorURL(URI mainURI, String url) throws URIException {
-    parsed = new RelaxedURI(url);
+  public LorURL(LorURI mainURI, String url) throws LorURIException {
+    parsed = LorURI.parse(url);
 
-    char[] _main_host = mainURI.getRawHost();
-    int _main_port = mainURI.getPort();
-
-    char[] _https_scheme = "https".toCharArray();
-    char[] _http_scheme = "http".toCharArray();
-
-    _true_lor_url = Arrays.equals(_main_host, parsed.getRawHost()) && _main_port == parsed.getPort()
-        && (Arrays.equals(_http_scheme, parsed.getRawScheme()) || Arrays.equals(_https_scheme, parsed.getRawScheme()));
+    _true_lor_url = mainURI.getHost().equalsIgnoreCase(parsed.getHost()) && mainURI.getPort() == parsed.getPort()
+        && ("http".equalsIgnoreCase(parsed.getScheme()) || "https".equalsIgnoreCase(parsed.getScheme()));
 
     findURLIds();
   }
   
-  private void findURLIds() throws URIException {
+  private void findURLIds() throws LorURIException {
     if(_true_lor_url) {
       // find message id in lor url
       String path = parsed.getPath();
@@ -122,7 +112,7 @@ public class LorURL {
    */
   @Override
   public String toString() {
-    return parsed.getEscapedURIReference();
+    return parsed.escaped();
   }
 
   /**
@@ -179,11 +169,11 @@ public class LorURL {
     return false;
   }
 
-  public String formatUrlBody(int maxLength) throws URIException {
-    String all = parsed.getURIReference();
+  public String formatUrlBody(int maxLength) throws LorURIException {
+    String all = parsed.unescaped();
     // Костыль для однобайтовых неудачников
     if (isContainReplacementCharset(all)) {
-      all = parsed.getEscapedURIReference();
+      all = parsed.escaped();
     }
     String scheme = parsed.getScheme();
     String uriWithoutScheme = all.substring(scheme.length()+3);
@@ -216,24 +206,20 @@ public class LorURL {
    * предполагалось только для lor ссылок, но будет работать с любыми, только зачем?
    * @param canonical канонический URL сайта
    * @return исправленный url
-   * @throws URIException неправильный url
+   * @throws LorURIException неправильный url
    */
-  public String canonize(URI canonical) throws URIException {
+  public String canonize(LorURI canonical) throws LorURIException {
     if(!_true_lor_url) {
       return toString();
     }
 
     try {
-      java.net.URI parsedURI = new java.net.URI(toString());
+      String path = parsed.getPath();
+      String query = parsed.getQuery();
+      String fragment = parsed.getFragment();
 
-      String host = canonical.getHost();
-      int port = canonical.getPort();
-      String path = parsedURI.getPath();
-      String query = parsedURI.getQuery();
-      String fragment = parsedURI.getFragment();
-
-      return new java.net.URI(canonical.getScheme(), null, host, port, path, query, fragment).toASCIIString();
-    } catch (URISyntaxException e) {
+      return LorURI.create(canonical.getScheme(), canonical.getHost(), canonical.getPort(), path, query, fragment).escaped();
+    } catch (LorURIException e) {
       return toString();
     }
   }
@@ -244,27 +230,22 @@ public class LorURL {
    * @param canonical канонический URL сайта
    * @return url для редиректа или пустая строка
    * @throws MessageNotFoundException если нет сообещния
-   * @throws URIException если url неправильный
+   * @throws LorURIException если url неправильный
    */
-  public String formatJump(TopicDao messageDao, GroupService groupService, URI canonical) throws MessageNotFoundException, URIException {
+  public String formatJump(TopicDao messageDao, GroupService groupService, LorURI canonical) throws MessageNotFoundException, LorURIException {
     if(_topic_id != -1) {
       Topic message = messageDao.getById(_topic_id);
 
       Group group = groupService.getGroup(message.getGroupId());
 
-      String scheme = canonical.getScheme();
-
-      String host = canonical.getHost();
-      int port = canonical.getPort();
       String path = group.getUrl() + _topic_id;
-      String query = "";
+      String query = null;
       if(_comment_id != -1) {
         query = "cid=" + _comment_id;
       }
-      URI jumpUri = new URI(scheme, null , host, port, path, query);
-      return jumpUri.getEscapedURI();
+      return LorURI.create(canonical.getScheme(), canonical.getHost(), canonical.getPort(), path, query, null).escaped();
     }
-    
+
     return "";
   }
 }

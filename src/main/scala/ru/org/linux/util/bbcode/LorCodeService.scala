@@ -14,10 +14,10 @@
  */
 package ru.org.linux.util.bbcode
 
-import org.apache.commons.httpclient.URI
 import org.springframework.stereotype.Service
 import ru.org.linux.user.User
 import ru.org.linux.user.UserService
+import ru.org.linux.util.LorURI
 import ru.org.linux.util.bbcode.LorCodeService.*
 import ru.org.linux.util.formatter.{ToHtmlFormatter, ToLorCodeTexFormatter}
 import ru.org.linux.util.bbcode.Parser.DEFAULT_PARSER
@@ -101,7 +101,7 @@ class LorCodeService(userService: UserService, toHtmlFormatter: ToHtmlFormatter)
     val rootNode = DEFAULT_PARSER.createRootNode
 
     if (minimizeCut) {
-      val fixURI = new URI(cutURL, true, "UTF-8")
+      val fixURI = LorURI.parse(cutURL)
       rootNode.setMinimizedTopicCutOptions(fixURI)
     } else {
       rootNode.setMaximizedTopicCutOptions()

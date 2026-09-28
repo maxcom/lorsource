@@ -16,90 +16,50 @@
 package ru.org.linux.util
 
 import com.google.common.net.InternetDomainName
-import org.apache.commons.httpclient.{URI, URIException}
 
 import java.util.regex.Pattern
 
-class RelaxedURI(url: String) extends URI {
-  protocolCharset = "UTF-8"
-
-  try {
-    parseUriReference(url, true)
-
-    /*
-     * Пытаемся вычислить, что fragment таки не encode
-     */
-    if (_fragment != null) {
-      val fragmentStr = new String(_fragment)
-      val asciiFragment = fragmentStr.replaceAll("[^\\p{ASCII}]", "")
-
-      if (fragmentStr.length != asciiFragment.length) {
-        throw new URIException("error fragment?")
-      }
-    }
-
-    getQuery() // check if we can decode it
-  } catch {
-    case _: URIException =>
-      parseUriReference(url, false)
-  }
-
-  if (_host == null) {
-    throw new URIException("no host")
-  }
-}
-
-object URLUtil {
+object URLUtil:
   private val AllowedLinkSchemes = Set("http", "https", "ftp", "mailto", "news")
 
-  private val IsUrl: Pattern = Pattern.compile(
-    "(((https?)|(ftp))://(([0-9\\p{L}.-]+\\.[0-9\\p{L}]+)|(\\d+\\.\\d+\\.\\d+\\.\\d+))(:[0-9]+)?(/[^ ]*)?)|(mailto:[a-z0-9_+-.]+@[0-9a-z.-]+\\.[a-z]+)|(news:[a-z0-9.-]+)|(((www)|(ftp))\\.(([0-9a-z.-]+\\.[a-z]+(:[0-9]+)?(/[^ ]*)?)|([a-z]+(/[^ ]*)?)))",
-    Pattern.CASE_INSENSITIVE
-  )
+  private val IsUrl: Pattern =
+    Pattern.compile(
+      "(((https?)|(ftp))://(([0-9\\p{L}.-]+\\.[0-9\\p{L}]+)|(\\d+\\.\\d+\\.\\d+\\.\\d+))(:[0-9]+)?(/[^ ]*)?)|(mailto:[a-z0-9_+-.]+@[0-9a-z.-]+\\.[a-z]+)|(news:[a-z0-9.-]+)|(((www)|(ftp))\\.(([0-9a-z.-]+\\.[a-z]+(:[0-9]+)?(/[^ ]*)?)|([a-z]+(/[^ ]*)?)))",
+      Pattern.CASE_INSENSITIVE
+    )
 
-  def fixURL(url: String): String = {
+  def fixURL(url: String): String =
     val trimmed = url.trim
 
-    if (!isUrl(trimmed)) {
+    if !isUrl(trimmed) then
       trimmed
-    } else if (trimmed.toLowerCase.startsWith("www.")) {
+    else if trimmed.toLowerCase.startsWith("www.") then
       "http://" + trimmed
-    } else if (trimmed.toLowerCase.startsWith("ftp.")) {
+    else if trimmed.toLowerCase.startsWith("ftp.") then
       "ftp://" + trimmed
-    } else {
+    else
       trimmed
-    }
-  }
 
   def isUrl(x: String): Boolean = IsUrl.matcher(x).matches
 
-  def isSafeLinkUrl(url: String): Boolean = {
+  def isSafeLinkUrl(url: String): Boolean =
     val cleaned = url.replaceAll("[\\t\\n\\r]", "").trim
     val colon = cleaned.indexOf(':')
 
-    if (colon <= 0) {
+    if colon <= 0 then
       true
-    } else {
+    else
       val scheme = cleaned.substring(0, colon)
 
-      if (!scheme.matches("[a-zA-Z][a-zA-Z0-9+\\-.]*")) {
+      if !scheme.matches("[a-zA-Z][a-zA-Z0-9+\\-.]*") then
         true
-      } else {
+      else
         AllowedLinkSchemes.contains(scheme.toLowerCase)
-      }
-    }
-  }
 
-  def extractShortHost(url: String): Option[String] = {
-    try {
-      val host = new RelaxedURI(url).getHost
-      if (host != null) {
-        Some(InternetDomainName.from(host).topPrivateDomain.toString)
-      } else {
+  def extractShortHost(url: String): Option[String] =
+    try
+      val host = LorURI.parse(url).getHost
+      Some(InternetDomainName.from(host).topPrivateDomain.toString)
+    catch
+      case _: IllegalArgumentException | _: IllegalStateException | _: LorURIException =>
         None
-      }
-    } catch {
-      case _: IllegalArgumentException | _: IllegalStateException | _: URIException => None
-    }
-  }
-}

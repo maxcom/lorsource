@@ -15,8 +15,6 @@
 
 package ru.org.linux.util.formatter;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.comment.Comment;
@@ -27,6 +25,8 @@ import ru.org.linux.spring.SiteConfig;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
+import ru.org.linux.util.LorURI;
+import ru.org.linux.util.LorURIException;
 import ru.org.linux.util.LorURL;
 
 import javax.annotation.Nonnull;
@@ -141,10 +141,13 @@ public class ToHtmlFormatter {
     return changer!=null ? changer.format(text) : text;
   }
 
-  public String memberURL(User user) throws URIException {
-    URI mainUri = siteConfig.getSecureURI();
+  public String memberURL(User user) throws LorURIException {
+    LorURI mainUri = siteConfig.getSecureURI();
 
-    return (new URI(mainUri.getScheme(), null, mainUri.getHost(), mainUri.getPort(), String.format("/people/%s/profile", user.getNick()))).getEscapedURIReference();
+    return LorURI.create(
+        mainUri.getScheme(), mainUri.getHost(), mainUri.getPort(),
+        String.format("/people/%s/profile", user.getNick()), null, null
+    ).escaped();
   }
 
   private String formatURL(String line, boolean nofollow, RuTypoChanger changer) {
@@ -175,7 +178,7 @@ public class ToHtmlFormatter {
 
       try {
         processUrl(nofollow, out, urlHref, null);
-      } catch (URIException e) {
+      } catch (LorURIException e) {
         // e.printStackTrace();
         // ссылка не ссылка
         out.append(formatWithMagic(mayUrl, changer));
@@ -196,7 +199,7 @@ public class ToHtmlFormatter {
           @Nonnull StringBuilder out,
           @Nonnull String urlHref,
           @Nullable String linktext
-  ) throws URIException {
+  ) throws LorURIException {
     LorURL url = new LorURL(siteConfig.getMainURI(), urlHref);
 
     if(url.isMessageUrl()) {
@@ -228,7 +231,7 @@ public class ToHtmlFormatter {
           @Nonnull StringBuilder out,
           @Nonnull LorURL url,
           @Nullable String linktext
-  ) throws URIException {
+  ) throws LorURIException {
     // ссылка внутри lorsource исправляем scheme
     String fixedUrlHref = url.canonize(siteConfig.getSecureURI());
     String fixedUrlBody = linktext!=null?simpleFormat(linktext): strangeEscapeHtml(url.formatUrlBody(maxLength));
@@ -240,13 +243,13 @@ public class ToHtmlFormatter {
    *
    * @param out сюда будет записана ссылка
    * @param url исходный url
-   * @throws URIException если uri не корректный
+   * @throws LorURIException если uri не корректный
    */
   private void processMessageUrl(
           @Nonnull StringBuilder out,
           @Nonnull LorURL url,
           @Nullable String linkText
-  ) throws URIException {
+  ) throws LorURIException {
     try {
       Topic message = topicDao.getById(url.getMessageId());
 

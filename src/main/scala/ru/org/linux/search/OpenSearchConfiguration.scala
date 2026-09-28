@@ -15,19 +15,19 @@
 
 package ru.org.linux.search
 
-import org.apache.commons.httpclient.URI
 import org.apache.hc.core5.http.HttpHost
 import org.opensearch.client.opensearch.{OpenSearchAsyncClient, OpenSearchClient}
 import org.opensearch.client.transport.OpenSearchTransport
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder
 import org.springframework.context.annotation.{Bean, Configuration}
 import ru.org.linux.spring.SiteConfig
+import ru.org.linux.util.LorURI
 
 @Configuration
 class OpenSearchConfiguration(config: SiteConfig) {
   @Bean(destroyMethod = "close")
   def openSearchClientTransport: OpenSearchTransport = {
-    val url = new URI(config.getElasticsearch, true)
+    val url = LorURI.parse(config.getElasticsearch)
     val transport = ApacheHttpClient5TransportBuilder
       .builder(new HttpHost(url.getScheme, url.getHost, url.getPort))
       .build()

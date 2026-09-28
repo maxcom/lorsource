@@ -16,7 +16,6 @@
 package ru.org.linux.util
 
 import munit.FunSuite
-import org.apache.commons.httpclient.{URI, URIException}
 import org.mockito.Mockito.{mock, when}
 import ru.org.linux.group.{Group, GroupService}
 import ru.org.linux.reaction.Reactions
@@ -29,9 +28,9 @@ import scala.compiletime.uninitialized
 class LorURITest extends FunSuite:
   private var messageDao: TopicDao = uninitialized
   private var groupService: GroupService = uninitialized
-  private var mainURI: URI = uninitialized
-  private var mainLORURI: URI = uninitialized
-  private var canon: URI = uninitialized
+  private var mainURI: LorURI = uninitialized
+  private var mainLORURI: LorURI = uninitialized
+  private var canon: LorURI = uninitialized
   private val Now = Timestamp.from(Instant.now())
 
   private def mkTopic(id: Int, groupId: Int): Topic =
@@ -49,9 +48,9 @@ class LorURITest extends FunSuite:
       longInfo = "")
 
   override def beforeEach(context: BeforeEach): Unit =
-    mainURI = new URI("http://127.0.0.1:8080/", true, "UTF-8")
-    mainLORURI = new URI("http://www.linux.org.ru/", true, "UTF-8")
-    canon = new URI("https://127.0.0.1:8085/", true)
+    mainURI = LorURI.parse("http://127.0.0.1:8080/")
+    mainLORURI = LorURI.parse("http://www.linux.org.ru/")
+    canon = LorURI.parse("https://127.0.0.1:8085/")
 
     messageDao = mock(classOf[TopicDao])
     groupService = mock(classOf[GroupService])
@@ -179,11 +178,11 @@ class LorURITest extends FunSuite:
       lorURI.canonize(canon))
 
   test("test8"):
-    intercept[URIException]:
+    intercept[LorURIException]:
       new LorURL(mainURI, "some crap")
 
   test("test9"):
-    intercept[URIException]:
+    intercept[LorURIException]:
       new LorURL(mainURI, "")
 
   test("test11"):
@@ -314,3 +313,10 @@ class LorURITest extends FunSuite:
     assert(uri.isTrueLorUrl)
 
     assertEquals("http://www.linux.org.ru/tags/c++", uri.canonize(mainLORURI))
+
+  test("testCaseInsensitiveSchemeAndHost"):
+    val uri = new LorURL(mainLORURI, "HTTP://WWW.LINUX.ORG.RU/forum/talks/6893165")
+
+    assert(uri.isTrueLorUrl)
+    assert(uri.isMessageUrl)
+    assertEquals(6893165, uri.getMessageId)

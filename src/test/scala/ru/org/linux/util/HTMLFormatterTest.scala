@@ -15,7 +15,6 @@
 package ru.org.linux.util
 
 import munit.FunSuite
-import org.apache.commons.httpclient.URI
 import org.mockito.Mockito.{mock, when}
 import ru.org.linux.comment.{Comment, CommentDao}
 import ru.org.linux.group.{Group, GroupService}
@@ -80,7 +79,7 @@ class HTMLFormatterTest extends FunSuite:
 
   private val Text17 = "http://translate.google.com/?sl=en&tl=ru#ru|en|%D0%BE%D1%81%D1%91%D0%BB"
   private val Result17 =
-    "<a href=\"http://translate.google.com/?sl=en&amp;tl=ru#ru|en|%D0%BE%D1%81%D1%91%D0%BB\">http://translate.google.com/?sl=en&amp;tl=ru#ru|en|осёл</a>"
+    "<a href=\"http://translate.google.com/?sl=en&amp;tl=ru#ru%7Cen%7C%D0%BE%D1%81%D1%91%D0%BB\">http://translate.google.com/?sl=en&amp;tl=ru#ru|en|осёл</a>"
 
   private val Text17_2 = "http://translate.google.com/?sl=en&amp;tl=ru#ru|en|осёл"
   private val Result17_2 =
@@ -89,7 +88,7 @@ class HTMLFormatterTest extends FunSuite:
   private val Text18 =
     "http://smartphonebenchmarks.com/index.php?filter_model[]=all&filter_cpu[]=Qualcomm+Snapdragon+MSM8255&filter_cpu[]=Texas+Instrument+OMAP+3610"
   private val Result18 =
-    "<a href=\"http://smartphonebenchmarks.com/index.php?filter_model%5B%5D=all&amp;filter_cpu%5B%5D=Qualcomm+Snapdragon+MSM8255&amp;filter_cpu%5B%5D=Texas+Instrument+OMAP+3610\">http://smartphonebenchmarks.com/index.php?filter_model[]=all&amp;filter_cpu[]...</a>"
+    "<a href=\"http://smartphonebenchmarks.com/index.php?filter_model[]=all&amp;filter_cpu[]=Qualcomm+Snapdragon+MSM8255&amp;filter_cpu[]=Texas+Instrument+OMAP+3610\">http://smartphonebenchmarks.com/index.php?filter_model[]=all&amp;filter_cpu[]...</a>"
 
   private val Text19 = "Test *.myftp.org test"
   private val Result19 = "Test *.myftp.org test"
@@ -193,8 +192,8 @@ class HTMLFormatterTest extends FunSuite:
   private lazy val (toHtmlFormatter, toHtmlFormatter20, lorCodeService, textService) = initServices()
 
   private def initServices(): (ToHtmlFormatter, ToHtmlFormatter, LorCodeService, MessageTextService) =
-    val mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8")
-    val secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8")
+    val mainURI = LorURI.parse("http://www.linux.org.ru/")
+    val secureURI = LorURI.parse("https://www.linux.org.ru/")
 
     val topicDao = mock(classOf[TopicDao])
     val groupService = mock(classOf[GroupService])

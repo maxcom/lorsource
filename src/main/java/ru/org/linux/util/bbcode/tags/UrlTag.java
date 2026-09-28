@@ -54,7 +54,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.httpclient.URIException;
+import ru.org.linux.util.LorURIException;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
@@ -105,7 +105,7 @@ public class UrlTag extends Tag {
         );
 
         ret.append(out);
-      } catch (URIException e) {
+      } catch (LorURIException e) {
         ret.append("<s>");
         ret.append(Parser.escape(url));
         ret.append("</s>");

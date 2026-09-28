@@ -19,12 +19,11 @@ import com.vladsch.flexmark.ast.*
 import com.vladsch.flexmark.html.renderer.*
 import com.vladsch.flexmark.html.{HtmlRenderer, HtmlWriter}
 import com.vladsch.flexmark.util.data.MutableDataHolder
-import org.apache.commons.httpclient.URIException
 import ru.org.linux.comment.CommentDao
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
-import ru.org.linux.util.{LorURL, URLUtil}
+import ru.org.linux.util.{LorURIException, LorURL, URLUtil}
 
 import java.util
 import scala.jdk.CollectionConverters.*
@@ -52,7 +51,7 @@ class LorLinkRenderer(siteConfig: SiteConfig, topicDao: TopicDao, commentDao: Co
         ctx.delegateRender()
       }
     } catch {
-      case _: URIException =>
+      case _: LorURIException =>
         ctx.delegateRender()
     }
   })

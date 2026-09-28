@@ -16,11 +16,11 @@
 package ru.org.linux.util.markdown
 
 import munit.FunSuite
-import org.apache.commons.httpclient.URI
 import org.mockito.Mockito.{mock, when}
 import ru.org.linux.comment.CommentDao
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.topic.TopicDao
+import ru.org.linux.util.LorURI
 import ru.org.linux.user.UserService
 import ru.org.linux.util.formatter.ToHtmlFormatter
 import ru.org.linux.util.URLUtil
@@ -53,8 +53,8 @@ class MarkdownFormatterTest extends FunSuite:
 
   private def initFormatter(): MarkdownFormatter =
     val siteConfig = mock(classOf[SiteConfig])
-    val mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8")
-    val secureURI = new URI("https://www.linux.org.ru/", true, "UTF-8")
+    val mainURI = LorURI.parse("http://www.linux.org.ru/")
+    val secureURI = LorURI.parse("https://www.linux.org.ru/")
 
     val topicDao = mock(classOf[TopicDao])
     val commentDao = mock(classOf[CommentDao])

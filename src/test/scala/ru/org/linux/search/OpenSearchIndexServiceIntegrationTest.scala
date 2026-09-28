@@ -14,11 +14,11 @@
  */
 package ru.org.linux.search
 
-import org.apache.commons.httpclient.URI
 import org.apache.hc.core5.http.HttpHost
 import org.mockito.Mockito
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch.OpenSearchClient
+import ru.org.linux.util.LorURI
 import org.opensearch.client.opensearch.core.GetRequest
 import org.opensearch.client.opensearch.indices.ExistsRequest
 import org.opensearch.client.opensearch.indices.RefreshRequest
@@ -124,7 +124,7 @@ class SearchIntegrationTestConfiguration {
 
   @Bean(destroyMethod = "close")
   def clientTransport(container: OpenSearchContainer[Nothing]): OpenSearchTransport = {
-    val url = new URI(container.getHttpHostAddress, true)
+    val url = LorURI.parse(container.getHttpHostAddress)
     val transport = ApacheHttpClient5TransportBuilder.builder(new HttpHost(url.getScheme, url.getHost, url.getPort)).build()
 
     transport
