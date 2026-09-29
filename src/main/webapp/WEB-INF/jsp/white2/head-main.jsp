@@ -46,7 +46,7 @@
           <li><a href="/gallery/">Галерея</a></li>
           <li><a href="/articles/">Статьи</a></li>
           <li><a href="/forum/">Форум</a></li>
-          <li><a href="/tracker/">Трекер</a></li>
+          <li><a href="/tracker">Трекер</a></li>
           <c:if test="${template.sessionAuthorized}">
             <li>
               <lor:events/>

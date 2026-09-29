@@ -19,7 +19,7 @@ import ru.org.linux.reaction.{ReactionDao, Reactions}
 import java.sql.{ResultSet, Timestamp}
 import java.time.Instant
 
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class Comment(@BeanProperty id: Int, @BeanProperty title: String, @BeanProperty userid: Int,

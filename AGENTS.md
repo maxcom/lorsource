@@ -5,7 +5,7 @@
 Java 25 + Scala 3.9 web application (WAR) for Linux.org.ru. Mixed-language codebase: most code is Scala
 (`src/main/scala`), some Java (`src/main/java`), JSP views (`src/main/webapp/WEB-INF/jsp`). All tests are Scala.
 
-Stack: Maven (≥3.9.13, enforcer-checked; `./mvnw` wrapper available), Spring Framework 6.x + Spring Security 6.x,
+Stack: Maven (≥3.9.13, enforcer-checked; `./mvnw` wrapper available), Spring Framework 7.x + Spring Security 7.x,
 ScalikeJDBC 4.x, PostgreSQL 16, OpenSearch 3.x (client `opensearch-java`), embedded ActiveMQ, Apache Pekko for async,
 Log4j2.
 
@@ -122,8 +122,9 @@ All users in the test database have password `passwd`:
 
 ### Java
 
-- `@Nullable`/`@Nonnull` from `javax.annotation` (provided by `com.google.code.findbugs:jsr305`; do **not** re-add
-  `javax.annotation-api`)
+- Nullness annotations: `@Nullable`/`@NonNull` from JSpecify (`org.jspecify:jspecify`, `org.jspecify.annotations`);
+  JSR-305 `javax.annotation` and `org.springframework.lang` are not supported by Spring 7 — do **not** re-add
+  `jsr305`/`javax.annotation-api`
 - `Optional` instead of null returns; constructor injection over field injection
 - Spring annotations (`@Repository`, `@Service`, `@Controller`); import order: java.*, javax.*, org.*, com.*, ru.*
 

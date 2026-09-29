@@ -39,7 +39,8 @@ http://www.springframework.org/schema/security/spring-security.xsd">
     <http pattern="/adv/**" security="none"/>
     <http pattern="/fontello/**" security="none"/>
     <http pattern="/font/**" security="none"/>
-    <http pattern="*.css" security="none"/>
+    <http pattern="/qrerror/**" security="none"/>
+    <http pattern="/*.css" security="none"/>
     <http pattern="/*.ico" security="none"/>
 
     <http auto-config="false" authentication-manager-ref="authenticationManager"

@@ -22,7 +22,7 @@ import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.User
 
 import java.time.{Duration, Instant}
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 
 object FloodProtector {
   case class Action(thresholdLowScore: Duration, threshold: Duration, thresholdTrusted: Duration)

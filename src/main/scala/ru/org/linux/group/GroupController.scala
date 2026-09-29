@@ -101,7 +101,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
     }
   }
 
-  @RequestMapping(path = Array("/forum/{group}"))
+  @RequestMapping(path = Array("/forum/{group}", "/forum/{group}/"))
   def forum(@PathVariable("group") groupName: String, @RequestParam(defaultValue = "0", value = "offset") offset: Int,
              @RequestParam(defaultValue = "false") lastmod: Boolean, @RequestParam(required = false) tag: String,
              @RequestParam(defaultValue = "false") showDeleted: Boolean,
@@ -183,7 +183,7 @@ class GroupController(groupService: GroupService, archiveDao: ArchiveDao, sectio
       case Some((year, month)) =>
         params.put("year", Integer.valueOf(year))
         params.put("month", Integer.valueOf(month))
-        params.put("url", s"${group.getUrl}$year/$month/")
+        params.put("url", group.getArchiveLink(year, month))
 
         params.put("hasNext",
           Boolean.box(offset + currentUser.profile.topics < archiveDao.getArchiveCount(group.id, year, month)))

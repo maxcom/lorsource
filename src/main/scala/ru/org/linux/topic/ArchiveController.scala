@@ -71,16 +71,16 @@ class ArchiveController(
       mv
     }
 
-  @RequestMapping(path = Array("/gallery/archive"))
+  @RequestMapping(path = Array("/gallery/archive", "/gallery/archive/"))
   def galleryArchive: ModelAndView = archiveList(Section.Gallery)
 
-  @RequestMapping(path = Array("/news/archive"))
+  @RequestMapping(path = Array("/news/archive", "/news/archive/"))
   def newsArchive: ModelAndView = archiveList(Section.News)
 
-  @RequestMapping(path = Array("/polls/archive"))
+  @RequestMapping(path = Array("/polls/archive", "/polls/archive/"))
   def pollsArchive: ModelAndView = archiveList(Section.Polls)
 
-  @RequestMapping(path = Array("/articles/archive"))
+  @RequestMapping(path = Array("/articles/archive", "/articles/archive/"))
   def articlesArchive: ModelAndView = archiveList(Section.Articles)
 
   @RequestMapping(path = Array("/forum/{group}/archive"))

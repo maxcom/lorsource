@@ -47,7 +47,7 @@
                 <c:if test="${template.sessionAuthorized}">
                     <lor:events/> - 
                 </c:if>
-                <a style="text-decoration: none" href="/tracker/">Трекер</a> -
+                <a style="text-decoration: none" href="/tracker">Трекер</a> -
                 <a style="text-decoration: none" href="search.jsp">Поиск</a>
         </td>
 </tr>

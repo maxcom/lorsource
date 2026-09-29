@@ -29,8 +29,8 @@ import ru.org.linux.util.LorURI;
 import ru.org.linux.util.LorURIException;
 import ru.org.linux.util.LorURL;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -196,8 +196,8 @@ public class ToHtmlFormatter {
 
   public void processUrl(
           boolean nofollow,
-          @Nonnull StringBuilder out,
-          @Nonnull String urlHref,
+          @NonNull StringBuilder out,
+          @NonNull String urlHref,
           @Nullable String linktext
   ) throws LorURIException {
     LorURL url = new LorURL(siteConfig.getMainURI(), urlHref);
@@ -228,8 +228,8 @@ public class ToHtmlFormatter {
   }
 
   private void processGenericLorUrl(
-          @Nonnull StringBuilder out,
-          @Nonnull LorURL url,
+          @NonNull StringBuilder out,
+          @NonNull LorURL url,
           @Nullable String linktext
   ) throws LorURIException {
     // ссылка внутри lorsource исправляем scheme
@@ -246,8 +246,8 @@ public class ToHtmlFormatter {
    * @throws LorURIException если uri не корректный
    */
   private void processMessageUrl(
-          @Nonnull StringBuilder out,
-          @Nonnull LorURL url,
+          @NonNull StringBuilder out,
+          @NonNull LorURL url,
           @Nullable String linkText
   ) throws LorURIException {
     try {

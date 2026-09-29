@@ -32,7 +32,7 @@ import java.io.{File, FileNotFoundException, IOException}
 import java.sql.Timestamp
 import java.time.{Duration, Instant}
 import java.util.concurrent.{CompletionException, TimeUnit}
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Try}

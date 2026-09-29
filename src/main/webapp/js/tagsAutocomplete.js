@@ -24,7 +24,7 @@
     }
 
     function fetchTags(query) {
-        return fetch("/tags?term=" + encodeURIComponent(query))
+        return fetch("/tags/?term=" + encodeURIComponent(query))
             .then(function(r) { return r.json(); })
             .catch(function() { return []; });
     }

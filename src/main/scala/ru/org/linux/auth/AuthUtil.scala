@@ -23,7 +23,7 @@ import org.springframework.validation.Errors
 import org.springframework.web.context.request.{RequestAttributes, RequestContextHolder}
 import ru.org.linux.user.{Profile, User, UserService}
 
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.jdk.CollectionConverters.*
 
 sealed trait AnySession:

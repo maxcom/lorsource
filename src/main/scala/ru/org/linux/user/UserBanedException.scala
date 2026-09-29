@@ -14,7 +14,7 @@
  */
 package ru.org.linux.user
 
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.BeanProperty
 
 class UserBanedException(

@@ -18,9 +18,18 @@ import munit.FunSuite
 import org.jsoup.Jsoup
 import ru.org.linux.test.WebHelper
 import sttp.client4.*
-import sttp.model.StatusCode
+import sttp.model.{HeaderNames, StatusCode}
 
 class GroupControllerWebTest extends FunSuite with WebHelper:
+  test("group page without trailing slash redirects to canonical form"):
+    val response = basicRequest
+      .get(MainUrl.addPath("forum", "talks"))
+      .followRedirects(false)
+      .send(backend)
+
+    assertEquals(response.code, StatusCode.MovedPermanently, "status code")
+    assertEquals(response.header(HeaderNames.Location), Some("/forum/talks/"), "location")
+
   test("talks page contains info"):
     val response = basicRequest
       .get(MainUrl.addPath("forum", "talks"))
@@ -34,7 +43,7 @@ class GroupControllerWebTest extends FunSuite with WebHelper:
 
   authorized("maxcom").test("talks page contains info and edit link for moderator"): auth =>
     val response = basicRequest
-      .get(MainUrl.addPath("forum", "talks"))
+      .get(uri"${MainUrl}forum/talks/")
       .cookie(AuthCookie, auth)
       .send(backend)
 
@@ -50,7 +59,7 @@ class GroupControllerWebTest extends FunSuite with WebHelper:
 
   authorized("maxcom").test("job page contains empty info for moderator"): auth =>
     val response = basicRequest
-      .get(MainUrl.addPath("forum", "job"))
+      .get(uri"${MainUrl}forum/job/")
       .cookie(AuthCookie, auth)
       .send(backend)
 

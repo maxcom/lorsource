@@ -21,7 +21,7 @@ import ru.org.linux.util.StringUtil
 import ru.org.linux.warning.PreparedWarning
 
 import java.sql.Timestamp
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.jdk.CollectionConverters.SeqHasAsJava
 

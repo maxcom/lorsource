@@ -16,7 +16,7 @@
 package ru.org.linux.user
 
 import java.sql.{ResultSet, Timestamp}
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class User(

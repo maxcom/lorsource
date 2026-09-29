@@ -22,7 +22,7 @@ import ru.org.linux.user.User
 
 import java.util
 import java.util.Date
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class PreparedEditHistory(

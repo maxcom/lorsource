@@ -99,7 +99,7 @@
   <c:if test="${year!=null}">
     <a class="btn btn-default" href="${newUrl}">Новые</a>
     <a class="btn btn-default" href="${activeUrl}">Активные</a>
-    <a href="${group.url}archive/" class="btn btn-selected">Архив</a>
+    <a href="${group.url}archive" class="btn btn-selected">Архив</a>
   </c:if>
   <c:if test="${year==null}">
     <c:if test="${!lastmod}">
@@ -110,7 +110,7 @@
       <a class="btn btn-default" href="${newUrl}">Новые</a>
       <a class="btn btn-selected" href="${activeUrl}">Активные</a>
     </c:if>
-    <a href="${group.url}archive/" class="btn btn-default">Архив</a>
+    <a href="${group.url}archive" class="btn btn-default">Архив</a>
   </c:if>
 
   <c:if test="${addable}">
@@ -252,7 +252,7 @@
         <a rel="next" href="${nextUrl}">следующие →</a>
       </c:if>
       <c:if test="${not hasNext}">
-        <a href="${group.url}archive/">архив</a>
+        <a href="${group.url}archive">архив</a>
       </c:if>
     </div>
   </div>

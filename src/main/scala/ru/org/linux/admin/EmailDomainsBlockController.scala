@@ -26,7 +26,7 @@ import ru.org.linux.user.{EmailDomainsBlockDao, User, UserService}
 import java.sql.Timestamp
 import java.time.OffsetDateTime
 import java.util.regex.Pattern
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.SeqHasAsJava
 

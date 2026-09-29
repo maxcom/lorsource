@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets
 import java.sql.{ResultSet, Timestamp}
 import java.time.Instant
 import java.util.Date
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBeanProperty sticky: Boolean,

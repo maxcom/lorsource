@@ -58,7 +58,7 @@ ${section.name}
     <a class="btn btn-selected" href="${section.archiveLink}">Архив</a>
   </c:if>
   <c:if test="${group != null}">
-    <a class="btn btn-selected" href="${group.url}archive/">Архив</a>
+    <a class="btn btn-selected" href="${group.url}archive">Архив</a>
   </c:if>
 
   <c:if test="${not empty addUrl}">

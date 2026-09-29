@@ -63,9 +63,9 @@
 <h1>Лента форума</h1>
 
 <ul>
-  <li><a href="/forum/lenta">Полная лента форума</a>
-  <li><a href="/forum/lenta?filter=tech">Лента технического форума</a>
-  <li><a href="/forum/lenta?filter=notalks">Лента форума без Talks</a>
+  <li><a href="/forum/lenta/">Полная лента форума</a>
+  <li><a href="/forum/lenta/?filter=tech">Лента технического форума</a>
+  <li><a href="/forum/lenta/?filter=notalks">Лента форума без Talks</a>
 </ul>
 
 <h1>RSS подписки</h1>

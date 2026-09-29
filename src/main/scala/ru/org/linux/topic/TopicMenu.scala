@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2024 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,7 +16,7 @@ package ru.org.linux.topic
 
 import ru.org.linux.user.Userpic
 
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class TopicMenu(@BooleanBeanProperty topicEditable: Boolean, @BooleanBeanProperty tagsEditable: Boolean,

@@ -32,7 +32,7 @@ import ru.org.linux.util.image.{ImageInfo, ImageUtil}
 import java.io.{File, FileNotFoundException, IOException}
 import java.nio.file.{Files, Path}
 import java.time.{Duration, Instant}
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 

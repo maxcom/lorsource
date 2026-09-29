@@ -14,8 +14,8 @@
  */
 package ru.org.linux.util;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -54,7 +54,7 @@ public final class LorURI {
    * @return разобранный URL
    * @throws LorURIException если строка не является абсолютным URL с хостом
    */
-  @Nonnull
+  @NonNull
   public static LorURI parse(@Nullable String url) throws LorURIException {
     if (url == null || url.isEmpty()) {
       throw new LorURIException("empty url");
@@ -76,8 +76,8 @@ public final class LorURI {
   /**
    * Оборачивает уже разобранный java.net.URI с проверкой scheme и host.
    */
-  @Nonnull
-  public static LorURI of(@Nonnull URI uri) throws LorURIException {
+  @NonNull
+  public static LorURI of(@NonNull URI uri) throws LorURIException {
     if (uri.getScheme() == null) {
       throw new LorURIException("no scheme");
     }
@@ -123,12 +123,12 @@ public final class LorURI {
   /**
    * Собирает URL из компонентов; компоненты считаются нераскодированными.
    */
-  @Nonnull
+  @NonNull
   public static LorURI create(
-      @Nonnull String scheme,
-      @Nonnull String host,
+      @NonNull String scheme,
+      @NonNull String host,
       int port,
-      @Nonnull String path,
+      @NonNull String path,
       @Nullable String query,
       @Nullable String fragment
   ) throws LorURIException {
@@ -139,12 +139,12 @@ public final class LorURI {
     }
   }
 
-  @Nonnull
+  @NonNull
   public String getScheme() {
     return uri.getScheme();
   }
 
-  @Nonnull
+  @NonNull
   public String getHost() {
     return host;
   }
@@ -176,7 +176,7 @@ public final class LorURI {
    * Экранированное (percent-encoded, ASCII) представление URL; аналог
    * getEscapedURIReference() у commons-httpclient.
    */
-  @Nonnull
+  @NonNull
   public String escaped() {
     return uri.toASCIIString();
   }
@@ -185,7 +185,7 @@ public final class LorURI {
    * Раскодированное представление URL (UTF-8); '+' не интерпретируется как пробел.
    * Некорректные UTF-8-последовательности дают U+FFFD, как у commons-httpclient.
    */
-  @Nonnull
+  @NonNull
   public String unescaped() {
     return percentDecode(uri.toString());
   }
@@ -193,8 +193,8 @@ public final class LorURI {
   /**
    * Возвращает копию с заменённым fragment.
    */
-  @Nonnull
-  public LorURI withFragment(@Nonnull String fragment) throws LorURIException {
+  @NonNull
+  public LorURI withFragment(@NonNull String fragment) throws LorURIException {
     String base = uri.toString();
     int hash = base.indexOf('#');
     if (hash >= 0) {
@@ -203,7 +203,7 @@ public final class LorURI {
     return parse(base + "#" + fragment);
   }
 
-  @Nonnull
+  @NonNull
   public URI toJavaURI() {
     return uri;
   }

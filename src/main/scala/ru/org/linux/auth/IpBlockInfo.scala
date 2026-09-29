@@ -17,7 +17,7 @@ package ru.org.linux.auth
 
 import java.sql.Timestamp
 import java.util.Date
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.BeanProperty
 import scala.beans.BooleanBeanProperty
 import scalikejdbc.WrappedResultSet

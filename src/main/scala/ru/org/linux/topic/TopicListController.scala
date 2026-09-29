@@ -34,7 +34,7 @@ import ru.org.linux.util.{DateUtil, ServletParameterException}
 
 import java.time.ZonedDateTime
 import java.util.concurrent.CompletionStage
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
@@ -163,7 +163,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
   }
 
-  @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/"))
+  @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/", "/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}"))
   def topics(@PathVariable("section") sectionName: String,
              @RequestParam(value="offset", defaultValue = "0") offset: Int): CompletionStage[ModelAndView] = {
     val section = sectionService.getSectionByName(sectionName)
@@ -181,7 +181,7 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
       .map(v => ForumFilters.find(_.id == v).getOrElse(throw new UserErrorException("Некорректное значение filter")))
   }
 
-  @RequestMapping(path = Array("/forum/lenta"))
+  @RequestMapping(path = Array("/forum/lenta", "/forum/lenta/"))
   def forum(@RequestParam(value="offset", defaultValue = "0") offset: Int,
             @RequestParam(value = "filter", required = false) filter: String): CompletionStage[ModelAndView] = {
     val section = sectionService.getSection(Section.Forum)
@@ -199,7 +199,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }.asJava
   }
 
-  @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}"))
+  @RequestMapping(path = Array("/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}",
+    "/{section:(?:news)|(?:polls)|(?:articles)|(?:gallery)}/{group:[^.]+}/"))
   def topicsByGroup(@PathVariable("section") sectionName: String,
                     @RequestParam(value="offset", defaultValue = "0") offset: Int,
                     @PathVariable("group") groupName: String): CompletionStage[ModelAndView] = {

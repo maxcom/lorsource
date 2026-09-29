@@ -36,7 +36,7 @@ import java.net.URLEncoder
 import java.sql.Timestamp
 import java.time.ZoneId
 import java.util.{Date, Properties}
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.jdk.CollectionConverters.*
 
 @Service

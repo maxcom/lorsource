@@ -31,7 +31,7 @@ import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
 import java.time.temporal.ChronoUnit
 import java.time.{Duration, Instant}
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 object TopicPermissionService {

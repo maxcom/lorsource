@@ -36,7 +36,7 @@
 
 <nav>
   <c:forEach items="${filters}" var="f">
-      <c:url var="fUrl" value="/tracker/">
+      <c:url var="fUrl" value="/tracker">
         <c:if test="${f != defaultFilter}">
           <c:param name="filter">${f.value}</c:param>
         </c:if>

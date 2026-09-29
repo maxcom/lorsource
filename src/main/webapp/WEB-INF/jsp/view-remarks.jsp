@@ -43,15 +43,15 @@
     <table class="message-table" width="100%">
     <thead>
     <tr>
-    <th><a href="/people/${currentUser.nick}/remarks/?offset=${offset}&amp;sort=0">Ник</a></th>
-    <th><a href="/people/${currentUser.nick}/remarks/?offset=${offset}&amp;sort=1">Комментарий</a></th>
+    <th><a href="/people/${currentUser.nick}/remarks?offset=${offset}&amp;sort=0">Ник</a></th>
+    <th><a href="/people/${currentUser.nick}/remarks?offset=${offset}&amp;sort=1">Комментарий</a></th>
     </tr>
     <tbody>
 
     <c:forEach items="${remarks}" var="remark">
       <tr>
       <td><lor:user link="true" user="${remark.refUser}"/> ${remark.refUser.stars}</td>
-      <td><a href="/people/${remark.refUser.nick}/remark/">
+      <td><a href="/people/${remark.refUser.nick}/remark">
         <c:out value="${remark.remark.text}" escapeXml="true"/></a></td>
       </tr>
     </c:forEach>
@@ -63,12 +63,12 @@
     <div style="display: table; width: 100%">
       <c:if test="${offset !=0}">
         <div style="display: table-cell; text-align: left">
-          <a href="/people/${currentUser.nick}/remarks/?offset=${offset-limit}${sortorder}">← предыдущие</a>
+          <a href="/people/${currentUser.nick}/remarks?offset=${offset-limit}${sortorder}">← предыдущие</a>
         </div>
       </c:if>
       <c:if test="${hasMore}">
         <div style="display: table-cell; text-align: right">
-          <a href="/people/${currentUser.nick}/remarks/?offset=${offset+limit}${sortorder}">следующие →</a>
+          <a href="/people/${currentUser.nick}/remarks?offset=${offset+limit}${sortorder}">следующие →</a>
         </div>
       </c:if>
     </div>

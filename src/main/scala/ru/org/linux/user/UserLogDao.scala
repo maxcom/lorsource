@@ -23,7 +23,7 @@ import scalikejdbc.*
 
 import java.time.{Duration, Instant, OffsetDateTime}
 import java.util as ju
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.jdk.CollectionConverters.*
 
 @Repository

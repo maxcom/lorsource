@@ -15,8 +15,8 @@
     <java.version>25</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <dependency.spring.version>6.2.19</dependency.spring.version>
-    <spring.security.version>6.5.11</spring.security.version>
+    <dependency.spring.version>7.0.9</dependency.spring.version>
+    <spring.security.version>7.0.7</spring.security.version>
     <jdbc.postgresql.version>42.7.13</jdbc.postgresql.version>
     <scala.version>3.9.0</scala.version>
     <scala.suffix>3</scala.suffix>
@@ -117,11 +117,9 @@
       <version>33.7.1-jre</version>
     </dependency>
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>3.0.2</version>
-      <scope>provided</scope>
-      <optional>true</optional>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -177,11 +175,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>${dependency.spring.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context-support</artifactId>
       <version>${dependency.spring.version}</version>
     </dependency>
     <dependency>
@@ -290,6 +283,8 @@
       <version>${jackson.version}</version>
     </dependency>
 
+    <!-- no explicit imports: picked up via ServiceLoader by the OpenSearch client's ObjectMapper
+         (serializes Scala case classes, e.g. MessageIndexDocument) -->
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-scala_${scala.suffix}</artifactId>

@@ -37,13 +37,13 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
   @throws[Exception]
   def trackerOldUrl(@RequestParam(value = "filter", defaultValue = "all") filterAction: String): View = MaybeAuthorized { session =>
     val defaultFilter = session.profile.trackerMode
-    val redirectView = new RedirectView("/tracker/")
+    val redirectView = new RedirectView("/tracker")
 
     redirectView.setExposeModelAttributes(false)
     val filter = TrackerFilterEnum.getByValue(filterAction)
 
     if (!filter.contains(defaultFilter)) {
-      redirectView.setUrl("/tracker/?filter=" + URLEncoder.encode(filterAction, "UTF-8"))
+      redirectView.setUrl("/tracker?filter=" + URLEncoder.encode(filterAction, "UTF-8"))
     }
 
     redirectView
@@ -59,9 +59,9 @@ class TrackerController(groupListDao: GroupListDao, userService: UserService, ip
     val additionalQuery = filter.map("filter=" + _.value)
 
     if (offset > 0) {
-      s"/tracker/?offset=$offset${additionalQuery.map("&amp;" + _).getOrElse("")}"
+      s"/tracker?offset=$offset${additionalQuery.map("&amp;" + _).getOrElse("")}"
     } else {
-      s"/tracker/${additionalQuery.map("?" + _).getOrElse("")}"
+      s"/tracker${additionalQuery.map("?" + _).getOrElse("")}"
     }
   }
 

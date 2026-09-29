@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2022 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -15,8 +15,8 @@
 
 package ru.org.linux.comment;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import java.util.Date;
 
 public class ReplyInfo {
@@ -40,9 +40,9 @@ public class ReplyInfo {
 
   public ReplyInfo(
           int id,
-          @Nonnull String author,
+          @NonNull String author,
           @Nullable String title,
-          @Nonnull Date postdate,
+          @NonNull Date postdate,
           boolean samePage,
           boolean deleted
   ) {

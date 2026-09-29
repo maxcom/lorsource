@@ -179,7 +179,7 @@
     <b>ID:</b> ${user.id}<br>
     <c:if test="${template.sessionAuthorized and !viewByOwner}">
         <br><b>Комментарий:</b> <c:out value="${remark.text}" escapeXml="true"/>
-        [<a href="/people/${user.nick}/remark/">Изменить</a>]
+        [<a href="/people/${user.nick}/remark">Изменить</a>]
     </c:if>
     <br>
 

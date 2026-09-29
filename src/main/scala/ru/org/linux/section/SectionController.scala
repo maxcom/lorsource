@@ -27,7 +27,7 @@ import scala.jdk.CollectionConverters.*
 
 @Controller
 class SectionController(sectionService: SectionService, groupService: GroupService) {
-  @RequestMapping(path = Array("/forum"))
+  @RequestMapping(path = Array("/forum", "/forum/"))
   def forum(): ModelAndView = {
     val section = sectionService.getSection(Forum)
 

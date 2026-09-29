@@ -25,8 +25,7 @@
 
     <!-- the application context definition for the springapp DispatcherServlet -->
 
-    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"
-          p:use-trailing-slash-match="true"/>
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
 
     <context:component-scan base-package="ru.org.linux" use-default-filters="false">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>

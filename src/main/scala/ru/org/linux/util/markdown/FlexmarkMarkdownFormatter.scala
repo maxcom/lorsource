@@ -35,7 +35,7 @@ import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.{User, UserService}
 import ru.org.linux.util.formatter.ToHtmlFormatter
 
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import java.lang.StringBuilder as JStringBuilder
 import scala.jdk.CollectionConverters.*
 import scala.collection.mutable

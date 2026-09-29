@@ -58,7 +58,7 @@
       <li><a href="/articles/">Статьи</a></li>
       <li><a href="/forum/">Форум</a></li>
       <li><a href="/polls/">Опросы</a></li>
-      <li><a href="/tracker/">Трекер</a></li>
+      <li><a href="/tracker">Трекер</a></li>
       <li><a href="/search.jsp">Поиск</a></li>
     </ul>
   </nav>

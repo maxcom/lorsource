@@ -22,7 +22,7 @@ import scalikejdbc.*
 
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.*
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 
 case class ArchiveStats(
     @BeanProperty

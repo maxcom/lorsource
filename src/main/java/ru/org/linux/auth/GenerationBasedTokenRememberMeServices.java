@@ -33,23 +33,6 @@ public class GenerationBasedTokenRememberMeServices extends TokenBasedRememberMe
   }
 
   @Override
-  protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {
-    String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
-
-    int tokenGeneration = userDao.getTokenGeneration(username);
-    if (tokenGeneration > 0) { // zero means user does not use close all sessions ever
-       data += ":" + String.format("%d", tokenGeneration);
-    }
-
-    try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      return new String(Hex.encode(digest.digest(data.getBytes())));
-    } catch (NoSuchAlgorithmException e) {
-      throw new IllegalStateException("No SHA-256 algorithm available!");
-    }
-  }
-
-  @Override
   protected String makeTokenSignature(long tokenExpiryTime, String username, String password,
                                       RememberMeTokenAlgorithm algorithm) {
     String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();

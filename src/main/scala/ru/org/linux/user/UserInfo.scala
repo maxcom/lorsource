@@ -18,7 +18,7 @@ package ru.org.linux.user
 import ru.org.linux.markup.MarkupType
 
 import java.sql.{ResultSet, Timestamp}
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.BeanProperty
 
 case class UserInfo(

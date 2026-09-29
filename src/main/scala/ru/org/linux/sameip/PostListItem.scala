@@ -18,7 +18,7 @@ package ru.org.linux.sameip
 import ru.org.linux.user.User
 
 import java.sql.Timestamp
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
 case class PostListItem(authorId: Int, commentId: Option[Int], topicId: Int, groupTitle: String, title: String,

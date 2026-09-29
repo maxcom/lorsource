@@ -46,7 +46,7 @@ case class Section(
 
   def getUrlName: String = Section.getUrlName(id)
 
-  def getArchiveLink(year: Int, month: Int): String = s"$getArchiveLink$year/$month/"
+  def getArchiveLink(year: Int, month: Int): String = s"$getArchiveLink$year/$month"
 
   def getArchiveLink: String =
     if id == Forum then

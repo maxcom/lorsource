@@ -27,7 +27,7 @@ import scalikejdbc.*
 
 import java.sql.Timestamp
 import java.time.Instant
-import javax.annotation.Nullable
+import org.jspecify.annotations.Nullable
 import jakarta.mail.internet.{AddressException, InternetAddress}
 
 @Repository

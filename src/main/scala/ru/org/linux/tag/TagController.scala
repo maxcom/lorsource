@@ -37,7 +37,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    *
    * @return объект web-модели
    */
-  @RequestMapping(path = Array("/tags"))
+  @RequestMapping(path = Array("/tags", "/tags/"))
   @throws[TagNotFoundException]
   def showDefaultTagListHandlertags: ModelAndView = showTagListHandler("")
 
@@ -81,7 +81,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
   }
 
   @RequestMapping(path = Array("/tags.jsp"))
-  def oldTagsRedirectHandler = "redirect:/tags"
+  def oldTagsRedirectHandler = "redirect:/tags/"
 
   /**
    * JSON-обработчик формирования списка тегов по начальным символам.
@@ -90,7 +90,7 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    * @return Список тегов
    */
   @ResponseBody
-  @RequestMapping(value = Array("/tags"), params = Array("term"))
+  @RequestMapping(value = Array("/tags", "/tags/"), params = Array("term"))
   def showTagListHandlerJSON(@RequestParam("term") term: String): Json = {
     val tags = tagService.suggestTagsByPrefix(term, 10)
 

@@ -92,4 +92,4 @@ class SectionDaoIntegrationTest extends FunSuite with SpringTestSupport:
 
     val gallery = getSectionById(sectionList, Section.Gallery)
     assert(gallery != null)
-    assertEquals("/gallery/archive/2024/5/", gallery.getArchiveLink(2024, 5))
+    assertEquals("/gallery/archive/2024/5", gallery.getArchiveLink(2024, 5))
