@@ -8,6 +8,12 @@ set -e
 
 echo Copying files...
 
+if ! cmp -s deploy/tomcat-opt.service /usr/lib/systemd/system/tomcat-opt.service; then
+    echo Installing systemd unit...
+    sudo cp deploy/tomcat-opt.service /usr/lib/systemd/system/tomcat-opt.service
+    sudo systemctl daemon-reload
+fi
+
 sudo systemctl stop $SERVICE
 ./mvnw -P production liquibase:update
 sudo rm -rf /var/cache/tomcat/work/Catalina/localhost/ROOT/
