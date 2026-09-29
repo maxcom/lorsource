@@ -6,8 +6,8 @@
   <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
 
   <Service name="Catalina">
-   <Executor name="tomcatThreadPool" namePrefix="tomcat-"
-        maxThreads="256" minSpareThreads="32" maxQueueSize="256"/>
+   <Executor name="tomcatThreadPool" namePrefix="tomcat-virt-"
+        className="org.apache.catalina.core.StandardVirtualThreadExecutor"/>
 
     <Connector port="8080" scheme="http" SSLEnabled="false" secure="false" address="127.0.0.1"
                protocol="org.apache.coyote.http11.Http11NioProtocol"
