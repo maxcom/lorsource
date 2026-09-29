@@ -1,8 +1,3 @@
-# Systemd unit file for default tomcat
-# 
-# To create clones of this service:
-# DO NOTHING, use tomcat@.service instead.
-
 [Unit]
 Description=Apache Tomcat Web Application Container
 After=syslog.target network.target
@@ -15,6 +10,49 @@ EnvironmentFile=-/etc/sysconfig/tomcat
 ExecStart=/opt/tomcat/bin/catalina.sh run
 SuccessExitStatus=143
 User=tomcat
+Group=tomcat
+UMask=0022
+
+# File system: everything read-only except explicit write paths
+ProtectSystem=strict
+ReadWritePaths=/var/log/tomcat /var/cache/tomcat /storage/linux.org.ru
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateMounts=yes
+
+# Kernel / IPC
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectProc=invisible
+RemoveIPC=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+# Privileges
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+# System calls
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+
+# Reliability
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=90
+
+# --- Deferred (enable one at a time, verify restart) ---
+# MemoryDenyWriteExecute=yes
+# PrivateUsers=yes
+# ProcSubset=pid
 
 [Install]
 WantedBy=multi-user.target
