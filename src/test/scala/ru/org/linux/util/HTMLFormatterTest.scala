@@ -391,6 +391,27 @@ class HTMLFormatterTest extends FunSuite:
     assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#41;&#41;&#41;"), "&#41;&#41;&#41;")
   }
 
+  test("strangeEscapeHtml entity recognition") {
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#62;"), "&#62;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#10;"), "&#10;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#12345;"), "&#12345;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&nbsp;"), "&nbsp;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&abcdefgh;"), "&abcdefgh;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&_x9;"), "&_x9;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("a&amp;b"), "a&amp;b")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("<&nbsp;>"), "&lt;&nbsp;&gt;")
+
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#6;"), "&amp;#6;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#012;"), "&amp;#012;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#123456;"), "&amp;#123456;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#62"), "&amp;#62")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&#x62;"), "&amp;#x62;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&abcdefghi;"), "&amp;abcdefghi;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&;"), "&amp;;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("&&"), "&amp;&amp;")
+    assertEquals(ToHtmlFormatter.strangeEscapeHtml("a&"), "a&amp;")
+  }
+
   test("testToLorCodeFormatter2") {
     val text = Array(
       ">one\n",

@@ -55,12 +55,6 @@ public class ToHtmlFormatter {
    */
   private static final int MAX_URL_TOKEN_LENGTH = 1000;
 
-  /**
-   * Convert special SGML (HTML) chars to
-   * SGML entities
-   */
-  private static final Pattern uniRE = Pattern.compile("^&((#[1-9]\\d{1,4})|(\\w{1,8}));");
-
   /*
   Замена двойного минуса на тире
   */
@@ -301,7 +295,7 @@ public class ToHtmlFormatter {
    * @return отэкранированная строка
    */
   public static String strangeEscapeHtml(String str) {
-    StringBuilder res = new StringBuilder();
+    StringBuilder res = new StringBuilder(str.length());
 
     for (int i = 0; i < str.length(); i++) {
       switch (str.charAt(i)) {
@@ -315,11 +309,10 @@ public class ToHtmlFormatter {
           res.append("&quot;");
           break;
         case '&':
-          Matcher m = uniRE.matcher(str.substring(i));
-          if (m.find()) {
-            String s = m.group();
-            res.append(s);
-            i+=s.length()-1;
+          int entityEnd = entityEnd(str, i);
+          if (entityEnd != -1) {
+            res.append(str, i, entityEnd);
+            i = entityEnd - 1;
             continue;
           } else {
             res.append("&amp;");
@@ -333,5 +326,51 @@ public class ToHtmlFormatter {
     }
 
     return res.toString();
+  }
+
+  /**
+   * Конец (индекс после ';') SGML-сущности вида &#12345; / &amp; начиная с позиции символа '&',
+   * либо -1 если сущность не распознана; линейный аналог паттерна ^&((#[1-9]\d{1,4})|(\w{1,8}));
+   */
+  private static int entityEnd(String str, int start) {
+    int length = str.length();
+    int pos = start + 1;
+
+    if (pos < length && str.charAt(pos) == '#') {
+      pos++;
+
+      if (pos >= length || str.charAt(pos) < '1' || str.charAt(pos) > '9') {
+        return -1;
+      }
+
+      pos++;
+      int digits = 1;
+      while (pos < length && digits < 5 && str.charAt(pos) >= '0' && str.charAt(pos) <= '9') {
+        pos++;
+        digits++;
+      }
+
+      if (digits >= 2 && pos < length && str.charAt(pos) == ';') {
+        return pos + 1;
+      }
+
+      return -1;
+    }
+
+    int words = 0;
+    while (pos < length && words < 8 && isWordChar(str.charAt(pos))) {
+      pos++;
+      words++;
+    }
+
+    if (words >= 1 && pos < length && str.charAt(pos) == ';') {
+      return pos + 1;
+    }
+
+    return -1;
+  }
+
+  private static boolean isWordChar(char c) {
+    return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_';
   }
 }
