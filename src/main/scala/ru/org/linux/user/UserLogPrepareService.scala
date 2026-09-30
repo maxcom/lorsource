@@ -55,7 +55,8 @@ class UserLogPrepareService(userService: UserService, userAgentDao: UserAgentDao
             val ip = item.options.getOrElse(OptionIp, "")
 
             if (id != 0) {
-              s"<a href=\"/sameip.jsp?ua=$id&ip=$ip&mask=0\">${userAgentDao.getUserAgentById(id).orElse(escapeHtml("<не найден>"))}</a>"
+              val userAgent = escapeHtml(userAgentDao.getUserAgentById(id).orElse("<не найден>"))
+              s"<a href=\"/sameip.jsp?ua=$id&ip=${escapeHtml(ip)}&mask=0\">$userAgent</a>"
             } else {
               escapeHtml("<нет>")
             }
