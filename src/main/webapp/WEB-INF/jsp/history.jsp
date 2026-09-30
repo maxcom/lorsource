@@ -1,5 +1,6 @@
 <%@ page session="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="l" uri="http://www.linux.org.ru" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -110,7 +111,7 @@
       </div>
       <div class="msg_footer">
         <c:if test="${(editHistory.linktext != null) || (editHistory.url != null)}">
-          <p>&gt;&gt;&gt; <a href="${editHistory.url==null ? "#" : editHistory.url}"><c:out value="${editHistory.linktext==null ? '(текст ссылки не изменен)' : editHistory.linktext}"/></a>
+          <p>&gt;&gt;&gt; <a href="${editHistory.url==null ? '#' : fn:escapeXml(editHistory.url)}"><c:out value="${editHistory.linktext==null ? '(текст ссылки не изменен)' : editHistory.linktext}"/></a>
         </c:if>
         <c:if test="${editHistory.tags != null}">
             <l:tags list="${editHistory.tags}"/>
