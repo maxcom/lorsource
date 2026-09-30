@@ -28,6 +28,7 @@ import ru.org.linux.user.User;
 import ru.org.linux.util.LorURI;
 import ru.org.linux.util.LorURIException;
 import ru.org.linux.util.LorURL;
+import ru.org.linux.util.URLUtil;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -188,12 +189,19 @@ public class ToHtmlFormatter {
     return out.toString();
   }
 
+  /**
+   * @throws LorURIException если url не корректный или схема не входит в разрешённые (см. URLUtil.isSafeLinkUrl)
+   */
   public void processUrl(
           boolean nofollow,
           @NonNull StringBuilder out,
           @NonNull String urlHref,
           @Nullable String linktext
   ) throws LorURIException {
+    if (!URLUtil.isSafeLinkUrl(urlHref)) {
+      throw new LorURIException("unsafe link scheme");
+    }
+
     LorURL url = new LorURL(siteConfig.getMainURI(), urlHref);
 
     if(url.isMessageUrl()) {
