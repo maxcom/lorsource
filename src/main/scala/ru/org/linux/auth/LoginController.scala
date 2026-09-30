@@ -212,10 +212,13 @@ object LoginController:
 
   // Accepts only same-site relative paths: "/" or "/path...".
   // Rejects "//host" and "/\host" (protocol-relative variants that browsers normalize to off-site
-  // absolute URLs), and anything not starting with "/".
+  // absolute URLs), and anything not starting with "/". Raw ASCII control characters are rejected
+  // too: browsers strip tab/CR/LF from URLs before parsing (WHATWG URL standard), so "/<TAB>/evil.com"
+  // would otherwise become protocol-relative "//evil.com".
   private def isLocalRedirect(url: String): Boolean =
     url != null && url.nonEmpty && url.charAt(0) == '/' &&
-      (url.length == 1 || (url.charAt(1) != '/' && url.charAt(1) != '\\'))
+      (url.length == 1 || (url.charAt(1) != '/' && url.charAt(1) != '\\')) &&
+      !url.exists(c => c < ' ' || c == '\u007f')
 
   def delayResponse[T](scheduler: Scheduler)(resp: => T): CompletionStage[T] =
     val r = Try(resp)
