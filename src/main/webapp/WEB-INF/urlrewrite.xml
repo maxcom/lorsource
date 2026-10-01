@@ -98,10 +98,11 @@
     <to type="permanent-redirect" last="true">/$1/$2</to>
   </rule>
 
-  <!-- the first captured char must not be a slash: otherwise //evil.com/ would redirect to //evil.com
-       (a scheme-relative open redirect) -->
+  <!-- the first captured char must not be a slash or a backslash: otherwise //evil.com/ would redirect
+       to //evil.com and /\evil.com (from %5C) to \evil.com (both scheme-relative open redirects;
+       StrictHttpFirewall never sees %5C because this filter answers before the security chain) -->
   <rule>
-    <from>^/(?!(?:(?:forum|news|polls|articles|gallery)(?:/[^/?.]+)?|people/[^/?.]+|tags)/(?:\?|$))([^/?][^?]*)/(\?.*)?$</from>
+    <from>^/(?!(?:(?:forum|news|polls|articles|gallery)(?:/[^/?.]+)?|people/[^/?.]+|tags)/(?:\?|$))([^/?\\][^?]*)/(\?.*)?$</from>
     <to type="permanent-redirect" last="true">/$1$2</to>
   </rule>
 
