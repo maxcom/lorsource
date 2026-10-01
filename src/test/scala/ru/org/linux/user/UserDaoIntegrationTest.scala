@@ -137,6 +137,37 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
       userDao.getUser(id)
     }
 
+  test("deleteInactivatedAccounts"):
+    // чистый старт: неотактивированные пользователи из демо-данных не должны влиить на подсчёт
+    springDB.run:
+      sql"UPDATE users SET activated=true WHERE NOT activated".update.apply()
+
+    val stale = createUser("test-unactivated-stale", blocked = false, regdate = Some(ts("2026-01-01")))
+    val staleBlocked = createUser(
+      "test-unactivated-stale-blocked",
+      blocked = true,
+      bandate = Some(ts("2026-01-02")),
+      regdate = Some(ts("2026-01-01"))
+    )
+    val recentBlocked = createUser("test-unactivated-recent-blocked", blocked = true, regdate = Some(ts("2026-01-01")))
+    val activated = createUser("test-unactivated-activated", blocked = false, regdate = Some(ts("2026-01-01")))
+
+    springDB.run:
+      sql"UPDATE users SET activated=true WHERE id=${activated}".update.apply()
+      sql"UPDATE users SET regdate=CURRENT_TIMESTAMP-'5 days'::interval WHERE id=${recentBlocked}".update.apply()
+      // user_settings может существовать у неотактивированного пользователя (миграция 2026-05-01) —
+      // удаление не должно падать по FK user_settings_id_fkey
+      sql"INSERT INTO user_settings (id, settings) VALUES (${staleBlocked}, ''::hstore)".update.apply()
+
+    val (deleted, deletedBlocked) = userDao.deleteInactivatedAccounts()
+
+    assertEquals(deleted, 1)
+    assertEquals(deletedBlocked, 1)
+    intercept[UserNotFoundException] { userDao.getUser(stale) }
+    intercept[UserNotFoundException] { userDao.getUser(staleBlocked) }
+    assert(userDao.getUser(recentBlocked) != null)
+    assert(userDao.getUser(activated) != null)
+
   private def setIp(id: Int, ip: Option[String]): Unit =
     springDB.run:
       ip match

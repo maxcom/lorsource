@@ -60,16 +60,14 @@ class InactiveUserCleanerTest extends FunSuite:
     verify(userDao).deleteUsers(Seq(1, 2, 3))
     verify(userDao).deleteUsers(Seq(4, 5))
 
-  test("flagOnDeletesInBatches"):
-    val ids = (1 to InactiveUserCleaner.BatchSize * 3).toSeq
+  test("largeCandidateSetDeletedInSingleCall"):
+    val ids = (1 to UserDao.DeleteBatchSize * 3).toSeq
     when(userDao.getDeletableInactiveUserIds).thenReturn(ids)
     when(siteConfig.cleanInactiveUsers).thenReturn(true)
 
     cleaner.cleanInactiveUsers()
 
-    verify(userDao, times(3)).deleteUsers(any(classOf[Seq[Int]]))
-    verify(userDao).deleteUsers((1 to InactiveUserCleaner.BatchSize).toSeq)
-    verify(userDao).deleteUsers((InactiveUserCleaner.BatchSize + 1 to InactiveUserCleaner.BatchSize * 2).toSeq)
+    verify(userDao, times(1)).deleteUsers(ids)
 
   test("deleteFailurePropagates"):
     when(userDao.getDeletableInactiveUserIds).thenReturn(Seq(1, 2, 3))
@@ -78,4 +76,22 @@ class InactiveUserCleanerTest extends FunSuite:
 
     intercept[RuntimeException] {
       cleaner.cleanInactiveUsers()
+    }
+
+  test("deleteInactivatedWorksRegardlessOfFlag"):
+    when(siteConfig.cleanInactiveUsers).thenReturn(false)
+    when(userDao.deleteInactivatedAccounts()).thenReturn((1, 2))
+    cleaner.deleteInactivated()
+
+    when(siteConfig.cleanInactiveUsers).thenReturn(true)
+    when(userDao.deleteInactivatedAccounts()).thenReturn((3, 4))
+    cleaner.deleteInactivated()
+
+    verify(userDao, times(2)).deleteInactivatedAccounts()
+
+  test("deleteInactivatedFailurePropagates"):
+    when(userDao.deleteInactivatedAccounts()).thenThrow(new RuntimeException("delete failed"))
+
+    intercept[RuntimeException] {
+      cleaner.deleteInactivated()
     }

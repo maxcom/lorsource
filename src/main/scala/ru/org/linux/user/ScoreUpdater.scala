@@ -32,9 +32,3 @@ class ScoreUpdater(userDao: UserDao, springDB: SpringDB) extends StrictLogging:
 
   @Scheduled(cron = "0 1 * * * *")
   def blockLowScoreUsers(): Unit = userDao.blockLowScoreUsers()
-
-  @Scheduled(cron = "0 30 * * * *")
-  def deleteInactivated(): Unit =
-    logger.info("Deleting non-activated accounts")
-    val (deleted, deletedBlocked) = springDB.localTx { userDao.deleteInactivatedAccounts() }
-    logger.info(s"Deleted $deleted non-activated; $deletedBlocked blocked accounts")

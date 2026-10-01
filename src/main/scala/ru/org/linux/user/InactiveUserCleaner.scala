@@ -29,6 +29,9 @@ import ru.org.linux.spring.SiteConfig
   *
   * При выключенном флаге `cleanInactiveUsers` только логгируются кандидаты на удаление. При ошибке удаления исключение
   * пробрасывается наружу — его обработает обработчик ошибок планировщика (лог + письмо администратору).
+  *
+  * Отдельно, ежечасно и независимо от флага `cleanInactiveUsers`, удаляются неотактивированные аккаунты — см.
+  * [[deleteInactivated]].
   */
 @Component
 class InactiveUserCleaner(siteConfig: SiteConfig, userDao: UserDao) extends StrictLogging:
@@ -38,24 +41,25 @@ class InactiveUserCleaner(siteConfig: SiteConfig, userDao: UserDao) extends Stri
     deleteCandidates(userDao.getDeletableBlockedUserIds, "blocked")
     deleteCandidates(userDao.getDeletableInactiveUserIds, "inactive")
 
+  /** Ежечасное удаление неотактивированных аккаунтов: незаблокированных, зарегистрированных более 12 часов назад, и
+    * заблокированных — более 30 дней назад. Работает независимо от флага `cleanInactiveUsers`.
+    */
+  @Scheduled(cron = "0 30 * * * *")
+  def deleteInactivated(): Unit =
+    logger.info("Deleting non-activated accounts")
+    val (deleted, deletedBlocked) = userDao.deleteInactivatedAccounts()
+    logger.info(s"Deleted $deleted non-activated; $deletedBlocked blocked accounts")
+
   private def deleteCandidates(ids: Seq[Int], category: String): Unit =
     if ids.isEmpty then
       logger.info(s"InactiveUserCleaner: no $category candidates")
     else if siteConfig.cleanInactiveUsers then
-      var deleted = 0
-      ids
-        .grouped(InactiveUserCleaner.BatchSize)
-        .foreach { batch =>
-          deleted += userDao.deleteUsers(batch)
-        }
+      val deleted = userDao.deleteUsers(ids)
       logger.info(s"InactiveUserCleaner: deleted $deleted of ${ids.size} $category candidates")
     else
       logger.info(s"InactiveUserCleaner: would delete ${ids.size} $category users")
       ids
-        .grouped(InactiveUserCleaner.BatchSize)
+        .grouped(UserDao.DeleteBatchSize)
         .foreach { batch =>
           logger.info(s"InactiveUserCleaner $category candidates: ${batch.mkString(", ")}")
         }
-
-object InactiveUserCleaner:
-  val BatchSize = 500

@@ -23,6 +23,7 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.SectionController.NonTech
 import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
+import scala.annotation.tailrec
 import scalikejdbc.*
 
 import java.sql.Timestamp
@@ -32,6 +33,9 @@ import jakarta.mail.internet.{AddressException, InternetAddress}
 
 @Repository
 object UserDao:
+  /** Размер порции при удалении пользователей в [[deleteUsers]] — одна транзакция на порцию. */
+  val DeleteBatchSize = 500
+
   /** Критерий неактивности пользователя для кандидатов окончательного удаления (общий для TopicDao и CommentDao):
     * пользователь не заходил на сайт более 10 лет (при неизвестном `lastlogin` — с даты регистрации), либо заблокирован
     * и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч. anonymous). Предполагает, что
@@ -403,30 +407,46 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
         .update
         .apply())
 
-  def deleteInactivatedAccounts()(using Transaction): (Int, Int) =
-    sql"delete from user_events where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)"
-      .update
-      .apply()
-    sql"delete from topic_users_notified where userid in (select id from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval)"
-      .update
-      .apply()
-    val deleted =
-      sql"delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'12 hours'::interval"
-        .update
-        .apply()
-    sql"delete from ban_info where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
-      .update
-      .apply()
-    sql"delete from user_events where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
-      .update
-      .apply()
-    sql"delete from topic_users_notified where userid in (select id from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval)"
-      .update
-      .apply()
-    val deletedBlocked = sql"delete from users where not activated and regdate<CURRENT_TIMESTAMP-'30 days'::interval"
-      .update
-      .apply()
-    (deleted, deletedBlocked)
+  /** Удаляет неотактивированные аккаунты вместе с их персональными данными (через [[deleteUsersBatchTx]]):
+    *   - незаблокированные, зарегистрированные более 12 часов назад;
+    *   - заблокированные, зарегистрированные более 30 дней назад.
+    *
+    * Удаление выполняется порциями по [[UserDao.DeleteBatchSize]], каждая порция — отдельная транзакция. Кандидаты
+    * порции выбираются повторно (`FOR UPDATE`) внутри транзакции удаления: условие `NOT activated` проверяется
+    * атомарно в момент удаления, поэтому параллельно активированный аккаунт не удаляется.
+    *
+    * Возвращает число удалённых пользователей: (незаблокированные, заблокированные).
+    */
+  def deleteInactivatedAccounts(): (Int, Int) =
+    (deleteStaleUnactivated(blocked = false), deleteStaleUnactivated(blocked = true))
+
+  /** Удаляет неотактивированные аккаунты порциями, пока остаются кандидаты. */
+  private def deleteStaleUnactivated(blocked: Boolean): Int =
+    @tailrec
+    def loop(acc: Int): Int =
+      val deleted = deleteStaleUnactivatedBatch(blocked)
+      if deleted > 0 then loop(acc + deleted) else acc
+
+    loop(0)
+
+  /** Одна порция: повторный выбор кандидатов (атомарная проверка `NOT activated`) и удаление в одной транзакции. */
+  private def deleteStaleUnactivatedBatch(blocked: Boolean): Int =
+    springDB.localTx {
+      val condition =
+        if blocked then
+          sqls"blocked AND regdate < CURRENT_TIMESTAMP - interval '30 days'"
+        else
+          sqls"NOT blocked AND regdate < CURRENT_TIMESTAMP - interval '12 hours'"
+
+      val ids =
+        sql"""SELECT id FROM users WHERE NOT activated AND $condition
+              LIMIT ${UserDao.DeleteBatchSize} FOR UPDATE"""
+          .map(rs => rs.int("id"))
+          .list
+          .apply()
+
+      if ids.nonEmpty then deleteUsersBatchTx(ids) else 0
+    }
 
   /** Заблокированные пользователи без активности, подлежащие удалению.
     *
@@ -493,24 +513,27 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
         .list
         .apply())
 
-  /** Удаляет пользователей вместе с их личными данными (в одной транзакции). Все ссылки, оставшиеся от активности
-    * пользователя (топики, комментарии, реакции, голоса, инвайты, предупреждения, правки), уже отсечены в
-    * [[getDeletableBlockedUserIds]] и [[getDeletableInactiveUserIds]], поэтому здесь удаляются только персональные
-    * записи пользователя. Записи `user_log` удаляются автоматически (FK с ON DELETE CASCADE).
+  /** Удаляет пользователей вместе с их личными данными. Все ссылки, оставшиеся от активности пользователя (топики,
+    * комментарии, реакции, голоса, инвайты, предупреждения, правки), уже отсечены в [[getDeletableBlockedUserIds]] и
+    * [[getDeletableInactiveUserIds]], поэтому здесь удаляются только персональные записи пользователя. Записи
+    * `user_log` удаляются автоматически (FK с ON DELETE CASCADE).
+    *
+    * Удаление выполняется порциями по [[UserDao.DeleteBatchSize]], каждая порция — в отдельной транзакции.
     */
   def deleteUsers(ids: Seq[Int]): Int =
-    if ids.isEmpty then
-      0
-    else
-      springDB.localTx {
-        sql"DELETE FROM ban_info WHERE userid IN ($ids)".update.apply()
-        sql"DELETE FROM user_events WHERE userid IN ($ids) OR origin_user IN ($ids)".update.apply()
-        sql"DELETE FROM topic_users_notified WHERE userid IN ($ids)".update.apply()
-        sql"DELETE FROM memories WHERE userid IN ($ids)".update.apply()
-        sql"DELETE FROM ignore_list WHERE userid IN ($ids) OR ignored IN ($ids)".update.apply()
-        sql"DELETE FROM user_remarks WHERE user_id IN ($ids) OR ref_user_id IN ($ids)".update.apply()
-        sql"DELETE FROM user_tags WHERE user_id IN ($ids)".update.apply()
-        sql"DELETE FROM user_settings WHERE id IN ($ids)".update.apply()
-        sql"DELETE FROM reactions_log WHERE origin_user IN ($ids)".update.apply()
-        sql"DELETE FROM users WHERE id IN ($ids)".update.apply()
-      }
+    ids.grouped(UserDao.DeleteBatchSize).map(deleteUsersBatch).sum
+
+  private def deleteUsersBatch(ids: Seq[Int]): Int =
+    springDB.localTx(deleteUsersBatchTx(ids))
+
+  private def deleteUsersBatchTx(ids: Seq[Int])(using Transaction): Int =
+    sql"DELETE FROM ban_info WHERE userid IN ($ids)".update.apply()
+    sql"DELETE FROM user_events WHERE userid IN ($ids) OR origin_user IN ($ids)".update.apply()
+    sql"DELETE FROM topic_users_notified WHERE userid IN ($ids)".update.apply()
+    sql"DELETE FROM memories WHERE userid IN ($ids)".update.apply()
+    sql"DELETE FROM ignore_list WHERE userid IN ($ids) OR ignored IN ($ids)".update.apply()
+    sql"DELETE FROM user_remarks WHERE user_id IN ($ids) OR ref_user_id IN ($ids)".update.apply()
+    sql"DELETE FROM user_tags WHERE user_id IN ($ids)".update.apply()
+    sql"DELETE FROM user_settings WHERE id IN ($ids)".update.apply()
+    sql"DELETE FROM reactions_log WHERE origin_user IN ($ids)".update.apply()
+    sql"DELETE FROM users WHERE id IN ($ids)".update.apply()
