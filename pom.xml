@@ -37,7 +37,7 @@
     <popperjs.version>2.11.8</popperjs.version>
     <sttp.version>4.0.26</sttp.version>
     <flexmark.version>0.64.8</flexmark.version>
-    <jackson.version>2.22.2</jackson.version>
+    <jackson.version>2.22.3</jackson.version>
   </properties>
 
   <dependencies>
