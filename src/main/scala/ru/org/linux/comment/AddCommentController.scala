@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{MaybeAuthorized, MaybeAuthorizedCtx}
-import ru.org.linux.auth.{AnySession, AuthUtil, CaptchaService, LoginAttemptCache}
+import ru.org.linux.auth.{AuthUtil, CaptchaService, LoginAttemptCache}
 import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MessageText
@@ -91,9 +91,11 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
   @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Validated add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @RequestAttribute("captchaRequired") captchaRequired: Boolean): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
-    checkPostingCaptcha(add, sessionUserOpt, captchaRequired, request, errors)
+    val attempt = AuthUtil.beginCaptchaCheckedAttempt(captcha, loginAttemptCache, sessionUserOpt, add.getNick,
+      add.isPreviewMode, captchaRequired, request, errors)
 
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors, passwordEncoder, request, loginAttemptCache)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors,
+      passwordEncoder, request, loginAttemptCache, attempt)
     val user = postingUser.user
 
     commentService.checkPostData(add, request, errors, editMode = false)(using postingUser)
@@ -138,9 +140,11 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
   def addCommentAjax(@ModelAttribute("add") @Validated add: CommentRequest, errors: Errors, request: HttpServletRequest,
                      @RequestAttribute("captchaRequired")
                      captchaRequired: Boolean): Json = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
-    checkPostingCaptcha(add, sessionUserOpt, captchaRequired, request, errors)
+    val attempt = AuthUtil.beginCaptchaCheckedAttempt(captcha, loginAttemptCache, sessionUserOpt, add.getNick,
+      add.isPreviewMode, captchaRequired, request, errors)
 
-    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors, passwordEncoder, request, loginAttemptCache)
+    val postingUser = AuthUtil.postingUser(sessionUserOpt, Option(add.getNick), Option(add.getPassword), errors,
+      passwordEncoder, request, loginAttemptCache, attempt)
     val user = postingUser.user
 
     commentService.checkPostData(add, request, errors, editMode = false)(using postingUser)
@@ -173,30 +177,6 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
       Map("url" -> (add.getTopic.getLink + "?cid=" + msgid)).asJson
     }
   }
-
-  /**
-    * Проверка captcha при добавлении комментария.
-    *
-    * Для обычной (не preview) отправки captcha обязательна по прежним правилам (captchaRequired).
-    * В preview-режиме credы (nick/password) тоже проверяются, поэтому preview с указанным ником
-    * не должен обходить схему captcha из /login_process: captcha требуется при отметке неудачи
-    * в LoginAttemptCache или если IP помечен модераторами (ipBlockInfo.captchaRequired).
-    */
-  private def checkPostingCaptcha(add: CommentRequest, session: AnySession, captchaRequired: Boolean,
-                                  request: HttpServletRequest, errors: Errors): Unit =
-    if !errors.hasErrors then
-      val credentialCheck = !session.authorized && add.getNick != null && !add.getNick.anonymous
-
-      val needCaptcha =
-        if !add.isPreviewMode then
-          captchaRequired
-        else
-          credentialCheck && (session.ipBlockInfo.captchaRequired ||
-            loginAttemptCache.requireCaptchaForIp(request.getRemoteAddr) ||
-            loginAttemptCache.requireCaptchaForUser(add.getNick.nick))
-
-      if needCaptcha then
-        captcha.checkCaptcha(request, errors)
 
   @InitBinder(Array("add"))
   def requestValidator(binder: WebDataBinder): Unit = commentService.requestValidator(binder)

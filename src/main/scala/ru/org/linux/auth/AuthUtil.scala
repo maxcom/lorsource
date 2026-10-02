@@ -219,6 +219,39 @@ object AuthUtil extends StrictLogging:
 
     AuthorizedOnly(f)
 
+  /** Проверка captcha при анонимной отправке сообщения (комментарий/топик) с возможным указанием credов.
+    *
+    * Для обычной (не preview) отправки captcha обязательна по прежним правилам (captchaRequired).
+    * В preview-режиме credы (nick/password) тоже проверяются, поэтому preview с указанным ником
+    * не должен обходить схему captcha из /login_process: captcha требуется при отметке неудачи
+    * в LoginAttemptCache или если IP помечен модераторами (ipBlockInfo.captchaRequired).
+    *
+    * @return gate попытки: в preview-режиме с credами метка ставится атомарно до проверки пароля,
+    *         отменяется в AuthUtil.postingUser
+    */
+  def beginCaptchaCheckedAttempt(captcha: CaptchaService, loginAttemptCache: LoginAttemptCache,
+                                 session: AnySession, @Nullable formUser: User, previewMode: Boolean,
+                                 captchaRequired: Boolean, request: HttpServletRequest,
+                                 errors: Errors): LoginAttemptCache.AttemptGate =
+    if !errors.hasErrors then
+      val credentialCheck = !session.authorized && formUser != null && !formUser.anonymous
+
+      if !previewMode then
+        if captchaRequired then
+          captcha.checkCaptcha(request, errors)
+        LoginAttemptCache.NoAttempt
+      else if !credentialCheck then
+        LoginAttemptCache.NoAttempt
+      else
+        val attempt = loginAttemptCache.beginAttempt(request.getRemoteAddr, formUser.nick)
+
+        if session.ipBlockInfo.captchaRequired || attempt.captchaRequired then
+          captcha.checkCaptcha(request, errors)
+
+        attempt
+    else
+      LoginAttemptCache.NoAttempt
+
   def postingUser(
       session: AnySession,
       formUser: Option[User],
@@ -226,33 +259,39 @@ object AuthUtil extends StrictLogging:
       errors: Errors,
       passwordEncoder: PasswordEncoder,
       request: HttpServletRequest,
-      loginAttemptCache: LoginAttemptCache): AnySession =
-    if errors.hasErrors then
-      session
-    else if session.authorized then
-      session
-    else
-      formUser match
-        case None =>
-          session
-        case Some(formUser) if formUser.anonymous =>
-          session
-        case Some(formUser) =>
-          if formUser.blocked || !formUser.activated then
-            errors.rejectValue("user", null, s"Пользователь \"${formUser.nick}\" заблокирован или не активирован")
+      loginAttemptCache: LoginAttemptCache,
+      attempt: LoginAttemptCache.AttemptGate): AnySession =
+    // cancel() в finally снимает метку на всех исходах, кроме неудачи с паролем:
+    // recordFailedAttempt уже заместил её, и cancel становится no-op
+    try
+      if errors.hasErrors then
+        session
+      else if session.authorized then
+        session
+      else
+        formUser match
+          case None =>
             session
-          else if !passwordEncoder.matches(formPassword.get, formUser.password) then
-            logger.warn("Password of {} does not match; remote IP: {}; {}", formUser.nick, request.getRemoteAddr)
-
-            loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, formUser.nick)
-
-            errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.nick}\" задан неверно!")
+          case Some(formUser) if formUser.anonymous =>
             session
-          else
-            AuthorizedSession(
-              formUser,
-              corrector = false,
-              moderator = false,
-              administrator = false,
-              profile = Profile.DEFAULT,
-              ipBlockInfo = session.ipBlockInfo)
+          case Some(formUser) =>
+            if formUser.blocked || !formUser.activated then
+              errors.rejectValue("user", null, s"Пользователь \"${formUser.nick}\" заблокирован или не активирован")
+              session
+            else if !passwordEncoder.matches(formPassword.get, formUser.password) then
+              logger.warn("Password of {} does not match; remote IP: {}; {}", formUser.nick, request.getRemoteAddr)
+
+              loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, formUser.nick)
+
+              errors.rejectValue("password", null, s"Пароль для пользователя \"${formUser.nick}\" задан неверно!")
+              session
+            else
+              AuthorizedSession(
+                formUser,
+                corrector = false,
+                moderator = false,
+                administrator = false,
+                profile = Profile.DEFAULT,
+                ipBlockInfo = session.ipBlockInfo)
+    finally
+      attempt.cancel()

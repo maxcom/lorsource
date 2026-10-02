@@ -23,7 +23,8 @@ import org.springframework.security.core.userdetails.{UserDetailsService, Userna
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.{ModelAttribute, RequestAttribute, RequestMapping, RequestMethod, RequestParam}
+import org.springframework.web.bind.annotation.{ModelAttribute, RequestAttribute, RequestMapping, RequestMethod,
+  RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
@@ -69,61 +70,66 @@ class LoginController(
         Future.successful(new ModelAndView(new RedirectView(safeRedirectUrl(form.redirectUrl)))).asJava
       else
         delayResponse(scheduler):
-          val requireCaptcha =
-            session.ipBlockInfo.captchaRequired || loginAttemptCache.requireCaptchaForIp(request.getRemoteAddr) ||
-              loginAttemptCache.requireCaptchaForUser(form.nick)
+          // метка ставится атомарно ДО проверки пароля: параллельная попытка с тем же IP/ником
+          // требует captcha, а не выполняет bcrypt бесплатно; cancel() в finally снимает метку,
+          // если попытка не завершилась явной неудачей (recordFailedAttempt заместил её — cancel no-op)
+          val attempt = loginAttemptCache.beginAttempt(request.getRemoteAddr, form.nick)
+          val requireCaptcha = session.ipBlockInfo.captchaRequired || attempt.captchaRequired
 
-          if requireCaptcha then
-            captchaService.checkCaptcha(request, bindingResult)
+          try
+            if requireCaptcha then
+              captchaService.checkCaptcha(request, bindingResult)
 
-          if bindingResult.hasErrors then
-            loginErrorView(form, bindingResult, requireCaptcha)
-          else
-            try
-              val auth = authenticate(form.nick, form.passwd)
-              val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
+            if bindingResult.hasErrors then
+              loginErrorView(form, bindingResult, requireCaptcha)
+            else
+              try
+                val auth = authenticate(form.nick, form.passwd)
+                val userDetails = auth.getDetails.asInstanceOf[UserDetailsImpl]
 
-              if !userDetails.getUser.activated then
-                loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, form.nick)
-                bindingResult.reject(
-                  "login.not_activated",
-                  "Регистрация не завершена! Инструкция по активации отправлена на указанный при регистрации email.")
-                // captcha is required after the first failed attempt (see LoginAttemptCache)
-                loginErrorView(form, bindingResult, requireCaptcha = true)
-              else
-                SecurityContextHolder.getContext.setAuthentication(auth)
-                rememberMeServices.loginSuccess(request, response, auth)
+                if !userDetails.getUser.activated then
+                  loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, form.nick)
+                  bindingResult.reject(
+                    "login.not_activated",
+                    "Регистрация не завершена! Инструкция по активации отправлена на указанный при регистрации email.")
+                  // captcha is required after the first failed attempt (see LoginAttemptCache)
+                  loginErrorView(form, bindingResult, requireCaptcha = true)
+                else
+                  SecurityContextHolder.getContext.setAuthentication(auth)
+                  rememberMeServices.loginSuccess(request, response, auth)
 
-                val user = userDetails.getUser
-                val ip = request.getRemoteAddr
+                  val user = userDetails.getUser
+                  val ip = request.getRemoteAddr
 
-                val knownNetwork = userService.sameNetworkAsLastLogin(user, ip)
+                  val knownNetwork = userService.sameNetworkAsLastLogin(user, ip)
 
-                AuthUtil.updateLastLogin(auth, userService, ip)
+                  AuthUtil.updateLastLogin(auth, userService, ip)
 
-                if user.hasEmail && UserPermissionService.shouldNotifyLogin(user) && !knownNetwork then
-                  // Fire-and-forget: сбой SMTP-отправки никогда не влияет на процесс входа.
-                  Future:
-                    blocking:
-                      try
-                        emailService.sendLoginNotification(user, ip, tz)
-                      catch
-                        case NonFatal(e) =>
-                          logger.warn(s"Login notification email failed for ${user.nick} (ip=$ip): {}", e.toString)
+                  if user.hasEmail && UserPermissionService.shouldNotifyLogin(user) && !knownNetwork then
+                    // Fire-and-forget: сбой SMTP-отправки никогда не влияет на процесс входа.
+                    Future:
+                      blocking:
+                        try
+                          emailService.sendLoginNotification(user, ip, tz)
+                        catch
+                          case NonFatal(e) =>
+                            logger.warn(s"Login notification email failed for ${user.nick} (ip=$ip): {}", e.toString)
 
-                new ModelAndView(new RedirectView(safeRedirectUrl(form.redirectUrl)))
-            catch
-              case e: LockedException =>
-                logger.warn("Login of {} failed; remote IP: {}; {}", form.nick, request.getRemoteAddr, e.toString)
-                new ModelAndView(new RedirectView(s"/people/${form.nick}/profile"))
-              case e @ (_: AccountStatusException | _: BadCredentialsException | _: UsernameNotFoundException) =>
-                logger.warn("Login of {} failed; remote IP: {}; {}", form.nick, request.getRemoteAddr, e.toString)
-                loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, form.nick)
-                bindingResult.reject(
-                  "login.failed",
-                  "Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.")
-                // captcha is required after the first failed attempt (see LoginAttemptCache)
-                loginErrorView(form, bindingResult, requireCaptcha = true)
+                  new ModelAndView(new RedirectView(safeRedirectUrl(form.redirectUrl)))
+              catch
+                case e: LockedException =>
+                  logger.warn("Login of {} failed; remote IP: {}; {}", form.nick, request.getRemoteAddr, e.toString)
+                  new ModelAndView(new RedirectView(s"/people/${form.nick}/profile"))
+                case e @ (_: AccountStatusException | _: BadCredentialsException | _: UsernameNotFoundException) =>
+                  logger.warn("Login of {} failed; remote IP: {}; {}", form.nick, request.getRemoteAddr, e.toString)
+                  loginAttemptCache.recordFailedAttempt(request.getRemoteAddr, form.nick)
+                  bindingResult.reject(
+                    "login.failed",
+                    "Ошибка авторизации. Неправильное имя пользователя, e-mail или пароль.")
+                  // captcha is required after the first failed attempt (see LoginAttemptCache)
+                  loginErrorView(form, bindingResult, requireCaptcha = true)
+          finally
+            attempt.cancel()
     }
 
   @RequestMapping(value = Array("/logout"), method = Array(RequestMethod.POST))
@@ -217,8 +223,7 @@ object LoginController:
   // would otherwise become protocol-relative "//evil.com".
   private def isLocalRedirect(url: String): Boolean =
     url != null && url.nonEmpty && url.charAt(0) == '/' &&
-      (url.length == 1 || (url.charAt(1) != '/' && url.charAt(1) != '\\')) &&
-      !url.exists(c => c < ' ' || c == '\u007f')
+      (url.length == 1 || (url.charAt(1) != '/' && url.charAt(1) != '\\')) && !url.exists(c => c < ' ' || c == '\u007f')
 
   def delayResponse[T](scheduler: Scheduler)(resp: => T): CompletionStage[T] =
     val r = Try(resp)
