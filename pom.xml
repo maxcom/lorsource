@@ -16,6 +16,7 @@
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <dependency.spring.version>7.0.9</dependency.spring.version>
+    <micrometer.context-propagation.version>1.2.1</micrometer.context-propagation.version>
     <spring.security.version>7.0.7</spring.security.version>
     <jdbc.postgresql.version>42.7.13</jdbc.postgresql.version>
     <scala.version>3.9.0</scala.version>
@@ -151,6 +152,13 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
       <version>${dependency.spring.version}</version>
+    </dependency>
+    <!-- spring-core (PropagationContextElement) ссылается на io.micrometer.context.ContextSnapshot в байткоде,
+         не объявляя зависимости; компилятору Scala нужен артефакт на classpath для разбора class-файлов spring-core -->
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>context-propagation</artifactId>
+      <version>${micrometer.context-propagation.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
