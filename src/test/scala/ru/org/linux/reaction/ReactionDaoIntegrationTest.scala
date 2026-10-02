@@ -139,15 +139,50 @@ class ReactionDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     clearReactions()
     val user = mockUser(TestUserId)
 
-    val before = reactionDao.recentReactionCount(user)
+    val before = springDB.localTx {
+      reactionDao.recentReactionCount(user)
+    }
 
     val comment = mockComment(testCommentId, testTopicId)
     springDB.localTx {
       reactionDao.setCommentReaction(comment, user, "\uD83D\uDC4D", set = true)
     }
 
-    val after = reactionDao.recentReactionCount(user)
+    val after = springDB.localTx {
+      reactionDao.recentReactionCount(user)
+    }
     assertEquals(after, before + 1)
+
+  test("checkRateLimitAllowsBelowLimit"):
+    clearReactions()
+    val user = mockUser(TestUserId)
+
+    springDB.localTx {
+      reactionDao.checkRateLimit(user)
+    }
+
+  test("checkRateLimitThrowsWhenLimitReached"):
+    clearReactions()
+    val user = mockUser(TestUserId)
+
+    val targets = springDB.run:
+      sql"select id, topic from comments where not deleted order by id limit ${ReactionService.ReactionsLimit}"
+        .map(rs => (rs.int("id"), rs.int("topic")))
+        .list
+        .apply()
+    assume(targets.size >= ReactionService.ReactionsLimit, "not enough comments in test db")
+
+    springDB.run:
+      targets.foreach { case (commentId, topicId) =>
+        sql"""insert into reactions_log (origin_user, topic_id, comment_id, reaction)
+              values ($TestUserId, $topicId, $commentId, ${"\uD83D\uDC4D"})""".update.apply()
+      }
+
+    springDB.localTx {
+      intercept[ReactionRateLimitException] {
+        reactionDao.checkRateLimit(user)
+      }
+    }
 
   test("updateReactionOnConflict"):
     clearReactions()

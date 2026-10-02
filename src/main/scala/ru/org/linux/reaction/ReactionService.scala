@@ -93,6 +93,8 @@ case class PreparedReactionView(@BeanProperty item: ReactionsLogItem, @BeanPrope
 }
 
 object ReactionService {
+  val ReactionsLimit = 5 // per 10 minutes
+
   // beer: "\uD83C\uDF7A" (fix sort order)
   val DefinedReactions: Map[String, String] = Map(
     "\uD83D\uDC4D" -> "большой палец вверх",
@@ -167,6 +169,10 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
   def setCommentReaction(topic: Topic, comment: Comment, user: User, reaction: String,
                          set: Boolean): Int = {
     val r = springDB.localTx {
+      if (set) {
+        reactionDao.checkRateLimit(user)
+      }
+
       val newCount = reactionDao.setCommentReaction(comment, user, reaction, set)
 
       topicDao.updateLastmod(comment.topicId)
@@ -192,6 +198,10 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
 
   def setTopicReaction(topic: Topic, user: User, reaction: String, set: Boolean): Int = {
     val r = springDB.localTx {
+      if (set) {
+        reactionDao.checkRateLimit(user)
+      }
+
       val newCount = reactionDao.setTopicReaction(topic, user, reaction, set)
 
       topicDao.updateLastmod(topic.id)
@@ -237,3 +247,5 @@ class ReactionService(userService: UserService, reactionDao: ReactionDao, topicD
     }
   }
 }
+
+class ReactionRateLimitException extends RuntimeException

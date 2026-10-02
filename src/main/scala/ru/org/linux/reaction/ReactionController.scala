@@ -25,15 +25,10 @@ import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, MaybeAuthorized}
 import ru.org.linux.auth.{AccessViolationException, AuthorizedSession}
 import ru.org.linux.comment.{Comment, CommentDao, CommentPrepareService}
 import ru.org.linux.group.GroupService
-import ru.org.linux.reaction.ReactionController.ReactionsLimit
 import ru.org.linux.topic.{Topic, TopicDao, TopicPermissionService, TopicPrepareService}
 import ru.org.linux.user.{IgnoreListDao, UserService}
 
 import scala.jdk.CollectionConverters.*
-
-object ReactionController {
-  def ReactionsLimit = 5 // per 10 minutes
-}
 
 @Controller
 @RequestMapping(path = Array("/reactions"))
@@ -75,10 +70,6 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
     }
 
     val set = action == "true"
-
-    if (set && reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
-      throw new ReactionRateLimitException
-    }
 
     if (!ReactionService.AllowedReactions.contains(reaction)) {
       throw new AccessViolationException("unsupported reaction")
@@ -148,10 +139,6 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
     val set = action == "true"
 
-    if (set && reactionsDao.recentReactionCount(currentUser.user) >= ReactionsLimit) {
-      throw new ReactionRateLimitException
-    }
-
     if (!ReactionService.AllowedReactions.contains(reaction)) {
       throw new AccessViolationException("unsupported reaction")
     }
@@ -186,7 +173,3 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
     "errors/good-penguin",
     Map("msgHeader" -> "Попробуйте позже").asJava)
 }
-
-class ReactionRateLimitException extends RuntimeException
-
-

@@ -97,14 +97,23 @@ class ReactionDao(springDB: SpringDB):
     val r = sql"SELECT reactions FROM topics WHERE id=${topic.id}".map(rs => rs.string("reactions")).single.apply().get
     ReactionDao.parse(r).reactions.values.count(_ == reaction)
 
-  def recentReactionCount(origin: User): Int =
-    springDB.run:
-      sql"SELECT count(*) FROM reactions_log WHERE origin_user=${origin
-          .id} AND set_date > CURRENT_TIMESTAMP - '10 minutes'::interval"
-        .map(rs => rs.int(1))
-        .single
-        .apply()
-        .getOrElse(0)
+  def recentReactionCount(origin: User)(using Transaction): Int =
+    sql"""SELECT count(*) FROM reactions_log WHERE origin_user=${origin.id}
+          AND set_date > CURRENT_TIMESTAMP - '10 minutes'::interval"""
+      .map(rs => rs.int(1))
+      .single
+      .apply()
+      .getOrElse(0)
+
+  /** Атомарная проверка лимита реакций (check-then-act TOCTOU): транзакционный advisory-lock по пользователю
+    * сериализует конкурирующие запросы одного автора, и при READ COMMITTED последующий COUNT видит коммиты
+    * предыдущих владельцев блокировки. Блокировка освобождается автоматически при commit/rollback.
+    */
+  def checkRateLimit(origin: User)(using Transaction): Unit =
+    sql"SELECT pg_advisory_xact_lock(hashtext('reactions-rate-limit'), ${origin.id})".execute.apply()
+
+    if recentReactionCount(origin) >= ReactionService.ReactionsLimit then
+      throw new ReactionRateLimitException
 
   def getLogByTopic(topic: Topic): Seq[ReactionsLogItem] =
     springDB.run:

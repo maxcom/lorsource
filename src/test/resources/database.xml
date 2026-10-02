@@ -33,7 +33,11 @@
     <property name="password">
       <value>linuxweb</value>
     </property>
-    <property name="maximumPoolSize" value="1"/>
+    <!-- пул больше единицы нужен многопоточным интеграционным тестам (см. ReactionRateLimitConcurrencyIntegrationTest);
+         minimumIdle=1, чтобы кешируемые Spring-контексты не держали по 10 соединений (postgres по умолчанию
+         допускает max_connections=100); продакшен использует jdbc.poolSize=10 -->
+    <property name="minimumIdle" value="1"/>
+    <property name="maximumPoolSize" value="10"/>
   </bean>
 
   <bean id="datasource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
