@@ -77,7 +77,7 @@
       <li>Scala 3;</li>
       <li>Apache Tomcat 11.0;</li>
       <li>ActiveMQ 6.x;</li>
-      <li>Spring 6.x;</li>
+      <li>Spring 7.x;</li>
       <li>OpenSearch 3.x;</li>
       <li>Nginx 1.x.</li>
     </ul>
