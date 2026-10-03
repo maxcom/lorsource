@@ -28,12 +28,12 @@ import scalikejdbc.*
 import java.sql.Timestamp
 import java.time.LocalDate
 
-/** Интеграционные тесты окончательного удаления старых удалённых топиков и черновиков неактивных пользователей
+/** Интеграционные тесты окончательного удаления старых удалённых топиков и черновиков
   * ([[TopicDao.getDeletableDeletedTopicIds]], [[TopicDao.getDeletableDraftTopicIds]] и
   * [[TopicDao.purgeDeletedTopics]]).
   *
   * Даты вычисляются относительно текущей даты: пороги запросов — 3 года (дата удаления, заблокированные авторы) и 10
-  * лет (неактивные авторы), контрольные значения берутся с запасом от границ.
+  * лет (неактивные авторы и дата удаления), контрольные значения берутся с запасом от границ.
   */
 @ContextConfiguration(classes = Array(classOf[DeletedTopicPurgeIntegrationTestConfiguration]))
 class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSupport:
@@ -176,6 +176,92 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     assert(!ids.contains(ctrlWithComment), "topic with comment should not be a candidate")
     assert(!ids.contains(ctrlNotDeleted), "not deleted topic should not be a candidate")
     assert(!ids.contains(ctrlUnpurgedImage), "topic with unpurged image should not be a candidate")
+
+  test("getDeletableDeletedTopicIdsTenYearRule"):
+    val active = createUser("test-topic10-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))
+
+    def deletedTopic(userId: Int, title: String, deldate: Option[Timestamp]): Int =
+      val id = nextMsgId
+      insertTopic(id, userId, title)
+      markTopicDeleted(id, deldate, userId)
+      id
+
+    def deletedTopicNoDelInfo(userId: Int, title: String, lastmod: Timestamp): Int =
+      val id = nextMsgId
+      insertTopic(id, userId, title)
+      springDB.run:
+        sql"UPDATE topics SET deleted='t', lastmod=$lastmod WHERE id = $id".update.apply()
+      id
+
+    val candOldDeldate = deletedTopic(active, "10y cand deldate", Some(yearsAgo(11)))
+    val ctrlRecentDeldate = deletedTopic(active, "10y ctrl recent deldate", Some(yearsAgo(9)))
+    val candLastmodFallback = deletedTopicNoDelInfo(active, "10y cand lastmod fallback", yearsAgo(11))
+    val ctrlRecentLastmod = deletedTopicNoDelInfo(active, "10y ctrl recent lastmod", yearsAgo(9))
+
+    val ctrlWithComment = deletedTopic(active, "10y ctrl with comment", Some(yearsAgo(11)))
+    insertComment(nextMsgId, active, ctrlWithComment)
+
+    val ids = topicDao.getDeletableDeletedTopicIds
+
+    assert(ids.contains(candOldDeldate), "topic of active author deleted 11 years ago should be a candidate")
+    assert(!ids.contains(ctrlRecentDeldate), "topic deleted 9 years ago should not be a candidate")
+    assert(ids.contains(candLastmodFallback), "deleted topic without del_info should fall back to old lastmod")
+    assert(
+      !ids.contains(ctrlRecentLastmod),
+      "deleted topic without del_info and recent lastmod should not be a candidate")
+    assert(!ids.contains(ctrlWithComment), "topic with comment should not be a candidate")
+
+  test("purgeDeletedTopicsTenYearActiveAuthor"):
+    val active = createUser("test-topic10-purge-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))
+
+    val targetId = nextMsgId
+    insertTopic(targetId, active, "10y purge target")
+    markTopicDeleted(targetId, Some(yearsAgo(11)), active)
+
+    assert(
+      topicDao.getDeletableDeletedTopicIds.contains(targetId),
+      "10-year topic of active author should be a candidate")
+
+    val purged = topicDao.purgeDeletedTopics(Seq(targetId))
+
+    assertEquals(purged, 1)
+    assertEquals(countRows("topics", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+
+    intercept[MessageNotFoundException] {
+      topicDao.getById(targetId)
+    }
+
+  test("purgeTenYearTopicOfReturnedUser"):
+    val author = createUser("test-topic10-returned", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+
+    val topicId = nextMsgId
+    insertTopic(topicId, author, "10y topic of returned user")
+    markTopicDeleted(topicId, Some(yearsAgo(11)), author)
+
+    assert(topicDao.getDeletableDeletedTopicIds.contains(topicId))
+
+    springDB.run:
+      sql"UPDATE users SET lastlogin = CURRENT_TIMESTAMP WHERE id = $author".update.apply()
+
+    // 10-летнее правило не зависит от активности автора
+    assertEquals(topicDao.purgeDeletedTopics(Seq(topicId)), 1)
+    assertEquals(countRows("topics", "id", topicId), 0)
+
+  test("purgeSkipsDraftOfReturnedUserWithOldLastmod"):
+    val author = createUser("test-topic10-draft-returned", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
+
+    val topicId = insertDraft(author, "draft of returned user with old lastmod")
+
+    // 10-летнее правило не распространяется на черновики — только неактивность автора
+    springDB.run:
+      sql"UPDATE topics SET lastmod=${yearsAgo(11)} WHERE id = $topicId".update.apply()
+      sql"UPDATE users SET lastlogin = CURRENT_TIMESTAMP WHERE id = $author".update.apply()
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(topicId)), 0)
+    assertEquals(countRows("topics", "id", topicId), 1)
+    assertEquals(countRows("msgbase", "id", topicId), 1)
 
   test("purgeDeletedTopics"):
     val author = createUser("test-topic-purge-author", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))

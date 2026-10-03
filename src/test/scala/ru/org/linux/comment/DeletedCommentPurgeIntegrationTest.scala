@@ -31,7 +31,7 @@ import java.time.LocalDate
   * ([[CommentDao.getDeletableDeletedCommentIds]] и [[CommentDao.purgeDeletedComments]]).
   *
   * Даты вычисляются относительно текущей даты: пороги запросов — 3 года (дата удаления, заблокированные авторы, lastmod
-  * скрытых топиков) и 10 лет (неактивные авторы), контрольные значения берутся с запасом от границ.
+  * скрытых топиков) и 10 лет (неактивные авторы и дата удаления), контрольные значения берутся с запасом от границ.
   */
 @ContextConfiguration(classes = Array(classOf[DeletedCommentPurgeIntegrationTestConfiguration]))
 class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTestSupport:
@@ -329,6 +329,113 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
       "comment in recently modified hidden-comments topic should not be a candidate")
     assert(!ids.contains(ctrlNoPostscore), "comment in old topic without hidden comments should not be a candidate")
     assert(!ids.contains(ctrlHasReply), "comment with reply in hidden-comments topic should not be a candidate")
+
+  test("getDeletableCommentIdsTenYearRule"):
+    val active = createUser("test-purge10-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))
+
+    // собственная дата удаления комментария (живой топик)
+    val candOwnDeldate = nextMsgId
+    insertComment(candOwnDeldate, active, None, deleted = true, "10y cand own deldate")
+    insertDelInfo(candOwnDeldate, active, Some(yearsAgo(11)))
+
+    val ctrlRecentDeldate = nextMsgId
+    insertComment(ctrlRecentDeldate, active, None, deleted = true, "10y ctrl recent deldate")
+    insertDelInfo(ctrlRecentDeldate, active, Some(yearsAgo(9)))
+
+    // комментарии в удалённых топиках: дата удаления топика
+    val oldDeletedTopic = nextTopicId(topicId)
+    val recentDeletedTopic = nextTopicId(oldDeletedTopic)
+    val topicDateGovernsTopic = nextTopicId(recentDeletedTopic)
+    markTopicDeleted(oldDeletedTopic, Some(yearsAgo(11)), active)
+    markTopicDeleted(recentDeletedTopic, Some(yearsAgo(9)), active)
+    markTopicDeleted(topicDateGovernsTopic, Some(yearsAgo(9)), active)
+
+    val candDeletedTopic = nextMsgId
+    insertComment(candDeletedTopic, active, None, deleted = false, "10y cand deleted topic", oldDeletedTopic)
+
+    val ctrlRecentDeletedTopic = nextMsgId
+    insertComment(ctrlRecentDeletedTopic, active, None, deleted = false, "10y ctrl recent deleted topic", recentDeletedTopic)
+
+    // собственная дата удаления комментария старше 10 лет, но топик удалён недавно — дата топика главнее
+    val ctrlTopicDateGoverns = nextMsgId
+    insertComment(ctrlTopicDateGoverns, active, None, deleted = true, "10y ctrl topic date governs", topicDateGovernsTopic)
+    insertDelInfo(ctrlTopicDateGoverns, active, Some(yearsAgo(12)))
+
+    // без записи del_info датой удаления считается lastmod топика (обновляется триггером comins, задаём после вставки)
+    val oldLastmodTopic = nextTopicId(topicDateGovernsTopic)
+    val recentLastmodTopic = nextTopicId(oldLastmodTopic)
+    val candLastmodFallback = nextMsgId
+    insertComment(candLastmodFallback, active, None, deleted = true, "10y cand lastmod fallback", oldLastmodTopic)
+
+    val ctrlRecentLastmod = nextMsgId
+    insertComment(ctrlRecentLastmod, active, None, deleted = true, "10y ctrl recent lastmod", recentLastmodTopic)
+
+    // топики со скрытыми комментариями
+    val hiddenOldTopic = nextTopicId(recentLastmodTopic)
+    val hiddenRecentTopic = nextTopicId(hiddenOldTopic)
+    val candHidden = nextMsgId
+    insertComment(candHidden, active, None, deleted = false, "10y cand hidden", hiddenOldTopic)
+
+    val ctrlHiddenRecent = nextMsgId
+    insertComment(ctrlHiddenRecent, active, None, deleted = false, "10y ctrl hidden recent", hiddenRecentTopic)
+
+    // есть ответ — не кандидат
+    val ctrlHasReply = nextMsgId
+    insertComment(ctrlHasReply, active, None, deleted = true, "10y ctrl has reply")
+    insertDelInfo(ctrlHasReply, active, Some(yearsAgo(11)))
+    insertComment(nextMsgId, active, Some(ctrlHasReply), deleted = false, "10y reply")
+
+    springDB.run:
+      sql"UPDATE topics SET lastmod=${yearsAgo(11)} WHERE id = $oldLastmodTopic".update.apply()
+      sql"UPDATE topics SET lastmod=${yearsAgo(9)} WHERE id = $recentLastmodTopic".update.apply()
+      hideTopicComments(hiddenOldTopic, yearsAgo(11))
+      hideTopicComments(hiddenRecentTopic, yearsAgo(9))
+
+    val ids = commentDao.getDeletableDeletedCommentIds
+
+    assert(ids.contains(candOwnDeldate), "comment of active author deleted 11 years ago should be a candidate")
+    assert(!ids.contains(ctrlRecentDeldate), "comment deleted 9 years ago should not be a candidate")
+    assert(
+      ids.contains(candDeletedTopic),
+      "comment of active author in topic deleted 11 years ago should be a candidate")
+    assert(
+      !ids.contains(ctrlRecentDeletedTopic),
+      "comment in topic deleted 9 years ago should not be a candidate")
+    assert(
+      !ids.contains(ctrlTopicDateGoverns),
+      "deletion date of the deleted topic should govern over own comment deletion date")
+    assert(
+      ids.contains(candLastmodFallback),
+      "deleted comment without del_info should fall back to old topic lastmod")
+    assert(
+      !ids.contains(ctrlRecentLastmod),
+      "deleted comment without del_info in recently modified topic should not be a candidate")
+    assert(
+      ids.contains(candHidden),
+      "comment of active author in hidden-comments topic modified 11 years ago should be a candidate")
+    assert(
+      !ids.contains(ctrlHiddenRecent),
+      "comment in recently modified hidden-comments topic should not be a candidate")
+    assert(!ids.contains(ctrlHasReply), "comment with reply should not be a candidate")
+
+  test("purgeDeletedCommentsTenYearActiveAuthor"):
+    val active = createUser("test-purge10-purge-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))
+
+    val targetId = nextMsgId
+    insertComment(targetId, active, None, deleted = true, "10y purge target")
+    insertDelInfo(targetId, active, Some(yearsAgo(11)))
+
+    val controlId = nextMsgId
+    insertComment(controlId, active, None, deleted = true, "10y purge control")
+    insertDelInfo(controlId, active, Some(yearsAgo(9)))
+
+    val purged = commentDao.purgeDeletedComments(Seq(targetId))
+
+    assertEquals(purged, 1)
+    assertEquals(countRows("comments", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("comments", "id", controlId), 1)
 
   test("purgeDeletedComments"):
     val author = createUser("test-purge-author", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))

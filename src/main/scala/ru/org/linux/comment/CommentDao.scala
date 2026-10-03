@@ -227,18 +227,22 @@ class CommentDao(springDB: SpringDB):
             WHERE comments.userid=$userId AND (comments.deleted OR topics.deleted))"""
         .map(rs => rs.boolean(1)).single.apply().getOrElse(false)
 
-  /** Старые удалённые комментарии неактивных пользователей, подлежащие окончательному удалению.
+  /** Удалённые комментарии, подлежащие окончательному удалению.
     *
-    * Комментарий является кандидатом, если:
-    *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет либо без даты
-    *     (`deldate IS NULL` — удаления до начала ведения даты, только сообщения до 2010 года, т.е. заведомо старше
-    *     порога), либо находится в топике, удалённом более 3 лет назад или с `deldate IS NULL` (удаление топика не
-    *     помечает его комментарии как удалённые), либо находится в топике со скрытыми комментариями
-    *     (`postscore = POSTSCORE_HIDE_COMMENTS`) и `lastmod` топика старше 3 лет;
-    *   - не имеет ответов (включая сами удалённые);
-    *   - его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет назад),
-    *     либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч.
-    *     anonymous).
+    * Комментарий является кандидатом при выполнении любого из правил:
+    *   - '''неактивный автор''': комментарий помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой
+    *     удаления старше 3 лет либо без даты (`deldate IS NULL` — удаления до начала ведения даты, только сообщения
+    *     до 2010 года, т.е. заведомо старше порога), либо находится в топике, удалённом более 3 лет назад или с
+    *     `deldate IS NULL` (удаление топика не помечает его комментарии как удалённые), либо находится в топике со
+    *     скрытыми комментариями (`postscore = POSTSCORE_HIDE_COMMENTS`) и `lastmod` топика старше 3 лет; не имеет
+    *     ответов (включая сами удалённые); его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` —
+    *     зарегистрирован более 10 лет назад), либо заблокирован и не заходил более 3 лет, либо не имеет дат
+    *     регистрации и последнего входа (в т.ч. anonymous);
+    *   - '''10 лет с момента удаления''' (любой автор, включая активных): комментарий удалён любым из перечисленных
+    *     способов (`deleted`, нахождение в удалённом топике или топике со скрытыми комментариями) и дата его удаления
+    *     старше 10 лет. Для комментария в удалённом топике датой удаления считается дата удаления топика, для прочих —
+    *     собственная дата удаления комментария; при отсутствии записи `del_info` или даты в ней датой удаления
+    *     считается `lastmod` топика.
     *
     * Комментарии, подходящие по нескольким критериям удаления, попадают в результат один раз (`UNION`). Комментарии с
     * удалёнными ответами вычищаются постепенно: сначала листья цепочки, затем их родители.
@@ -274,6 +278,17 @@ class CommentDao(springDB: SpringDB):
             AND topics.lastmod < CURRENT_TIMESTAMP - interval '3 years'
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
             AND ${AuthorInactivityCondition}
+            UNION
+            SELECT comments.id
+            FROM comments
+            JOIN topics ON topics.id = comments.topic
+            LEFT JOIN del_info comdel ON comdel.msgid = comments.id
+            LEFT JOIN del_info topdel ON topdel.msgid = topics.id
+            WHERE (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
+            AND (CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
+                      ELSE COALESCE(comdel.deldate, topics.lastmod) END
+                 < CURRENT_TIMESTAMP - interval '10 years')
+            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
             ORDER BY id""".map(rs => rs.int("id")).list.apply())
 
   /** Окончательно удаляет комментарии со всеми зависимыми записями (в одной транзакции).

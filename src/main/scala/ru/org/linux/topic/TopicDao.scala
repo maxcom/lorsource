@@ -329,19 +329,21 @@ class TopicDao(springDB: SpringDB):
 
   def recalcAllWarningsCountInTx(): Unit = springDB.localTx(recalcAllWarningsCount())
 
-  /** Старые удалённые топики без комментариев неактивных пользователей, подлежащие окончательному удалению.
+  /** Удалённые топики без комментариев, подлежащие окончательному удалению.
     *
-    * Топик является кандидатом, если:
-    *   - помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше 3 лет либо без даты
-    *     (`deldate IS NULL` — удаления до начала ведения даты, только сообщения до 2010 года, т.е. заведомо старше
-    *     порога);
-    *   - не имеет комментариев (включая удалённые — их строки постепенно вычищает
-    *     [[ru.org.linux.comment.DeletedCommentCleaner]], после чего топик станет кандидатом);
-    *   - не имеет непрочищенных картинок (`images.purged = false` — файлы ещё не удалены
-    *     [[ru.org.linux.gallery.OldImageCleaner]]);
-    *   - его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет назад),
-    *     либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч.
-    *     anonymous).
+    * Топик является кандидатом при выполнении любого из правил:
+    *   - '''неактивный автор''': помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше
+    *     3 лет либо без даты (`deldate IS NULL` — удаления до начала ведения даты, только сообщения до 2010 года,
+    *     т.е. заведомо старше порога); его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` —
+    *     зарегистрирован более 10 лет назад), либо заблокирован и не заходил более 3 лет, либо не имеет дат
+    *     регистрации и последнего входа (в т.ч. anonymous);
+    *   - '''10 лет с момента удаления''' (любой автор, включая активных): датой удаления считается
+    *     `COALESCE(del_info.deldate, topics.lastmod)` — при отсутствии записи `del_info` или даты в ней берётся
+    *     `lastmod` топика.
+    *
+    * Для обоих правил: топик не имеет комментариев (включая удалённые — их строки постепенно вычищает
+    * [[ru.org.linux.comment.DeletedCommentCleaner]], после чего топик станет кандидатом) и непрочищенных картинок
+    * (`images.purged = false` — файлы ещё не удалены [[ru.org.linux.gallery.OldImageCleaner]]).
     *
     * @return
     *   список идентификаторов кандидатов, упорядоченный по возрастанию id
@@ -357,7 +359,15 @@ class TopicDao(springDB: SpringDB):
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
             AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
             AND ${AuthorInactivityCondition}
-            ORDER BY topics.id""".map(rs => rs.int("id")).list.apply()
+            UNION
+            SELECT topics.id
+            FROM topics
+            LEFT JOIN del_info ON del_info.msgid = topics.id
+            WHERE topics.deleted
+            AND COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '10 years'
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
+            AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
+            ORDER BY id""".map(rs => rs.int("id")).list.apply()
 
   /** Черновики неактивных пользователей, подлежащие окончательному удалению.
     *
@@ -406,8 +416,10 @@ class TopicDao(springDB: SpringDB):
     * транзакции); топики,
     * восстановленные (или, для черновиков, опубликованные) к этому моменту, получившие комментарии, имеющие
     * непрочищенные картинки, а также топики, чей автор перестал удовлетворять критериям неактивности (например, вернулся
-    * на сайт) между выборкой кандидатов и purge, пропускаются. Счётчики непрочитанных уведомлений затронутых
-    * пользователей пересчитываются.
+    * на сайт) между выборкой кандидатов и purge, пропускаются. Исключение — удалённые топики, проходящие по правилу
+    * «10 лет с момента удаления» ([[getDeletableDeletedTopicIds]]): они удаляются независимо от активности автора;
+    * черновики и прочие удалённые топики по-прежнему требуют неактивности автора. Счётчики непрочитанных уведомлений
+    * затронутых пользователей пересчитываются.
     *
     * @param ids
     *   идентификаторы окончательно удаляемых топиков
@@ -422,12 +434,19 @@ class TopicDao(springDB: SpringDB):
         val locked =
           sql"""SELECT topics.id FROM topics
                 JOIN users ON users.id = topics.userid
+                LEFT JOIN del_info ON del_info.msgid = topics.id
                 WHERE topics.id IN ($ids)
                 AND (topics.deleted OR topics.draft)
                 AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
                 AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
-                AND ${AuthorInactivityCondition}
-                ORDER BY topics.id FOR UPDATE""".map(rs => rs.int("id")).list.apply()
+                AND (
+                  (topics.draft AND ${AuthorInactivityCondition})
+                  OR (topics.deleted AND (
+                    ${AuthorInactivityCondition}
+                    OR COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '10 years'
+                  ))
+                )
+                ORDER BY topics.id FOR UPDATE OF topics, users""".map(rs => rs.int("id")).list.apply()
 
         if locked.isEmpty then
           0
