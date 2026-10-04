@@ -51,6 +51,7 @@ object RealtimeEventHub {
   case class NewComment(msgid: Int, cid: Int) extends Protocol
   case class NewCommentOnly(cid: Int) extends SessionProtocol
   case class RefreshEvents(users: Set[Int]) extends SessionProtocol with Protocol
+  case class CloseUserSessions(user: Int) extends Protocol
   private[realtime] case object Tick extends SessionProtocol with Protocol
 
   private[realtime] case class SessionStarted(session: WebSocketSession, user: Option[Int], replyTo: ActorRef[Done.type]) extends Protocol
@@ -70,6 +71,9 @@ object RealtimeEventHub {
 
   def notifyEvents(realtimeEventHub: ActorRef[RefreshEvents], users: Set[Int]): Unit =
     realtimeEventHub ! RefreshEvents(users)
+
+  def closeUserSessions(realtimeEventHub: ActorRef[Protocol], userId: Int): Unit =
+    realtimeEventHub ! CloseUserSessions(userId)
 
   def behavior(ignoreListDao: IgnoreListDao): Behavior[Protocol] = Behaviors.setup { context =>
     val topicSubscriptions: mutable.MultiDict[Int, ActorRef[SessionProtocol]] = mutable.MultiDict[Int, ActorRef[SessionProtocol]]()
@@ -136,6 +140,14 @@ object RealtimeEventHub {
             userSubscriptions.sets.getOrElse(user, Set.empty).foreach {
               _ ! msg
             }
+          }
+
+          Behaviors.same
+        case CloseUserSessions(user) =>
+          context.log.debug(s"Closing websocket sessions of user $user")
+
+          userSubscriptions.sets.getOrElse(user, Set.empty).foreach {
+            _ ! TerminateSession
           }
 
           Behaviors.same

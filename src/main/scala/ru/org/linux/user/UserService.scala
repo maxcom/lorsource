@@ -17,11 +17,14 @@ package ru.org.linux.user
 import com.github.benmanes.caffeine.cache.{Caffeine, LoadingCache}
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.mail.internet.InternetAddress
+import org.apache.pekko.actor.typed.ActorRef
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.msgbase.UserAgentDao
-import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.realtime.RealtimeEventHub
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.site.DefaultProfile
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.UserService.*
@@ -54,8 +57,9 @@ object UserService {
 
 @Service
 class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: IgnoreListDao,
-                   userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
-                   profileDao: ProfileDao, springDB: SpringDB, passwordEncoder: PasswordEncoder)
+                  userInvitesDao: UserInvitesDao, userLogDao: UserLogDao, userAgentDao: UserAgentDao,
+                  profileDao: ProfileDao, springDB: SpringDB, passwordEncoder: PasswordEncoder,
+                  @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol])
     extends StrictLogging {
   private val nameToIdCache: LoadingCache[String, Int] =
     Caffeine.newBuilder().maximumSize(UserService.NameCacheSize).build(
@@ -320,7 +324,7 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
 
       if (userDao.updateUserInfo(user.id, info, infoMarkup)) changed += "info" -> info
 
-      updateEmailPasswd(user, newEmail, password, ip)
+      updateEmailPasswdTx(user, newEmail, password, ip)
 
       if (changed.nonEmpty) {
         userLogDao.logSetUserInfo(user, changed.asJava)
@@ -328,21 +332,31 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     idToUserCache.invalidate(user.id)
+
+    if password.isDefined then
+      RealtimeEventHub.closeUserSessions(realtimeHubWS, user.id)
   }
 
   def updateEmailPasswd(user: User, newEmail: Option[String], password: Option[String],
                         ip: String): Unit = {
     springDB.localTx {
-      password.foreach { password =>
-        userDao.setPassword(user, passwordEncoder.encode(password))
-        userLogDao.logSetPassword(user, ip)
-      }
-
-      newEmail.foreach(userDao.setNewEmail(user, _))
+      updateEmailPasswdTx(user, newEmail, password, ip)
     }
 
     idToUserCache.invalidate(user.id)
+
+    if password.isDefined then
+      RealtimeEventHub.closeUserSessions(realtimeHubWS, user.id)
   }
+
+  private def updateEmailPasswdTx(user: User, newEmail: Option[String], password: Option[String],
+                                  ip: String)(using Transaction): Unit =
+    password.foreach { password =>
+      userDao.setPassword(user, passwordEncoder.encode(password))
+      userLogDao.logSetPassword(user, ip)
+    }
+
+    newEmail.foreach(userDao.setNewEmail(user, _))
 
   def isBlockable(user: User, by: User): Boolean =
     !user.anonymous && by.isModerator && (!user.isModerator || by.isAdministrator)
@@ -366,6 +380,8 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     idToUserCache.invalidate(user.id)
+
+    RealtimeEventHub.closeUserSessions(realtimeHubWS, user.id)
   }
 
   def getProfile(user: User): Profile = {
@@ -415,6 +431,18 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     }
 
     idToUserCache.invalidate(user.id)
+
+    RealtimeEventHub.closeUserSessions(realtimeHubWS, user.id)
+  }
+
+  def blockLowScoreUsers(): Seq[Int] = {
+    val blocked = userDao.blockLowScoreUsers()
+
+    blocked.foreach { userId =>
+      RealtimeEventHub.closeUserSessions(realtimeHubWS, userId)
+    }
+
+    blocked
   }
 
   def invalidateCache(user: User): Unit = {
@@ -456,18 +484,28 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     idToUserCache.invalidate(user.id)
   }
 
-  def resetPassword(user: User): String = springDB.localTx {
-    val newPassword = StringUtil.generatePassword
+  def resetPassword(user: User): String = {
+    val newPassword = springDB.localTx {
+      val newPassword = StringUtil.generatePassword
 
-    userDao.setPassword(user, passwordEncoder.encode(newPassword))
-    userLogDao.logResetPassword(user, user)
+      userDao.setPassword(user, passwordEncoder.encode(newPassword))
+      userLogDao.logResetPassword(user, user)
+
+      newPassword
+    }
+
+    RealtimeEventHub.closeUserSessions(realtimeHubWS, user.id)
 
     newPassword
   }
 
-  def resetPassword(user: User, moderator: User): Unit = springDB.localTx {
-    userDao.setPassword(user, passwordEncoder.encode(StringUtil.generatePassword))
-    userLogDao.logResetPassword(user, moderator)
+  def resetPassword(user: User, moderator: User): Unit = {
+    springDB.localTx {
+      userDao.setPassword(user, passwordEncoder.encode(StringUtil.generatePassword))
+      userLogDao.logResetPassword(user, moderator)
+    }
+
+    RealtimeEventHub.closeUserSessions(realtimeHubWS, user.id)
   }
 
   def activateUser(user: User): Unit = {

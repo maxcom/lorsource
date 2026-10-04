@@ -20,15 +20,20 @@ import org.springframework.stereotype.Component
 import ru.org.linux.scalikejdbc.SpringDB
 
 @Component
-class ScoreUpdater(userDao: UserDao, springDB: SpringDB) extends StrictLogging:
+class ScoreUpdater(userDao: UserDao, userService: UserService, springDB: SpringDB) extends StrictLogging:
 
   @Scheduled(cron = "1 0 1 */2 * *")
   def updateScore(): Unit =
     logger.info("Updating score")
-    springDB.localTx { userDao.updateScore() }
+    springDB.localTx {
+      userDao.updateScore()
+    }
 
   @Scheduled(cron = "1 15 * * * *")
-  def updateMaxScore(): Unit = springDB.localTx { userDao.updateMaxScore() }
+  def updateMaxScore(): Unit =
+    springDB.localTx {
+      userDao.updateMaxScore()
+    }
 
   @Scheduled(cron = "0 1 * * * *")
-  def blockLowScoreUsers(): Unit = userDao.blockLowScoreUsers()
+  def blockLowScoreUsers(): Unit = userService.blockLowScoreUsers()

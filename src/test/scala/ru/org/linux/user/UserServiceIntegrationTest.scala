@@ -15,8 +15,13 @@
 package ru.org.linux.user
 
 import munit.FunSuite
-import org.springframework.beans.factory.annotation.Autowired
+import org.apache.pekko.actor.typed.ActorRef
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{clearInvocations, never, verify}
+import org.springframework.beans.factory.annotation.{Autowired, Qualifier}
 import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
+import ru.org.linux.markup.MarkupType
+import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.test.TransactionalTestSupport
 import scalikejdbc.*
@@ -35,10 +40,15 @@ class UserServiceIntegrationTest extends FunSuite with TransactionalTestSupport:
   @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
 
+  // мок общий для всех тест-классов с этим контекстом (кеш Spring), поэтому взаимодействия сбрасываются
+  @Autowired @Qualifier("realtimeHubWS")
+  var realtimeHubWS: ActorRef[RealtimeEventHub.Protocol] = scala.compiletime.uninitialized
+
   override def beforeEach(context: BeforeEach): Unit =
     super.beforeEach(context)
     fixUser()
     clearCache()
+    clearInvocations(realtimeHubWS)
 
   override def afterEach(context: AfterEach): Unit =
     fixUser()
@@ -84,5 +94,48 @@ class UserServiceIntegrationTest extends FunSuite with TransactionalTestSupport:
     userService.block(user, user, "")
     val userAfter = userService.getUserCached(UserServiceIntegrationTest.TestId)
     assert(userAfter.blocked)
+
+  test("blockLowScoreUsers returns ids of blocked users"):
+    springDB.run:
+      sql"UPDATE users SET score=-100, max_score=0 WHERE id=${UserServiceIntegrationTest.TestId}".update.apply()
+
+    val blocked = userService.blockLowScoreUsers()
+
+    assert(blocked.contains(UserServiceIntegrationTest.TestId))
+
+  test("resetPassword closes user websocket sessions"):
+    val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
+
+    val newPassword = userService.resetPassword(user)
+
+    assert(newPassword.nonEmpty)
+    verify(realtimeHubWS).tell(RealtimeEventHub.CloseUserSessions(UserServiceIntegrationTest.TestId))
+
+  test("moderator resetPassword closes user websocket sessions"):
+    val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
+    val moderator = userService.getUserCached(UserServiceIntegrationTest.TestId)
+
+    userService.resetPassword(user, moderator)
+
+    verify(realtimeHubWS).tell(RealtimeEventHub.CloseUserSessions(UserServiceIntegrationTest.TestId))
+
+  test("updateEmailPasswd closes sessions only on password change"):
+    val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
+
+    userService.updateEmailPasswd(user, newEmail = None, password = None, ip = "127.0.0.1")
+    verify(realtimeHubWS, never()).tell(any[RealtimeEventHub.Protocol])
+
+    userService.updateEmailPasswd(user, newEmail = None, password = Some("newpasswd"), ip = "127.0.0.1")
+    verify(realtimeHubWS).tell(RealtimeEventHub.CloseUserSessions(UserServiceIntegrationTest.TestId))
+
+  test("updateUser closes sessions only on password change"):
+    val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
+
+    userService.updateUser(user, user.nick, "", None, "", None, "", MarkupType.Lorcode, "127.0.0.1")
+    verify(realtimeHubWS, never()).tell(any[RealtimeEventHub.Protocol])
+
+    userService.updateUser(user, user.nick, "", None, "", Some("newpasswd"), "", MarkupType.Lorcode,
+      "127.0.0.1")
+    verify(realtimeHubWS).tell(RealtimeEventHub.CloseUserSessions(UserServiceIntegrationTest.TestId))
 
 end UserServiceIntegrationTest

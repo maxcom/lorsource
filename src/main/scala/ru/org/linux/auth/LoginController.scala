@@ -17,6 +17,8 @@ package ru.org.linux.auth
 import com.typesafe.scalalogging.StrictLogging
 import jakarta.servlet.http.{Cookie, HttpServletRequest, HttpServletResponse}
 import org.apache.pekko.actor.Scheduler
+import org.apache.pekko.actor.typed.ActorRef
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.security.authentication.*
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.{UserDetailsService, UsernameNotFoundException}
@@ -31,6 +33,7 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.auth.LoginController.delayResponse
 import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.email.EmailService
+import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.user.{UserDao, UserPermissionService, UserService}
 
 import java.time.ZoneId
@@ -53,7 +56,8 @@ class LoginController(
     loginAttemptCache: LoginAttemptCache,
     authenticationManager: AuthenticationManager,
     scheduler: Scheduler,
-    emailService: EmailService)
+    emailService: EmailService,
+    @Qualifier("realtimeHubWS") realtimeHubWS: ActorRef[RealtimeEventHub.Protocol])
     extends StrictLogging:
 
   @RequestMapping(value = Array("/login_process"), method = Array(RequestMethod.POST))
@@ -135,12 +139,19 @@ class LoginController(
   @RequestMapping(value = Array("/logout"), method = Array(RequestMethod.POST))
   def logout(request: HttpServletRequest, response: HttpServletResponse): ModelAndView =
     val auth = SecurityContextHolder.getContext.getAuthentication
+
+    val userId = Option(auth).flatMap(a => Option(a.getPrincipal)).collect {
+      case user: UserDetailsImpl => user.getUser.id
+    }
+
     if auth != null then
       new SecurityContextLogoutHandler().logout(request, response, auth)
 
     clearCookie(response, "remember_me")
     clearCookie(response, "JSESSIONID")
     clearCookie(response, CSRFProtectionService.CSRF_COOKIE)
+
+    userId.foreach(RealtimeEventHub.closeUserSessions(realtimeHubWS, _))
 
     new ModelAndView(new RedirectView("/login.jsp"))
 

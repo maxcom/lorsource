@@ -15,12 +15,14 @@
 
 package ru.org.linux.user
 
+import org.apache.pekko.actor.typed.ActorRef
 import org.mockito.Mockito.mock
 import org.springframework.context.annotation.{Bean, Configuration}
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.transaction.PlatformTransactionManager
 import ru.org.linux.auth.PasswordEncoderImpl
 import ru.org.linux.msgbase.UserAgentDao
+import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.spring.SiteConfig
 
@@ -46,7 +48,8 @@ class SimpleIntegrationTestConfiguration:
       userDao: UserDao,
       userLogDao: UserLogDao,
       springDB: SpringDB,
-      passwordEncoder: PasswordEncoder): UserService =
+      passwordEncoder: PasswordEncoder,
+      realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]): UserService =
     UserService(
       siteConfig = mock(classOf[SiteConfig]),
       userDao = userDao,
@@ -56,8 +59,13 @@ class SimpleIntegrationTestConfiguration:
       userAgentDao = mock(classOf[UserAgentDao]),
       profileDao = mock(classOf[ProfileDao]),
       springDB = springDB,
-      passwordEncoder = passwordEncoder
+      passwordEncoder = passwordEncoder,
+      realtimeHubWS = realtimeHubWS
     )
+
+  @Bean(Array("realtimeHubWS"))
+  def realtimeHub: ActorRef[RealtimeEventHub.Protocol] =
+    mock(classOf[ActorRef[RealtimeEventHub.Protocol]])
 
   @Bean
   def userLogDao: UserLogDao = mock(classOf[UserLogDao])

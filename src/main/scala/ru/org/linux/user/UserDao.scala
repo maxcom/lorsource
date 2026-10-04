@@ -401,10 +401,12 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
   def updateMaxScore()(using Transaction): Unit =
     sql"update users set max_score=score where score>max_score".update.apply()
 
-  def blockLowScoreUsers(): Unit =
+  def blockLowScoreUsers(): Seq[Int] =
     springDB.run(
-      sql"update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and not blocked)"
-        .update
+      sql"""update users set blocked='t' where id in (select id from users
+            where score<-50 and nick!='anonymous' and max_score<150 and not blocked) returning id"""
+        .map(rs => rs.int("id"))
+        .list
         .apply())
 
   /** Удаляет неотактивированные аккаунты вместе с их персональными данными (через [[deleteUsersBatchTx]]):

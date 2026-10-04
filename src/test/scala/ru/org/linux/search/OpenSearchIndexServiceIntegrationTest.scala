@@ -15,9 +15,11 @@
 package ru.org.linux.search
 
 import org.apache.hc.core5.http.HttpHost
+import org.apache.pekko.actor.typed.ActorRef
 import org.mockito.Mockito
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch.OpenSearchClient
+import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.util.LorURI
 import org.opensearch.client.opensearch.core.GetRequest
 import org.opensearch.client.opensearch.indices.ExistsRequest
@@ -138,4 +140,9 @@ class SearchIntegrationTestConfiguration {
 
   @Bean
   def floodProtector: FloodProtector = Mockito.mock(classOf[FloodProtector])
+
+  @Bean(Array("realtimeHubWS"))
+  def realtimeHub: ActorRef[RealtimeEventHub.Protocol] = {
+    Mockito.mock(classOf[ActorRef[RealtimeEventHub.Protocol]])
+  }
 }

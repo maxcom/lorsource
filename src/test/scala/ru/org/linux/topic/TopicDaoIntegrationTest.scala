@@ -16,6 +16,7 @@
 package ru.org.linux.topic
 
 import munit.FunSuite
+import org.apache.pekko.actor.typed.ActorRef
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration, ImportResource}
@@ -28,6 +29,7 @@ import ru.org.linux.group.{GroupDao, GroupService}
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.PollDao
+import ru.org.linux.realtime.RealtimeEventHub
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.spring.SiteConfig
@@ -118,7 +120,8 @@ class TopicDaoIntegrationTestConfiguration:
       userAgentDao: UserAgentDao,
       springDB: SpringDB,
       profileDao: ProfileDao,
-      passwordEncoder: PasswordEncoder) =
+      passwordEncoder: PasswordEncoder,
+      realtimeHubWS: ActorRef[RealtimeEventHub.Protocol]) =
     new UserService(
       siteConfig = siteConfig,
       userDao = userDao,
@@ -128,8 +131,13 @@ class TopicDaoIntegrationTestConfiguration:
       userAgentDao = userAgentDao,
       profileDao = profileDao,
       springDB = springDB,
-      passwordEncoder = passwordEncoder
+      passwordEncoder = passwordEncoder,
+      realtimeHubWS = realtimeHubWS
     )
+
+  @Bean(Array("realtimeHubWS"))
+  def realtimeHub: ActorRef[RealtimeEventHub.Protocol] =
+    Mockito.mock(classOf[ActorRef[RealtimeEventHub.Protocol]])
 
   @Bean
   def userLogDao = Mockito.mock(classOf[UserLogDao])
