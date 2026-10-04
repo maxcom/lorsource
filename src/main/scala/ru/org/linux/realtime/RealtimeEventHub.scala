@@ -265,11 +265,11 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef[Protoco
 
       val last = maybeComment.getOrElse(0)
 
-      val comments = if (!topic.isCommentsHidden) {
-        commentService.getCommentList(topic, showDeleted = false).comments
-      } else {
-        Seq.empty
-      }
+      val comments =
+        if !topic.isCommentsHidden && !topic.deleted then
+            commentService.getCommentList(topic, showDeleted = false).comments
+        else
+          Seq.empty
 
       val missed = comments.map(_.id).dropWhile(_ <= last).toVector
 
