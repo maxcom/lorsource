@@ -1,6 +1,6 @@
 [Unit]
 Description=Apache Tomcat Web Application Container
-After=syslog.target network.target
+After=syslog.target network.target postgresql-16.service
 
 [Service]
 Type=simple
