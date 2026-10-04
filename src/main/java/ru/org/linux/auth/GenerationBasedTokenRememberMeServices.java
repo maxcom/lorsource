@@ -15,8 +15,12 @@
 
 package ru.org.linux.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import ru.org.linux.user.UserDao;
 
@@ -30,6 +34,17 @@ public class GenerationBasedTokenRememberMeServices extends TokenBasedRememberMe
     super(key, userDetailsService);
 
     this.userDao = userDao;
+  }
+
+  @Override
+  protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
+                                               HttpServletResponse response) {
+    if (cookieTokens.length != 4 || !RememberMeTokenAlgorithm.SHA256.name().equals(cookieTokens[2])) {
+      throw new InvalidCookieException("Cookie token did not contain a SHA-256 signature (token count: "
+          + cookieTokens.length + ")");
+    }
+
+    return super.processAutoLoginCookie(cookieTokens, request, response);
   }
 
   @Override
