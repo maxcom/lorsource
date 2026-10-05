@@ -2,7 +2,7 @@
 <%@ page import="org.slf4j.Logger" %>
 <%@ page import="org.slf4j.LoggerFactory" %>
 <%@ page import="ru.org.linux.auth.AuthUtil" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ page contentType="text/html; charset=utf-8" isErrorPage="true" %>
 <%--
   ~ Copyright 1998-2026 Linux.org.ru
@@ -28,7 +28,7 @@
     exception = (Throwable) request.getAttribute("exception");
   }
 
-  String message = exception==null ? "":(exception.getMessage()==null?"Доступ запрещен":exception.getMessage());
+  String message = exception==null ? "Доступ запрещен":(exception.getMessage()==null?"Доступ запрещен":exception.getMessage());
 
   logger.debug("Forbidden. {}: {} ({})", request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI),
           message, AuthUtil.getNick());
@@ -42,7 +42,7 @@
     <div id="warning-logo"><img src="/img/good-penguin.png" alt="good-penguin" /></div>
     <div id="warning-text">
         <h1>403 Forbidden</h1>
-        <p><c:out value="${message}" escapeXml="true"/>.</p>
+        <p><%= StringUtil.escapeHtml(message) %>.</p>
     </div>
 </div>
 <div id="warning-footer"></div>

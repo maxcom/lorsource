@@ -64,5 +64,6 @@ class ResolveControllerWebTest extends FunSuite with WebHelper:
         .send(backend)
 
       assertEquals(response.code, StatusCode.Forbidden)
+      assert(response.body.merge.contains("CSRF"), s"CSRF error message expected, got: ${response.body.merge}")
     finally
       deleteTopic(auth, topicId)
