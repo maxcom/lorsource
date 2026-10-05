@@ -249,10 +249,11 @@
 
             <c:if test="${messageMenu.resolvable}">
                 <c:if test="${message.resolved}">
-                    <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешённую</a></li>
+                    <%-- инлайн-форма: без пробелов между тегами (в т.ч. без lor:csrf — он добавляет перевод строки), иначе в меню появляются лишние пробелы у скобок --%>
+                    <li><form action="resolve.jsp" method="post"><input type="hidden" name="csrf" value="${fn:escapeXml(csrfToken)}"><input type="hidden" name="msgid" value="${message.id}"><input type="hidden" name="resolve" value="no"><button type="submit">Отметить как нерешённую</button></form></li>
                 </c:if>
                 <c:if test="${not message.resolved}">
-                    <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решённую</a></li>
+                    <li><form action="resolve.jsp" method="post"><input type="hidden" name="csrf" value="${fn:escapeXml(csrfToken)}"><input type="hidden" name="msgid" value="${message.id}"><input type="hidden" name="resolve" value="yes"><button type="submit">Отметить как решённую</button></form></li>
                 </c:if>
             </c:if>
 

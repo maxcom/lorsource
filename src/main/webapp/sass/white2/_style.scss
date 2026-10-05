@@ -36,6 +36,15 @@ a:hover {
     text-decoration: underline;
 }
 
+/* topic menu submit buttons look like plain links (white2 links are not underlined) */
+#topicMenu button {
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
 /* info boxes on columns */
 DIV.boxlet H2 {
     text-align: center;

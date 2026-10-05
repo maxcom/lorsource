@@ -16,6 +16,7 @@ package ru.org.linux.topic
 
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
@@ -25,7 +26,7 @@ import ru.org.linux.scalikejdbc.SpringDB
 
 @Controller
 class ResolveController(messageDao: TopicDao, groupService: GroupService, springDB: SpringDB) {
-  @RequestMapping(Array("/resolve.jsp"))
+  @RequestMapping(value = Array("/resolve.jsp"), method = Array(RequestMethod.POST))
   def resolve(@RequestParam("msgid") msgid: Int,
               @RequestParam("resolve") resolved: String): RedirectView = AuthorizedOnly { currentUser =>
     val message = messageDao.getById(msgid)

@@ -287,6 +287,21 @@ table.nav {
   li:before {
     content: "[";
   }
+
+  #topicMenu {
+    form {
+      display: inline;
+    }
+
+    button {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--link-color);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
 }
 
 DIV.sign {
