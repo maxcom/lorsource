@@ -297,7 +297,20 @@ class EditTopicController(
         errors,
         preparedTopic.images.size())
 
-      val modified = checkModified(preparedTopic, newMsg, form, oldRawTitle, oldText, imagePreviews)
+      val currentPoll: Option[Poll] =
+        if preparedTopic.section.isPollPostAllowed && form.poll != null then
+          Some(pollDao.getPollByTopicId(topic.id))
+        else
+          None
+
+      val newPoll: Option[Poll] = currentPoll.map(poll => buildNewPoll(poll, form))
+
+      // изменение опроса — это правка контента: редактору с правом правки только тегов она запрещена
+      val pollChanged = currentPoll.exists: poll =>
+        buildNewPoll(poll, form).variants != poll.variants || form.multiselect != poll.multiSelect
+
+      val modified =
+        checkModified(preparedTopic, newMsg, form, oldRawTitle, oldText, imagePreviews) || pollChanged
 
       if !editable && modified then
         throw new AccessViolationException("нельзя править это сообщение, только теги")
@@ -323,12 +336,6 @@ class EditTopicController(
           val changeGroup = groupService.getGroup(changeGroupId)
           if changeGroup.sectionId != topic.sectionId then
             throw new AccessViolationException("Can't move topics between sections")
-
-      val newPoll: Option[Poll] =
-        if preparedTopic.section.isPollPostAllowed && form.poll != null then
-          Some(buildNewPoll(topic, form))
-        else
-          None
 
       val newText: MessageText =
         if form.msg != null then
@@ -388,9 +395,7 @@ class EditTopicController(
         new ModelAndView("edit", params.asJava)
     }
 
-  private def buildNewPoll(message: Topic, form: EditTopicRequest) =
-    val poll = pollDao.getPollByTopicId(message.id)
-
+  private def buildNewPoll(poll: Poll, form: EditTopicRequest) =
     val changed = poll
       .variants
       .flatMap { v =>
