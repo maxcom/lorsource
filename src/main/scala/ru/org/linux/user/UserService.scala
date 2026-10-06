@@ -525,6 +525,15 @@ class UserService(siteConfig: SiteConfig, userDao: UserDao, ignoreListDao: Ignor
     idToUserCache.invalidate(user.id)
   }
 
+  def setEmail(user: User, newEmail: String, admin: User): Unit = {
+    springDB.localTx {
+      userDao.acceptNewEmail(user, newEmail)
+      userLogDao.logSetEmail(user, newEmail, admin)
+    }
+
+    idToUserCache.invalidate(user.id)
+  }
+
   def resetUserpic(user: User, cleaner: User): Boolean = {
     val result = springDB.localTx {
       val cleaned = userDao.resetUserpic(user)

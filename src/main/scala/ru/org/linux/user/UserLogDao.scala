@@ -84,6 +84,14 @@ class UserLogDao(springDB: SpringDB):
 
     insertLog(user.id, user.id, UserLogAction.AcceptNewEmail, info)
 
+  def logSetEmail(user: User, newEmail: String, admin: User)(using Transaction): Unit =
+    val info: ju.Map[String, String] = (
+      Map(UserLogDao.OptionNewEmail -> newEmail) ++
+        Option.when(user.email != null)(UserLogDao.OptionOldEmail -> user.email)
+    ).asJava
+
+    insertLog(user.id, admin.id, UserLogAction.SetEmail, info)
+
   def logResetInfo(user: User, moderator: User, userInfo: String, bonus: Int)(using Transaction): Unit =
     val info = Map(UserLogDao.OptionOldInfo -> userInfo, UserLogDao.OptionBonus -> bonus.toString).asJava
     insertLog(user.id, moderator.id, UserLogAction.ResetInfo, info)

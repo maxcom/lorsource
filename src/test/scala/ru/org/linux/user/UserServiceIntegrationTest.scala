@@ -38,6 +38,9 @@ class UserServiceIntegrationTest extends FunSuite with TransactionalTestSupport:
   var userService: UserService = scala.compiletime.uninitialized
 
   @Autowired
+  var userLogDao: UserLogDao = scala.compiletime.uninitialized
+
+  @Autowired
   var springDB: SpringDB = scala.compiletime.uninitialized
 
   // мок общий для всех тест-классов с этим контекстом (кеш Spring), поэтому взаимодействия сбрасываются
@@ -49,6 +52,7 @@ class UserServiceIntegrationTest extends FunSuite with TransactionalTestSupport:
     fixUser()
     clearCache()
     clearInvocations(realtimeHubWS)
+    clearInvocations(userLogDao)
 
   override def afterEach(context: AfterEach): Unit =
     fixUser()
@@ -137,5 +141,18 @@ class UserServiceIntegrationTest extends FunSuite with TransactionalTestSupport:
     userService.updateUser(user, user.nick, "", None, "", Some("newpasswd"), "", MarkupType.Lorcode,
       "127.0.0.1")
     verify(realtimeHubWS).tell(RealtimeEventHub.CloseUserSessions(UserServiceIntegrationTest.TestId))
+
+  test("setEmail updates email and logs"):
+    val user = userService.getUserCached(UserServiceIntegrationTest.TestId)
+    val admin = userService.getUserCached(UserServiceIntegrationTest.TestId)
+
+    userService.setEmail(user, "set-email-test@example.org", admin)
+
+    val userAfter = userService.getUserCached(UserServiceIntegrationTest.TestId)
+    assertEquals(userAfter.email, "set-email-test@example.org")
+
+    springDB.localTx {
+      verify(userLogDao).logSetEmail(user, "set-email-test@example.org", admin)
+    }
 
 end UserServiceIntegrationTest

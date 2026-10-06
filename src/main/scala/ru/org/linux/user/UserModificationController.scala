@@ -15,13 +15,14 @@
 package ru.org.linux.user
 
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.mail.internet.{AddressException, InternetAddress}
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AccessViolationException
-import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, ModeratorOnly}
+import ru.org.linux.auth.AuthUtil.{AdministratorOnly, AuthorizedOnly, ModeratorOnly}
 import ru.org.linux.comment.DeleteService
 import ru.org.linux.search.SearchQueueSender
 
@@ -226,8 +227,47 @@ class UserModificationController(searchQueueSender: SearchQueueSender, userDao: 
   }
 
   /**
-   * Контроллер отчистки дополнительной информации в профиле
-   */
+    * Смена email администратором
+    *
+    * @param user  пользователь, которому меняем email
+    * @param email новый email
+    * @return возвращаемся в профиль
+    */
+  @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=set_email"))
+  def setEmail(@RequestParam("id") user: User, @RequestParam("email") email: String): ModelAndView =
+    AdministratorOnly { administrator =>
+      if (user.anonymous) {
+        throw new AccessViolationException(s"Пользователю ${user.nick} нельзя изменить email")
+      }
+
+      if (user.id == administrator.user.id) {
+        throw new AccessViolationException("Свой email меняется через настройки профиля")
+      }
+
+      val newEmail = parseEmail(email)
+
+      val existingUser = userDao.getByEmail(newEmail, searchBlocked = false)
+      if (existingUser != 0 && existingUser != user.id) {
+        throw UserErrorException("такой email уже используется")
+      }
+
+      userService.setEmail(user, newEmail, administrator.user)
+
+      logger.info(s"Email ${user.nick} изменен администратором ${administrator.user.nick}")
+
+      redirectToProfile(user)
+    }
+
+  private def parseEmail(email: String): String =
+    try
+      new InternetAddress(email, true).getAddress.toLowerCase
+    catch
+      case e: AddressException =>
+        throw UserErrorException("Некорректный e-mail: " + e.getMessage)
+
+  /**
+    * Контроллер отчистки дополнительной информации в профиле
+    */
   @RequestMapping(value = Array("/usermod.jsp"), method = Array(RequestMethod.POST), params = Array("action=remove_userinfo"))
   def removeUserInfo(@RequestParam("id") user: User): ModelAndView = ModeratorOnly { moderator =>
     if (user.anonymous) {

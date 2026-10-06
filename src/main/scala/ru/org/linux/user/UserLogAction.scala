@@ -22,6 +22,7 @@ enum UserLogAction(val name: String, val description: String):
   case Score50 extends UserLogAction("score50", "Задан score=50")
   case UnblockUser extends UserLogAction("unblock_user", "Разблокирован")
   case AcceptNewEmail extends UserLogAction("accept_new_email", "Установлен новый email")
+  case SetEmail extends UserLogAction("set_email", "Установлен email администратором")
   case ResetInfo extends UserLogAction("reset_info", "Сброшен текст информации")
   case ResetUrl extends UserLogAction("reset_url", "Сброшен URL")
   case ResetTown extends UserLogAction("reset_town", "Сброшено поле \"город\"")

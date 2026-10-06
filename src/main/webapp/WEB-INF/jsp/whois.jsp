@@ -300,6 +300,18 @@
 
     <br>
 
+    <c:if test="${template.administratorSession and not user.anonymous and not viewByOwner}">
+      <form method="post" action="usermod.jsp" style="display: inline-block">
+        <lor:csrf/>
+        <input type="hidden" name="id" value="${user.id}">
+        <input type="hidden" name="action" value="set_email">
+        <input type="email" name="email" required placeholder="user@example.org">
+        <button type="submit" class="btn btn-small btn-default">Изменить email</button>
+      </form>
+      <br>
+    </c:if>
+
+
     <c:if test="${not empty invitedUsers}">
       <b>Приглашенные пользователи: </b>
         <c:forEach items="${invitedUsers}" var="u">

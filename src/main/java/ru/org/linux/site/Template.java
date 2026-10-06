@@ -64,6 +64,11 @@ public final class Template {
   }
 
   /* used in jsp */
+  public boolean isAdministratorSession() {
+    return AuthUtil.isAdministratorSession();
+  }
+
+  /* used in jsp */
   public boolean isCorrectorSession() {
     return AuthUtil.isCorrectorSession();
   }

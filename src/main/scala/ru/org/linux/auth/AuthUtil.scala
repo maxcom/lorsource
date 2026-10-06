@@ -92,7 +92,7 @@ object AuthUtil extends StrictLogging:
 
   def isCorrectorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_CORRECTOR")
 
-  private def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
+  def isAdministratorSession: Boolean = isSessionAuthorized && hasAuthority("ROLE_ADMIN")
 
   private def hasAuthority(authName: String): Boolean =
     val authentication = SecurityContextHolder.getContext.getAuthentication

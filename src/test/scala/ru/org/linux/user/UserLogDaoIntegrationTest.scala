@@ -59,6 +59,31 @@ class UserLogDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     assert(item != null)
     assertEquals(item.action, UserLogAction.AcceptNewEmail)
 
+  test("logSetEmail"):
+    val user = mock(classOf[User])
+    when(user.id).thenReturn(UserLogDaoIntegrationTest.TestId)
+    when(user.email).thenReturn("old@email")
+
+    val admin = mock(classOf[User])
+    when(admin.id).thenReturn(UserLogDaoIntegrationTest.TestId)
+
+    val oldLogItems = userLogDao.getLogItems(user, includeSelf = true)
+
+    springDB.localTx {
+      userLogDao.logSetEmail(user, "test@email", admin)
+    }
+
+    val logItems = userLogDao.getLogItems(user, includeSelf = true)
+
+    assertEquals(logItems.size - oldLogItems.size, 1)
+
+    val item = logItems.head
+
+    assert(item != null)
+    assertEquals(item.action, UserLogAction.SetEmail)
+    assertEquals(item.options.getOrElse(UserLogDao.OptionNewEmail, ""), "test@email")
+    assertEquals(item.options.getOrElse(UserLogDao.OptionOldEmail, ""), "old@email")
+
   test("logScore50"):
     val user = mock(classOf[User])
     when(user.id).thenReturn(UserLogDaoIntegrationTest.TestId)
