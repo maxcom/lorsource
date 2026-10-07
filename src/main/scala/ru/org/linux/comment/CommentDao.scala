@@ -21,7 +21,7 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
-import ru.org.linux.user.UserDao.AuthorInactivityCondition
+import ru.org.linux.user.UserDao.{AuthorInactivityCondition, SpecialUserIds}
 import ru.org.linux.util.StringUtil
 import scalikejdbc.*
 
@@ -237,7 +237,12 @@ class CommentDao(springDB: SpringDB):
     *     скрытыми комментариями (`postscore = POSTSCORE_HIDE_COMMENTS`) и `lastmod` топика старше 3 лет; не имеет
     *     ответов (включая сами удалённые); его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` —
     *     зарегистрирован более 10 лет назад), либо заблокирован и не заходил более 3 лет, либо не имеет дат
-    *     регистрации и последнего входа (в т.ч. anonymous);
+    *     регистрации и последнего входа;
+    *   - '''6 месяцев, специальные авторы''': комментарий удалён любым из способов (`deleted`, нахождение в удалённом
+    *     топике или топике со скрытыми комментариями), его автор — специальный пользователь (`anonymous` или `Deleted`,
+    *     [[ru.org.linux.user.UserDao.SpecialUserIds]]) и дата удаления старше 6 месяцев (вычисляется так же, как для
+    *     правила 10 лет: для комментария в удалённом топике — дата удаления топика, для прочих — собственная; при
+    *     отсутствии записи `del_info` или даты в ней — `lastmod` топика);
     *   - '''10 лет с момента удаления''' (любой автор, включая активных): комментарий удалён любым из перечисленных
     *     способов (`deleted`, нахождение в удалённом топике или топике со скрытыми комментариями) и дата его удаления
     *     старше 10 лет. Для комментария в удалённом топике датой удаления считается дата удаления топика, для прочих —
@@ -278,6 +283,18 @@ class CommentDao(springDB: SpringDB):
             AND topics.lastmod < CURRENT_TIMESTAMP - interval '3 years'
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
             AND ${AuthorInactivityCondition}
+            UNION
+            SELECT comments.id
+            FROM comments
+            JOIN topics ON topics.id = comments.topic
+            LEFT JOIN del_info comdel ON comdel.msgid = comments.id
+            LEFT JOIN del_info topdel ON topdel.msgid = topics.id
+            WHERE (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
+            AND comments.userid IN (${SpecialUserIds})
+            AND (CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
+                      ELSE COALESCE(comdel.deldate, topics.lastmod) END
+                 < CURRENT_TIMESTAMP - interval '6 months')
+            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
             UNION
             SELECT comments.id
             FROM comments

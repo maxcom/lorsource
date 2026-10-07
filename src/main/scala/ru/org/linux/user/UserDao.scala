@@ -36,16 +36,26 @@ object UserDao:
   /** Размер порции при удалении пользователей в [[deleteUsers]] — одна транзакция на порцию. */
   val DeleteBatchSize = 500
 
+  /** Идентификаторы специальных пользователей `anonymous` и `Deleted`: их сообщения удаляются по собственному правилу
+    * (6 месяцев с момента удаления, см. [[ru.org.linux.topic.TopicDao.getDeletableDeletedTopicIds]] и
+    * [[ru.org.linux.comment.CommentDao.getDeletableDeletedCommentIds]]), а сами аккаунты не удаляются никогда.
+    */
+  val SpecialUserIds: Seq[Int] = Seq(UserService.AnonymousUserId, UserService.DeletedUserId)
+
   /** Критерий неактивности пользователя для кандидатов окончательного удаления (общий для TopicDao и CommentDao):
     * пользователь не заходил на сайт более 10 лет (при неизвестном `lastlogin` — с даты регистрации), либо заблокирован
-    * и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч. anonymous). Предполагает, что
-    * запрос соединяется с таблицей `users` под этим именем.
+    * и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа. Специальные пользователи
+    * `anonymous` и `Deleted` ([[SpecialUserIds]]) исключаются — для них действует собственное правило удаления.
+    * Предполагает, что запрос соединяется с таблицей `users` под этим именем.
     */
   val AuthorInactivityCondition: SQLSyntax = sqls"""(
-    COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
-    OR (users.blocked
-        AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
-    OR (users.lastlogin IS NULL AND users.regdate IS NULL)
+    users.id NOT IN (${SpecialUserIds})
+    AND (
+      COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
+      OR (users.blocked
+          AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
+      OR (users.lastlogin IS NULL AND users.regdate IS NULL)
+    )
   )"""
 
 @Repository
@@ -454,6 +464,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     *
     * Пользователь является кандидатом, если:
     *   - заблокирован (`blocked`);
+    *   - не специальный пользователь ([[SpecialUserIds]] — anonymous и Deleted не удаляются никогда);
     *   - не является автором топиков/комментариев, не ставил реакций, не голосовал в опросах, не приглашал и не получал
     *     инвайты, не имеет предупреждений, и нигде не упомянут как редактор/модератор (защита от экс-модераторов);
     *   - дата блокировки старше 3 лет. В качестве даты блокировки используется `ban_info.bandate`, при отсутствии —
@@ -464,6 +475,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
       sql"""SELECT u.id FROM users u
             LEFT JOIN ban_info b ON b.userid = u.id
             WHERE u.blocked
+            AND u.id NOT IN (${UserDao.SpecialUserIds})
             AND NOT EXISTS (SELECT 1 FROM topics WHERE userid = u.id)
             AND NOT EXISTS (SELECT 1 FROM topics WHERE commitby = u.id)
             AND NOT EXISTS (SELECT 1 FROM comments WHERE userid = u.id)
@@ -486,7 +498,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     *
     * Пользователь является кандидатом, если:
     *   - не заблокирован (`blocked`) — заблокированные удаляются по правилу 3 лет в [[getDeletableBlockedUserIds]];
-    *   - не системный пользователь `anonymous`;
+    *   - не специальный пользователь ([[SpecialUserIds]] — anonymous и Deleted не удаляются никогда);
     *   - не является автором топиков/комментариев, не ставил реакций, не голосовал в опросах, не приглашал и не получал
     *     инвайты, не имеет предупреждений, и нигде не упомянут как редактор/модератор (защита от экс-модераторов);
     *   - не заходил более 10 лет. Используется `lastlogin`, при отсутствии — `regdate`. Если ни одна из дат
@@ -496,7 +508,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     springDB.run(
       sql"""SELECT u.id FROM users u
             WHERE NOT u.blocked
-            AND u.nick != 'anonymous'
+            AND u.id NOT IN (${UserDao.SpecialUserIds})
             AND NOT EXISTS (SELECT 1 FROM topics WHERE userid = u.id)
             AND NOT EXISTS (SELECT 1 FROM topics WHERE commitby = u.id)
             AND NOT EXISTS (SELECT 1 FROM comments WHERE userid = u.id)

@@ -22,6 +22,7 @@ import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.test.TransactionalTestSupport
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
+import ru.org.linux.user.UserService
 import scalikejdbc.*
 
 import java.sql.Timestamp
@@ -86,6 +87,11 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     springDB.run:
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
             VALUES ($msgid, $delby, 'test reason', ${deldate.orNull}, 0)""".update.apply()
+
+  private def ensureDeletedUser(): Unit =
+    springDB.run:
+      sql"""INSERT INTO users (id, nick, blocked) VALUES (${UserService.DeletedUserId}, 'Deleted', false)
+            ON CONFLICT (id) DO UPDATE SET blocked=false""".update.apply()
 
   private def nextTopicId(after: Int): Int =
     springDB.run:
@@ -417,6 +423,106 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
       !ids.contains(ctrlHiddenRecent),
       "comment in recently modified hidden-comments topic should not be a candidate")
     assert(!ids.contains(ctrlHasReply), "comment with reply should not be a candidate")
+
+  test("getDeletableCommentIdsSpecialUsers"):
+    ensureDeletedUser()
+    val anonymous = UserService.AnonymousUserId
+    val deletedUser = UserService.DeletedUserId
+    val moderator = createUser("test-purge6m-mod", blocked = false, Some(monthsAgo(1)), None)
+
+    // собственная дата удаления комментария (живой топик)
+    val candOwnDeldate = nextMsgId
+    insertComment(candOwnDeldate, anonymous, None, deleted = true, "6m cand anonymous")
+    insertDelInfo(candOwnDeldate, anonymous, Some(monthsAgo(7)))
+
+    val candDeletedUser = nextMsgId
+    insertComment(candDeletedUser, deletedUser, None, deleted = true, "6m cand Deleted user")
+    insertDelInfo(candDeletedUser, deletedUser, Some(monthsAgo(7)))
+
+    val ctrlRecentDeldate = nextMsgId
+    insertComment(ctrlRecentDeldate, anonymous, None, deleted = true, "6m ctrl recent deldate")
+    insertDelInfo(ctrlRecentDeldate, anonymous, Some(monthsAgo(3)))
+
+    // комментарии в удалённых топиках: дата удаления топика
+    val oldDeletedTopic = nextTopicId(topicId)
+    val recentDeletedTopic = nextTopicId(oldDeletedTopic)
+    markTopicDeleted(oldDeletedTopic, Some(monthsAgo(7)), moderator)
+    markTopicDeleted(recentDeletedTopic, Some(monthsAgo(2)), moderator)
+
+    val candDeletedTopic = nextMsgId
+    insertComment(candDeletedTopic, anonymous, None, deleted = false, "6m cand deleted topic", oldDeletedTopic)
+
+    val ctrlRecentDeletedTopic = nextMsgId
+    insertComment(
+      ctrlRecentDeletedTopic, anonymous, None, deleted = false, "6m ctrl recent deleted topic", recentDeletedTopic)
+
+    // топик без даты удаления: датой считается lastmod (обновляется триггером comins — недавний)
+    val nullDeldateTopic = nextTopicId(recentDeletedTopic)
+    markTopicDeleted(nullDeldateTopic, None, moderator)
+
+    val ctrlNullDeldateRecentLastmod = nextMsgId
+    insertComment(
+      ctrlNullDeldateRecentLastmod, anonymous, None, deleted = false, "6m ctrl null deldate", nullDeldateTopic)
+
+    // топик со скрытыми комментариями
+    val hiddenTopic = nextTopicId(nullDeldateTopic)
+    val candHidden = nextMsgId
+    insertComment(candHidden, deletedUser, None, deleted = false, "6m cand hidden", hiddenTopic)
+    hideTopicComments(hiddenTopic, monthsAgo(7))
+
+    // без записи del_info датой удаления считается lastmod топика (задаём после вставки)
+    val lastmodTopic = nextTopicId(hiddenTopic)
+    val candLastmodFallback = nextMsgId
+    insertComment(candLastmodFallback, anonymous, None, deleted = true, "6m cand lastmod fallback", lastmodTopic)
+    springDB.run:
+      sql"UPDATE topics SET lastmod=${monthsAgo(7)} WHERE id = $lastmodTopic".update.apply()
+
+    // есть ответ — не кандидат
+    val ctrlHasReply = nextMsgId
+    insertComment(ctrlHasReply, anonymous, None, deleted = true, "6m ctrl has reply")
+    insertDelInfo(ctrlHasReply, anonymous, Some(monthsAgo(7)))
+    insertComment(nextMsgId, moderator, Some(ctrlHasReply), deleted = false, "6m reply")
+
+    val ids = commentDao.getDeletableDeletedCommentIds
+
+    assert(ids.contains(candOwnDeldate), "comment of anonymous deleted 7 months ago should be a candidate")
+    assert(ids.contains(candDeletedUser), "comment of Deleted user deleted 7 months ago should be a candidate")
+    assert(
+      ids.contains(candDeletedTopic),
+      "comment of anonymous in topic deleted 7 months ago should be a candidate")
+    assert(ids.contains(candHidden), "comment of Deleted user in hidden-comments topic should be a candidate")
+    assert(
+      ids.contains(candLastmodFallback),
+      "deleted comment of anonymous without del_info should fall back to old topic lastmod")
+    assert(!ids.contains(ctrlRecentDeldate), "comment of anonymous deleted 3 months ago should not be a candidate")
+    assert(
+      !ids.contains(ctrlRecentDeletedTopic),
+      "comment of anonymous in topic deleted 2 months ago should not be a candidate")
+    assert(
+      !ids.contains(ctrlNullDeldateRecentLastmod),
+      "comment of anonymous in deleted topic without deldate and recent lastmod should not be a candidate")
+    assert(!ids.contains(ctrlHasReply), "comment of anonymous with reply should not be a candidate")
+
+  test("purgeSpecialAuthorComment"):
+    ensureDeletedUser()
+    val anonymous = UserService.AnonymousUserId
+
+    val targetId = nextMsgId
+    insertComment(targetId, anonymous, None, deleted = true, "6m purge target")
+    insertDelInfo(targetId, anonymous, Some(monthsAgo(7)))
+
+    val controlId = nextMsgId
+    insertComment(controlId, anonymous, None, deleted = true, "6m purge control")
+    insertDelInfo(controlId, anonymous, Some(monthsAgo(3)))
+
+    val purged = commentDao.purgeDeletedComments(Seq(targetId))
+
+    assertEquals(purged, 1)
+    assertEquals(countRows("comments", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("comments", "id", controlId), 1)
+    assertEquals(countRows("msgbase", "id", controlId), 1)
 
   test("purgeDeletedCommentsTenYearActiveAuthor"):
     val active = createUser("test-purge10-purge-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))

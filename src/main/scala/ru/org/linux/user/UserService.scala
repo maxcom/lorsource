@@ -49,6 +49,9 @@ object UserService {
 
   val AnonymousUserId = 2
 
+  /** Специальный пользователь «Deleted», которому принадлежат сообщения удалённых аккаунтов. */
+  val DeletedUserId = 3
+
   private val NameCacheSize = 50000
   private val UserCacheSize = 5000
 

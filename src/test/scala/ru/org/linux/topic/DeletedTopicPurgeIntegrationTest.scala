@@ -23,6 +23,7 @@ import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.section.{SectionDao, SectionDaoImpl, SectionService}
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.test.TransactionalTestSupport
+import ru.org.linux.user.UserService
 import scalikejdbc.*
 
 import java.sql.Timestamp
@@ -90,6 +91,11 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
       sql"UPDATE topics SET deleted='t' WHERE id = $topic".update.apply()
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
             VALUES ($topic, $delby, 'test topic deletion', ${deldate.orNull}, 0)""".update.apply()
+
+  private def ensureDeletedUser(): Unit =
+    springDB.run:
+      sql"""INSERT INTO users (id, nick, blocked) VALUES (${UserService.DeletedUserId}, 'Deleted', false)
+            ON CONFLICT (id) DO UPDATE SET blocked=false""".update.apply()
 
   private def insertComment(commentId: Int, userId: Int, topic: Int): Unit =
     springDB.run:
@@ -210,6 +216,86 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
       !ids.contains(ctrlRecentLastmod),
       "deleted topic without del_info and recent lastmod should not be a candidate")
     assert(!ids.contains(ctrlWithComment), "topic with comment should not be a candidate")
+
+  test("getDeletableDeletedTopicIdsSpecialUsers"):
+    ensureDeletedUser()
+    val anonymous = UserService.AnonymousUserId
+    val deletedUser = UserService.DeletedUserId
+
+    def deletedTopic(userId: Int, title: String, deldate: Option[Timestamp]): Int =
+      val id = nextMsgId
+      insertTopic(id, userId, title)
+      markTopicDeleted(id, deldate, userId)
+      id
+
+    def deletedTopicNoDelInfo(userId: Int, title: String, lastmod: Timestamp): Int =
+      val id = nextMsgId
+      insertTopic(id, userId, title)
+      springDB.run:
+        sql"UPDATE topics SET deleted='t', lastmod=$lastmod WHERE id = $id".update.apply()
+      id
+
+    val candAnonymous = deletedTopic(anonymous, "6m cand anonymous", Some(monthsAgo(7)))
+    val candDeletedUser = deletedTopic(deletedUser, "6m cand Deleted user", Some(monthsAgo(7)))
+    val candLastmodFallback = deletedTopicNoDelInfo(anonymous, "6m cand lastmod fallback", monthsAgo(7))
+
+    val ctrlRecentDelete = deletedTopic(anonymous, "6m ctrl recent delete", Some(monthsAgo(3)))
+    val ctrlRecentLastmod = deletedTopicNoDelInfo(anonymous, "6m ctrl recent lastmod", monthsAgo(1))
+    val ctrlWithComment = deletedTopic(anonymous, "6m ctrl with comment", Some(monthsAgo(7)))
+    insertComment(nextMsgId, anonymous, ctrlWithComment)
+
+    val ids = topicDao.getDeletableDeletedTopicIds
+
+    assert(ids.contains(candAnonymous), "topic of anonymous deleted 7 months ago should be a candidate")
+    assert(ids.contains(candDeletedUser), "topic of Deleted user deleted 7 months ago should be a candidate")
+    assert(
+      ids.contains(candLastmodFallback),
+      "deleted topic of anonymous without del_info should fall back to old lastmod")
+    assert(!ids.contains(ctrlRecentDelete), "topic of anonymous deleted 3 months ago should not be a candidate")
+    assert(
+      !ids.contains(ctrlRecentLastmod),
+      "deleted topic of anonymous without del_info and recent lastmod should not be a candidate")
+    assert(!ids.contains(ctrlWithComment), "topic of anonymous with comment should not be a candidate")
+
+  test("purgeSpecialAuthorTopics"):
+    ensureDeletedUser()
+    val anonymous = UserService.AnonymousUserId
+
+    val targetId = nextMsgId
+    insertTopic(targetId, anonymous, "6m purge target")
+    markTopicDeleted(targetId, Some(monthsAgo(7)), anonymous)
+
+    val ctrlRecentDelete = nextMsgId
+    insertTopic(ctrlRecentDelete, anonymous, "6m purge control")
+    markTopicDeleted(ctrlRecentDelete, Some(monthsAgo(3)), anonymous)
+
+    val draftTargetId = nextMsgId
+    insertTopic(draftTargetId, anonymous, "6m draft purge target", draft = true)
+    springDB.run:
+      sql"UPDATE topics SET lastmod=${monthsAgo(7)} WHERE id = $draftTargetId".update.apply()
+
+    val ctrlRecentDraft = nextMsgId
+    insertTopic(ctrlRecentDraft, anonymous, "6m draft purge control", draft = true)
+
+    assert(topicDao.getDeletableDeletedTopicIds.contains(targetId), "7-months topic of anonymous should be a candidate")
+    assert(
+      !topicDao.getDeletableDeletedTopicIds.contains(ctrlRecentDelete),
+      "3-months topic of anonymous should not be a candidate")
+    assert(topicDao.getDeletableDraftTopicIds.contains(draftTargetId), "old draft of anonymous should be a candidate")
+    assert(
+      !topicDao.getDeletableDraftTopicIds.contains(ctrlRecentDraft),
+      "recent draft of anonymous should not be a candidate")
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(targetId, draftTargetId)), 2)
+    assertEquals(countRows("topics", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("topics", "id", draftTargetId), 0)
+    assertEquals(countRows("msgbase", "id", draftTargetId), 0)
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(ctrlRecentDelete, ctrlRecentDraft)), 0)
+    assertEquals(countRows("topics", "id", ctrlRecentDelete), 1)
+    assertEquals(countRows("topics", "id", ctrlRecentDraft), 1)
 
   test("purgeDeletedTopicsTenYearActiveAuthor"):
     val active = createUser("test-topic10-purge-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))

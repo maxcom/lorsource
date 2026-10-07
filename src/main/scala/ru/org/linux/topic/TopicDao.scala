@@ -23,7 +23,7 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.SectionScrollModeEnum
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
-import ru.org.linux.user.UserDao.AuthorInactivityCondition
+import ru.org.linux.user.UserDao.{AuthorInactivityCondition, SpecialUserIds}
 import ru.org.linux.warning.RuleWarning
 import scalikejdbc.*
 
@@ -338,12 +338,16 @@ class TopicDao(springDB: SpringDB):
     *     3 лет либо без даты (`deldate IS NULL` — удаления до начала ведения даты, только сообщения до 2010 года,
     *     т.е. заведомо старше порога); его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` —
     *     зарегистрирован более 10 лет назад), либо заблокирован и не заходил более 3 лет, либо не имеет дат
-    *     регистрации и последнего входа (в т.ч. anonymous);
+    *     регистрации и последнего входа;
+    *   - '''6 месяцев, специальные авторы''': топик удалён более 6 месяцев назад (датой удаления считается
+    *     `COALESCE(del_info.deldate, topics.lastmod)`), а его автор — специальный пользователь
+    *     (`anonymous` или `Deleted`, [[ru.org.linux.user.UserDao.SpecialUserIds]]); покрывает все их удалённые
+    *     топики независимо от дат входа/регистрации;
     *   - '''10 лет с момента удаления''' (любой автор, включая активных): датой удаления считается
     *     `COALESCE(del_info.deldate, topics.lastmod)` — при отсутствии записи `del_info` или даты в ней берётся
     *     `lastmod` топика.
     *
-    * Для обоих правил: топик не имеет комментариев (включая удалённые — их строки постепенно вычищает
+    * Для всех правил: топик не имеет комментариев (включая удалённые — их строки постепенно вычищает
     * [[ru.org.linux.comment.DeletedCommentCleaner]], после чего топик станет кандидатом) и непрочищенных картинок
     * (`images.purged = false` — файлы ещё не удалены [[ru.org.linux.gallery.OldImageCleaner]]).
     *
@@ -366,6 +370,15 @@ class TopicDao(springDB: SpringDB):
             FROM topics
             LEFT JOIN del_info ON del_info.msgid = topics.id
             WHERE topics.deleted
+            AND topics.userid IN (${SpecialUserIds})
+            AND COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '6 months'
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
+            AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
+            UNION
+            SELECT topics.id
+            FROM topics
+            LEFT JOIN del_info ON del_info.msgid = topics.id
+            WHERE topics.deleted
             AND COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '10 years'
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
             AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
@@ -378,9 +391,10 @@ class TopicDao(springDB: SpringDB):
     *     [[getDeletableDeletedTopicIds]] по `del_info.deldate`);
     *   - не имеет комментариев (в норме невозможны — черновики не публикуются; проверка защищает от гонки с публикацией
     *     между выборкой и удалением);
-    *   - его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет назад),
-    *     либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа (в т.ч.
-    *     anonymous).
+    *   - его автор — специальный пользователь (`anonymous` или `Deleted`,
+    *     [[ru.org.linux.user.UserDao.SpecialUserIds]]) и черновик не модифицировался более 6 месяцев (`lastmod`);
+    *     либо его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет
+    *     назад), либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа.
     *
     * В отличие от [[getDeletableDeletedTopicIds]] не фильтрует непрочищенные картинки: файлы картинок неопубликованных
     * черновиков ([[ru.org.linux.gallery.OldImageCleaner]] их не обрабатывает) удаляет непосредственно перед purge сам
@@ -401,7 +415,11 @@ class TopicDao(springDB: SpringDB):
             WHERE topics.draft
             AND NOT topics.deleted
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
-            AND ${AuthorInactivityCondition}
+            AND (
+              ${AuthorInactivityCondition}
+              OR (topics.userid IN (${SpecialUserIds})
+                  AND topics.lastmod < CURRENT_TIMESTAMP - interval '6 months')
+            )
             ORDER BY topics.id""".map(rs => rs.int("id")).list.apply()
 
   /** Окончательно удаляет топики со всеми зависимыми записями (в одной транзакции).
@@ -418,10 +436,11 @@ class TopicDao(springDB: SpringDB):
     * транзакции); топики,
     * восстановленные (или, для черновиков, опубликованные) к этому моменту, получившие комментарии, имеющие
     * непрочищенные картинки, а также топики, чей автор перестал удовлетворять критериям неактивности (например, вернулся
-    * на сайт) между выборкой кандидатов и purge, пропускаются. Исключение — удалённые топики, проходящие по правилу
-    * «10 лет с момента удаления» ([[getDeletableDeletedTopicIds]]): они удаляются независимо от активности автора;
-    * черновики и прочие удалённые топики по-прежнему требуют неактивности автора. Счётчики непрочитанных уведомлений
-    * затронутых пользователей пересчитываются.
+    * на сайт) между выборкой кандидатов и purge, пропускаются. Исключение — топики, проходящие по правилам,
+    * не зависящим от активности автора: удалённые топики старше 10 лет ([[getDeletableDeletedTopicIds]]) и топики
+    * специальных пользователей (`anonymous`, `Deleted`) старше 6 месяцев, включая черновики с `lastmod` старше
+    * 6 месяцев. Прочие черновики и удалённые топики по-прежнему требуют неактивности автора. Счётчики непрочитанных
+    * уведомлений затронутых пользователей пересчитываются.
     *
     * @param ids
     *   идентификаторы окончательно удаляемых топиков
@@ -442,10 +461,16 @@ class TopicDao(springDB: SpringDB):
                 AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
                 AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
                 AND (
-                  (topics.draft AND ${AuthorInactivityCondition})
+                  (topics.draft AND (
+                    ${AuthorInactivityCondition}
+                    OR (topics.userid IN (${SpecialUserIds})
+                        AND topics.lastmod < CURRENT_TIMESTAMP - interval '6 months')
+                  ))
                   OR (topics.deleted AND (
                     ${AuthorInactivityCondition}
                     OR COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '10 years'
+                    OR (topics.userid IN (${SpecialUserIds})
+                        AND COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '6 months')
                   ))
                 )
                 ORDER BY topics.id FOR UPDATE OF topics, users""".map(rs => rs.int("id")).list.apply()

@@ -103,6 +103,14 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     val noDates = createUser("test-no-dates", blocked = true)
     val recentLogin = createUser("test-recent-login", blocked = true, lastlogin = Some(ts("2026-01-01")), regdate = Some(ts("2015-01-01")))
 
+    springDB.run:
+      sql"UPDATE users SET blocked='t' WHERE id=${UserService.AnonymousUserId}".update.apply()
+      sql"""INSERT INTO users (id, nick, blocked) VALUES (${UserService.DeletedUserId}, 'Deleted', 't')
+            ON CONFLICT (id) DO UPDATE SET blocked='t'""".update.apply()
+      sql"""INSERT INTO ban_info (userid, bandate, reason, ban_by)
+            VALUES (${UserService.AnonymousUserId}, ${ts("2015-01-01")}, 'test', ${UserDaoIntegrationTest.TestId})
+            ON CONFLICT DO NOTHING""".update.apply()
+
     val ids = userDao.getDeletableBlockedUserIds
 
     assert(ids.contains(oldBan), "old ban date should be a candidate")
@@ -111,6 +119,8 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     assert(ids.contains(oldReg), "old regdate should be a candidate")
     assert(ids.contains(noDates), "no dates should be a candidate")
     assert(!ids.contains(recentLogin), "recent lastlogin should take priority over old regdate")
+    assert(!ids.contains(UserService.AnonymousUserId), "anonymous should never be a candidate")
+    assert(!ids.contains(UserService.DeletedUserId), "Deleted user should never be a candidate")
 
   test("getDeletableInactiveUsers"):
     val oldLogin = createUser("test-inactive-old-login", blocked = false, lastlogin = Some(ts("2010-01-01")))
@@ -119,6 +129,10 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     val recentLogin = createUser("test-inactive-recent-login", blocked = false, lastlogin = Some(ts("2026-01-01")))
     val blockedOldLogin = createUser("test-inactive-blocked", blocked = true, lastlogin = Some(ts("2010-01-01")))
 
+    springDB.run:
+      sql"""INSERT INTO users (id, nick, blocked) VALUES (${UserService.DeletedUserId}, 'Deleted', 'f')
+            ON CONFLICT (id) DO UPDATE SET blocked='f'""".update.apply()
+
     val ids = userDao.getDeletableInactiveUserIds
 
     assert(ids.contains(oldLogin), "old lastlogin should be a candidate")
@@ -126,6 +140,8 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     assert(ids.contains(noDates), "no dates should be a candidate")
     assert(!ids.contains(recentLogin), "recent lastlogin should not be a candidate")
     assert(!ids.contains(blockedOldLogin), "blocked users should be handled by the blocked rule")
+    assert(!ids.contains(UserService.AnonymousUserId), "anonymous should never be a candidate")
+    assert(!ids.contains(UserService.DeletedUserId), "Deleted user should never be a candidate")
 
   test("deleteUsers"):
     val id = createUser("test-delete-user", blocked = true, bandate = Some(ts("2015-01-01")))
