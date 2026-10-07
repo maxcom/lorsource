@@ -1125,15 +1125,6 @@
               <verbose>false</verbose>
             </configuration>
           </plugin>
-
-          <plugin>
-            <groupId>net.alchim31.maven</groupId>
-            <artifactId>scala-maven-plugin</artifactId>
-            <version>4.9.10</version>
-            <configuration>
-              <recompileMode>all</recompileMode>
-            </configuration>
-          </plugin>
         </plugins>
       </build>
     </profile>
