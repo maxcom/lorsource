@@ -263,7 +263,8 @@ class TopicService(topicDao: TopicDao, msgbaseDao: MsgbaseDao, sectionService: S
       topicDao.publish(msg)
     }
 
-    topicDao.commit(msg, commiter)
+    if !topicDao.commit(msg, commiter) then
+      throw new UserErrorException("Топик уже подтвержден")
 
     userService.changeScore(msg.authorUserId, bonus)
 

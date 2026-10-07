@@ -23,7 +23,7 @@ import ru.org.linux.markup.MarkupType
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.test.TransactionalTestSupport
-import ru.org.linux.user.{User, UserService}
+import ru.org.linux.user.{User, UserErrorException, UserService}
 import scalikejdbc.*
 
 /** Raw-заголовок топика хранится в БД без типографики; Topic.title (makeTitle) — только для отображения.
@@ -134,3 +134,38 @@ class TopicServiceIntegrationTest extends FunSuite with TransactionalTestSupport
     assert(changed, "изменился только заголовок")
     assertEquals(topicDao.getById(id).rawTitle, newTitle)
     assertEquals(oldTitles(id), List(RawTitle))
+
+  test("commit pays bonus once, repeated commit is rejected without double pay"):
+    val id = createTopic(RawTitle)
+    val scoreBefore = user.getScore
+
+    def commitTopic(bonus: Int): Unit =
+      val oldMsg = topicDao.getById(id)
+      val form = new EditTopicRequest(msgid = oldMsg, title = RawTitle)
+      val newMsg = Topic.fromEditRequest(groupService.getGroup(oldMsg.groupId), oldMsg, form, publish = false)
+
+      topicService.updateAndCommit(
+        newMsg = newMsg,
+        oldMsg = oldMsg,
+        user = user,
+        newTags = None,
+        newText = msgbaseDao.getMessageText(id),
+        commit = true,
+        publish = false,
+        changeGroupId = None,
+        bonus = bonus,
+        pollVariants = None,
+        multiselect = false,
+        editorBonus = Map.empty,
+        images = Seq.empty)
+      ()
+
+    commitTopic(5)
+
+    assert(topicDao.getById(id).commited)
+    assertEquals(userService.getUser("maxcom").getScore, scoreBefore + 5)
+
+    intercept[UserErrorException]:
+      commitTopic(5)
+
+    assertEquals(userService.getUser("maxcom").getScore, scoreBefore + 5)

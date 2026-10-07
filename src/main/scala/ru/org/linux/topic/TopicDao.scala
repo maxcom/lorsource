@@ -108,9 +108,11 @@ class TopicDao(springDB: SpringDB):
   def setMinor(msgid: Int, minor: Boolean)(using Transaction): Unit =
     sql"UPDATE topics SET minor=$minor WHERE id=$msgid".update.apply()
 
-  def commit(msg: Topic, commiter: User)(using Transaction): Unit =
+  def commit(msg: Topic, commiter: User)(using Transaction): Boolean =
     sql"UPDATE topics SET moderate='t', commitby=${commiter
-        .id}, commitdate=CURRENT_TIMESTAMP, lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id}".update.apply()
+        .id}, commitdate=CURRENT_TIMESTAMP, lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id} AND NOT moderate"
+      .update
+      .apply() > 0
 
   def publish(msg: Topic)(using Transaction): Unit =
     sql"UPDATE topics SET draft='f',postdate=CURRENT_TIMESTAMP,lastmod=CURRENT_TIMESTAMP WHERE id=${msg.id} AND draft"
