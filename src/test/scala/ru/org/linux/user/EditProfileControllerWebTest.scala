@@ -39,6 +39,12 @@ object EditProfileControllerWebTest:
   private val JB_INFO = "[i]Эффективный менеджер по распилу гос-бабла[/i]"
   private val JB_PASS = "passwd"
 
+  // Имя и город хранятся в БД в исходном (raw) виде, экранирование при отображении
+  private val XSS_NAME = "<img src=x onerror=alert(1)>"
+  private val XSS_NAME_ESCAPED = "&lt;img src=x onerror=alert(1)&gt;"
+  private val XSS_TOWN = "Город & '<b>town</b>"
+  private val XSS_TOWN_ESCAPED = "Город &amp; &#39;&lt;b&gt;town&lt;/b&gt;"
+
 @ContextHierarchy(Array(new ContextConfiguration(value = Array("classpath:database.xml")),
   new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
 class EditProfileControllerWebTest extends FunSuite with WebHelper with SpringTestSupport:
@@ -256,6 +262,83 @@ class EditProfileControllerWebTest extends FunSuite with WebHelper with SpringTe
 
     assertEquals("Для изменения регистрации нужен ваш пароль", doc2.select(".error").text.trim, "error message")
     assertEquals("/people/JB/edit", doc2.getElementById("editRegForm").attr("action"), "form action")
+
+  test("Имя и город хранятся в БД raw, при отображении экранируются ровно один раз"):
+    val auth = doLogin("maxcom", MAXCOM_PASS)
+
+    val cr = basicRequest
+      .body(
+        Map(
+          ("name", XSS_NAME),
+          ("url", MAXCOM_URL),
+          ("email", MAXCOM_EMAIL),
+          ("town", XSS_TOWN),
+          ("info", MAXCOM_INFO),
+          ("infoMarkup", "lorcode"),
+          ("csrf", "csrf"),
+          ("oldpass", MAXCOM_PASS)))
+      .post(MainUrl.addPath("people", "maxcom", "edit"))
+      .cookie(AuthCookie, auth)
+      .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
+      .followRedirects(false)
+      .send(backend)
+
+    assertEquals(StatusCode.Found, cr.code, "redirect status")
+    assertEquals(Some(Uri.unsafeParse("http://127.0.0.1:8080/people/maxcom/profile")),
+      cr.header(HeaderNames.Location).map(Uri.unsafeParse).map(MainUrl.resolve), "redirect location")
+
+    val stored = userDao.getUser(userDao.findUserId("maxcom"))
+
+    assertEquals(XSS_NAME, stored.getName, "name stored raw in DB")
+    assertEquals(XSS_TOWN, userDao.getUserInfo(stored).town, "town stored raw in DB")
+
+    val whois = basicRequest
+      .get(MainUrl.addPath("people", "maxcom", "profile"))
+      .cookie(AuthCookie, auth)
+      .send(backend)
+
+    assertEquals(StatusCode.Ok, whois.code, "profile status code")
+
+    val body = whois.body.merge
+
+    assert(!body.contains(XSS_NAME), "raw name must not appear in HTML")
+    assert(body.contains(XSS_NAME_ESCAPED), "name should appear escaped once in HTML")
+    assert(!body.contains("&amp;lt;img"), "name must not be double-escaped")
+
+    assert(!body.contains(XSS_TOWN), "raw town must not appear in HTML")
+    assert(body.contains(XSS_TOWN_ESCAPED), "town should appear escaped once in HTML")
+    assert(!body.contains("&amp;amp;"), "town must not be double-escaped")
+
+  test("Слишком длинное имя отклоняется серверной валидацией"):
+    val auth = doLogin("maxcom", MAXCOM_PASS)
+
+    val longName = "a" * (RegisterRequestValidator.MaxNameLength + 1)
+
+    val cr = basicRequest
+      .body(
+        Map(
+          ("name", longName),
+          ("url", MAXCOM_URL),
+          ("email", MAXCOM_EMAIL),
+          ("town", MAXCOM_TOWN),
+          ("info", MAXCOM_INFO),
+          ("infoMarkup", "lorcode"),
+          ("csrf", "csrf"),
+          ("oldpass", MAXCOM_PASS)))
+      .post(MainUrl.addPath("people", "maxcom", "edit"))
+      .cookie(AuthCookie, auth)
+      .cookie(CSRFProtectionService.CSRF_COOKIE, "csrf")
+      .followRedirects(false)
+      .send(backend)
+
+    assertEquals(StatusCode.Ok, cr.code, "form re-rendered on validation error")
+
+    val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
+
+    assertEquals(s"Слишком длинное имя (максимум ${RegisterRequestValidator.MaxNameLength} символов)",
+      doc.select("label.error[for=name]").text.trim, "error message")
+
+    assertEquals(MAXCOM_NAME, userDao.getUser(userDao.findUserId("maxcom")).getName, "name unchanged in DB")
 
   private def getAuthCookie(cr: Response[?]): String =
     cr.unsafeCookies.find(_.name == AuthCookie).map(_.value).orNull

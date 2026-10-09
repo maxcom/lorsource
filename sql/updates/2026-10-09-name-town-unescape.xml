@@ -1,0 +1,95 @@
+<!--
+  ~ Copyright 1998-2026 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!--
+    Перевод storage-конвенции users.name, users.town и упоминаний в user_log.info
+    с HTML-escaped на raw. Экранирование перенесено на этап отображения:
+    whois.jsp/server.jsp (c:out) и userlog (UserLogPrepareService.escapeHtml);
+    EditProfileController больше не экранирует при записи (аналог миграций
+    title 2026-09-23 и linktext 2026-07-02).
+
+    Порядок replace важен: &amp; разворачивается последним, чтобы не задеть
+    сохранённые escapeHtml-сущности. StringUtil.escapeHtml (Guava HtmlEscapers,
+    2012+) экранирует одинарную кавычку (&#39;); исторический htmlSpecialChars
+    (HTMLFormatter, запись имени до 2012) — нет, лишняя замена &#39; на старых
+    строках безопасна. &#039; включён как zero-padded вариант у старых writers.
+
+    Un-escape только укорачивает: varchar(255) (name) и varchar(100) (town)
+    усечения не грозят.
+
+    Где экраны живут в user_log.info (hstore): ключи name и town пишет
+    logSetUserInfo (action set_info, со времени подключения userlog-профиля),
+    ключ old_town пишет logResetTown (action reset_town, значение снималось
+    с users.town в старой escaped-конвенции). Остальные ключи хранятся raw.
+
+    Предполётная проверка production (аналогично 2026-09-23-title-unescape.xml):
+      SELECT count(*) FROM users WHERE name    ~ '&(amp|lt|gt|quot|#039|#39);';
+      SELECT count(*) FROM users WHERE town    ~ '&(amp|lt|gt|quot|#039|#39);';
+      SELECT count(*) FROM user_log WHERE action='set_info'   AND info->'name' ~ '&(amp|lt|gt|quot|#039|#39);';
+      SELECT count(*) FROM user_log WHERE action='set_info'   AND info->'town' ~ '&(amp|lt|gt|quot|#039|#39);';
+      SELECT count(*) FROM user_log WHERE action='reset_town' AND info->'old_town' ~ '&(amp|lt|gt|quot|#039|#39);';
+
+    Остаточные '&XXX;' после миграции — след повторного экранирования: форма профиля
+    до миграции при каждом сохранении вставляла в поле escaped-значение, и оно
+    накапливало escapeHtml на каждой записи (каждый проход миграции разворачивает
+    один уровень). Проверить вручную, артефакты display-only.
+  -->
+  <changeSet id="2026100901" author="maxcom">
+    <comment>Un-escape name in users (store raw, escape at render)</comment>
+    <sql><![CDATA[
+      UPDATE users SET name =
+        replace(replace(replace(replace(replace(replace(name, '&#039;', ''''), '&lt;', '<'), '&gt;', '>'), '&quot;', '"'), '&#39;', ''''), '&amp;', '&')
+      WHERE name ~ '&(amp|lt|gt|quot|#039|#39);'
+    ]]></sql>
+  </changeSet>
+
+  <changeSet id="2026100902" author="maxcom">
+    <comment>Un-escape town in users (store raw, escape at render)</comment>
+    <sql><![CDATA[
+      UPDATE users SET town =
+        replace(replace(replace(replace(replace(replace(town, '&#039;', ''''), '&lt;', '<'), '&gt;', '>'), '&quot;', '"'), '&#39;', ''''), '&amp;', '&')
+      WHERE town ~ '&(amp|lt|gt|quot|#039|#39);'
+    ]]></sql>
+  </changeSet>
+
+  <changeSet id="2026100903" author="maxcom">
+    <comment>Un-escape new values (name, town) in user_log.info hstore</comment>
+    <sql><![CDATA[
+      UPDATE user_log SET info = info || hstore('name',
+        replace(replace(replace(replace(replace(replace(info->'name', '&#039;', ''''), '&lt;', '<'), '&gt;', '>'), '&quot;', '"'), '&#39;', ''''), '&amp;', '&'))
+      WHERE action = 'set_info' AND info->'name' ~ '&(amp|lt|gt|quot|#039|#39);'
+    ]]></sql>
+    <sql><![CDATA[
+      UPDATE user_log SET info = info || hstore('town',
+        replace(replace(replace(replace(replace(replace(info->'town', '&#039;', ''''), '&lt;', '<'), '&gt;', '>'), '&quot;', '"'), '&#39;', ''''), '&amp;', '&'))
+      WHERE action = 'set_info' AND info->'town' ~ '&(amp|lt|gt|quot|#039|#39);'
+    ]]></sql>
+  </changeSet>
+
+  <changeSet id="2026100904" author="maxcom">
+    <comment>Un-escape old_town in user_log.info hstore</comment>
+    <sql><![CDATA[
+      UPDATE user_log SET info = info || hstore('old_town',
+        replace(replace(replace(replace(replace(replace(info->'old_town', '&#039;', ''''), '&lt;', '<'), '&gt;', '>'), '&quot;', '"'), '&#39;', ''''), '&amp;', '&'))
+      WHERE action = 'reset_town' AND info->'old_town' ~ '&(amp|lt|gt|quot|#039|#39);'
+    ]]></sql>
+  </changeSet>
+
+</databaseChangeLog>

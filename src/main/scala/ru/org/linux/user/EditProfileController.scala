@@ -128,8 +128,11 @@ class EditProfileController(
         }
 
       val url = Option(form.getUrl).filter(_.nonEmpty).map(URLUtil.fixURL).orNull
-      val name = Option(form.getName).filter(_.nonEmpty).map(StringUtil.escapeHtml).orNull
-      val town = Option(form.getTown).filter(_.nonEmpty).map(StringUtil.escapeHtml).orNull
+
+      // Имя и город хранятся в БД в исходном (raw) виде, экранирование при отображении
+      // (whois.jsp c:out, server.jsp) и в userlog (UserLogPrepareService.escapeHtml)
+      val name = Option(form.getName).filter(_.nonEmpty).orNull
+      val town = Option(form.getTown).filter(_.nonEmpty).orNull
       val info = Option(form.getInfo).filter(_.nonEmpty).orNull
 
       val infoMarkup =

@@ -26,6 +26,7 @@ import ru.org.linux.user.RegisterRequestValidator.MinPasswordLength
 object RegisterRequestValidator {
   val MinPasswordLength = 10
   val MaxTownLength = 100
+  val MaxNameLength = 255
 }
 
 class RegisterRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao) extends Validator {

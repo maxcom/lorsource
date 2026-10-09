@@ -16,11 +16,10 @@ package ru.org.linux.user
 
 import com.google.common.base.Strings
 import org.springframework.validation.Errors
-import ru.org.linux.util.StringUtil
 import ru.org.linux.util.URLUtil
 import jakarta.mail.internet.AddressException
 import jakarta.mail.internet.InternetAddress
-import ru.org.linux.user.RegisterRequestValidator.{MinPasswordLength, MaxTownLength}
+import ru.org.linux.user.RegisterRequestValidator.{MinPasswordLength, MaxTownLength, MaxNameLength}
 
 class EditProfileRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao)
   extends RegisterRequestValidator(emailDomainsBlockDao) {
@@ -31,9 +30,14 @@ class EditProfileRequestValidator(emailDomainsBlockDao: EmailDomainsBlockDao)
     val form = target.asInstanceOf[EditProfileRequest]
 
     if (!Strings.isNullOrEmpty(form.getTown)) {
-      if (StringUtil.escapeHtml(form.getTown).length > MaxTownLength) {
+      // город хранится в БД в исходном (raw) виде — ограничение по длине считается по raw-строке
+      if (form.getTown.length > MaxTownLength) {
         errors.rejectValue("town", null, s"Слишком длинное название города (максимум ${MaxTownLength} символов)")
       }
+    }
+
+    if (!Strings.isNullOrEmpty(form.getName) && form.getName.length > MaxNameLength) {
+      errors.rejectValue("name", null, s"Слишком длинное имя (максимум ${MaxNameLength} символов)")
     }
 
     if (!Strings.isNullOrEmpty(form.getUrl) && !URLUtil.isUrl(form.getUrl)) {
