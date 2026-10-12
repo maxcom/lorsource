@@ -14,72 +14,68 @@
  */
 package ru.org.linux.auth
 
+import com.google.common.net.InetAddresses
 import com.typesafe.scalalogging.StrictLogging
 import io.circe.Decoder
-import io.circe.generic.semiauto._
+import io.circe.generic.semiauto.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import sttp.client4.*
 
 case class GeoLocation(
-  country: Option[String],
-  region: Option[String],
-  city: Option[String],
-  connection: Option[Connection])
+    country: Option[String],
+    region: Option[String],
+    city: Option[String],
+    connection: Option[Connection])
 
-case class Connection(
-  org: Option[String])
+case class Connection(org: Option[String])
 
 case class IpWhoIsResponse(
-  success: Boolean,
-  message: Option[String],
-  country: Option[String],
-  region: Option[String],
-  city: Option[String],
-  connection: Option[Connection])
+    success: Boolean,
+    message: Option[String],
+    country: Option[String],
+    region: Option[String],
+    city: Option[String],
+    connection: Option[Connection])
 
-object Connection {
+object Connection:
   given Decoder[Connection] = deriveDecoder[Connection]
-}
 
-object IpWhoIsResponse {
+object IpWhoIsResponse:
   given Decoder[IpWhoIsResponse] = deriveDecoder[IpWhoIsResponse]
-}
 
-object GeoLocation {
+object GeoLocation:
   given Decoder[GeoLocation] = deriveDecoder[GeoLocation]
-}
 
 @Service
-class GeoLocationService(@Qualifier("directBackend") httpClient: SyncBackend) extends StrictLogging {
-  def getLocation(ip: String): Either[String, GeoLocation] = {
-    val response = basicRequest
-      .get(uri"http://ipwho.is/$ip")
-      .send(httpClient)
+class GeoLocationService(
+    @Qualifier("directBackend")
+    httpClient: SyncBackend)
+    extends StrictLogging:
+  def getLocation(ip: String): Either[String, GeoLocation] =
+    if !InetAddresses.isInetAddress(ip) then
+      Left(s"Invalid IP address: $ip")
+    else
+      val response = basicRequest.get(uri"https://ipwho.is/$ip").followRedirects(false).send(httpClient)
 
-    response.body match {
-      case Right(body) =>
-        io.circe.parser.decode[IpWhoIsResponse](body) match {
-          case Right(apiResponse) =>
-            if (!apiResponse.success) {
-              val message = apiResponse.message.getOrElse("Unknown error")
-              logger.warn(s"IP geolocation API error for $ip: $message")
-              Left(message)
-            } else {
-              val location = GeoLocation(
-                country = apiResponse.country,
-                region = apiResponse.region,
-                city = apiResponse.city,
-                connection = apiResponse.connection)
-              Right(location)
-            }
-          case Left(error) =>
-            logger.warn(s"Failed to parse IP geolocation for $ip: $error")
-            Left(s"Parse error: $error")
-        }
-      case Left(error) =>
-        logger.warn(s"IP geolocation request failed for $ip: $error")
-        Left(s"Request error: $error")
-    }
-  }
-}
+      response.body match
+        case Right(body) =>
+          io.circe.parser.decode[IpWhoIsResponse](body) match
+            case Right(apiResponse) =>
+              if !apiResponse.success then
+                val message = apiResponse.message.getOrElse("Unknown error")
+                logger.warn(s"IP geolocation API error for $ip: $message")
+                Left(message)
+              else
+                val location = GeoLocation(
+                  country = apiResponse.country,
+                  region = apiResponse.region,
+                  city = apiResponse.city,
+                  connection = apiResponse.connection)
+                Right(location)
+            case Left(error) =>
+              logger.warn(s"Failed to parse IP geolocation for $ip: $error")
+              Left(s"Parse error: $error")
+        case Left(error) =>
+          logger.warn(s"IP geolocation request failed for $ip: $error")
+          Left(s"Request error: $error")
