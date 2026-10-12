@@ -62,11 +62,18 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
       nick: String,
       blocked: Boolean,
       lastlogin: Option[Timestamp],
-      regdate: Option[Timestamp]): Int =
+      regdate: Option[Timestamp],
+      maxScore: Int = 100): Int =
     springDB.run:
       sql"""INSERT INTO users (id, name, nick, passwd, score, max_score, regdate, blocked, lastlogin)
-            VALUES (nextval('s_uid'), '', $nick, 'x', 45, 45, ${regdate.orNull}, $blocked, ${lastlogin.orNull})
+            VALUES (nextval('s_uid'), '', $nick, 'x', $maxScore, $maxScore,
+                    ${regdate.orNull}, $blocked, ${lastlogin.orNull})
             RETURNING id""".map(rs => rs.int("id")).single.apply().get
+
+  private def insertBanInfo(userId: Int, bandate: Timestamp): Unit =
+    springDB.run:
+      sql"""INSERT INTO ban_info (userid, reason, ban_by, bandate)
+            VALUES ($userId, 'test ban', $userId, $bandate)""".update.apply()
 
   private def insertComment(
       commentId: Int,
@@ -336,6 +343,109 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     assert(!ids.contains(ctrlNoPostscore), "comment in old topic without hidden comments should not be a candidate")
     assert(!ids.contains(ctrlHasReply), "comment with reply in hidden-comments topic should not be a candidate")
 
+  test("getDeletableCommentIdsLowScoreBlockedRule"):
+    val moderator = createUser("test-purge-lsb-mod", blocked = false, Some(monthsAgo(1)), None)
+
+    val blockedOldBan =
+      createUser("test-purge-lsb-blocked-old", blocked = true, None, Some(yearsAgo(11)), maxScore = 49)
+    insertBanInfo(blockedOldBan, monthsAgo(7))
+
+    val loginFallback =
+      createUser("test-purge-lsb-login-fallback", blocked = true, Some(monthsAgo(7)), Some(yearsAgo(11)), maxScore = 49)
+
+    val regdateFallback =
+      createUser("test-purge-lsb-reg-fallback", blocked = true, None, Some(monthsAgo(7)), maxScore = 49)
+
+    val noDates = createUser("test-purge-lsb-no-dates", blocked = true, None, None, maxScore = 49)
+
+    val blockedRecent =
+      createUser("test-purge-lsb-blocked-recent", blocked = true, None, Some(yearsAgo(11)), maxScore = 49)
+    insertBanInfo(blockedRecent, monthsAgo(3))
+
+    val highScore = createUser("test-purge-lsb-high-score", blocked = true, None, Some(yearsAgo(11)), maxScore = 50)
+    insertBanInfo(highScore, monthsAgo(7))
+
+    val notBlocked =
+      createUser("test-purge-lsb-not-blocked", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)), maxScore = 49)
+
+    // собственно удалённые комментарии с недавней датой удаления — давность удаления не важна
+    val candBandate = nextMsgId
+    insertComment(candBandate, blockedOldBan, None, deleted = true, "lsb cand bandate")
+    insertDelInfo(candBandate, blockedOldBan, Some(monthsAgo(1)))
+
+    val candLoginFallback = nextMsgId
+    insertComment(candLoginFallback, loginFallback, None, deleted = true, "lsb cand login fallback")
+    insertDelInfo(candLoginFallback, loginFallback, Some(monthsAgo(1)))
+
+    val candRegdateFallback = nextMsgId
+    insertComment(candRegdateFallback, regdateFallback, None, deleted = true, "lsb cand regdate fallback")
+    insertDelInfo(candRegdateFallback, regdateFallback, Some(monthsAgo(1)))
+
+    val candNoDates = nextMsgId
+    insertComment(candNoDates, noDates, None, deleted = true, "lsb cand no dates")
+    insertDelInfo(candNoDates, noDates, Some(monthsAgo(1)))
+
+    val ctrlBlockedRecent = nextMsgId
+    insertComment(ctrlBlockedRecent, blockedRecent, None, deleted = true, "lsb ctrl recent block")
+    insertDelInfo(ctrlBlockedRecent, blockedRecent, Some(monthsAgo(1)))
+
+    val ctrlHighScore = nextMsgId
+    insertComment(ctrlHighScore, highScore, None, deleted = true, "lsb ctrl max_score 50")
+    insertDelInfo(ctrlHighScore, highScore, Some(monthsAgo(1)))
+
+    val ctrlNotBlocked = nextMsgId
+    insertComment(ctrlNotBlocked, notBlocked, None, deleted = true, "lsb ctrl not blocked")
+    insertDelInfo(ctrlNotBlocked, notBlocked, Some(monthsAgo(1)))
+
+    val ctrlHasReply = nextMsgId
+    insertComment(ctrlHasReply, blockedOldBan, None, deleted = true, "lsb ctrl has reply")
+    insertDelInfo(ctrlHasReply, blockedOldBan, Some(monthsAgo(1)))
+    insertComment(nextMsgId, notBlocked, Some(ctrlHasReply), deleted = false, "lsb ctrl reply")
+
+    // комментарии в недавно удалённом топике и в топике со свежескрытыми комментариями
+    val recentDeletedTopic = nextTopicId(topicId)
+    markTopicDeleted(recentDeletedTopic, Some(monthsAgo(1)), moderator)
+
+    val candInDeletedTopic = nextMsgId
+    insertComment(
+      candInDeletedTopic, blockedOldBan, None, deleted = false, "lsb cand in deleted topic", recentDeletedTopic)
+
+    val ctrlInDeletedTopic = nextMsgId
+    insertComment(
+      ctrlInDeletedTopic, notBlocked, None, deleted = false, "lsb ctrl in deleted topic", recentDeletedTopic)
+
+    val hiddenRecentTopic = nextTopicId(recentDeletedTopic)
+    val candInHiddenTopic = nextMsgId
+    insertComment(
+      candInHiddenTopic, blockedOldBan, None, deleted = false, "lsb cand in hidden topic", hiddenRecentTopic)
+
+    val ctrlInHiddenTopic = nextMsgId
+    insertComment(
+      ctrlInHiddenTopic, notBlocked, None, deleted = false, "lsb ctrl in hidden topic", hiddenRecentTopic)
+
+    hideTopicComments(hiddenRecentTopic, monthsAgo(1))
+
+    val ids = commentDao.getDeletableDeletedCommentIds
+
+    assert(ids.contains(candBandate), "low-score blocked author with old bandate should be a candidate")
+    assert(ids.contains(candLoginFallback), "unknown bandate should fall back to old lastlogin")
+    assert(ids.contains(candRegdateFallback), "unknown bandate and lastlogin should fall back to old regdate")
+    assert(ids.contains(candNoDates), "low-score blocked author without dates should be a candidate")
+    assert(
+      ids.contains(candInDeletedTopic),
+      "comment in recently deleted topic of low-score blocked author should be a candidate")
+    assert(
+      ids.contains(candInHiddenTopic),
+      "comment in hidden-comments topic of low-score blocked author should be a candidate")
+    assert(!ids.contains(ctrlBlockedRecent), "recently blocked author should not be a candidate")
+    assert(!ids.contains(ctrlHighScore), "blocked author with max_score 50 should not be a candidate")
+    assert(!ids.contains(ctrlNotBlocked), "not blocked low-score author should not be a candidate")
+    assert(!ids.contains(ctrlHasReply), "comment with reply should not be a candidate")
+    assert(!ids.contains(ctrlInDeletedTopic), "comment in deleted topic of active author should not be a candidate")
+    assert(
+      !ids.contains(ctrlInHiddenTopic),
+      "comment in hidden-comments topic of active author should not be a candidate")
+
   test("getDeletableCommentIdsTenYearRule"):
     val active = createUser("test-purge10-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))
 
@@ -544,7 +654,8 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     assertEquals(countRows("comments", "id", controlId), 1)
 
   test("purgeDeletedComments"):
-    val author = createUser("test-purge-author", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))
+    // автор неактивен: комментарий с deldate IS NULL — легитимный кандидат ветки неактивного автора
+    val author = createUser("test-purge-author", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
     val eventOwner = createUser("test-purge-event-owner", blocked = false, Some(monthsAgo(1)), None)
 
     val targetId = nextMsgId
@@ -696,6 +807,76 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
 
     val unreadAfter = getUnreadEvents(eventOwner)
     assertEquals(unreadAfter, unreadBefore - 2, "unread events counter should be recalculated")
+
+  test("purgeLowScoreBlockedComment"):
+    val author =
+      createUser("test-purge-lsb-purge", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(author, monthsAgo(7))
+
+    val targetId = nextMsgId
+    insertComment(targetId, author, None, deleted = true, "lsb purge target")
+    insertDelInfo(targetId, author, Some(monthsAgo(1)))
+
+    assert(
+      commentDao.getDeletableDeletedCommentIds.contains(targetId),
+      "comment of low-score blocked author should be a candidate")
+
+    assertEquals(commentDao.purgeDeletedComments(Seq(targetId)), 1)
+    assertEquals(countRows("comments", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+
+    intercept[MessageNotFoundException] {
+      commentDao.getById(targetId)
+    }
+
+  test("purgeSkipsLowScoreBlockedCommentAfterAuthorChange"):
+    val unblocked =
+      createUser("test-purge-lsb-unblocked", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(unblocked, monthsAgo(7))
+
+    val raisedScore =
+      createUser("test-purge-lsb-raised", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(raisedScore, monthsAgo(7))
+
+    val unblockedComment = nextMsgId
+    insertComment(unblockedComment, unblocked, None, deleted = true, "lsb comment of unblocked author")
+    insertDelInfo(unblockedComment, unblocked, Some(monthsAgo(1)))
+
+    val raisedComment = nextMsgId
+    insertComment(raisedComment, raisedScore, None, deleted = true, "lsb comment of raised-score author")
+    insertDelInfo(raisedComment, raisedScore, Some(monthsAgo(1)))
+
+    assert(commentDao.getDeletableDeletedCommentIds.contains(unblockedComment))
+    assert(commentDao.getDeletableDeletedCommentIds.contains(raisedComment))
+
+    springDB.run:
+      sql"UPDATE users SET blocked=false WHERE id = $unblocked".update.apply()
+      sql"DELETE FROM ban_info WHERE userid = $unblocked".update.apply()
+      sql"UPDATE users SET max_score=50 WHERE id = $raisedScore".update.apply()
+
+    assertEquals(commentDao.purgeDeletedComments(Seq(unblockedComment, raisedComment)), 0)
+    assertEquals(countRows("comments", "id", unblockedComment), 1)
+    assertEquals(countRows("comments", "id", raisedComment), 1)
+
+  test("purgeSkipsCommentWithReplyAddedAfterSelection"):
+    val author =
+      createUser("test-purge-lsb-reply", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(author, monthsAgo(7))
+    val commenter = createUser("test-purge-lsb-reply-commenter", blocked = false, Some(monthsAgo(1)), None)
+
+    val commentId = nextMsgId
+    insertComment(commentId, author, None, deleted = true, "lsb comment getting reply")
+    insertDelInfo(commentId, author, Some(monthsAgo(1)))
+
+    assert(commentDao.getDeletableDeletedCommentIds.contains(commentId))
+
+    // ответ появился между выборкой кандидатов и purge
+    insertComment(nextMsgId, commenter, Some(commentId), deleted = false, "reply after selection", topicId)
+
+    assertEquals(commentDao.purgeDeletedComments(Seq(commentId)), 0)
+    assertEquals(countRows("comments", "id", commentId), 1)
+    assertEquals(countRows("msgbase", "id", commentId), 1)
 
   test("purgeSkipsCommentsInUnhiddenTopics"):
     val author = createUser("test-purge-unhide-author", blocked = true, Some(yearsAgo(4)), None)

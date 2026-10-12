@@ -36,17 +36,11 @@ object UserDao:
   /** Размер порции при удалении пользователей в [[deleteUsers]] — одна транзакция на порцию. */
   val DeleteBatchSize = 500
 
-  /** Идентификаторы специальных пользователей `anonymous` и `Deleted`: их сообщения удаляются по собственному правилу
-    * (6 месяцев с момента удаления, см. [[ru.org.linux.topic.TopicDao.getDeletableDeletedTopicIds]] и
-    * [[ru.org.linux.comment.CommentDao.getDeletableDeletedCommentIds]]), а сами аккаунты не удаляются никогда.
-    */
   val SpecialUserIds: Seq[Int] = Seq(UserService.AnonymousUserId, UserService.DeletedUserId)
 
-  /** Критерий неактивности пользователя для кандидатов окончательного удаления (общий для TopicDao и CommentDao):
-    * пользователь не заходил на сайт более 10 лет (при неизвестном `lastlogin` — с даты регистрации), либо заблокирован
-    * и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа. Специальные пользователи
-    * `anonymous` и `Deleted` ([[SpecialUserIds]]) исключаются — для них действует собственное правило удаления.
-    * Предполагает, что запрос соединяется с таблицей `users` под этим именем.
+  /** Критерий неактивности пользователя для кандидатов окончательного удаления (общий для TopicDao и CommentDao).
+    *
+    * Критерии описаны в doc/data-retension.md
     */
   val AuthorInactivityCondition: SQLSyntax = sqls"""(
     users.id NOT IN (${SpecialUserIds})
@@ -55,6 +49,22 @@ object UserDao:
       OR (users.blocked
           AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
       OR (users.lastlogin IS NULL AND users.regdate IS NULL)
+    )
+  )"""
+
+  /** Критерий «нового заблокированного пользователя» для кандидатов окончательного удаления (общий для TopicDao и
+    * CommentDao). Детали описаны в doc/data-retension.md
+    *
+    * Предполагает, что запрос соединяет таблицы `users` и `ban_info` под этими именами (`LEFT JOIN ban_info ON
+    * ban_info.userid = users.id`; у заблокированного пользователя не более одной строки `ban_info`).
+    */
+  val LowScoreBlockedAuthorCondition: SQLSyntax = sqls"""(
+    users.blocked
+    AND users.max_score < 50
+    AND users.id NOT IN (${SpecialUserIds})
+    AND (
+      COALESCE(ban_info.bandate, users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '6 months'
+      OR (ban_info.bandate IS NULL AND users.lastlogin IS NULL AND users.regdate IS NULL)
     )
   )"""
 
@@ -462,13 +472,8 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
 
   /** Заблокированные пользователи без активности, подлежащие удалению.
     *
-    * Пользователь является кандидатом, если:
-    *   - заблокирован (`blocked`);
-    *   - не специальный пользователь ([[SpecialUserIds]] — anonymous и Deleted не удаляются никогда);
-    *   - не является автором топиков/комментариев, не ставил реакций, не голосовал в опросах, не приглашал и не получал
-    *     инвайты, не имеет предупреждений, и нигде не упомянут как редактор/модератор (защита от экс-модераторов);
-    *   - дата блокировки старше 3 лет. В качестве даты блокировки используется `ban_info.bandate`, при отсутствии —
-    *     `lastlogin`, затем `regdate`. Если ни одна из дат неизвестна, пользователь удаляется сразу.
+    * Критерии описаны в doc/data-retension.md
+    *
     */
   def getDeletableBlockedUserIds: Seq[Int] =
     springDB.run(
@@ -496,13 +501,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
 
   /** Незаблокированные пользователи без активности, не заходившие на сайт более 10 лет, подлежащие удалению.
     *
-    * Пользователь является кандидатом, если:
-    *   - не заблокирован (`blocked`) — заблокированные удаляются по правилу 3 лет в [[getDeletableBlockedUserIds]];
-    *   - не специальный пользователь ([[SpecialUserIds]] — anonymous и Deleted не удаляются никогда);
-    *   - не является автором топиков/комментариев, не ставил реакций, не голосовал в опросах, не приглашал и не получал
-    *     инвайты, не имеет предупреждений, и нигде не упомянут как редактор/модератор (защита от экс-модераторов);
-    *   - не заходил более 10 лет. Используется `lastlogin`, при отсутствии — `regdate`. Если ни одна из дат
-    *     неизвестна, пользователь удаляется сразу.
+    * Критерии описаны в doc/data-retension.md
     */
   def getDeletableInactiveUserIds: Seq[Int] =
     springDB.run(

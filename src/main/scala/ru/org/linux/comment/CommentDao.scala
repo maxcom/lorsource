@@ -21,7 +21,7 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
-import ru.org.linux.user.UserDao.{AuthorInactivityCondition, SpecialUserIds}
+import ru.org.linux.user.UserDao.{AuthorInactivityCondition, LowScoreBlockedAuthorCondition, SpecialUserIds}
 import ru.org.linux.util.StringUtil
 import scalikejdbc.*
 
@@ -229,25 +229,7 @@ class CommentDao(springDB: SpringDB):
 
   /** Удалённые комментарии, подлежащие окончательному удалению.
     *
-    * Комментарий является кандидатом при выполнении любого из правил:
-    *   - '''неактивный автор''': комментарий помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой
-    *     удаления старше 3 лет либо без даты (`deldate IS NULL` — удаления до начала ведения даты, только сообщения
-    *     до 2010 года, т.е. заведомо старше порога), либо находится в топике, удалённом более 3 лет назад или с
-    *     `deldate IS NULL` (удаление топика не помечает его комментарии как удалённые), либо находится в топике со
-    *     скрытыми комментариями (`postscore = POSTSCORE_HIDE_COMMENTS`) и `lastmod` топика старше 3 лет; не имеет
-    *     ответов (включая сами удалённые); его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` —
-    *     зарегистрирован более 10 лет назад), либо заблокирован и не заходил более 3 лет, либо не имеет дат
-    *     регистрации и последнего входа;
-    *   - '''6 месяцев, специальные авторы''': комментарий удалён любым из способов (`deleted`, нахождение в удалённом
-    *     топике или топике со скрытыми комментариями), его автор — специальный пользователь (`anonymous` или `Deleted`,
-    *     [[ru.org.linux.user.UserDao.SpecialUserIds]]) и дата удаления старше 6 месяцев (вычисляется так же, как для
-    *     правила 10 лет: для комментария в удалённом топике — дата удаления топика, для прочих — собственная; при
-    *     отсутствии записи `del_info` или даты в ней — `lastmod` топика);
-    *   - '''10 лет с момента удаления''' (любой автор, включая активных): комментарий удалён любым из перечисленных
-    *     способов (`deleted`, нахождение в удалённом топике или топике со скрытыми комментариями) и дата его удаления
-    *     старше 10 лет. Для комментария в удалённом топике датой удаления считается дата удаления топика, для прочих —
-    *     собственная дата удаления комментария; при отсутствии записи `del_info` или даты в ней датой удаления
-    *     считается `lastmod` топика.
+    * Критерии описаны в doc/data-retension.md
     *
     * Комментарии, подходящие по нескольким критериям удаления, попадают в результат один раз (`UNION`). Комментарии с
     * удалёнными ответами вычищаются постепенно: сначала листья цепочки, затем их родители.
@@ -287,6 +269,15 @@ class CommentDao(springDB: SpringDB):
             SELECT comments.id
             FROM comments
             JOIN topics ON topics.id = comments.topic
+            JOIN users ON users.id = comments.userid
+            LEFT JOIN ban_info ON ban_info.userid = users.id
+            WHERE (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
+            AND ${LowScoreBlockedAuthorCondition}
+            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
+            UNION
+            SELECT comments.id
+            FROM comments
+            JOIN topics ON topics.id = comments.topic
             LEFT JOIN del_info comdel ON comdel.msgid = comments.id
             LEFT JOIN del_info topdel ON topdel.msgid = topics.id
             WHERE (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
@@ -310,13 +301,13 @@ class CommentDao(springDB: SpringDB):
 
   /** Окончательно удаляет комментарии со всеми зависимыми записями (в одной транзакции).
     *
-    * Удаляются записи из `user_events` (события любых типов по `comment_id`, а также события привязанных к комментариям
-    * предупреждений по `warning_id`), `reactions_log`, `message_warnings`, `edit_info`, `del_info`, `msgbase` и сами
-    * комментарии. Перед удалением блокируются строки комментариев и их топиков (`FOR UPDATE`); комментарии,
-    * восстановленные к этому моменту напрямую или вместе с топиком, а также находящиеся в топиках, в которых к этому
-    * моменту уже не скрыты комментарии (`postscore` отличен от `POSTSCORE_HIDE_COMMENTS`), пропускаются. Счётчики
-    * непрочитанных уведомлений затронутых пользователей пересчитываются; счётчики комментариев топиков (`stat1`/`stat3`)
-    * не пересчитываются.
+    * Критерии описаны в doc/data-retension.md
+    *
+    * Перед удалением перепроверяем критерии, на случай если комментарий был восстановлен или автор был разблокирован
+    * или другие условия перестали выполняться.
+    *
+    * Счётчики непрочитанных уведомлений затронутых пользователей
+    * пересчитываются; счётчики комментариев топиков (`stat1`/`stat3`) не пересчитываются.
     *
     * @param ids
     *   идентификаторы окончательно удаляемых комментариев
@@ -331,9 +322,33 @@ class CommentDao(springDB: SpringDB):
         val locked =
           sql"""SELECT comments.id FROM comments
                 JOIN topics ON topics.id = comments.topic
+                JOIN users ON users.id = comments.userid
+                LEFT JOIN del_info comdel ON comdel.msgid = comments.id
+                LEFT JOIN del_info topdel ON topdel.msgid = topics.id
+                LEFT JOIN ban_info ON ban_info.userid = users.id
                 WHERE comments.id IN ($ids)
                 AND (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
-                ORDER BY comments.id FOR UPDATE"""
+                AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
+                AND (
+                  (
+                    (comments.deleted AND comdel.msgid IS NOT NULL
+                      AND (comdel.deldate < CURRENT_TIMESTAMP - interval '3 years' OR comdel.deldate IS NULL))
+                    OR (topics.deleted AND topdel.msgid IS NOT NULL
+                      AND (topdel.deldate < CURRENT_TIMESTAMP - interval '3 years' OR topdel.deldate IS NULL))
+                    OR (topics.postscore = $POSTSCORE_HIDE_COMMENTS
+                      AND topics.lastmod < CURRENT_TIMESTAMP - interval '3 years')
+                  )
+                  AND ${AuthorInactivityCondition}
+                  OR ${LowScoreBlockedAuthorCondition}
+                  OR (comments.userid IN (${SpecialUserIds})
+                    AND (CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
+                              ELSE COALESCE(comdel.deldate, topics.lastmod) END
+                         < CURRENT_TIMESTAMP - interval '6 months'))
+                  OR (CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
+                           ELSE COALESCE(comdel.deldate, topics.lastmod) END
+                      < CURRENT_TIMESTAMP - interval '10 years')
+                )
+                ORDER BY comments.id FOR UPDATE OF comments, topics, users"""
             .map(rs => rs.int("id"))
             .list
             .apply()

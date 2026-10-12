@@ -67,11 +67,18 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
       nick: String,
       blocked: Boolean,
       lastlogin: Option[Timestamp],
-      regdate: Option[Timestamp]): Int =
+      regdate: Option[Timestamp],
+      maxScore: Int = 100): Int =
     springDB.run:
       sql"""INSERT INTO users (id, name, nick, passwd, score, max_score, regdate, blocked, lastlogin)
-            VALUES (nextval('s_uid'), '', $nick, 'x', 45, 45, ${regdate.orNull}, $blocked, ${lastlogin.orNull})
+            VALUES (nextval('s_uid'), '', $nick, 'x', $maxScore, $maxScore,
+                    ${regdate.orNull}, $blocked, ${lastlogin.orNull})
             RETURNING id""".map(rs => rs.int("id")).single.apply().get
+
+  private def insertBanInfo(userId: Int, bandate: Timestamp): Unit =
+    springDB.run:
+      sql"""INSERT INTO ban_info (userid, reason, ban_by, bandate)
+            VALUES ($userId, 'test ban', $userId, $bandate)""".update.apply()
 
   private def insertTopic(topicId: Int, userId: Int, title: String, draft: Boolean = false): Unit =
     springDB.run:
@@ -256,6 +263,141 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
       !ids.contains(ctrlRecentLastmod),
       "deleted topic of anonymous without del_info and recent lastmod should not be a candidate")
     assert(!ids.contains(ctrlWithComment), "topic of anonymous with comment should not be a candidate")
+
+  test("getDeletableDeletedTopicIdsLowScoreBlockedRule"):
+    val blockedOldBan =
+      createUser("test-topic-lsb-blocked-old", blocked = true, None, Some(yearsAgo(11)), maxScore = 49)
+    insertBanInfo(blockedOldBan, monthsAgo(7))
+
+    val loginFallback =
+      createUser("test-topic-lsb-login-fallback", blocked = true, Some(monthsAgo(7)), Some(yearsAgo(11)), maxScore = 49)
+
+    val regdateFallback =
+      createUser("test-topic-lsb-reg-fallback", blocked = true, None, Some(monthsAgo(7)), maxScore = 49)
+
+    val noDates = createUser("test-topic-lsb-no-dates", blocked = true, None, None, maxScore = 49)
+
+    val blockedRecent =
+      createUser("test-topic-lsb-blocked-recent", blocked = true, None, Some(yearsAgo(11)), maxScore = 49)
+    insertBanInfo(blockedRecent, monthsAgo(3))
+
+    val highScore = createUser("test-topic-lsb-high-score", blocked = true, None, Some(yearsAgo(11)), maxScore = 50)
+    insertBanInfo(highScore, monthsAgo(7))
+
+    val notBlocked =
+      createUser("test-topic-lsb-not-blocked", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)), maxScore = 49)
+
+    def deletedTopic(userId: Int, title: String, deldate: Option[Timestamp]): Int =
+      val id = nextMsgId
+      insertTopic(id, userId, title)
+      markTopicDeleted(id, deldate, userId)
+      id
+
+    // недавние даты удаления: правило новых заблокированных не требует давности удаления
+    val candBandate = deletedTopic(blockedOldBan, "lsb cand bandate", Some(monthsAgo(1)))
+    val candLoginFallback = deletedTopic(loginFallback, "lsb cand login fallback", Some(monthsAgo(1)))
+    val candRegdateFallback = deletedTopic(regdateFallback, "lsb cand regdate fallback", Some(monthsAgo(1)))
+    val candNoDates = deletedTopic(noDates, "lsb cand no dates", Some(monthsAgo(1)))
+
+    val ctrlBlockedRecent = deletedTopic(blockedRecent, "lsb ctrl recent block", Some(monthsAgo(1)))
+    val ctrlHighScore = deletedTopic(highScore, "lsb ctrl max_score 50", Some(monthsAgo(1)))
+    val ctrlNotBlocked = deletedTopic(notBlocked, "lsb ctrl not blocked", Some(monthsAgo(1)))
+    val ctrlWithComment = deletedTopic(blockedOldBan, "lsb ctrl with comment", Some(monthsAgo(1)))
+    insertComment(nextMsgId, notBlocked, ctrlWithComment)
+
+    val ids = topicDao.getDeletableDeletedTopicIds
+
+    assert(ids.contains(candBandate), "low-score blocked author with old bandate should be a candidate")
+    assert(ids.contains(candLoginFallback), "unknown bandate should fall back to old lastlogin")
+    assert(ids.contains(candRegdateFallback), "unknown bandate and lastlogin should fall back to old regdate")
+    assert(ids.contains(candNoDates), "low-score blocked author without dates should be a candidate")
+    assert(!ids.contains(ctrlBlockedRecent), "recently blocked author should not be a candidate")
+    assert(!ids.contains(ctrlHighScore), "blocked author with max_score 50 should not be a candidate")
+    assert(!ids.contains(ctrlNotBlocked), "not blocked low-score author should not be a candidate")
+    assert(!ids.contains(ctrlWithComment), "topic with comment should not be a candidate")
+
+  test("getDeletableDraftTopicIdsLowScoreBlockedRule"):
+    // свежие lastlogin/regdate изолируют новое правило от правила неактивности автора
+    val blockedOldBan =
+      createUser("test-draft-lsb-blocked-old", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(blockedOldBan, monthsAgo(7))
+
+    val blockedRecent =
+      createUser("test-draft-lsb-blocked-recent", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(blockedRecent, monthsAgo(3))
+
+    val highScore =
+      createUser("test-draft-lsb-high-score", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 50)
+    insertBanInfo(highScore, monthsAgo(7))
+
+    val active =
+      createUser("test-draft-lsb-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)), maxScore = 49)
+
+    // lastmod свежий (CURRENT_TIMESTAMP): правило новых заблокированных не требует возраста черновика
+    val candDraft = insertDraft(blockedOldBan, "lsb cand draft")
+    val ctrlRecentBlock = insertDraft(blockedRecent, "lsb ctrl recent block draft")
+    val ctrlHighScore = insertDraft(highScore, "lsb ctrl high score draft")
+    val ctrlActive = insertDraft(active, "lsb ctrl active draft")
+
+    val ids = topicDao.getDeletableDraftTopicIds
+
+    assert(
+      ids.contains(candDraft),
+      "draft of blocked low-score author should be a candidate regardless of lastmod")
+    assert(!ids.contains(ctrlRecentBlock), "draft of recently blocked author should not be a candidate")
+    assert(!ids.contains(ctrlHighScore), "draft of blocked author with max_score 50 should not be a candidate")
+    assert(!ids.contains(ctrlActive), "draft of active low-score author should not be a candidate")
+
+  test("purgeLowScoreBlockedTopic"):
+    val author =
+      createUser("test-topic-lsb-purge", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(author, monthsAgo(7))
+
+    val targetId = nextMsgId
+    insertTopic(targetId, author, "lsb purge target")
+    markTopicDeleted(targetId, Some(monthsAgo(1)), author)
+
+    assert(
+      topicDao.getDeletableDeletedTopicIds.contains(targetId),
+      "topic of low-score blocked author should be a candidate")
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(targetId)), 1)
+    assertEquals(countRows("topics", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+
+    intercept[MessageNotFoundException] {
+      topicDao.getById(targetId)
+    }
+
+  test("purgeSkipsLowScoreBlockedTopicAfterAuthorChange"):
+    val unblocked =
+      createUser("test-topic-lsb-unblocked", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(unblocked, monthsAgo(7))
+
+    val raisedScore =
+      createUser("test-topic-lsb-raised", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    insertBanInfo(raisedScore, monthsAgo(7))
+
+    val unblockedTopic = nextMsgId
+    insertTopic(unblockedTopic, unblocked, "lsb topic of unblocked author")
+    markTopicDeleted(unblockedTopic, Some(monthsAgo(1)), unblocked)
+
+    val raisedTopic = nextMsgId
+    insertTopic(raisedTopic, raisedScore, "lsb topic of raised-score author")
+    markTopicDeleted(raisedTopic, Some(monthsAgo(1)), raisedScore)
+
+    assert(topicDao.getDeletableDeletedTopicIds.contains(unblockedTopic))
+    assert(topicDao.getDeletableDeletedTopicIds.contains(raisedTopic))
+
+    springDB.run:
+      sql"UPDATE users SET blocked=false WHERE id = $unblocked".update.apply()
+      sql"DELETE FROM ban_info WHERE userid = $unblocked".update.apply()
+      sql"UPDATE users SET max_score=50 WHERE id = $raisedScore".update.apply()
+
+    assertEquals(topicDao.purgeDeletedTopics(Seq(unblockedTopic, raisedTopic)), 0)
+    assertEquals(countRows("topics", "id", unblockedTopic), 1)
+    assertEquals(countRows("topics", "id", raisedTopic), 1)
 
   test("purgeSpecialAuthorTopics"):
     ensureDeletedUser()

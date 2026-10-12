@@ -23,7 +23,7 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.SectionScrollModeEnum
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
-import ru.org.linux.user.UserDao.{AuthorInactivityCondition, SpecialUserIds}
+import ru.org.linux.user.UserDao.{AuthorInactivityCondition, LowScoreBlockedAuthorCondition, SpecialUserIds}
 import ru.org.linux.warning.RuleWarning
 import scalikejdbc.*
 
@@ -333,23 +333,7 @@ class TopicDao(springDB: SpringDB):
 
   /** Удалённые топики без комментариев, подлежащие окончательному удалению.
     *
-    * Топик является кандидатом при выполнении любого из правил:
-    *   - '''неактивный автор''': помечен как удалённый (`deleted`) и имеет запись в `del_info` с датой удаления старше
-    *     3 лет либо без даты (`deldate IS NULL` — удаления до начала ведения даты, только сообщения до 2010 года,
-    *     т.е. заведомо старше порога); его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` —
-    *     зарегистрирован более 10 лет назад), либо заблокирован и не заходил более 3 лет, либо не имеет дат
-    *     регистрации и последнего входа;
-    *   - '''6 месяцев, специальные авторы''': топик удалён более 6 месяцев назад (датой удаления считается
-    *     `COALESCE(del_info.deldate, topics.lastmod)`), а его автор — специальный пользователь
-    *     (`anonymous` или `Deleted`, [[ru.org.linux.user.UserDao.SpecialUserIds]]); покрывает все их удалённые
-    *     топики независимо от дат входа/регистрации;
-    *   - '''10 лет с момента удаления''' (любой автор, включая активных): датой удаления считается
-    *     `COALESCE(del_info.deldate, topics.lastmod)` — при отсутствии записи `del_info` или даты в ней берётся
-    *     `lastmod` топика.
-    *
-    * Для всех правил: топик не имеет комментариев (включая удалённые — их строки постепенно вычищает
-    * [[ru.org.linux.comment.DeletedCommentCleaner]], после чего топик станет кандидатом) и непрочищенных картинок
-    * (`images.purged = false` — файлы ещё не удалены [[ru.org.linux.gallery.OldImageCleaner]]).
+    * Критерии описаны в doc/data-retension.md
     *
     * @return
     *   список идентификаторов кандидатов, упорядоченный по возрастанию id
@@ -365,6 +349,15 @@ class TopicDao(springDB: SpringDB):
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
             AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
             AND ${AuthorInactivityCondition}
+            UNION
+            SELECT topics.id
+            FROM topics
+            JOIN users ON users.id = topics.userid
+            LEFT JOIN ban_info ON ban_info.userid = users.id
+            WHERE topics.deleted
+            AND ${LowScoreBlockedAuthorCondition}
+            AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
+            AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
             UNION
             SELECT topics.id
             FROM topics
@@ -385,16 +378,8 @@ class TopicDao(springDB: SpringDB):
             ORDER BY id""".map(rs => rs.int("id")).list.apply()
 
   /** Черновики неактивных пользователей, подлежащие окончательному удалению.
-    *
-    * Черновик является кандидатом, если:
-    *   - не опубликован (`draft`) и не помечен как удалённый (мягко-удалённые черновики обрабатываются
-    *     [[getDeletableDeletedTopicIds]] по `del_info.deldate`);
-    *   - не имеет комментариев (в норме невозможны — черновики не публикуются; проверка защищает от гонки с публикацией
-    *     между выборкой и удалением);
-    *   - его автор — специальный пользователь (`anonymous` или `Deleted`,
-    *     [[ru.org.linux.user.UserDao.SpecialUserIds]]) и черновик не модифицировался более 6 месяцев (`lastmod`);
-    *     либо его автор не заходил на сайт более 10 лет (при неизвестном `lastlogin` — зарегистрирован более 10 лет
-    *     назад), либо заблокирован и не заходил более 3 лет, либо не имеет дат регистрации и последнего входа.
+    * 
+    * Критерии описаны в doc/data-retension.md
     *
     * В отличие от [[getDeletableDeletedTopicIds]] не фильтрует непрочищенные картинки: файлы картинок неопубликованных
     * черновиков ([[ru.org.linux.gallery.OldImageCleaner]] их не обрабатывает) удаляет непосредственно перед purge сам
@@ -412,6 +397,7 @@ class TopicDao(springDB: SpringDB):
       sql"""SELECT topics.id
             FROM topics
             JOIN users ON users.id = topics.userid
+            LEFT JOIN ban_info ON ban_info.userid = users.id
             WHERE topics.draft
             AND NOT topics.deleted
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
@@ -419,6 +405,7 @@ class TopicDao(springDB: SpringDB):
               ${AuthorInactivityCondition}
               OR (topics.userid IN (${SpecialUserIds})
                   AND topics.lastmod < CURRENT_TIMESTAMP - interval '6 months')
+              OR ${LowScoreBlockedAuthorCondition}
             )
             ORDER BY topics.id""".map(rs => rs.int("id")).list.apply()
 
@@ -427,20 +414,9 @@ class TopicDao(springDB: SpringDB):
     * Обрабатывает как удалённые топики (кандидаты [[getDeletableDeletedTopicIds]]), так и черновики неактивных
     * пользователей (кандидаты [[getDeletableDraftTopicIds]]).
     *
-    * Удаляются записи из `user_events` (события любых типов по `message_id`, а также события привязанных к топикам
-    * предупреждений по `warning_id`), `reactions_log`, `message_warnings`, `edit_info`, `del_info`, `memories`, `tags`,
-    * `images` (файлы картинок должны быть предварительно удалены [[ru.org.linux.gallery.OldImageCleaner]] или
-    * [[DeletedTopicCleaner]]), `topic_users_notified`, `telegram_posts`, опросы (`vote_users`, `polls_variants`,
-    * `polls`), `msgbase` и сами топики. Перед удалением блокируются строки топиков и их авторов (`FOR UPDATE` по
-    * соединению с `users` — блокировка строки автора делает перепроверку неактивности стабильной до фиксации
-    * транзакции); топики,
-    * восстановленные (или, для черновиков, опубликованные) к этому моменту, получившие комментарии, имеющие
-    * непрочищенные картинки, а также топики, чей автор перестал удовлетворять критериям неактивности (например, вернулся
-    * на сайт) между выборкой кандидатов и purge, пропускаются. Исключение — топики, проходящие по правилам,
-    * не зависящим от активности автора: удалённые топики старше 10 лет ([[getDeletableDeletedTopicIds]]) и топики
-    * специальных пользователей (`anonymous`, `Deleted`) старше 6 месяцев, включая черновики с `lastmod` старше
-    * 6 месяцев. Прочие черновики и удалённые топики по-прежнему требуют неактивности автора. Счётчики непрочитанных
-    * уведомлений затронутых пользователей пересчитываются.
+    * Критерии описаны в doc/data-retension.md
+    * 
+    * Счётчики непрочитанных уведомлений затронутых пользователей пересчитываются.
     *
     * @param ids
     *   идентификаторы окончательно удаляемых топиков
@@ -456,6 +432,7 @@ class TopicDao(springDB: SpringDB):
           sql"""SELECT topics.id FROM topics
                 JOIN users ON users.id = topics.userid
                 LEFT JOIN del_info ON del_info.msgid = topics.id
+                LEFT JOIN ban_info ON ban_info.userid = users.id
                 WHERE topics.id IN ($ids)
                 AND (topics.deleted OR topics.draft)
                 AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
@@ -463,11 +440,13 @@ class TopicDao(springDB: SpringDB):
                 AND (
                   (topics.draft AND (
                     ${AuthorInactivityCondition}
+                    OR ${LowScoreBlockedAuthorCondition}
                     OR (topics.userid IN (${SpecialUserIds})
                         AND topics.lastmod < CURRENT_TIMESTAMP - interval '6 months')
                   ))
                   OR (topics.deleted AND (
                     ${AuthorInactivityCondition}
+                    OR ${LowScoreBlockedAuthorCondition}
                     OR COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '10 years'
                     OR (topics.userid IN (${SpecialUserIds})
                         AND COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '6 months')
