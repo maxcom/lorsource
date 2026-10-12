@@ -46,7 +46,7 @@ class UserTagDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
   private def createUser(userName: String): Int =
     springDB.run:
       val userid = sql"select nextval('s_uid') as userid".map(rs => rs.int("userid")).single.apply().get
-      sql"INSERT INTO users (id, name, nick) VALUES ($userid, $userName, $userName)".update.apply()
+      sql"INSERT INTO users (id, name, nick, score, max_score) VALUES ($userid, $userName, $userName, 0, 0)".update.apply()
       userid
 
   private def createTag(tagName: String): Int =

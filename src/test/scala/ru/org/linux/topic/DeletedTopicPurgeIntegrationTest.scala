@@ -101,7 +101,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
   private def ensureDeletedUser(): Unit =
     springDB.run:
-      sql"""INSERT INTO users (id, nick, blocked) VALUES (${UserService.DeletedUserId}, 'Deleted', false)
+      sql"""INSERT INTO users (id, nick, blocked, score, max_score) VALUES (${UserService.DeletedUserId}, 'Deleted', false, 0, 0)
             ON CONFLICT (id) DO UPDATE SET blocked=false""".update.apply()
 
   private def insertComment(commentId: Int, userId: Int, topic: Int): Unit =

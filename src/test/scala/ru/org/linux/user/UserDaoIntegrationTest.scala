@@ -105,7 +105,7 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
     springDB.run:
       sql"UPDATE users SET blocked='t' WHERE id=${UserService.AnonymousUserId}".update.apply()
-      sql"""INSERT INTO users (id, nick, blocked) VALUES (${UserService.DeletedUserId}, 'Deleted', 't')
+      sql"""INSERT INTO users (id, nick, blocked, score, max_score) VALUES (${UserService.DeletedUserId}, 'Deleted', 't', 0, 0)
             ON CONFLICT (id) DO UPDATE SET blocked='t'""".update.apply()
       sql"""INSERT INTO ban_info (userid, bandate, reason, ban_by)
             VALUES (${UserService.AnonymousUserId}, ${ts("2015-01-01")}, 'test', ${UserDaoIntegrationTest.TestId})
@@ -130,7 +130,7 @@ class UserDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     val blockedOldLogin = createUser("test-inactive-blocked", blocked = true, lastlogin = Some(ts("2010-01-01")))
 
     springDB.run:
-      sql"""INSERT INTO users (id, nick, blocked) VALUES (${UserService.DeletedUserId}, 'Deleted', 'f')
+      sql"""INSERT INTO users (id, nick, blocked, score, max_score) VALUES (${UserService.DeletedUserId}, 'Deleted', 'f', 0, 0)
             ON CONFLICT (id) DO UPDATE SET blocked='f'""".update.apply()
 
     val ids = userDao.getDeletableInactiveUserIds
