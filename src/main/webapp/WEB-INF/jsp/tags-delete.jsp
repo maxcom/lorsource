@@ -28,7 +28,7 @@
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Удаление метки «${tagRequestDelete.oldTagName}»</h1>
+<h1>Удаление метки «<c:out value="${tagRequestDelete.oldTagName}"/>»</h1>
 
 <p><strong>Внимание!</strong> Удаление метки нельзя отменить. Изменение не отражается в истории правок топика.</p>
 
@@ -54,7 +54,7 @@
   <div class="form-actions">
     <button type="submit" class="btn btn-danger">Удалить</button>
     <c:url var="list_url" value="/tags/${firstLetter}"/>
-    <button type="button" class="btn btn-default" onClick="window.location='${list_url}';">Отменить</button>
+    <a class="btn btn-default" href="${list_url}">Отменить</a>
   </div>
  </form:form>
 

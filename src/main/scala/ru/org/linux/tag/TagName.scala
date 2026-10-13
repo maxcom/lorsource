@@ -25,9 +25,18 @@ object TagName {
 
   private val tagRE = """(?i)([\p{L}\d-](?:[.\p{L}\d \+-]*[\p{L}\d\+-])?)""".r.pattern
 
+  private val firstLetterRE = """[\p{L}\d-]""".r.pattern
+
   def isGoodTag(tag: String): Boolean = {
-    tagRE.matcher(tag).matches() && tag.length() >= MinTagLength && tag.length() <= MaxTagLength
+    tag != null && tagRE.matcher(tag).matches() && tag.length() >= MinTagLength && tag.length() <= MaxTagLength
   }
+
+  /**
+   * Проверка фильтра «первая буква» для списков тегов: пустая строка или один допустимый
+   * первый символ тега.
+   */
+  def isGoodFirstLetter(firstLetter: String): Boolean =
+    firstLetter.isEmpty || (firstLetter.length == 1 && firstLetterRE.matcher(firstLetter).matches())
 
   @throws[UserErrorException]
   def checkTag(tag:String): Unit = {

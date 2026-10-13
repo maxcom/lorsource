@@ -18,16 +18,13 @@ package ru.org.linux.tag
 import munit.FunSuite
 import ru.org.linux.tag.TagName.*
 
-class TagNameTest extends FunSuite {
+class TagNameTest extends FunSuite:
   test("parseAndSanitizeTags parse one simple tag") {
     assertEquals(parseAndSanitizeTags("linux").toSet, Set("linux"))
   }
 
   test("parseAndSanitizeTags parse list of simple tags") {
-    assertEquals(
-      parseAndSanitizeTags("fedora, ubuntu, opensuse").toSet,
-      Set("fedora", "ubuntu", "opensuse")
-    )
+    assertEquals(parseAndSanitizeTags("fedora, ubuntu, opensuse").toSet, Set("fedora", "ubuntu", "opensuse"))
   }
 
   test("parseTags ignore extra spaces and commas") {
@@ -79,4 +76,42 @@ class TagNameTest extends FunSuite {
   test("isGoodTag accept 'функциональное программирование' tag") {
     assert(isGoodTag("функциональное программирование"))
   }
-}
+
+  test("isGoodFirstLetter accept empty string") {
+    assert(isGoodFirstLetter(""))
+  }
+
+  test("isGoodFirstLetter accept single letter") {
+    assert(isGoodFirstLetter("l"))
+    assert(isGoodFirstLetter("ф"))
+  }
+
+  test("isGoodFirstLetter accept single digit") {
+    assert(isGoodFirstLetter("2"))
+  }
+
+  test("isGoodFirstLetter accept dash") {
+    assert(isGoodFirstLetter("-"))
+  }
+
+  test("isGoodFirstLetter reject multiple characters") {
+    assert(!isGoodFirstLetter("li"))
+    assert(!isGoodFirstLetter("linux"))
+  }
+
+  test("isGoodFirstLetter reject html and quote injection") {
+    assert(!isGoodFirstLetter("<"))
+    assert(!isGoodFirstLetter("\""))
+    assert(!isGoodFirstLetter("'"))
+    assert(!isGoodFirstLetter("&"))
+    assert(!isGoodFirstLetter(";"))
+  }
+
+  test("isGoodFirstLetter reject space and dot") {
+    assert(!isGoodFirstLetter(" "))
+    assert(!isGoodFirstLetter("."))
+  }
+
+  test("isGoodTag reject null") {
+    assert(!isGoodTag(null))
+  }

@@ -50,6 +50,10 @@ class TagController(tagModificationService: TagModificationService, tagService: 
   @RequestMapping(path = Array("/tags/{firstLetter}"))
   @throws[TagNotFoundException]
   def showTagListHandler(@PathVariable firstLetter: String): ModelAndView = MaybeAuthorized { currentUser =>
+    if (!TagName.isGoodFirstLetter(firstLetter)) {
+      throw new TagNotFoundException
+    }
+
     val modelAndView = new ModelAndView("tags")
 
     val firstLetters = tagService.getFirstLetters
@@ -105,10 +109,15 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    * @return объект web-модели
    */
   @RequestMapping(value = Array("/tags/change"), method = Array(RequestMethod.GET))
+  @throws[TagNotFoundException]
   @throws[AccessViolationException]
   def changeTagShowFormHandler(
                                 @RequestParam(value = "firstLetter", required = false, defaultValue = "") firstLetter: String,
                                 @RequestParam("tagName") oldTagName: String): ModelAndView = ModeratorOnly { _ =>
+    if (!TagName.isGoodTag(oldTagName) || !TagName.isGoodFirstLetter(firstLetter)) {
+      throw new TagNotFoundException
+    }
+
     val tagRequestChange = new TagRequest.Change
 
     tagRequestChange.setOldTagName(oldTagName)
@@ -131,11 +140,16 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    * @return объект web-модели
    */
   @RequestMapping(value = Array("/tags/change"), method = Array(RequestMethod.POST))
+  @throws[TagNotFoundException]
   @throws[AccessViolationException]
   def changeTagSubmitHandler(
                               @RequestParam(value = "firstLetter", required = false, defaultValue = "") firstLetter: String,
                               @ModelAttribute("tagRequestChange") tagRequestChange: TagRequest.Change,
                               errors: Errors): ModelAndView = ModeratorOnly { currentUser =>
+    if (!TagName.isGoodTag(tagRequestChange.getOldTagName) || !TagName.isGoodFirstLetter(firstLetter)) {
+      throw new TagNotFoundException
+    }
+
     if (tagService.getTagIdOpt(tagRequestChange.getOldTagName).isEmpty) {
       errors.rejectValue("oldTagName", "", "Тега с таким именем не существует!")
     }
@@ -167,9 +181,14 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    * @return объект web-модели
    */
   @RequestMapping(value = Array("/tags/delete"), method = Array(RequestMethod.GET))
+  @throws[TagNotFoundException]
   @throws[AccessViolationException]
   def deleteTagShowFormHandler(@RequestParam(value = "firstLetter", required = false, defaultValue = "") firstLetter: String,
                                @RequestParam("tagName") oldTagName: String): ModelAndView = ModeratorOnly { _ =>
+    if (!TagName.isGoodTag(oldTagName) || !TagName.isGoodFirstLetter(firstLetter)) {
+      throw new TagNotFoundException
+    }
+
     val tagRequestDelete = new TagRequest.Delete
 
     tagRequestDelete.setOldTagName(oldTagName)
@@ -191,9 +210,14 @@ class TagController(tagModificationService: TagModificationService, tagService: 
    * @return объект web-модели
    */
   @RequestMapping(value = Array("/tags/delete"), method = Array(RequestMethod.POST))
+  @throws[TagNotFoundException]
   @throws[AccessViolationException]
   def deleteTagSubmitHandler(@ModelAttribute("tagRequestDelete") request: TagRequest.Delete,
                              errors: Errors): ModelAndView = ModeratorOnly { currentUser =>
+    if (!TagName.isGoodTag(request.getOldTagName)) {
+      throw new TagNotFoundException
+    }
+
     val synonym = tagService.getTagBySynonym(request.getOldTagName).isDefined
 
     val performDelete = synonym || Strings.isNullOrEmpty(request.getTagName)

@@ -20,11 +20,11 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Изменение тега ${tagRequestChange.oldTagName}</title>
+<title>Изменение тега <c:out value="${tagRequestChange.oldTagName}"/></title>
 <link rel="parent" title="Linux.org.ru" href="/">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Изменение тега ${tagRequestChange.oldTagName}</h1>
+<h1>Изменение тега <c:out value="${tagRequestChange.oldTagName}"/></h1>
 
 <c:url var="change_url" value="/tags/change">
   <c:param name="firstLetter" value="${firstLetter}"/>
@@ -33,13 +33,13 @@
   <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
-  Старое название: ${tagRequestChange.oldTagName}<br>
+  Старое название: <c:out value="${tagRequestChange.oldTagName}"/><br>
   <label for="tagName">Новое название:</label>
   <form:input path="tagName" required="required" style="width: 40em" autofocus="autofocus"/>
   <div class="form-actions">
     <button type="submit" class="btn btn-primary">Изменить</button>
     <c:url var="list_url" value="/tags/${firstLetter}" />
-    <button onClick="window.location='${list_url}';" class="btn btn-default">Отменить</button>
+    <a class="btn btn-default" href="${list_url}">Отменить</a>
   </div>
 </form:form>
 
