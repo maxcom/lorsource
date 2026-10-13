@@ -18,7 +18,7 @@
     <dependency.spring.version>7.0.9</dependency.spring.version>
     <micrometer.context-propagation.version>1.2.1</micrometer.context-propagation.version>
     <spring.security.version>7.0.7</spring.security.version>
-    <jdbc.postgresql.version>42.7.13</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.14</jdbc.postgresql.version>
     <scala.version>3.9.0</scala.version>
     <scala.suffix>3</scala.suffix>
     <activemq.version>6.3.2</activemq.version>
@@ -252,7 +252,7 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>3.3.0</version>
+      <version>3.3.1</version>
     </dependency>
     <dependency>
       <groupId>org.jasypt</groupId>
