@@ -258,7 +258,7 @@
         img320: '/adv/rent-320x100.png',
         img728: '/adv/rent-728x90.png',
         img1000: '/adv/rent-1000x120.png',
-        href: 'https://selectel.ru/services/dedicated/server-stay-in-house/'
+        href: 'https://selectel.ru/services/dedicated/server-stay-in-house/?utm_source=linuxorg&utm_medium=banner&utm_campaign=server-stay-in-house'
       }
     ];
 
