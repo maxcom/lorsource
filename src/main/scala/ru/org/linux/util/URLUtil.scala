@@ -46,15 +46,11 @@ object URLUtil:
     val cleaned = url.replaceAll("[\\t\\n\\r]", "").trim
     val colon = cleaned.indexOf(':')
 
-    if colon <= 0 then
-      true
-    else
+    if colon > 0 && cleaned.substring(0, colon).matches("[a-zA-Z][a-zA-Z0-9+\\-.]*") then
       val scheme = cleaned.substring(0, colon)
-
-      if !scheme.matches("[a-zA-Z][a-zA-Z0-9+\\-.]*") then
-        true
-      else
-        AllowedLinkSchemes.contains(scheme.toLowerCase)
+      AllowedLinkSchemes.contains(scheme.toLowerCase)
+    else
+      !cleaned.takeWhile(c => c != '/' && c != '?' && c != '#').contains('&')
 
   def extractShortHost(url: String): Option[String] =
     try

@@ -109,6 +109,17 @@ class MarkdownFormatterTest extends FunSuite:
       assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
       assertEquals("<p>alt</p>\n", rendered)
 
+  test("testUnsafeLinkSchemeDoubleEntityEncodedInImageSuppressed"):
+    for url <- Seq(
+        "javascript&amp;#58;alert(1)",
+        "javascript&amp;#x3a;alert(1)",
+        "javascript&amp;colon;alert(1)")
+    do
+      val rendered = markdownFormatter.renderToHtml(s"![alt]($url)", false)
+
+      assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
+      assertEquals("<p>alt</p>\n", rendered)
+
   test("testUnsafeLinkSchemeInReferenceLinkSuppressed"):
     val rendered = markdownFormatter.renderToHtml("[x][r]\n\n[r]: JAVASCRIPT:alert(1)", false)
 
@@ -130,7 +141,22 @@ class MarkdownFormatterTest extends FunSuite:
     for url <- Seq(
         "java&Tab;script:alert(1)",
         "javascript&colon;alert(1)",
-        "jav&NewLine;ascript:alert(1)")
+        "jav&NewLine;ascript:alert(1)",
+        "java&#115;cript:alert(origin)",
+        "&#106;avascript:alert(document.domain)")
+    do
+      val rendered = markdownFormatter.renderToHtml(s"[x]($url)", false)
+
+      assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
+      assertEquals("<p>x</p>\n", rendered)
+
+  test("testUnsafeLinkSchemeDoubleEntityEncodedSuppressed"):
+    for url <- Seq(
+        "javascript&amp;#58;alert(1)",
+        "javascript&amp;#x3a;alert(1)",
+        "javascript&amp;colon;alert(1)",
+        "java&amp;#115;cript:alert(1)",
+        "java&amp;#10;script:alert(1)")
     do
       val rendered = markdownFormatter.renderToHtml(s"[x]($url)", false)
 
@@ -142,6 +168,16 @@ class MarkdownFormatterTest extends FunSuite:
 
     assert(!rendered.contains("<a"), s"expected no anchor: $rendered")
     assertEquals("<p>x</p>\n", rendered)
+
+  test("testUnsafeLinkSchemeDoubleEntityEncodedInReferenceLinkSuppressed"):
+    for url <- Seq(
+        "javascript&amp;#58;alert(1)",
+        "javascript&amp;colon;alert(1)")
+    do
+      val rendered = markdownFormatter.renderToHtml(s"[x][r]\n\n[r]: $url", false)
+
+      assert(!rendered.contains("<a"), s"expected no anchor for $url: $rendered")
+      assertEquals("<p>x</p>\n", rendered)
 
   test("testSafeSchemeInReferenceLinkAllowed"):
     val rendered = markdownFormatter.renderToHtml("[x][r]\n\n[r]: https://linux.org.ru/", false)
@@ -176,6 +212,15 @@ class MarkdownFormatterTest extends FunSuite:
       assert(rendered.contains("<a href="), s"expected anchor for $url: $rendered")
       assert(!rendered.contains("javascript") && !rendered.contains("data:"), s"unexpected scheme in $url: $rendered")
 
+  test("testLinksWithAmpersandInQueryAllowed"):
+    for url <- Seq(
+        "https://example.com/?a=1&b=2",
+        "/forum?a=b&c=d")
+    do
+      val rendered = markdownFormatter.renderToHtml(s"[x]($url)", false)
+
+      assert(rendered.contains("<a href="), s"expected anchor for $url: $rendered")
+
   test("testUrlUtilIsSafeLinkUrl"):
     assert(!URLUtil.isSafeLinkUrl("javascript:alert(1)"))
     assert(!URLUtil.isSafeLinkUrl("jav\tascript:alert(1)"))
@@ -183,10 +228,17 @@ class MarkdownFormatterTest extends FunSuite:
     assert(!URLUtil.isSafeLinkUrl("JavaScript:alert(1)"))
     assert(!URLUtil.isSafeLinkUrl("data:text/html,x"))
     assert(!URLUtil.isSafeLinkUrl("vbscript:x"))
+    assert(!URLUtil.isSafeLinkUrl("javascript&#58;alert(1)"))
+    assert(!URLUtil.isSafeLinkUrl("javascript&#x3a;alert(1)"))
+    assert(!URLUtil.isSafeLinkUrl("javascript&colon;alert(1)"))
+    assert(!URLUtil.isSafeLinkUrl("java&#115;cript:alert(1)"))
+    assert(!URLUtil.isSafeLinkUrl("https&#58;//evil.example/"))
     assert(URLUtil.isSafeLinkUrl("https://linux.org.ru/"))
     assert(URLUtil.isSafeLinkUrl("HTTPS://linux.org.ru/"))
     assert(URLUtil.isSafeLinkUrl("mailto:a@b.ru"))
     assert(URLUtil.isSafeLinkUrl("/forum?a=b:c"))
+    assert(URLUtil.isSafeLinkUrl("/forum?a=b&c=d"))
+    assert(URLUtil.isSafeLinkUrl("https://example.com/?a=1&b=2"))
     assert(URLUtil.isSafeLinkUrl("#a:b"))
     assert(URLUtil.isSafeLinkUrl("//example.com/x"))
     assert(URLUtil.isSafeLinkUrl("no-scheme-text"))
