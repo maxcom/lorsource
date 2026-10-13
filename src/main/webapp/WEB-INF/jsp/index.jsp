@@ -88,10 +88,10 @@
       var ads = [
         {
           type: 'rimg',
-          img320: '/adv/bare-metal-new-h2-320x100.png',
-          img728: '/adv/bare-metal-new-h2-728x90.png',
-          img1000: '/adv/bare-metal-new-h2-1000x120.png',
-          href: 'https://selectel.ru/services/dedicated/auction/?utm_source=linuxorg&utm_medium=banner&utm_campaign=auction'
+          img320: '/adv/rent-320x100.png',
+          img728: '/adv/rent-728x90.png',
+          img1000: '/adv/rent-1000x120.png',
+          href: 'https://selectel.ru/services/dedicated/server-stay-in-house/'
         }
       ];
 
