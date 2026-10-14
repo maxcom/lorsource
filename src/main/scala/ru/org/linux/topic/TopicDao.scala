@@ -333,7 +333,7 @@ class TopicDao(springDB: SpringDB):
 
   /** Удалённые топики без комментариев, подлежащие окончательному удалению.
     *
-    * Критерии описаны в doc/data-retension.md
+    * Критерии описаны в doc/data-retention.md
     *
     * @return
     *   список идентификаторов кандидатов, упорядоченный по возрастанию id
@@ -344,6 +344,7 @@ class TopicDao(springDB: SpringDB):
             FROM topics
             JOIN del_info ON del_info.msgid = topics.id
             JOIN users ON users.id = topics.userid
+            LEFT JOIN ban_info ON ban_info.userid = users.id
             WHERE topics.deleted
             AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
@@ -379,7 +380,7 @@ class TopicDao(springDB: SpringDB):
 
   /** Черновики неактивных пользователей, подлежащие окончательному удалению.
     * 
-    * Критерии описаны в doc/data-retension.md
+    * Критерии описаны в doc/data-retention.md
     *
     * В отличие от [[getDeletableDeletedTopicIds]] не фильтрует непрочищенные картинки: файлы картинок неопубликованных
     * черновиков ([[ru.org.linux.gallery.OldImageCleaner]] их не обрабатывает) удаляет непосредственно перед purge сам
@@ -414,7 +415,7 @@ class TopicDao(springDB: SpringDB):
     * Обрабатывает как удалённые топики (кандидаты [[getDeletableDeletedTopicIds]]), так и черновики неактивных
     * пользователей (кандидаты [[getDeletableDraftTopicIds]]).
     *
-    * Критерии описаны в doc/data-retension.md
+    * Критерии описаны в doc/data-retention.md
     * 
     * Счётчики непрочитанных уведомлений затронутых пользователей пересчитываются.
     *

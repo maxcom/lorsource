@@ -316,6 +316,41 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     assert(!ids.contains(ctrlNotBlocked), "not blocked low-score author should not be a candidate")
     assert(!ids.contains(ctrlWithComment), "topic with comment should not be a candidate")
 
+  test("getDeletableDeletedTopicIdsBlockedBandateRule"):
+    val blockedOldBan = createUser("test-topic-ban-old", blocked = true, Some(yearsAgo(4)), None)
+    insertBanInfo(blockedOldBan, yearsAgo(4))
+
+    // недавняя блокировка при старом lastlogin: bandate главнее lastlogin
+    val blockedRecentBan = createUser("test-topic-ban-recent", blocked = true, Some(yearsAgo(4)), None)
+    insertBanInfo(blockedRecentBan, monthsAgo(3))
+
+    // bandate неизвестна -> fallback на lastlogin
+    val loginFallback = createUser("test-topic-ban-login-fb", blocked = true, Some(yearsAgo(4)), None)
+
+    // bandate и lastlogin неизвестны -> fallback на regdate
+    val regdateFallback = createUser("test-topic-ban-reg-fb", blocked = true, None, Some(yearsAgo(4)))
+
+    def deletedTopic(userId: Int, title: String, deldate: Option[Timestamp]): Int =
+      val id = nextMsgId
+      insertTopic(id, userId, title)
+      markTopicDeleted(id, deldate, userId)
+      id
+
+    val candOldBan = deletedTopic(blockedOldBan, "ban cand old bandate", Some(yearsAgo(4)))
+    val candLoginFallback = deletedTopic(loginFallback, "ban cand login fallback", Some(yearsAgo(4)))
+    val candRegdateFallback = deletedTopic(regdateFallback, "ban cand regdate fallback", Some(yearsAgo(4)))
+
+    val ctrlRecentBan = deletedTopic(blockedRecentBan, "ban ctrl recent bandate", Some(yearsAgo(4)))
+
+    val ids = topicDao.getDeletableDeletedTopicIds
+
+    assert(ids.contains(candOldBan), "blocked author with old bandate should be a candidate")
+    assert(ids.contains(candLoginFallback), "unknown bandate should fall back to old lastlogin")
+    assert(ids.contains(candRegdateFallback), "unknown bandate and lastlogin should fall back to old regdate")
+    assert(
+      !ids.contains(ctrlRecentBan),
+      "blocked author with recent bandate and old lastlogin should not be a candidate")
+
   test("getDeletableDraftTopicIdsLowScoreBlockedRule"):
     // свежие lastlogin/regdate изолируют новое правило от правила неактивности автора
     val blockedOldBan =
@@ -398,6 +433,37 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     assertEquals(topicDao.purgeDeletedTopics(Seq(unblockedTopic, raisedTopic)), 0)
     assertEquals(countRows("topics", "id", unblockedTopic), 1)
     assertEquals(countRows("topics", "id", raisedTopic), 1)
+
+  test("purgeBlockedAuthorTopicsBandateRule"):
+    val oldBanAuthor = createUser("test-topic-ban-purge-old", blocked = true, Some(yearsAgo(4)), None)
+    insertBanInfo(oldBanAuthor, yearsAgo(4))
+
+    val recheckedAuthor = createUser("test-topic-ban-purge-recent", blocked = true, Some(yearsAgo(4)), None)
+    insertBanInfo(recheckedAuthor, yearsAgo(4))
+
+    val targetId = nextMsgId
+    insertTopic(targetId, oldBanAuthor, "ban purge target old bandate")
+    markTopicDeleted(targetId, Some(yearsAgo(4)), oldBanAuthor)
+
+    val recheckedId = nextMsgId
+    insertTopic(recheckedId, recheckedAuthor, "ban purge target rechecked bandate")
+    markTopicDeleted(recheckedId, Some(yearsAgo(4)), recheckedAuthor)
+
+    assert(topicDao.getDeletableDeletedTopicIds.contains(targetId))
+    assert(topicDao.getDeletableDeletedTopicIds.contains(recheckedId))
+
+    // между выборкой и purge блокировка обновлена на недавнюю
+    springDB.run:
+      sql"UPDATE ban_info SET bandate=CURRENT_TIMESTAMP WHERE userid = $recheckedAuthor".update.apply()
+
+    val purged = topicDao.purgeDeletedTopics(Seq(targetId, recheckedId))
+
+    assertEquals(purged, 1)
+    assertEquals(countRows("topics", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("topics", "id", recheckedId), 1)
+    assertEquals(countRows("msgbase", "id", recheckedId), 1)
 
   test("purgeSpecialAuthorTopics"):
     ensureDeletedUser()

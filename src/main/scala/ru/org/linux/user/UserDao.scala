@@ -40,20 +40,24 @@ object UserDao:
 
   /** Критерий неактивности пользователя для кандидатов окончательного удаления (общий для TopicDao и CommentDao).
     *
-    * Критерии описаны в doc/data-retension.md
+    * Критерии описаны в doc/data-retention.md
+    *
+    * Предполагает, что запрос соединяет таблицы `users` и `ban_info` под этими именами (`LEFT JOIN ban_info ON
+    * ban_info.userid = users.id`; у заблокированного пользователя не более одной строки `ban_info`, при разблокировке
+    * строка удаляется).
     */
   val AuthorInactivityCondition: SQLSyntax = sqls"""(
     users.id NOT IN (${SpecialUserIds})
     AND (
       COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
       OR (users.blocked
-          AND COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
+          AND COALESCE(ban_info.bandate, users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
       OR (users.lastlogin IS NULL AND users.regdate IS NULL)
     )
   )"""
 
   /** Критерий «нового заблокированного пользователя» для кандидатов окончательного удаления (общий для TopicDao и
-    * CommentDao). Детали описаны в doc/data-retension.md
+    * CommentDao). Детали описаны в doc/data-retention.md
     *
     * Предполагает, что запрос соединяет таблицы `users` и `ban_info` под этими именами (`LEFT JOIN ban_info ON
     * ban_info.userid = users.id`; у заблокированного пользователя не более одной строки `ban_info`).
@@ -472,7 +476,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
 
   /** Заблокированные пользователи без активности, подлежащие удалению.
     *
-    * Критерии описаны в doc/data-retension.md
+    * Критерии описаны в doc/data-retention.md
     *
     */
   def getDeletableBlockedUserIds: Seq[Int] =
@@ -501,7 +505,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
 
   /** Незаблокированные пользователи без активности, не заходившие на сайт более 10 лет, подлежащие удалению.
     *
-    * Критерии описаны в doc/data-retension.md
+    * Критерии описаны в doc/data-retention.md
     */
   def getDeletableInactiveUserIds: Seq[Int] =
     springDB.run(

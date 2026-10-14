@@ -21,7 +21,7 @@ import ru.org.linux.spring.SiteConfig
 
 /** Периодическое удаление неактивных пользователей.
   *
-  * Критерии описаны в doc/data-retension.md
+  * Критерии описаны в doc/data-retention.md
   *
   * Отдельно, ежечасно и независимо от флага `cleanInactiveUsers`, удаляются неактивированные аккаунты — см.
   * [[deleteInactivated]].

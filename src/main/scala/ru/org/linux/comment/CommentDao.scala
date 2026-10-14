@@ -229,7 +229,7 @@ class CommentDao(springDB: SpringDB):
 
   /** Удалённые комментарии, подлежащие окончательному удалению.
     *
-    * Критерии описаны в doc/data-retension.md
+    * Критерии описаны в doc/data-retention.md
     *
     * Комментарии, подходящие по нескольким критериям удаления, попадают в результат один раз (`UNION`). Комментарии с
     * удалёнными ответами вычищаются постепенно: сначала листья цепочки, затем их родители.
@@ -242,6 +242,7 @@ class CommentDao(springDB: SpringDB):
             FROM del_info
             JOIN comments ON comments.id = del_info.msgid
             JOIN users ON users.id = comments.userid
+            LEFT JOIN ban_info ON ban_info.userid = users.id
             WHERE comments.deleted
             AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
@@ -252,6 +253,7 @@ class CommentDao(springDB: SpringDB):
             JOIN topics ON topics.id = comments.topic
             JOIN del_info ON del_info.msgid = topics.id
             JOIN users ON users.id = comments.userid
+            LEFT JOIN ban_info ON ban_info.userid = users.id
             WHERE topics.deleted
             AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
@@ -261,6 +263,7 @@ class CommentDao(springDB: SpringDB):
             FROM comments
             JOIN topics ON topics.id = comments.topic
             JOIN users ON users.id = comments.userid
+            LEFT JOIN ban_info ON ban_info.userid = users.id
             WHERE topics.postscore = $POSTSCORE_HIDE_COMMENTS
             AND topics.lastmod < CURRENT_TIMESTAMP - interval '3 years'
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
@@ -301,7 +304,7 @@ class CommentDao(springDB: SpringDB):
 
   /** Окончательно удаляет комментарии со всеми зависимыми записями (в одной транзакции).
     *
-    * Критерии описаны в doc/data-retension.md
+    * Критерии описаны в doc/data-retention.md
     *
     * Перед удалением перепроверяем критерии, на случай если комментарий был восстановлен или автор был разблокирован
     * или другие условия перестали выполняться.

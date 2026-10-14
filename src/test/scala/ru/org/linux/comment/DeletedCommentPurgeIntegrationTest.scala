@@ -217,6 +217,84 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     assert(!ids.contains(ctrlHasDeletedReply), "comment with deleted reply should not be a candidate")
     assert(!ids.contains(ctrlNotDeleted), "not deleted comment should not be a candidate")
 
+  test("getDeletableCommentIdsBlockedBandateRule"):
+    val blockedOldBan = createUser("test-purge-ban-old", blocked = true, Some(yearsAgo(4)), None)
+    insertBanInfo(blockedOldBan, yearsAgo(4))
+
+    // недавняя блокировка при старом lastlogin: bandate главнее lastlogin
+    val blockedRecentBan = createUser("test-purge-ban-recent", blocked = true, Some(yearsAgo(4)), None)
+    insertBanInfo(blockedRecentBan, monthsAgo(3))
+
+    // bandate неизвестна -> fallback на lastlogin
+    val loginFallback = createUser("test-purge-ban-login-fb", blocked = true, Some(yearsAgo(4)), None)
+
+    // bandate и lastlogin неизвестны -> fallback на regdate
+    val regdateFallback = createUser("test-purge-ban-reg-fb", blocked = true, None, Some(yearsAgo(4)))
+
+    val candOldBan = nextMsgId
+    insertComment(candOldBan, blockedOldBan, None, deleted = true, "ban cand old bandate")
+    insertDelInfo(candOldBan, blockedOldBan, Some(yearsAgo(4)))
+
+    val candLoginFallback = nextMsgId
+    insertComment(candLoginFallback, loginFallback, None, deleted = true, "ban cand login fallback")
+    insertDelInfo(candLoginFallback, loginFallback, Some(yearsAgo(4)))
+
+    val candRegdateFallback = nextMsgId
+    insertComment(candRegdateFallback, regdateFallback, None, deleted = true, "ban cand regdate fallback")
+    insertDelInfo(candRegdateFallback, regdateFallback, Some(yearsAgo(4)))
+
+    val ctrlRecentBan = nextMsgId
+    insertComment(ctrlRecentBan, blockedRecentBan, None, deleted = true, "ban ctrl recent bandate")
+    insertDelInfo(ctrlRecentBan, blockedRecentBan, Some(yearsAgo(4)))
+
+    // в удалённом топике и топике со скрытыми комментариями bandate тоже главнее lastlogin
+    val moderator = createUser("test-purge-ban-mod", blocked = false, Some(monthsAgo(1)), None)
+
+    val deletedTopic = nextTopicId(topicId)
+    markTopicDeleted(deletedTopic, Some(yearsAgo(4)), moderator)
+
+    val candInDeletedTopic = nextMsgId
+    insertComment(
+      candInDeletedTopic, blockedOldBan, None, deleted = false, "ban cand in deleted topic", deletedTopic)
+
+    val ctrlInDeletedTopic = nextMsgId
+    insertComment(
+      ctrlInDeletedTopic, blockedRecentBan, None, deleted = false, "ban ctrl in deleted topic", deletedTopic)
+
+    val hiddenTopic = nextTopicId(deletedTopic)
+
+    val candInHiddenTopic = nextMsgId
+    insertComment(
+      candInHiddenTopic, blockedOldBan, None, deleted = false, "ban cand in hidden topic", hiddenTopic)
+
+    val ctrlInHiddenTopic = nextMsgId
+    insertComment(
+      ctrlInHiddenTopic, blockedRecentBan, None, deleted = false, "ban ctrl in hidden topic", hiddenTopic)
+
+    // вставка комментария обновляет topics.lastmod (триггер comins), поэтому помечаем после вставки
+    hideTopicComments(hiddenTopic, yearsAgo(4))
+
+    val ids = commentDao.getDeletableDeletedCommentIds
+
+    assert(ids.contains(candOldBan), "blocked author with old bandate should be a candidate")
+    assert(ids.contains(candLoginFallback), "unknown bandate should fall back to old lastlogin")
+    assert(ids.contains(candRegdateFallback), "unknown bandate and lastlogin should fall back to old regdate")
+    assert(
+      ids.contains(candInDeletedTopic),
+      "blocked author with old bandate in deleted topic should be a candidate")
+    assert(
+      ids.contains(candInHiddenTopic),
+      "blocked author with old bandate in hidden-comments topic should be a candidate")
+    assert(
+      !ids.contains(ctrlRecentBan),
+      "blocked author with recent bandate and old lastlogin should not be a candidate")
+    assert(
+      !ids.contains(ctrlInDeletedTopic),
+      "blocked author with recent bandate in deleted topic should not be a candidate")
+    assert(
+      !ids.contains(ctrlInHiddenTopic),
+      "blocked author with recent bandate in hidden-comments topic should not be a candidate")
+
   test("getDeletableCommentIdsInDeletedTopics"):
     val moderator = createUser("test-purge-topic-mod", blocked = false, Some(monthsAgo(1)), None)
 
@@ -858,6 +936,37 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     assertEquals(commentDao.purgeDeletedComments(Seq(unblockedComment, raisedComment)), 0)
     assertEquals(countRows("comments", "id", unblockedComment), 1)
     assertEquals(countRows("comments", "id", raisedComment), 1)
+
+  test("purgeBlockedAuthorCommentsBandateRule"):
+    val oldBanAuthor = createUser("test-purge-ban-purge-old", blocked = true, Some(yearsAgo(4)), None)
+    insertBanInfo(oldBanAuthor, yearsAgo(4))
+
+    val recheckedAuthor = createUser("test-purge-ban-purge-recent", blocked = true, Some(yearsAgo(4)), None)
+    insertBanInfo(recheckedAuthor, yearsAgo(4))
+
+    val targetId = nextMsgId
+    insertComment(targetId, oldBanAuthor, None, deleted = true, "ban purge target old bandate")
+    insertDelInfo(targetId, oldBanAuthor, Some(yearsAgo(4)))
+
+    val recheckedId = nextMsgId
+    insertComment(recheckedId, recheckedAuthor, None, deleted = true, "ban purge target rechecked bandate")
+    insertDelInfo(recheckedId, recheckedAuthor, Some(yearsAgo(4)))
+
+    assert(commentDao.getDeletableDeletedCommentIds.contains(targetId))
+    assert(commentDao.getDeletableDeletedCommentIds.contains(recheckedId))
+
+    // между выборкой и purge блокировка обновлена на недавнюю
+    springDB.run:
+      sql"UPDATE ban_info SET bandate=CURRENT_TIMESTAMP WHERE userid = $recheckedAuthor".update.apply()
+
+    val purged = commentDao.purgeDeletedComments(Seq(targetId, recheckedId))
+
+    assertEquals(purged, 1)
+    assertEquals(countRows("comments", "id", targetId), 0)
+    assertEquals(countRows("msgbase", "id", targetId), 0)
+    assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("comments", "id", recheckedId), 1)
+    assertEquals(countRows("msgbase", "id", recheckedId), 1)
 
   test("purgeSkipsCommentWithReplyAddedAfterSelection"):
     val author =
