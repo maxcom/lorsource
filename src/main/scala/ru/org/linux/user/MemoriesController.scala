@@ -20,18 +20,25 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import ru.org.linux.auth.AccessViolationException
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
-import ru.org.linux.topic.TopicDao
+import ru.org.linux.group.GroupService
+import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 
 @Controller
-class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao) {
+class MemoriesController(messageDao: TopicDao, memoriesDao: MemoriesDao, groupService: GroupService,
+                         userService: UserService, topicPermissionService: TopicPermissionService) {
   @ResponseBody
   @RequestMapping(value = Array("/memories.jsp"), params = Array("add"), method = Array(RequestMethod.POST))
   def add(@RequestParam("msgid") msgid: Int,
-          @RequestParam("watch") watch: Boolean): Json = AuthorizedOnly { currentUser =>
+          @RequestParam("watch") watch: Boolean): Json = AuthorizedOnly { implicit currentUser =>
     val topic = messageDao.getById(msgid)
 
+    val group = groupService.getGroup(topic.groupId)
+    val topicAuthor = userService.getUserCached(topic.authorUserId)
+
+    topicPermissionService.checkView(group, topic, topicAuthor, showDeleted = false)
+
     if (topic.deleted) {
-      throw new UserErrorException("Тема удалена")
+      throw new AccessViolationException("Сообщение не доступно")
     }
 
     val id = memoriesDao.addToMemories(currentUser.user, topic, watch)
