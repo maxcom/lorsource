@@ -31,7 +31,7 @@
     <momentjs.version>2.29.4</momentjs.version>
     <js-cookie.version>3.0.1</js-cookie.version>
     <swiffy-slider.version>2.1.2</swiffy-slider.version>
-    <circe.version>0.14.15</circe.version>
+    <circe.version>0.14.17</circe.version>
     <twemoji.version>16.0.1</twemoji.version>
     <tippy.version>6.3.7</tippy.version>
     <autocomplete.version>10.2.10</autocomplete.version>
