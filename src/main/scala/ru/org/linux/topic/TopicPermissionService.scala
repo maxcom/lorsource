@@ -310,4 +310,14 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
       (currentUser.user.id == comment.userid && !currentUser.user.isFrozen &&
         deleteInfo.delDate.toInstant.isAfter(Instant.now.minus(TopicPermissionService.ViewAfterDeleteDays, ChronoUnit.DAYS)))
   }
+
+  def canShowReplyPreview(comment: Comment, topic: Topic)(using currentUser: AnySession): Boolean =
+    if topic.deleted || topic.draft || topic.isCommentsHidden then
+      false
+    else if comment.deleted then
+      currentUser.opt.exists: session =>
+        deleteInfoDao.getDeleteInfo(comment.id).exists: info =>
+          canViewDeletedComment(topic, comment, info)(using session)
+    else
+      true
 }
