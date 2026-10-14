@@ -37,6 +37,9 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao, springDB: SpringDB) e
 
       val msg = topicDao.getById(poll.topic)
 
+      if msg.deleted then
+        throw new BadVoteException("Опрос удален")
+
       if !msg.commited then
         throw new BadVoteException("Опрос еще не подтвержден")
 
@@ -49,7 +52,9 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao, springDB: SpringDB) e
       if !poll.multiSelect && votes.length != 1 then
         throw new BadVoteException("этот опрос допускает только один вариант ответа")
 
-      springDB.localTx { pollDao.updateVotes(voteid, votes, currentUser.user) }
+      springDB.localTx {
+        pollDao.updateVotes(voteid, votes, currentUser.user)
+      }
 
       new ModelAndView(new RedirectView(msg.getLink))
     }
