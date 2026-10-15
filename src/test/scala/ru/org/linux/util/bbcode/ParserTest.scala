@@ -19,12 +19,13 @@ import ru.org.linux.util.bbcode.nodes.RootNode
 
 /** Тесты для [[Parser]]. */
 class ParserTest extends FunSuite:
-  private val data: List[(String, String)] = List(
-    "[list][*]fdfdddfd[/list][[raw]]" -> "<ul><li>fdfdddfd</li></ul><p>[[raw]]</p>",
-    "[list][*]fdfdddfd[list][[raw]]" -> "<ul><li>fdfdddfd[[raw]]</li></ul>",
-    "[code][list][*]fdfdddfd[list][[raw]][/code][/code]" ->
-      "<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]fdfdddfd[list][[raw]]</code></pre></div>"
-  )
+  private val data: List[(String, String)] =
+    List(
+      "[list][*]fdfdddfd[/list][[raw]]" -> "<ul><li>fdfdddfd</li></ul><p>[[raw]]</p>",
+      "[list][*]fdfdddfd[list][[raw]]" -> "<ul><li>fdfdddfd[[raw]]</li></ul>",
+      "[code][list][*]fdfdddfd[list][[raw]][/code][/code]" ->
+        "<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]fdfdddfd[list][[raw]]</code></pre></div>"
+    )
 
   for (input, expected) <- data do
     test(s"parse: $input"):
@@ -32,3 +33,15 @@ class ParserTest extends FunSuite:
       val rootNode = new RootNode(new DefaultParserParameters)
       parser.parseRoot(rootNode, input)
       assertEquals(expected, rootNode.renderXHtml)
+
+  test("parse of unclosed tag prefixes is not quadratic (ReDoS regression)"):
+    for payload <- Seq("[aaaa=".repeat(10_000), "]" + "[aaaa=".repeat(10_000)) do
+      val parser = new Parser(new DefaultParserParameters)
+      val rootNode = new RootNode(new DefaultParserParameters)
+
+      val start = System.nanoTime()
+      parser.parseRoot(rootNode, payload)
+      val elapsedMs = (System.nanoTime() - start) / 1_000_000
+
+      assert(elapsedMs < 100, s"parseRoot of ${payload.length} chars took $elapsedMs ms")
+      assert(clue(rootNode.renderXHtml).contains("[aaaa="))

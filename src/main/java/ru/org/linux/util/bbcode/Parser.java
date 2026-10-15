@@ -54,6 +54,7 @@
 package ru.org.linux.util.bbcode;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.Tag;
 import ru.org.linux.util.formatter.RuTypoChanger;
@@ -73,7 +74,7 @@ public class Parser {
   /**
    * Регулярное выражение поиска тэга
    */
-  private static final Pattern BBTAG_REGEXP = Pattern.compile("\\[\\[?/?([A-Za-z\\*]+)(:[a-f0-9]+)?(=[^\\]]+)?\\]?\\]");
+  private static final Pattern BBTAG_REGEXP = Pattern.compile("\\[\\[?/?([A-Za-z\\*]++)(:[a-f0-9]++)?(=[^\\]]++)?\\]?\\]");
 
   private final ParserParameters parserParameters;
 
@@ -104,10 +105,11 @@ public class Parser {
   public RootNode parseRoot(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
     ParserAutomatonState automatonState = new ParserAutomatonState(rootNode, parserParameters);
+    TagScanner scanner = new TagScanner(bbcode);
 
     while (automatonState.getPos() < bbcode.length()) {
-      Matcher match = BBTAG_REGEXP.matcher(bbcode).region(automatonState.getPos(), bbcode.length());
-      if (match.find()) {
+      Matcher match = scanner.nextTag(automatonState.getPos());
+      if (match != null) {
         if (!automatonState.isFirstCode()) {
           currentNode = pushTextNode(automatonState, currentNode, bbcode.substring(automatonState.getPos(), match.start()));
         } else {
@@ -131,6 +133,40 @@ public class Parser {
       }
     }
     return automatonState.getRootNode();
+  }
+
+  private static final class TagScanner {
+    private final String text;
+    private int firstCloseBracket = -2;
+    private int secondCloseBracket = -2;
+
+    TagScanner(String text) {
+      this.text = text;
+    }
+
+    @Nullable
+    Matcher nextTag(int from) {
+      int tagStart = text.indexOf('[', from);
+      while (tagStart >= 0) {
+        if (firstCloseBracket < tagStart) {
+          firstCloseBracket = text.indexOf(']', tagStart);
+          secondCloseBracket = -2;
+        }
+        if (firstCloseBracket < 0) {
+          return null;
+        }
+        if (secondCloseBracket < firstCloseBracket) {
+          secondCloseBracket = text.indexOf(']', firstCloseBracket + 1);
+        }
+        int regionEnd = secondCloseBracket >= 0 ? secondCloseBracket + 1 : firstCloseBracket + 1;
+        Matcher matcher = BBTAG_REGEXP.matcher(text).region(tagStart, regionEnd);
+        if (matcher.lookingAt()) {
+          return matcher;
+        }
+        tagStart = text.indexOf('[', tagStart + 1);
+      }
+      return null;
+    }
   }
 
   /**
