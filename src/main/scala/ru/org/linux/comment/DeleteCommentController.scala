@@ -214,7 +214,7 @@ class DeleteCommentController(searchQueueSender: SearchQueueSender, commentServi
 
     searchQueueSender.updateComment(msgid)
 
-    logger.info(s"Восстановлен комментарий пользователем ${currentUser.user}: ${topic.getLink + "?cid=" + msgid}")
+    logger.info(s"Восстановлен комментарий пользователем ${currentUser.user.nick}: ${topic.getLink + "?cid=" + msgid}")
 
     new ModelAndView(new RedirectView(topic.getLink + "?cid=" + msgid))
   }

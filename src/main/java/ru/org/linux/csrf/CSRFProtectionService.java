@@ -89,9 +89,9 @@ public class CSRFProtectionService {
 
     if (!r) {
       logger.info(String.format(
-        "Flood protection (CSRF cookie differs: cookie=%s param=%s) ip=%s url=%s",
-        cookieValue,
-        inputValue,
+        "CSRF cookie does not match: cookie.len=%s param.len=%s) ip=%s url=%s",
+        cookieValue.length(),
+        inputValue.length(),
         request.getRemoteAddr(),
         request.getRequestURI()
       ));

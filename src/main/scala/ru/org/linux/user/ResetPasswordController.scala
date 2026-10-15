@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.util.UriComponentsBuilder
-import ru.org.linux.auth.AuthUtil.ModeratorOnly
+import ru.org.linux.auth.AuthUtil.ModeratorOnlyCtx
 import ru.org.linux.auth.{AccessViolationException, SecretTokenService}
 import ru.org.linux.util.StringUtil
 
@@ -31,7 +31,7 @@ class ResetPasswordController(userDao: UserDao, userService: UserService, secret
                               userPermissionService: UserPermissionService) extends StrictLogging {
   @RequestMapping(value = Array("/people/{nick}/profile"), method = Array(RequestMethod.GET, RequestMethod.HEAD),
     params = Array("reset-password"))
-  def showModeratorForm(@PathVariable nick: String): ModelAndView = ModeratorOnly { _ =>
+  def showModeratorForm(@PathVariable nick: String): ModelAndView = ModeratorOnlyCtx {
     val user = userService.getUser(nick)
 
     val modelAndView = new ModelAndView("confirm-password-reset")
@@ -65,16 +65,15 @@ class ResetPasswordController(userDao: UserDao, userService: UserService, secret
       throw new UserErrorException(
         "Срок действия кода истёк (24 часа). Запросите сброс пароля повторно.")
 
-    if !secretTokenService.verifyResetCode(user.nick, user.email, resetDate, formCode) then {
-      logger.warn("Код проверки не совпадает; login={} formCode={}", nick, formCode)
+    if !secretTokenService.verifyResetCode(user.nick, user.email, resetDate, formCode) then
+      logger.warn("Код проверки не совпадает; login={}", nick)
 
       throw new UserErrorException("Код не совпадает")
-    } else {
+    else
       val password = userService.resetPassword(user)
       
       new ModelAndView("action-done", Map("message" -> "Установлен новый пароль",
         "bigMessage" -> ("Ваш новый пароль: " + StringUtil.escapeHtml(password))).asJava)
-    }
   }
 
   @ExceptionHandler(Array(classOf[UserNotFoundException], classOf[UserErrorException]))

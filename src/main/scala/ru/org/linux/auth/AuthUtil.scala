@@ -207,6 +207,9 @@ object AuthUtil extends StrictLogging:
 
     AuthorizedOnly(f)
 
+  def ModeratorOnlyCtx[T](f: AuthorizedSession ?=> T): T =
+    ModeratorOnly(s => f(using s))
+
   def CorrectorOrModerator[T](f: AuthorizedSession => T): T =
     if !(isCorrectorSession || isModeratorSession) then
       throw new AccessViolationException("Not corrector or moderator")
