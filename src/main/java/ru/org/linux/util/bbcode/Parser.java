@@ -71,6 +71,8 @@ import java.util.regex.Pattern;
 public class Parser {
   public static final Parser DEFAULT_PARSER = new Parser(new DefaultParserParameters());
 
+  public static final int MaxNestingDepth = 64;
+
   /**
    * Регулярное выражение поиска тэга
    */
@@ -430,7 +432,9 @@ public class Parser {
       automatonState.setFirstCode(true);
       currentNode = pushTagNode(automatonState, currentNode, automatonState.getTagname(), automatonState.getParameter());
     } else {
-      if ("url".equals(automatonState.getTagname()) && ! StringUtils.isEmpty(automatonState.getParameter())) {
+      if (currentNode.getDepth() >= MaxNestingDepth) {
+        currentNode = pushTextNode(automatonState, currentNode, automatonState.getWholematch());
+      } else if ("url".equals(automatonState.getTagname()) && ! StringUtils.isEmpty(automatonState.getParameter())) {
         // специальная проверка для [url] с параметром
         currentNode = pushTagNode(automatonState, currentNode, "url2", automatonState.getParameter());
       } else {

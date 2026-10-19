@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2015 Linux.org.ru
+ * Copyright 1998-2026 Linux.org.ru
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -67,21 +67,28 @@ abstract public class Node {
   private final List<Node> children;
   protected String parameter;
   protected final ParserParameters parserParameters;
+  private final int depth;
 
   public Node(ParserParameters parserParameters) {
     this.parserParameters = parserParameters;
     children = new ArrayList<>();
     parent = null;
+    depth = 0;
   }
 
   public Node(Node parent, ParserParameters parserParameters) {
     this.parserParameters = parserParameters;
     this.parent = parent;
     children = new ArrayList<>();
+    depth = parent.depth + 1;
   }
 
   public Node getParent() {
     return parent;
+  }
+
+  public int getDepth() {
+    return depth;
   }
 
   public boolean allows(String tagname) {
