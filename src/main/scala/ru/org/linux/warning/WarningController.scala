@@ -79,11 +79,10 @@ class WarningController(warningService: WarningService, topicDao: TopicDao, comm
     if (request.comment == null) {
       val preparedTopic = topicPrepareService.prepareTopic(request.topic)
       mv.addObject("preparedTopic", preparedTopic)
-    } else {
+    } else if !request.comment.deleted then
       val preparedComment = commentPrepareService.prepareCommentOnly(request.comment, request.topic, Set.empty)
 
       mv.addObject("preparedComment", preparedComment)
-    }
 
     if (types.size > 1) {
       mv.addObject("warningTypes", types.asJava)
