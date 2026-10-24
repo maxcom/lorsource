@@ -91,6 +91,7 @@
         <property name="maximalCount" value="30"/>
     </bean>
     <bean id="replyFeed" class="ru.org.linux.user.UserEventFeedView" parent="absractRomeView" scope="prototype"/>
+    <bean id="sectionRssFeed" class="ru.org.linux.topic.SectionRssFeedView" parent="absractRomeView" scope="prototype"/>
 
     <mvc:interceptors>
         <bean class="ru.org.linux.monitoring.Perf4jHandlerInterceptor"/>

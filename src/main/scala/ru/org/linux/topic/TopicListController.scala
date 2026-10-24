@@ -86,7 +86,7 @@ object TopicListController {
 class TopicListController(sectionService: SectionService, topicListService: TopicListService,
                           prepareService: TopicPrepareService, tagService: TagService,
                           groupService: GroupService, addTopicChecker: AddTopicChecker,
-                          topicService: TopicService) extends StrictLogging {
+                          topicService: TopicService, sectionRssFeedView: SectionRssFeedView) extends StrictLogging {
   private def mainTopicsFeedHandler(section: Section, topicListForm: TopicListForm,
                                       group: Option[Group]): Future[ModelAndView] = MaybeAuthorized { implicit currentUserOpt =>
     val deadline = TagPageController.Timeout.fromNow
@@ -260,7 +260,8 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
     }
 
     checkRequestConditions(section, group)
-    val modelAndView = new ModelAndView("section-rss")
+    val modelAndView = new ModelAndView(sectionRssFeedView)
+    modelAndView.addObject("feed-type", "rss")
 
     group.foreach { group =>
       modelAndView.addObject("group", group)
