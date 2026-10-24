@@ -20,7 +20,11 @@ import ru.org.linux.test.WebHelper
 import sttp.client4.*
 import sttp.model.StatusCode
 
+object SectionRssWebTest:
+  private val TestGroup = 4068
+
 class SectionRssWebTest extends FunSuite with WebHelper:
+  import SectionRssWebTest.*
   test("section RSS feed returns valid RSS"):
     val response = basicRequest.get(MainUrl.addPath("section-rss.jsp")).send(backend)
 
@@ -30,13 +34,20 @@ class SectionRssWebTest extends FunSuite with WebHelper:
     assert(body.contains("<rss"), "body contains <rss")
     assert(body.contains("<channel"), "body contains <channel")
 
-  test("forum section RSS feed with filter returns valid RSS"):
-    val response = basicRequest
-      .get(MainUrl.addPath("section-rss.jsp").addParam("section", "2").addParam("filter", "notalks"))
-      .send(backend)
+  test("forum section RSS feed with filter returns created topic"):
+    val auth = doLogin()
+    val topicId = createTopic(auth, TestGroup, "Section RSS Web Test").fold(v => fail(v), identity)
 
-    assertEquals(response.code, StatusCode.Ok, "status code")
-    assert(response.contentType.exists(_.startsWith("application/rss+xml")), s"content type: ${response.contentType}")
-    val body = response.body.getOrElse("")
-    assert(body.contains("<item"), "body contains <item")
-    assert(body.contains("без talks"), "channel title contains filter name")
+    try
+      val response = basicRequest
+        .get(MainUrl.addPath("section-rss.jsp").addParam("section", "2").addParam("filter", "notalks"))
+        .send(backend)
+
+      assertEquals(response.code, StatusCode.Ok, "status code")
+      assert(response.contentType.exists(_.startsWith("application/rss+xml")), s"content type: ${response.contentType}")
+      val body = response.body.getOrElse("")
+      assert(body.contains("<item"), "body contains <item")
+      assert(body.contains(s"/forum/linux-org-ru/$topicId"), "created topic is in the feed")
+      assert(body.contains("без talks"), "channel title contains filter name")
+    finally
+      deleteTopic(auth, topicId)
