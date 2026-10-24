@@ -14,6 +14,7 @@
  */
 package ru.org.linux.admin
 
+import com.google.common.net.InetAddresses
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
@@ -22,6 +23,7 @@ import ru.org.linux.auth.AuthUtil.ModeratorOnly
 import ru.org.linux.auth.IpBlockDao
 import ru.org.linux.comment.DeleteService
 import ru.org.linux.search.SearchQueueSender
+import ru.org.linux.site.BadInputException
 import ru.org.linux.user.UserErrorException
 
 import java.sql.Timestamp
@@ -44,7 +46,10 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
   @RequestMapping(value = Array("/delip.jsp"), method = Array(RequestMethod.POST))
   def delIp(@RequestParam("reason") reason: String, @RequestParam("ip") ip: String, @RequestParam("time") time: String,
             @RequestParam(value = "ban_time", required = false) banTime: String,
-            @RequestParam(value = "ban_mode", required = false) banMode: String): ModelAndView = ModeratorOnly { implicit currentUser =>
+             @RequestParam(value = "ban_mode", required = false) banMode: String): ModelAndView = ModeratorOnly { implicit currentUser =>
+    if !InetAddresses.isInetAddress(ip) then
+      throw new BadInputException("not ip")
+
     val params = new mutable.HashMap[String, AnyRef]
 
     val delFrom = time match {
@@ -57,7 +62,8 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
 
     val ts = new Timestamp(delFrom.toEpochMilli)
 
-    params.put("message", s"Удаляем темы и сообщения после $ts с IP $ip<br>")
+    params.put("ts", ts)
+    params.put("ip", ip)
 
     val moderator = currentUser.user
 

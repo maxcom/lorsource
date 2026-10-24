@@ -24,7 +24,9 @@
 
 <h1>Удаление тем и сообщений</h1>
 
-${message}
+<c:if test="${not empty ip}">
+  Удаляем темы и сообщения после <c:out value="${ts}"/> с IP <c:out value="${ip}"/><br>
+</c:if>
 
 <br/>
 
