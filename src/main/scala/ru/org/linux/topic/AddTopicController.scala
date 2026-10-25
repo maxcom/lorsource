@@ -32,7 +32,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.util.UriComponentsBuilder
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.{MaybeAuthorized, MaybeAuthorizedCtx}
-import ru.org.linux.csrf.{CSRFNoAuto, CSRFProtectionService}
+import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.gallery.UploadedImagePreview
 import ru.org.linux.group.GroupPermissionService.TopicLimitInfo
 import ru.org.linux.group.{Group, GroupPermissionService, GroupService}
@@ -181,7 +181,7 @@ class AddTopicController(
 
     params.result()
 
-  @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.POST)) @CSRFNoAuto
+  @RequestMapping(value = Array("/add.jsp"), method = Array(RequestMethod.POST))
   def doAdd(
       request: HttpServletRequest,
       @Validated @ModelAttribute("form")

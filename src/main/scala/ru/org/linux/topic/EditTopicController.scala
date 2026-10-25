@@ -25,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.*
 import ru.org.linux.auth.AuthUtil.{AuthorizedOnly, CorrectorOrModerator}
+import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.edithistory.{EditHistoryObjectTypeEnum, EditHistoryService}
 import ru.org.linux.gallery.UploadedImagePreview
 import ru.org.linux.group.{GroupPermissionService, GroupService}
@@ -290,6 +291,9 @@ class EditTopicController(
 
       val newMsg = Topic.fromEditRequest(preparedTopic.group, topic, form, request.getParameter("publish") != null)
       val oldText = msgbaseDao.getMessageText(topic.id)
+
+      if !preview && !errors.hasErrors then
+        CSRFProtectionService.checkCSRF(request, errors)
 
       val imagePreviews = topicService.processUploads(
         form,

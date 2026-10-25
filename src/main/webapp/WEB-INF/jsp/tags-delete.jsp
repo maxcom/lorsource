@@ -32,7 +32,7 @@
 
 <p><strong>Внимание!</strong> Удаление метки нельзя отменить. Изменение не отражается в истории правок топика.</p>
 
- <form:form modelAttribute="tagRequestDelete" method="POST" action="/tags/delete" enctype="multipart/form-data">
+ <form:form modelAttribute="tagRequestDelete" method="POST" action="/tags/delete">
   <lor:csrf/>
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />

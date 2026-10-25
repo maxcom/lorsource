@@ -19,6 +19,8 @@ import munit.FunSuite
 import org.springframework.mock.web.MockHttpServletRequest
 
 import java.util.Base64
+import java.util.UUID
+import jakarta.servlet.http.Cookie
 
 class CSRFProtectionServiceTest extends FunSuite:
   private val Token = Base64.getEncoder.encodeToString(Array.tabulate[Byte](16)(_.toByte))
@@ -27,13 +29,18 @@ class CSRFProtectionServiceTest extends FunSuite:
   private def request(cookieValue: String, paramValue: String): MockHttpServletRequest =
     val request = new MockHttpServletRequest
 
-    request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, cookieValue)
+    request.setCookies(new Cookie(CSRFProtectionService.CSRF_COOKIE, cookieValue))
     request.addParameter(CSRFProtectionService.CSRF_INPUT_NAME, paramValue)
 
     request
 
   test("acceptsMatchingToken"):
     assert(CSRFProtectionService.checkCSRF(request(Token, Token)))
+
+  test("acceptsNonBase64Token"):
+    val token = UUID.randomUUID.toString
+
+    assert(CSRFProtectionService.checkCSRF(request(token, token)))
 
   test("rejectsMismatchedToken"):
     assert(!CSRFProtectionService.checkCSRF(request(Token, OtherToken)))
@@ -48,15 +55,9 @@ class CSRFProtectionServiceTest extends FunSuite:
   test("rejectsMissingInput"):
     val request = new MockHttpServletRequest
 
-    request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, Token)
+    request.setCookies(new Cookie(CSRFProtectionService.CSRF_COOKIE, Token))
 
     assert(!CSRFProtectionService.checkCSRF(request))
-
-  test("rejectsInvalidBase64Input"):
-    assert(!CSRFProtectionService.checkCSRF(request(Token, "!!!")))
-
-  test("rejectsInvalidBase64Cookie"):
-    assert(!CSRFProtectionService.checkCSRF(request("***", Token)))
 
   test("trimsSurroundingWhitespace"):
     assert(CSRFProtectionService.checkCSRF(request(s" $Token ", s"\t$Token\n")))

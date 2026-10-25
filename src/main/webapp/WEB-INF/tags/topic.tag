@@ -250,10 +250,10 @@
             <c:if test="${messageMenu.resolvable}">
                 <c:if test="${message.resolved}">
                     <%-- инлайн-форма: без пробелов между тегами (в т.ч. без lor:csrf — он добавляет перевод строки), иначе в меню появляются лишние пробелы у скобок --%>
-                    <li><form action="resolve.jsp" method="post"><input type="hidden" name="csrf" value="${fn:escapeXml(csrfToken)}"><input type="hidden" name="msgid" value="${message.id}"><input type="hidden" name="resolve" value="no"><button type="submit">Отметить как нерешённую</button></form></li>
+                    <li><form action="resolve.jsp" method="post"><input type="hidden" name="csrf" value="${fn:escapeXml(_csrf.token)}"><input type="hidden" name="msgid" value="${message.id}"><input type="hidden" name="resolve" value="no"><button type="submit">Отметить как нерешённую</button></form></li>
                 </c:if>
                 <c:if test="${not message.resolved}">
-                    <li><form action="resolve.jsp" method="post"><input type="hidden" name="csrf" value="${fn:escapeXml(csrfToken)}"><input type="hidden" name="msgid" value="${message.id}"><input type="hidden" name="resolve" value="yes"><button type="submit">Отметить как решённую</button></form></li>
+                    <li><form action="resolve.jsp" method="post"><input type="hidden" name="csrf" value="${fn:escapeXml(_csrf.token)}"><input type="hidden" name="msgid" value="${message.id}"><input type="hidden" name="resolve" value="yes"><button type="submit">Отметить как решённую</button></form></li>
                 </c:if>
             </c:if>
 
@@ -289,8 +289,8 @@
 <c:if test="${template.sessionAuthorized}">
 <script type="text/javascript">
   $script.ready('lorjs', function () {
-    topic_memories_form_setup(${memoriesInfo.watchId()}, true, ${message.id}, "${fn:escapeXml(csrfToken)}");
-    topic_memories_form_setup(${memoriesInfo.favId()}, false, ${message.id}, "${fn:escapeXml(csrfToken)}");
+    topic_memories_form_setup(${memoriesInfo.watchId()}, true, ${message.id}, "${fn:escapeXml(_csrf.token)}");
+    topic_memories_form_setup(${memoriesInfo.favId()}, false, ${message.id}, "${fn:escapeXml(_csrf.token)}");
   });
 </script>
 </c:if>

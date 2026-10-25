@@ -49,7 +49,10 @@ http://www.springframework.org/schema/security/spring-security.xsd">
         <remember-me key="${Secret}" services-ref="rememberMeServices"/>
         <anonymous username="anonymous" granted-authority="ROLE_SYSTEM_ANONYMOUS"/>
         <custom-filter after="ANONYMOUS_FILTER" ref="securityFilter"/>
-        <csrf disabled="true"/>
+        <csrf token-repository-ref="csrfTokenRepository"
+              request-handler-ref="csrfTokenRequestHandler"
+              request-matcher-ref="csrfProtectionMatcher"/>
+        <access-denied-handler ref="csrfAccessDeniedHandler"/>
     </http>
 
     <http-firewall ref="httpFirewall"/>

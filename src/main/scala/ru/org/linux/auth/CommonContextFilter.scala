@@ -19,7 +19,6 @@ import jakarta.servlet.{FilterChain, ServletRequest, ServletResponse}
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.web.filter.GenericFilterBean
 import ru.org.linux.auth.CommonContextFilter.{BadTimezones, Russian}
-import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.site.Template
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.user.UserService
@@ -70,20 +69,9 @@ class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao, userSe
     request.setCharacterEncoding("utf-8")
     res.setLocale(Russian)
 
-    csrfManipulation(request, response)
-
     response.addHeader("Cache-Control", "private")
 
     chain.doFilter(req, res)
-
-  private def csrfManipulation(request: HttpServletRequest, response: HttpServletResponse): Unit =
-    val cookies = getCookies(request)
-
-    cookies.get(CSRFProtectionService.CSRF_COOKIE) match
-      case None =>
-        CSRFProtectionService.generateCSRFCookie(request, response)
-      case Some(value) =>
-        request.setAttribute(CSRFProtectionService.CSRF_ATTRIBUTE, value.trim)
 
   private def getCookies(request: HttpServletRequest): Map[String, String] =
     Option(request.getCookies)

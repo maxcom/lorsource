@@ -24,7 +24,6 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
 import ru.org.linux.auth.CaptchaService
-import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.rights.AddCommentChecker
@@ -95,7 +94,6 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     * @return объект web-модели
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.POST))
-  @CSRFNoAuto
   def editCommentPostHandler(@ModelAttribute("add") @Validated commentRequest: CommentRequest, errors: Errors,
                              request: HttpServletRequest, @RequestAttribute("captchaRequired")
                              captchaRequired: Boolean): ModelAndView = AuthorizedOnly { implicit currentUser =>

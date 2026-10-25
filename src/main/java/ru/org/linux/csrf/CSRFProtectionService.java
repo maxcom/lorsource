@@ -18,43 +18,19 @@ package ru.org.linux.csrf;
 import com.google.common.base.Strings;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.Errors;
+import org.springframework.web.util.WebUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.Base64;
 
 public class CSRFProtectionService {
   private static final Logger logger = LoggerFactory.getLogger(CSRFProtectionService.class);
 
   public static final String CSRF_COOKIE = "CSRF_TOKEN";
-  public static final String CSRF_ATTRIBUTE = "csrfToken";
-  private static final int TWO_YEARS = 60 * 60 * 24 * 31 * 24;
   public static final String CSRF_INPUT_NAME = "csrf";
-
-  public static void generateCSRFCookie(HttpServletRequest request, HttpServletResponse response) {
-    SecureRandom random = new SecureRandom();
-
-    byte[] value = new byte[16];
-    random.nextBytes(value);
-
-    String token = Base64.getEncoder().encodeToString(value);
-
-    Cookie cookie = new Cookie(CSRF_COOKIE, token);
-    cookie.setMaxAge(TWO_YEARS);
-    cookie.setPath("/");
-    
-    if (request.isSecure()) {
-      cookie.setSecure(true);
-    }
-    
-    response.addCookie(cookie);
-
-    request.setAttribute(CSRF_ATTRIBUTE, token);
-  }
 
   /**
    * Check if user is authorized for request
@@ -62,7 +38,8 @@ public class CSRFProtectionService {
    * @return true when ok, false when not authorized
    */
   public static boolean checkCSRF(HttpServletRequest request) {
-    String cookieValue = (String) request.getAttribute(CSRF_ATTRIBUTE);
+    Cookie cookie = WebUtils.getCookie(request, CSRF_COOKIE);
+    String cookieValue = (cookie != null) ? cookie.getValue() : null;
 
     if (Strings.isNullOrEmpty(cookieValue)) {
       logger.info("Missing CSRF cookie");
@@ -76,16 +53,9 @@ public class CSRFProtectionService {
       return false;
     }
 
-    boolean r;
-
-    try {
-      byte[] cookieBytes = Base64.getDecoder().decode(cookieValue.trim());
-      byte[] inputBytes = Base64.getDecoder().decode(inputValue.trim());
-
-      r = MessageDigest.isEqual(cookieBytes, inputBytes);
-    } catch (IllegalArgumentException e) {
-      r = false;
-    }
+    boolean r = MessageDigest.isEqual(
+      cookieValue.trim().getBytes(StandardCharsets.UTF_8),
+      inputValue.trim().getBytes(StandardCharsets.UTF_8));
 
     if (!r) {
       logger.info(String.format(

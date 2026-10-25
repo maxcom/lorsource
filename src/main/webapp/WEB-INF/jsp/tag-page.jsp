@@ -346,7 +346,7 @@
 
 <script type="text/javascript">
   $script.ready('lorjs', function() {
-    tag_memories_form_setup("${tag}", "${fn:escapeXml(csrfToken)}");
+    tag_memories_form_setup("${tag}", "${fn:escapeXml(_csrf.token)}");
   });
 </script>
 

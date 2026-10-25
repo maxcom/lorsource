@@ -75,6 +75,21 @@ class UserpicControllerWebTest extends FunSuite with WebHelper with SpringTestSu
     val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
     assertEquals("Ошибка! Invalid image", doc.select(".error").text, "error message")
 
+  test("Тест неверного CSRF: форма с ошибкой"):
+    val auth = doLogin("JB", "passwd")
+    val cr = basicRequest
+      .multipartBody(
+        multipart("csrf", "wrong-csrf-value"),
+        multipartFile("file", new File("src/test/resources/database.xml")))
+      .cookie(AuthCookie, auth)
+      .cookie(CSRFProtectionService.CSRF_COOKIE -> "actual-cookie-token")
+      .post(MainUrl.addPath("addphoto.jsp"))
+      .followRedirects(false)
+      .send(backend)
+    assertEquals(cr.code, StatusCode.BadRequest, "status code")
+    val doc = Jsoup.parse(cr.body.merge, cr.request.uri.toString())
+    assertEquals("Ошибка! сбой добавления, попробуйте еще раз", doc.select(".error").text, "error message")
+
   test("Тест неправильной картинки: слишком большой файл"):
     val auth = doLogin("JB", "passwd")
     val cr = addPhoto("src/main/webapp/img/pcard.jpg", auth)

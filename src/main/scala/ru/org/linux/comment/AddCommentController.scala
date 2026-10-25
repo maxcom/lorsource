@@ -31,7 +31,6 @@ import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.{MaybeAuthorized, MaybeAuthorizedCtx}
 import ru.org.linux.auth.{AuthUtil, CaptchaService, LoginAttemptCache}
-import ru.org.linux.csrf.CSRFNoAuto
 import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.realtime.RealtimeEventHub
@@ -88,7 +87,6 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     * @return объект web-модели
     */
   @RequestMapping(value = Array("/add_comment.jsp"), method = Array(RequestMethod.POST))
-  @CSRFNoAuto
   def addComment(@ModelAttribute("add") @Validated add: CommentRequest, errors: Errors, request: HttpServletRequest,
                  @RequestAttribute("captchaRequired") captchaRequired: Boolean): ModelAndView = MaybeAuthorized { /* no implicit! */ sessionUserOpt =>
     val attempt = AuthUtil.beginCaptchaCheckedAttempt(captcha, loginAttemptCache, sessionUserOpt, add.getNick,

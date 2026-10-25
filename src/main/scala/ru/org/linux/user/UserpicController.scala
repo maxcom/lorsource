@@ -15,6 +15,7 @@
 package ru.org.linux.user
 
 import com.typesafe.scalalogging.StrictLogging
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.view.RedirectView
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriTemplate
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.csrf.CSRFProtectionService
 import ru.org.linux.rights.EditProfileChecker
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.util.BadImageException
@@ -49,11 +51,14 @@ class UserpicController(siteConfig: SiteConfig, userService: UserService,
   }
 
   @RequestMapping(value = Array("/addphoto.jsp"), method = Array(RequestMethod.POST))
-  def addPhoto(@RequestParam("file") file: MultipartFile,
+  def addPhoto(@RequestParam("file") file: MultipartFile, request: HttpServletRequest,
                response: HttpServletResponse): ModelAndView = AuthorizedOnly { implicit currentUser =>
     editProfileChecker.checkLoadUserpic.checkOrThrow()
 
-    if (file == null || file.isEmpty) {
+    if (!CSRFProtectionService.checkCSRF(request)) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+      new ModelAndView("addphoto", "error", "сбой добавления, попробуйте еще раз")
+    } else if (file == null || file.isEmpty) {
       new ModelAndView("addphoto", "error", "изображение не задано")
     } else {
       val uploadedFile = Files.createTempFile("userpic-", "")
