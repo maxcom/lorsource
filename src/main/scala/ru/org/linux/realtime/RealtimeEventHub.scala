@@ -264,8 +264,6 @@ class RealtimeWebsocketHandler(@Qualifier("realtimeHubWS") hub: ActorRef[Protoco
     try {
       val request = message.getPayload
 
-      logger.debug(s"Got request: $request")
-
       val (topicId, maybeComment) = request.split(" ", 2) match {
         case Array(t) =>
           t.toInt -> None
