@@ -38,7 +38,9 @@ object UserDao:
 
   val SpecialUserIds: Seq[Int] = Seq(UserService.AnonymousUserId, UserService.DeletedUserId)
 
-  /** Критерий неактивности пользователя для кандидатов окончательного удаления (общий для TopicDao и CommentDao).
+  /** Критерий заблокированного автора для кандидатов окончательного удаления: заблокирован более 3 лет назад; при
+    * отсутствии даты блокировки — дата последнего посещения, затем дата регистрации. Автор без всех трёх дат считается
+    * старым. Общий для TopicDao и CommentDao.
     *
     * Критерии описаны в doc/data-retention.md
     *
@@ -46,15 +48,34 @@ object UserDao:
     * ban_info.userid = users.id`; у заблокированного пользователя не более одной строки `ban_info`, при разблокировке
     * строка удаляется).
     */
-  val AuthorInactivityCondition: SQLSyntax = sqls"""(
+  val BlockedAuthorCondition: SQLSyntax =
+    sqls"""(
+    users.blocked
+    AND users.id NOT IN (${SpecialUserIds})
+    AND (
+      COALESCE(ban_info.bandate, users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years'
+      OR (ban_info.bandate IS NULL AND users.lastlogin IS NULL AND users.regdate IS NULL)
+    )
+  )"""
+
+  /** Критерий неактивного автора для кандидатов окончательного удаления: не посещал сайт более 10 лет (lastlogin, при
+    * отсутствии — regdate). Автор без обеих дат считается старым. Общий для TopicDao и CommentDao.
+    *
+    * Критерии описаны в doc/data-retention.md
+    */
+  val InactiveAuthorCondition: SQLSyntax =
+    sqls"""(
     users.id NOT IN (${SpecialUserIds})
     AND (
       COALESCE(users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '10 years'
-      OR (users.blocked
-          AND COALESCE(ban_info.bandate, users.lastlogin, users.regdate) < CURRENT_TIMESTAMP - interval '3 years')
       OR (users.lastlogin IS NULL AND users.regdate IS NULL)
     )
   )"""
+
+  /** Критерий неактивности автора: заблокирован ([[BlockedAuthorCondition]]) или давно не активен
+    * ([[InactiveAuthorCondition]]). Используется там, где давность удаления сообщения не проверяется (черновики).
+    */
+  val AuthorInactivityCondition: SQLSyntax = sqls"(${BlockedAuthorCondition} OR ${InactiveAuthorCondition})"
 
   /** Критерий «нового заблокированного пользователя» для кандидатов окончательного удаления (общий для TopicDao и
     * CommentDao). Детали описаны в doc/data-retention.md
@@ -62,7 +83,8 @@ object UserDao:
     * Предполагает, что запрос соединяет таблицы `users` и `ban_info` под этими именами (`LEFT JOIN ban_info ON
     * ban_info.userid = users.id`; у заблокированного пользователя не более одной строки `ban_info`).
     */
-  val LowScoreBlockedAuthorCondition: SQLSyntax = sqls"""(
+  val LowScoreBlockedAuthorCondition: SQLSyntax =
+    sqls"""(
     users.blocked
     AND users.max_score < 50
     AND users.id NOT IN (${SpecialUserIds})
@@ -238,7 +260,12 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
 
   def getResetDate(user: User): Instant =
     springDB.run(
-      sql"SELECT lostpwd FROM users WHERE id=${user.id}".map(rs => rs.timestamp("lostpwd")).single.apply().get.toInstant)
+      sql"SELECT lostpwd FROM users WHERE id=${user.id}"
+        .map(rs => rs.timestamp("lostpwd"))
+        .single
+        .apply()
+        .get
+        .toInstant)
 
   def block(user: User, moderator: User, reason: String)(using Transaction): Unit =
     sql"UPDATE users SET blocked='t' WHERE id=${user.id}".update.apply()
@@ -319,16 +346,15 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
   def setNewEmail(user: User, newEmail: String)(using Transaction): Unit =
     sql"UPDATE users SET new_email=${newEmail} WHERE id=${user.id}".update.apply()
 
-  def createUser(name: String, nick: String, encodedPassword: String, url: String, mail: InternetAddress, town: String)(using
-      Transaction): (Int, Timestamp) =
+  def createUser(name: String, nick: String, encodedPassword: String, url: String, mail: InternetAddress, town: String)(
+      using Transaction): (Int, Timestamp) =
     val fixedUrl = Option(url).map(URLUtil.fixURL).orNull
 
     sql"""INSERT INTO users
           (id, name, nick, passwd, url, email, town, score, max_score, regdate, userinfo_markup)
           VALUES (nextval('s_uid'), ${name}, ${nick}, ${encodedPassword}, ${fixedUrl}, ${mail
         .getAddress}, ${town}, 45, 45, current_timestamp, ${Profile.DEFAULT.formatMode.id})
-          RETURNING id, regdate"""
-      .map(rs => (rs.int("id"), rs.timestamp("regdate"))).single.apply().get
+          RETURNING id, regdate""".map(rs => (rs.int("id"), rs.timestamp("regdate"))).single.apply().get
 
   def isUserExists(nick: String): Boolean =
     springDB.run(
@@ -438,8 +464,8 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     *   - заблокированные, зарегистрированные более 30 дней назад.
     *
     * Удаление выполняется порциями по [[UserDao.DeleteBatchSize]], каждая порция — отдельная транзакция. Кандидаты
-    * порции выбираются повторно (`FOR UPDATE`) внутри транзакции удаления: условие `NOT activated` проверяется
-    * атомарно в момент удаления, поэтому параллельно активированный аккаунт не удаляется.
+    * порции выбираются повторно (`FOR UPDATE`) внутри транзакции удаления: условие `NOT activated` проверяется атомарно
+    * в момент удаления, поэтому параллельно активированный аккаунт не удаляется.
     *
     * Возвращает число удалённых пользователей: (незаблокированные, заблокированные).
     */
@@ -451,7 +477,10 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     @tailrec
     def loop(acc: Int): Int =
       val deleted = deleteStaleUnactivatedBatch(blocked)
-      if deleted > 0 then loop(acc + deleted) else acc
+      if deleted > 0 then
+        loop(acc + deleted)
+      else
+        acc
 
     loop(0)
 
@@ -466,18 +495,17 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
 
       val ids =
         sql"""SELECT id FROM users WHERE NOT activated AND $condition
-              LIMIT ${UserDao.DeleteBatchSize} FOR UPDATE"""
-          .map(rs => rs.int("id"))
-          .list
-          .apply()
+              LIMIT ${UserDao.DeleteBatchSize} FOR UPDATE""".map(rs => rs.int("id")).list.apply()
 
-      if ids.nonEmpty then deleteUsersBatchTx(ids) else 0
+      if ids.nonEmpty then
+        deleteUsersBatchTx(ids)
+      else
+        0
     }
 
   /** Заблокированные пользователи без активности, подлежащие удалению.
     *
     * Критерии описаны в doc/data-retention.md
-    *
     */
   def getDeletableBlockedUserIds: Seq[Int] =
     springDB.run(
@@ -508,8 +536,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     * Критерии описаны в doc/data-retention.md
     */
   def getDeletableInactiveUserIds: Seq[Int] =
-    springDB.run(
-      sql"""SELECT u.id FROM users u
+    springDB.run(sql"""SELECT u.id FROM users u
             WHERE NOT u.blocked
             AND u.id NOT IN (${UserDao.SpecialUserIds})
             AND NOT EXISTS (SELECT 1 FROM topics WHERE userid = u.id)
@@ -525,10 +552,7 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
             AND NOT EXISTS (SELECT 1 FROM users fu WHERE fu.frozen_by = u.id)
             AND NOT EXISTS (SELECT 1 FROM ban_info bb WHERE bb.ban_by = u.id)
             AND (COALESCE(u.lastlogin, u.regdate) < CURRENT_TIMESTAMP - interval '10 years'
-                 OR (u.lastlogin IS NULL AND u.regdate IS NULL))"""
-        .map(rs => rs.int("id"))
-        .list
-        .apply())
+                 OR (u.lastlogin IS NULL AND u.regdate IS NULL))""".map(rs => rs.int("id")).list.apply())
 
   /** Удаляет пользователей вместе с их личными данными. Все ссылки, оставшиеся от активности пользователя (топики,
     * комментарии, реакции, голоса, инвайты, предупреждения, правки), уже отсечены в [[getDeletableBlockedUserIds]] и
@@ -537,11 +561,9 @@ class UserDao(springDB: SpringDB) extends StrictLogging:
     *
     * Удаление выполняется порциями по [[UserDao.DeleteBatchSize]], каждая порция — в отдельной транзакции.
     */
-  def deleteUsers(ids: Seq[Int]): Int =
-    ids.grouped(UserDao.DeleteBatchSize).map(deleteUsersBatch).sum
+  def deleteUsers(ids: Seq[Int]): Int = ids.grouped(UserDao.DeleteBatchSize).map(deleteUsersBatch).sum
 
-  private def deleteUsersBatch(ids: Seq[Int]): Int =
-    springDB.localTx(deleteUsersBatchTx(ids))
+  private def deleteUsersBatch(ids: Seq[Int]): Int = springDB.localTx(deleteUsersBatchTx(ids))
 
   private def deleteUsersBatchTx(ids: Seq[Int])(using Transaction): Int =
     sql"DELETE FROM ban_info WHERE userid IN ($ids)".update.apply()

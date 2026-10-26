@@ -21,7 +21,10 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
-import ru.org.linux.user.UserDao.{AuthorInactivityCondition, LowScoreBlockedAuthorCondition, SpecialUserIds}
+import ru.org.linux.user.UserDao.BlockedAuthorCondition
+import ru.org.linux.user.UserDao.InactiveAuthorCondition
+import ru.org.linux.user.UserDao.LowScoreBlockedAuthorCondition
+import ru.org.linux.user.UserDao.SpecialUserIds
 import ru.org.linux.util.StringUtil
 import scalikejdbc.*
 
@@ -187,11 +190,16 @@ class CommentDao(springDB: SpringDB):
     *   список удалённых комментариев пользователя
     */
   def getDeletedComments(userId: Int, filter: DeletedCommentsFilterEnum, offset: Int): Seq[CommentsListItem] =
-    val filterClause: SQLSyntax = filter match
-      case DeletedCommentsFilterEnum.ALL => sqls"true"
-      case DeletedCommentsFilterEnum.PENALTY => sqls"comdel.bonus IS NOT NULL AND comdel.bonus != 0"
-      case DeletedCommentsFilterEnum.NO_AUTO => sqls"comments.deleted AND comdel.reason IS NOT NULL AND comdel.reason NOT ILIKE '%(авто%'"
-      case DeletedCommentsFilterEnum.SELF_DELETED => sqls"comdel.delby = comments.userid"
+    val filterClause: SQLSyntax =
+      filter match
+        case DeletedCommentsFilterEnum.ALL =>
+          sqls"true"
+        case DeletedCommentsFilterEnum.PENALTY =>
+          sqls"comdel.bonus IS NOT NULL AND comdel.bonus != 0"
+        case DeletedCommentsFilterEnum.NO_AUTO =>
+          sqls"comments.deleted AND comdel.reason IS NOT NULL AND comdel.reason NOT ILIKE '%(авто%'"
+        case DeletedCommentsFilterEnum.SELF_DELETED =>
+          sqls"comdel.delby = comments.userid"
 
     springDB.run:
       sql"""SELECT groups.title as gtitle, topics.title, topics.id as msgid,
@@ -225,81 +233,59 @@ class CommentDao(springDB: SpringDB):
     springDB.run:
       sql"""SELECT EXISTS (SELECT 1 FROM comments JOIN topics ON comments.topic=topics.id
             WHERE comments.userid=$userId AND (comments.deleted OR topics.deleted))"""
-        .map(rs => rs.boolean(1)).single.apply().getOrElse(false)
+        .map(rs => rs.boolean(1))
+        .single
+        .apply()
+        .getOrElse(false)
+
+  /** Дата удаления комментария по алгоритму doc/data-retention.md: для комментария в удалённом топике — дата удаления
+    * топика, иначе — собственная дата удаления комментария; при отсутствии записи `del_info` или NULL-дате — дата
+    * последней модификации топика (`topics.lastmod`).
+    *
+    * Предполагает, что запрос соединяет таблицы `topics`, `comdel` (del_info комментария) и `topdel` (del_info топика)
+    * под этими именами.
+    */
+  private val CommentDeletionDate: SQLSyntax =
+    sqls"""CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
+              ELSE COALESCE(comdel.deldate, topics.lastmod) END"""
+
+  /** Условие окончательной удаляемости удалённого комментария по правилам doc/data-retention.md: порог давности
+    * удаления зависит от категории автора — заблокированный (более 3 лет), неактивный (более 10 лет), новый
+    * заблокированный (max_score < 50), специальный (anonymous/Deleted) — либо 10 лет с момента удаления для остальных.
+    *
+    * Общий для [[getDeletableDeletedCommentIds]] и перепроверки в [[purgeDeletedComments]], чтобы запросы не
+    * расходились; предполагает соединения таблиц как у [[CommentDeletionDate]].
+    */
+  private val DeletableDeletedCommentCondition: SQLSyntax =
+    sqls"""(
+    (${BlockedAuthorCondition} AND ${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
+    OR (${InactiveAuthorCondition} AND ${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '3 years')
+    OR (${LowScoreBlockedAuthorCondition} AND ${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
+    OR (comments.userid IN (${SpecialUserIds})
+      AND ${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
+    OR (${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '10 years')
+  )"""
 
   /** Удалённые комментарии, подлежащие окончательному удалению.
     *
     * Критерии описаны в doc/data-retention.md
     *
-    * Комментарии, подходящие по нескольким критериям удаления, попадают в результат один раз (`UNION`). Комментарии с
-    * удалёнными ответами вычищаются постепенно: сначала листья цепочки, затем их родители.
+    * Комментарии с удалёнными ответами вычищаются постепенно: сначала листья цепочки, затем их родители.
     *
     * @return
     *   список идентификаторов кандидатов, упорядоченный по возрастанию id
     */
   def getDeletableDeletedCommentIds: Seq[Int] =
     springDB.run(sql"""SELECT comments.id
-            FROM del_info
-            JOIN comments ON comments.id = del_info.msgid
-            JOIN users ON users.id = comments.userid
-            LEFT JOIN ban_info ON ban_info.userid = users.id
-            WHERE comments.deleted
-            AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
-            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-            AND ${AuthorInactivityCondition}
-            UNION
-            SELECT comments.id
-            FROM comments
-            JOIN topics ON topics.id = comments.topic
-            JOIN del_info ON del_info.msgid = topics.id
-            JOIN users ON users.id = comments.userid
-            LEFT JOIN ban_info ON ban_info.userid = users.id
-            WHERE topics.deleted
-            AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
-            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-            AND ${AuthorInactivityCondition}
-            UNION
-            SELECT comments.id
             FROM comments
             JOIN topics ON topics.id = comments.topic
             JOIN users ON users.id = comments.userid
             LEFT JOIN ban_info ON ban_info.userid = users.id
-            WHERE topics.postscore = $POSTSCORE_HIDE_COMMENTS
-            AND topics.lastmod < CURRENT_TIMESTAMP - interval '3 years'
-            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-            AND ${AuthorInactivityCondition}
-            UNION
-            SELECT comments.id
-            FROM comments
-            JOIN topics ON topics.id = comments.topic
-            JOIN users ON users.id = comments.userid
-            LEFT JOIN ban_info ON ban_info.userid = users.id
-            WHERE (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
-            AND ${LowScoreBlockedAuthorCondition}
-            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-            UNION
-            SELECT comments.id
-            FROM comments
-            JOIN topics ON topics.id = comments.topic
             LEFT JOIN del_info comdel ON comdel.msgid = comments.id
             LEFT JOIN del_info topdel ON topdel.msgid = topics.id
             WHERE (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
-            AND comments.userid IN (${SpecialUserIds})
-            AND (CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
-                      ELSE COALESCE(comdel.deldate, topics.lastmod) END
-                 < CURRENT_TIMESTAMP - interval '6 months')
             AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-            UNION
-            SELECT comments.id
-            FROM comments
-            JOIN topics ON topics.id = comments.topic
-            LEFT JOIN del_info comdel ON comdel.msgid = comments.id
-            LEFT JOIN del_info topdel ON topdel.msgid = topics.id
-            WHERE (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
-            AND (CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
-                      ELSE COALESCE(comdel.deldate, topics.lastmod) END
-                 < CURRENT_TIMESTAMP - interval '10 years')
-            AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
+            AND ${DeletableDeletedCommentCondition}
             ORDER BY id""".map(rs => rs.int("id")).list.apply())
 
   /** Окончательно удаляет комментарии со всеми зависимыми записями (в одной транзакции).
@@ -309,8 +295,8 @@ class CommentDao(springDB: SpringDB):
     * Перед удалением перепроверяем критерии, на случай если комментарий был восстановлен или автор был разблокирован
     * или другие условия перестали выполняться.
     *
-    * Счётчики непрочитанных уведомлений затронутых пользователей
-    * пересчитываются; счётчики комментариев топиков (`stat1`/`stat3`) не пересчитываются.
+    * Счётчики непрочитанных уведомлений затронутых пользователей пересчитываются; счётчики комментариев топиков
+    * (`stat1`/`stat3`) не пересчитываются.
     *
     * @param ids
     *   идентификаторы окончательно удаляемых комментариев
@@ -332,29 +318,8 @@ class CommentDao(springDB: SpringDB):
                 WHERE comments.id IN ($ids)
                 AND (comments.deleted OR topics.deleted OR topics.postscore = $POSTSCORE_HIDE_COMMENTS)
                 AND NOT EXISTS (SELECT 1 FROM comments r WHERE r.replyto = comments.id)
-                AND (
-                  (
-                    (comments.deleted AND comdel.msgid IS NOT NULL
-                      AND (comdel.deldate < CURRENT_TIMESTAMP - interval '3 years' OR comdel.deldate IS NULL))
-                    OR (topics.deleted AND topdel.msgid IS NOT NULL
-                      AND (topdel.deldate < CURRENT_TIMESTAMP - interval '3 years' OR topdel.deldate IS NULL))
-                    OR (topics.postscore = $POSTSCORE_HIDE_COMMENTS
-                      AND topics.lastmod < CURRENT_TIMESTAMP - interval '3 years')
-                  )
-                  AND ${AuthorInactivityCondition}
-                  OR ${LowScoreBlockedAuthorCondition}
-                  OR (comments.userid IN (${SpecialUserIds})
-                    AND (CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
-                              ELSE COALESCE(comdel.deldate, topics.lastmod) END
-                         < CURRENT_TIMESTAMP - interval '6 months'))
-                  OR (CASE WHEN topics.deleted THEN COALESCE(topdel.deldate, topics.lastmod)
-                           ELSE COALESCE(comdel.deldate, topics.lastmod) END
-                      < CURRENT_TIMESTAMP - interval '10 years')
-                )
-                ORDER BY comments.id FOR UPDATE OF comments, topics, users"""
-            .map(rs => rs.int("id"))
-            .list
-            .apply()
+                AND ${DeletableDeletedCommentCondition}
+                ORDER BY comments.id FOR UPDATE OF comments, topics, users""".map(rs => rs.int("id")).list.apply()
 
         if locked.isEmpty then
           0

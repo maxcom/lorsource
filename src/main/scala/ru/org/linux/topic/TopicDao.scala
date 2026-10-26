@@ -23,7 +23,11 @@ import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.SectionScrollModeEnum
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
-import ru.org.linux.user.UserDao.{AuthorInactivityCondition, LowScoreBlockedAuthorCondition, SpecialUserIds}
+import ru.org.linux.user.UserDao.AuthorInactivityCondition
+import ru.org.linux.user.UserDao.BlockedAuthorCondition
+import ru.org.linux.user.UserDao.InactiveAuthorCondition
+import ru.org.linux.user.UserDao.LowScoreBlockedAuthorCondition
+import ru.org.linux.user.UserDao.SpecialUserIds
 import ru.org.linux.warning.RuleWarning
 import scalikejdbc.*
 
@@ -98,7 +102,7 @@ class TopicDao(springDB: SpringDB):
 
   def updateTitle(msgid: Int, title: String)(using Transaction): Unit =
     sql"UPDATE topics SET title=$title WHERE id=$msgid".update.apply()
-  
+
   def updateLinktext(msgid: Int, linktext: String)(using Transaction): Unit =
     sql"UPDATE topics SET linktext=$linktext WHERE id=$msgid".update.apply()
 
@@ -331,6 +335,29 @@ class TopicDao(springDB: SpringDB):
 
   def recalcAllWarningsCountInTx(): Unit = springDB.localTx(recalcAllWarningsCount())
 
+  /** Дата удаления топика по алгоритму doc/data-retention.md: `del_info.deldate`, при отсутствии записи или NULL-дате —
+    * дата последней модификации топика (`topics.lastmod`).
+    *
+    * Предполагает, что запрос соединяет таблицы `topics` и `del_info` под этими именами.
+    */
+  private val TopicDeletionDate: SQLSyntax = sqls"COALESCE(del_info.deldate, topics.lastmod)"
+
+  /** Условие окончательной удаляемости удалённого топика по правилам doc/data-retention.md: порог давности удаления
+    * зависит от категории автора — заблокированный (более 3 лет), неактивный (более 10 лет), новый заблокированный
+    * (max_score < 50), специальный (anonymous/Deleted) — либо 10 лет с момента удаления для остальных.
+    *
+    * Общий для [[getDeletableDeletedTopicIds]] и перепроверки в [[purgeDeletedTopics]], чтобы запросы не расходились;
+    * предполагает соединения таблиц как у [[TopicDeletionDate]].
+    */
+  private val DeletableDeletedTopicCondition: SQLSyntax =
+    sqls"""(
+    (${BlockedAuthorCondition} AND ${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
+    OR (${InactiveAuthorCondition} AND ${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '3 years')
+    OR (${LowScoreBlockedAuthorCondition} AND ${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
+    OR (topics.userid IN (${SpecialUserIds}) AND ${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
+    OR (${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '10 years')
+  )"""
+
   /** Удалённые топики без комментариев, подлежащие окончательному удалению.
     *
     * Критерии описаны в doc/data-retention.md
@@ -342,44 +369,17 @@ class TopicDao(springDB: SpringDB):
     springDB.run:
       sql"""SELECT topics.id
             FROM topics
-            JOIN del_info ON del_info.msgid = topics.id
             JOIN users ON users.id = topics.userid
             LEFT JOIN ban_info ON ban_info.userid = users.id
-            WHERE topics.deleted
-            AND (del_info.deldate < CURRENT_TIMESTAMP - interval '3 years' OR del_info.deldate IS NULL)
-            AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
-            AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
-            AND ${AuthorInactivityCondition}
-            UNION
-            SELECT topics.id
-            FROM topics
-            JOIN users ON users.id = topics.userid
-            LEFT JOIN ban_info ON ban_info.userid = users.id
-            WHERE topics.deleted
-            AND ${LowScoreBlockedAuthorCondition}
-            AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
-            AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
-            UNION
-            SELECT topics.id
-            FROM topics
             LEFT JOIN del_info ON del_info.msgid = topics.id
             WHERE topics.deleted
-            AND topics.userid IN (${SpecialUserIds})
-            AND COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '6 months'
             AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
             AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
-            UNION
-            SELECT topics.id
-            FROM topics
-            LEFT JOIN del_info ON del_info.msgid = topics.id
-            WHERE topics.deleted
-            AND COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '10 years'
-            AND NOT EXISTS (SELECT 1 FROM comments WHERE comments.topic = topics.id)
-            AND NOT EXISTS (SELECT 1 FROM images WHERE images.topic = topics.id AND NOT images.purged)
+            AND ${DeletableDeletedTopicCondition}
             ORDER BY id""".map(rs => rs.int("id")).list.apply()
 
   /** Черновики неактивных пользователей, подлежащие окончательному удалению.
-    * 
+    *
     * Критерии описаны в doc/data-retention.md
     *
     * В отличие от [[getDeletableDeletedTopicIds]] не фильтрует непрочищенные картинки: файлы картинок неопубликованных
@@ -416,7 +416,7 @@ class TopicDao(springDB: SpringDB):
     * пользователей (кандидаты [[getDeletableDraftTopicIds]]).
     *
     * Критерии описаны в doc/data-retention.md
-    * 
+    *
     * Счётчики непрочитанных уведомлений затронутых пользователей пересчитываются.
     *
     * @param ids
@@ -445,13 +445,7 @@ class TopicDao(springDB: SpringDB):
                     OR (topics.userid IN (${SpecialUserIds})
                         AND topics.lastmod < CURRENT_TIMESTAMP - interval '6 months')
                   ))
-                  OR (topics.deleted AND (
-                    ${AuthorInactivityCondition}
-                    OR ${LowScoreBlockedAuthorCondition}
-                    OR COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '10 years'
-                    OR (topics.userid IN (${SpecialUserIds})
-                        AND COALESCE(del_info.deldate, topics.lastmod) < CURRENT_TIMESTAMP - interval '6 months')
-                  ))
+                  OR (topics.deleted AND ${DeletableDeletedTopicCondition})
                 )
                 ORDER BY topics.id FOR UPDATE OF topics, users""".map(rs => rs.int("id")).list.apply()
 

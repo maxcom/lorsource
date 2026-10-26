@@ -33,8 +33,9 @@ import java.time.LocalDate
   * ([[TopicDao.getDeletableDeletedTopicIds]], [[TopicDao.getDeletableDraftTopicIds]] и
   * [[TopicDao.purgeDeletedTopics]]).
   *
-  * Даты вычисляются относительно текущей даты: пороги запросов — 3 года (дата удаления, заблокированные авторы) и 10
-  * лет (неактивные авторы и дата удаления), контрольные значения берутся с запасом от границ.
+  * Даты вычисляются относительно текущей даты: пороги запросов — 6 месяцев (дата удаления для заблокированных авторов и
+  * специальных пользователей), 3 года (дата удаления для неактивных авторов) и 10 лет (дата удаления для остальных),
+  * контрольные значения берутся с запасом от границ.
   */
 @ContextConfiguration(classes = Array(classOf[DeletedTopicPurgeIntegrationTestConfiguration]))
 class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSupport:
@@ -101,7 +102,8 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
   private def ensureDeletedUser(): Unit =
     springDB.run:
-      sql"""INSERT INTO users (id, nick, blocked, score, max_score) VALUES (${UserService.DeletedUserId}, 'Deleted', false, 0, 0)
+      sql"""INSERT INTO users (id, nick, blocked, score, max_score) VALUES (${UserService
+          .DeletedUserId}, 'Deleted', false, 0, 0)
             ON CONFLICT (id) DO UPDATE SET blocked=false""".update.apply()
 
   private def insertComment(commentId: Int, userId: Int, topic: Int): Unit =
@@ -155,15 +157,21 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val candInactive = deletedTopic(inactive, "cand inactive", Some(yearsAgo(4)))
     val candBlocked = deletedTopic(blockedOld, "cand blocked", Some(yearsAgo(4)))
+    val candBlockedRecentDelete = deletedTopic(blockedOld, "cand blocked recent delete", Some(monthsAgo(13)))
     val candNoDates = deletedTopic(noDates, "cand no dates", Some(yearsAgo(4)))
     val candRegdateFallback = deletedTopic(regdateFallback, "cand regdate fallback", Some(yearsAgo(4)))
     val candNoDeldate = deletedTopic(inactive, "cand no deldate", None)
 
     val ctrlActiveAuthor = deletedTopic(active, "ctrl active author", Some(yearsAgo(4)))
     val ctrlBlockedRecent = deletedTopic(blockedRecent, "ctrl blocked recent", Some(yearsAgo(4)))
+    val ctrlBlockedFreshDelete = deletedTopic(blockedOld, "ctrl blocked fresh delete", Some(monthsAgo(3)))
     val ctrlRecentRegdate = deletedTopic(recentRegdate, "ctrl recent regdate", Some(yearsAgo(4)))
     val ctrlRecentDelete = deletedTopic(inactive, "ctrl recent delete", Some(monthsAgo(1)))
     val ctrlNoDeldateActive = deletedTopic(active, "ctrl no deldate active author", None)
+
+    // deldate IS NULL: датой удаления считается lastmod топика — задаём старый
+    springDB.run:
+      sql"UPDATE topics SET lastmod=${yearsAgo(4)} WHERE id IN ($candNoDeldate, $ctrlNoDeldateActive)".update.apply()
 
     val ctrlWithComment = deletedTopic(inactive, "ctrl with comment", Some(yearsAgo(4)))
     insertComment(nextMsgId, active, ctrlWithComment)
@@ -178,11 +186,17 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     assert(ids.contains(candInactive), "inactive author should be a candidate")
     assert(ids.contains(candBlocked), "blocked author with old lastlogin should be a candidate")
+    assert(
+      ids.contains(candBlockedRecentDelete),
+      "topic of author blocked over 3 years deleted 13 months ago should be a candidate")
     assert(ids.contains(candNoDates), "author without dates should be a candidate")
     assert(ids.contains(candRegdateFallback), "unknown lastlogin should fall back to old regdate")
     assert(ids.contains(candNoDeldate), "deleted topic without deldate should be a candidate")
     assert(!ids.contains(ctrlActiveAuthor), "active author should not be a candidate")
     assert(!ids.contains(ctrlBlockedRecent), "blocked author with recent lastlogin should not be a candidate")
+    assert(
+      !ids.contains(ctrlBlockedFreshDelete),
+      "topic of author blocked over 3 years deleted 3 months ago should not be a candidate")
     assert(!ids.contains(ctrlRecentRegdate), "recent regdate fallback should not be a candidate")
     assert(!ids.contains(ctrlRecentDelete), "recently deleted topic should not be a candidate")
     assert(!ids.contains(ctrlNoDeldateActive), "topic without deldate of active author should not be a candidate")
@@ -265,27 +279,47 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     assert(!ids.contains(ctrlWithComment), "topic of anonymous with comment should not be a candidate")
 
   test("getDeletableDeletedTopicIdsLowScoreBlockedRule"):
-    val blockedOldBan =
-      createUser("test-topic-lsb-blocked-old", blocked = true, None, Some(yearsAgo(11)), maxScore = 49)
+    val blockedOldBan = createUser(
+      "test-topic-lsb-blocked-old",
+      blocked = true,
+      None,
+      Some(yearsAgo(11)),
+      maxScore = 49)
     insertBanInfo(blockedOldBan, monthsAgo(7))
 
-    val loginFallback =
-      createUser("test-topic-lsb-login-fallback", blocked = true, Some(monthsAgo(7)), Some(yearsAgo(11)), maxScore = 49)
+    val loginFallback = createUser(
+      "test-topic-lsb-login-fallback",
+      blocked = true,
+      Some(monthsAgo(7)),
+      Some(yearsAgo(11)),
+      maxScore = 49)
 
-    val regdateFallback =
-      createUser("test-topic-lsb-reg-fallback", blocked = true, None, Some(monthsAgo(7)), maxScore = 49)
+    val regdateFallback = createUser(
+      "test-topic-lsb-reg-fallback",
+      blocked = true,
+      None,
+      Some(monthsAgo(7)),
+      maxScore = 49)
 
     val noDates = createUser("test-topic-lsb-no-dates", blocked = true, None, None, maxScore = 49)
 
-    val blockedRecent =
-      createUser("test-topic-lsb-blocked-recent", blocked = true, None, Some(yearsAgo(11)), maxScore = 49)
+    val blockedRecent = createUser(
+      "test-topic-lsb-blocked-recent",
+      blocked = true,
+      None,
+      Some(yearsAgo(11)),
+      maxScore = 49)
     insertBanInfo(blockedRecent, monthsAgo(3))
 
     val highScore = createUser("test-topic-lsb-high-score", blocked = true, None, Some(yearsAgo(11)), maxScore = 50)
     insertBanInfo(highScore, monthsAgo(7))
 
-    val notBlocked =
-      createUser("test-topic-lsb-not-blocked", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)), maxScore = 49)
+    val notBlocked = createUser(
+      "test-topic-lsb-not-blocked",
+      blocked = false,
+      Some(monthsAgo(1)),
+      Some(yearsAgo(11)),
+      maxScore = 49)
 
     def deletedTopic(userId: Int, title: String, deldate: Option[Timestamp]): Int =
       val id = nextMsgId
@@ -293,16 +327,19 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
       markTopicDeleted(id, deldate, userId)
       id
 
-    // недавние даты удаления: правило новых заблокированных не требует давности удаления
-    val candBandate = deletedTopic(blockedOldBan, "lsb cand bandate", Some(monthsAgo(1)))
-    val candLoginFallback = deletedTopic(loginFallback, "lsb cand login fallback", Some(monthsAgo(1)))
-    val candRegdateFallback = deletedTopic(regdateFallback, "lsb cand regdate fallback", Some(monthsAgo(1)))
-    val candNoDates = deletedTopic(noDates, "lsb cand no dates", Some(monthsAgo(1)))
+    // даты удаления: удалены более 6 месяцев назад; давность удаления теперь важна
+    val candBandate = deletedTopic(blockedOldBan, "lsb cand bandate", Some(monthsAgo(7)))
+    val candLoginFallback = deletedTopic(loginFallback, "lsb cand login fallback", Some(monthsAgo(7)))
+    val candRegdateFallback = deletedTopic(regdateFallback, "lsb cand regdate fallback", Some(monthsAgo(7)))
+    val candNoDates = deletedTopic(noDates, "lsb cand no dates", Some(monthsAgo(7)))
 
-    val ctrlBlockedRecent = deletedTopic(blockedRecent, "lsb ctrl recent block", Some(monthsAgo(1)))
-    val ctrlHighScore = deletedTopic(highScore, "lsb ctrl max_score 50", Some(monthsAgo(1)))
-    val ctrlNotBlocked = deletedTopic(notBlocked, "lsb ctrl not blocked", Some(monthsAgo(1)))
-    val ctrlWithComment = deletedTopic(blockedOldBan, "lsb ctrl with comment", Some(monthsAgo(1)))
+    // удалён менее 6 месяцев назад — не кандидат даже при подходящем авторе
+    val ctrlFreshDelete = deletedTopic(blockedOldBan, "lsb ctrl fresh delete", Some(monthsAgo(1)))
+
+    val ctrlBlockedRecent = deletedTopic(blockedRecent, "lsb ctrl recent block", Some(monthsAgo(7)))
+    val ctrlHighScore = deletedTopic(highScore, "lsb ctrl max_score 50", Some(monthsAgo(7)))
+    val ctrlNotBlocked = deletedTopic(notBlocked, "lsb ctrl not blocked", Some(monthsAgo(7)))
+    val ctrlWithComment = deletedTopic(blockedOldBan, "lsb ctrl with comment", Some(monthsAgo(7)))
     insertComment(nextMsgId, notBlocked, ctrlWithComment)
 
     val ids = topicDao.getDeletableDeletedTopicIds
@@ -311,6 +348,9 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     assert(ids.contains(candLoginFallback), "unknown bandate should fall back to old lastlogin")
     assert(ids.contains(candRegdateFallback), "unknown bandate and lastlogin should fall back to old regdate")
     assert(ids.contains(candNoDates), "low-score blocked author without dates should be a candidate")
+    assert(
+      !ids.contains(ctrlFreshDelete),
+      "topic of low-score blocked author deleted 1 month ago should not be a candidate")
     assert(!ids.contains(ctrlBlockedRecent), "recently blocked author should not be a candidate")
     assert(!ids.contains(ctrlHighScore), "blocked author with max_score 50 should not be a candidate")
     assert(!ids.contains(ctrlNotBlocked), "not blocked low-score author should not be a candidate")
@@ -340,6 +380,10 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     val candLoginFallback = deletedTopic(loginFallback, "ban cand login fallback", Some(yearsAgo(4)))
     val candRegdateFallback = deletedTopic(regdateFallback, "ban cand regdate fallback", Some(yearsAgo(4)))
 
+    // давность удаления: 13 месяцев — кандидат, 3 месяца — контроль
+    val candRecentDelete = deletedTopic(blockedOldBan, "ban cand recent delete", Some(monthsAgo(13)))
+    val ctrlFreshDelete = deletedTopic(blockedOldBan, "ban ctrl fresh delete", Some(monthsAgo(3)))
+
     val ctrlRecentBan = deletedTopic(blockedRecentBan, "ban ctrl recent bandate", Some(yearsAgo(4)))
 
     val ids = topicDao.getDeletableDeletedTopicIds
@@ -348,25 +392,47 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     assert(ids.contains(candLoginFallback), "unknown bandate should fall back to old lastlogin")
     assert(ids.contains(candRegdateFallback), "unknown bandate and lastlogin should fall back to old regdate")
     assert(
+      ids.contains(candRecentDelete),
+      "topic of author blocked over 3 years ago deleted 13 months ago should be a candidate")
+    assert(
+      !ids.contains(ctrlFreshDelete),
+      "topic of author blocked over 3 years ago deleted 3 months ago should not be a candidate")
+    assert(
       !ids.contains(ctrlRecentBan),
       "blocked author with recent bandate and old lastlogin should not be a candidate")
 
   test("getDeletableDraftTopicIdsLowScoreBlockedRule"):
     // свежие lastlogin/regdate изолируют новое правило от правила неактивности автора
-    val blockedOldBan =
-      createUser("test-draft-lsb-blocked-old", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    val blockedOldBan = createUser(
+      "test-draft-lsb-blocked-old",
+      blocked = true,
+      Some(monthsAgo(1)),
+      Some(monthsAgo(2)),
+      maxScore = 49)
     insertBanInfo(blockedOldBan, monthsAgo(7))
 
-    val blockedRecent =
-      createUser("test-draft-lsb-blocked-recent", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    val blockedRecent = createUser(
+      "test-draft-lsb-blocked-recent",
+      blocked = true,
+      Some(monthsAgo(1)),
+      Some(monthsAgo(2)),
+      maxScore = 49)
     insertBanInfo(blockedRecent, monthsAgo(3))
 
-    val highScore =
-      createUser("test-draft-lsb-high-score", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 50)
+    val highScore = createUser(
+      "test-draft-lsb-high-score",
+      blocked = true,
+      Some(monthsAgo(1)),
+      Some(monthsAgo(2)),
+      maxScore = 50)
     insertBanInfo(highScore, monthsAgo(7))
 
-    val active =
-      createUser("test-draft-lsb-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)), maxScore = 49)
+    val active = createUser(
+      "test-draft-lsb-active",
+      blocked = false,
+      Some(monthsAgo(1)),
+      Some(yearsAgo(11)),
+      maxScore = 49)
 
     // lastmod свежий (CURRENT_TIMESTAMP): правило новых заблокированных не требует возраста черновика
     val candDraft = insertDraft(blockedOldBan, "lsb cand draft")
@@ -376,21 +442,23 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val ids = topicDao.getDeletableDraftTopicIds
 
-    assert(
-      ids.contains(candDraft),
-      "draft of blocked low-score author should be a candidate regardless of lastmod")
+    assert(ids.contains(candDraft), "draft of blocked low-score author should be a candidate regardless of lastmod")
     assert(!ids.contains(ctrlRecentBlock), "draft of recently blocked author should not be a candidate")
     assert(!ids.contains(ctrlHighScore), "draft of blocked author with max_score 50 should not be a candidate")
     assert(!ids.contains(ctrlActive), "draft of active low-score author should not be a candidate")
 
   test("purgeLowScoreBlockedTopic"):
-    val author =
-      createUser("test-topic-lsb-purge", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    val author = createUser(
+      "test-topic-lsb-purge",
+      blocked = true,
+      Some(monthsAgo(1)),
+      Some(monthsAgo(2)),
+      maxScore = 49)
     insertBanInfo(author, monthsAgo(7))
 
     val targetId = nextMsgId
     insertTopic(targetId, author, "lsb purge target")
-    markTopicDeleted(targetId, Some(monthsAgo(1)), author)
+    markTopicDeleted(targetId, Some(monthsAgo(7)), author)
 
     assert(
       topicDao.getDeletableDeletedTopicIds.contains(targetId),
@@ -406,21 +474,29 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     }
 
   test("purgeSkipsLowScoreBlockedTopicAfterAuthorChange"):
-    val unblocked =
-      createUser("test-topic-lsb-unblocked", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    val unblocked = createUser(
+      "test-topic-lsb-unblocked",
+      blocked = true,
+      Some(monthsAgo(1)),
+      Some(monthsAgo(2)),
+      maxScore = 49)
     insertBanInfo(unblocked, monthsAgo(7))
 
-    val raisedScore =
-      createUser("test-topic-lsb-raised", blocked = true, Some(monthsAgo(1)), Some(monthsAgo(2)), maxScore = 49)
+    val raisedScore = createUser(
+      "test-topic-lsb-raised",
+      blocked = true,
+      Some(monthsAgo(1)),
+      Some(monthsAgo(2)),
+      maxScore = 49)
     insertBanInfo(raisedScore, monthsAgo(7))
 
     val unblockedTopic = nextMsgId
     insertTopic(unblockedTopic, unblocked, "lsb topic of unblocked author")
-    markTopicDeleted(unblockedTopic, Some(monthsAgo(1)), unblocked)
+    markTopicDeleted(unblockedTopic, Some(monthsAgo(7)), unblocked)
 
     val raisedTopic = nextMsgId
     insertTopic(raisedTopic, raisedScore, "lsb topic of raised-score author")
-    markTopicDeleted(raisedTopic, Some(monthsAgo(1)), raisedScore)
+    markTopicDeleted(raisedTopic, Some(monthsAgo(7)), raisedScore)
 
     assert(topicDao.getDeletableDeletedTopicIds.contains(unblockedTopic))
     assert(topicDao.getDeletableDeletedTopicIds.contains(raisedTopic))
@@ -445,23 +521,30 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     insertTopic(targetId, oldBanAuthor, "ban purge target old bandate")
     markTopicDeleted(targetId, Some(yearsAgo(4)), oldBanAuthor)
 
+    // удалён между 6 месяцами и 3 годами — тоже легитимная цель (порог заблокированных — 6 месяцев)
+    val relaxedId = nextMsgId
+    insertTopic(relaxedId, oldBanAuthor, "ban purge target relaxed deldate")
+    markTopicDeleted(relaxedId, Some(monthsAgo(13)), oldBanAuthor)
+
     val recheckedId = nextMsgId
     insertTopic(recheckedId, recheckedAuthor, "ban purge target rechecked bandate")
     markTopicDeleted(recheckedId, Some(yearsAgo(4)), recheckedAuthor)
 
     assert(topicDao.getDeletableDeletedTopicIds.contains(targetId))
+    assert(topicDao.getDeletableDeletedTopicIds.contains(relaxedId))
     assert(topicDao.getDeletableDeletedTopicIds.contains(recheckedId))
 
     // между выборкой и purge блокировка обновлена на недавнюю
     springDB.run:
       sql"UPDATE ban_info SET bandate=CURRENT_TIMESTAMP WHERE userid = $recheckedAuthor".update.apply()
 
-    val purged = topicDao.purgeDeletedTopics(Seq(targetId, recheckedId))
+    val purged = topicDao.purgeDeletedTopics(Seq(targetId, relaxedId, recheckedId))
 
-    assertEquals(purged, 1)
+    assertEquals(purged, 2)
     assertEquals(countRows("topics", "id", targetId), 0)
     assertEquals(countRows("msgbase", "id", targetId), 0)
     assertEquals(countRows("del_info", "msgid", targetId), 0)
+    assertEquals(countRows("topics", "id", relaxedId), 0)
     assertEquals(countRows("topics", "id", recheckedId), 1)
     assertEquals(countRows("msgbase", "id", recheckedId), 1)
 
@@ -564,6 +647,10 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     val targetId = nextMsgId
     insertTopic(targetId, author, "to be purged")
     markTopicDeleted(targetId, None, author)
+
+    // deldate IS NULL: датой удаления считается lastmod топика — задаём старый
+    springDB.run:
+      sql"UPDATE topics SET lastmod=${yearsAgo(4)} WHERE id = $targetId".update.apply()
 
     val controlId = nextMsgId
     insertTopic(controlId, author, "control topic")
