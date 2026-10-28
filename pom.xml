@@ -28,8 +28,8 @@
     <pekko.version>1.7.0</pekko.version>
     <log4j.version>2.26.1</log4j.version>
     <d3js.version>5.9.7</d3js.version>
-    <momentjs.version>2.29.4</momentjs.version>
-    <js-cookie.version>3.0.1</js-cookie.version>
+    <momentjs.version>2.31.0</momentjs.version>
+    <js-cookie.version>3.0.8</js-cookie.version>
     <swiffy-slider.version>2.1.2</swiffy-slider.version>
     <circe.version>0.14.17</circe.version>
     <twemoji.version>16.0.1</twemoji.version>
@@ -850,6 +850,45 @@
             </goals>
           </execution>
           <execution>
+            <id>make-moment-ru-classic</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <target>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/js/moment-ru.js" fixlastline="true">
+                  <header trimleading="true">// moment.js ru locale: converted from the webjar ESM build to a classic script
+(function (moment) {
+</header>
+                  <fileset dir="${project.build.directory}/${project.build.finalName}/js"
+                           includes="META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js"/>
+                  <filterchain>
+                    <tokenfilter>
+                      <replaceregex pattern="^import moment from '../moment';$" replace="" flags="g"/>
+                      <replaceregex pattern="^export default " replace="" flags="g"/>
+                    </tokenfilter>
+                  </filterchain>
+                  <footer trimleading="true">})(moment);
+</footer>
+                </concat>
+                <loadfile property="moment.ru.classic"
+                          srcfile="${project.build.directory}/${project.build.finalName}/js/moment-ru.js"/>
+                <fail message="moment ru locale ESM-to-classic conversion did not match (check locale/ru.js shape after a version bump)">
+                  <condition>
+                    <or>
+                      <contains string="${moment.ru.classic}" substring="import "/>
+                      <contains string="${moment.ru.classic}" substring="export "/>
+                      <not>
+                        <contains string="${moment.ru.classic}" substring="defineLocale('ru'"/>
+                      </not>
+                    </or>
+                  </condition>
+                </fail>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
             <id>concat-plugins-js</id>
             <phase>compile</phase>
             <configuration>
@@ -862,13 +901,18 @@
                     <file name="pattern.js"/>
                     <file name="META-INF/resources/webjars/popperjs__core/${popperjs.version}/dist/umd/popper.min.js"/>
                     <file name="META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy-bundle.umd.min.js"/>
-                    <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/min/moment.min.js"/>
-                    <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/locale/ru.js"/>
+                    <file name="META-INF/resources/webjars/momentjs/${momentjs.version}/moment.min.js"/>
+                    <file name="moment-ru.js"/>
                     <file name="META-INF/resources/webjars/js-cookie/${js-cookie.version}/dist/js.cookie.min.js"/>
                     <file name="META-INF/resources/webjars/twemoji__api/${twemoji.version}/dist/twemoji.min.js"/>
                     <file name="swiffy-slider.js"/>
                     <file name="META-INF/resources/webjars/github-com-tarekraafat-autocomplete-js/${autocomplete.version}/autoComplete.min.js"/>
                   </filelist>
+                  <filterchain>
+                    <tokenfilter>
+                      <replaceregex pattern="^//# sourceMappingURL=.*$" replace="" flags="g"/>
+                    </tokenfilter>
+                  </filterchain>
                 </concat>
               </target>
             </configuration>
@@ -1005,6 +1049,7 @@
                   <groupId>org.webjars</groupId>
                   <artifactId>momentjs</artifactId>
                   <version>${momentjs.version}</version>
+                  <includes>**/moment.min.js,**/locale/ru.js</includes>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.webjars.npm</groupId>
