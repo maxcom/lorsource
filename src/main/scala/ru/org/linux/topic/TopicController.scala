@@ -52,6 +52,9 @@ object TopicController {
 
   private val JUMP_MIN_DURATION: java.time.Duration = java.time.Duration.ofDays(30)
 
+  /** Допустимые значения параметра filter для редиректа со старых ссылок /view-message.jsp */
+  private val AllowedFilterValues = Set("show")
+
   private def getDefaultFilter(emptyIgnoreList: Boolean): Int = {
     var filterMode = CommentFilter.FILTER_IGNORED
 
@@ -354,15 +357,13 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
    * @param msgid   id топика
    * @param page    страница топика
    * @param lastmod параметр для кэширования
-   * @param filter  фильтр
-   * @param output  ?
+   * @param filter  фильтр; в редирект прокидывается только значение "show", иные значения игнорируются
    * @return вовзращает редирект на новый код
    */
   @RequestMapping(path = Array("/view-message.jsp"))
   def getMessageOld(@RequestParam("msgid") msgid: Int, @RequestParam(value = "page", required = false) page: Integer,
                     @RequestParam(value = "lastmod", required = false) lastmod: java.lang.Long,
-                    @RequestParam(value = "filter", required = false) filter: String,
-                    @RequestParam(required = false) output: String): ModelAndView = {
+                    @RequestParam(value = "filter", required = false) filter: String): ModelAndView = {
     val topic = topicDao.getById(msgid)
 
     val link = new StringBuilder(topic.getLink)
@@ -376,7 +377,7 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       params.append("?lastmod=").append(topic.lastModified.getTime)
     }
 
-    if (filter != null) {
+    if (filter != null && TopicController.AllowedFilterValues.contains(filter)) {
       if (params.isEmpty) {
         params.append('?')
       } else {
@@ -384,16 +385,6 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       }
 
       params.append("filter=").append(filter)
-    }
-
-    if (output != null) {
-      if (params.isEmpty) {
-        params.append('?')
-      } else {
-        params.append('&')
-      }
-
-      params.append("output=").append(output)
     }
 
     link.append(params)
