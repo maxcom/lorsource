@@ -26,11 +26,11 @@ import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.{Group, GroupNotFoundException, GroupService}
 import ru.org.linux.rights.AddTopicChecker
 import ru.org.linux.section.{Section, SectionController, SectionNotFoundException, SectionService}
-import ru.org.linux.site.ScriptErrorException
+import ru.org.linux.site.{BadInputException, ScriptErrorException}
 import ru.org.linux.tag.{TagPageController, TagService}
 import ru.org.linux.topic.TopicListController.{ForumFilter, ForumFilters, calculatePTitle}
 import ru.org.linux.user.UserErrorException
-import ru.org.linux.util.{DateUtil, ServletParameterException}
+import ru.org.linux.util.{DateUtil, ServletParameterException, StringUtil}
 
 import java.time.ZonedDateTime
 import java.util.concurrent.CompletionStage
@@ -231,11 +231,13 @@ class TopicListController(sectionService: SectionService, topicListService: Topi
   @RequestMapping(value = Array("/show-topics.jsp"), method = Array(RequestMethod.GET))
   def showUserTopics(@RequestParam("nick") nick: String,
                      @RequestParam(value = "output", required = false) output: String): View =
-    if (output != null) {
+    if !StringUtil.checkLoginName(nick) then
+      throw BadInputException("некорректное имя пользователя")
+
+    if output != null then
       new RedirectView(s"/people/$nick/?output=rss")
-    } else {
+    else
       new RedirectView(s"/people/$nick/")
-    }
 
   @RequestMapping(path = Array("/section-rss.jsp"))
   def showRSS(@RequestParam(value = "section", defaultValue = "1") sectionId: Int,
