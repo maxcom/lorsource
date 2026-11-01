@@ -25,7 +25,7 @@
   <a href="/about">О Сервере</a> -
   <a href="/help/rules.md">Правила форума</a>
 
-  <c:if test="${template.formatMode == 'lorcode'}">
+  <c:if test="${template.formatMode == 'lorcode' or template.formatMode == 'ntobr'}">
     - <a href="/help/lorcode.md">Разметка LORCODE</a>
   </c:if>
   <c:if test="${template.formatMode == 'markdown'}">

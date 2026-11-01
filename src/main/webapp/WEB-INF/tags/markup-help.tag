@@ -17,7 +17,8 @@
 
 <%@ attribute name="mode" required="true" type="java.lang.String" %>
 
-<c:if test="${mode == 'lorcode'}">
+<c:choose>
+<c:when test="${mode == 'lorcode'}">
 <b>Внимание:</b> прочитайте описание разметки <a href="/help/lorcode.md" target="_blank" title="[br] - перевод строки
 
 [b]жирный текст[/b]
@@ -50,7 +51,40 @@
 [url]http://www.linux.org.ru/[/url]
 можно с параметром, например:
 [url=http://www.example.com/]Сюда![/url]">LORCODE</a>.
-</c:if>
-<c:if test="${mode == 'markdown'}">
+</c:when>
+<c:when test="${mode == 'ntobr'}">
+<b>Внимание:</b> прочитайте описание разметки <a href="/help/lorcode.md" target="_blank" title="[b]жирный текст[/b]
+
+[i]курсив[/i]
+
+[u]подчёркнутый текст[/u]
+
+[s]зачёркнутый текст[/s]
+
+[em]emphasis[/em]
+
+[strong]stronger emphasis[/strong]
+
+[pre]preformatted text[/pre]
+
+[user]maxcom[/user] - ссылка на профиль пользователя.
+При использовании этого тега упомянутому пользователю приходит уведомление
+
+[code]код[/code]
+
+[inline]Строчное оформление кода[/inline]
+
+Цитата:
+[quote]цитата[/quote] или
+[quote='название цитаты']цитата[/quote] или
+>>цитата
+
+Ссылка:
+[url]http://www.linux.org.ru/[/url]
+можно с параметром, например:
+[url=http://www.example.com/]Сюда![/url]">LORCODE</a>.
+</c:when>
+<c:when test="${mode == 'markdown'}">
 <b>Внимание:</b> прочитайте описание разметки <a target="_blank" href="/help/markdown.md">Markdown</a>.
-</c:if>
+</c:when>
+</c:choose>
