@@ -181,7 +181,9 @@ class EditTopicCheckerTest extends FunSuite:
       userAgent = null,
       reactions = null,
       warnings = java.util.Collections.emptyList(),
-      images = java.util.Collections.emptyList()
+      images = java.util.Collections.emptyList(),
+      votingAllowed = true,
+      votingNotAllowedReason = ""
     )
 
   // === Bug 2: committed-Articles edit deadline anchored on commitDate ===

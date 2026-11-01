@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil
 import ru.org.linux.boxlets.AbstractBoxlet
+import ru.org.linux.rights.VoteChecker
 import ru.org.linux.topic.TopicService
 
 import scala.jdk.CollectionConverters.*
@@ -37,6 +38,8 @@ class PollBoxlet(pollDao: PollDao, topicService: TopicService) extends AbstractB
     val count = pollDao.getVotersCount(poll.id)
     val countUsers = pollDao.getCountUsers(poll)
 
+    val votingCheck = AuthUtil.MaybeAuthorizedCtx(VoteChecker.check(msg))
+
     val result = new ModelAndView("boxlets/poll")
     result.addObject("poll", poll)
     result.addObject("count", count)
@@ -44,4 +47,7 @@ class PollBoxlet(pollDao: PollDao, topicService: TopicService) extends AbstractB
     result.addObject("countUsers", countUsers)
     result.addObject("userVoted", userVoted)
     result.addObject("votedVariants", results.asJava)
+    result.addObject("votingAllowed", votingCheck.permitted)
+    // «уже голосовал» — не ограничение, а нормальный исход: причину не показываем
+    result.addObject("votingNotAllowedReason", if userVoted then "" else votingCheck.reason)
     result

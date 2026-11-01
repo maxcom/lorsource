@@ -63,7 +63,11 @@ case class PreparedTopic(
     @BeanProperty
     warnings: java.util.List[PreparedWarning],
     @BeanProperty
-    images: java.util.List[PreparedImage]):
+    images: java.util.List[PreparedImage],
+    @BeanProperty
+    votingAllowed: Boolean,
+    @BeanProperty
+    votingNotAllowedReason: String):
   def getId: Int = message.id
 
   def committable: Boolean = !message.commited && section.premoderated

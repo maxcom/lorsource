@@ -158,7 +158,9 @@ class SectionRssFeedViewTest extends FunSuite:
       userAgent = null,
       reactions = null,
       warnings = Collections.emptyList(),
-      images = images
+      images = images,
+      votingAllowed = true,
+      votingNotAllowedReason = ""
     )
 
   test("channel metadata and entry fields"):

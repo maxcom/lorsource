@@ -30,11 +30,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.{redire
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
 import org.springframework.web.context.WebApplicationContext
 import ru.org.linux.PekkoConfiguration
-import ru.org.linux.auth.{IpBlockInfo, UserDetailsImpl}
+import ru.org.linux.auth.{AccessViolationException, IpBlockInfo, UserDetailsImpl}
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.test.TransactionalTestSupport
-import ru.org.linux.topic.TopicDao
-import ru.org.linux.topic.TopicIntegrationTestConfiguration
+import ru.org.linux.topic.{PreparedTopic, TopicDao, TopicIntegrationTestConfiguration}
 import ru.org.linux.user.{Profile, User, UserService}
 import scalikejdbc.*
 
@@ -88,7 +87,12 @@ class VoteControllerIntegrationTest extends FunSuite with TransactionalTestSuppo
                     create_user_agent('Integration test User Agent'), '127.0.0.1'::inet, 'f', CURRENT_TIMESTAMP, 'f')"""
         .update
         .apply()
-      sql"SELECT max(id) FROM topics WHERE groupid = 19387 AND title = $title".map(rs => rs.int(1)).single.apply().get
+
+      val id = sql"SELECT max(id) FROM topics WHERE groupid = 19387 AND title = $title".map(rs => rs.int(1)).single.apply().get
+
+      sql"INSERT INTO msgbase (id, message) VALUES ($id, 'test message')".update.apply()
+
+      id
 
     springDB.localTx {
       pollDao.createPoll(Seq("Да", "Нет"), false, topicId)
@@ -123,8 +127,57 @@ class VoteControllerIntegrationTest extends FunSuite with TransactionalTestSuppo
         while cause.getCause != null do
           cause = cause.getCause
 
-        assert(cause.isInstanceOf[BadVoteException], s"expected BadVoteException, got $cause")
-        assertEquals(cause.getMessage, "Опрос удален")
+        assert(cause.isInstanceOf[AccessViolationException], s"expected AccessViolationException, got $cause")
+        assertEquals(cause.getMessage, "Ограничение: опрос удален")
+
+  test("voteByFrozenUserFails"):
+    val (_, pollId, variantId) = createPollTopic("VoteController frozen user test")
+
+    springDB.run:
+      sql"UPDATE users SET frozen_until = CURRENT_TIMESTAMP + interval '1 hour' WHERE id = ${userService.getUser("edo").id}"
+        .update
+        .apply()
+
+    loginAs(userService.getUser("edo"))
+
+    try
+      mockMvc.perform(post("/vote.jsp").param("voteid", pollId.toString).param("vote", variantId.toString))
+      fail("Голосование замороженным пользователем должно быть отклонено")
+    catch
+      case e: Exception =>
+        var cause: Throwable = e
+        while cause.getCause != null do
+          cause = cause.getCause
+
+        assert(cause.isInstanceOf[AccessViolationException], s"expected AccessViolationException, got $cause")
+        assertEquals(cause.getMessage, "Ограничение: установлен режим только для чтения")
+
+  test("frozenUserHasVotingButtonDisabled"):
+    val (topicId, _, _) = createPollTopic("VoteController frozen button test")
+
+    springDB.run:
+      sql"UPDATE users SET frozen_until = CURRENT_TIMESTAMP + interval '1 hour' WHERE id = ${userService.getUser("edo").id}"
+        .update
+        .apply()
+
+    loginAs(userService.getUser("edo"))
+
+    val result = mockMvc.perform(get(s"/polls/polls/$topicId")).andExpect(status.isOk).andReturn
+
+    val prepared = result.getModelAndView.getModel.get("preparedMessage").asInstanceOf[PreparedTopic]
+    assert(!prepared.votingAllowed, "замороженному нельзя показывать кнопку голосования")
+    assertEquals("установлен режим только для чтения", prepared.votingNotAllowedReason)
+
+  test("activeUserHasVotingButtonEnabled"):
+    val (topicId, _, _) = createPollTopic("VoteController active button test")
+
+    loginAs(userService.getUser("edo"))
+
+    val result = mockMvc.perform(get(s"/polls/polls/$topicId")).andExpect(status.isOk).andReturn
+
+    val prepared = result.getModelAndView.getModel.get("preparedMessage").asInstanceOf[PreparedTopic]
+    assert(prepared.votingAllowed, "незамороженному должна быть доступна кнопка голосования")
+    assertEquals("", prepared.votingNotAllowedReason)
 
 end VoteControllerIntegrationTest
 

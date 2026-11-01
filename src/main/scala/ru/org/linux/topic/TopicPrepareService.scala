@@ -23,7 +23,7 @@ import ru.org.linux.markup.MessageTextService
 import ru.org.linux.msgbase.{DeleteInfoDao, MessageText, MsgbaseDao, UserAgentDao}
 import ru.org.linux.poll.{Poll, PollPrepareService, PreparedPoll}
 import ru.org.linux.reaction.ReactionService
-import ru.org.linux.rights.{AddCommentChecker, EditTopicChecker, PostScoreChecker}
+import ru.org.linux.rights.{AddCommentChecker, EditTopicChecker, PostScoreChecker, VoteChecker}
 import ru.org.linux.section.SectionService
 import ru.org.linux.spring.SiteConfig
 import ru.org.linux.tag.TagRef
@@ -148,11 +148,14 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
       None
     }
 
+    val votingCheck = VoteChecker.check(topic)
+
     PreparedTopic(topic, author, deleteInfo.orNull, deleteUser.orNull, processedMessage, preparedPoll.orNull,
       commiter.orNull, tags.asJava, group, section, text.markup,
       postscoreInfo, remark.orNull, showRegisterInvite, userAgent.orNull,
       reactionPrepareService.prepare(topic.reactions, ignoreList, topic, None),
-      warningService.prepareWarning(warnings).asJava, preparedImages.asJava)
+      warningService.prepareWarning(warnings).asJava, preparedImages.asJava,
+      votingCheck.permitted, votingCheck.reason)
   }
 
   /**

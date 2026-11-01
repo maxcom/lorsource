@@ -14,37 +14,30 @@
  */
 package ru.org.linux.poll
 
-import com.typesafe.scalalogging.StrictLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.view.RedirectView
 import ru.org.linux.auth.AuthUtil.AuthorizedOnly
+import ru.org.linux.rights.{Permission, VoteChecker}
 import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.topic.TopicDao
 import ru.org.linux.user.UserErrorException
 
 @Controller
-class VoteController(pollDao: PollDao, topicDao: TopicDao, springDB: SpringDB) extends StrictLogging:
+class VoteController(pollDao: PollDao, topicDao: TopicDao, springDB: SpringDB):
   @RequestMapping(value = Array("/vote.jsp"), method = Array(RequestMethod.POST))
   def vote(
       @RequestParam(value = "vote", required = false)
       votes: Array[Int],
       @RequestParam("voteid")
       voteid: Int): ModelAndView =
-    AuthorizedOnly { currentUser =>
+    AuthorizedOnly { implicit currentUser =>
       val poll = pollDao.getPoll(voteid)
 
       val msg = topicDao.getById(poll.topic)
 
-      if msg.deleted then
-        throw new BadVoteException("Опрос удален")
-
-      if !msg.commited then
-        throw new BadVoteException("Опрос еще не подтвержден")
-
-      if msg.expired then
-        throw new BadVoteException("Опрос завершен")
+      VoteChecker.check(msg).checkOrThrow()
 
       if votes == null || votes.length == 0 then
         throw new UserErrorException("ничего не выбрано")
@@ -52,9 +45,8 @@ class VoteController(pollDao: PollDao, topicDao: TopicDao, springDB: SpringDB) e
       if !poll.multiSelect && votes.length != 1 then
         throw new BadVoteException("этот опрос допускает только один вариант ответа")
 
-      springDB.localTx {
+      springDB.localTx:
         pollDao.updateVotes(voteid, votes, currentUser.user)
-      }
 
       new ModelAndView(new RedirectView(msg.getLink))
     }

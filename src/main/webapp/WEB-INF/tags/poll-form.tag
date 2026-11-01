@@ -20,12 +20,13 @@
 <%@ attribute name="enabled" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="votedVariants" required="false" type="java.util.List" %>
 <%@ attribute name="commited" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="disabledReason" required="false" type="java.lang.String" %>
 
 <c:set var="pollUncommited" value="${not enabled and (not empty commited and not commited)}"/>
 
-<c:if test="${pollUncommited}">
+<c:if test="${not enabled and not empty disabledReason and (template.sessionAuthorized || pollUncommited)}">
   <div class="infoblock">
-    <i class="icon-lock"></i> Опрос ожидает подтверждения модератором. Голосование недоступно.
+    <i class="icon-lock"></i> Голосование недоступно: <c:out value="${disabledReason}"/>
   </div>
 </c:if>
 
@@ -88,6 +89,10 @@
 <c:if test="${enabled}">
   <button type="submit" class="btn btn-default">Голосовать</button>
   </form>
+</c:if>
+
+<c:if test="${not enabled and not empty disabledReason and template.sessionAuthorized}">
+  <a class="btn btn-default disabled" title="${fn:escapeXml(disabledReason)}"><i class="icon-lock"></i> Голосовать</a>
 </c:if>
 
 <c:if test="${not enabled and commited and not template.sessionAuthorized}">

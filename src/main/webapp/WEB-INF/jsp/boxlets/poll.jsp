@@ -28,7 +28,7 @@
       <c:out value="${message.title}"/>
     </p>
 
-    <lor:poll-form poll="${poll}" enabled="${template.sessionAuthorized and not userVoted}" votedVariants="${votedVariants}" commited="true"/>
+    <lor:poll-form poll="${poll}" enabled="${votingAllowed and not userVoted}" votedVariants="${votedVariants}" commited="true" disabledReason="${votingNotAllowedReason}"/>
 
     <c:url value="/polls/polls/${poll.topic}" var="vote_url">
       <c:if test="${not userVoted || not template.sessionAuthorized}">
