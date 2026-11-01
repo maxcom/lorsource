@@ -358,6 +358,11 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
 object SearchService {
   val SearchRows = 25
   val MaxOffset = 10000 - SearchRows
+
+  /** Максимальный offset для анонимных пользователей (20 страниц).
+    * Глубокая пагинация поиска доступна только после входа — см. SearchController
+    */
+  val AnonymousMaxOffset = 500
   private val MessageFragment = 16384
   private val RecentBoost = 2
   private val SearchTimeout: FiniteDuration = 1.minute

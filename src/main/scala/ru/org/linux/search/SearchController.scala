@@ -19,7 +19,9 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestAttribute, RequestMapping, RequestMethod}
+import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestAttribute, RequestMapping,
+  RequestMethod}
+import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupService
 import ru.org.linux.search.SearchEnums.SearchInterval
 import ru.org.linux.search.SearchEnums.SearchRange
@@ -35,119 +37,133 @@ import scala.collection.immutable.VectorMap
 import scala.jdk.CollectionConverters.*
 
 @Controller
-class SearchController(sectionService: SectionService, userService: UserService, groupService: GroupService,
-                       searchService: SearchService) {
+class SearchController(
+    sectionService: SectionService,
+    userService: UserService,
+    groupService: GroupService,
+    searchService: SearchService):
   @ModelAttribute("sorts")
-  def getSorts: java.util.Map[String, String] = {
+  def getSorts: java.util.Map[String, String] =
     // VectorMap preserves order!
     SearchOrder.values.view.map(v => v.id -> v.name).to(VectorMap).asJava
-  }
 
   @ModelAttribute("intervals")
-  def getIntervals: java.util.Map[SearchInterval, String] = {
+  def getIntervals: java.util.Map[SearchInterval, String] =
     SearchInterval.values.view.map(v => v -> v.getTitle).to(VectorMap).asJava
-  }
 
   @ModelAttribute("ranges")
-  def getRanges: java.util.Map[SearchEnums.SearchRange, String] = {
+  def getRanges: java.util.Map[SearchEnums.SearchRange, String] =
     SearchRange.values.view.map(v => v -> v.getTitle).to(VectorMap).asJava
-  }
 
   @RequestMapping(value = Array("/search.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
-  def search(model: Model, @ModelAttribute("query") query: SearchServiceRequest, bindingResult: BindingResult,
-             @RequestAttribute(name="timezone") tz: ZoneId): String = {
-    val params = model.asMap
+  def search(
+      model: Model,
+      @ModelAttribute("query")
+      query: SearchServiceRequest,
+      bindingResult: BindingResult,
+      @RequestAttribute(name = "timezone")
+      tz: ZoneId): String =
+    MaybeAuthorized { session =>
+      val params = model.asMap
 
-    if (!query.isInitial && !bindingResult.hasErrors) {
-      sanitizeQuery(query)
+      // анонимным недоступна глубокая пагинация поиска (защита от выкачивания через прокси-сети)
+      if !session.authorized && query.offset > SearchService.AnonymousMaxOffset then
+        "redirect:/login.jsp"
+      else
+        if !query.isInitial && !bindingResult.hasErrors then
+          sanitizeQuery(query)
 
-      val response = searchService.performSearch(query, tz)
+          val response = searchService.performSearch(query, tz)
 
-      response.sectionFacet.foreach { facet =>
-        params.put("sectionFacet", facet.asJava)
-      }
+          response
+            .sectionFacet
+            .foreach { facet =>
+              params.put("sectionFacet", facet.asJava)
+            }
 
-      response.groupFacet.foreach { facet =>
-        params.put("groupFacet", facet.asJava)
-      }
+          response
+            .groupFacet
+            .foreach { facet =>
+              params.put("groupFacet", facet.asJava)
+            }
 
-      response.foundTags.foreach { facet =>
-        params.put("tags", facet.asJava)
-      }
+          response
+            .foundTags
+            .foreach { facet =>
+              params.put("tags", facet.asJava)
+            }
 
-      params.put("result", response.hits.asJava)
-      params.put("searchTime", response.took)
-      params.put("numFound", response.totalHits)
+          params.put("result", response.hits.asJava)
+          params.put("searchTime", response.took)
+          params.put("numFound", response.totalHits)
 
-      val nextOffset = query.offset + SearchService.SearchRows
-      if nextOffset < SearchService.MaxOffset && response.totalHits > nextOffset then {
-        params.put("nextLink", "/search.jsp?" + query.getQuery(nextOffset))
-      }
+          val maxOffset =
+            if session.authorized then
+              SearchService.MaxOffset
+            else
+              SearchService.AnonymousMaxOffset
+          val nextOffset = query.offset + SearchService.SearchRows
+          if nextOffset < maxOffset && response.totalHits > nextOffset then
+            params.put("nextLink", "/search.jsp?" + query.getQuery(nextOffset))
 
-      if (query.offset - SearchService.SearchRows >= 0) {
-        params.put("prevLink", "/search.jsp?" + query.getQuery(query.offset - SearchService.SearchRows))
-      }
+          if query.offset - SearchService.SearchRows >= 0 then
+            params.put("prevLink", "/search.jsp?" + query.getQuery(query.offset - SearchService.SearchRows))
+
+        "search"
     }
 
-    "search"
-  }
-
-  private def sanitizeQuery(query: SearchServiceRequest): Unit = {
-    if (!Strings.isNullOrEmpty(query.section)) {
+  private def sanitizeQuery(query: SearchServiceRequest): Unit =
+    if !Strings.isNullOrEmpty(query.section) then
       val section = sectionService.fuzzyNameToSection.get(query.section)
 
-      if (section.isDefined) {
+      if section.isDefined then
         query.section = section.get.getUrlName
 
-        if (!Strings.isNullOrEmpty(query.group)) {
+        if !Strings.isNullOrEmpty(query.group) then
           val group = groupService.getGroupOpt(section.get, query.group, true)
 
-          if (group.isEmpty) {
+          if group.isEmpty then
             query.group = ""
-          } else {
+          else
             query.group = group.get.urlName
-          }
-        } else {
+        else
           query.group = ""
-        }
-      } else {
+      else
         query.section = ""
         query.group = ""
-      }
-    } else {
+    else
       query.group = ""
       query.section = ""
-    }
-  }
 
   @InitBinder
-  def initBinder(binder: WebDataBinder): Unit = {
-    binder.registerCustomEditor(classOf[SearchOrder], new PropertyEditorSupport() {
-      @throws[IllegalArgumentException]
-      override def setAsText(s: String): Unit = {
-        s match {
-          case "1" => setValue(SearchOrder.Relevance) // for old links
-          case "2" => setValue(SearchOrder.Date)
-          case _ => setValue(SearchOrder.fromId(s))
-        }
-      }
-    })
+  def initBinder(binder: WebDataBinder): Unit =
+    binder.registerCustomEditor(
+      classOf[SearchOrder],
+      new PropertyEditorSupport():
+        @throws[IllegalArgumentException]
+        override def setAsText(s: String): Unit =
+          s match
+            case "1" =>
+              setValue(SearchOrder.Relevance) // for old links
+            case "2" =>
+              setValue(SearchOrder.Date)
+            case _ =>
+              setValue(SearchOrder.fromId(s))
+    )
 
-    binder.registerCustomEditor(classOf[SearchInterval], new PropertyEditorSupport() {
-      @throws[IllegalArgumentException]
-      override def setAsText(s: String): Unit = {
-        setValue(SearchInterval.valueOf(s.toUpperCase))
-      }
-    })
+    binder.registerCustomEditor(
+      classOf[SearchInterval],
+      new PropertyEditorSupport():
+        @throws[IllegalArgumentException]
+        override def setAsText(s: String): Unit = setValue(SearchInterval.valueOf(s.toUpperCase))
+    )
 
-    binder.registerCustomEditor(classOf[SearchEnums.SearchRange], new PropertyEditorSupport() {
-      @throws[IllegalArgumentException]
-      override def setAsText(s: String): Unit = {
-        setValue(SearchRange.valueOf(s.toUpperCase))
-      }
-    })
+    binder.registerCustomEditor(
+      classOf[SearchEnums.SearchRange],
+      new PropertyEditorSupport():
+        @throws[IllegalArgumentException]
+        override def setAsText(s: String): Unit = setValue(SearchRange.valueOf(s.toUpperCase))
+    )
 
     binder.registerCustomEditor(classOf[User], new UserPropertyEditor(userService))
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor)
-  }
-}
