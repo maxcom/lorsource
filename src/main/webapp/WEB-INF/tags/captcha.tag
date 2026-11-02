@@ -23,7 +23,63 @@
     <div class="h-captcha" data-sitekey="${configuration.captchaPublicKey}" data-lazy-captcha></div>
   </c:if>
   <c:if test="${not lazy}">
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <div class="h-captcha" data-sitekey="${configuration.captchaPublicKey}"></div>
+    <div class="captcha-state">
+      <div class="captcha-loading"><i class="icon-spin spinner"></i>Капча загружается…</div>
+      <div class="captcha-error">Не удалось загрузить капчу. Проверьте соединение и обновите страницу.</div>
+      <div class="h-captcha" data-sitekey="${configuration.captchaPublicKey}"></div>
+    </div>
+    <script>
+      (function () {
+        var box = document.currentScript.previousElementSibling;
+        if (!box) {
+          return;
+        }
+        var widget = box.querySelector('.h-captcha');
+        var sitekey = widget && widget.getAttribute('data-sitekey');
+        var timer = null;
+        var done = false;
+        var hideLoading = function () {
+          if (done) {
+            return;
+          }
+          done = true;
+          if (timer) {
+            clearTimeout(timer);
+          }
+          window.removeEventListener('message', onMessage);
+          box.classList.add('captcha-state--loaded');
+        };
+        // hCaptcha сообщает о готовности чекбокса через postMessage (label: checkbox-loaded);
+        // событие load у iframe стреляет заметно раньше реальной отрисовки
+        var onMessage = function (e) {
+          if (typeof e.data !== 'string') {
+            return;
+          }
+          try {
+            var msg = JSON.parse(e.data);
+            if (msg && msg.source === 'hcaptcha' && msg.label === 'checkbox-loaded') {
+              hideLoading();
+            }
+          } catch (err) {
+            // сообщение не от hCaptcha
+          }
+        };
+        window.lorCaptchaFail = function () {
+          box.classList.add('captcha-state--failed');
+        };
+        window.lorCaptchaReady = function () {
+          window.addEventListener('message', onMessage);
+          // страховка: если событие готовности так и не придёт
+          timer = setTimeout(hideLoading, 20000);
+          try {
+            hcaptcha.render(widget, {sitekey: sitekey});
+          } catch (err) {
+            hideLoading(); // hCaptcha покажет собственный блок ошибки
+          }
+        };
+      })();
+    </script>
+    <script src="https://js.hcaptcha.com/1/api.js?render=explicit&amp;onload=lorCaptchaReady" async defer
+            onerror="if (window.lorCaptchaFail) { window.lorCaptchaFail(); }"></script>
   </c:if>
 </c:if>

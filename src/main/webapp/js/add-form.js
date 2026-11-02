@@ -285,6 +285,20 @@ $script.ready('jquery', function() {
     let captchaLoaded = false;
     let captchaRendered = false;
 
+    const showCaptchaLoading = (lazyCaptcha) => {
+      lazyCaptcha.classList.add('captcha-state');
+      lazyCaptcha.innerHTML = '<div class="captcha-loading"><i class="icon-spin spinner"></i>Капча загружается…</div>';
+    };
+
+    const showCaptchaError = (lazyCaptcha) => {
+      lazyCaptcha.classList.remove('captcha-state');
+      lazyCaptcha.innerHTML = '<div class="captcha-error">Не удалось загрузить капчу (сетевая ошибка). <a href="#">Повторить</a></div>';
+      $('a', lazyCaptcha).on('click', (e) => {
+        e.preventDefault();
+        loadCaptcha();
+      });
+    };
+
     const loadCaptcha = () => {
       const lazyCaptcha = commentFormContainer.find('[data-lazy-captcha]')[0];
       if (!lazyCaptcha || captchaLoaded) {
@@ -293,11 +307,46 @@ $script.ready('jquery', function() {
 
       captchaLoaded = true;
       const sitekey = lazyCaptcha.getAttribute('data-sitekey');
+      showCaptchaLoading(lazyCaptcha);
 
       const renderCaptcha = () => {
         if (!captchaRendered) {
-          hcaptcha.render(lazyCaptcha, {sitekey: sitekey});
           captchaRendered = true;
+          let timer = null;
+          let done = false;
+          const hideLoading = () => {
+            if (done) {
+              return;
+            }
+            done = true;
+            clearTimeout(timer);
+            window.removeEventListener('message', onCaptchaMessage);
+            $('.captcha-loading', lazyCaptcha).remove();
+            lazyCaptcha.classList.remove('captcha-state');
+          };
+          // hCaptcha сообщает о готовности чекбокса через postMessage (label: checkbox-loaded);
+          // событие load у iframe стреляет заметно раньше реальной отрисовки
+          const onCaptchaMessage = (e) => {
+            if (typeof e.data !== 'string') {
+              return;
+            }
+            try {
+              const msg = JSON.parse(e.data);
+              if (msg && msg.source === 'hcaptcha' && msg.label === 'checkbox-loaded') {
+                hideLoading();
+              }
+            } catch (_err) {
+              // сообщение не от hCaptcha
+            }
+          };
+          window.addEventListener('message', onCaptchaMessage);
+          // страховка: если событие готовности так и не придёт
+          timer = setTimeout(hideLoading, 20000);
+          try {
+            hcaptcha.render(lazyCaptcha, {sitekey: sitekey});
+          } catch (_err) {
+            hideLoading(); // hCaptcha покажет собственный блок ошибки
+          }
           lazyCaptcha.removeAttribute('data-lazy-captcha');
         }
       };
@@ -315,6 +364,11 @@ $script.ready('jquery', function() {
       const script = document.createElement('script');
       script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit&onload=' + callbackName;
       script.async = true;
+      script.onerror = () => {
+        delete window[callbackName];
+        captchaLoaded = false;
+        showCaptchaError(lazyCaptcha);
+      };
       document.head.appendChild(script);
     };
 

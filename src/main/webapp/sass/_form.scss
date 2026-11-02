@@ -129,6 +129,62 @@ form .error {
     color: #f00;
 }
 
+.captcha-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: smaller;
+}
+
+.captcha-error {
+  display: flex;
+  align-items: center;
+  color: #f00;
+  font-size: smaller;
+}
+
+/* контейнер резервирует место под виджет hCaptcha (302x76),
+   индикатор лежит поверх будущего iframe и не меняет высоту формы */
+.captcha-state {
+  position: relative;
+  min-width: 302px;
+  min-height: 76px;
+}
+
+.captcha-state .captcha-loading {
+  position: absolute;
+  inset: 0;
+}
+
+/* ленивая капча: место резервируется сразу в серверной разметке,
+   чтобы форма не прыгала в момент старта загрузки */
+[data-lazy-captcha] {
+  min-width: 302px;
+  min-height: 76px;
+}
+
+/* iframe по умолчанию display:inline и даёт baseline-зазор (~6-8px) -
+   из-за него кнопки под формой сдвигались при появлении виджета */
+.h-captcha iframe {
+  display: block;
+}
+
+/* в разметке тега captcha сообщение об ошибке изначально скрыто и показывается
+   классом-модификатором на обёртке; в ленивом режиме класс captcha-state
+   вешается на контейнер из JS и снимается при ошибке/готовности виджета */
+.captcha-state .captcha-error {
+  display: none;
+}
+
+.captcha-state--loaded .captcha-loading,
+.captcha-state--failed .captcha-loading {
+  display: none;
+}
+
+.captcha-state--failed .captcha-error {
+  display: flex;
+}
+
 .comment-form-inline {
   overflow: hidden;
   padding-inline: 1px;
