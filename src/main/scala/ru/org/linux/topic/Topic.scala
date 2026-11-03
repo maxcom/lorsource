@@ -42,7 +42,9 @@ case class Topic(@BeanProperty id: Int, @BeanProperty postscore: Int, @BooleanBe
                  @BooleanBeanProperty notop: Boolean, @BeanProperty userAgentId: Int, @BeanProperty postIP: String,
                  @BooleanBeanProperty resolved: Boolean, @BooleanBeanProperty minor: Boolean,
                  @BooleanBeanProperty draft: Boolean, @BooleanBeanProperty allowAnonymous: Boolean,
-                 reactions: Reactions, @Nullable expireDate: Timestamp, @BeanProperty openWarnings: Int) {
+                 reactions: Reactions, @Nullable expireDate: Timestamp, @BeanProperty openWarnings: Int,
+                 /** Сумма штрафов (sum(-bonus)) удалённых комментариев топика; поддерживается при удалении/восстановлении */
+                 @BeanProperty scoreLoss: Int = 0) {
   def getPageCount(messages: Int): Int = Math.ceil(commentCount / messages.toDouble).toInt
 
   def title: String = StringUtil.makeTitle(rawTitle)
@@ -117,7 +119,8 @@ object Topic {
       allowAnonymous = rs.getBoolean("allow_anonymous"),
       reactions = ReactionDao.parse(rs.getString("reactions")),
       expireDate = if (!sticky) rs.getTimestamp("expire_date") else null,
-      openWarnings = rs.getInt("open_warnings"))
+      openWarnings = rs.getInt("open_warnings"),
+      scoreLoss = rs.getInt("score_loss"))
   }
 
   def fromAddRequest(form: AddTopicRequest, user: User, postIP: String): Topic = {
@@ -152,7 +155,8 @@ object Topic {
       allowAnonymous = form.allowAnonymous,
       reactions = Reactions.empty,
       expireDate = null,
-      openWarnings = 0)
+      openWarnings = 0,
+      scoreLoss = 0)
   }
 
   def fromEditRequest(group: Group, original: Topic, form: EditTopicRequest, publish: Boolean): Topic = {
@@ -192,6 +196,7 @@ object Topic {
       allowAnonymous = original.allowAnonymous,
       reactions = original.reactions,
       expireDate = original.expireDate,
-      openWarnings = original.openWarnings)
+      openWarnings = original.openWarnings,
+      scoreLoss = original.scoreLoss)
   }
 }

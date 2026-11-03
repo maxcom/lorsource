@@ -1,0 +1,56 @@
+<!--
+  ~ Copyright 1998-2026 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <!-- Денормализация суммы штрафов (sum(-bonus)) удалённых комментариев топика.
+       Заменяет запрос DeleteInfoDao.scoreLoss (2.8 млрд вызовов в pg_stat_statements).
+       Поддерживается приложением при удалении/восстановлении комментариев
+       (CommentDao.updateStatsAfterDelete, TopicDao.updateLastmod, CommentDao.purgeDeletedComments).
+       ВНИМАНИЕ: ручные SQL-фиксы del_info для комментариев должны сопровождаться правкой topics.score_loss. -->
+  <changeSet id="2026110301" author="Maxim Valyanskiy">
+    <addColumn tableName="topics">
+      <column name="score_loss" type="integer" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <!-- Бэкфилл одним запросом: обновляются только топики, у которых есть штрафы -->
+  <changeSet id="2026110302" author="Maxim Valyanskiy">
+    <sql>
+      UPDATE topics SET score_loss = loss.total
+      FROM (SELECT comments.topic AS topic_id, sum(-del_info.bonus) AS total
+            FROM del_info
+            JOIN comments ON comments.id = del_info.msgid
+            WHERE del_info.bonus IS NOT NULL AND del_info.bonus != 0
+              AND comments.userid != 2
+              AND comments.deleted
+            GROUP BY comments.topic) AS loss
+      WHERE topics.id = loss.topic_id
+    </sql>
+  </changeSet>
+
+  <!-- Индекс создавался только под удаляемый запрос DeleteInfoDao.scoreLoss -->
+  <changeSet id="2026110303" author="Maxim Valyanskiy">
+    <sql>
+      DROP INDEX del_info_with_bonus_idx
+    </sql>
+  </changeSet>
+</databaseChangeLog>

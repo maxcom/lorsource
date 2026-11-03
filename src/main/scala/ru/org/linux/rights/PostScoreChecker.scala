@@ -2,7 +2,6 @@ package ru.org.linux.rights
 
 import org.springframework.stereotype.Service
 import ru.org.linux.group.{Group, GroupService}
-import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.section.{Section, SectionService}
 import ru.org.linux.topic.{Topic, TopicPermissionService}
 import ru.org.linux.topic.TopicPermissionService.*
@@ -10,7 +9,7 @@ import ru.org.linux.user.User
 import ru.org.linux.warning.WarningService.TopicMaxWarnings
 
 @Service
-class PostScoreChecker(sectionService: SectionService, groupService: GroupService, deleteInfoDao: DeleteInfoDao):
+class PostScoreChecker(sectionService: SectionService, groupService: GroupService):
   def postScoreCheckerChain(user: User, postscore: Int, byAuthor: Boolean = false): RestrictionChain =
     val byAuthorNotAnonymous = byAuthor && !user.anonymous
 
@@ -87,7 +86,7 @@ class PostScoreChecker(sectionService: SectionService, groupService: GroupServic
 
   private def getScoreLossPostscore(topic: Topic): Int =
     if !topic.sticky && !topic.expired then
-      val scoreLoss = deleteInfoDao.scoreLoss(topic.id)
+      val scoreLoss = topic.scoreLoss
 
       if scoreLoss >= 150 then
         100

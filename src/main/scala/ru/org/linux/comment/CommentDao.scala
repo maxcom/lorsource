@@ -101,10 +101,14 @@ class CommentDao(springDB: SpringDB):
     *   идентификатор любого из удаленных комментариев (обычно корневой в цепочке)
     * @param count
     *   количество удаленных комментариев
+    * @param scoreLossDelta
+    *   приращение topics.score_loss (сумма -bonus по удалённым комментариям
+    *   неанонимных авторов)
     */
-  def updateStatsAfterDelete(commentId: Int, count: Int)(using Transaction): Unit =
+  def updateStatsAfterDelete(commentId: Int, count: Int, scoreLossDelta: Int = 0)(using Transaction): Unit =
     val topicId = sql"SELECT topic FROM comments WHERE id = $commentId".map(rs => rs.int("topic")).single.apply().get
-    sql"UPDATE topics SET stat1=stat1-$count, lastmod=CURRENT_TIMESTAMP WHERE id = $topicId".update.apply()
+    sql"UPDATE topics SET stat1=stat1-$count, lastmod=CURRENT_TIMESTAMP, score_loss=score_loss+$scoreLossDelta WHERE id = $topicId".update
+      .apply()
     sql"UPDATE topics SET stat3=stat1 WHERE id = $topicId AND stat3 > stat1".update.apply()
 
   /** Сколько ответов на комментарий
@@ -344,6 +348,19 @@ class CommentDao(springDB: SpringDB):
           sql"DELETE FROM reactions_log WHERE comment_id IN ($locked)".update.apply()
           sql"DELETE FROM message_warnings WHERE comment IN ($locked)".update.apply()
           sql"DELETE FROM edit_info WHERE msgid IN ($locked)".update.apply()
+
+          // окончательное удаление перестаёт учитывать штрафы purged комментариев (как раньше считал запрос scoreLoss)
+          sql"""UPDATE topics SET score_loss = topics.score_loss - loss.total
+                FROM (SELECT comments.topic AS topic_id, sum(-del_info.bonus) AS total
+                      FROM comments
+                      JOIN del_info ON del_info.msgid = comments.id
+                      WHERE comments.id IN ($locked)
+                        AND del_info.bonus IS NOT NULL AND del_info.bonus != 0
+                        AND comments.userid != 2
+                        AND comments.deleted
+                      GROUP BY comments.topic) AS loss
+                WHERE topics.id = loss.topic_id""".update.apply()
+
           sql"DELETE FROM del_info WHERE msgid IN ($locked)".update.apply()
           sql"DELETE FROM msgbase WHERE id IN ($locked)".update.apply()
           sql"DELETE FROM comments WHERE id IN ($locked)".update.apply()

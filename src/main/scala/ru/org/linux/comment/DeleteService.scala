@@ -75,7 +75,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     deleted.foreach { info =>
       deleteInfoDao.insert(info)
 
-      commentDao.updateStatsAfterDelete(comment.id, 1)
+      commentDao.updateStatsAfterDelete(comment.id, 1, scoreLossDelta(comment.userid, info.bonus))
       userEventService.processCommentsDeleted(Seq(comment.id))
       userEventService.insertCommentDeleteNotification(comment, info)
     }
@@ -159,9 +159,12 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
       }
     }
 
+    // восстановление возвращает вклад штрафов в topics.score_loss
+    val scoreLossRestore = -deleteInfo.fold(0)(info => scoreLossDelta(comment.userid, info.getBonus))
+
     commentDao.undeleteComment(comment)
     deleteInfoDao.delete(comment.id)
-    topicDao.updateLastmod(comment.topicId)
+    topicDao.updateLastmod(comment.topicId, scoreLossRestore)
   }
 
   def undeleteTopic(topic: Topic)
@@ -179,6 +182,12 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     topicDao.undelete(topic)
     deleteInfoDao.delete(topic.id)
   }
+
+  /** Приращение topics.score_loss при удалении комментария с данным штрафом (анонимные авторы не учитываются,
+    * как и в бывшем запросе DeleteInfoDao.scoreLoss).
+    */
+  private def scoreLossDelta(userid: Int, bonus: Int): Int =
+    if userid != UserConstants.ANONYMOUS_ID && bonus != 0 then -bonus else 0
 
   /**
    * Удалить комментарий и сменить score автору.
@@ -236,6 +245,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     val score = rootBonus < -2
 
     val deleteInfos = new ArrayBuffer[InsertDeleteInfo](initialSize = replys.size)
+    var lossDelta = 0
 
     for (cur <- replys) {
       val child = cur.comment
@@ -245,6 +255,7 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
 
       del.foreach { info =>
         deleteInfos.addOne(info)
+        lossDelta += scoreLossDelta(child.userid, info.bonus)
 
         if (notifyReplys) {
           userEventService.insertCommentDeleteNotification(child, info)
@@ -256,13 +267,14 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
 
     deletedMain.foreach { info =>
       deleteInfos.addOne(info)
+      lossDelta += scoreLossDelta(root.userid, info.bonus)
       userEventService.insertCommentDeleteNotification(root, info)
     }
 
     if (deleteInfos.nonEmpty) {
       deleteInfoDao.insert(deleteInfos.toSeq)
 
-      commentDao.updateStatsAfterDelete(root.id, deleteInfos.size)
+      commentDao.updateStatsAfterDelete(root.id, deleteInfos.size, lossDelta)
     }
 
     val deletedComments = deleteInfos.map(_.msgid).toVector

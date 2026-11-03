@@ -55,8 +55,9 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .orNull
 
-  def updateLastmod(topicId: Int)(using Transaction): Unit =
-    sql"UPDATE topics SET lastmod=lastmod+'1 second'::interval WHERE id=$topicId".update.apply()
+  def updateLastmod(topicId: Int, scoreLossDelta: Int = 0)(using Transaction): Unit =
+    sql"UPDATE topics SET lastmod=lastmod+'1 second'::interval, score_loss=score_loss+$scoreLossDelta WHERE id=$topicId"
+      .update.apply()
 
   def getById(id: Int): Topic = findById(id).getOrElse(throw MessageNotFoundException(id))
 
@@ -68,7 +69,7 @@ class TopicDao(springDB: SpringDB):
             COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
             commitdate, topics.stat1, postscore, topics.moderate, notop,
             topics.resolved, minor, draft, allow_anonymous, topics.reactions,
-            COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+            COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings, topics.score_loss
             FROM topics
             INNER JOIN groups ON (groups.id=topics.groupid)
             INNER JOIN sections ON (sections.id=groups.section)
@@ -139,7 +140,7 @@ class TopicDao(springDB: SpringDB):
                 COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
                 commitdate, topics.stat1, postscore, topics.moderate, notop,
                 topics.resolved, minor, draft, allow_anonymous, topics.reactions,
-                COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings, topics.score_loss
                 FROM topics
                 INNER JOIN groups ON (groups.id=topics.groupid)
                 INNER JOIN sections ON (sections.id=groups.section)
@@ -157,7 +158,7 @@ class TopicDao(springDB: SpringDB):
                   COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
                   commitdate, topics.stat1, postscore, topics.moderate, notop,
                   topics.resolved, minor, draft, allow_anonymous, topics.reactions,
-                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings, topics.score_loss
                   FROM topics
                   INNER JOIN groups ON (groups.id=topics.groupid)
                   INNER JOIN sections ON (sections.id=groups.section)
@@ -173,7 +174,7 @@ class TopicDao(springDB: SpringDB):
                   COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
                   commitdate, topics.stat1, postscore, topics.moderate, notop,
                   topics.resolved, minor, draft, allow_anonymous, topics.reactions,
-                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings, topics.score_loss
                   FROM topics
                   INNER JOIN groups ON (groups.id=topics.groupid)
                   INNER JOIN sections ON (sections.id=groups.section)
@@ -200,7 +201,7 @@ class TopicDao(springDB: SpringDB):
                 COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
                 commitdate, topics.stat1, postscore, topics.moderate, notop,
                 topics.resolved, minor, draft, allow_anonymous, topics.reactions,
-                COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings, topics.score_loss
                 FROM topics
                 INNER JOIN groups ON (groups.id=topics.groupid)
                 INNER JOIN sections ON (sections.id=groups.section)
@@ -218,7 +219,7 @@ class TopicDao(springDB: SpringDB):
                   COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
                   commitdate, topics.stat1, postscore, topics.moderate, notop,
                   topics.resolved, minor, draft, allow_anonymous, topics.reactions,
-                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings, topics.score_loss
                   FROM topics
                   INNER JOIN groups ON (groups.id=topics.groupid)
                   INNER JOIN sections ON (sections.id=groups.section)
@@ -234,7 +235,7 @@ class TopicDao(springDB: SpringDB):
                   COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
                   commitdate, topics.stat1, postscore, topics.moderate, notop,
                   topics.resolved, minor, draft, allow_anonymous, topics.reactions,
-                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings
+                  COALESCE(commitdate, topics.postdate) + sections.expire as expire_date, topics.open_warnings, topics.score_loss
                   FROM topics
                   INNER JOIN groups ON (groups.id=topics.groupid)
                   INNER JOIN sections ON (sections.id=groups.section)

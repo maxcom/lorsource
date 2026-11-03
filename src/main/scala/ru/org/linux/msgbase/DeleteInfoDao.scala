@@ -73,15 +73,6 @@ class DeleteInfoDao(springDB: SpringDB):
 
   def delete(msgid: Int)(using Transaction): Unit = sql"DELETE FROM del_info WHERE msgid=$msgid".update.apply()
 
-  def scoreLoss(msgid: Int): Int =
-    springDB.run:
-      sql"""SELECT COALESCE(
-              (SELECT sum(-bonus) AS total_bonus FROM del_info
-               JOIN comments ON comments.id = del_info.msgid
-               WHERE bonus IS NOT NULL AND bonus != 0
-               AND comments.userid != 2 AND comments.deleted AND topic = $msgid),
-              0)""".map(rs => rs.int(1)).single.apply().getOrElse(0)
-
 end DeleteInfoDao
 
 case class InsertDeleteInfo(msgid: Int, reason: String, bonus: Int, deleteUser: User)

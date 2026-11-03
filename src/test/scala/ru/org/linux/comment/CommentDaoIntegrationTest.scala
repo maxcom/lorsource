@@ -150,8 +150,8 @@ class CommentDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     insertComment(commentId, None, "stats test", "body")
 
     val statBefore = springDB.run:
-      sql"SELECT stat1, stat3 FROM topics WHERE id = $topicId"
-        .map(rs => (rs.int("stat1"), rs.int("stat3")))
+      sql"SELECT stat1, stat3, score_loss FROM topics WHERE id = $topicId"
+        .map(rs => (rs.int("stat1"), rs.int("stat3"), rs.int("score_loss")))
         .single
         .apply()
         .get
@@ -161,13 +161,28 @@ class CommentDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     }
 
     val statAfter = springDB.run:
-      sql"SELECT stat1, stat3 FROM topics WHERE id = $topicId"
-        .map(rs => (rs.int("stat1"), rs.int("stat3")))
+      sql"SELECT stat1, stat3, score_loss FROM topics WHERE id = $topicId"
+        .map(rs => (rs.int("stat1"), rs.int("stat3"), rs.int("score_loss")))
         .single
         .apply()
         .get
 
     assertEquals(statAfter._1, statBefore._1 - 1)
+    assertEquals(statAfter._3, statBefore._3, "score_loss should not change without delta")
+
+    springDB.localTx {
+      commentDao.updateStatsAfterDelete(commentId, 2, 7)
+    }
+
+    val statAfterDelta = springDB.run:
+      sql"SELECT stat1, stat3, score_loss FROM topics WHERE id = $topicId"
+        .map(rs => (rs.int("stat1"), rs.int("stat3"), rs.int("score_loss")))
+        .single
+        .apply()
+        .get
+
+    assertEquals(statAfterDelta._1, statAfter._1 - 2)
+    assertEquals(statAfterDelta._3, statBefore._3 + 7, "score_loss should be incremented by delta")
 
   test("changeTitle"):
     val commentId = springDB.run:

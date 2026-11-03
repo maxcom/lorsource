@@ -91,10 +91,14 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
                     create_user_agent('Integration test User Agent'))""".update.apply()
       sql"INSERT INTO msgbase (id, message) VALUES ($commentId, $body)".update.apply()
 
-  private def insertDelInfo(msgid: Int, delby: Int, deldate: Option[Timestamp]): Unit =
+  private def insertDelInfo(msgid: Int, delby: Int, deldate: Option[Timestamp], bonus: Int = 0): Unit =
     springDB.run:
       sql"""INSERT INTO del_info (msgid, delby, reason, deldate, bonus)
-            VALUES ($msgid, $delby, 'test reason', ${deldate.orNull}, 0)""".update.apply()
+            VALUES ($msgid, $delby, 'test reason', ${deldate.orNull}, $bonus)""".update.apply()
+
+  private def topicScoreLoss(topic: Int): Int =
+    springDB.run:
+      sql"SELECT score_loss FROM topics WHERE id = $topic".map(rs => rs.int("score_loss")).single.apply().get
 
   private def ensureDeletedUser(): Unit =
     springDB.run:
@@ -833,6 +837,29 @@ class DeletedCommentPurgeIntegrationTest extends FunSuite with TransactionalTest
     assertEquals(countRows("del_info", "msgid", targetId), 0)
     assertEquals(countRows("comments", "id", controlId), 1)
     assertEquals(countRows("msgbase", "id", controlId), 1)
+
+  test("purgeDecrementsScoreLoss"):
+    ensureDeletedUser()
+    val deletedUser = UserService.DeletedUserId
+
+    // вклад штрафа target (bonus=-7) уже учтён в поддерживаемом приложением topics.score_loss
+    val targetId = nextMsgId
+    insertComment(targetId, deletedUser, None, deleted = true, "score loss purge target")
+    insertDelInfo(targetId, deletedUser, Some(monthsAgo(7)), bonus = -7)
+
+    // не purge-кандидат (удалён недавно): вклад не должен измениться
+    val controlId = nextMsgId
+    insertComment(controlId, deletedUser, None, deleted = true, "score loss purge control")
+    insertDelInfo(controlId, deletedUser, Some(monthsAgo(3)), bonus = -3)
+
+    springDB.run:
+      sql"UPDATE topics SET score_loss = 42 WHERE id = $topicId".update.apply()
+
+    val purged = commentDao.purgeDeletedComments(Seq(targetId))
+
+    assertEquals(purged, 1)
+    assertEquals(topicScoreLoss(topicId), 42 - 7, "purge should remove penalty of the purged comment")
+    assertEquals(countRows("del_info", "msgid", controlId), 1)
 
   test("purgeDeletedCommentsTenYearActiveAuthor"):
     val active = createUser("test-purge10-purge-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))

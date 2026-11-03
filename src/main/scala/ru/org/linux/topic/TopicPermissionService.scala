@@ -62,7 +62,7 @@ class TopicPermissionService(commentService: CommentReadService, siteConfig: Sit
 
       val userAllowed = currentUser.userOpt.exists(u => !u.anonymous && !u.isFrozen && u.score >= ViewDeletedScore)
 
-      def topicAllowedByScoreLoss = deleteInfoDao.scoreLoss(message.id) < 150
+      def topicAllowedByScoreLoss = message.scoreLoss < 150
       def userSlowMode = currentUser.userOpt.exists(u => slowModeChecker.check(u).restricted)
 
       !topicForbidden && userAllowed && topicAllowedByScoreLoss && !userSlowMode

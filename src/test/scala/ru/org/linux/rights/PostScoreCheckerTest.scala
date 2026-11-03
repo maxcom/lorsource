@@ -18,7 +18,6 @@ package ru.org.linux.rights
 import munit.FunSuite
 import org.mockito.Mockito.mock
 import ru.org.linux.group.GroupService
-import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.section.SectionService
 import ru.org.linux.topic.TopicPermissionService.*
 import ru.org.linux.user.User
@@ -28,7 +27,7 @@ import java.sql.Timestamp
 class PostScoreCheckerTest extends FunSuite:
 
   private val checker = new PostScoreChecker(
-    mock(classOf[SectionService]), mock(classOf[GroupService]), mock(classOf[DeleteInfoDao]))
+    mock(classOf[SectionService]), mock(classOf[GroupService]))
 
   private def makeUser(
       id: Int = 1,

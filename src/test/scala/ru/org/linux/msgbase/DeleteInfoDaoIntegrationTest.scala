@@ -117,16 +117,6 @@ class DeleteInfoDaoIntegrationTest extends FunSuite with TransactionalTestSuppor
     assert(result2.isDefined, "Should find second batch delete info")
     assertEquals(result2.get.reason, "batch delete 2")
 
-  test("scoreLoss"):
-    val deleter = mockUser(1)
-    val info = InsertDeleteInfo(testTopicId, "score loss test", -10, deleter)
-    springDB.localTx {
-      deleteInfoDao.insert(info)
-    }
-
-    val loss = deleteInfoDao.scoreLoss(testTopicId)
-    assert(loss >= 0, "Score loss should be non-negative")
-
   test("getRecentScoreLoss"):
     val deleter = mockUser(1)
     val user = mockUser(1)

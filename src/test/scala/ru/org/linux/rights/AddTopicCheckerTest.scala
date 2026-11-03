@@ -19,7 +19,6 @@ import munit.FunSuite
 import org.mockito.Mockito.{mock, when}
 import ru.org.linux.auth.{AnySession, AuthorizedSession, IpBlockInfo, NonAuthorizedSession}
 import ru.org.linux.group.{Group, GroupService}
-import ru.org.linux.msgbase.DeleteInfoDao
 import ru.org.linux.section.{Section, SectionScrollModeEnum, SectionService}
 import ru.org.linux.topic.TopicPermissionService.*
 import ru.org.linux.user.{Profile, User, UserService}
@@ -104,7 +103,7 @@ class AddTopicCheckerTest extends FunSuite:
       ipBlockInfo = IpBlockInfo("127.0.0.1"))
   
   private def makeChecker(sectionService: SectionService = mock(classOf[SectionService])): AddTopicChecker =
-    new AddTopicChecker(new PostScoreChecker(sectionService, mock(classOf[GroupService]), mock(classOf[DeleteInfoDao])))
+    new AddTopicChecker(new PostScoreChecker(sectionService, mock(classOf[GroupService])))
 
   // === checkTopicPosting(section) tests ===
 

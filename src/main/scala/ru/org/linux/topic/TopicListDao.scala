@@ -163,7 +163,7 @@ class TopicListDao(springDB: SpringDB):
             COALESCE(commitdate, postdate)<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby,
             commitdate, topics.stat1, postscore, topics.moderate, notop, topics.resolved, minor, draft, allow_anonymous,
             topics.reactions, COALESCE(commitdate, postdate) + sections.expire as expire_date,
-            topics.open_warnings
+            topics.open_warnings, topics.score_loss
             $fromClause
             WHERE $conditions $sort $limitOffset""".map(rs => Topic.fromResultSet(rs.underlying)).list.apply()
 
