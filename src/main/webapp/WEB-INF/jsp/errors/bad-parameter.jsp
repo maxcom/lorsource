@@ -26,7 +26,7 @@
     exception = (Throwable) request.getAttribute("exception");
   }
 
-  response.setStatus(404);
+  response.setStatus(400);
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 

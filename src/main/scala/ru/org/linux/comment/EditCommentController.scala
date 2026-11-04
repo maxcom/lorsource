@@ -34,7 +34,7 @@ import ru.org.linux.util.ServletParameterException
 
 import java.util
 import java.util.Date
-import scala.jdk.CollectionConverters.MapHasAsJava
+import scala.jdk.CollectionConverters.*
 
 @Controller
 class EditCommentController(commentService: CommentCreateService, msgbaseDao: MsgbaseDao, 
@@ -52,9 +52,12 @@ class EditCommentController(commentService: CommentCreateService, msgbaseDao: Ms
     * Показ формы изменения комментария.
     */
   @RequestMapping(value = Array("/edit_comment"), method = Array(RequestMethod.GET))
-  def editCommentShowHandler(@ModelAttribute("add") @Validated commentRequest: CommentRequest): ModelAndView = AuthorizedOnly { implicit currentUser =>
+  def editCommentShowHandler(@ModelAttribute("add") @Validated commentRequest: CommentRequest, errors: Errors): ModelAndView = AuthorizedOnly { implicit currentUser =>
     val topic = commentRequest.getTopic
     if (topic == null) throw new ServletParameterException("тема не задана")
+
+    if (errors.hasErrors)
+      throw new ServletParameterException(errors.getAllErrors.asScala.map(_.getDefaultMessage).mkString(", "))
 
     val original = commentRequest.getOriginal
     if (original == null) throw new ServletParameterException("Комментарий не задан")

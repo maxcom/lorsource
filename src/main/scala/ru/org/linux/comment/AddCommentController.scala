@@ -70,7 +70,13 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     * Показ топика с формой добавления комментария верхнего уровня.
     */
   @RequestMapping(path = Array("/comment-message.jsp"))
-  def showFormTopic(@ModelAttribute("add") @Validated add: CommentRequest): ModelAndView = MaybeAuthorizedCtx { 
+  def showFormTopic(@ModelAttribute("add") @Validated add: CommentRequest, errors: Errors): ModelAndView = MaybeAuthorizedCtx { 
+    if add.getTopic == null then
+      throw new ServletParameterException("тема не задана")
+
+    if errors.hasErrors then
+      throw new ServletParameterException(errors.getAllErrors.asScala.map(_.getDefaultMessage).mkString(", "))
+
     val preparedTopic = topicPrepareService.prepareTopic(add.getTopic)
     
     addCommentChecker.checkCommentPosting(preparedTopic.group, add.getTopic).checkOrThrow()
