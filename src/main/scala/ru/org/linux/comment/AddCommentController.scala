@@ -71,9 +71,6 @@ class AddCommentController(commentPrepareService: CommentPrepareService,
     */
   @RequestMapping(path = Array("/comment-message.jsp"))
   def showFormTopic(@ModelAttribute("add") @Validated add: CommentRequest, errors: Errors): ModelAndView = MaybeAuthorizedCtx { 
-    if add.getTopic == null then
-      throw new ServletParameterException("тема не задана")
-
     if errors.hasErrors then
       throw new ServletParameterException(errors.getAllErrors.asScala.map(_.getDefaultMessage).mkString(", "))
 

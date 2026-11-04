@@ -26,6 +26,8 @@
     exception = (Throwable) request.getAttribute("exception");
   }
 
+  // isErrorPage="true" => Jasper генерирует response.setStatus(500) в начале страницы;
+  // статус обязан быть задан явно (иначе ответ будет 500 при любом рендере)
   response.setStatus(400);
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

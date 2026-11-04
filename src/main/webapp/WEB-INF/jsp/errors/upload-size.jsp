@@ -15,9 +15,6 @@
   ~    limitations under the License.
   --%>
 
-<%
-   response.setStatus(403);
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Ошибка: слишком крупное изображение</title>

@@ -22,6 +22,8 @@
 <%
   Logger logger = LoggerFactory.getLogger("ru.org.linux");
 
+  // isErrorPage="true" => Jasper генерирует response.setStatus(500) в начале страницы;
+  // статус обязан быть задан явно (иначе ответ будет 500 при любом рендере)
   response.setStatus(403);
 
   if (exception==null) {

@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.firewall.RequestRejectedException;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import ru.org.linux.auth.AuthUtil;
@@ -33,7 +32,6 @@ import ru.org.linux.util.StringUtil;
  * Класс. предназначенный для перехвата исключений приложения.
  */
 
-@Component
 public class ExceptionResolver extends SimpleMappingExceptionResolver {
   private static final Logger logger = LoggerFactory.getLogger(ExceptionResolver.class);
 
@@ -63,6 +61,9 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
    * Общий обработчик исключительных ситуаций.
    * Предназначен для расширения функционала стандартного обработчика.
    *
+   * Бин объявляется в springapp-servlet.xml (exceptionMapping) — без @Component,
+   * чтобы не создавать дубликат без маппингов в корневом контексте.
+   *
    * @param request  данные запроса от web-клиента
    * @param response данные ответа web-клиенту
    * @param handler  объект, в котором возникло исключение
@@ -81,16 +82,18 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
       return null;
     }
 
+    // статус для замапленных вьюшек ставится SimpleMappingExceptionResolver'ом
+    // из свойства statusCodes (по имени вьюшки)
     ModelAndView modelAndView = super.doResolveException(request, response, handler, ex);
     if (modelAndView == null) {
       modelAndView = new ModelAndView("errors/common");
       prepareModelForCommonException(modelAndView, request, ex);
+      response.setStatus(
+          isInvalidParameterException(ex)
+              ? HttpServletResponse.SC_BAD_REQUEST
+              : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
     modelAndView.addObject("exception", ex);
-    response.setStatus(
-        isInvalidParameterException(ex)
-            ? HttpServletResponse.SC_BAD_REQUEST
-            : HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     return modelAndView;
   }
 

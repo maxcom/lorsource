@@ -15,9 +15,6 @@
   ~    limitations under the License.
   --%>
 
-<%
-   response.setStatus(410);
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Error 410</title>

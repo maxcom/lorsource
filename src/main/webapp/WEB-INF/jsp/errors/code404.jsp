@@ -16,6 +16,10 @@
   --%>
 
 <%
+   // Статус задаётся явно, т.к. вьюшка возвращается и напрямую из контроллеров
+   // (GroupController, UserTopicListController, TagTopicListController) — минуя
+   // SimpleMappingExceptionResolver/statusCodes; без этого такие ответы получат статус 200.
+   // На остальных путях (statusCodes, @ResponseStatus, ERROR-dispatch) установка идемпотентна.
    response.setStatus(404);
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

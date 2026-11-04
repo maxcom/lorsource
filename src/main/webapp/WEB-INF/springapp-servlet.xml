@@ -44,28 +44,39 @@
         <property name="suffix" value=".jsp"/>
     </bean>
 
-    <bean class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" p:order="1" />
-
+    <!--
+      Резолвер исключений (order=2). ExceptionHandlerExceptionResolver и DefaultHandlerExceptionResolver
+      входят в composite handlerExceptionResolver (order=0), создаваемый @EnableWebMvc в
+      ImagesResourcesConfiguration (корневой контекст) — отдельный EHER-бин здесь не нужен.
+      Клиентские ошибки Spring MVC (MANVE, отсутствие/несовпадение параметров, 405) обрабатываются
+      раньше, в MvcClientErrorAdvice (@ControllerAdvice).
+    -->
     <bean id="exceptionMapping"
           class="ru.org.linux.exception.ExceptionResolver" p:order="2">
         <property name="exceptionMappings">
             <props>
                 <prop key="ru.org.linux.site.MessageNotFoundException">errors/code404</prop>
                 <prop key="ru.org.linux.gallery.ImageNotFoundException">errors/code404</prop>
-                <prop key="org.springframework.web.bind.UnsatisfiedServletRequestParameterException">errors/code404</prop>
-                <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">errors/code404</prop>
                 <prop key="ru.org.linux.auth.AccessViolationException">errors/code403</prop>
                 <prop key="org.springframework.security.access.AccessDeniedException">errors/code403</prop>
                 <prop key="ru.org.linux.tag.TagNotFoundException">errors/code404</prop>
                 <prop key="ru.org.linux.util.ServletParameterException">errors/bad-parameter</prop>
-                <prop key="org.springframework.beans.TypeMismatchException">errors/bad-parameter</prop>
                 <prop key="org.springframework.beans.InvalidPropertyException">errors/bad-parameter</prop>
-                <prop key="org.springframework.web.bind.MissingServletRequestParameterException">errors/bad-parameter</prop>
                 <prop key="org.springframework.validation.BindException">errors/bad-parameter</prop>
                 <prop key="ru.org.linux.user.UserBanedException">errors/user-banned</prop>
                 <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">errors/upload-size</prop>
                 <prop key="org.springframework.web.multipart.MultipartException">errors/bad-parameter</prop>
                 <prop key="org.springframework.security.web.firewall.RequestRejectedException">errors/bad-parameter</prop>
+            </props>
+        </property>
+        <property name="statusCodes">
+            <props>
+                <prop key="errors/code404">404</prop>
+                <prop key="errors/code403">403</prop>
+                <prop key="errors/code410">410</prop>
+                <prop key="errors/bad-parameter">400</prop>
+                <prop key="errors/user-banned">403</prop>
+                <prop key="errors/upload-size">403</prop>
             </props>
         </property>
     </bean>
