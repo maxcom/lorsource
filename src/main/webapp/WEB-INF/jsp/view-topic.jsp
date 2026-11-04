@@ -53,6 +53,9 @@
 
 <c:if test="${not empty preparedMessage.images}">
   <meta property="og:image" content="${preparedMessage.images[0].mediumName}">
+  <meta property="og:image:width" content="${preparedMessage.images[0].mediumInfo.width}">
+  <meta property="og:image:height" content="${preparedMessage.images[0].mediumInfo.height}">
+  <meta name="twitter:card" content="summary_large_image">
 </c:if>
 <c:if test="${empty preparedMessage.images}">
   <meta property="og:image" content="${configuration.secureUrlWithoutSlash}/img/good-penguin.png">
