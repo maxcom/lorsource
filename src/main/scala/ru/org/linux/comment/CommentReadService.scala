@@ -14,8 +14,7 @@
  */
 package ru.org.linux.comment
 
-import com.google.common.cache.Cache
-import com.google.common.cache.CacheBuilder
+import com.github.benmanes.caffeine.cache.{Cache, Caffeine}
 import org.springframework.stereotype.Service
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.Topic
@@ -26,7 +25,7 @@ import scala.collection.mutable
 @Service
 class CommentReadService(commentDao: CommentDao) {
   private val cache: Cache[Int, CommentList] =
-    CacheBuilder.newBuilder.maximumSize(10000).build[Int, CommentList]
+    Caffeine.newBuilder().maximumSize(20000).build[Int, CommentList]
 
   /**
    * Получить объект комментария по идентификационному номеру
