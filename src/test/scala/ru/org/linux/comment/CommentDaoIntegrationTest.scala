@@ -141,8 +141,9 @@ class CommentDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
     insertComment(parentId, None, "parent comment", "body")
     insertComment(childId, Some(parentId), "child comment", "body")
 
-    assertEquals(commentDao.getRepliesCount(parentId), 1)
-    assertEquals(commentDao.getRepliesCount(childId), 0)
+    springDB.localTx:
+      assertEquals(commentDao.getRepliesCount(parentId), 1)
+      assertEquals(commentDao.getRepliesCount(childId), 0)
 
   test("updateStatsAfterDelete"):
     val commentId = springDB.run:

@@ -200,6 +200,13 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
 
     val commentId = commentDao.saveNewMessage(comment, userAgent)
 
+    // Перепроверяем в транзакции (после вставки — когда триггер comins держит блокировку
+    // строки topics до конца транзакции), что тема не удалена параллельно с добавлением
+    // комментария; иначе откатываем вставку (заодно не даём ответу «пережить» удаление темы).
+    if (topicDao.getById(comment.topicId).deleted) {
+      throw new UserErrorException("нельзя добавлять в удаленные темы")
+    }
+
     msgbaseDao.saveNewMessage(commentBody, commentId)
 
     if (permissionService.isUserCastAllowed(author)) {
@@ -209,6 +216,13 @@ class CommentCreateService(commentDao: CommentDao, topicDao: TopicDao, userServi
 
     val parentCommentOpt: Option[Comment] = if (comment.replyTo != 0) {
       val parentComment = commentDao.getById(comment.replyTo)
+
+      // Аналогично: если родитель удалён параллельно с ответом (удаление ждёт нашего
+      // FOR KEY SHARE от FK), отказываем и откатываем вставку ответа.
+      if (parentComment.deleted) {
+        throw new UserErrorException("нельзя комментировать удаленные комментарии")
+      }
+
       val mention = notifyReply(comment, commentId, parentComment)
 
       mention.foreach(user => notifyUsers.addOne(user.id))

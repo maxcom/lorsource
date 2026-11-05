@@ -86,8 +86,22 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .toVector
 
-  def delete(msgid: Int)(using Transaction): Boolean =
-    sql"UPDATE topics SET deleted='t',sticky='f' WHERE id=$msgid AND NOT deleted".update.apply() > 0
+  /** Пометить топик удалённым.
+     *
+     * @param msgid
+     *   идентификационный номер топика
+     * @param requireNoComments
+     *   атомарная проверка отсутствия комментариев (самоудаление автором): предикат `stat1=0` входит в
+     *   UPDATE, поэтому комментарий, добавленный параллельно (триггер comins обновляет stat1 в транзакции
+     *   вставки и блокирует строку topics), делает UPDATE пустым вместо удаления темы с ответами
+     * @return
+     *   true если топик был удалён, иначе false
+     */
+  def delete(msgid: Int, requireNoComments: Boolean = false)(using Transaction): Boolean =
+    if requireNoComments then
+      sql"UPDATE topics SET deleted='t',sticky='f' WHERE id=$msgid AND NOT deleted AND stat1=0".update.apply() > 0
+    else
+      sql"UPDATE topics SET deleted='t',sticky='f' WHERE id=$msgid AND NOT deleted".update.apply() > 0
 
   def undelete(message: Topic)(using Transaction): Unit =
     sql"UPDATE topics SET deleted='f' WHERE id=${message.id}".update.apply()

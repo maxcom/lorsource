@@ -51,12 +51,15 @@ class GroupPermissionService(
 
   /** Проверка может ли пользователь удалить топик
     *
+    * Публичный метод используется контроллером удаления для определения ветки самоудаления автором
+    * (для неё сервис удаления применяет атомарную проверку отсутствия ответов).
+    *
     * @param user
     *   пользователь удаляющий сообщение
     * @return
     *   признак возможности удаления
     */
-  private def isDeletableByUser(topic: Topic, user: User, section: Section): Boolean =
+  def isDeletableByUser(topic: Topic, user: User, section: Section): Boolean =
     if topic.authorUserId != user.id then
       false
     else if topic.draft then

@@ -86,13 +86,19 @@ class DeleteTopicController(searchQueueSender: SearchQueueSender, sectionService
       throw new AccessViolationException("Вы не можете удалить это сообщение")
     }
 
+    // самоудаление автором разрешено только без ответов: передаём признак в сервис,
+    // где отсутствие ответов проверяется атомарно (stat1=0 в UPDATE) — на случай
+    // комментария, добавленного параллельно с удалением
+    val selfDelete =
+      permissionService.isDeletableByUser(topic, currentUser.user, sectionService.getSection(topic.sectionId))
+
     val effectiveBonus = if (currentUser.moderator && currentUser.user.id != topic.authorUserId && !topic.draft) {
       bonus
     } else {
       0
     }
 
-    deleteService.deleteTopic(topic, reason, effectiveBonus)
+    deleteService.deleteTopic(topic, reason, effectiveBonus, selfDelete)
 
     logger.info(s"Удалено сообщение $msgid пользователем ${currentUser.user.nick} по причине `$reason'")
 

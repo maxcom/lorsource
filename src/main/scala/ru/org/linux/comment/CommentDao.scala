@@ -113,18 +113,33 @@ class CommentDao(springDB: SpringDB):
 
   /** Сколько ответов на комментарий
     *
+    * Выполняется в текущей транзакции: для атомарности с удалением вызывается после
+    * блокировки строки комментария ([[lockForUpdate]]).
+    *
     * @param msgid
     *   id комментария
     * @return
     *   число ответов на комментарий
     */
-  def getRepliesCount(msgid: Int): Int =
-    springDB.run:
-      sql"SELECT count(id) FROM comments WHERE replyto = $msgid AND NOT deleted"
-        .map(rs => rs.int(1))
-        .single
-        .apply()
-        .getOrElse(0)
+  def getRepliesCount(msgid: Int)(using Transaction): Int =
+    sql"SELECT count(id) FROM comments WHERE replyto = $msgid AND NOT deleted"
+      .map(rs => rs.int(1))
+      .single
+      .apply()
+      .getOrElse(0)
+
+  /** Блокирует строку комментария (FOR UPDATE).
+    *
+    * Нужна для атомарности самоудаления комментария с проверкой ответов: вставка ответа
+    * берёт FOR KEY SHARE на строку родителя (FK comments_replyto_fkey), конфликтующую
+    * с FOR UPDATE, поэтому проверка «нет ответов» и удаление сериализуются
+    * с параллельными ответами.
+    *
+    * @param msgid
+    *   id комментария
+    */
+  def lockForUpdate(msgid: Int)(using Transaction): Unit =
+    sql"SELECT id FROM comments WHERE id = $msgid FOR UPDATE".map(rs => rs.int(1)).single.apply()
 
   /** Массовое удаление комментариев пользователя со всеми ответами на комментарии.
     *

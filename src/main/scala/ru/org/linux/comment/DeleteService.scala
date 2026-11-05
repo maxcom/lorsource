@@ -22,7 +22,7 @@ import ru.org.linux.site.ScriptErrorException
 import ru.org.linux.msgbase.InsertDeleteInfo
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.topic.{Topic, TopicDao}
-import ru.org.linux.user.{User, UserConstants, UserEventService, UserService}
+import ru.org.linux.user.{User, UserConstants, UserEventService, UserErrorException, UserService}
 
 import java.sql.Timestamp
 import scala.collection.mutable.ArrayBuffer
@@ -38,13 +38,28 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
    * @param topic удаляемый топик
    * @param reason  причина удаления
    * @param scoreBonus   дельта изменения score автора топика
+   * @param selfDelete самоудаление автором: применяется атомарная проверка отсутствия ответов
+   *                   (stat1=0 внутри UPDATE) — предотвращает удаление темы,
+   *                   в которую параллельно добавили комментарий
    */
-  def deleteTopic(topic: Topic, reason: String, scoreBonus: Int)
-                   (using currentUser: AuthorizedSession): Unit = springDB.localTx {
+  def deleteTopic(topic: Topic, reason: String, scoreBonus: Int, selfDelete: Boolean = false)
+                 (using currentUser: AuthorizedSession): Unit = springDB.localTx {
     assert(scoreBonus <= 20 && scoreBonus >= 0, "Некорректное значение bonus")
     assert(scoreBonus == 0 || currentUser.moderator, "Только модератор может менять score")
 
-    doDeleteTopic(topic, currentUser.user, reason, -scoreBonus).foreach { info =>
+    val deleted = doDeleteTopic(topic, currentUser.user, reason, -scoreBonus, requireNoComments = selfDelete)
+
+    if selfDelete && deleted.isEmpty then
+      // уточняем причину отказа: UPDATE пуст либо из-за параллельного ответа (stat1 != 0),
+      // либо из-за предиката NOT deleted — тему уже удалил кто-то другой
+      val alreadyDeleted = topicDao.findById(topic.id).forall(_.deleted)
+
+      if alreadyDeleted then
+        throw new UserErrorException("Сообщение уже удалено")
+      else
+        throw new UserErrorException("Нельзя удалить сообщение с ответами")
+
+    deleted.foreach { info =>
       deleteInfoDao.insert(info)
 
       userEventService.processTopicDeleted(Seq(topic.id))
@@ -66,9 +81,13 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     assert(scoreBonus == 0 || currentUser.moderator, "Только модератор может менять score")
     assert(checkForReply || currentUser.moderator, "Только модератор может удалять без ответов")
 
-    if (checkForReply && commentDao.getRepliesCount(comment.id) != 0) {
-      throw new ScriptErrorException("Нельзя удалить комментарий с ответами")
-    }
+    if checkForReply then
+      // блокируем строку комментария (FOR UPDATE конфликтует с FOR KEY SHARE от FK вставки ответа),
+      // чтобы параллельная вставка ответа не прошла между проверкой и удалением
+      commentDao.lockForUpdate(comment.id)
+
+      if commentDao.getRepliesCount(comment.id) != 0 then
+        throw new ScriptErrorException("Нельзя удалить комментарий с ответами")
 
     val deleted = doDeleteCommentWithScore(comment, -scoreBonus, reason, deleteBy = currentUser.user)
 
@@ -284,10 +303,11 @@ class DeleteService(commentDao: CommentDao, userService: UserService, userEventS
     deletedComments
   }
 
-  private def doDeleteTopic(topic: Topic, moderator: User, reason: String, scoreBonus: Int)(using Transaction): Option[InsertDeleteInfo] = {
+  private def doDeleteTopic(topic: Topic, moderator: User, reason: String, scoreBonus: Int, requireNoComments: Boolean)
+                           (using Transaction): Option[InsertDeleteInfo] = {
     assert(scoreBonus <= 0, s"Score bonus '$scoreBonus' on delete must be non-positive")
 
-    val deleted = topicDao.delete(topic.id)
+    val deleted = topicDao.delete(topic.id, requireNoComments)
 
     if (deleted) {
       val effectiveBonus = if (scoreBonus != 0 && topic.authorUserId != UserConstants.ANONYMOUS_ID

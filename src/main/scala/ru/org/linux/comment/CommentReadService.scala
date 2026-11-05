@@ -16,6 +16,7 @@ package ru.org.linux.comment
 
 import com.github.benmanes.caffeine.cache.{Cache, Caffeine}
 import org.springframework.stereotype.Service
+import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.Topic
 import ru.org.linux.user.User
@@ -23,7 +24,7 @@ import ru.org.linux.user.User
 import scala.collection.mutable
 
 @Service
-class CommentReadService(commentDao: CommentDao) {
+class CommentReadService(commentDao: CommentDao, springDB: SpringDB) {
   private val cache: Cache[Int, CommentList] =
     Caffeine.newBuilder().maximumSize(20000).build[Int, CommentList]
 
@@ -40,10 +41,13 @@ class CommentReadService(commentDao: CommentDao) {
   /**
    * Проверка, имеет ли указанный комментарий ответы.
    *
+   * Вызывается вне транзакции (UX-проверка в контроллере); атомарная проверка
+   * при удалении — в [[ru.org.linux.comment.DeleteService.deleteComment]].
+   *
    * @param comment объект комментария
    * @return true если есть ответы, иначе false
    */
-  def hasAnswers(comment: Comment): Boolean = commentDao.getRepliesCount(comment.id) > 0
+  def hasAnswers(comment: Comment): Boolean = springDB.localTx(commentDao.getRepliesCount(comment.id) > 0)
 
   /**
    * Список комментариев топика.
