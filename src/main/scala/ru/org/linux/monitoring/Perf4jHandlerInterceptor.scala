@@ -21,6 +21,7 @@ import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.springframework.web.method.HandlerMethod
 import org.springframework.web.servlet.resource.{DefaultServletHttpRequestHandler, ResourceHttpRequestHandler}
 import org.springframework.web.servlet.{HandlerInterceptor, ModelAndView}
+import ru.org.linux.auth.AuthUtil
 import ru.org.linux.monitoring.Perf4jHandlerInterceptor.*
 
 import java.util.concurrent.TimeUnit
@@ -31,7 +32,8 @@ object Perf4jHandlerInterceptor {
   private val LoggingThreshold = 250.millis
   private val BootDuration = 2.minutes // do not log slow when starting up
 
-  private class Metrics(val name: String, val path: String, controller: Stopwatch, view: Stopwatch) {
+  private class Metrics(val name: String, val path: String, val user: Option[String], val query: String,
+                        controller: Stopwatch, view: Stopwatch) {
     def controllerDone(): Unit = {
       if (controller.isRunning) {
         controller.stop()
@@ -52,11 +54,33 @@ object Perf4jHandlerInterceptor {
     def viewTime = view.elapsed(TimeUnit.MILLISECONDS)
 
     def viewTimeHuman = view.toString
+
+    def context: String = {
+      val sb = new StringBuilder
+
+      if (query.nonEmpty) {
+        sb.append('?').append(query)
+      }
+
+      user.foreach(nick => sb.append(" user=").append(nick))
+
+      sb.toString
+    }
   }
 
   private object Metrics {
-    def start(name: String, path: String) =
-      new Metrics(name, path, Stopwatch.createStarted(), Stopwatch.createUnstarted())
+    def start(name: String, path: String, user: Option[String], query: String) =
+      new Metrics(name, path, user, query, Stopwatch.createStarted(), Stopwatch.createUnstarted())
+  }
+
+  private def formatQuery(request: HttpServletRequest): String = {
+    val query = request.getQueryString
+
+    if (query == null) {
+      ""
+    } else {
+      query.split('&').mkString("&")
+    }
   }
 }
 
@@ -78,7 +102,7 @@ class Perf4jHandlerInterceptor extends HandlerInterceptor with StrictLogging {
         case _ => handler.getClass.getSimpleName
       }
 
-      val watch = Metrics.start(name, request.getRequestURI)
+      val watch = Metrics.start(name, request.getRequestURI, Option(AuthUtil.getNick), formatQuery(request))
       request.setAttribute(Attribute, watch)
     }
 
@@ -102,11 +126,12 @@ class Perf4jHandlerInterceptor extends HandlerInterceptor with StrictLogging {
       stopWatch.complete()
 
       if (stopWatch.controllerTime > LoggingThreshold.toMillis) {
-        logger.warn(s"Slow controller ${stopWatch.name} ${stopWatch.path} took ${stopWatch.controllerTimeHuman}")
+        logger.warn(s"Slow controller ${stopWatch.name} ${stopWatch.path}${stopWatch.context} " +
+          s"took ${stopWatch.controllerTimeHuman}")
       }
 
       if (stopWatch.viewTime > LoggingThreshold.toMillis) {
-        logger.warn(s"Slow view ${stopWatch.name} ${stopWatch.path} took ${stopWatch.viewTimeHuman}")
+        logger.warn(s"Slow view ${stopWatch.name} ${stopWatch.path}${stopWatch.context} took ${stopWatch.viewTimeHuman}")
       }
     }
   }
