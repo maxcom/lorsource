@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam}
 import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.ModeratorOnly
-import ru.org.linux.auth.IpBlockDao
+import ru.org.linux.auth.IpBlockService
 import ru.org.linux.comment.DeleteService
 import ru.org.linux.search.SearchQueueSender
 import ru.org.linux.site.BadInputException
@@ -34,7 +34,7 @@ import scala.jdk.CollectionConverters.{ListHasAsScala, MapHasAsJava}
 
 @Controller
 class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService: DeleteService,
-                      ipBlockDao: IpBlockDao) extends StrictLogging {
+                      ipBlockService: IpBlockService) extends StrictLogging {
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
    *
@@ -94,7 +94,7 @@ class DelIPController(searchQueueSender: SearchQueueSender, commentDeleteService
           captchaRequired = false
       }
 
-      ipBlockDao.blockIP(ip, moderator.id, reason, banTo, allowPosting, captchaRequired)
+      ipBlockService.blockIP(ip, moderator.id, reason, banTo, allowPosting, captchaRequired)
     }
 
     val deleteResult = commentDeleteService.deleteByIPAddress(ip, ts, reason)

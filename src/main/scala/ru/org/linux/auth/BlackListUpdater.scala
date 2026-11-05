@@ -14,6 +14,7 @@
  */
 package ru.org.linux.auth
 
+import com.google.common.net.InetAddresses
 import com.typesafe.scalalogging.StrictLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.scheduling.annotation.Scheduled
@@ -36,9 +37,14 @@ class BlackListUpdater(@Qualifier("directBackend") httpClient: SyncBackend, dao:
       case Right(body) =>
         logger.debug("Updating TOR exit node list")
 
-        body.linesIterator.foreach { ip =>
-          dao.blockIP(ip, 0, "TOR Exit Node", Some(OffsetDateTime.now().plusMonths(1)), true, false)
-        }
+        val ips = body.linesIterator
+          .map(_.trim)
+          .filter(InetAddresses.isInetAddress)
+          .toVector
+
+        dao.autoBlockIPs(ips, "TOR Exit Node", OffsetDateTime.now().plusMonths(1), allowPosting = true,
+          captchaRequired = false)
+        dao.deleteExpiredAutoBlocks
       case Left(error) =>
         logger.warn(s"Can't update TOR exit node list: $error")
     }

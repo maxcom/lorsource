@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets
 import java.time.OffsetDateTime
 
 @Controller
-class BanIPController(ipBlockDao: IpBlockDao) {
+class BanIPController(ipBlockService: IpBlockService) {
   @RequestMapping(value = Array("/banip.jsp"), method = Array(RequestMethod.POST))
   @throws[Exception]
   def banIP(request: HttpServletRequest, @RequestParam("ip") ip: String, @RequestParam("reason") reason: String,
@@ -54,7 +54,7 @@ class BanIPController(ipBlockDao: IpBlockDao) {
       case _ => throw new UserErrorException("Invalid count")
     }
 
-    ipBlockDao.blockIP(ip, moderator.user.id, reason, banTo, allowPosting, captchaRequired)
+    ipBlockService.blockIP(ip, moderator.user.id, reason, banTo, allowPosting, captchaRequired)
 
     new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, StandardCharsets.UTF_8)))
   }

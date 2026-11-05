@@ -31,7 +31,7 @@ object CommonContextFilter:
   private val Russian = Locale.forLanguageTag("ru")
   private val BadTimezones: Set[String] = Set("Factory", "Etc/Unknown")
 
-class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao, userService: UserService)
+class CommonContextFilter(siteConfig: SiteConfig, ipBlockService: IpBlockService, userService: UserService)
     extends GenericFilterBean
     with InitializingBean:
   override def doFilter(req: ServletRequest, res: ServletResponse, chain: FilterChain): Unit =
@@ -62,7 +62,7 @@ class CommonContextFilter(siteConfig: SiteConfig, ipBlockDao: IpBlockDao, userSe
     else
       request.setAttribute("currentUser", userService.getAnonymous)
 
-    val ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr)
+    val ipBlockInfo = ipBlockService.getBlockInfo(request.getRemoteAddr)
     request.setAttribute("ipBlockInfo", ipBlockInfo)
     request.setAttribute("captchaRequired", currentUser == null || ipBlockInfo.captchaRequired)
 

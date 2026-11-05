@@ -17,6 +17,7 @@ package ru.org.linux.auth
 
 import org.springframework.stereotype.Repository
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.Transaction.given
 import scalikejdbc.*
 
 import java.time.OffsetDateTime
@@ -41,9 +42,47 @@ class IpBlockDao(springDB: SpringDB):
               reason = EXCLUDED.reason,
               ban_date = EXCLUDED.ban_date,
               allow_posting = EXCLUDED.allow_posting,
-              captcha_required = EXCLUDED.captcha_required"""
-        .update
-        .apply()
+              captcha_required = EXCLUDED.captcha_required""".update.apply()
+
+  /** Автоматическая блокировка списка IP (TOR exit nodes) одним батчем в одной транзакции. Не перекрывает действующие
+    * ручные блокировки (mod_id != 0): ручная запись перезаписывается только если её срок истёк. Автоматические записи
+    * обновляются лишь тогда, когда до конца блокировки осталось меньше 7 дней, — чтобы не переписывать все строки при
+    * каждом запуске.
+    */
+  def autoBlockIPs(
+      ips: Seq[String],
+      reason: String,
+      banUntil: OffsetDateTime,
+      allowPosting: Boolean,
+      captchaRequired: Boolean): Unit =
+    if ips.nonEmpty then
+      springDB.localTx:
+        sql"""INSERT INTO b_ips (ip, mod_id, date, reason, ban_date, allow_posting, captcha_required)
+              VALUES ({ip}::inet, 0, CURRENT_TIMESTAMP, {reason}, {banUntil}, {allowPosting}, {captchaRequired})
+              ON CONFLICT (ip) DO UPDATE SET
+                mod_id = 0,
+                date = CURRENT_TIMESTAMP,
+                reason = EXCLUDED.reason,
+                ban_date = EXCLUDED.ban_date,
+                allow_posting = EXCLUDED.allow_posting,
+                captcha_required = EXCLUDED.captcha_required
+              WHERE (b_ips.mod_id = 0 AND b_ips.ban_date < CURRENT_TIMESTAMP + interval '7 days')
+                 OR (b_ips.mod_id != 0 AND b_ips.ban_date < CURRENT_TIMESTAMP)"""
+          .batchByName(
+            ips.map(ip =>
+              Seq(
+                "ip" -> ip,
+                "reason" -> reason,
+                "banUntil" -> banUntil,
+                "allowPosting" -> allowPosting,
+                "captchaRequired" -> captchaRequired))*)
+          .apply()
+
+  /** Удаление устаревших автоматических блокировок (mod_id = 0), покинувших список TOR exit nodes. */
+  def deleteExpiredAutoBlocks: Int =
+    springDB.run:
+      sql"""DELETE FROM b_ips
+          WHERE mod_id = 0 AND ban_date < CURRENT_TIMESTAMP - interval '14 days'""".update.apply()
 
   def getRecentlyBlocked: Seq[String] = springDB.run(getRecentlyBlockedInternal)
 
