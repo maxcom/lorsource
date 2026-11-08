@@ -21,7 +21,7 @@
     <jdbc.postgresql.version>42.7.14</jdbc.postgresql.version>
     <scala.version>3.9.0</scala.version>
     <scala.suffix>3</scala.suffix>
-    <activemq.version>6.3.2</activemq.version>
+    <activemq.version>6.4.0</activemq.version>
     <jquery.validation.version>1.22.0</jquery.validation.version>
 
     <jetty.version>12.1.14</jetty.version>
@@ -36,9 +36,9 @@
     <tippy.version>6.3.7</tippy.version>
     <autocomplete.version>10.2.10</autocomplete.version>
     <popperjs.version>2.11.8</popperjs.version>
-    <sttp.version>4.0.27</sttp.version>
+    <sttp.version>4.1.1</sttp.version>
     <flexmark.version>0.64.8</flexmark.version>
-    <jackson.version>2.22.3</jackson.version>
+    <jackson.version>2.23.0</jackson.version>
   </properties>
 
   <dependencies>
@@ -115,7 +115,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>33.7.2-jre</version>
+      <version>33.8.0-jre</version>
     </dependency>
     <dependency>
       <groupId>org.jspecify</groupId>
@@ -350,7 +350,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.23.2</version>
+      <version>1.24.1</version>
     </dependency>
 
     <dependency>
