@@ -49,6 +49,15 @@ class EmailDomainsBlockDaoIntegrationTest extends FunSuite with TransactionalTes
       sql"delete from email_domains_block where domain in (${EmailDomainsBlockDaoIntegrationTest
           .ManualDomain}, ${EmailDomainsBlockDaoIntegrationTest.AutoDomain})".update.apply()
 
+  private def readAutoRow: (java.time.OffsetDateTime, java.time.OffsetDateTime) =
+    springDB.run:
+      sql"select blocked_at, block_until from email_domains_block where domain = ${EmailDomainsBlockDaoIntegrationTest
+          .AutoDomain}"
+        .map(rs => (rs.offsetDateTime("blocked_at"), rs.offsetDateTime("block_until")))
+        .single
+        .apply()
+        .get
+
   test("isBlockedEmpty"):
     assert(!dao.isBlocked(EmailDomainsBlockDaoIntegrationTest.ManualDomain))
 
@@ -144,6 +153,27 @@ class EmailDomainsBlockDaoIntegrationTest extends FunSuite with TransactionalTes
     assert(row._1.isBefore(blockUntil), "blocked_at should be the creation time, not the expiry")
     assert(!row._1.isBefore(beforeInsert.minusSeconds(2)), "blocked_at should be at or after the insert moment")
     assertEquals(row._2, blockUntil, "block_until should match the requested expiry")
+
+  test("autoBlockDoesNotRefreshFarExpiry"):
+    val firstUntil = java.time.OffsetDateTime.now.plusDays(7).truncatedTo(java.time.temporal.ChronoUnit.MICROS)
+    dao.blockDomains(Seq(EmailDomainsBlockDaoIntegrationTest.AutoDomain), firstUntil)
+    val before = readAutoRow
+
+    dao.blockDomains(
+      Seq(EmailDomainsBlockDaoIntegrationTest.AutoDomain),
+      java.time.OffsetDateTime.now.plusDays(7).plusMinutes(1))
+
+    val after = readAutoRow
+    assertEquals(after._2, firstUntil, "block_until should not change while expiry is far away")
+    assertEquals(after._1, before._1, "blocked_at should not change while expiry is far away")
+
+  test("autoBlockRefreshesNearExpiry"):
+    dao.blockDomains(Seq(EmailDomainsBlockDaoIntegrationTest.AutoDomain), java.time.OffsetDateTime.now.plusDays(2))
+
+    val newUntil = java.time.OffsetDateTime.now.plusDays(7).truncatedTo(java.time.temporal.ChronoUnit.MICROS)
+    dao.blockDomains(Seq(EmailDomainsBlockDaoIntegrationTest.AutoDomain), newUntil)
+
+    assertEquals(readAutoRow._2, newUntil, "block_until should be extended when near expiry")
 
   test("unblock"):
     dao.blockDomainManual(

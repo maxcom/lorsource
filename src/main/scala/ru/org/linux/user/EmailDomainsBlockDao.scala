@@ -40,7 +40,9 @@ class EmailDomainsBlockDao(springDB: SpringDB):
         .getOrElse(false)
 
   /** Автоматическая блокировка списком из disposable-email-domains. Не перекрывает ручную блокировку: для существующих
-    * ручных записей (auto=false) UPDATE не выполняется (фильтр WHERE email_domains_block.auto).
+    * ручных записей (auto=false) UPDATE не выполняется (фильтр WHERE email_domains_block.auto). Автоматические записи
+    * обновляются лишь тогда, когда до конца блокировки осталось меньше 3 дней, — чтобы не переписывать все строки при
+    * каждом запуске обновления списка.
     */
   def blockDomains(domains: Seq[String], blockUntil: OffsetDateTime): Unit =
     springDB.run:
@@ -50,7 +52,8 @@ class EmailDomainsBlockDao(springDB: SpringDB):
               set block_until = excluded.block_until,
                   blocked_at = excluded.blocked_at,
                   auto = true
-            where email_domains_block.auto"""
+            where email_domains_block.auto
+              and email_domains_block.block_until < CURRENT_TIMESTAMP + interval '3 days'"""
         .batchByName(domains.map(d => Seq("domain" -> d, "blockUntil" -> blockUntil))*)
         .apply()
 
