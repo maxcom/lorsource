@@ -175,7 +175,11 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       Seq.empty
     }
 
-    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, messageText, warnings)
+    val ignoreList: Set[Int] = session.userOpt.map { currentUser =>
+      ignoreListDao.get(currentUser.id)
+    }.getOrElse(Set.empty)
+
+    val preparedMessage = topicPrepareService.prepareTopic(topic, tags, messageText, warnings, ignoreList)
 
     val group = preparedMessage.group
 
@@ -236,10 +240,6 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
 
     params.put("messageMenu", topicPrepareService.getTopicMenu(preparedMessage, loadUserpics = true))
     params.put("memoriesInfo", memoriesDao.getTopicInfo(topic.id, session.userOpt))
-
-    val ignoreList: Set[Int] = session.userOpt.map { currentUser =>
-      ignoreListDao.get(currentUser.id)
-    }.getOrElse(Set.empty)
 
     val (filterMode, filterModeShow) = if (filter=="show") {
       (CommentFilter.FILTER_NONE, true)

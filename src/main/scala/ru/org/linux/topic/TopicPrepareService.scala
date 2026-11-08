@@ -45,18 +45,23 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
                           warningService: WarningService, addCommentChecker: AddCommentChecker, postScoreChecker: PostScoreChecker) {
   def prepareTopic(message: Topic)(using session: AnySession): PreparedTopic =
     prepareTopic(message, topicTagService.getTagRefs(message), minimizeCut = false, None,
-      msgbaseDao.getMessageText(message.id), imageLazyLoad = false)
+      msgbaseDao.getMessageText(message.id), imageLazyLoad = false, ignoreList = currentIgnoreList)
+
+  def prepareTopic(message: Topic, ignoreList: Set[Int])(using session: AnySession): PreparedTopic =
+    prepareTopic(message, topicTagService.getTagRefs(message), minimizeCut = false, None,
+      msgbaseDao.getMessageText(message.id), imageLazyLoad = false, ignoreList = ignoreList)
 
   def prepareTopic(message: Topic, tags: Seq[TagRef], text: MessageText,
-                   warnings: Seq[Warning])(using session: AnySession): PreparedTopic =
-    prepareTopic(message, tags, minimizeCut = false, None, text, Seq.empty, warnings, imageLazyLoad = false)
+                   warnings: Seq[Warning], ignoreList: Set[Int])(using session: AnySession): PreparedTopic =
+    prepareTopic(message, tags, minimizeCut = false, None, text, Seq.empty, warnings, imageLazyLoad = false,
+      ignoreList = ignoreList)
 
   def prepareTopicPreview(topic: Topic, tags: Seq[TagRef], newPoll: Option[Poll], text: MessageText,
                           images: Seq[UploadedImagePreview])(using AnySession): PreparedTopic = {
     val imageObjects = images.map(_.toImage)
-    
+
     prepareTopic(topic, tags, minimizeCut = false, newPoll.map(pollPrepareService.preparePollPreview),
-      text, imageObjects, imageLazyLoad = false)
+      text, imageObjects, imageLazyLoad = false, ignoreList = currentIgnoreList)
   }
 
   def prepareEditInfo(editInfo: EditInfoSummary, topic: Topic)(using session: AnySession): PreparedEditInfoSummary = {
@@ -79,7 +84,7 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
    */
   private def prepareTopic(topic: Topic, tags: Seq[TagRef], minimizeCut: Boolean, poll: Option[PreparedPoll],
                            text: MessageText, images: Seq[Image] = Seq.empty, warnings: Seq[Warning] = Seq.empty,
-                           imageLazyLoad: Boolean)
+                           imageLazyLoad: Boolean, ignoreList: Set[Int])
                            (using session: AnySession): PreparedTopic = {
     val group = groupService.getGroup(topic.groupId)
     val author = userService.getUserCached(topic.authorUserId)
@@ -126,10 +131,6 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
       remarkDao.getRemark(user, author)
     }
 
-    val ignoreList = session.userOpt.map { user =>
-      ignoreListDao.get(user.id)
-    }.getOrElse(Set.empty[Int])
-
     lazy val postscore = postScoreChecker.commentRestrictionScore(group, topic)
 
     val showRegisterInvite = !session.authorized && !topic.expired && !topic.deleted &&
@@ -171,10 +172,11 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
                    (using user: AnySession): Seq[PersonalizedPreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
+    val ignoreList = currentIgnoreList
 
     messages.zipWithIndex.map { case (message, idx) =>
       val preparedMessage = prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None,
-        textMap(message.id), imageLazyLoad = idx >= 2)
+        textMap(message.id), imageLazyLoad = idx >= 2, ignoreList = ignoreList)
 
       val topicMenu = getTopicMenu(preparedMessage, loadUserpics)
       PersonalizedPreparedTopic(preparedMessage, topicMenu)
@@ -183,6 +185,9 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
 
   private def loadTexts(messages: Seq[Topic]) =
     msgbaseDao.getMessageText(messages.map(_.id))
+
+  private def currentIgnoreList(using session: AnySession): Set[Int] =
+    session.userOpt.map(user => ignoreListDao.get(user.id)).getOrElse(Set.empty[Int])
 
   /**
    * Подготовка ленты топиков для RSS
@@ -193,10 +198,11 @@ class TopicPrepareService(sectionService: SectionService, groupService: GroupSer
   def prepareTopicForRSS(messages: Seq[Topic])(using AnySession): Seq[PreparedTopic] = {
     val textMap = loadTexts(messages)
     val tags = topicTagService.tagRefs(messages.map(_.id))
+    val ignoreList = currentIgnoreList
 
     messages.view.map { message =>
       prepareTopic(message, tags.getOrElse(message.id, Seq.empty), minimizeCut = true, None, textMap(message.id),
-        imageLazyLoad = false)
+        imageLazyLoad = false, ignoreList = ignoreList)
     }.toSeq
   }
 

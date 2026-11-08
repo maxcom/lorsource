@@ -124,7 +124,7 @@ class ReactionController(topicDao: TopicDao, commentDao: CommentDao, permissionS
 
         new ModelAndView("reaction-topic", Map(
           "topic" -> topic,
-          "preparedTopic" -> topicPrepareService.prepareTopic(topic),
+          "preparedTopic" -> topicPrepareService.prepareTopic(topic, ignoreList),
           "reactionList" -> reactionService.prepareReactionList(topic.reactions, reactionLog, ignoreList)
         ).asJava)
     }
