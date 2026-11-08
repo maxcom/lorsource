@@ -53,7 +53,7 @@ object UserService {
   val DeletedUserId = 3
 
   private val NameCacheSize = 50000
-  private val UserCacheSize = 5000
+  private val UserCacheSize = 20000
 
   val CorrectorScore = 200
 }
