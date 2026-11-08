@@ -69,7 +69,7 @@ class DeleteInfoDao(springDB: SpringDB):
           deleteInfos.map { info =>
             Seq("msgid" -> info.msgid, "delby" -> info.deleteUser.id, "reason" -> info.reason, "bonus" -> info.bonus)
           }*)
-        .apply()
+        .apply[Array]()
 
   def delete(msgid: Int)(using Transaction): Unit = sql"DELETE FROM del_info WHERE msgid=$msgid".update.apply()
 

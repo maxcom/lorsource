@@ -55,7 +55,7 @@ class EmailDomainsBlockDao(springDB: SpringDB):
             where email_domains_block.auto
               and email_domains_block.block_until < CURRENT_TIMESTAMP + interval '3 days'"""
         .batchByName(domains.map(d => Seq("domain" -> d, "blockUntil" -> blockUntil))*)
-        .apply()
+        .apply[Array]()
 
   /** Ручная блокировка модератором. Перекрывает автоматическую и продлевает срок. */
   def blockDomainManual(domain: String, blockUntil: OffsetDateTime, moderatorId: Int): Unit =

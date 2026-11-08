@@ -19,7 +19,7 @@
     <micrometer.context-propagation.version>1.2.1</micrometer.context-propagation.version>
     <spring.security.version>7.1.2</spring.security.version>
     <jdbc.postgresql.version>42.7.14</jdbc.postgresql.version>
-    <scala.version>3.9.0</scala.version>
+    <scala.version>3.10.0</scala.version>
     <scala.suffix>3</scala.suffix>
     <activemq.version>6.4.0</activemq.version>
     <jquery.validation.version>1.22.0</jquery.validation.version>

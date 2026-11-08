@@ -76,7 +76,7 @@ class IpBlockDao(springDB: SpringDB):
                 "banUntil" -> banUntil,
                 "allowPosting" -> allowPosting,
                 "captchaRequired" -> captchaRequired))*)
-          .apply()
+          .apply[Array]()
 
   /** Удаление устаревших автоматических блокировок (mod_id = 0), покинувших список TOR exit nodes. */
   def deleteExpiredAutoBlocks: Int =

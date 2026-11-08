@@ -67,7 +67,7 @@ class UserEventDao(springDB: SpringDB):
     springDB.run {
       sql"INSERT INTO topic_users_notified (topic, userid) VALUES ({topic}, {userid})"
         .batchByName(userIds.toSeq.map(uid => Seq[(String, Any)]("topic" -> topicId, "userid" -> uid))*)
-        .apply()
+        .apply[Array]()
     }
 
   def insertReactionNotification(user: User, topic: Topic, comment: Option[Comment]): Unit =
@@ -361,7 +361,7 @@ class UserEventDao(springDB: SpringDB):
               "private" -> false,
               "message_id" -> comment.topicId,
               "comment_id" -> commentId))*)
-        .apply()
+        .apply[Array]()
 
     userIds
 

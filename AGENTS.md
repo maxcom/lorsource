@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Java 25 + Scala 3.9 web application (WAR) for Linux.org.ru. Mixed-language codebase: most code is Scala
+Java 25 + Scala 3.10 web application (WAR) for Linux.org.ru. Mixed-language codebase: most code is Scala
 (`src/main/scala`), some Java (`src/main/java`), JSP views (`src/main/webapp/WEB-INF/jsp`). All tests are Scala.
 
 Stack: Maven (≥3.9.13, enforcer-checked; `./mvnw` wrapper available), Spring Framework 7.x + Spring Security 7.x,
@@ -112,7 +112,7 @@ All users in the test database have password `passwd`:
 - Max line length 120 (Scalafmt, `.scalafmt.conf`); package structure `ru.org.linux.*`
 - Scala compiles with **`-Werror -Wunused:all`** — unused imports/locals/params fail the build
 
-### Scala (3.9)
+### Scala (3.10)
 
 - Follow `.scalafmt.conf` (scala3 dialect, new syntax: `rewrite.scala3.convertToNewSyntax`, optional braces removed)
 - Strict logging: `com.typesafe.scalalogging.StrictLogging`
