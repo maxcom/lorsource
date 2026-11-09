@@ -52,6 +52,21 @@ class UrlRewriteConfTest extends FunSuite:
     assertEquals(rewrite("//evil.com/"), None)
   }
 
+  test("control characters in the path do not produce a redirect") {
+    // UrlRewriteFilter percent-decodes the request URI before matching, and browsers strip tab/CR/LF
+    // from URLs (WHATWG URL standard), so Location /\t//evil.com resolves to //evil.com (scheme-relative)
+    assertEquals(rewrite("/%09//evil.com/"), None)
+    assertEquals(rewrite("/%09/evil.com/"), None)
+    assertEquals(rewrite("/%0A//evil.com/"), None)
+    assertEquals(rewrite("/%0D//evil.com/"), None)
+    assertEquals(rewrite("/x%09y//evil.com/"), None)
+    assertEquals(rewrite("/%7F//evil.com/"), None)
+  }
+
+  test("encoded space is still normalized (not a control char)") {
+    assertEquals(rewrite("/foo%20bar/"), Some("/foo bar"))
+  }
+
   test("trailing slash is still normalized") {
     assertEquals(rewrite("/foo/"), Some("/foo"))
     assertEquals(rewrite("/view-message.jsp/"), Some("/view-message.jsp"))

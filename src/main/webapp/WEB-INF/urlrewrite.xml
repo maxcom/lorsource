@@ -98,11 +98,15 @@
     <to type="permanent-redirect" last="true">/$1/$2</to>
   </rule>
 
-  <!-- the first captured char must not be a slash or a backslash: otherwise //evil.com/ would redirect
-       to //evil.com and /\evil.com (from %5C) to \evil.com (both scheme-relative open redirects;
-       StrictHttpFirewall never sees %5C because this filter answers before the security chain) -->
+  <!-- the first captured char must not be a slash, a backslash or a control char, and the rest of the segment
+       must not contain control chars either: otherwise //evil.com/ would redirect to //evil.com and /\evil.com
+       (from %5C) to \evil.com (both scheme-relative open redirects), and browsers strip decoded control chars
+       like %09 TAB per the WHATWG URL standard, turning /<TAB>//evil.com into //evil.com. Space (0x20) is
+       allowed: browsers percent-encode it in paths instead of stripping it, so it cannot create a scheme-relative
+       redirect. StrictHttpFirewall never sees any of this because the filter answers before the security chain
+       and decodes percent-escapes before matching -->
   <rule>
-    <from>^/(?!(?:(?:forum|news|polls|articles|gallery)(?:/[^/?.]+)?|people/[^/?.]+|tags)/(?:\?|$))([^/?\\][^?]*)/(\?.*)?$</from>
+    <from>^/(?!(?:(?:forum|news|polls|articles|gallery)(?:/[^/?.]+)?|people/[^/?.]+|tags)/(?:\?|$))([^/?\\\p{Cntrl}][^?\p{Cntrl}]*)/(\?.*)?$</from>
     <to type="permanent-redirect" last="true">/$1$2</to>
   </rule>
 
