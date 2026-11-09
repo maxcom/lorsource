@@ -25,7 +25,6 @@ import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.user.User
 import ru.org.linux.user.UserDao.AuthorInactivityCondition
 import ru.org.linux.user.UserDao.BlockedAuthorCondition
-import ru.org.linux.user.UserDao.InactiveAuthorCondition
 import ru.org.linux.user.UserDao.LowScoreBlockedAuthorCondition
 import ru.org.linux.user.UserDao.SpecialUserIds
 import ru.org.linux.warning.RuleWarning
@@ -358,8 +357,8 @@ class TopicDao(springDB: SpringDB):
   private val TopicDeletionDate: SQLSyntax = sqls"COALESCE(del_info.deldate, topics.lastmod)"
 
   /** Условие окончательной удаляемости удалённого топика по правилам doc/data-retention.md: порог давности удаления
-    * зависит от категории автора — заблокированный (более 3 лет), неактивный (более 10 лет), новый заблокированный
-    * (max_score < 50), специальный (anonymous/Deleted) — либо 10 лет с момента удаления для остальных.
+    * зависит от категории автора — заблокированный (более 3 лет), новый заблокированный (max_score < 50), специальный
+    * (anonymous/Deleted) — либо 10 лет с момента удаления для остальных (включая неактивных авторов).
     *
     * Общий для [[getDeletableDeletedTopicIds]] и перепроверки в [[purgeDeletedTopics]], чтобы запросы не расходились;
     * предполагает соединения таблиц как у [[TopicDeletionDate]].
@@ -367,7 +366,6 @@ class TopicDao(springDB: SpringDB):
   private val DeletableDeletedTopicCondition: SQLSyntax =
     sqls"""(
     (${BlockedAuthorCondition} AND ${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
-    OR (${InactiveAuthorCondition} AND ${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '3 years')
     OR (${LowScoreBlockedAuthorCondition} AND ${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
     OR (topics.userid IN (${SpecialUserIds}) AND ${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
     OR (${TopicDeletionDate} < CURRENT_TIMESTAMP - interval '10 years')

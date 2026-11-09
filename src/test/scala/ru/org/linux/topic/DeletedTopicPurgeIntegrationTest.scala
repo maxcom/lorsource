@@ -34,8 +34,8 @@ import java.time.LocalDate
   * [[TopicDao.purgeDeletedTopics]]).
   *
   * Даты вычисляются относительно текущей даты: пороги запросов — 6 месяцев (дата удаления для заблокированных авторов и
-  * специальных пользователей), 3 года (дата удаления для неактивных авторов) и 10 лет (дата удаления для остальных),
-  * контрольные значения берутся с запасом от границ.
+  * специальных пользователей) и 10 лет (дата удаления для остальных, включая неактивных авторов), контрольные значения
+  * берутся с запасом от границ.
   */
 @ContextConfiguration(classes = Array(classOf[DeletedTopicPurgeIntegrationTestConfiguration]))
 class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSupport:
@@ -144,7 +144,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     val inactive = createUser("test-topic-purge-inactive", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
     val blockedOld = createUser("test-topic-purge-blocked-old", blocked = true, Some(yearsAgo(4)), None)
     val noDates = createUser("test-topic-purge-no-dates", blocked = false, None, None)
-    val regdateFallback = createUser("test-topic-purge-reg-fallback", blocked = false, None, Some(yearsAgo(11)))
+    val regdateOnly = createUser("test-topic-purge-reg-only", blocked = false, None, Some(yearsAgo(11)))
     val active = createUser("test-topic-purge-active", blocked = false, Some(monthsAgo(1)), Some(yearsAgo(11)))
     val blockedRecent = createUser("test-topic-purge-blocked-recent", blocked = true, Some(monthsAgo(6)), None)
     val recentRegdate = createUser("test-topic-purge-recent-reg", blocked = false, None, Some(monthsAgo(6)))
@@ -155,14 +155,15 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
       markTopicDeleted(id, deldate, userId)
       id
 
-    val candInactive = deletedTopic(inactive, "cand inactive", Some(yearsAgo(4)))
+    val candInactive = deletedTopic(inactive, "cand inactive", Some(yearsAgo(11)))
     val candBlocked = deletedTopic(blockedOld, "cand blocked", Some(yearsAgo(4)))
     val candBlockedRecentDelete = deletedTopic(blockedOld, "cand blocked recent delete", Some(monthsAgo(13)))
-    val candNoDates = deletedTopic(noDates, "cand no dates", Some(yearsAgo(4)))
-    val candRegdateFallback = deletedTopic(regdateFallback, "cand regdate fallback", Some(yearsAgo(4)))
+    val candNoDates = deletedTopic(noDates, "cand no dates", Some(yearsAgo(11)))
+    val candRegdateOnly = deletedTopic(regdateOnly, "cand regdate only", Some(yearsAgo(11)))
     val candNoDeldate = deletedTopic(inactive, "cand no deldate", None)
 
     val ctrlActiveAuthor = deletedTopic(active, "ctrl active author", Some(yearsAgo(4)))
+    val ctrlInactiveRecent = deletedTopic(inactive, "ctrl inactive recent delete", Some(yearsAgo(4)))
     val ctrlBlockedRecent = deletedTopic(blockedRecent, "ctrl blocked recent", Some(yearsAgo(4)))
     val ctrlBlockedFreshDelete = deletedTopic(blockedOld, "ctrl blocked fresh delete", Some(monthsAgo(3)))
     val ctrlRecentRegdate = deletedTopic(recentRegdate, "ctrl recent regdate", Some(yearsAgo(4)))
@@ -171,27 +172,33 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     // deldate IS NULL: датой удаления считается lastmod топика — задаём старый
     springDB.run:
-      sql"UPDATE topics SET lastmod=${yearsAgo(4)} WHERE id IN ($candNoDeldate, $ctrlNoDeldateActive)".update.apply()
+      sql"UPDATE topics SET lastmod=${yearsAgo(11)} WHERE id = $candNoDeldate".update.apply()
+      sql"UPDATE topics SET lastmod=${yearsAgo(4)} WHERE id = $ctrlNoDeldateActive".update.apply()
 
-    val ctrlWithComment = deletedTopic(inactive, "ctrl with comment", Some(yearsAgo(4)))
+    val ctrlWithComment = deletedTopic(inactive, "ctrl with comment", Some(yearsAgo(11)))
     insertComment(nextMsgId, active, ctrlWithComment)
 
     val ctrlNotDeleted = nextMsgId
     insertTopic(ctrlNotDeleted, inactive, "ctrl not deleted")
 
-    val ctrlUnpurgedImage = deletedTopic(inactive, "ctrl unpurged image", Some(yearsAgo(4)))
+    val ctrlUnpurgedImage = deletedTopic(inactive, "ctrl unpurged image", Some(yearsAgo(11)))
     insertImage(ctrlUnpurgedImage, purged = false)
 
     val ids = topicDao.getDeletableDeletedTopicIds
 
-    assert(ids.contains(candInactive), "inactive author should be a candidate")
+    assert(ids.contains(candInactive), "topic of inactive author deleted over 10 years ago should be a candidate")
     assert(ids.contains(candBlocked), "blocked author with old lastlogin should be a candidate")
     assert(
       ids.contains(candBlockedRecentDelete),
       "topic of author blocked over 3 years deleted 13 months ago should be a candidate")
-    assert(ids.contains(candNoDates), "author without dates should be a candidate")
-    assert(ids.contains(candRegdateFallback), "unknown lastlogin should fall back to old regdate")
+    assert(ids.contains(candNoDates), "topic of author without dates deleted over 10 years ago should be a candidate")
+    assert(
+      ids.contains(candRegdateOnly),
+      "topic of author with regdate only deleted over 10 years ago should be a candidate")
     assert(ids.contains(candNoDeldate), "deleted topic without deldate should be a candidate")
+    assert(
+      !ids.contains(ctrlInactiveRecent),
+      "topic of inactive author deleted 4 years ago should not be a candidate")
     assert(!ids.contains(ctrlActiveAuthor), "active author should not be a candidate")
     assert(!ids.contains(ctrlBlockedRecent), "blocked author with recent lastlogin should not be a candidate")
     assert(
@@ -648,9 +655,9 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     insertTopic(targetId, author, "to be purged")
     markTopicDeleted(targetId, None, author)
 
-    // deldate IS NULL: датой удаления считается lastmod топика — задаём старый
+    // deldate IS NULL: датой удаления считается lastmod топика — задаём старый (10-летнее правило)
     springDB.run:
-      sql"UPDATE topics SET lastmod=${yearsAgo(4)} WHERE id = $targetId".update.apply()
+      sql"UPDATE topics SET lastmod=${yearsAgo(11)} WHERE id = $targetId".update.apply()
 
     val controlId = nextMsgId
     insertTopic(controlId, author, "control topic")
@@ -736,7 +743,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val topicId = nextMsgId
     insertTopic(topicId, author, "restored topic")
-    markTopicDeleted(topicId, Some(yearsAgo(4)), author)
+    markTopicDeleted(topicId, Some(yearsAgo(11)), author)
 
     assert(topicDao.getDeletableDeletedTopicIds.contains(topicId))
 
@@ -755,7 +762,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val topicId = nextMsgId
     insertTopic(topicId, author, "topic with comment")
-    markTopicDeleted(topicId, Some(yearsAgo(4)), author)
+    markTopicDeleted(topicId, Some(yearsAgo(11)), author)
     insertComment(nextMsgId, commenter, topicId)
 
     assert(!topicDao.getDeletableDeletedTopicIds.contains(topicId))
@@ -770,7 +777,7 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
 
     val topicId = nextMsgId
     insertTopic(topicId, author, "topic with image")
-    markTopicDeleted(topicId, Some(yearsAgo(4)), author)
+    markTopicDeleted(topicId, Some(yearsAgo(11)), author)
     val imageId = insertImage(topicId, purged = false)
 
     assert(!topicDao.getDeletableDeletedTopicIds.contains(topicId), "topic with unpurged image is not a candidate")
@@ -923,22 +930,6 @@ class DeletedTopicPurgeIntegrationTest extends FunSuite with TransactionalTestSu
     val topicId = insertDraft(author, "draft of returned user")
 
     assert(topicDao.getDeletableDraftTopicIds.contains(topicId), "draft of inactive author should be a candidate")
-
-    springDB.run:
-      sql"UPDATE users SET lastlogin = CURRENT_TIMESTAMP WHERE id = $author".update.apply()
-
-    assertEquals(topicDao.purgeDeletedTopics(Seq(topicId)), 0)
-    assertEquals(countRows("topics", "id", topicId), 1)
-    assertEquals(countRows("msgbase", "id", topicId), 1)
-
-  test("purgeSkipsDeletedTopicOfReturnedUser"):
-    val author = createUser("test-topic-purge-returned", blocked = false, Some(yearsAgo(11)), Some(yearsAgo(11)))
-
-    val topicId = nextMsgId
-    insertTopic(topicId, author, "deleted topic of returned user")
-    markTopicDeleted(topicId, Some(yearsAgo(4)), author)
-
-    assert(topicDao.getDeletableDeletedTopicIds.contains(topicId), "topic of inactive author should be a candidate")
 
     springDB.run:
       sql"UPDATE users SET lastlogin = CURRENT_TIMESTAMP WHERE id = $author".update.apply()

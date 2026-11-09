@@ -22,7 +22,6 @@ import ru.org.linux.site.MessageNotFoundException
 import ru.org.linux.topic.TopicPermissionService.POSTSCORE_HIDE_COMMENTS
 import ru.org.linux.user.User
 import ru.org.linux.user.UserDao.BlockedAuthorCondition
-import ru.org.linux.user.UserDao.InactiveAuthorCondition
 import ru.org.linux.user.UserDao.LowScoreBlockedAuthorCondition
 import ru.org.linux.user.UserDao.SpecialUserIds
 import ru.org.linux.util.StringUtil
@@ -269,8 +268,8 @@ class CommentDao(springDB: SpringDB):
               ELSE COALESCE(comdel.deldate, topics.lastmod) END"""
 
   /** Условие окончательной удаляемости удалённого комментария по правилам doc/data-retention.md: порог давности
-    * удаления зависит от категории автора — заблокированный (более 3 лет), неактивный (более 10 лет), новый
-    * заблокированный (max_score < 50), специальный (anonymous/Deleted) — либо 10 лет с момента удаления для остальных.
+    * удаления зависит от категории автора — заблокированный (более 3 лет), новый заблокированный (max_score < 50),
+    * специальный (anonymous/Deleted) — либо 10 лет с момента удаления для остальных (включая неактивных авторов).
     *
     * Общий для [[getDeletableDeletedCommentIds]] и перепроверки в [[purgeDeletedComments]], чтобы запросы не
     * расходились; предполагает соединения таблиц как у [[CommentDeletionDate]].
@@ -278,7 +277,6 @@ class CommentDao(springDB: SpringDB):
   private val DeletableDeletedCommentCondition: SQLSyntax =
     sqls"""(
     (${BlockedAuthorCondition} AND ${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
-    OR (${InactiveAuthorCondition} AND ${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '3 years')
     OR (${LowScoreBlockedAuthorCondition} AND ${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
     OR (comments.userid IN (${SpecialUserIds})
       AND ${CommentDeletionDate} < CURRENT_TIMESTAMP - interval '6 months')
