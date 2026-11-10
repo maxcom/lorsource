@@ -116,6 +116,14 @@ class UserEventService(userEventDao: UserEventDao, userService: UserService, spr
     if (deleted != 0) {
       logger.info(s"Deleted $deleted abandoned events")
     }
+
+    val deletedOld = springDB.localTx {
+      userEventDao.dropOldEvents()
+    }
+
+    if (deletedOld != 0) {
+      logger.info(s"Deleted $deletedOld events older than 10 years")
+    }
   }
 
   /**

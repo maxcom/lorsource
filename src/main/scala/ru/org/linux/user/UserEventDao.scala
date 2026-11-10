@@ -179,20 +179,77 @@ class UserEventDao(springDB: SpringDB):
 
     recalcEventCount(Seq(userId))
 
+  /** Размер порции идентификаторов пользователей в `IN (...)`: ограничивает число bind-параметров одного prepared
+    * statement с запасом под лимит PostgreSQL (65535).
+    */
+  private val UserBatchSize = 500
+
+  /** Условие «давно заблокированного пользователя» для [[dropBannedUserEvents]] по правилам doc/data-retention.md:
+    * заблокирован более 3 лет назад; при отсутствии даты блокировки — дата последнего посещения (`users.lastlogin`);
+    * при отсутствии обеих дат пользователь считается старым.
+    *
+    * Предполагает, что запрос соединяет таблицы `users` и `ban_info` под этими именами (`LEFT JOIN ban_info ON
+    * ban_info.userid = users.id`; у заблокированного пользователя не более одной строки `ban_info`, при разблокировке
+    * строка удаляется).
+    */
+  private val OldBannedUserCondition: SQLSyntax =
+    sqls"""users.blocked
+    AND (COALESCE(ban_info.bandate, users.lastlogin) < CURRENT_TIMESTAMP - interval '3 years'
+      OR (ban_info.bandate IS NULL AND users.lastlogin IS NULL))"""
+
+  /** Удаляет все уведомления пользователей, заблокированных более 3 лет назад.
+    *
+    * Критерии описаны в doc/data-retention.md: удаление определяется давностью блокировки, а не возрастом уведомлений.
+    *
+    * Счётчики непрочитанных уведомлений затронутых пользователей пересчитываются.
+    *
+    * @return
+    *   число удалённых уведомлений
+    */
   def dropBannedUserEvents()(using Transaction): Int =
-    val count =
-      sql"""DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - '2 year'::interval
-        AND user_events.userid IN
-        (SELECT id FROM users WHERE users.blocked AND lastlogin < CURRENT_TIMESTAMP-'2 year'::interval)"""
+    val affectedUsers =
+      sql"""SELECT DISTINCT user_events.userid FROM user_events
+          JOIN users ON users.id = user_events.userid
+          LEFT JOIN ban_info ON ban_info.userid = users.id
+          WHERE ${OldBannedUserCondition}"""
+        .map(rs => rs.int("userid"))
+        .list
+        .apply()
+
+    val deleted = affectedUsers
+      .grouped(UserBatchSize)
+      .map(batch => sql"DELETE FROM user_events WHERE userid IN ($batch)".update.apply())
+      .sum
+
+    affectedUsers.grouped(UserBatchSize).foreach(recalcEventCount)
+
+    deleted
+
+  /** Удаляет уведомления старше 10 лет с момента постинга.
+    *
+    * Критерии описаны в doc/data-retention.md.
+    *
+    * Счётчики непрочитанных уведомлений затронутых пользователей пересчитываются.
+    *
+    * @return
+    *   число удалённых уведомлений
+    */
+  def dropOldEvents()(using Transaction): Int =
+    val affectedUsers =
+      sql"""SELECT DISTINCT userid FROM user_events
+          WHERE event_date < CURRENT_TIMESTAMP - interval '10 years'"""
+        .map(rs => rs.int("userid"))
+        .list
+        .apply()
+
+    val deleted =
+      sql"""DELETE FROM user_events WHERE event_date < CURRENT_TIMESTAMP - interval '10 years'"""
         .update
         .apply()
 
-    sql"""UPDATE users SET unread_events = (SELECT count(*) FROM user_events WHERE unread AND userid=users.id)
-        WHERE unread_events != 0 AND users.blocked AND lastlogin < CURRENT_TIMESTAMP-'2 year'::interval"""
-      .update
-      .apply()
+    affectedUsers.grouped(UserBatchSize).foreach(recalcEventCount)
 
-    count
+    deleted
 
   def getEvent(id: Int): Option[UserEvent] =
     springDB.run {

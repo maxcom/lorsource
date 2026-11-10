@@ -203,3 +203,86 @@ class UserEventDaoIntegrationTest extends FunSuite with TransactionalTestSupport
     assertEquals(unreadFlagsAfterReset(lastEventId), false)
     assertEquals(unreadFlagsAfterReset(insertedEvents(2)._1), true)
     assertEquals(userDao.getUser(UserEventDaoIntegrationTest.TestUserId).unreadEvents, unreadBefore + 1)
+
+  private def eventCount(userId: Int): Int =
+    springDB.run:
+      sql"SELECT count(*) FROM user_events WHERE userid=$userId".map(rs => rs.int(1)).single.apply().get
+
+  private def banUser(userId: Int, bannedYearsAgo: Int): Unit =
+    springDB.run:
+      sql"UPDATE users SET blocked='t', lastlogin=CURRENT_TIMESTAMP - interval '5 years' WHERE id=$userId".update
+        .apply()
+      sql"""INSERT INTO ban_info (userid, reason, ban_by)
+            VALUES ($userId, 'test', ${userDao.findUserId("maxcom")})""".update.apply()
+      sql"""UPDATE ban_info SET bandate=CURRENT_TIMESTAMP - make_interval(years => $bannedYearsAgo)
+            WHERE userid=$userId""".update.apply()
+
+  test("dropBannedUserEvents deletes all events of long-banned user"):
+    val userId = UserEventDaoIntegrationTest.TestUserId
+
+    banUser(userId, bannedYearsAgo = 4)
+    createSimpleEvent()
+
+    val deleted = springDB.localTx:
+      userEventDao.dropBannedUserEvents()
+
+    assert(deleted >= 1)
+    assertEquals(eventCount(userId), 0)
+    assertEquals(userDao.getUser(userId).unreadEvents, 0)
+
+  test("dropBannedUserEvents keeps events of recently banned user"):
+    val userId = UserEventDaoIntegrationTest.TestUserId
+
+    // lastlogin старше bandate: событие сохраняется только если берётся именно дата блокировки
+    banUser(userId, bannedYearsAgo = 2)
+    createSimpleEvent()
+
+    springDB.localTx:
+      userEventDao.dropBannedUserEvents()
+
+    assertEquals(eventCount(userId), 1)
+
+  test("dropBannedUserEvents uses lastlogin when bandate is missing"):
+    val userId = UserEventDaoIntegrationTest.TestUserId
+
+    springDB.run:
+      sql"UPDATE users SET blocked='t', lastlogin=CURRENT_TIMESTAMP - interval '4 years' WHERE id=$userId".update
+        .apply()
+
+    createSimpleEvent()
+
+    springDB.localTx:
+      userEventDao.dropBannedUserEvents()
+
+    assertEquals(eventCount(userId), 0)
+    assertEquals(userDao.getUser(userId).unreadEvents, 0)
+
+  test("dropBannedUserEvents treats user without dates as old"):
+    val userId = UserEventDaoIntegrationTest.TestUserId
+
+    springDB.run:
+      sql"UPDATE users SET blocked='t', lastlogin=NULL WHERE id=$userId".update.apply()
+
+    createSimpleEvent()
+
+    springDB.localTx:
+      userEventDao.dropBannedUserEvents()
+
+    assertEquals(eventCount(userId), 0)
+
+  test("dropOldEvents deletes events older than 10 years"):
+    val userId = UserEventDaoIntegrationTest.TestUserId
+    createSimpleEvent()
+    createSimpleEvent()
+
+    springDB.run:
+      sql"""UPDATE user_events SET event_date=CURRENT_TIMESTAMP - interval '11 years'
+            WHERE id=(SELECT min(id) FROM user_events WHERE userid=$userId)""".update.apply()
+
+    assertEquals(userDao.getUser(userId).unreadEvents, 2)
+
+    springDB.localTx:
+      userEventDao.dropOldEvents()
+
+    assertEquals(eventCount(userId), 1)
+    assertEquals(userDao.getUser(userId).unreadEvents, 1)
