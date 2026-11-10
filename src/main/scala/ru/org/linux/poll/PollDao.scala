@@ -74,6 +74,12 @@ class PollDao(springDB: SpringDB):
     */
   @throws[BadVoteException]
   def updateVotes(pollId: Int, votes: Array[Int], user: User)(using Transaction): Unit =
+    // Атомарная проверка одного голоса на пользователя (check-then-act TOCTOU): транзакционный
+    // advisory-lock по пользователю сериализует конкурирующие запросы, и при READ COMMITTED
+    // последующий COUNT видит коммиты предыдущих владельцев блокировки — параллельный голос
+    // другим вариантом не пройдёт проверку count==0. Блокировка освобождается при commit/rollback.
+    sql"SELECT pg_advisory_xact_lock(hashtext('poll-vote'), ${user.id})".execute.apply()
+
     val count = sql"SELECT count(vote) FROM vote_users WHERE vote = $pollId AND userid = ${user.id}"
       .map(rs => rs.int(1))
       .single

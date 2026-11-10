@@ -216,6 +216,58 @@ class PollDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
     assertEquals(votesAfterSecond, votesAfterFirst, "Votes should not increase on duplicate vote (idempotent)")
 
+  test("updateVotesSecondDifferentVariantIgnored"):
+    val topicId = springDB.run:
+      sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
+            VALUES (19387, 1, 'Test different variant vote topic', '', 't', CURRENT_TIMESTAMP, nextval('s_msgid'), '', 'f',
+                    create_user_agent('Integration test User Agent'), '127.0.0.1'::inet, 'f', CURRENT_TIMESTAMP, 'f')"""
+        .update
+        .apply()
+      sql"SELECT max(id) FROM topics WHERE groupid = 19387 AND title = 'Test different variant vote topic'"
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .get
+    springDB.localTx {
+      pollDao.createPoll(Seq("Option P", "Option Q"), false, topicId)
+    }
+    val poll = pollDao.getPollByTopicId(topicId)
+    val variantP = poll.variants.find(_.label == "Option P").get
+    val variantQ = poll.variants.find(_.label == "Option Q").get
+
+    val votesBefore = springDB.run:
+      sql"SELECT sum(votes) FROM polls_variants WHERE vote = ${poll.id}"
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .getOrElse(0)
+
+    springDB.localTx {
+      pollDao.updateVotes(poll.id, Array(variantP.id), mockUser(3))
+    }
+
+    springDB.localTx {
+      pollDao.updateVotes(poll.id, Array(variantQ.id), mockUser(3))
+    }
+
+    val votesAfter = springDB.run:
+      sql"SELECT sum(votes) FROM polls_variants WHERE vote = ${poll.id}"
+        .map(rs => rs.int(1))
+        .single
+        .apply()
+        .getOrElse(0)
+
+    assertEquals(votesAfter, votesBefore + 1, "Second vote with different variant must not increase total votes")
+
+    val userVotes = springDB.run:
+      sql"SELECT variant_id FROM vote_users WHERE vote = ${poll.id} AND userid = 3"
+        .map(rs => rs.int("variant_id"))
+        .list
+        .apply()
+
+    assertEquals(userVotes.size, 1, "Single-select poll must have exactly one ballot per user")
+    assertEquals(userVotes.head, variantP.id, "Only the first voted variant must be counted")
+
   test("updateVotesInvalidVariantThrowsBadVote"):
     val topicId = springDB.run:
       sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
