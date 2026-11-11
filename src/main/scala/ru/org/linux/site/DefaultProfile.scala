@@ -38,7 +38,7 @@ object DefaultProfile:
   val TopicsValues: Set[Int] = Set(30, 50, 100, 200, 300, 500)
   val CommentsValues: Set[Int] = Set(25, 50, 100, 200, 300, 500)
 
-  val DefaultTrackerMode: TrackerFilterEnum = TrackerFilterEnum.MAIN
+  val DefaultTrackerMode: TrackerFilterEnum = TrackerFilterEnum.ALL
 
   val defaultProfile: ImmutableMap[String, Object] =
     val builder = ImmutableMap.builder[String, Object]()
