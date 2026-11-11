@@ -152,8 +152,8 @@ class SiteConfig(
     else
       property.toBoolean
 
-  /** Удалять ли неактивных пользователей без активности: заблокированных более 3 лет назад и не заходивших более 10
-    * лет (раз в день ночью).
+  /** Удалять ли неактивных пользователей без активности: заблокированных более 3 лет назад и не заходивших более 10 лет
+    * (раз в день ночью).
     *
     * @return
     *   true если разрешено удалять, иначе false (только логгирование кандидатов)
@@ -184,6 +184,18 @@ class SiteConfig(
     */
   def cleanOldDeletedTopics: Boolean =
     val property = properties.getProperty("cleanOldDeletedTopics")
+    if property == null then
+      false
+    else
+      property.toBoolean
+
+  /** Удалять ли неиспользуемые записи словаря user_agents (раз в день, по умолчанию выключено).
+    *
+    * @return
+    *   true если разрешено удалять, иначе false (только логгирование кандидатов)
+    */
+  def cleanUserAgents: Boolean =
+    val property = properties.getProperty("cleanUserAgents")
     if property == null then
       false
     else

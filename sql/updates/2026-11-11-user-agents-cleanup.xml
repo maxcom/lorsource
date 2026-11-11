@@ -1,0 +1,65 @@
+<!--
+  ~ Copyright 1998-2026 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="2026111101" author="Maxim Valyanskiy">
+    <comment>Права для очистки словаря user_agents: DELETE чистильщику, UPDATE для SELECT FOR KEY SHARE
+      в create_user_agent (лочащий SELECT требует привилегии UPDATE)</comment>
+    <sql>grant DELETE, UPDATE on user_agents to linuxweb</sql>
+  </changeSet>
+
+  <changeSet id="2026111102" author="Maxim Valyanskiy">
+    <comment>Индексы на ua_id: без них FK-триггер при удалении строки user_agents делает seq scan по
+      comments/topics на каждую удаляемую строку; также ускоряют запросы sameip</comment>
+    <sql>CREATE INDEX IF NOT EXISTS comments_ua_id_idx ON comments (ua_id) WHERE ua_id IS NOT NULL</sql>
+    <sql>CREATE INDEX IF NOT EXISTS topics_ua_id_idx ON topics (ua_id) WHERE ua_id IS NOT NULL</sql>
+  </changeSet>
+
+  <changeSet id="2026111103" author="Maxim Valyanskiy">
+    <comment>create_user_agent: лок-first insert-or-get. SELECT FOR KEY SHARE держит лок на строке словаря
+      до конца транзакции вызывающего (регистрация, постинг) — это конфликтует только с DELETE, поэтому
+      чистильщик user_agents блокируется и перепроверяет ссылки по свежим данным; одновременные постинги
+      с одинаковым User-Agent друг другу не мешают. Вместо блока EXCEPTION — INSERT ON CONFLICT DO NOTHING
+      с повтором цикла</comment>
+    <sql splitStatements="false">
+      CREATE OR REPLACE FUNCTION create_user_agent(character varying) RETURNS integer
+          LANGUAGE plpgsql STRICT
+          AS $_$
+      DECLARE ua_id INT;
+      BEGIN
+        LOOP
+          SELECT id INTO ua_id FROM user_agents WHERE name = $1 FOR KEY SHARE;
+          IF FOUND THEN
+            RETURN ua_id;
+          END IF;
+
+          INSERT INTO user_agents (name) VALUES ($1)
+            ON CONFLICT (name) DO NOTHING
+            RETURNING id INTO ua_id;
+
+          IF FOUND THEN
+            RETURN ua_id;
+          END IF;
+        END LOOP;
+      END;
+      $_$;
+    </sql>
+  </changeSet>
+</databaseChangeLog>

@@ -18,6 +18,7 @@ package ru.org.linux.topic
 import com.google.common.base.Strings
 import org.springframework.stereotype.Repository
 import ru.org.linux.group.Group
+import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.SectionScrollModeEnum
@@ -107,7 +108,7 @@ class TopicDao(springDB: SpringDB):
 
   def saveNewMessage(msg: Topic, user: User, userAgent: String, group: Group)(using Transaction): Int =
     val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
-    val truncatedUserAgent = userAgent.substring(0, Math.min(511, userAgent.length))
+    val truncatedUserAgent = userAgent.substring(0, Math.min(UserAgentDao.MaxNameLength, userAgent.length))
     sql"""INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip, draft, lastmod, allow_anonymous)
           VALUES (${group.id}, ${user.id}, ${msg.rawTitle}, ${msg.url}, 'f', CURRENT_TIMESTAMP, $msgid, ${msg
         .linktext}, 'f', create_user_agent($truncatedUserAgent), ${msg.postIP}::inet, ${msg

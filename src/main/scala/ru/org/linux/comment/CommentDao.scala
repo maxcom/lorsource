@@ -16,6 +16,7 @@
 package ru.org.linux.comment
 
 import org.springframework.stereotype.Repository
+import ru.org.linux.msgbase.UserAgentDao
 import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
 import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.site.MessageNotFoundException
@@ -166,7 +167,7 @@ class CommentDao(springDB: SpringDB):
     */
   def saveNewMessage(comment: Comment, userAgent: Option[String])(using Transaction): Int =
     val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
-    val truncatedUserAgent = userAgent.map(ua => ua.substring(0, Math.min(511, ua.length)))
+    val truncatedUserAgent = userAgent.map(ua => ua.substring(0, Math.min(UserAgentDao.MaxNameLength, ua.length)))
     val replyToOpt = Option.when(comment.replyTo != 0)(comment.replyTo)
     sql"""INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id)
           VALUES ($msgid, ${comment.userid}, ${comment.title}, CURRENT_TIMESTAMP,

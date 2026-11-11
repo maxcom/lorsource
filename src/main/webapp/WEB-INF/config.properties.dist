@@ -86,3 +86,8 @@ cleanOldDeletedComments=false
 # (в т.ч. anonymous).
 # При false — только логгируются найденные кандидаты (dry-run).
 cleanOldDeletedTopics=false
+
+# удалять неиспользуемые записи словаря user_agents: на которые не ссылаются топики, комментарии
+# и записи журнала user_log (раз в день, по умолчанию выключено).
+# При false — только логгируются найденные кандидаты (dry-run).
+cleanUserAgents=false
