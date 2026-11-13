@@ -21,6 +21,7 @@ sudo rsync --exclude WEB-INF/config.properties --delete-after -t -r -v target/lo
 sudo touch /var/lib/tomcat/webapps/ROOT/WEB-INF/web.xml
 
 sudo cp deploy/server.xml /opt/tomcat/conf/server.xml
+sudo cp deploy/tomcat.conf /opt/tomcat/tomcat.conf
 
 sudo systemctl start $SERVICE
 
