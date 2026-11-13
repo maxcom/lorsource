@@ -119,8 +119,14 @@ class RegisterController(
 
         new ModelAndView(
           "action-done",
-          "message",
-          "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.")
+          Map(
+            "message" -> "Добавление пользователя прошло успешно",
+            "bigMessage" -> (
+              "Ожидайте письма с кодом активации. Учетные записи, не прошедшие активацию, " +
+                "автоматически удаляются через 12 часов."
+            )
+          ).asJava
+        )
       else
         val params = Map("permit" -> permit)
         new ModelAndView("register", params.asJava)
@@ -234,8 +240,7 @@ class RegisterController(
 
       if captchaErrors.hasErrors then
         val params =
-          activationFormParams(currentUser.user.nick, activation) +
-            ("error" -> captchaErrorMessage(captchaErrors))
+          activationFormParams(currentUser.user.nick, activation) + ("error" -> captchaErrorMessage(captchaErrors))
 
         new ModelAndView("activate", params.asJava)
       else if !secretTokenService.verifyActivationCode(currentUser.user.nick, newEmail, regdate, activation) then
