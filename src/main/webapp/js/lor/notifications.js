@@ -39,13 +39,18 @@ $(document).ready(function () {
     }
 
     function getUnreadCounterText(count) {
-      const mod10 = count % 10;
+      if (count === 0) {
+        return 'У вас нет непрочитанных уведомлений';
+      }
 
-      if (count === 1 || (count > 20 && mod10 === 1)) {
+      const mod10 = count % 10;
+      const mod100 = count % 100;
+
+      if (mod10 === 1 && mod100 !== 11) {
         return 'У вас ' + count + ' непрочитанное уведомление';
       }
 
-      if (count === 2 || count === 3 || (count > 20 && (mod10 === 2 || mod10 === 3))) {
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
         return 'У вас ' + count + ' непрочитанных уведомления';
       }
 
@@ -65,15 +70,14 @@ $(document).ready(function () {
         return;
       }
 
-      const nextCount = currentCount - getUnreadDelta(button);
-
-      if (nextCount <= 0) {
-        counterBlock.remove();
-        return;
-      }
+      const nextCount = Math.max(currentCount - getUnreadDelta(button), 0);
 
       counterBlock.attr('data-unread-count', nextCount);
       $('#counter_text').text(getUnreadCounterText(nextCount));
+
+      if (nextCount === 0) {
+        $('#reset_form').remove();
+      }
     }
 
     function handleClick(event, openInNewTab) {

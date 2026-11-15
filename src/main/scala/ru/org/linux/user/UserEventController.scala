@@ -171,10 +171,10 @@ class UserEventController(feedView: UserEventFeedView, userService: UserService,
 
       val prepared = prepareService.prepareGrouped(list, !currentUser.profile.oldNotifications)
 
-      if (list.nonEmpty) {
-        params.put("enableReset", true)
+      params.put("enableReset", list.nonEmpty && currentUser.user.unreadEvents > 0)
+
+      if list.nonEmpty then
         params.put("topId", prepared.view.map(_.lastId).max)
-      }
 
       val sliced = prepared.slice(offset, offset + topics).take(topics)
 

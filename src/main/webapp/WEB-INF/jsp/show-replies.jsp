@@ -79,13 +79,10 @@
 <c:if test="${unreadCount > 0}">
   <div id="counter_block" class="infoblock">
     <c:choose>
-      <c:when test="${unreadCount == 1 || (unreadCount>20 && unreadCount%10==1) }">
+      <c:when test="${unreadCount % 10 == 1 && unreadCount % 100 != 11}">
         У вас ${unreadCount} непрочитанное уведомление
       </c:when>
-      <c:when test="${unreadCount == 2 || (unreadCount>20 && unreadCount%10==2)}">
-        У вас ${unreadCount} непрочитанных уведомления
-      </c:when>
-      <c:when test="${unreadCount == 3 || (unreadCount>20 && unreadCount%10==3)}">
+      <c:when test="${unreadCount % 10 >= 2 && unreadCount % 10 <= 4 && (unreadCount % 100 < 12 || unreadCount % 100 > 14)}">
         У вас ${unreadCount} непрочитанных уведомления
       </c:when>
       <c:otherwise>
