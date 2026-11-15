@@ -161,7 +161,7 @@ class ReactionRateLimitConcurrencyIntegrationTest extends FunSuite with SpringTe
         try
           results.add(Right(job()))
         catch
-          case e: Throwable =>
+          case e: Exception =>
             results.add(Left(e))
         finally
           doneGate.countDown()

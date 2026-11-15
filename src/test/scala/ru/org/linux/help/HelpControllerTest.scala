@@ -16,7 +16,7 @@
 package ru.org.linux.help
 
 import munit.FunSuite
-import org.mockito.ArgumentMatchers.*
+import org.mockito.ArgumentMatchers.{anyBoolean, anyString}
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
