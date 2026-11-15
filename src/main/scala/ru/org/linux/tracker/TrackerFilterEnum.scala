@@ -17,7 +17,7 @@ package ru.org.linux.tracker
 enum TrackerFilterEnum(val value: String, val label: String, val canBeDefault: Boolean) extends Enum[TrackerFilterEnum]:
   case ALL extends TrackerFilterEnum("all", "все", true)
   case MAIN extends TrackerFilterEnum("main", "основные", true)
-  case NOTALKS extends TrackerFilterEnum("notalks", "без talks", false)
+  case NOTALKS extends TrackerFilterEnum("notalks", "без talks", true)
   case TECH extends TrackerFilterEnum("tech", "тех. форум", false)
 
   def getValue: String = value
