@@ -1091,11 +1091,12 @@
       <plugin>
         <groupId>org.liquibase</groupId>
         <artifactId>liquibase-maven-plugin</artifactId>
-        <version>4.17.2</version>
+        <version>5.0.4</version>
 
         <configuration>
           <propertyFile>sql/liquibase.config</propertyFile>
           <verbose>true</verbose>
+          <analyticsEnabled>false</analyticsEnabled>
         </configuration>
         <executions>
           <execution>
