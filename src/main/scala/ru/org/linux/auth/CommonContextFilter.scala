@@ -71,6 +71,11 @@ class CommonContextFilter(siteConfig: SiteConfig, ipBlockService: IpBlockService
 
     response.addHeader("Cache-Control", "private")
 
+    // Ник авторизованного пользователя — для access.log nginx ($upstream_http_x_lor_user);
+    // nginx прячет заголовок от клиента (proxy_hide_header). Ник — ASCII [a-z0-9_-] (StringUtil.checkLoginName).
+    if currentUser != null then
+      response.setHeader("X-Lor-User", currentUser.nick)
+
     chain.doFilter(req, res)
 
   private def getCookies(request: HttpServletRequest): Map[String, String] =
