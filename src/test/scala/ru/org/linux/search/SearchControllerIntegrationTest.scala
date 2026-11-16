@@ -17,7 +17,7 @@ package ru.org.linux.search
 
 import munit.FunSuite
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{clearInvocations, never, times, verify, when}
 import org.opensearch.client.opensearch.OpenSearchClient
 import org.opensearch.client.opensearch._types.ShardStatistics
 import org.opensearch.client.opensearch._types.aggregations.{Aggregate, SignificantStringTermsBucket, StringTermsBucket}
@@ -25,6 +25,7 @@ import org.opensearch.client.opensearch.core.{SearchRequest, SearchResponse}
 import org.opensearch.client.opensearch.core.search.{HitsMetadata, TotalHits, TotalHitsRelation}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.{Bean, Configuration}
+import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -33,18 +34,20 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.web.WebAppConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.{redirectedUrl, status}
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.{header, redirectedUrl, status}
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
 import org.springframework.web.context.WebApplicationContext
 import ru.org.linux.PekkoConfiguration
 import ru.org.linux.auth.{IpBlockInfo, UserDetailsImpl}
 import ru.org.linux.group.GroupService
 import ru.org.linux.section.SectionService
+import ru.org.linux.spring.SiteConfig
 import ru.org.linux.test.SpringTestSupport
 import ru.org.linux.topic.TopicIntegrationTestConfiguration
 import ru.org.linux.user.{Profile, User, UserService}
 
 import java.time.ZoneId
+import java.util.Properties
 
 @WebAppConfiguration
 @ContextConfiguration(classes = Array(
@@ -133,6 +136,32 @@ class SearchControllerIntegrationTest extends FunSuite with SpringTestSupport:
 
     mockMvc.perform(get("/search.jsp").param("q", "test").param("offset", "2500")).andExpect(status.isOk)
 
+  test("search rate limit returns 429 after anonymous limit is exceeded"):
+    stubEmptySearch()
+    // мок общий на весь кэшируемый контекст — сбрасываем историю вызовов для точного verify
+    clearInvocations(elastic)
+
+    // выделенный IP, чтобы бюджет теста не пересекался с другими тестами класса
+    val request = get("/search.jsp")
+      .param("q", "test")
+      .`with` { (req: MockHttpServletRequest) =>
+        req.setRemoteAddr("10.9.9.9")
+        req
+      }
+
+    for _ <- 1 to SearchRateLimiter.AnonymousLimit.toInt do
+      mockMvc.perform(request).andExpect(status.isOk)
+
+    mockMvc
+      .perform(request)
+      .andExpect(status.isTooManyRequests)
+      .andExpect(header().string("Retry-After", SearchRateLimiter.RetryAfterSeconds.toString))
+
+    // поисковый бэкенд дёргался ровно столько раз, сколько разрешено лимитом
+    verify(elastic, times(SearchRateLimiter.AnonymousLimit.toInt)).search(
+      any[SearchRequest](),
+      any[Class[MessageIndexDocument]]())
+
 end SearchControllerIntegrationTest
 
 @Configuration
@@ -143,4 +172,11 @@ class SearchControllerIntegrationTestConfiguration:
       userService: UserService,
       groupService: GroupService,
       searchService: SearchService): SearchController =
-    new SearchController(sectionService, userService, groupService, searchService)
+    new SearchController(sectionService, userService, groupService, searchService, enabledRateLimiter)
+
+  // в тестовом контексте MainUrl = 127.0.0.1 (config.properties.dist), при котором лимитер выключен;
+  // собираем включённый лимитер вручную, чтобы проверить цепочку 429 end-to-end
+  private def enabledRateLimiter: SearchRateLimiter =
+    val props = new Properties()
+    props.setProperty("MainUrl", "http://www.linux.org.ru/")
+    new SearchRateLimiter(new SiteConfig(props))

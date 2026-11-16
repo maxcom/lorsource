@@ -15,12 +15,15 @@
 package ru.org.linux.search
 
 import com.google.common.base.Strings
+import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.WebDataBinder
-import org.springframework.web.bind.annotation.{InitBinder, ModelAttribute, RequestAttribute, RequestMapping,
-  RequestMethod}
+import org.springframework.web.bind.annotation.{ExceptionHandler, InitBinder, ModelAttribute, RequestAttribute,
+  RequestMapping, RequestMethod, ResponseStatus}
+import org.springframework.web.servlet.ModelAndView
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
 import ru.org.linux.group.GroupService
 import ru.org.linux.search.SearchEnums.SearchInterval
@@ -41,7 +44,8 @@ class SearchController(
     sectionService: SectionService,
     userService: UserService,
     groupService: GroupService,
-    searchService: SearchService):
+    searchService: SearchService,
+    searchRateLimiter: SearchRateLimiter):
   @ModelAttribute("sorts")
   def getSorts: java.util.Map[String, String] =
     // VectorMap preserves order!
@@ -57,6 +61,7 @@ class SearchController(
 
   @RequestMapping(value = Array("/search.jsp"), method = Array(RequestMethod.GET, RequestMethod.HEAD))
   def search(
+      request: HttpServletRequest,
       model: Model,
       @ModelAttribute("query")
       query: SearchServiceRequest,
@@ -72,6 +77,9 @@ class SearchController(
       else
         if !query.isInitial && !bindingResult.hasErrors then
           sanitizeQuery(query)
+
+          // учитываются только запросы, реально доходящие до поискового бэкенда
+          searchRateLimiter.check(request.getRemoteAddr, session.userOpt.orNull)
 
           val response = searchService.performSearch(query, tz)
 
@@ -111,6 +119,15 @@ class SearchController(
 
         "search"
     }
+
+  @ExceptionHandler(Array(classOf[SearchRateLimitException])) @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+  def handleRateLimit(response: HttpServletResponse): ModelAndView =
+    response.setHeader("Retry-After", SearchRateLimiter.RetryAfterSeconds.toString)
+    new ModelAndView(
+      "errors/good-penguin",
+      Map(
+        "msgTitle" -> "Слишком много поисковых запросов",
+        "msgHeader" -> "Слишком много поисковых запросов. Попробуйте позже.").asJava)
 
   private def sanitizeQuery(query: SearchServiceRequest): Unit =
     if !Strings.isNullOrEmpty(query.section) then
