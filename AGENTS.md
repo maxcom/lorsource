@@ -21,6 +21,9 @@ mvn compile               # Compile main sources only
 mvn test-compile          # Compile main and test sources
 ```
 
+Scala compiles **before** Java (`scala-compile-first` execution at `process-resources`) with joint compilation —
+cross-language references work in both directions.
+
 ### Running Tests
 
 Test selection by class name suffix (all tests are MUnit `FunSuite` classes in `src/test/scala`):
@@ -38,6 +41,8 @@ mvn test -Dtest=TopicControllerIntegrationTest
 mvn test -Dtest=ru.org.linux.topic.TopicControllerIntegrationTest
 mvn test -Dtest=StringUtilTest#processTitle
 ```
+`-Dtest` overrides Surefire's includes/excludes, so this also runs a single `*IntegrationTest` class directly,
+skipping the Jetty/Liquibase lifecycle — but PostgreSQL must still be up.
 
 **Run integration tests / a single one:**
 ```bash
@@ -52,6 +57,10 @@ mvn integration-test -Dit.test=TopicControllerIntegrationTest
 2. Jetty starts the built webapp on port 8080 (`pre-integration-test`)
 3. Failsafe runs `*IntegrationTest` (Spring context, DB) and `*WebTest` (HTTP against the live Jetty)
 4. Jetty stops (`post-integration-test`)
+
+Test stdout/stderr is redirected to files (`redirectTestOutputToFile`), not the console — look in
+`target/surefire-reports/<Class>-output.txt` (unit) and `target/failsafe-reports/<Class>-output.txt` (integration)
+when debugging.
 
 ### Database & Environment Prerequisites
 
@@ -103,8 +112,10 @@ All users in the test database have password `passwd`:
 
 ### Ops Scripts (production)
 
-- `./install_www` — full production deploy: `mvn -P production clean package`, production Liquibase, rsync to Tomcat.
-- `deploy/server.xml` — production Tomcat config.
+- `./install_www` — full production deploy, run on the prod host (uses `sudo`): `./mvnw -T 1C -P production clean
+  package`, installs `deploy/tomcat-opt.service` + `deploy/nginx.conf`, production Liquibase, rsync to
+  `/var/lib/tomcat/webapps/ROOT`.
+- `deploy/` — production configs: Tomcat `server.xml`, systemd unit, nginx.
 
 ## Code Style
 
