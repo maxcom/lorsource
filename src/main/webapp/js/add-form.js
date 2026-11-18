@@ -14,6 +14,7 @@
  */
 
 const UNSAVED_WARNING = "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+const SWITCH_REPLY_WARNING = "Вы уже вводите комментарий. При ответе на другое сообщение набранный текст будет потерян. Переключиться?";
 
 function getCsrf() {
   const cookies = Object.fromEntries(
@@ -630,6 +631,17 @@ $script.ready('jquery', function() {
       };
 
       const toggleCommentForm = (type, id, authorReadonly, quoteText) => {
+        const replyToValue = type === REPLY_TYPE ? id : 0;
+
+        const wouldLoseDraft =
+          isInlineFormVisible() &&
+          $("input[name='replyto']", commentFormContainer).val() !== String(replyToValue) &&
+          $("#msg").val() !== '';
+
+        if (wouldLoseDraft && !window.confirm(SWITCH_REPLY_WARNING)) {
+          return;
+        }
+
         updateCsrf();
         updateAuthorReadonlyNote(authorReadonly);
 
