@@ -15,7 +15,7 @@
 
 package ru.org.linux.search
 
-import com.google.common.cache.CacheBuilder
+import com.github.benmanes.caffeine.cache.{Cache, Caffeine}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.lucene.analysis.CharArraySet
 import org.apache.lucene.analysis.ru.RussianAnalyzer
@@ -36,7 +36,8 @@ import ru.org.linux.section.SectionService
 import ru.org.linux.tag.TagRef
 import ru.org.linux.topic.Topic
 
-import java.time.{Duration, Instant, ZoneId}
+import java.time.{Instant, ZoneId}
+import java.util.concurrent.TimeUnit
 import scala.beans.BeanProperty
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,11 +57,19 @@ class MoreLikeThisService(
 
   private type Result = java.util.List[java.util.List[MoreLikeThisTopic]]
 
-  private val cache = CacheBuilder
+  private[search] val cache: Cache[Int, Result] = Caffeine
     .newBuilder()
     .maximumSize(CacheSize)
-    .expireAfterWrite(Duration.ofHours(1))
-    .build[Integer, Result]()
+    .expireAfterWrite(1, TimeUnit.HOURS)
+    .build[Int, Result]
+
+  // "Устаревший" кеш: отдаётся фолбэком при сбое OpenSearch, чтобы блок «похожие темы»
+  // не исчезал на время падения поиска
+  private[search] val staleCache: Cache[Int, Result] = Caffeine
+    .newBuilder()
+    .maximumSize(CacheSize)
+    .expireAfterWrite(StaleTtlHours, TimeUnit.HOURS)
+    .build[Int, Result]
 
   private val breaker = new CircuitBreaker(
     scheduler = scheduler,
@@ -89,15 +98,19 @@ class MoreLikeThisService(
               val grouped: Iterator[Vector[MoreLikeThisTopic]] = hits.map(processHit).grouped(half).map(_.toVector)
               val listOfLists: Result = grouped.map(_.asJava).toVector.asJava
 
+              cache.put(topic.id, listOfLists)
+              staleCache.put(topic.id, listOfLists)
+
               listOfLists
             } else {
-              Seq().asJava
+              val empty: Result = Seq().asJava
+
+              cache.put(topic.id, empty)
+              staleCache.put(topic.id, empty)
+
+              empty
             }
           }
-
-        result.foreach { v =>
-          cache.put(topic.id, v)
-        }
 
         result
       }
@@ -141,14 +154,32 @@ class MoreLikeThisService(
       } catch {
         case _: CircuitBreakerOpenException =>
           logger.debug("Similar topics circuit breaker is open")
-          Option(cache.getIfPresent(topic.id)).getOrElse(Seq().asJava)
+          cachedOrNothing(topic)
         case ex: TimeoutException =>
           logger.warn(s"Similar topics lookup timed out (${ex.getMessage})")
-          Option(cache.getIfPresent(topic.id)).getOrElse(Seq().asJava)
+          cachedOrNothing(topic)
         case NonFatal(ex) =>
           logger.warn("Unable to find similar topics", ex)
-          Option(cache.getIfPresent(topic.id)).getOrElse(Seq().asJava)
+          cachedOrNothing(topic)
       }
+    }
+  }
+
+  /**
+   * Фолбэк при сбое поиска. Свежий кэш перепроверяем, потому что параллельный запрос
+   * мог успеть заполнить его за время ожидания.
+   */
+  private def cachedOrNothing(topic: Topic): Result = {
+    val fresh = Option(cache.getIfPresent(topic.id))
+
+    fresh.getOrElse {
+      val stale = Option(staleCache.getIfPresent(topic.id))
+
+      if (stale.isDefined) {
+        logger.debug(s"Serving stale similar topics (topic=${topic.id})")
+      }
+
+      stale.getOrElse(Seq().asJava)
     }
   }
 
@@ -209,6 +240,7 @@ class MoreLikeThisService(
 
 object MoreLikeThisService {
   private val CacheSize = 10000
+  private val StaleTtlHours = 48
 
   private val StopWords: Seq[String] = {
     val stop = RussianAnalyzer.getDefaultStopSet.asScala.map(arr => new String(arr.asInstanceOf[Array[Char]]))
