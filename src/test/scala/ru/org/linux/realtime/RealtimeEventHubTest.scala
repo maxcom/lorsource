@@ -19,19 +19,21 @@ import munit.FunSuite
 import org.apache.pekko.actor.typed.{ActorSystem, Scheduler}
 import org.apache.pekko.actor.typed.scaladsl.AskPattern.Askable
 import org.apache.pekko.util.Timeout
-import org.mockito.Mockito.{mock, never, timeout, verify, when}
-import org.springframework.web.socket.WebSocketSession
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{mock, never, timeout, times, verify, when}
+import org.springframework.web.socket.{TextMessage, WebSocketSession}
 import ru.org.linux.user.IgnoreListDao
 
 import scala.concurrent.Await
 import scala.concurrent.duration.*
 
-/** Юнит-тесты закрытия websocket-соединений пользователя ([[RealtimeEventHub.CloseUserSessions]]). */
+/** Юнит-тесты realtime-хаба: закрытие сессий пользователя и доставка пропущенных комментариев. */
 class RealtimeEventHubTest extends FunSuite:
   private given Timeout: Timeout = 10.seconds
 
-  private def startHub(name: String): ActorSystem[RealtimeEventHub.Protocol] =
-    ActorSystem(RealtimeEventHub.behavior(mock(classOf[IgnoreListDao])), name)
+  private def startHub(name: String, ignoreListDao: IgnoreListDao = mock(classOf[IgnoreListDao])):
+    ActorSystem[RealtimeEventHub.Protocol] =
+    ActorSystem(RealtimeEventHub.behavior(ignoreListDao), name)
 
   private def stopHub(hub: ActorSystem[RealtimeEventHub.Protocol]): Unit =
     hub.terminate()
@@ -104,5 +106,73 @@ class RealtimeEventHubTest extends FunSuite:
       RealtimeEventHub.closeUserSessions(hub, 42)
 
       verify(anonymous, never()).close()
+    finally
+      stopHub(hub)
+
+  test("missed comments are delivered as single aggregate frame"):
+    val hub = startHub("missed-comments-aggregate-test")
+    try
+      given Scheduler = hub.scheduler
+
+      val session = mockSession("aggregate")
+
+      Await.result(hub.ask(RealtimeEventHub.SessionStarted(session, None, _)), 10.seconds)
+      Await.result(hub.ask(RealtimeEventHub.SubscribeTopic(session, 1, Vector(5, 6, 7), _)), 10.seconds)
+
+      verify(session, timeout(10000)).sendMessage(new TextMessage("comments 5 3"))
+      verify(session, times(1)).sendMessage(any[TextMessage]())
+    finally
+      stopHub(hub)
+
+  test("missed comments aggregate excludes ignored comments"):
+    val ignoreListDao = mock(classOf[IgnoreListDao])
+    when(ignoreListDao.isIgnored(42, 6)).thenReturn(true)
+
+    val hub = startHub("missed-comments-ignored-test", ignoreListDao)
+    try
+      given Scheduler = hub.scheduler
+
+      val session = mockSession("ignored")
+
+      Await.result(hub.ask(RealtimeEventHub.SessionStarted(session, Some(42), _)), 10.seconds)
+      Await.result(hub.ask(RealtimeEventHub.SubscribeTopic(session, 1, Vector(5, 6, 7), _)), 10.seconds)
+
+      verify(session, timeout(10000)).sendMessage(new TextMessage("comments 5 2"))
+      verify(session, times(1)).sendMessage(any[TextMessage]())
+    finally
+      stopHub(hub)
+
+  test("subscribe without missed comments sends nothing"):
+    val hub = startHub("missed-comments-empty-test")
+    try
+      given Scheduler = hub.scheduler
+
+      val session = mockSession("empty")
+
+      Await.result(hub.ask(RealtimeEventHub.SessionStarted(session, None, _)), 10.seconds)
+      Await.result(hub.ask(RealtimeEventHub.SubscribeTopic(session, 1, Vector.empty, _)), 10.seconds)
+
+      verify(session, never()).sendMessage(any[TextMessage]())
+    finally
+      stopHub(hub)
+
+  test("live comment duplicated in backlog is suppressed"):
+    val hub = startHub("missed-comments-duplicate-test")
+    try
+      given Scheduler = hub.scheduler
+
+      val session = mockSession("duplicate")
+
+      Await.result(hub.ask(RealtimeEventHub.SessionStarted(session, None, _)), 10.seconds)
+      Await.result(hub.ask(RealtimeEventHub.SubscribeTopic(session, 1, Vector(5, 6), _)), 10.seconds)
+
+      verify(session, timeout(10000)).sendMessage(new TextMessage("comments 5 2"))
+
+      hub ! RealtimeEventHub.NewComment(1, 6)
+      hub ! RealtimeEventHub.NewComment(1, 7)
+
+      verify(session, timeout(10000)).sendMessage(new TextMessage("comment 7"))
+      verify(session, never()).sendMessage(new TextMessage("comment 6"))
+      verify(session, times(2)).sendMessage(any[TextMessage]())
     finally
       stopHub(hub)

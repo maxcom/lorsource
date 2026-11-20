@@ -79,7 +79,7 @@
     $script('/js/add-form.js?MAVEN_BUILD_TIMESTAMP');
   </c:if>
 
-  <c:if test="${not message.expired and not pages.hasNext}">
+  <c:if test="${realtimeEnabled}">
     $script.ready('realtime', function() {
         RealtimeContext.setupTopic(${message.id}, "${message.link}", ${lastCommentId})
         RealtimeContext.start("${configuration.WSUrl}")

@@ -14,19 +14,24 @@
  */
 
 (function () {
+  const COMMENT_PREFIX = 'comment ';
+  const COMMENTS_PREFIX = 'comments ';
+  const EVENTS_REFRESH = 'events-refresh';
+  const RECONNECT_DELAY = 5000;
+
   function updateCount(countEl, numberEl) {
     $.ajax({
-      url: "/notifications-count",
+      url: '/notifications-count',
       cache: false
     }).done(function (data) {
       const count = Number(data);
 
-      countEl.text(count === 0 ? "" : "(" + count + ")");
+      countEl.text(count === 0 ? '' : '(' + count + ')');
 
       if (count === 0) {
-        numberEl.removeClass("set").text("");
+        numberEl.removeClass('set').text('');
       } else {
-        numberEl.addClass("set").text(count);
+        numberEl.addClass('set').text(count);
       }
     });
   }
@@ -42,9 +47,88 @@
     });
   }
 
-  $script.ready('jquery', function () {
-    initUpdateEventsCount();
-  });
+  // обновление счётчика уведомлений по активности на странице; не чаще раза в секунду
+  let eventsCountTimer = null;
+
+  function scheduleEventsCountUpdate() {
+    if (eventsCountTimer !== null) {
+      return;
+    }
+
+    eventsCountTimer = setTimeout(function () {
+      eventsCountTimer = null;
+      initUpdateEventsCount();
+    }, 1000);
+  }
+
+  // форма выбора формы слова для русского числительного (правила как в comment-count.tag)
+  function pluralComments(count) {
+    const mod100 = count % 100;
+    const mod10 = count % 10;
+
+    if (mod100 >= 11 && mod100 <= 14) {
+      return "комментариев";
+    }
+
+    if (mod10 === 1) {
+      return "комментарий";
+    }
+
+    if (mod10 >= 2 && mod10 <= 4) {
+      return "комментария";
+    }
+
+    return "комментариев";
+  }
+
+  function newCommentsMessage(count) {
+    if (count % 10 === 1 && count % 100 !== 11) {
+      return `Был добавлен ${count} новый комментарий.`;
+    }
+
+    return `Было добавлено ${count} новых ${pluralComments(count)}.`;
+  }
+
+  // состояние переживает переподключения websocket-соединения
+  let newCommentsCount = 0;
+  let firstNewCommentId = null;
+
+  function renderNewComments() {
+    const banner = $('#realtime');
+
+    if (!banner.length || firstNewCommentId === null) {
+      return;
+    }
+
+    banner
+      .text(`${newCommentsMessage(newCommentsCount)} `)
+      .append($('<a>')
+        .attr('href', `${RealtimeContext.link}?cid=${encodeURIComponent(firstNewCommentId)}&skipdeleted=true`)
+        .text("Обновить."))
+      .show();
+  }
+
+  function onLiveComment(cid) {
+    if (firstNewCommentId === null || cid < firstNewCommentId) {
+      firstNewCommentId = cid;
+    }
+
+    newCommentsCount += 1;
+
+    renderNewComments();
+  }
+
+  function onMissedComments(firstCid, count) {
+    // сервер считает пропущенные от исходного lastCommentId страницы, поэтому его значение авторитетно
+    firstNewCommentId = firstCid;
+    newCommentsCount = count;
+
+    renderNewComments();
+  }
+
+  function isCommentSubmitting() {
+    return Boolean(window._commentSubmitting) || $('#commentForm').find('.spinner').length > 0;
+  }
 
   const RealtimeContext = {
     started: false,
@@ -69,36 +153,49 @@
           const ws = new WebSocket(`${wsUrl}ws`);
 
           ws.onmessage = function (event) {
-            initUpdateEventsCount(); // temporary solution
-
             if (typeof event.data !== 'string') {
               return;
             }
 
-            if (event.data.startsWith("comment ")) {
-              const comment = event.data.substring("comment ".length);
+            const data = event.data;
 
-              if (!$('#commentForm').find(".spinner").length && !window._commentSubmitting) {
-                if ($("#realtime").is(":hidden")) {
-                  $("#realtime")
-                      .text("Был добавлен новый комментарий. ")
-                      .append($("<a>").attr("href", `${RealtimeContext.link}?cid=${encodeURIComponent(comment)}&skipdeleted=true`).text("Обновить."))
-                      .show();
-                }
-              } else {
-                // retry in 5 seconds
-                ws.close();
+            if (data === EVENTS_REFRESH) {
+              initUpdateEventsCount();
+              return;
+            }
+
+            if (!data.startsWith(COMMENT_PREFIX) && !data.startsWith(COMMENTS_PREFIX)) {
+              return;
+            }
+
+            // при отправке комментария страница вот-вот перезагрузится — уведомление не показываем
+            if (isCommentSubmitting()) {
+              ws.close();
+              return;
+            }
+
+            if (data.startsWith(COMMENTS_PREFIX)) {
+              const parts = data.substring(COMMENTS_PREFIX.length).split(' ');
+              const firstCid = Number(parts[0]);
+              const count = Number(parts[1]);
+
+              if (Number.isInteger(firstCid) && Number.isInteger(count) && firstCid > 0 && count > 0) {
+                onMissedComments(firstCid, count);
+              }
+            } else {
+              const cid = Number(data.substring(COMMENT_PREFIX.length));
+
+              if (Number.isInteger(cid) && cid > 0) {
+                onLiveComment(cid);
               }
             }
+
+            scheduleEventsCountUpdate();
           };
 
           if (RealtimeContext.topic) {
             ws.onopen = function () {
-              if (RealtimeContext.cid === 0) {
-                ws.send(RealtimeContext.topic);
-              } else {
-                ws.send(`${RealtimeContext.topic} ${RealtimeContext.cid}`);
-              }
+              ws.send(`${RealtimeContext.topic} ${RealtimeContext.cid}`);
             };
           }
 
@@ -107,7 +204,7 @@
 
             setTimeout(function () {
               RealtimeContext.start(wsUrl);
-            }, 5000);
+            }, RECONNECT_DELAY);
           };
         });
       });

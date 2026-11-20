@@ -50,6 +50,8 @@ object RealtimeEventHub {
 
   case class NewComment(msgid: Int, cid: Int) extends Protocol
   case class NewCommentOnly(cid: Int) extends SessionProtocol
+  /** Комментарии, добавленные пока клиент не был подписан; доставляются одним агрегированным фреймом */
+  case class MissedComments(comments: Seq[Int]) extends SessionProtocol
   case class RefreshEvents(users: Set[Int]) extends SessionProtocol with Protocol
   case class CloseUserSessions(user: Int) extends Protocol
   private[realtime] case object Tick extends SessionProtocol with Protocol
@@ -63,6 +65,11 @@ object RealtimeEventHub {
 
   private[realtime] def notifyComment(session: WebSocketSession, comment: Int): Unit = {
     session.sendMessage(new TextMessage(s"comment $comment"))
+  }
+
+  /** Агрегированный бэклог: id самого старого пропущенного комментария и их количество */
+  private[realtime] def notifyComments(session: WebSocketSession, firstComment: Int, count: Int): Unit = {
+    session.sendMessage(new TextMessage(s"comments $firstComment $count"))
   }
 
   private[realtime] def notifyEvent(session: WebSocketSession): Unit = {
@@ -111,10 +118,9 @@ object RealtimeEventHub {
 
           topicSubscriptions += (topic -> actor)
 
-          missed.foreach { cid =>
-            context.log.debug(s"Sending missed comment $cid")
-            actor ! NewCommentOnly(cid)
-          }
+          if missed.nonEmpty then
+            context.log.debug(s"Sending ${missed.size} missed comments")
+            actor ! MissedComments(missed)
 
           replyTo ! Done
 
@@ -192,12 +198,29 @@ object RealtimeSessionActor {
             Behaviors.stopped
         }
 
+        // максимальный id доставленного комментария; live-события с меньшим id — дубликаты бэклога
+        var lastCid = 0
+
         Behaviors.receiveMessage[SessionProtocol] {
+          case MissedComments(comments) =>
+            try {
+              lastCid = math.max(lastCid, comments.maxOption.getOrElse(0))
+
+              val visible = comments.filterNot(cid => userId.exists(ignoreListDao.isIgnored(_, cid)))
+
+              if visible.nonEmpty then
+                notifyComments(session, visible.head, visible.size)
+
+              Behaviors.same
+            } catch handleExceptions
+
           case NewCommentOnly(cid) =>
             try {
-              if (userId.isEmpty || !ignoreListDao.isIgnored(userId.get, cid)) {
-                notifyComment(session, cid)
-              }
+              if cid > lastCid then
+                lastCid = cid
+
+                if userId.isEmpty || !ignoreListDao.isIgnored(userId.get, cid) then
+                  notifyComment(session, cid)
 
               Behaviors.same
             } catch handleExceptions

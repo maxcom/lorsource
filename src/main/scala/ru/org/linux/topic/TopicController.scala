@@ -290,6 +290,11 @@ class TopicController(sectionService: SectionService, topicDao: TopicDao, prepar
       params.put("pages", TopicController.buildPages(topic, filterModeShow, page))
     }
 
+    // realtime-уведомления о новых комментариях: только последняя страница полной ветки комментариев
+    // (не при просмотре удалённых и не в отдельном треде)
+    params.put("realtimeEnabled",
+      Boolean.box(!showDeleted && threadRoot == 0 && !topic.expired && page >= pages - 1))
+
     params.put("moreLikeThisGetter", new Callable[java.util.List[java.util.List[MoreLikeThisTopic]]] {
       override def call(): util.List[util.List[MoreLikeThisTopic]] =
         moreLikeThisService.resultsOrNothing(topic, moreLikeThis, deadline)
