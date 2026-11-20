@@ -169,3 +169,15 @@ class TopicServiceIntegrationTest extends FunSuite with TransactionalTestSupport
       commitTopic(5)
 
     assertEquals(userService.getUser("maxcom").getScore, scoreBefore + 5)
+
+  test("uncommit increments lastmod"):
+    val id = createTopic(RawTitle)
+
+    springDB.localTx:
+      assert(topicDao.commit(topicDao.getById(id), user))
+      val committed = topicDao.getById(id)
+      topicDao.uncommit(committed)
+
+      val after = topicDao.getById(id)
+      assert(!after.commited)
+      assert(after.lastModified.after(committed.lastModified), "uncommit должен инкрементировать lastmod")

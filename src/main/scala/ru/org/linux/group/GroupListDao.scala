@@ -57,7 +57,7 @@ class GroupListDao(springDB: SpringDB):
       offset = offset,
       sortByTopic = false,
       commentInterval = sqls"AND comments.postdate > CURRENT_TIMESTAMP - '6 month'::interval",
-      topicInterval = sqls"t.postdate > CURRENT_TIMESTAMP - '6 month'::interval",
+      topicInterval = sqls"COALESCE(t.commitdate, t.postdate) > CURRENT_TIMESTAMP - '6 month'::interval",
       showIgnored = false,
       showDeleted = false,
       showUncommited = false
@@ -162,7 +162,7 @@ class GroupListDao(springDB: SpringDB):
       offset = offset,
       sortByTopic = false,
       commentInterval = sqls"AND comments.postdate > CURRENT_TIMESTAMP - '7 days'::interval",
-      topicInterval = sqls"t.postdate > CURRENT_TIMESTAMP - '7 days'::interval",
+      topicInterval = sqls"COALESCE(t.commitdate, t.postdate) > CURRENT_TIMESTAMP - '7 days'::interval",
       showIgnored = false,
       showDeleted = false,
       showUncommited = filter == TrackerFilterEnum.ALL || session.moderator || session.corrector
@@ -189,6 +189,14 @@ class GroupListDao(springDB: SpringDB):
         sqls"ORDER BY topic_postdate DESC"
       else
         sqls"ORDER BY comment_postdate DESC LIMIT $topics OFFSET $offset"
+
+    /** Дата топика в ветке без свежих комментариев; для трекера — эффективная дата
+      * (commitdate подтверждённого топика, см. Topic.getEffectiveDate), иначе postdate */
+    val topicDate: SQLSyntax =
+      if sortByTopic then
+        sqls"postdate"
+      else
+        sqls"COALESCE(t.commitdate, t.postdate)"
 
     val userId =
       if session.authorized && !showIgnored then
@@ -240,7 +248,7 @@ class GroupListDao(springDB: SpringDB):
         SELECT
         t.userid as author, t.id, t.stat1 AS stat1, gtitle, t.title AS title,
         0, 0, t.resolved as resolved, section, urlname,
-        postdate as comment_postdate, smod, t.moderate, t.sticky,
+        $topicDate as comment_postdate, smod, t.moderate, t.sticky,
         t.postdate as topic_postdate, t.deleted, t.postscore as topic_postscore
         FROM topics AS t $whereTopicInterval) as tracker ORDER BY id, comment_postdate DESC) tracker $outerSortLimit"""
         .map(mapTopicsListItem)

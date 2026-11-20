@@ -139,7 +139,7 @@ class TopicDao(springDB: SpringDB):
       .apply()
 
   def uncommit(msg: Topic)(using Transaction): Unit =
-    sql"UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=${msg.id}".update.apply()
+    sql"UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL,lastmod=lastmod+'1 second'::interval WHERE id=${msg.id}".update.apply()
 
   def getPreviousMessage(message: Topic, currentUser: User, scrollMode: SectionScrollModeEnum): Option[Topic] =
     if message.sticky then

@@ -23,12 +23,16 @@ import ru.org.linux.scalikejdbc.SpringDB
 import ru.org.linux.test.TransactionalTestSupport
 import ru.org.linux.tracker.TrackerFilterEnum
 import ru.org.linux.user.{Profile, UserDao, UserService}
+import scalikejdbc.*
 
 @ContextConfiguration(classes = Array(classOf[GroupListDaoIntegrationTestConfiguration]))
 class GroupListDaoIntegrationTest extends FunSuite with TransactionalTestSupport:
 
   @Autowired
   var groupListDao: GroupListDao = scala.compiletime.uninitialized
+
+  @Autowired
+  var springDB: SpringDB = scala.compiletime.uninitialized
 
   @Autowired
   var userDao: UserDao = scala.compiletime.uninitialized
@@ -114,6 +118,31 @@ class GroupListDaoIntegrationTest extends FunSuite with TransactionalTestSupport
       assert(topic.groupUrlName != null, "Group URL name should not be null")
       assert(topic.section > 0, "Section should be positive")
     }
+
+  private val GalleryGroupId = 4962 // группа «Скриншоты» премодерируемой секции «Галерея»
+
+  test("trackerCommitedTopicRisesToTop"):
+    val topicId = springDB.run:
+      val id = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
+      sql"""INSERT INTO topics (id, groupid, userid, title, moderate, postdate, lastmod, deleted, draft)
+            VALUES ($id, $GalleryGroupId, 1, 'Топик для проверки сортировки трекера', 'f',
+                    CURRENT_TIMESTAMP - '30 days'::interval, CURRENT_TIMESTAMP, 'f', 'f')""".update.apply()
+      id
+
+    val before = groupListDao.getTrackerTopics(TrackerFilterEnum.ALL, 0)(using anonymousSession)
+    assert(!before.exists(_.topicId == topicId), "старый неподтверждённый топик не должен попадать в трекер")
+
+    // подтверждение (эквивалент TopicDao.commit)
+    springDB.run:
+      sql"""UPDATE topics SET moderate='t', commitby=1, commitdate=CURRENT_TIMESTAMP, lastmod=CURRENT_TIMESTAMP
+            WHERE id = $topicId AND NOT moderate""".update.apply()
+
+    val after = groupListDao.getTrackerTopics(TrackerFilterEnum.ALL, 0)(using anonymousSession)
+    assert(after.exists(_.topicId == topicId), "подтверждённый топик должен попасть в трекер")
+    assertEquals(after.head.topicId, topicId, "подтверждённый топик должен подняться на первое место (по commitdate)")
+
+    val groupTracker = groupListDao.getGroupTrackerTopics(GalleryGroupId, 0, None)(using anonymousSession)
+    assert(groupTracker.exists(_.topicId == topicId), "подтверждённый топик должен попасть в активные темы группы")
 
 end GroupListDaoIntegrationTest
 
