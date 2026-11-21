@@ -19,31 +19,29 @@
   const EVENTS_REFRESH = 'events-refresh';
   const RECONNECT_DELAY = 5000;
 
-  function updateCount(countEl, numberEl) {
+  // один запрос вместо отдельного запроса на каждого потребителя; результат
+  // рассылается страничным скриптам документным событием events-refresh
+  function updateEventsCount() {
     $.ajax({
       url: '/notifications-count',
       cache: false
     }).done(function (data) {
       const count = Number(data);
 
-      countEl.text(count === 0 ? '' : '(' + count + ')');
-
-      if (count === 0) {
-        numberEl.removeClass('set').text('');
-      } else {
-        numberEl.addClass('set').text(count);
-      }
-    });
-  }
-
-  function initUpdateEventsCount() {
-    $(function () {
       const countEl = $('#main_events_count');
       const numberEl = $('#main_events_count_number');
 
       if (countEl.length > 0 || numberEl.length > 0) {
-        updateCount(countEl, numberEl);
+        countEl.text(count === 0 ? '' : '(' + count + ')');
+
+        if (count === 0) {
+          numberEl.removeClass('set').text('');
+        } else {
+          numberEl.addClass('set').text(count);
+        }
       }
+
+      $(document).trigger(EVENTS_REFRESH, count);
     });
   }
 
@@ -57,7 +55,7 @@
 
     eventsCountTimer = setTimeout(function () {
       eventsCountTimer = null;
-      initUpdateEventsCount();
+      updateEventsCount();
     }, 1000);
   }
 
@@ -160,7 +158,7 @@
             const data = event.data;
 
             if (data === EVENTS_REFRESH) {
-              initUpdateEventsCount();
+              updateEventsCount();
               return;
             }
 
