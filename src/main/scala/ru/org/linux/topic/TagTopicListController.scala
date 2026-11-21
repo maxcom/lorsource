@@ -84,10 +84,11 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
 
     val section = sectionService.getSection(sectionId)
 
-    val countF = tagService.countTagTopics(tag = tag, section = Some(section), deadline = deadline)
-
     (tagService.getTagInfo(tag, skipZero = true) match {
       case Some(tagInfo) =>
+        // не дёргаем OpenSearch для несуществующего тега
+        val countF = tagService.countTagTopics(tag = tag, section = Some(section), deadline = deadline)
+
         val forumMode = section.id == Section.Forum
 
         val modelAndView = new ModelAndView(if (forumMode) "tag-topics-forum-new" else "tag-topics")
@@ -152,8 +153,9 @@ class TagTopicListController(userTagService: UserTagService, sectionService: Sec
         if (preparedTopics.isEmpty) {
           Future.successful(new ModelAndView("errors/code404"))
         } else {
+          // при недоступности OpenSearch счётчик берём из БД (tags_values.counter)
           countF.map { count =>
-            modelAndView.addObject("counter", count.getOrElse(0))
+            modelAndView.addObject("counter", count.getOrElse(tagInfo.topicCount.toLong))
             modelAndView
           }
         }

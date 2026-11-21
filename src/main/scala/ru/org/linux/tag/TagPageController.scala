@@ -16,6 +16,7 @@ package ru.org.linux.tag
 
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.text.WordUtils
+import org.apache.pekko.pattern.CircuitBreakerOpenException
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{PathVariable, RequestAttribute, RequestMapping, RequestMethod}
 import org.springframework.web.servlet.ModelAndView
@@ -116,6 +117,10 @@ class TagPageController(tagService: TagService, prepareService: TopicPrepareServ
         ) ++ sections ++ favs
 
         val safeRelatedF = relatedF.recover {
+          case _: CircuitBreakerOpenException =>
+            // не WARN: открытие breaker'а уже отрапортовано onOpen
+            logger.debug("Tag related search skipped, tag search circuit breaker is open")
+            None
           case ex: TimeoutException =>
             logger.warn(s"Tag related search timed out (${ex.getMessage})")
             None
