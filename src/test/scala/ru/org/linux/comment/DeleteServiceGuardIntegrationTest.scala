@@ -46,8 +46,7 @@ import java.sql.Timestamp
   * Обратное направление гонки закрыто перепроверками в CommentCreateService.create: комментарий откатывается, если тема
   * или родительский комментарий удалены параллельно с его добавлением.
   *
-  * Также покрывают обновление topics.lastmod при удалении и восстановлении топика (сброс кэшей, ключающихся на дату
-  * модификации).
+  * Также покрывают обновление topics.lastmod при удалении и восстановлении топика.
   */
 @ContextConfiguration(classes = Array(classOf[DeleteServiceGuardIntegrationTestConfiguration]))
 class DeleteServiceGuardIntegrationTest extends FunSuite with TransactionalTestSupport:

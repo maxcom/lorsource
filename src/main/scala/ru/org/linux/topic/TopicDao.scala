@@ -55,8 +55,11 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .orNull
 
+  /** Ненулевой `scoreLossDelta` возвращает в `topics.score_loss` штраф удалённого комментария при его
+    * восстановлении.
+    */
   def updateLastmod(topicId: Int, scoreLossDelta: Int = 0)(using Transaction): Unit =
-    sql"UPDATE topics SET lastmod=lastmod+'1 second'::interval, score_loss=score_loss+$scoreLossDelta WHERE id=$topicId"
+    sql"UPDATE topics SET lastmod=CURRENT_TIMESTAMP, score_loss=score_loss+$scoreLossDelta WHERE id=$topicId"
       .update.apply()
 
   def getById(id: Int): Topic = findById(id).getOrElse(throw MessageNotFoundException(id))
@@ -86,8 +89,7 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .toVector
 
-  /** Пометить топик удалённым. `lastmod` обновляется на текущее время при фактическом переходе в удалённое
-     * состояние (предикат `NOT deleted`) — для сброса кэшей, ключающихся на `lastmod`.
+  /** Пометить топик удалённым; `lastmod` обновляется для сброса кэшей, опирающихся на дату модификации.
      *
      * @param msgid
      *   идентификационный номер топика
@@ -106,9 +108,8 @@ class TopicDao(springDB: SpringDB):
       sql"UPDATE topics SET deleted='t',sticky='f',lastmod=CURRENT_TIMESTAMP WHERE id=$msgid AND NOT deleted".update
         .apply() > 0
 
-  /** Восстановить удалённый топик. `lastmod` обновляется на текущее время при фактическом переходе в живое
-     * состояние (предикат `deleted`) — для сброса кэшей, ключающихся на `lastmod`; повторный вызов на живом
-     * топике состояние не меняет.
+  /** Восстановить удалённый топик. `lastmod` обновляется для сброса кэшей, опирающихся на дату
+     * модификации; повторный вызов на живом топике состояние не меняет.
      */
   def undelete(message: Topic)(using Transaction): Unit =
     sql"UPDATE topics SET deleted='f',lastmod=CURRENT_TIMESTAMP WHERE id=${message.id} AND deleted".update.apply()
@@ -146,7 +147,8 @@ class TopicDao(springDB: SpringDB):
       .apply()
 
   def uncommit(msg: Topic)(using Transaction): Unit =
-    sql"UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL,lastmod=lastmod+'1 second'::interval WHERE id=${msg.id}".update.apply()
+    sql"""UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL,lastmod=CURRENT_TIMESTAMP
+          WHERE id=${msg.id}""".update.apply()
 
   def getPreviousMessage(message: Topic, currentUser: User, scrollMode: SectionScrollModeEnum): Option[Topic] =
     if message.sticky then
@@ -271,7 +273,7 @@ class TopicDao(springDB: SpringDB):
   end getNextMessage
 
   def resolveMessage(msgid: Int, b: Boolean)(using Transaction): Unit =
-    sql"UPDATE topics SET resolved=$b,lastmod=lastmod+'1 second'::interval WHERE id=$msgid".update.apply()
+    sql"UPDATE topics SET resolved=$b,lastmod=CURRENT_TIMESTAMP WHERE id=$msgid".update.apply()
 
   def setTopicOptions(msg: Topic, postscore: Int, sticky: Boolean, notop: Boolean)(using Transaction): Unit =
     sql"UPDATE topics SET postscore=$postscore, sticky=$sticky, notop=$notop, lastmod=CURRENT_TIMESTAMP WHERE id=${msg

@@ -22,9 +22,12 @@ import ru.org.linux.group.GroupService
 import ru.org.linux.markup.MarkupType
 import ru.org.linux.msgbase.{MessageText, MsgbaseDao}
 import ru.org.linux.scalikejdbc.SpringDB
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.test.TransactionalTestSupport
 import ru.org.linux.user.{User, UserErrorException, UserService}
 import scalikejdbc.*
+
+import java.sql.Timestamp
 
 /** Raw-заголовок топика хранится в БД без типографики; Topic.title (makeTitle) — только для отображения.
   * Заголовок из формы не должен сравниваться с типографированным значением и не должен писаться
@@ -170,14 +173,19 @@ class TopicServiceIntegrationTest extends FunSuite with TransactionalTestSupport
 
     assertEquals(userService.getUser("maxcom").getScore, scoreBefore + 5)
 
-  test("uncommit increments lastmod"):
+  test("uncommit updates lastmod"):
     val id = createTopic(RawTitle)
 
     springDB.localTx:
       assert(topicDao.commit(topicDao.getById(id), user))
       val committed = topicDao.getById(id)
+      // CURRENT_TIMESTAMP внутри транзакции заморожен: commit уже записал то же значение,
+      // поэтому для проверки обновления выставляем явно старую дату
+      sql"UPDATE topics SET lastmod='2001-01-01' WHERE id = $id".update.apply()
+
       topicDao.uncommit(committed)
 
       val after = topicDao.getById(id)
       assert(!after.commited)
-      assert(after.lastModified.after(committed.lastModified), "uncommit должен инкрементировать lastmod")
+      assert(after.lastModified.after(Timestamp.valueOf("2001-01-01 00:00:00")),
+        "uncommit должен обновлять lastmod на текущее время")
