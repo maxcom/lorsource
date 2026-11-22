@@ -32,6 +32,8 @@ import ru.org.linux.topic.{TopicDao, TopicPermissionService}
 import ru.org.linux.user.{IgnoreListDao, Profile, User, UserEventService, UserErrorException, UserService}
 import scalikejdbc.*
 
+import java.sql.Timestamp
+
 /** Интеграционные тесты защиты самоудаления от гонки с параллельным добавлением ответов (sast/final-report.md, находка
   * 42).
   *
@@ -43,6 +45,9 @@ import scalikejdbc.*
   *
   * Обратное направление гонки закрыто перепроверками в CommentCreateService.create: комментарий откатывается, если тема
   * или родительский комментарий удалены параллельно с его добавлением.
+  *
+  * Также покрывают обновление topics.lastmod при удалении и восстановлении топика (сброс кэшей, ключающихся на дату
+  * модификации).
   */
 @ContextConfiguration(classes = Array(classOf[DeleteServiceGuardIntegrationTestConfiguration]))
 class DeleteServiceGuardIntegrationTest extends FunSuite with TransactionalTestSupport:
@@ -162,6 +167,12 @@ class DeleteServiceGuardIntegrationTest extends FunSuite with TransactionalTestS
         .apply()
       sql"INSERT INTO msgbase (id, message) VALUES ($commentId, 'guard test body')".update.apply()
 
+  private val OldLastmod: Timestamp = Timestamp.valueOf("2001-01-01 00:00:00")
+
+  private def setOldLastmod(topicId: Int): Unit =
+    springDB.run:
+      sql"UPDATE topics SET lastmod=$OldLastmod WHERE id = $topicId".update.apply()
+
   test("selfDelete of topic refuses comment added after the topic was loaded (check/delete race)"):
     // имитация TOCTOU-окна: объект Topic загружен до появления комментария (commentCount=0),
     // в БД комментарий (и stat1=1) уже есть
@@ -197,6 +208,36 @@ class DeleteServiceGuardIntegrationTest extends FunSuite with TransactionalTestS
       moderatorSession)
 
     assert(topicDao.findById(emptyTopicId).get.deleted)
+
+  test("deleteTopic (moderator path) updates lastmod"):
+    setOldLastmod(emptyTopicId)
+
+    deleteService.deleteTopic(topicDao.getById(emptyTopicId), "guard test", 0, selfDelete = false)(using
+      moderatorSession)
+
+    val topic = topicDao.findById(emptyTopicId).get
+    assert(topic.deleted)
+    assert(topic.lastModified.after(OldLastmod), "lastmod должен обновиться при удалении топика")
+
+  test("deleteTopic (selfDelete path) updates lastmod"):
+    setOldLastmod(emptyTopicId)
+
+    deleteService.deleteTopic(topicDao.getById(emptyTopicId), "guard test", 0, selfDelete = true)(using userSession)
+
+    val topic = topicDao.findById(emptyTopicId).get
+    assert(topic.deleted)
+    assert(topic.lastModified.after(OldLastmod), "lastmod должен обновиться при самоудалении топика")
+
+  test("undeleteTopic updates lastmod"):
+    springDB.run:
+      sql"UPDATE topics SET deleted='t' WHERE id = $emptyTopicId".update.apply()
+    setOldLastmod(emptyTopicId)
+
+    deleteService.undeleteTopic(topicDao.getById(emptyTopicId))(using moderatorSession)
+
+    val topic = topicDao.findById(emptyTopicId).get
+    assert(!topic.deleted)
+    assert(topic.lastModified.after(OldLastmod), "lastmod должен обновиться при восстановлении топика")
 
   test("deleteComment with checkForReply refuses comment with reply"):
     val parentId = nextMsgId

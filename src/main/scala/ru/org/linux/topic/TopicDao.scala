@@ -86,7 +86,8 @@ class TopicDao(springDB: SpringDB):
         .apply()
         .toVector
 
-  /** Пометить топик удалённым.
+  /** Пометить топик удалённым. `lastmod` обновляется на текущее время при фактическом переходе в удалённое
+     * состояние (предикат `NOT deleted`) — для сброса кэшей, ключающихся на `lastmod`.
      *
      * @param msgid
      *   идентификационный номер топика
@@ -99,12 +100,18 @@ class TopicDao(springDB: SpringDB):
      */
   def delete(msgid: Int, requireNoComments: Boolean = false)(using Transaction): Boolean =
     if requireNoComments then
-      sql"UPDATE topics SET deleted='t',sticky='f' WHERE id=$msgid AND NOT deleted AND stat1=0".update.apply() > 0
+      sql"""UPDATE topics SET deleted='t',sticky='f',lastmod=CURRENT_TIMESTAMP
+            WHERE id=$msgid AND NOT deleted AND stat1=0""".update.apply() > 0
     else
-      sql"UPDATE topics SET deleted='t',sticky='f' WHERE id=$msgid AND NOT deleted".update.apply() > 0
+      sql"UPDATE topics SET deleted='t',sticky='f',lastmod=CURRENT_TIMESTAMP WHERE id=$msgid AND NOT deleted".update
+        .apply() > 0
 
+  /** Восстановить удалённый топик. `lastmod` обновляется на текущее время при фактическом переходе в живое
+     * состояние (предикат `deleted`) — для сброса кэшей, ключающихся на `lastmod`; повторный вызов на живом
+     * топике состояние не меняет.
+     */
   def undelete(message: Topic)(using Transaction): Unit =
-    sql"UPDATE topics SET deleted='f' WHERE id=${message.id}".update.apply()
+    sql"UPDATE topics SET deleted='f',lastmod=CURRENT_TIMESTAMP WHERE id=${message.id} AND deleted".update.apply()
 
   def saveNewMessage(msg: Topic, user: User, userAgent: String, group: Group)(using Transaction): Int =
     val msgid = sql"select nextval('s_msgid') as msgid".map(rs => rs.int("msgid")).single.apply().get
