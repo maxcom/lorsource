@@ -17,9 +17,11 @@ package ru.org.linux.markup
 
 import io.circe.syntax.*
 import io.circe.{Encoder, Json}
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.{RequestMapping, RequestMethod, RequestParam, ResponseBody}
 import ru.org.linux.auth.AuthUtil.MaybeAuthorized
+import ru.org.linux.auth.FloodProtector
 import ru.org.linux.msgbase.MessageText
 import ru.org.linux.user.UserPermissionService
 
@@ -29,13 +31,14 @@ object MarkupPreviewController {
 
 @Controller
 @RequestMapping(path = Array("/markup"))
-class MarkupPreviewController(textService: MessageTextService) {
+class MarkupPreviewController(textService: MessageTextService, floodProtector: FloodProtector) {
 
   @RequestMapping(path = Array("/preview"), method = Array(RequestMethod.POST),
     produces = Array("application/json; charset=UTF-8"))
   @ResponseBody
   def preview(@RequestParam(value = "text", required = false) text: String,
-              @RequestParam(value = "markup", required = false) markupFormId: String): Json = MaybeAuthorized { implicit session =>
+              @RequestParam(value = "markup", required = false) markupFormId: String,
+              request: HttpServletRequest): Json = MaybeAuthorized { implicit session =>
     val markupTypeOrError: Either[String, MarkupType] = Option(markupFormId) match
       case Some(formId) =>
         try Right(MarkupType.ofFormId(formId))
@@ -55,8 +58,14 @@ class MarkupPreviewController(textService: MessageTextService) {
         else if text.length > MarkupPreviewController.MaxTextLength then
           MarkupPreviewResponse(error = Some("Слишком длинный текст"), html = None).asJson
         else
-          val html = textService.renderCommentText(MessageText(text, markupType), nofollow = true)
-          MarkupPreviewResponse(error = None, html = Some(html)).asJson
+          floodProtector.checkRateLimit(FloodProtector.PreviewMarkup, request.getRemoteAddr, session.userOpt.orNull) match
+            case Some(wait) =>
+              MarkupPreviewResponse(
+                error = Some(s"Подождите ${wait.toSeconds} секунд перед повторным предпросмотром"),
+                html = None).asJson
+            case None =>
+              val html = textService.renderCommentText(MessageText(text, markupType), nofollow = true)
+              MarkupPreviewResponse(error = None, html = Some(html)).asJson
   }
 }
 
