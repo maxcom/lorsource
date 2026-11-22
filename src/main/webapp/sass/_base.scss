@@ -263,7 +263,7 @@ table.nav {
 }
 
 .msg .reply {
-  @include respond-to(tablet-and-desktops) {
+  @include respond-to(desktops) {
     font-size: smaller;
   }
 
