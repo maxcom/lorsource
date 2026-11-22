@@ -15,6 +15,7 @@
 
 const UNSAVED_WARNING = "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
 const SWITCH_REPLY_WARNING = "Вы уже вводите комментарий. При ответе на другое сообщение набранный текст будет потерян. Переключиться?";
+const PREVIEW_REQUEST_ERROR = "Не удалось выполнить запрос, попробуйте повторить еще раз.";
 
 function getCsrf() {
   const cookies = Object.fromEntries(
@@ -177,13 +178,40 @@ function initPreviewTabs(formElement) {
     }
   };
 
+  const resetPreviewContent = () => {
+    previewContent.classList.remove('markup-preview--error');
+    previewContent.textContent = '';
+  };
+
+  const showPreviewError = (message, retryable) => {
+    resetPreviewContent();
+    previewContent.classList.add('markup-preview--error');
+
+    const errorText = document.createElement('div');
+    errorText.className = 'markup-preview__error-text';
+    errorText.setAttribute('role', 'alert');
+    errorText.textContent = message;
+    previewContent.appendChild(errorText);
+
+    if (retryable) {
+      const refreshButton = document.createElement('button');
+      refreshButton.type = 'button';
+      refreshButton.className = 'btn btn-default';
+      refreshButton.textContent = 'Обновить';
+      refreshButton.addEventListener('click', () => loadPreview());
+      previewContent.appendChild(refreshButton);
+      refreshButton.focus();
+    }
+  };
+
   const loadPreview = () => {
     const text = textarea.value;
     if (!text.trim()) {
-      previewContent.textContent = '';
+      resetPreviewContent();
       return;
     }
 
+    resetPreviewContent();
     previewContent.textContent = 'Загрузка...';
 
     const formData = new URLSearchParams();
@@ -199,12 +227,21 @@ function initPreviewTabs(formElement) {
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: formData.toString()
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        showPreviewError(PREVIEW_REQUEST_ERROR, true);
+        return;
+      }
+      return response.json();
+    })
     .then(data => {
-      previewContent.textContent = '';
+      if (!data) {
+        return;
+      }
       if (data.error) {
-        previewContent.appendChild(Object.assign(document.createElement('div'), {className: 'error', textContent: data.error}));
+        showPreviewError(data.error, false);
       } else {
+        resetPreviewContent();
         previewContent.innerHTML = data.html;
         previewContent.querySelectorAll('a').forEach(a => a.setAttribute('target', '_blank'));
         $script.ready('hljs', function() {
@@ -215,8 +252,7 @@ function initPreviewTabs(formElement) {
       }
     })
     .catch((_error) => {
-      previewContent.textContent = '';
-      previewContent.appendChild(Object.assign(document.createElement('div'), {className: 'error', textContent: 'Не удалось выполнить запрос, попробуйте повторить еще раз.'}));
+      showPreviewError(PREVIEW_REQUEST_ERROR, true);
     });
   };
 
