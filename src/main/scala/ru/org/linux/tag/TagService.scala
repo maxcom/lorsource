@@ -22,6 +22,7 @@ import org.apache.pekko.pattern.{CircuitBreaker, CircuitBreakerOpenException}
 import org.opensearch.client.json.JsonData
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch._types.FieldValue
+import org.opensearch.client.opensearch._types.aggregations.TermsExclude
 import org.opensearch.client.opensearch._types.query_dsl.{BoolQuery, Query, RangeQuery, TermQuery}
 import org.opensearch.client.opensearch.core.{CountRequest, SearchRequest}
 import org.springframework.stereotype.Service
@@ -313,8 +314,10 @@ class TagService(
         a =>
           a.significantTerms(st =>
             st.field("tag")
-              .size(15)
+              .size(MaxActiveTags)
               .minDocCount(5)
+              // исключаем на стороне OpenSearch, чтобы тег не занимал место в size
+              .exclude(TermsExclude.of(e => e.terms(ExcludedActiveTags.asJava)))
               .backgroundFilter(Query.of(q => q.bool(BoolQuery.of(bb => bb.filter(bgFilters.asJava))))))
       )
       .build()
@@ -324,7 +327,9 @@ class TagService(
       .asScala
       .map: r =>
         val buckets = r.aggregations.get("active").sigsterms().buckets.array().asScala
-        buckets.map(b => tagRef(b.key, section)).toVector.sorted
+        val tags = buckets.map(b => tagRef(b.key, section)).toVector.sorted
+
+        if tags.sizeIs >= MinActiveTags then tags else Seq.empty
 
   /** Получить список популярных тегов по префиксу.
     *
@@ -367,6 +372,15 @@ object TagService:
   private val StaleTtlHours = 48
   private val TopTagsCacheSize = 1000
   private val TagCacheSize = 10000
+
+  /** Теги, активные в любом разделе, — в списке активных они лишние */
+  private val ExcludedActiveTags: Seq[String] = Seq("linux")
+
+  /** Меньше этого числа блок «Активные теги» выглядит случайным набором */
+  private val MinActiveTags = 4
+
+  /** Больше этого числа тегов у OpenSearch не запрашиваем */
+  private val MaxActiveTags = 12
 
   def tagRef(tag: TagInfo, threshold: Int = 2): TagRef =
     TagRef(

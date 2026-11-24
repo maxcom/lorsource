@@ -17,6 +17,7 @@ package ru.org.linux.tag
 
 import munit.FunSuite
 import org.apache.pekko.actor.ActorSystem
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, times, verify, when}
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
@@ -164,11 +165,11 @@ class TagServiceTest extends FunSuite:
 
   test("getActiveTopTags: результат кешируется, повторный вызов не ходит в OpenSearch"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "active", "active1", "active2")
+    stubSearch(client, "active", "active1", "active2", "active3", "active4")
     val service = makeService(client)
 
     val first = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
-    assertEquals(first.map(_.name), Seq("active1", "active2"))
+    assertEquals(first.map(_.name), Seq("active1", "active2", "active3", "active4"))
 
     val second = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
     assert(second eq first)
@@ -177,7 +178,7 @@ class TagServiceTest extends FunSuite:
 
   test("getActiveTopTags: при сбое OpenSearch отдаётся stale значение"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "active", "active1")
+    stubSearch(client, "active", "active1", "active2", "active3", "active4")
     val service = makeService(client)
 
     val original = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
@@ -192,6 +193,28 @@ class TagServiceTest extends FunSuite:
   test("getActiveTopTags: при сбое без кеша возвращается пустой список"):
     val client = mock(classOf[OpenSearchAsyncClient])
     stubSearchFailure(client)
+    val service = makeService(client)
+
+    val result = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
+    assertEquals(result, Seq.empty[TagRef])
+
+  test("getActiveTopTags: linux исключается из агрегации и не занимает место в size"):
+    val client = mock(classOf[OpenSearchAsyncClient])
+    stubSearch(client, "active", "active1", "active2", "active3", "active4")
+    val service = makeService(client)
+
+    val result = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
+    assertEquals(result.map(_.name), Seq("active1", "active2", "active3", "active4"))
+
+    val captor = ArgumentCaptor.forClass(classOf[SearchRequest])
+    verify(client).search(captor.capture(), any[Class[Void]]())
+
+    val aggregation = captor.getValue.aggregations().get("active").significantTerms()
+    assertEquals(aggregation.exclude().terms(), java.util.List.of("linux"))
+
+  test("getActiveTopTags: меньше четырёх тегов — пустой список"):
+    val client = mock(classOf[OpenSearchAsyncClient])
+    stubSearch(client, "active", "active1", "active2", "active3")
     val service = makeService(client)
 
     val result = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
