@@ -72,8 +72,10 @@ when debugging.
 - Liquibase migrations: add a changeset XML to `sql/updates/` and reference it from `sql/main.xml`; applied by
   `mvn liquibase:update` (auto-runs before integration tests). Production uses profile `-P production` with
   `sql/production-liquibase.config`.
-- `src/main/webapp/WEB-INF/config.properties` is **gitignored** (required at runtime). The devcontainer init creates a
-  minimal one; full template: `config.properties.dist` (DB URL, uploads path, Elasticsearch URL, etc.).
+- Runtime config comes from the committed `WEB-INF/config.properties.dist` (always loaded). A local
+  `src/main/webapp/WEB-INF/config.properties` (**gitignored**) is optional and only overrides values of `.dist`
+  (`applicationContext.xml` loads both and ignores missing files). The devcontainer init creates a minimal one holding
+  just the OpenSearch URL of the compose network.
 - CI (`.github/workflows/it.yml`): PostgreSQL 16 service container + Temurin JDK 25, runs `mvn verify`.
 
 ### Devcontainer (Docker Compose: Maven + PostgreSQL 16 + OpenSearch 3.6)
@@ -94,6 +96,12 @@ mvn -DskipTests package jetty:run-war > server.log 2>&1 &
 
 Server: http://127.0.0.1:8080/ — **must be restarted after any code change.** Stop with `mvn jetty:stop` (stopPort 9999).
 
+JS and CSS URLs carry the build stamp (`?MAVEN_BUILD_TIMESTAMP` → `?yyyyMMdd-HHmm`, substituted by
+`maven-replacer-plugin` at the `package` phase); `urlrewrite.xml` serves versioned assets with
+`Cache-Control: max-age=315360000` (10 years). Without `clean`, an incremental `mvn package` leaves unchanged JSPs
+untouched in `target/`, so the stamp stays old and browsers keep running the previous JS/CSS. After editing JS or CSS
+build with `mvn clean package` (or disable the browser cache).
+
 All users in the test database have password `passwd`:
 * maxcom: administrator, full permissions
 * svu: moderator
@@ -107,6 +115,10 @@ All users in the test database have password `passwd`:
   (`add-form.js`, `realtime.js`, ...); WebJar JS libraries are unpacked and concatenated into `plugins.js` by
   `maven-antrun-plugin` at `compile` phase.
 - The WAR excludes raw source CSS/JS (`warSourceExcludes`) — only processed copies ship.
+- `add-form.js` drives the markup editors (`.markup-tabs` in the topic, comment, profile and group forms): the preview
+  tab and the markup toolbar are created by JS (`initPreviewTabs`, `initMarkupToolbar`), styles live in
+  `sass/_form.scss`.
+- There are no automated tests for JS/CSS — verify front-end changes in a browser against the dev server.
 - Committed pre-built artifacts: `js/highlight.min.js` (rebuild via `./build-hljs <path-to-highlight.js-checkout>`),
   `js/script.min.js`.
 
