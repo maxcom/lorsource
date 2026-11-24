@@ -1,3 +1,17 @@
+/*
+ * Copyright 1998-2026 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 
 const UNSAVED_WARNING = "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
 const SWITCH_REPLY_WARNING = "Вы уже вводите комментарий. При ответе на другое сообщение набранный текст будет потерян. Переключиться?";
@@ -181,6 +195,54 @@ function initMarkupToolbar(nav, textarea, formatMode) {
     if (command) {
       e.preventDefault();
       editor.run(command);
+    }
+  });
+
+  /*
+   * Enter в элементе списка продолжает список, на пустом элементе завершает его (editor.newline).
+   * Перевод строки с модификаторами остаётся браузеру: Shift+Enter набирает элемент из нескольких строк,
+   * Ctrl/Cmd+Enter отправляет форму (lor/forms.js). Флаг нужен обработчику beforeinput ниже: иначе
+   * Shift+Enter с настольной клавиатуры обработается там второй раз.
+   */
+  let plainBreak = false;
+  let editing = false;
+
+  // правка текста сама вызывает события ввода (Safari рассылает их и на execCommand): во вложенных список
+  // не продолжаем — иначе он сразу же и завершится на только что вставленном пустом элементе
+  const continueList = () => {
+    if (editing) return false;
+
+    editing = true;
+    try {
+      return editor.newline();
+    } finally {
+      editing = false;
+    }
+  };
+
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.isComposing) return;
+
+    plainBreak = e.shiftKey || e.ctrlKey || e.metaKey || e.altKey;
+    if (!plainBreak && continueList()) {
+      e.preventDefault();
+    }
+  });
+
+  /*
+   * Мобильные клавиатуры могут не сообщать об Enter в keydown (приходит keyCode 229) — для них тот же вызов
+   * по событию ввода. Сюда доходит и перевод строки, который keydown пропустил: на обычной строке newline()
+   * снова вернёт false, и браузер вставит его сам.
+   */
+  textarea.addEventListener('beforeinput', (e) => {
+    if (e.inputType !== 'insertLineBreak' || e.isComposing) return;
+
+    if (plainBreak) {
+      plainBreak = false;
+      return;
+    }
+    if (continueList()) {
+      e.preventDefault();
     }
   });
 

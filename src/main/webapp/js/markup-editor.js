@@ -14,9 +14,9 @@
  */
 
 /*
- * Логика редактора разметки: команды для Markdown и LORCODE, поиск уже расставленной разметки
- * и правка текста в textarea. Файл не обращается к странице при загрузке, поэтому подключается в Node
- * для тестов (src/test/js). Тулбар и вкладки — в add-form.js.
+ * Логика редактора разметки: команды для Markdown и LORCODE, поиск уже расставленной разметки,
+ * правка текста в textarea и продолжение списков по переводу строки. Файл не обращается к странице
+ * при загрузке, поэтому подключается в Node для тестов (src/test/js). Тулбар и вкладки — в add-form.js.
  */
 (function (root) {
   'use strict';
@@ -33,6 +33,9 @@
    *    wrapLine: без выделения текущая непустая строка становится элементом, иначе вставляется пустой шаблон.
    * insert/make/parts применяют разметку; remove ищет уже расставленную и возвращает правку,
    * снимающую её, { noop: true } — если нажатие должно ничего не менять, либо null — тогда разметка применяется.
+   *
+   * newline: { item, next, inCode, leave } — перевод строки в элементе списка; описание — при newline()
+   * в createMarkupEditor.
    */
   const TOOLBAR_DIALECTS = {
     markdown: {
@@ -59,6 +62,11 @@
       },
       block: {
         codeBlock: {parts: ['```', '', '```'], remove: (ctx) => findFencedBlock(ctx, /^```/, /^```$/)}
+      },
+      newline: {
+        item: markdownItem,
+        next: (marker) => (/^\d/.test(marker) ? `${Number(marker) + 1}. ` : marker),
+        inCode: inMarkdownCode
       }
     },
     lorcode: {
@@ -87,6 +95,12 @@
         orderedList: {
           parts: ['[list="1"]', '[*] ', '[/list]'], wrapLine: true, remove: (ctx) => findLorcodeList(ctx, true)
         }
+      },
+      newline: {
+        item: lorcodeItem,
+        next: () => '[*] ',
+        inCode: inLorcodeCode,
+        leave: leaveLorcodeList
       }
     }
   };
@@ -488,9 +502,10 @@
     return edits.length ? {edits, select: lineSelection(ctx)} : null;
   }
 
+  /* элемент списка в начале строки: [отступ с маркером и пробелом, отступ, маркер] */
   const ListMarker = {
-    bullet: /^([ \t]*)[*+-] /,
-    ordered: /^([ \t]*)\d+\. /
+    bullet: /^([ \t]*)([*+-]) /,
+    ordered: /^([ \t]*)(\d+\.) /
   };
 
   /* все непустые строки выделения — элементы списка: того же типа (маркеры снимаются) или другого (заменяются) */
@@ -517,6 +532,10 @@
 
   const LorListOpen = /^[ \t]*(\[\*] )?\[list(="[^"]*")?\][ \t]*$/;
   const LorListClose = /^[ \t]*\[\/list\][ \t]*$/;
+  const LorListItem = /^([ \t]*)\[\*\] /;
+  /* строка начинается с маркера элемента — с пробелом после него или без */
+  const LorItemStart = /^[ \t]*\[\*\]/;
+  const LorListCloseTag = '[/list]';
 
   /*
    * Идём по строкам от строки from в направлении step и возвращаем строку с незакрытой границей списка:
@@ -568,7 +587,7 @@
       let depth = 0;
       for (let i = open + 1; i < close; i++) {
         const line = lineText(i);
-        const item = /^([ \t]*)\[\*\] /.exec(line);
+        const item = LorListItem.exec(line);
         if (depth === 0 && item) {
           edits.push({from: lines[i].from + item[1].length, to: lines[i].from + item[0].length});
         }
@@ -608,6 +627,172 @@
     }
 
     return null;
+  }
+
+  const CodeFence = /^(`{3,}|~{3,})/;
+  const CodeIndent = 4;
+
+  /* ширина отступа в начале строки: табуляция доводит её до колонки, кратной четырём */
+  function indentWidth(text) {
+    let width = 0;
+    for (const ch of text) {
+      if (ch === ' ') {
+        width++;
+      } else if (ch === '\t') {
+        width += CodeIndent - (width % CodeIndent);
+      } else {
+        break;
+      }
+    }
+    return width;
+  }
+
+  /*
+   * Строка курсора — внутри блока кода Markdown.
+   * Ограждённый блок открывает строка, начинающаяся с ``` или ~~~, закрывает — строка из одних тех же знаков;
+   * строка с языком («```bash») блок не закрывает. Блок с отступом: строка начинается с четырёх пробелов
+   * (табуляции), и первая строка её блока — до ближайшей пустой строки сверху — отступлена так же. Иначе отступ
+   * принадлежит вложенному списку, и новый элемент его повторяет.
+   */
+  function inMarkdownCode({value, lines, lineStart}) {
+    const text = (i) => value.slice(lines[i].from, lines[i].to);
+    const index = lineIndexAt(lines, lineStart);
+
+    let fence = null;
+    for (let i = 0; i < index; i++) {
+      const line = text(i).trim();
+      if (fence === null) {
+        const open = CodeFence.exec(line);
+        if (open) fence = open[1][0];
+      } else if (line.length >= 3 && [...line].every((ch) => ch === fence)) {
+        fence = null;
+      }
+    }
+    if (fence !== null) return true;
+
+    if (indentWidth(text(index)) < CodeIndent) return false;
+
+    let first = index;
+    while (first > 0 && text(first - 1).trim()) first--;
+    return indentWidth(text(first)) >= CodeIndent;
+  }
+
+  /* строка курсора — элемент списка Markdown: { indent, marker }, иначе null */
+  function markdownItem({value, lineStart, lineEnd}) {
+    const line = value.slice(lineStart, lineEnd);
+    const match = ListMarker.bullet.exec(line) || ListMarker.ordered.exec(line);
+    return match && {indent: match[1], marker: `${match[2]} `};
+  }
+
+  /*
+   * Теги LORCODE с именем из чередования names: [{ close, from, to }]. Тег может стоять в любом месте текста
+   * и записан в любом регистре — так их разбирает Parser.BBTAG_REGEXP; «[[тег]]» — экранирование, не тег.
+   */
+  function lorTags(value, names) {
+    const tags = [];
+    const pattern = new RegExp(`\\[\\[?(\\/?)(${names})(=[^\\]]*)?\\]?\\]`, 'gi');
+
+    let match;
+    while ((match = pattern.exec(value)) !== null) {
+      const escaped = match[0].startsWith('[[') && match[0].endsWith(']]');
+      if (!escaped) {
+        tags.push({close: Boolean(match[1]), from: match.index, to: match.index + match[0].length});
+      }
+    }
+    return tags;
+  }
+
+  /* курсор внутри [code], [pre] или [inline]: парсер не разбирает в них разметку */
+  function inLorcodeCode({value, start}) {
+    let code = false;
+    for (const tag of lorTags(value, 'code|pre|inline')) {
+      if (tag.from >= start) break;
+      code = !tag.close;
+    }
+    return code;
+  }
+
+  /* строка курсора — элемент списка LORCODE: { indent, marker }, иначе null */
+  function lorcodeItem({value, start, lineStart, lineEnd}) {
+    const match = LorListItem.exec(value.slice(lineStart, lineEnd));
+    if (!match) return null;
+
+    // компактная запись «[*] текст[/list]»: после закрывающего тега курсор уже вне списка
+    const closedOnLine = lorTags(value.slice(lineStart, start), 'list').some((tag) => tag.close);
+    return closedOnLine ? null : {indent: match[1], marker: match[0].slice(match[1].length)};
+  }
+
+  /*
+   * Список, которому принадлежит элемент с курсором в позиции start:
+   *  - enclosed — курсор внутри открытого «[list]»;
+   *  - closer — парный ему «[/list]» после курсора либо null, если список ещё не закрыт; вложенные списки,
+   *    открытые ниже курсора, пропускаются по глубине.
+   */
+  function lorcodeListState(value, start) {
+    let depth = 0;
+    let ownDepth = -1;
+    let closer = null;
+
+    for (const tag of lorTags(value, 'list')) {
+      if (tag.from < start) {
+        if (tag.close) {
+          if (depth > 0) depth--;
+        } else {
+          depth++;
+        }
+      } else {
+        if (ownDepth === -1) ownDepth = depth;
+        if (tag.close && depth === ownDepth) {
+          closer = tag;
+          break;
+        }
+        depth += tag.close ? -1 : 1;
+      }
+    }
+    if (ownDepth === -1) ownDepth = depth;
+
+    return {enclosed: ownDepth > 0, closer};
+  }
+
+  /* пуста ли строка, идущая после перевода строки в позиции lineBreak (-1 — перевода строки нет) */
+  function blankLineAfter(value, lineBreak) {
+    if (lineBreak === -1) return false;
+
+    const end = value.indexOf('\n', lineBreak + 1);
+    return !value.slice(lineBreak + 1, end === -1 ? value.length : end).trim();
+  }
+
+  /*
+   * Выход из списка LORCODE на пустом элементе: правка { from, to, text, caret }, caret — курсор в новом тексте;
+   * null — снять только маркер, как в Markdown:
+   *  - ниже сразу идёт ещё один элемент: это отмена в середине списка, закрой его здесь — и он разорвётся;
+   *  - открывающего «[list]» нет — закрывать нечего.
+   * Иначе список закрывается, и курсор встаёт на пустую строку после закрывающего тега: парный «[/list]» уже есть
+   * ниже (шаблон кнопки) — строка пустого элемента удаляется; нет — «[/list]» с отступом элемента встаёт вместо неё.
+   */
+  function leaveLorcodeList({value, start, lineStart, lineEnd}, {indent}) {
+    const nextLine = value.slice(lineEnd + 1).split('\n').find((line) => line.trim());
+    if (nextLine !== undefined && LorItemStart.test(nextLine)) return null;
+
+    const {enclosed, closer} = lorcodeListState(value, start);
+    if (!enclosed) return null;
+
+    // строка закрывающего тега: существующая ниже либо вставляемая на место пустого элемента
+    const closeStart = closer ? value.lastIndexOf('\n', closer.from) + 1 : lineStart;
+    const closeBreak = closer ? value.indexOf('\n', closer.to) : (lineEnd < value.length ? lineEnd : -1);
+    const closeLine = closer ? value.slice(closeStart, closeBreak === -1 ? value.length : closeBreak)
+      : indent + LorListCloseTag;
+
+    // пустая строка после закрывающего тега — следующая, если она пуста, иначе добавляется перевод строки
+    const blankAfter = blankLineAfter(value, closeBreak);
+    const text = value.slice(lineEnd + 1, closeStart) + closeLine + (blankAfter ? '' : '\n');
+    return {
+      from: lineStart,
+      to: closeBreak === -1 ? value.length : closeBreak,
+      text,
+      // курсор — сразу за переводом строки закрывающего тега, существующим или добавленным
+      caret: lineStart + text.length + (blankAfter ? 1 : 0)
+    };
   }
 
   function createMarkupEditor(textarea, dialect) {
@@ -739,6 +924,46 @@
       textarea.setSelectionRange(shift(removal.select[0]), shift(removal.select[1]));
     };
 
+    /*
+     * Перевод строки в textarea. Возвращает true, если текст изменён, — тогда вызывавший подменяет стандартный
+     * перевод строки (preventDefault); false — его вставляет браузер.
+     *  - item(ctx) — строка курсора как элемент списка { indent, marker } либо null;
+     *  - inCode(ctx) — курсор внутри блока кода;
+     *  - next(marker) — маркер нового элемента;
+     *  - leave(ctx, item) — правка { from, to, text, caret } при выходе из списка; её нет — снимается только маркер.
+     * Курсор внутри маркера оставляет перевод строки браузеру: маркер правят вручную.
+     */
+    const newline = () => {
+      const value = textarea.value;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const {lineStart, lineEnd} = expandToLines(value, start, start);
+      const {item, next, inCode, leave} = dialect.newline;
+      const ctx = {value, start, end, lines: splitLines(value), lineStart, lineEnd};
+
+      if (inCode(ctx)) return false;
+
+      const current = item(ctx);
+      if (!current || start < lineStart + current.indent.length + current.marker.length) return false;
+
+      const contentStart = lineStart + current.indent.length + current.marker.length;
+
+      // пустой элемент (после маркера только пробелы, выделения нет): выход из списка
+      if (start === end && !value.slice(contentStart, lineEnd).trim()) {
+        const edit = leave?.(ctx, current) || {from: lineStart, to: lineEnd, text: '', caret: lineStart};
+        replaceRange(edit.from, edit.to, edit.text);
+        textarea.setSelectionRange(edit.caret, edit.caret);
+        return true;
+      }
+
+      // текст после курсора переходит в новый элемент, выделение заменяется — как при обычном переводе строки
+      const marker = current.indent + next(current.marker);
+      replaceRange(start, end, '\n' + marker);
+      const caret = start + 1 + marker.length;
+      textarea.setSelectionRange(caret, caret);
+      return true;
+    };
+
     return {
       run(command) {
         const spec = dialect.inline[command] || dialect.prefix[command] || dialect.block[command];
@@ -771,7 +996,8 @@
         } else {
           applyBlock(spec);
         }
-      }
+      },
+      newline
     };
   }
 

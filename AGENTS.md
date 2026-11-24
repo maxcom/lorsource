@@ -132,6 +132,10 @@ All users in the test database have password `passwd`:
     for the JS tests.
   - `add-form.js` builds the UI on top of it (preview tabs `initPreviewTabs`, toolbar `initMarkupToolbar`); styles live
     in `sass/_form.scss`.
+  - Enter in a list item continues the list, and a second Enter on the empty item leaves it — a LORCODE list gets its
+    closing `[/list]`. Inside code blocks Enter is left to the browser. The logic is `editor.newline()` in
+    `markup-editor.js`, the key handlers live in `initMarkupToolbar`. Shift+Enter stays a plain line break, and a
+    `beforeinput` handler covers mobile keyboards that do not report Enter in `keydown`.
   Pages load both files with a single call — `$script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP',
   '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor')` — which fetches them in parallel; they execute in
   either order. `$script.ready('markup-editor')` fires once both have executed, and only code running inside it may
