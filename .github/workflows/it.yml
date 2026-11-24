@@ -32,7 +32,9 @@ jobs:
           PGPASSWORD: postgres
         run: |
           apt-get update
-          apt-get install --yes --no-install-recommends postgresql-client
+          # libatomic1: the Node binary that runs the JS tests (downloaded by frontend-maven-plugin) is linked
+          # against libatomic.so.1, which the maven image does not ship
+          apt-get install --yes --no-install-recommends postgresql-client libatomic1
           createuser -d -S -R maxcom
           createuser -D -S -R linuxweb
           createuser -D -S -R jamwiki

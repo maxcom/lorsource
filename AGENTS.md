@@ -69,6 +69,8 @@ before Surefire, so `mvn test` includes them; they honour `-DskipTests` but not 
 to the console and a JUnit report is written to `target/js-tests.junit.xml`. Node itself is downloaded on the first
 build by `frontend-maven-plugin` into `node/` (gitignored) — neither CI nor the devcontainer needs Node installed.
 The first build needs network access to nodejs.org; later builds reuse `node/`, which survives `mvn clean`.
+On Linux the Node binary (25 and newer) is linked against `libatomic.so.1`, which the `maven` image lacks: the CI
+workflow and the devcontainer Dockerfile install `libatomic1` for it, and so must any other Linux build host.
 
 To run the JS tests without Maven: `node --test src/test/js/`.
 
