@@ -15,6 +15,10 @@
     <java.version>25</java.version>
 
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+    <!-- Node is downloaded by frontend-maven-plugin into node/ solely to run the JS tests in src/test/js;
+         the project has no npm dependencies. skipTests gets a default so that other plugins can honour it -->
+    <node.version>v26.13.1</node.version>
+    <skipTests>false</skipTests>
     <dependency.spring.version>7.0.10</dependency.spring.version>
     <micrometer.context-propagation.version>1.2.1</micrometer.context-propagation.version>
     <spring.security.version>7.1.2</spring.security.version>
@@ -727,6 +731,7 @@
             <configuration>
               <encoding>UTF-8</encoding>
               <includes>
+                <include>markup-editor.js</include>
                 <include>add-form.js</include>
                 <include>lor_view_diff_history.js</include>
                 <include>realtime.js</include>
@@ -975,6 +980,53 @@
             </replacement>
           </replacements>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>2.0.2</version>
+        <configuration>
+          <nodeVersion>${node.version}</nodeVersion>
+          <installDirectory>${project.basedir}</installDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>install-node</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- JS tests (node:test, no dependencies). process-test-classes is the phase right before Surefire:
+           lifecycle bindings always run before POM executions, so in the test phase itself these would go last -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.7.0</version>
+        <executions>
+          <execution>
+            <id>js-tests</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>${project.basedir}/node/node</executable>
+              <skip>${skipTests}</skip>
+              <arguments>
+                <argument>--test</argument>
+                <argument>--test-reporter=spec</argument>
+                <argument>--test-reporter-destination=stdout</argument>
+                <argument>--test-reporter=junit</argument>
+                <argument>--test-reporter-destination=${project.build.directory}/js-tests.junit.xml</argument>
+                <argument>src/test/js/**/*.test.js</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>

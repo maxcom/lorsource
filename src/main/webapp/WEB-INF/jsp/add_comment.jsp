@@ -25,7 +25,7 @@
 
 <title>Добавить комментарий</title>
 <script type="text/javascript">
-  $script('/js/add-form.js?MAVEN_BUILD_TIMESTAMP');
+  $script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP', '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor');
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 

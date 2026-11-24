@@ -21,7 +21,8 @@
 
 <title>Редактирование профиля</title>
 <script type="text/javascript">
-$script('/js/add-form.js?MAVEN_BUILD_TIMESTAMP', function() {
+$script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP', '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor');
+$script.ready('markup-editor', function() {
   initPreviewTabs(document.getElementById('editRegForm'), false);
 });
 $script.ready("plugins", function() {

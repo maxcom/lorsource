@@ -26,7 +26,8 @@
 
 <title>Правка группы</title>
 <script type="text/javascript">
-  $script('/js/add-form.js?MAVEN_BUILD_TIMESTAMP', function() {
+  $script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP', '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor');
+  $script.ready('markup-editor', function() {
     setupFormWithSpinner({
       formSelector: '#groupModForm',
       textareaSelector: '#form_longinfo'

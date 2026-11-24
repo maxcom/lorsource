@@ -1,6 +1,7 @@
 *~
 *.swp
 target
+node
 *.iml
 *.ipr
 *.ids

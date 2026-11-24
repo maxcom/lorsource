@@ -25,7 +25,8 @@
 <title>Изменить комментарий</title>
 <script type="text/javascript">
   window._formWithSpinnerActive = true;
-  $script('/js/add-form.js?MAVEN_BUILD_TIMESTAMP', function() {
+  $script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP', '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor');
+  $script.ready('markup-editor', function() {
     setupFormWithSpinner({
       formSelector: '#commentForm',
       textareaSelector: '#msg',

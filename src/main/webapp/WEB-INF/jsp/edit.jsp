@@ -34,7 +34,8 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
 <script type="text/javascript">
-  $script('/js/add-form.js?MAVEN_BUILD_TIMESTAMP', function() {
+  $script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP', '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor');
+  $script.ready('markup-editor', function() {
     setupFormWithSpinner({
       formSelector: '#messageForm',
       textareaSelector: '#form_msg',

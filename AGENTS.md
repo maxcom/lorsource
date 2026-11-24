@@ -62,6 +62,16 @@ Test stdout/stderr is redirected to files (`redirectTestOutputToFile`), not the 
 `target/surefire-reports/<Class>-output.txt` (unit) and `target/failsafe-reports/<Class>-output.txt` (integration)
 when debugging.
 
+**JS tests:** `src/test/js/*.test.js` use the built-in `node:test` runner (no npm dependencies) and cover the markup
+editor logic in `src/main/webapp/js/markup-editor.js`, its loading order and the pages' script wiring.
+`exec-maven-plugin` runs them in `process-test-classes`, right
+before Surefire, so `mvn test` includes them; they honour `-DskipTests` but not `-Dmaven.test.skip=true`. Output goes
+to the console and a JUnit report is written to `target/js-tests.junit.xml`. Node itself is downloaded on the first
+build by `frontend-maven-plugin` into `node/` (gitignored) — neither CI nor the devcontainer needs Node installed.
+The first build needs network access to nodejs.org; later builds reuse `node/`, which survives `mvn clean`.
+
+To run the JS tests without Maven: `node --test src/test/js/`.
+
 ### Database & Environment Prerequisites
 
 - Integration tests and the dev server need PostgreSQL with **hostname `postgres` resolvable** — the JDBC URL
@@ -107,18 +117,31 @@ All users in the test database have password `passwd`:
 * svu: moderator
 * edo: user (score >= 50)
 
-### JavaScript & CSS Build (Maven-only — no Node.js/npm)
+### JavaScript & CSS Build (Maven-only — no npm)
 
 - CSS: `src/main/webapp/sass/*.scss` → `dart-sass-maven-plugin` compiles (COMPRESSED, no BOM), `yuicompressor-maven-plugin`
   minifies and aggregates per-theme `combined.css` (tango, waltz, black, white2, zomg_ponies, qrerror).
 - JS: `closure-compiler-maven-plugin` merges `src/main/webapp/js/lor/*.js` into `lor.js` and minifies individual files
-  (`add-form.js`, `realtime.js`, ...); WebJar JS libraries are unpacked and concatenated into `plugins.js` by
-  `maven-antrun-plugin` at `compile` phase.
+  (`markup-editor.js`, `add-form.js`, `realtime.js`, ...); WebJar JS libraries are unpacked and concatenated into
+  `plugins.js` by `maven-antrun-plugin` at `compile` phase. A new file is shipped only if it is listed in the plugin's
+  includes.
 - The WAR excludes raw source CSS/JS (`warSourceExcludes`) — only processed copies ship.
-- `add-form.js` drives the markup editors (`.markup-tabs` in the topic, comment, profile and group forms): the preview
-  tab and the markup toolbar are created by JS (`initPreviewTabs`, `initMarkupToolbar`), styles live in
-  `sass/_form.scss`.
-- There are no automated tests for JS/CSS — verify front-end changes in a browser against the dev server.
+- Markup editors (`.markup-tabs` in the topic, comment, profile and group forms) are split in two:
+  - `markup-editor.js` (global `MarkupEditor`) is the logic: commands for Markdown and LORCODE, finding markup that is
+    already there, editing the textarea. It must not touch the DOM at load time — that is what keeps it loadable in Node
+    for the JS tests.
+  - `add-form.js` builds the UI on top of it (preview tabs `initPreviewTabs`, toolbar `initMarkupToolbar`); styles live
+    in `sass/_form.scss`.
+  Pages load both files with a single call — `$script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP',
+  '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor')` — which fetches them in parallel; they execute in
+  either order. `$script.ready('markup-editor')` fires once both have executed, and only code running inside it may
+  touch `MarkupEditor`: `initPreviewTabs` waits for it itself, so it is safe to call from anywhere (including a
+  DOM-ready callback, which does *not* wait for the second file). A page that needs code after loading uses
+  `$script.ready('markup-editor', function () {...})`. `markup-editor-loading.test.js` checks that every page
+  registers the name — without it `initPreviewTabs` would never run.
+- Node.js is downloaded by the build solely to run the JS tests (see Running Tests); there is no `package.json`.
+- The editor logic is covered by the JS tests; layout and DOM behaviour have no automated tests — verify those in a
+  browser against the dev server.
 - Committed pre-built artifacts: `js/highlight.min.js` (rebuild via `./build-hljs <path-to-highlight.js-checkout>`),
   `js/script.min.js`.
 
@@ -160,6 +183,10 @@ All users in the test database have password `passwd`:
   it **must** call `super` — otherwise the test silently runs without a transaction
 - Transactional test bodies must be synchronous (transaction is bound to the thread via ThreadLocal)
 - Integration tests require the database; OpenSearch tests use Testcontainers (Docker required)
+- JS (`src/test/js`): `node:test` + `node:assert/strict`, no dependencies. Editor tests go through the public API
+  (`MarkupEditor`) with a fake textarea (`fake-textarea.js`); there is no DOM in Node, so the tests of `add-form.js`
+  run it inside a function with stubbed `window`/`$script`/`$` and read the JSPs as text. Helpers must not be named
+  `*.test.js`, the Maven run picks up only that pattern
 
 ### Database Access
 
@@ -182,7 +209,8 @@ src/
 │       ├── black|tango|waltz|white2|zomg_ponies/   # theme assets
 │       └── qrerror/                # standalone 502 page for CDN (self-contained)
 ├── test/
-│   ├── scala/ru/org/linux/         # ALL tests (MUnit); no src/test/java
+│   ├── scala/ru/org/linux/         # Scala tests (MUnit); no src/test/java
+│   ├── js/                         # JS tests (node:test): markup-editor.js and its loading
 │   └── resources/                  # test Spring configs (common.xml, database.xml), log4j2-test.xml
 sql/                                # liquibase (main.xml, updates/) + demo.db
 .devcontainer/                      # Docker Compose dev environment + init-db.sh
