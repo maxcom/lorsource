@@ -202,10 +202,12 @@ form .error {
 .markup-tabs {
   margin-bottom: 0;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
 }
 
 .markup-tabs__nav {
+  // занимает строку до конца: тулбар разметки прижимается вправо, а если не помещается — переносится
+  flex: 1 0 auto;
   display: flex;
   list-style: none;
   margin: 0 !important;
@@ -248,6 +250,8 @@ form .error {
 }
 
 .markup-tabs__content {
+  flex: 0 0 100%; // контент вкладок всегда начинается с новой строки
+  box-sizing: border-box;
   border: 1px solid var(--table-border-color);
   border-top: none;
   padding: 0;
@@ -287,6 +291,87 @@ form .error {
 .markup-tabs__tab:focus-visible {
   outline: 2px solid var(--link-color);
   outline-offset: -2px;
+}
+
+/*
+ * Тулбар разметки создаётся скриптом (initMarkupToolbar), без JavaScript его нет в DOM.
+ * На узких экранах — отдельный ряд под вкладками. От ширины планшета встаёт в ряд вкладок справа,
+ * а если рядом с вкладками не помещается — переносится на отдельный ряд.
+ */
+.markup-toolbar {
+  display: flex;
+  flex: 0 0 100%;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15em;
+  box-sizing: border-box;
+  padding: 0.2em;
+  border-bottom: 1px solid var(--table-border-color);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.markup-toolbar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  padding: 0;
+  border: none;
+  border-radius: 0.2em;
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  touch-action: manipulation;
+  appearance: none;
+
+  svg {
+    display: block;
+    width: 1.1em;
+    height: 1.1em;
+    fill: currentColor;
+  }
+
+  &:hover {
+    // цвет кнопки, а не границы таблицы: в legacy-темах граница совпадает с цветом текста
+    background-color: var(--table-border-color);
+    background-color: color-mix(in srgb, currentColor 25%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: -2px;
+  }
+}
+
+@include respond-to(tablet-and-desktops) {
+  .markup-toolbar {
+    flex: 0 0 auto;
+    padding: 0 0.2em;
+  }
+}
+
+/*
+ * Отдельный ряд под вкладками: initMarkupToolbar выставляет модификатор по фактической раскладке.
+ * Ряд тянется на всю ширину и оформлен как область редактирования — фон поля ввода и боковые рамки.
+ */
+.markup-toolbar--stacked {
+  flex-basis: 100%;
+  gap: 0.1em;
+  padding: 0.2em;
+  background-color: var(--article-background);
+  border-left: 1px solid var(--table-border-color);
+  border-right: 1px solid var(--table-border-color);
+
+  // кнопки сжимаются, чтобы на узком экране уместиться в один ряд; шире 2em не растут, свободное место остаётся справа
+  .markup-toolbar__btn {
+    flex: 1 1 0;
+    min-width: 1.75em;
+    max-width: 2em;
+  }
 }
 
 .markup-preview {
