@@ -221,7 +221,9 @@ function initMarkupToolbar(nav, textarea, formatMode) {
   };
 
   textarea.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter' || e.isComposing) return;
+    // Safari не выставляет isComposing у Enter, подтверждающего набранное в методе ввода (IME): такой Enter
+    // распознаётся только по keyCode 229 и список не продолжает
+    if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
 
     plainBreak = e.shiftKey || e.ctrlKey || e.metaKey || e.altKey;
     if (!plainBreak && continueList()) {
