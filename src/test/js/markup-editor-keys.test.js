@@ -24,24 +24,9 @@ const path = require('node:path');
 
 require('../../main/webapp/js/markup-editor.js');
 const {fakeTextarea} = require('./fake-textarea');
+const {fakeElement} = require('./fake-element');
 
 const addFormSource = fs.readFileSync(path.join(__dirname, '../../main/webapp/js/add-form.js'), 'utf8');
-
-// Элемент страницы в том объёме, в каком его создаёт и настраивает initMarkupToolbar: тулбар с кнопками
-// и контейнер вкладок. Слушатели событий собираются, чтобы тест мог их вызвать
-function fakeElement() {
-  const listeners = {};
-  return {
-    className: '', dataset: {}, children: [],
-    classList: {remove() {}, toggle() {}},
-    setAttribute() {},
-    appendChild(child) { this.children.push(child); },
-    after() {},
-    getBoundingClientRect: () => ({top: 0, bottom: 0}),
-    addEventListener(type, listener) { (listeners[type] ??= []).push(listener); },
-    dispatch(type, event) { (listeners[type] || []).forEach((listener) => listener(event)); },
-  };
-}
 
 // Как и в markup-editor-loading.test.js, add-form.js выполняется в функции, которой window, $script и $
 // переданы параметрами; initMarkupToolbar сверх того создаёт тулбар через document

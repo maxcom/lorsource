@@ -268,9 +268,14 @@ function initMarkupToolbar(nav, textarea, formatMode) {
   syncLayout();
 
   if (typeof ResizeObserver !== 'undefined') {
+    /*
+     * Наблюдаем за textarea: её ширина — это доступная ширина формы, а syncLayout её размер не меняет.
+     * За nav и тулбаром наблюдать нельзя — их размеры меняет сам колбэк, и на каждом переключении
+     * тулбара браузер отправляет на window ошибку «ResizeObserver loop completed with undelivered
+     * notifications».
+     */
     const layoutObserver = new ResizeObserver(syncLayout);
-    layoutObserver.observe(nav);
-    layoutObserver.observe(toolbar);
+    layoutObserver.observe(textarea);
   } else {
     window.addEventListener('resize', syncLayout);
   }
