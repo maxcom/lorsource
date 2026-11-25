@@ -813,8 +813,14 @@ $script.ready('jquery', function() {
         }
 
         if (!isInlineFormVisible()) {
-          const reply = $('div.reply', $('div.msg_body', $(selector)));
-          reply.after(commentFormContainer);
+          const target = $(selector);
+          // у комментария форма встаёт под аватар, на всю ширину сообщения: внутри .msg_body она
+          // наследует отступ под аватар (padding-left у .message-w-userpic). У топика .msg_body
+          // без отступа — форма остаётся после его меню
+          const anchor = replyToValue
+            ? target.children('.msg-container')
+            : $('div.reply', $('.msg_body', target));
+          anchor.after(commentFormContainer);
           replyTo.val(replyToValue);
 
           if (!commentForm[0].dataset.previewTabsInitialized) {
