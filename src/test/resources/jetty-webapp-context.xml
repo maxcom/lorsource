@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "https://www.eclipse.org/jetty/configure_12_1.dtd">
+<!--
+  ~ Copyright 1998-2026 Linux.org.ru
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<!--
+  Конфигурация webapp для Jetty из jetty-ee11-maven-plugin: dev-сервер (jetty:run-war) и Jetty
+  интеграционных тестов (start-war). В продакшене Tomcat, в WAR этот файл не попадает.
+
+  Jetty скрывает от webapp свои классы — всё под org.eclipse.jetty, кроме явного списка (API WebSocket,
+  сервлеты и подобное). А JettyWebSocketHandlerAdapter из Spring при получении PONG и бинарного
+  сообщения вызывает org.eclipse.jetty.util.BufferUtil.copy. В списке этого класса нет, и на каждом
+  keep-alive ping RealtimeSessionActor (первый — через 5 секунд после подключения) сессия realtime
+  закрывалась с кодом 1011; клиент переподключался, и всё повторялось.
+
+  Видимость классу даёт исключение из hidden: isHiddenClass смотрит только на этот список, одного
+  protected недостаточно. Protected добавлен заодно — так открывает свои пакеты и сама Jetty
+  (protectAndExpose в JettyWebSocketConfiguration).
+
+  Перейти на стандартный адаптер (Jakarta), как на Tomcat, через зависимости плагина нельзя: плагин
+  приносит JettyWebSocketServerContainer и без явной зависимости в pom.xml, и Spring выбирает
+  Jetty-адаптер.
+
+  DOCTYPE должен идти сразу за xml-декларацией: с комментарием перед ним Jetty не находит схему
+  и не запускает webapp (Cannot find the declaration of element 'Configure').
+-->
+<Configure class="org.eclipse.jetty.ee11.webapp.WebAppContext">
+  <Call name="addProtectedClassMatcher">
+    <Arg>
+      <New class="org.eclipse.jetty.util.ClassMatcher">
+        <Arg type="String">org.eclipse.jetty.util.BufferUtil</Arg>
+      </New>
+    </Arg>
+  </Call>
+  <Call name="addHiddenClassMatcher">
+    <Arg>
+      <New class="org.eclipse.jetty.util.ClassMatcher">
+        <Arg type="String">-org.eclipse.jetty.util.BufferUtil</Arg>
+      </New>
+    </Arg>
+  </Call>
+</Configure>

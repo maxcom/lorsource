@@ -1195,6 +1195,10 @@
             <allowDuplicateFragmentNames>true</allowDuplicateFragmentNames>
           </webApp>
 
+          <!-- открывает webapp класс org.eclipse.jetty.util.BufferUtil: он нужен Spring-адаптеру WebSocket,
+               иначе сессия realtime закрывается на первом keep-alive ping (причина описана в самом файле) -->
+          <contextXml>${project.basedir}/src/test/resources/jetty-webapp-context.xml</contextXml>
+
           <useTestScope>true</useTestScope>
           <systemProperties>
             <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
