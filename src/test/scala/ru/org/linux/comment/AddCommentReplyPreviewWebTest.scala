@@ -17,9 +17,15 @@ package ru.org.linux.comment
 
 import munit.FunSuite
 import org.jsoup.Jsoup
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.{ContextConfiguration, ContextHierarchy}
 import ru.org.linux.csrf.CSRFProtectionService
+import ru.org.linux.scalikejdbc.{SpringDB, Transaction}
+import ru.org.linux.scalikejdbc.Transaction.given
 import ru.org.linux.section.Section
-import ru.org.linux.test.WebHelper
+import ru.org.linux.test.{SpringTestSupport, WebHelper}
+import ru.org.linux.user.SimpleIntegrationTestConfiguration
+import scalikejdbc.*
 import sttp.client4.*
 import sttp.model.{HeaderNames, StatusCode, Uri}
 
@@ -28,8 +34,15 @@ object AddCommentReplyPreviewWebTest:
   private val TestTitle = "Reply Preview Access Web Test"
   private val Marker = "xyzzy-deleted-comment-marker-7917"
 
-class AddCommentReplyPreviewWebTest extends FunSuite with WebHelper:
+@ContextHierarchy(
+  Array(
+    new ContextConfiguration(value = Array("classpath:database.xml")),
+    new ContextConfiguration(classes = Array(classOf[SimpleIntegrationTestConfiguration]))))
+class AddCommentReplyPreviewWebTest extends FunSuite with WebHelper with SpringTestSupport:
   import AddCommentReplyPreviewWebTest.*
+
+  @Autowired
+  var springDB: SpringDB = scala.compiletime.uninitialized
 
   private def replyFormUrl(topicId: Int, commentId: Int): Uri =
     MainUrl.addPath("add_comment.jsp").addParam("topic", topicId.toString).addParam("replyto", commentId.toString)
@@ -100,23 +113,34 @@ class AddCommentReplyPreviewWebTest extends FunSuite with WebHelper:
     finally
       deleteTopic(auth, topicId)
 
+  /** Переводит запись об удалении топика на его автора. Топик, удалённый модератором, сутки считается в дневном лимите
+    * топиков автора (TopicDao.countRecentTopics): хватает пяти таких, и createTopic перестаёт работать во всех тестах.
+    * Если топик не удаляли, записи нет, и запрос ничего не меняет.
+    */
+  private def markDeletedByAuthor(topicId: Int)(using Transaction): Unit =
+    sql"""UPDATE del_info SET delby = (SELECT userid FROM topics WHERE id = $topicId)
+          WHERE msgid = $topicId""".update.apply()
+
   test("comment body in deleted topic is not disclosed via reply form preview"):
     val auth = doLogin()
 
     val topicId = createTopic(auth, TestGroup, s"$TestTitle (deleted topic)").fold(v => fail(v), identity)
 
-    val commentId = postComment(auth, topicId)
+    try
+      val commentId = postComment(auth, topicId)
 
-    assert(commentId > 0, "comment should be posted")
+      assert(commentId > 0, "comment should be posted")
 
-    val moderatorAuth = doLogin("maxcom", "passwd")
+      val moderatorAuth = doLogin("maxcom", "passwd")
 
-    deleteTopic(moderatorAuth, topicId)
+      deleteTopic(moderatorAuth, topicId)
 
-    val anonymousResponse = basicRequest.get(replyFormUrl(topicId, commentId)).send(backend)
+      val anonymousResponse = basicRequest.get(replyFormUrl(topicId, commentId)).send(backend)
 
-    assertEquals(anonymousResponse.code, StatusCode.Ok, "reply form should render")
+      assertEquals(anonymousResponse.code, StatusCode.Ok, "reply form should render")
 
-    val anonymousHtml = anonymousResponse.body.merge
+      val anonymousHtml = anonymousResponse.body.merge
 
-    assert(!anonymousHtml.contains(Marker), "anonymous should not see comment body of deleted topic in reply preview")
+      assert(!anonymousHtml.contains(Marker), "anonymous should not see comment body of deleted topic in reply preview")
+    finally
+      springDB.localTx(markDeletedByAuthor(topicId))
