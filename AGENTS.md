@@ -130,8 +130,11 @@ All users in the test database have password `passwd`:
 
 ### JavaScript & CSS Build (Maven-only — no npm)
 
-- CSS: `src/main/webapp/sass/*.scss` → `dart-sass-maven-plugin` compiles (COMPRESSED, no BOM), `yuicompressor-maven-plugin`
-  minifies and aggregates per-theme `combined.css` (tango, waltz, black, white2, zomg_ponies, qrerror).
+- CSS: `src/main/webapp/sass/*.scss` → `dart-sass-maven-plugin` compiles (COMPRESSED, no BOM); `maven-antrun-plugin`
+  copies the committed syntax themes (`tango/syntax.css`, `waltz/syntax.css`, `black/ir_black.css`, `white2/idea.css`)
+  into the webapp and concatenates per-theme `combined.css` (tango, waltz, black, white2, zomg_ponies, qrerror).
+  Nothing minifies CSS beyond Sass itself: the WebJar stylesheets are already minified by their authors. A stylesheet
+  joins `combined.css` only if it is listed in the `concat-theme-css` execution.
 - JS: `closure-compiler-maven-plugin` merges `src/main/webapp/js/lor/*.js` into `lor.js` and minifies individual files
   (`markup-editor.js`, `add-form.js`, `realtime.js`, ...); WebJar JS libraries are unpacked and concatenated into
   `plugins.js` by `maven-antrun-plugin` at `compile` phase. A new file is shipped only if it is listed in the plugin's
@@ -162,8 +165,7 @@ All users in the test database have password `passwd`:
   CSS alone (`sass/_form.scss`): 5 lines by default (`min-height`), it grows with the text (`field-sizing: content`) up
   to the window (`max-height`) and then scrolls; in browsers without `field-sizing` it stays 5 lines. The corner handle
   is kept on purpose: a drag sets an inline width/height, and the field stops following the text until the page is
-  reloaded. YUI Compressor strips the spaces around `+` inside `calc()` (`calc(5lh + 1em)` becomes an invalid
-  `calc(5lh+1em)`), so 5 lines is a plain `em` value over an explicit `line-height` — don't put `a + b` into `calc()`.
+  reloaded. 5 lines is a plain `em` value over an explicit `line-height`.
 - Node.js is downloaded by the build solely to run the JS tests (see Running Tests); there is no `package.json`.
 - The editor logic is covered by the JS tests; layout and DOM behaviour have no automated tests — verify those in a
   browser against the dev server.

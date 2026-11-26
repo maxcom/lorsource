@@ -626,97 +626,10 @@
           <style>COMPRESSED</style>
           <!-- use a fixed version of dart-saas to ensure reproducible builds -->
           <version>1.99.0</version>
-          <!-- do not emit UTF-8 BOM: when main.css is not the first file in the
-               yuicompressor aggregation, the BOM ends up in the middle of combined.css
+          <!-- do not emit UTF-8 BOM: when main.css is not the first file of the
+               concatenation into combined.css, the BOM ends up in the middle of it
                and corrupts the :root selector, breaking all CSS custom properties -->
           <noCharset>true</noCharset>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>net.alchim31.maven</groupId>
-        <version>1.5.1</version>
-        <artifactId>yuicompressor-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <goals>
-              <goal>compress</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <nosuffix>true</nosuffix>
-          <jswarn>false</jswarn>
-          <encoding>utf-8</encoding>
-          <excludes>
-            <exclude>**/*.js</exclude>
-          </excludes>
-          <aggregations>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
-              <includes>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/auto.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/qrerror/combined.css</output>
-              <includes>
-                <include>${project.build.directory}/${project.build.finalName}/tango/dark.css</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/zomg_ponies/combined.css</output>
-              <includes>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/zomg_ponies/main.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/waltz/combined.css</output>
-              <includes>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/waltz/main.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/waltz/syntax.css</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/black/combined.css</output>
-              <includes>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/black/main.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
-              </includes>
-            </aggregation>
-            <aggregation>
-              <removeIncluded>false</removeIncluded>
-              <insertNewLine>true</insertNewLine>
-              <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
-              <includes>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/white2/main.css</include>
-                <include>${project.build.directory}/${project.build.finalName}/white2/idea.css</include>
-              </includes>
-            </aggregation>
-          </aggregations>
         </configuration>
       </plugin>
 
@@ -836,6 +749,23 @@
             </goals>
           </execution>
           <execution>
+            <!-- Темы подсветки синтаксиса: warSourceExcludes не даёт war-плагину скопировать в webapp сырые CSS,
+                 а без них не из чего собрать combined.css -->
+            <id>copy-syntax-theme-css</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <target>
+                <copy todir="${project.build.directory}/${project.build.finalName}">
+                  <fileset dir="${basedir}/src/main/webapp"
+                           includes="tango/syntax.css,waltz/syntax.css,black/ir_black.css,white2/idea.css"/>
+                </copy>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
             <id>make-swiffy-classic</id>
             <phase>process-resources</phase>
             <configuration>
@@ -901,6 +831,70 @@
                     </or>
                   </condition>
                 </fail>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <!-- Стили темы одним файлом. Это только конкатенация: вывод Sass уже сжат (COMPRESSED), стили webjar'ов
+                 минифицированы их авторами, так что дополнительная минификация давала бы меньше процента -->
+            <id>concat-theme-css</id>
+            <phase>compile</phase>
+            <configuration>
+              <target>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/tango/combined.css"
+                        encoding="UTF-8" outputencoding="UTF-8" fixlastline="true">
+                  <filelist dir="${project.build.directory}/${project.build.finalName}">
+                    <file name="js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css"/>
+                    <file name="js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css"/>
+                    <file name="tango/auto.css"/>
+                    <file name="tango/syntax.css"/>
+                  </filelist>
+                </concat>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/qrerror/combined.css"
+                        encoding="UTF-8" outputencoding="UTF-8" fixlastline="true">
+                  <filelist dir="${project.build.directory}/${project.build.finalName}">
+                    <file name="tango/dark.css"/>
+                  </filelist>
+                </concat>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/zomg_ponies/combined.css"
+                        encoding="UTF-8" outputencoding="UTF-8" fixlastline="true">
+                  <filelist dir="${project.build.directory}/${project.build.finalName}">
+                    <file name="js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css"/>
+                    <file name="js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css"/>
+                    <file name="zomg_ponies/main.css"/>
+                    <file name="tango/syntax.css"/>
+                  </filelist>
+                </concat>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/waltz/combined.css"
+                        encoding="UTF-8" outputencoding="UTF-8" fixlastline="true">
+                  <filelist dir="${project.build.directory}/${project.build.finalName}">
+                    <file name="js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css"/>
+                    <file name="js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css"/>
+                    <file name="waltz/main.css"/>
+                    <file name="waltz/syntax.css"/>
+                  </filelist>
+                </concat>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/black/combined.css"
+                        encoding="UTF-8" outputencoding="UTF-8" fixlastline="true">
+                  <filelist dir="${project.build.directory}/${project.build.finalName}">
+                    <file name="js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css"/>
+                    <file name="js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css"/>
+                    <file name="black/main.css"/>
+                    <file name="black/ir_black.css"/>
+                  </filelist>
+                </concat>
+                <concat destfile="${project.build.directory}/${project.build.finalName}/white2/combined.css"
+                        encoding="UTF-8" outputencoding="UTF-8" fixlastline="true">
+                  <filelist dir="${project.build.directory}/${project.build.finalName}">
+                    <file name="js/META-INF/resources/webjars/swiffy-slider/${swiffy-slider.version}/dist/css/swiffy-slider.css"/>
+                    <file name="js/META-INF/resources/webjars/tippy.js/${tippy.version}/dist/tippy.css"/>
+                    <file name="white2/main.css"/>
+                    <file name="white2/idea.css"/>
+                  </filelist>
+                </concat>
               </target>
             </configuration>
             <goals>
