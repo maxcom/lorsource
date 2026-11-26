@@ -26,7 +26,7 @@ const path = require('node:path');
 const webapp = path.join(__dirname, '../../main/webapp');
 const addFormSource = fs.readFileSync(path.join(webapp, 'js/add-form.js'), 'utf8');
 const EDITOR_READY = 'markup-editor';
-const WIRING = "$script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP', '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'],"
+const WIRING = "$script(['/js/markup-editor.js?<lor:assetVersion/>', '/js/add-form.js?<lor:assetVersion/>'],"
   + " 'markup-editor')";
 
 // В браузере add-form.js — обычный скрипт с глобальными window, $script и $. Здесь он выполняется

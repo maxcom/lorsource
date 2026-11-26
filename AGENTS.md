@@ -106,13 +106,22 @@ devcontainer up --workspace-folder . --remove-existing-container   # rebuild fro
 mvn -DskipTests package jetty:run-war > server.log 2>&1 &
 ```
 
-Server: http://127.0.0.1:8080/ — **must be restarted after any code change.** Stop with `mvn jetty:stop` (stopPort 9999).
+Server: http://127.0.0.1:8080/ — **must be restarted after a change in Scala or Java code.** Stop with `mvn jetty:stop`
+(stopPort 9999). `jetty:run-war` takes the lifecycle through `package` first (unit tests included), so it rebuilds the
+webapp before starting.
 
-JS and CSS URLs carry the build stamp (`?MAVEN_BUILD_TIMESTAMP` → `?yyyyMMdd-HHmm`, substituted by
-`maven-replacer-plugin` at the `package` phase); `urlrewrite.xml` serves versioned assets with
-`Cache-Control: max-age=315360000` (10 years). Without `clean`, an incremental `mvn package` leaves unchanged JSPs
-untouched in `target/`, so the stamp stays old and browsers keep running the previous JS/CSS. After editing JS or CSS
-build with `mvn clean package` (or disable the browser cache).
+JS and CSS URLs carry a version stamp: `?<lor:assetVersion/>` (`WEB-INF/tags/assetVersion.tag`) prints the modification
+time of the newest of the files listed in `AssetVersion.Files`; `urlrewrite.xml` serves assets with a query string using
+`Cache-Control: max-age=315360000` (10 years). Nothing is substituted into JSPs at build time, so no `clean` is needed.
+After an edit, with the server running:
+
+- JS or SCSS: `mvn -DskipTests compile`, then reload the page. The server serves the static files straight from
+  `target/lor-1.0-SNAPSHOT` and the page links to them under the new stamp — no `package`, no restart.
+- JSP: `mvn -DskipTests package`, then reload the page. Jasper notices the changed file within a few seconds
+  (`modificationTestInterval`); no restart.
+- Scala or Java: `mvn -DskipTests package`, then restart.
+
+A new file whose URL carries the stamp must be added to `AssetVersion.Files` — the stamp follows only the listed files.
 
 All users in the test database have password `passwd`:
 * maxcom: administrator, full permissions
@@ -127,7 +136,11 @@ All users in the test database have password `passwd`:
   (`markup-editor.js`, `add-form.js`, `realtime.js`, ...); WebJar JS libraries are unpacked and concatenated into
   `plugins.js` by `maven-antrun-plugin` at `compile` phase. A new file is shipped only if it is listed in the plugin's
   includes.
-- The WAR excludes raw source CSS/JS (`warSourceExcludes`) — only processed copies ship.
+- The WAR excludes raw source CSS/JS (`warSourceExcludes`) — only processed copies ship. The pre-built
+  `highlight.min.js` and `qrerror/good-penguin.png` are copied by `maven-antrun-plugin` at `process-resources`, so they
+  are in place in a build without tests (`-DskipTests`) as well.
+- The directories the dev server writes to (`target/uploads/{gallery,images,gallery/preview,photos}` for `upload.path`)
+  are created by `maven-antrun-plugin` at `process-resources`; the application never creates them itself.
 - Markup editors (`.markup-tabs` in the topic, comment, profile and group forms) are split in two:
   - `markup-editor.js` (global `MarkupEditor`) is the logic: commands for Markdown and LORCODE, finding markup that is
     already there, editing the textarea. It must not touch the DOM at load time — that is what keeps it loadable in Node
@@ -138,8 +151,8 @@ All users in the test database have password `passwd`:
     closing `[/list]`. Inside code blocks Enter is left to the browser. The logic is `editor.newline()` in
     `markup-editor.js`, the key handlers live in `initMarkupToolbar`. Shift+Enter stays a plain line break, and a
     `beforeinput` handler covers mobile keyboards that do not report Enter in `keydown`.
-  Pages load both files with a single call — `$script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP',
-  '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor')` — which fetches them in parallel; they execute in
+  Pages load both files with a single call — `$script(['/js/markup-editor.js?<lor:assetVersion/>',
+  '/js/add-form.js?<lor:assetVersion/>'], 'markup-editor')` — which fetches them in parallel; they execute in
   either order. `$script.ready('markup-editor')` fires once both have executed, and only code running inside it may
   touch `MarkupEditor`: `initPreviewTabs` waits for it itself, so it is safe to call from anywhere (including a
   DOM-ready callback, which does *not* wait for the second file). A page that needs code after loading uses

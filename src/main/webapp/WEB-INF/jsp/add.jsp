@@ -33,7 +33,7 @@
 
 <title>Добавить сообщение</title>
 <script type="text/javascript">
-  $script(['/js/markup-editor.js?MAVEN_BUILD_TIMESTAMP', '/js/add-form.js?MAVEN_BUILD_TIMESTAMP'], 'markup-editor');
+  $script(['/js/markup-editor.js?<lor:assetVersion/>', '/js/add-form.js?<lor:assetVersion/>'], 'markup-editor');
   $script.ready('markup-editor', function() {
     setupFormWithSpinner({
       formSelector: '#messageForm',

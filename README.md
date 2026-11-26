@@ -55,6 +55,12 @@ devcontainer exec mvn -DskipTests package jetty:run-war
 
 Сервер доступен на хосте по адресу: **http://127.0.0.1:8080/**. Остановка через Ctrl-C.
 
+После правки JS или SCSS перезапуск не нужен: пересоберите статику в другом терминале и обновите страницу.
+
+```bash
+devcontainer exec mvn -DskipTests compile
+```
+
 В БД пароли всех пользователей установлены в `passwd`.
 
 ## Пересборка окружения

@@ -18,24 +18,25 @@
 <%@ page import="java.io.InputStream" %>
 <%@ page import="java.nio.charset.StandardCharsets" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <!DOCTYPE html>
 <c:choose>
   <c:when test="${template.style == 'tango'}">
     <html lang=ru data-theme="dark">
-    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?<lor:assetVersion/>">
   </c:when>
   <c:when test="${template.style == 'tango-light'}">
     <html lang=ru data-theme="light">
-    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?<lor:assetVersion/>">
   </c:when>
   <c:when test="${template.style == 'tango-auto'}">
     <html lang=ru data-theme="auto">
-    <link rel="stylesheet" type="text/css" href="/tango/combined.css?MAVEN_BUILD_TIMESTAMP">
+    <link rel="stylesheet" type="text/css" href="/tango/combined.css?<lor:assetVersion/>">
   </c:when>
   <c:otherwise>
     <html lang=ru>
-    <link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?MAVEN_BUILD_TIMESTAMP">
+    <link rel="stylesheet" type="text/css" href="/${template.style}/combined.css?<lor:assetVersion/>">
   </c:otherwise>
 </c:choose>
 <head>
@@ -47,7 +48,7 @@
   }
 })();
 </script>
-<link rel="preload" href="/js/lor.js?MAVEN_BUILD_TIMESTAMP" as="script">
+<link rel="preload" href="/js/lor.js?<lor:assetVersion/>" as="script">
 
 <link rel="yandex-tableau-widget" href="/manifest.json" />
 <meta name="referrer" content="always">
@@ -71,18 +72,18 @@
   $script('/webjars/jquery/3.7.1/jquery.min.js', 'jquery');
 
   $script.ready('jquery', function() {
-    $script('/js/lor.js?MAVEN_BUILD_TIMESTAMP', 'lorjs');
-    $script('/js/plugins.js?MAVEN_BUILD_TIMESTAMP', 'plugins');
+    $script('/js/lor.js?<lor:assetVersion/>', 'lorjs');
+    $script('/js/plugins.js?<lor:assetVersion/>', 'plugins');
   });
 
-  $script('/js/highlight.min.js?MAVEN_BUILD_TIMESTAMP', 'hljs');
+  $script('/js/highlight.min.js?<lor:assetVersion/>', 'hljs');
   $script.ready(['jquery', 'hljs'], function() {
     $(function() {
       hljs.initHighlighting();
     });
   });
 
-  $script('/js/realtime.js?MAVEN_BUILD_TIMESTAMP', "realtime");
+  $script('/js/realtime.js?<lor:assetVersion/>', "realtime");
 
   $script.ready('lorjs', function() {
     fixTimezone("${timezone}");

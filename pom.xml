@@ -14,7 +14,6 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>25</java.version>
 
-    <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <!-- Node is downloaded by frontend-maven-plugin into node/ solely to run the JS tests in src/test/js;
          the project has no npm dependencies. skipTests gets a default so that other plugins can honour it -->
     <node.version>v26.13.1</node.version>
@@ -809,12 +808,27 @@
               <target>
                 <copy file="${basedir}/src/main/webapp/js/script.min.js"
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
+                <copy file="${basedir}/src/main/webapp/js/highlight.min.js"
+                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${basedir}/src/main/webapp/js/jquery.hotkeys.js"
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${basedir}/src/main/webapp/js/pattern.js"
                       todir="${project.build.directory}/${project.build.finalName}/js/"/>
                 <copy file="${project.build.directory}/${project.build.finalName}/js/META-INF/resources/webjars/google-diff-match-patch/20121119-1/diff_match_patch.js"
                       tofile="${project.build.directory}/${project.build.finalName}/js/diff_match_patch.js"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>copy-qrerror-image</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <target>
+                <copy file="${basedir}/src/main/webapp/img/good-penguin.png"
+                      todir="${project.build.directory}/${project.build.finalName}/qrerror/"/>
               </target>
             </configuration>
             <goals>
@@ -926,19 +940,16 @@
             </goals>
           </execution>
           <execution>
+            <!-- Каталоги загрузок dev-сервера (upload.path=target/uploads/): приложение само их не создаёт,
+                 поэтому они нужны в основной фазе, а не только в тестовой -->
             <id>create-temp-storage</id>
-            <phase>generate-test-resources</phase>
+            <phase>process-resources</phase>
             <configuration>
               <target>
-                <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
                 <mkdir dir="${project.build.directory}/uploads/gallery"/>
                 <mkdir dir="${project.build.directory}/uploads/images"/>
                 <mkdir dir="${project.build.directory}/uploads/gallery/preview"/>
                 <mkdir dir="${project.build.directory}/uploads/photos"/>
-                <copy file="${basedir}/src/main/webapp/img/good-penguin.png"
-                      todir="${project.build.directory}/${project.build.finalName}/qrerror/"/>
-                <copy file="${basedir}/src/main/webapp/js/highlight.min.js"
-                      todir="${project.build.directory}/${project.build.finalName}/js/"/>
               </target>
             </configuration>
             <goals>
@@ -946,40 +957,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>com.google.code.maven-replacer-plugin</groupId>
-        <artifactId>replacer</artifactId>
-        <version>1.5.3</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>replace</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <basedir>${project.basedir}</basedir>
-          <includes>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/head.jsp</include>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/view-topic.jsp</include>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/add_comment.jsp</include>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/comment-message.jsp</include>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/edit_comment.jsp</include>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/add.jsp</include>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/edit.jsp</include>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/edit-profile.jsp</include>
-            <include>target/${project.artifactId}-${project.version}/WEB-INF/jsp/groupmod.jsp</include>
-          </includes>
-          <replacements>
-            <replacement>
-              <token>MAVEN_BUILD_TIMESTAMP</token>
-              <value>${maven.build.timestamp}</value>
-            </replacement>
-          </replacements>
-        </configuration>
       </plugin>
 
       <plugin>
