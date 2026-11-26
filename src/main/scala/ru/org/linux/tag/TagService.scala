@@ -283,10 +283,6 @@ class TagService(
               b.mustNot(Query.of(q => q.term(TermQuery.of(t => t.field("group").value(FieldValue.of("talks")))))))))
     }
 
-    val dateTwoYearsAgo = LocalDate
-      .now()
-      .minus(2, java.time.temporal.ChronoUnit.YEARS)
-      .format(DateTimeFormatter.ISO_LOCAL_DATE)
     val dateOneYearAgo = LocalDate
       .now()
       .minus(1, java.time.temporal.ChronoUnit.YEARS)
@@ -299,12 +295,6 @@ class TagService(
         Query.of(q => q.range(RangeQuery.of(r => r.field("postdate").gte(JsonData.of(dateOneYearAgo)))))
       ) ++ groupFilter ++ additionalFilter
 
-    val bgFilters = Seq(
-      Query.of(q => q.term(TermQuery.of(t => t.field("is_comment").value(FieldValue.of("false"))))),
-      Query.of(q => q.term(TermQuery.of(t => t.field("section").value(FieldValue.of(section.getUrlName))))),
-      Query.of(q => q.range(RangeQuery.of(r => r.field("postdate").gte(JsonData.of(dateTwoYearsAgo)))))
-    )
-
     val request = new SearchRequest.Builder()
       .index(MessageIndex)
       .size(0)
@@ -312,13 +302,11 @@ class TagService(
       .aggregations(
         "active",
         a =>
-          a.significantTerms(st =>
+          a.terms(st =>
             st.field("tag")
               .size(MaxActiveTags)
-              .minDocCount(5)
-              // исключаем на стороне OpenSearch, чтобы тег не занимал место в size
-              .exclude(TermsExclude.of(e => e.terms(ExcludedActiveTags.asJava)))
-              .backgroundFilter(Query.of(q => q.bool(BoolQuery.of(bb => bb.filter(bgFilters.asJava))))))
+              .minDocCount(10)
+              .exclude(TermsExclude.of(e => e.terms(ExcludedActiveTags.asJava))))
       )
       .build()
 
@@ -326,7 +314,7 @@ class TagService(
       .search(request, classOf[Void])
       .asScala
       .map: r =>
-        val buckets = r.aggregations.get("active").sigsterms().buckets.array().asScala
+        val buckets = r.aggregations.get("active").sterms().buckets.array().asScala
         val tags = buckets.map(b => tagRef(b.key, section)).toVector.sorted
 
         if tags.sizeIs >= MinActiveTags then tags else Seq.empty

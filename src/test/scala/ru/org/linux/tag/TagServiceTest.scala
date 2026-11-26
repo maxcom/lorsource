@@ -22,7 +22,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, times, verify, when}
 import org.opensearch.client.opensearch.OpenSearchAsyncClient
 import org.opensearch.client.opensearch._types.ShardStatistics
-import org.opensearch.client.opensearch._types.aggregations.{Aggregate, SignificantStringTermsBucket}
+import org.opensearch.client.opensearch._types.aggregations.{Aggregate, SignificantStringTermsBucket, StringTermsBucket}
 import org.opensearch.client.opensearch.core.{CountRequest, CountResponse, SearchRequest, SearchResponse}
 import org.opensearch.client.opensearch.core.search.{Hit, HitsMetadata, TotalHits, TotalHitsRelation}
 import ru.org.linux.group.GroupService
@@ -56,10 +56,16 @@ class TagServiceTest extends FunSuite:
   private def makeBucket(key: String): SignificantStringTermsBucket =
     SignificantStringTermsBucket.of(b => b.key(key).docCount(10L).bgCount(100L).score(1.0))
 
-  private def makeSearchResponse(aggName: String, keys: Seq[String]): SearchResponse[Void] =
-    val agg = Aggregate.of(a =>
+  private def makeTermsBucket(key: String): StringTermsBucket = StringTermsBucket.of(b => b.key(key).docCount(10L))
+
+  private def makeSigsterms(keys: Seq[String]): Aggregate =
+    Aggregate.of(a =>
       a.sigsterms(s => s.docCount(100L).bgCount(200L).buckets(b => b.array(keys.map(makeBucket).asJava))))
 
+  private def makeSterms(keys: Seq[String]): Aggregate =
+    Aggregate.of(a => a.sterms(s => s.buckets(b => b.array(keys.map(makeTermsBucket).asJava))))
+
+  private def makeSearchResponse(aggName: String, agg: Aggregate): SearchResponse[Void] =
     new SearchResponse.Builder[Void]()
       .took(1L)
       .timedOut(false)
@@ -78,9 +84,13 @@ class TagServiceTest extends FunSuite:
       .shards(new ShardStatistics.Builder().total(1).successful(1).failed(0).build())
       .build()
 
-  private def stubSearch(client: OpenSearchAsyncClient, aggName: String, keys: String*): Unit =
+  private def stubSearch(
+      client: OpenSearchAsyncClient,
+      aggName: String,
+      agg: Seq[String] => Aggregate,
+      keys: String*): Unit =
     when(client.search(any[SearchRequest](), any[Class[Void]]())).thenReturn(
-      CompletableFuture.completedFuture(makeSearchResponse(aggName, keys.toSeq)))
+      CompletableFuture.completedFuture(makeSearchResponse(aggName, agg(keys.toSeq))))
 
   private def stubSearchFailure(client: OpenSearchAsyncClient): Unit =
     when(client.search(any[SearchRequest](), any[Class[Void]]())).thenReturn(
@@ -95,7 +105,7 @@ class TagServiceTest extends FunSuite:
 
   test("getRelatedTags: результат кешируется, повторный вызов не ходит в OpenSearch"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "related", "related1", "related2")
+    stubSearch(client, "related", makeSigsterms, "related1", "related2")
     val service = makeService(client)
 
     val first = Await.result(service.getRelatedTags("foo", 500.millis.fromNow), 10.seconds)
@@ -108,7 +118,7 @@ class TagServiceTest extends FunSuite:
 
   test("getRelatedTags: при сбое OpenSearch отдаётся stale значение"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "related", "related1")
+    stubSearch(client, "related", makeSigsterms, "related1")
     val service = makeService(client)
 
     val original = Await.result(service.getRelatedTags("foo", 500.millis.fromNow), 10.seconds)
@@ -165,7 +175,7 @@ class TagServiceTest extends FunSuite:
 
   test("getActiveTopTags: результат кешируется, повторный вызов не ходит в OpenSearch"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "active", "active1", "active2", "active3", "active4")
+    stubSearch(client, "active", makeSterms, "active1", "active2", "active3", "active4")
     val service = makeService(client)
 
     val first = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
@@ -178,7 +188,7 @@ class TagServiceTest extends FunSuite:
 
   test("getActiveTopTags: при сбое OpenSearch отдаётся stale значение"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "active", "active1", "active2", "active3", "active4")
+    stubSearch(client, "active", makeSterms, "active1", "active2", "active3", "active4")
     val service = makeService(client)
 
     val original = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
@@ -200,7 +210,7 @@ class TagServiceTest extends FunSuite:
 
   test("getActiveTopTags: linux исключается из агрегации и не занимает место в size"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "active", "active1", "active2", "active3", "active4")
+    stubSearch(client, "active", makeSterms, "active1", "active2", "active3", "active4")
     val service = makeService(client)
 
     val result = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
@@ -209,12 +219,12 @@ class TagServiceTest extends FunSuite:
     val captor = ArgumentCaptor.forClass(classOf[SearchRequest])
     verify(client).search(captor.capture(), any[Class[Void]]())
 
-    val aggregation = captor.getValue.aggregations().get("active").significantTerms()
+    val aggregation = captor.getValue.aggregations().get("active").terms()
     assertEquals(aggregation.exclude().terms(), java.util.List.of("linux"))
 
   test("getActiveTopTags: меньше четырёх тегов — пустой список"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "active", "active1", "active2", "active3")
+    stubSearch(client, "active", makeSterms, "active1", "active2", "active3")
     val service = makeService(client)
 
     val result = Await.result(service.getActiveTopTags(makeSection, None, None, 500.millis.fromNow), 10.seconds)
@@ -222,7 +232,7 @@ class TagServiceTest extends FunSuite:
 
   test("пять сбоев подряд открывают breaker: дальше stale отдаётся без запроса к OpenSearch"):
     val client = mock(classOf[OpenSearchAsyncClient])
-    stubSearch(client, "related", "related1")
+    stubSearch(client, "related", makeSigsterms, "related1")
     val service = makeService(client)
 
     val original = Await.result(service.getRelatedTags("foo", 500.millis.fromNow), 10.seconds)
