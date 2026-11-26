@@ -145,6 +145,12 @@ All users in the test database have password `passwd`:
   DOM-ready callback, which does *not* wait for the second file). A page that needs code after loading uses
   `$script.ready('markup-editor', function () {...})`. `markup-editor-loading.test.js` checks that every page
   registers the name — without it `initPreviewTabs` would never run.
+- The reply field of the inline comment form (`#commentForm` inside `.comment-form-inline` on the topic page) is sized by
+  CSS alone (`sass/_form.scss`): 5 lines by default (`min-height`), it grows with the text (`field-sizing: content`) up
+  to the window (`max-height`) and then scrolls; in browsers without `field-sizing` it stays 5 lines. The corner handle
+  is kept on purpose: a drag sets an inline width/height, and the field stops following the text until the page is
+  reloaded. YUI Compressor strips the spaces around `+` inside `calc()` (`calc(5lh + 1em)` becomes an invalid
+  `calc(5lh+1em)`), so 5 lines is a plain `em` value over an explicit `line-height` — don't put `a + b` into `calc()`.
 - Node.js is downloaded by the build solely to run the JS tests (see Running Tests); there is no `package.json`.
 - The editor logic is covered by the JS tests; layout and DOM behaviour have no automated tests — verify those in a
   browser against the dev server.
