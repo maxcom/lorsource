@@ -47,6 +47,6 @@
   &:hover,
   &[aria-selected="true"] {
     background-color: var(--button-primary-background);
-    color: var(--table-link-color);
+    color: var(--button-primary-text-color, var(--table-link-color));
   }
 }

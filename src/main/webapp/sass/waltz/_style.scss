@@ -445,10 +445,48 @@ fieldset legend {
 
 #bd .btn-primary {
   background-color: var(--button-primary-background);
+  color: var(--button-primary-text-color);
+
+  &:visited {
+    color: var(--button-primary-text-color);
+  }
+}
+
+// btn-primary есть и у реакции без btn (reactions.tag), она рисует свою рамку
+#bd .btn.btn-primary {
+  border-color: transparent;
 }
 
 #bd .btn-default {
   background-color: var(--table-border-color);
+}
+
+#bd .btn-selected {
+  background-color: var(--button-selected-background);
+  color: var(--button-selected-text-color);
+
+  &:visited {
+    color: var(--button-selected-text-color);
+  }
+}
+
+#bd .btn-danger {
+  border-color: transparent;
+  background-color: var(--button-danger-background);
+  color: var(--button-danger-text-color);
+
+  &:visited {
+    color: var(--button-danger-text-color);
+  }
+}
+
+#bd .btn.disabled {
+  cursor: not-allowed;
+  opacity: .65;
+
+  &:hover {
+    box-shadow: none;
+  }
 }
 
 .fav-buttons {

@@ -43,7 +43,11 @@ $button_border_color: #D4D4D4;
 $button_selected_text_color: #000;
 $button_text_color: $table_link_color;
 
-$button_primary_background: #88ABDC;
+$button_primary_background: $link_color;
+$button_primary_text_color: #FFF;
+
+$button_danger_background: #A40000;
+$button_danger_text_color: #FFF;
 
 $icon_button_active_color: #c17d11;
 
@@ -81,6 +85,9 @@ $unread_marker_color: #729fcf;
   --button-border-color: #{$button_border_color};
   --button-selected-text-color: #{$button_selected_text_color};
   --button-primary-background: #{$button_primary_background};
+  --button-primary-text-color: #{$button_primary_text_color};
+  --button-danger-background: #{$button_danger_background};
+  --button-danger-text-color: #{$button_danger_text_color};
   --icon-button-active-color: #{$icon_button_active_color};
   --tagpage-group-label-background: #{$tagpage_group_label_background};
   --stars-color: #{$stars_color};
