@@ -629,6 +629,8 @@ h1 {
 
 .msg_body .infoblock, .entry-body .infoblock {
   border: 1px solid;
+  // свой контекст форматирования: рамка обходит обтекаемые .fav-buttons (мобильная вёрстка), а не проходит под ними
+  display: flow-root;
 }
 
 .msg_body .infoblock:after {
