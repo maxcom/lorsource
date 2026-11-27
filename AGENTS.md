@@ -190,6 +190,7 @@ All users in the test database have password `passwd`:
 - Follow `.scalafmt.conf` (scala3 dialect, new syntax: `rewrite.scala3.convertToNewSyntax`, optional braces removed)
 - Strict logging: `com.typesafe.scalalogging.StrictLogging`
 - `if then` / `if then else` without parens; indentation-based `match`; `end` markers where clarity benefits
+- Date ranges: compute boundaries with `LocalDate`/`ZonedDateTime` (e.g. `YearMonth.atDay(1).atStartOfDay(zone)`), convert to `OffsetDateTime` only at the JDBC boundary — `OffsetDateTime.plusMonths` keeps the old offset and leaves a one-hour hole when the zone offset changes across a month boundary
 - Prefer `given`/`using`, extension methods, enums over sealed trait ADTs
 - Constants: `UpperCamelCase`
 

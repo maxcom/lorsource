@@ -150,6 +150,7 @@
     <property name="destination" ref="searchQueue"/>
     <property name="sessionTransacted" value="true"/>
     <property name="concurrency" value="4"/>
+    <property name="errorHandler" ref="searchQueueErrorHandler"/>
   </bean>
 
   <task:annotation-driven proxy-target-class="true"/>

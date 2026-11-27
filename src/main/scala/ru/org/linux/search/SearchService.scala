@@ -16,6 +16,7 @@
 package ru.org.linux.search
 
 import com.google.common.base.Strings
+import com.typesafe.scalalogging.StrictLogging
 import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import org.opensearch.client.json.JsonData
@@ -41,7 +42,7 @@ import scala.jdk.CollectionConverters.*
 
 @Service
 class SearchService(elastic: OpenSearchClient, userService: UserService, siteConfig: SiteConfig,
-                    sectionService: SectionService, groupService: GroupService) {
+                    sectionService: SectionService, groupService: GroupService) extends StrictLogging {
   import ru.org.linux.search.SearchService.*
 
   private def processQueryString(queryText: String): Query = {
@@ -316,11 +317,16 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
     all +: (missing ++ items)
   }
 
-  private def buildGroupFacet(maybeSection: Option[StringTermsBucket], selected:Option[(String, String)]): Option[Seq[FacetItem]] = {
-    def mkItem(section:Section, groupUrlName:String, count:Long) = {
-      val group = groupService.getGroup(section, groupUrlName)
-      val name = group.title.toLowerCase
-      FacetItem(groupUrlName, s"$name ($count)")
+  private[search] def buildGroupFacet(maybeSection: Option[StringTermsBucket], selected:Option[(String, String)]): Option[Seq[FacetItem]] = {
+    def mkItem(section:Section, groupUrlName:String, count:Long): Option[FacetItem] = {
+      // группы может не быть в базе, хотя она есть в индексе (удалена после переиндексации) или в ссылке поиска
+      groupService.getGroupOpt(section, groupUrlName, allowNumber = false).map { group =>
+        val name = group.title.toLowerCase
+        FacetItem(groupUrlName, s"$name ($count)")
+      }.orElse {
+        logger.warn(s"Search group facet: unknown group '$groupUrlName' in section ${section.getUrlName}, skipping")
+        None
+      }
     }
 
     val facetItems = maybeSection.map { sectionBucket =>
@@ -328,12 +334,12 @@ class SearchService(elastic: OpenSearchClient, userService: UserService, siteCon
       val groups = sectionBucket.aggregations.get("groups").sterms()
       val section = sectionService.getSectionByName(sectionName)
 
-      groups.buckets.array().asScala.map(entry =>
+      groups.buckets.array().asScala.flatMap(entry =>
         mkItem(section, entry.key, entry.docCount)
       ).toSeq
     }.getOrElse(Seq.empty)
 
-    val missing = selected.filter(key => facetItems.forall(_.key != key._2)).map(p =>
+    val missing = selected.filter(key => facetItems.forall(_.key != key._2)).flatMap(p =>
       mkItem(sectionService.getSectionByName(p._1), p._2, 0)
     ).toSeq
 

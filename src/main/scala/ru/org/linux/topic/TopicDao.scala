@@ -32,7 +32,7 @@ import ru.org.linux.warning.RuleWarning
 import scalikejdbc.*
 
 import java.sql.Timestamp
-import java.time.{LocalDate, ZoneId}
+import java.time.{OffsetDateTime, YearMonth, ZoneId}
 
 @Repository
 object TopicDao:
@@ -41,6 +41,14 @@ object TopicDao:
       Strings.isNullOrEmpty(s2)
     else
       s1.equals(s2)
+
+  /** Границы месяца [начало, конец): конец — полночь первого дня следующего месяца. Границы считаются независимо
+    * друг от друга, поэтому стык месяцев точен при любом переводе часов: `OffsetDateTime.plusMonths` сохраняет
+    * смещение начала и на стыке месяцев либо теряет, либо дублирует час.
+    */
+  def monthInterval(year: Int, month: Int, zone: ZoneId = ZoneId.systemDefault): (OffsetDateTime, OffsetDateTime) =
+    val first = YearMonth.of(year, month).atDay(1)
+    (first.atStartOfDay(zone).toOffsetDateTime, first.plusMonths(1).atStartOfDay(zone).toOffsetDateTime)
 
 @Repository
 class TopicDao(springDB: SpringDB):
@@ -79,8 +87,7 @@ class TopicDao(springDB: SpringDB):
             WHERE topics.id=$id""".map(selectTopic).single.apply()
 
   def getMessageForMonth(year: Int, month: Int): Seq[Int] =
-    val start = LocalDate.of(year, month, 1).atStartOfDay.atZone(ZoneId.systemDefault).toOffsetDateTime
-    val end = start.plusMonths(1)
+    val (start, end) = TopicDao.monthInterval(year, month)
 
     springDB.run:
       sql"SELECT id FROM topics WHERE postdate >= $start AND postdate < $end"
