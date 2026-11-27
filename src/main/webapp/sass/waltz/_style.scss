@@ -20,6 +20,28 @@ body {
   color: var(--text-color);
 }
 
+textarea, input, select {
+  background-color: var(--article-background);
+  color: var(--text-color);
+  border: 1px solid var(--table-border-color);
+  border-radius: .2em;
+}
+
+textarea {
+  padding: 0.5em;
+}
+
+input, select {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  line-height: 1.4;
+}
+
+textarea:focus, input:focus, select:focus {
+  border-color: transparent;
+  outline: 2px solid var(--link-color);
+}
+
 #mainpage {
     .nav {
         border: none;
@@ -300,6 +322,20 @@ input[type="checkbox"] {
   background-color: var(--article-background);
 }
 
+// баннер «добавлены новые комментарии» (realtime.js); #bd a:visited иначе красит ссылку в цвет текста
+#bd #realtime {
+  text-align: center;
+  padding: .5em 1em;
+  border-radius: .5em;
+
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-text-color);
+
+  a, a:visited {
+    color: inherit;
+  }
+}
+
 blockquote {
     border-left-color: #555753;
 }
@@ -443,6 +479,12 @@ fieldset legend {
   }
 }
 
+#bd .reaction {
+  &:hover:enabled {
+    box-shadow: 0 0 1px 1px var(--link-color);
+  }
+}
+
 #bd .btn-primary {
   background-color: var(--button-primary-background);
   color: var(--button-primary-text-color);
@@ -518,4 +560,25 @@ fieldset legend {
 
 .stars {
   color: var(--stars-color);
+}
+
+#bd .search-hl {
+  background-color: var(--table-hover-background);
+  font-style: normal;
+}
+
+.icon-tag-color {
+  color: var(--tag-color);
+}
+
+.icon-reply-color {
+  color: var(--link-color);
+}
+
+.icon-pin-color {
+  color: var(--icon-button-active-color);
+}
+
+.icon-user-color {
+  color: var(--signature-user-color);
 }
