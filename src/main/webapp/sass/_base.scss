@@ -526,6 +526,7 @@ textarea.error {
     height: 20em;
     width: 100%;
     box-sizing: border-box;
+    resize: vertical;
   }
 
   input[type='text'],
