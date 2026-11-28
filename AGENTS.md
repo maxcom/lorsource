@@ -173,12 +173,20 @@ All users in the test database have password `passwd`:
   `visualViewport` but not `innerHeight`. Every recalculation re-measures the form, which keeps growing after it opens
   (toolbar, captcha, reply field).
 - The browser also scrolls the page to the focused field itself when the keyboard opens, racing our scroll; on iOS
-  Safari the result depended on where the form was on the screen. On touch devices (`(pointer: coarse)`) the form is
-  therefore put at the top of the viewport *before* `focus()`, instantly (`inlineFormBeforeKeyboardTarget`), and kept
-  there until the viewport changes. From then on the page scroll is followed as well (`watchPageScroll`): a scroll that
-  has settled is answered with a recalculation; a scroll by the user (`touchmove`, `wheel`) stops the following.
+  Safari the result depended on where the form was on the screen. On touch devices (`(pointer: coarse)`) the reply
+  field therefore has to be out of the keyboard's way before `focus()` (`inlineFormBeforeKeyboardTarget`): the
+  keyboard is expected to take the share of the viewport learned from its last opening (`sessionStorage`
+  `lor.keyboardShare`; a share under 15 % is browser chrome, not a keyboard) or half of it, and the form is moved to
+  the top only when the field would end up under it — on a tablet in portrait there is usually room and nothing moves.
+  The move starts before `focus()` as a fast ease-out animation (`easeOutCubic`, 250 ms). As long as the viewport has
+  the height it had at opening — the keyboard has not opened yet, or has been dismissed again — the form is only kept
+  out of the keyboard's way; a dismissed keyboard does not move it back. Once the viewport has changed, the page scroll
+  is followed as well (`watchPageScroll`): a scroll that has settled is answered with a recalculation; while someone
+  else is scrolling — the browser, `isForeignScroll` — our animation is stopped and none is started; a scroll by the
+  user (`touchmove`, `wheel`) stops the following.
 - The maths and the watching are top-level functions (`visibleViewportRect`, `inlineFormScrollTarget`,
-  `inlineFormScrollTop`, `inlineFormBeforeKeyboardTarget`, `watchViewportResize`, `watchPageScroll`) covered by
+  `inlineFormScrollTop`, `inlineFormBeforeKeyboardTarget`, `keyboardShareOf`, `knownKeyboardShare`,
+  `rememberKeyboardShare`, `isForeignScroll`, `watchViewportResize`, `watchPageScroll`) covered by
   `src/test/js/inline-form-scroll.test.js`; only the DOM measurements and the jQuery calls are left in
   `revealInlineForm` itself. Desktop Chrome cannot emulate the on-screen keyboard: the touch flow is checked there by
   stubbing `visualViewport` (`height`, `pageTop`) and dispatching synthetic `resize`/`scroll` events; how iOS Safari and

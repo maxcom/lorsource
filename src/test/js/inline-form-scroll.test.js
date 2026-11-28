@@ -29,11 +29,13 @@ const addFormSource = fs.readFileSync(path.join(__dirname, '../../main/webapp/js
 // переданы параметрами
 const addForm = new Function('window', '$script', '$', addFormSource
     + '\nreturn {visibleViewportRect, inlineFormScrollTarget, inlineFormScrollTop, inlineFormBeforeKeyboardTarget,'
-    + ' watchViewportResize, watchPageScroll};')(
+    + ' keyboardShareOf, knownKeyboardShare, rememberKeyboardShare, isForeignScroll, watchViewportResize,'
+    + ' watchPageScroll};')(
   {}, {ready() {}}, () => {});
 const {
   visibleViewportRect, inlineFormScrollTarget, inlineFormScrollTop, inlineFormBeforeKeyboardTarget,
-  watchViewportResize, watchPageScroll
+  keyboardShareOf, knownKeyboardShare, rememberKeyboardShare, isForeignScroll, watchViewportResize,
+  watchPageScroll
 } = addForm;
 
 // Планшет в горизонтальной ориентации: окно 800px, с экранной клавиатурой видно верхние 450px
@@ -164,12 +166,76 @@ describe('от верха видимой части к прокрутке', () =
 });
 
 describe('до открытия клавиатуры', () => {
-  test('верх формы — к видимому верху: поле окажется там, где клавиатура его не закроет', () => {
-    assert.equal(inlineFormBeforeKeyboardTarget(replyForm(600), visibleRect(100, WINDOW_HEIGHT)), 600);
+  // клавиатура займёт половину окна: её верх — в 400px от видимого верха
+  const half = 0.5;
+
+  test('полю достаётся места над клавиатурой — форму не трогаем', () => {
+    // поле 250..362, до верха клавиатуры остаётся ещё 38px
+    assert.equal(inlineFormBeforeKeyboardTarget(replyForm(200), visibleRect(0, WINDOW_HEIGHT), half), null);
+  });
+
+  test('полю не хватает места — верх формы к видимому верху', () => {
+    // поле 350..462: низ поля на 62px ниже верха клавиатуры
+    assert.equal(inlineFormBeforeKeyboardTarget(replyForm(300), visibleRect(0, WINDOW_HEIGHT), half), 300);
+  });
+
+  test('та же форма там, где клавиатура занимает треть окна, — места хватает', () => {
+    assert.equal(inlineFormBeforeKeyboardTarget(replyForm(300), visibleRect(0, WINDOW_HEIGHT), 1 / 3), null);
   });
 
   test('форма уже верхом у видимого верха — прокручивать не нужно', () => {
-    assert.equal(inlineFormBeforeKeyboardTarget(replyForm(400), visibleRect(400, WINDOW_HEIGHT)), null);
+    // окно в 200px: верх клавиатуры на 500px, поле 450..562 — под ним
+    assert.equal(inlineFormBeforeKeyboardTarget(replyForm(400, 500), visibleRect(400, 200), half), null);
+  });
+});
+
+describe('доля окна под клавиатурой', () => {
+  test('измеряется по тому, насколько сжалась видимая часть после открытия формы', () => {
+    assert.equal(keyboardShareOf(WINDOW_HEIGHT, VISIBLE_WITH_KEYBOARD), 0.4375);
+  });
+
+  test('окно не сжималось или выросло — измерять нечего', () => {
+    assert.equal(keyboardShareOf(WINDOW_HEIGHT, WINDOW_HEIGHT), null);
+    assert.equal(keyboardShareOf(WINDOW_HEIGHT, WINDOW_HEIGHT + 50), null);
+  });
+
+  test('клавиатуру ещё не видели — половина окна', () => {
+    assert.equal(knownKeyboardShare(null), 0.5);
+    assert.equal(knownKeyboardShare({getItem: () => null}), 0.5);
+    assert.equal(knownKeyboardShare({getItem: () => 'нет'}), 0.5);
+    assert.equal(knownKeyboardShare({getItem: () => '1.5'}), 0.5);
+  });
+
+  test('измеренная при прошлом открытии — берётся из хранилища', () => {
+    assert.equal(knownKeyboardShare({getItem: () => '0.2987'}), 0.2987);
+  });
+
+  test('запоминается', () => {
+    const values = {};
+    const storage = {setItem: (key, value) => { values[key] = value; }};
+    rememberKeyboardShare(storage, 1 - 826 / 1180);
+
+    assert.deepEqual(values, {'lor.keyboardShare': '0.3'}); // без 0.30000000000000004
+  });
+
+  test('хранилище недоступно — не ошибка', () => {
+    assert.doesNotThrow(() => rememberKeyboardShare(null, 0.3));
+    assert.doesNotThrow(() => rememberKeyboardShare({setItem() { throw new Error('QuotaExceededError'); }}, 0.3));
+  });
+});
+
+describe('чужая прокрутка', () => {
+  test('в окне то, что только что записала наша анимация, — прокрутка наша', () => {
+    assert.equal(isForeignScroll(true, 318.4, 318.4), false);
+    assert.equal(isForeignScroll(true, 318.4, 319), false); // браузер округлил
+  });
+
+  test('в окне другое — страницу прокрутил кто-то ещё', () => {
+    assert.equal(isForeignScroll(true, 318.4, 290), true);
+  });
+
+  test('анимации нет — различать нечего', () => {
+    assert.equal(isForeignScroll(false, 0, 5000), false);
   });
 });
 
@@ -258,6 +324,22 @@ describe('сопровождение прокрутки, пока открыва
     assert.equal(recalculations, 0, 'прокрутка ещё идёт');
 
     t.mock.timers.tick(1);
+    assert.equal(recalculations, 1);
+  });
+
+  test('о каждом событии прокрутки сообщается сразу, пересчёт — после паузы', (t) => {
+    t.mock.timers.enable({apis: ['setTimeout']});
+    const win = fakeWindow();
+    let scrollEvents = 0;
+    let recalculations = 0;
+    watchPageScroll(win, () => recalculations++, () => scrollEvents++);
+
+    scroll(win);
+    scroll(win.visualViewport);
+    assert.equal(scrollEvents, 2);
+    assert.equal(recalculations, 0);
+
+    t.mock.timers.tick(100);
     assert.equal(recalculations, 1);
   });
 
