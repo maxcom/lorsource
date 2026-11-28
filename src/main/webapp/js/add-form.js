@@ -511,6 +511,108 @@ function setupPreviewTabs(formElement) {
   formElement._switchTab = switchTab;
 }
 
+/*
+ * Прокрутка к inline-форме ответа (revealInlineForm ниже).
+ *
+ * Видимая часть окна — то, что не закрыто панелями браузера и экранной клавиатурой. innerHeight для неё
+ * непригоден: клавиатура на планшете в горизонтальной ориентации занимает почти половину окна, а
+ * iOS Safari и Android Chrome (со 108) при её открытии innerHeight не меняют — сжимается только
+ * visualViewport. Возвращается в координатах документа; visualViewport учитывает и сдвиг видимой части
+ * вниз относительно прокрутки (offsetTop).
+ */
+function visibleViewportRect(win) {
+  const viewport = win.visualViewport;
+  if (viewport) {
+    return {top: viewport.pageTop, bottom: viewport.pageTop + viewport.height};
+  }
+
+  const top = win.pageYOffset;
+  return {top, bottom: top + win.innerHeight};
+}
+
+// отступы от краёв видимой части окна: под формой, когда она видна целиком, и до формы и поля ответа
+const INLINE_FORM_BOTTOM_GAP = 32;
+const INLINE_FORM_FIELD_GAP = 16;
+
+/*
+ * Куда прокрутить страницу, чтобы открытая форма ответа оказалась в видимой части окна visible.
+ * Обе заданы в координатах документа: окно — верхом и низом, форма — верхом top, высотой height
+ * и границами поля ответа msgTop..msgBottom.
+ *
+ * Форма помещается целиком — прижимаем её низ к видимому низу, оставив под ней INLINE_FORM_BOTTOM_GAP:
+ * видны и капча, и кнопки. Если места с отступом не хватает, отступ уступает — форма видна целиком,
+ * но уже без него. Не помещается (планшет с экранной клавиатурой, телефон) — важнее курсор:
+ * поле ответа должно быть видно целиком, а если и оно не влезает — его верх ставится к видимому верху.
+ * Верх формы при этом остаётся в кадре, насколько это возможно.
+ *
+ * Возвращает верх видимой части после прокрутки либо null, если прокручивать не нужно.
+ */
+function inlineFormScrollTarget(form, visible) {
+  const visibleHeight = visible.bottom - visible.top;
+  const formBottom = form.top + form.height;
+
+  if (form.height <= visibleHeight) {
+    if (form.top >= visible.top && formBottom + INLINE_FORM_BOTTOM_GAP <= visible.bottom) {
+      return null;
+    }
+    return Math.min(formBottom + INLINE_FORM_BOTTOM_GAP - visibleHeight, form.top);
+  }
+
+  if (form.msgTop >= visible.top && form.msgBottom + INLINE_FORM_FIELD_GAP <= visible.bottom) {
+    return null;
+  }
+
+  const formTop = form.top - INLINE_FORM_FIELD_GAP;
+  return Math.min(Math.max(form.msgBottom + INLINE_FORM_FIELD_GAP - visibleHeight, formTop), form.msgTop);
+}
+
+/*
+ * Переводит верх видимой части после прокрутки (то, что вернула inlineFormScrollTarget) в scrollTop.
+ * Это не одно и то же: видимая часть может быть сдвинута вниз по отношению к прокрутке
+ * (visualViewport.offsetTop), и после прокрутки сдвиг остаётся. Выше начала страницы не прокручивает.
+ */
+function inlineFormScrollTop(visibleTop, visible, scrollTop) {
+  return Math.max(0, visibleTop - (visible.top - scrollTop));
+}
+
+// сколько ждать экранную клавиатуру после focus (она открывается не сразу, при холодном старте — секунды)
+// и паузу после последнего изменения окна, чтобы считать её открывшейся до конца (мс)
+const KEYBOARD_OPEN_TIMEOUT = 3000;
+const KEYBOARD_SETTLE_TIMEOUT = 250;
+
+/*
+ * Вызывает onChange при каждом изменении видимой части окна, пока она меняется: экранная клавиатура
+ * открывается с анимацией, и событий приходит несколько. Если окно не изменилось за KEYBOARD_OPEN_TIMEOUT
+ * (настольный браузер, внешняя клавиатура) или изменения прекратились, наблюдение само прекращается.
+ * Возвращает функцию, которой его можно прекратить раньше — например, при закрытии формы.
+ *
+ * visualViewport.resize приходит там, где клавиатура сжимает только видимую часть окна (iOS Safari,
+ * Android Chrome со 108), window.resize — где она сжимает само окно (Android Chrome до 108).
+ */
+function watchViewportResize(win, onChange) {
+  let settleTimer = null;
+  let stopTimer = null;
+
+  const stop = () => {
+    clearTimeout(settleTimer);
+    clearTimeout(stopTimer);
+    win.visualViewport?.removeEventListener('resize', onResize);
+    win.removeEventListener('resize', onResize);
+  };
+
+  const onResize = () => {
+    onChange();
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(stop, KEYBOARD_SETTLE_TIMEOUT);
+  };
+
+  win.visualViewport?.addEventListener('resize', onResize);
+  win.addEventListener('resize', onResize);
+  stopTimer = setTimeout(stop, KEYBOARD_OPEN_TIMEOUT);
+
+  return stop;
+}
+
 $script.ready('jquery', function() {
   'use strict';
 
@@ -651,6 +753,8 @@ $script.ready('jquery', function() {
     if (isInline) {
       let inlineFormTransitionListener = null;
       let inlineFormAnimationFrame = null;
+      // прекращает пересчёт прокрутки при открытии экранной клавиатуры (см. revealInlineForm)
+      let stopRevealing = () => {};
 
       const prepareInlineFormContainer = () => {
         const container = commentFormContainer[0];
@@ -711,8 +815,6 @@ $script.ready('jquery', function() {
           inlineFormAnimationFrame = null;
           container.style.maxHeight = targetHeight + 'px';
         });
-
-        return targetHeight;
       };
 
       closeInlineForm = ({immediate = false} = {}) => {
@@ -721,6 +823,7 @@ $script.ready('jquery', function() {
           return;
         }
 
+        stopRevealing();
         removeInlineTransitionListener();
         cancelInlineAnimationFrame();
 
@@ -807,6 +910,44 @@ $script.ready('jquery', function() {
         });
       };
 
+      /*
+       * Прокручивает страницу к только что открытой форме и пересчитывает прокрутку, когда открывается
+       * экранная клавиатура: она появляется уже после focus, и первый расчёт видит окно без неё. Без
+       * пересчёта на планшете в горизонтальной ориентации форма, поставленная к низу окна по innerHeight,
+       * оказывается целиком под клавиатурой.
+       *
+       * При каждом пересчёте размеры формы измеряются заново: она растёт и после открытия — встаёт тулбар,
+       * загружается капча, растёт поле ответа.
+       */
+      const revealInlineForm = () => {
+        stopRevealing();
+
+        const scrollToForm = () => {
+          const visible = visibleViewportRect(window);
+          const msg = $("#msg");
+          const msgTop = msg.offset().top;
+          const visibleTop = inlineFormScrollTarget({
+            top: commentFormContainer.offset().top,
+            // scrollHeight — полная высота содержимого, даже пока max-height ещё анимируется
+            height: commentFormContainer[0].scrollHeight,
+            msgTop,
+            msgBottom: msgTop + msg.outerHeight()
+          }, visible);
+
+          if (visibleTop === null) {
+            return;
+          }
+
+          const targetScrollTop = inlineFormScrollTop(visibleTop, visible, $(window).scrollTop());
+
+          // пересчёт приходит и во время анимации клавиатуры: каждая прокрутка заменяет предыдущую
+          $('html,body').stop(true).animate({scrollTop: targetScrollTop}, 300);
+        };
+
+        scrollToForm();
+        stopRevealing = watchViewportResize(window, scrollToForm);
+      };
+
       const moveAndShowForm = (selector, replyToValue, quoteText) => {
         const replyTo = $("input[name='replyto']", commentFormContainer);
         if (replyTo.val() !== String(replyToValue)) {
@@ -850,7 +991,7 @@ $script.ready('jquery', function() {
           }
 
           loadCaptcha();
-          const formHeight = openInlineForm();
+          openInlineForm();
 
           const msgEl = document.getElementById('msg');
           if (msgEl) {
@@ -865,33 +1006,7 @@ $script.ready('jquery', function() {
             }
           }
 
-          const formTop = commentFormContainer.offset().top;
-          const viewportHeight = window.innerHeight;
-
-          const formBottom = formTop + formHeight;
-          const currentScrollTop = $(window).scrollTop();
-          const currentViewportBottom = currentScrollTop + viewportHeight;
-
-          let needsScroll;
-
-          if (formHeight <= viewportHeight) {
-            needsScroll = formTop < currentScrollTop || formBottom + 32 > currentViewportBottom;
-          } else {
-            const msgTop = $("#msg").offset().top;
-            needsScroll = msgTop < currentScrollTop || msgTop > currentViewportBottom;
-          }
-
-          if (needsScroll) {
-            let targetScrollTop;
-            if (formHeight <= viewportHeight) {
-              targetScrollTop = formBottom - viewportHeight + 32;
-            } else {
-              targetScrollTop = formTop - 16;
-            }
-            targetScrollTop = Math.max(0, targetScrollTop);
-
-            $('html,body').animate({scrollTop: targetScrollTop}, 300);
-          }
+          revealInlineForm();
         } else {
           closeInlineForm();
         }

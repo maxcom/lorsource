@@ -167,6 +167,14 @@ All users in the test database have password `passwd`:
   is kept but height-only (`resize: vertical` on `#commentForm`/`#messageForm` textareas in `sass/_base.scss` — width
   must not be user-changeable): a drag sets an inline height, and the field stops following the text until the page is
   reloaded. 5 lines is a plain `em` value over an explicit `line-height`.
+- The autoscroll of the inline comment form (`revealInlineForm` in `add-form.js`) measures the *visible* viewport
+  (`window.visualViewport`, falling back to `innerHeight`) and keeps recalculating while the on-screen keyboard
+  opens: the keyboard appears only after `focus()`, and iOS Safari and Android Chrome ≥ 108 shrink
+  `visualViewport` but not `innerHeight`. Every recalculation re-measures the form, which keeps growing after it opens
+  (toolbar, captcha, reply field). The maths and the watching are top-level functions
+  (`visibleViewportRect`, `inlineFormScrollTarget`, `inlineFormScrollTop`, `watchViewportResize`) covered by
+  `src/test/js/inline-form-scroll.test.js`; only the DOM measurements and the jQuery animation are left in
+  `revealInlineForm` itself.
 - Node.js is downloaded by the build solely to run the JS tests (see Running Tests); there is no `package.json`.
 - The editor logic is covered by the JS tests; layout and DOM behaviour have no automated tests — verify those in a
   browser against the dev server.
