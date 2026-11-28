@@ -575,10 +575,29 @@ function inlineFormScrollTop(visibleTop, visible, scrollTop) {
   return Math.max(0, visibleTop - (visible.top - scrollTop));
 }
 
+/*
+ * Куда прокрутить страницу до того, как поле ответа получит фокус, — на устройстве с экранной клавиатурой.
+ * Браузер сам прокручивает страницу к получившему фокус полю, когда открывается клавиатура, и делает это
+ * одновременно с нашей прокруткой: чья окажется последней, зависит от того, где была форма. Поле, которое
+ * и так видно там, где клавиатура его не закроет, он не трогает — поэтому до focus() форма ставится верхом
+ * к видимому верху, и поле оказывается в верхней части окна. Окончательно её расставит пересчёт по ходу
+ * открытия клавиатуры (inlineFormScrollTarget).
+ *
+ * Возвращает верх видимой части после прокрутки либо null, если прокручивать не нужно.
+ */
+function inlineFormBeforeKeyboardTarget(form, visible) {
+  return form.top === visible.top ? null : form.top;
+}
+
 // сколько ждать экранную клавиатуру после focus (она открывается не сразу, при холодном старте — секунды)
 // и паузу после последнего изменения окна, чтобы считать её открывшейся до конца (мс)
 const KEYBOARD_OPEN_TIMEOUT = 3000;
 const KEYBOARD_SETTLE_TIMEOUT = 250;
+// паузу после последнего события прокрутки, чтобы считать прокрутку законченной (мс)
+const KEYBOARD_SCROLL_SETTLE_TIMEOUT = 100;
+// насколько прокрутка может отличаться от рассчитанной, чтобы считать форму стоящей на месте (px):
+// браузер округляет дробную позицию
+const SCROLL_TOLERANCE = 1;
 
 /*
  * Вызывает onChange при каждом изменении видимой части окна, пока она меняется: экранная клавиатура
@@ -608,6 +627,44 @@ function watchViewportResize(win, onChange) {
 
   win.visualViewport?.addEventListener('resize', onResize);
   win.addEventListener('resize', onResize);
+  stopTimer = setTimeout(stop, KEYBOARD_OPEN_TIMEOUT);
+
+  return stop;
+}
+
+/*
+ * Вызывает onChange, когда прокрутка страницы закончилась — через KEYBOARD_SCROLL_SETTLE_TIMEOUT после
+ * последнего события. Нужно на устройстве с экранной клавиатурой: браузер подгоняет страницу к полю,
+ * когда клавиатура открывается, в том числе уже после того, как окно перестало меняться, — без пересчёта
+ * его прокрутка остаётся последней, и форма уходит вверх за пределы видимой части. Прокручивает страницу
+ * и наша собственная анимация: после неё onChange вызывается так же, и вызывающий код не должен ничего
+ * двигать, если форма уже на месте.
+ *
+ * Прокрутка пользователем — пальцем или колесом — наблюдение прекращает: её нельзя перебивать. Само оно
+ * прекращается вместе с ожиданием клавиатуры (KEYBOARD_OPEN_TIMEOUT).
+ */
+function watchPageScroll(win, onChange) {
+  let scrollTimer = null;
+  let stopTimer = null;
+
+  const stop = () => {
+    clearTimeout(scrollTimer);
+    clearTimeout(stopTimer);
+    win.visualViewport?.removeEventListener('scroll', onScroll);
+    win.removeEventListener('scroll', onScroll);
+    win.removeEventListener('touchmove', stop);
+    win.removeEventListener('wheel', stop);
+  };
+
+  const onScroll = () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(onChange, KEYBOARD_SCROLL_SETTLE_TIMEOUT);
+  };
+
+  win.visualViewport?.addEventListener('scroll', onScroll);
+  win.addEventListener('scroll', onScroll);
+  win.addEventListener('touchmove', stop, {passive: true});
+  win.addEventListener('wheel', stop, {passive: true});
   stopTimer = setTimeout(stop, KEYBOARD_OPEN_TIMEOUT);
 
   return stop;
@@ -918,34 +975,68 @@ $script.ready('jquery', function() {
        *
        * При каждом пересчёте размеры формы измеряются заново: она растёт и после открытия — встаёт тулбар,
        * загружается капча, растёт поле ответа.
+       *
+       * На устройстве с экранной клавиатурой (основное управление — касание) первая прокрутка делается
+       * до focus() и сразу, без анимации (inlineFormBeforeKeyboardTarget). Пока окно не изменилось,
+       * клавиатура считается ещё не открывшейся, и форма удерживается верхом у видимого верха; после
+       * открытия форму сопровождает и прокрутка страницы (watchPageScroll).
        */
       const revealInlineForm = () => {
         stopRevealing();
 
-        const scrollToForm = () => {
+        const win = $(window);
+        const touchDevice = window.matchMedia('(pointer: coarse)').matches;
+        const atOpen = visibleViewportRect(window);
+        const visibleHeightAtOpen = atOpen.bottom - atOpen.top;
+
+        const formScrollTop = () => {
           const visible = visibleViewportRect(window);
           const msg = $("#msg");
           const msgTop = msg.offset().top;
-          const visibleTop = inlineFormScrollTarget({
+          const form = {
             top: commentFormContainer.offset().top,
             // scrollHeight — полная высота содержимого, даже пока max-height ещё анимируется
             height: commentFormContainer[0].scrollHeight,
             msgTop,
             msgBottom: msgTop + msg.outerHeight()
-          }, visible);
+          };
 
-          if (visibleTop === null) {
+          const keyboardPending = touchDevice && visible.bottom - visible.top === visibleHeightAtOpen;
+          const visibleTop = keyboardPending
+            ? inlineFormBeforeKeyboardTarget(form, visible)
+            : inlineFormScrollTarget(form, visible);
+
+          return visibleTop === null ? null : inlineFormScrollTop(visibleTop, visible, win.scrollTop());
+        };
+
+        const scrollToForm = () => {
+          const target = formScrollTop();
+
+          // пересчёт приходит и после нашей собственной прокрутки — тогда форма уже на месте
+          if (target === null || Math.abs(win.scrollTop() - target) <= SCROLL_TOLERANCE) {
             return;
           }
 
-          const targetScrollTop = inlineFormScrollTop(visibleTop, visible, $(window).scrollTop());
-
           // пересчёт приходит и во время анимации клавиатуры: каждая прокрутка заменяет предыдущую
-          $('html,body').stop(true).animate({scrollTop: targetScrollTop}, 300);
+          $('html,body').stop(true).animate({scrollTop: target}, 300);
         };
 
-        scrollToForm();
-        stopRevealing = watchViewportResize(window, scrollToForm);
+        if (touchDevice) {
+          // до focus(): иначе страницу к полю прокручивает браузер (см. inlineFormBeforeKeyboardTarget)
+          const target = formScrollTop();
+          if (target !== null) {
+            $('html,body').stop(true).scrollTop(target);
+          }
+        } else {
+          scrollToForm();
+        }
+
+        const stopResize = watchViewportResize(window, () => scrollToForm());
+        const stopScroll = touchDevice ? watchPageScroll(window, () => scrollToForm()) : null;
+        stopRevealing = () => {
+          stopResize();
+          stopScroll?.();
+        };
       };
 
       const moveAndShowForm = (selector, replyToValue, quoteText) => {
@@ -993,6 +1084,9 @@ $script.ready('jquery', function() {
           loadCaptcha();
           openInlineForm();
 
+          // на устройстве с экранной клавиатурой страница прокручивается к форме до focus() (revealInlineForm)
+          revealInlineForm();
+
           const msgEl = document.getElementById('msg');
           if (msgEl) {
             try {
@@ -1005,8 +1099,6 @@ $script.ready('jquery', function() {
               msgEl.setSelectionRange(quoteCursorPos, quoteCursorPos);
             }
           }
-
-          revealInlineForm();
         } else {
           closeInlineForm();
         }

@@ -28,9 +28,13 @@ const addFormSource = fs.readFileSync(path.join(__dirname, '../../main/webapp/js
 // Как и в markup-editor-loading.test.js, add-form.js выполняется в функции, которой window, $script и $
 // переданы параметрами
 const addForm = new Function('window', '$script', '$', addFormSource
-    + '\nreturn {visibleViewportRect, inlineFormScrollTarget, inlineFormScrollTop, watchViewportResize};')(
+    + '\nreturn {visibleViewportRect, inlineFormScrollTarget, inlineFormScrollTop, inlineFormBeforeKeyboardTarget,'
+    + ' watchViewportResize, watchPageScroll};')(
   {}, {ready() {}}, () => {});
-const {visibleViewportRect, inlineFormScrollTarget, inlineFormScrollTop, watchViewportResize} = addForm;
+const {
+  visibleViewportRect, inlineFormScrollTarget, inlineFormScrollTop, inlineFormBeforeKeyboardTarget,
+  watchViewportResize, watchPageScroll
+} = addForm;
 
 // Планшет в горизонтальной ориентации: окно 800px, с экранной клавиатурой видно верхние 450px
 const WINDOW_HEIGHT = 800;
@@ -38,6 +42,16 @@ const VISIBLE_WITH_KEYBOARD = 450;
 
 // верх и низ видимой части окна в координатах документа
 const visibleRect = (top, height) => ({top, bottom: top + height});
+
+// окно и его visualViewport — оба EventTarget, как в браузере
+function fakeWindow() {
+  const win = new EventTarget();
+  win.visualViewport = Object.assign(new EventTarget(), {pageTop: 0, height: WINDOW_HEIGHT});
+  return win;
+}
+
+const resize = (target) => target.dispatchEvent(new Event('resize'));
+const scroll = (target) => target.dispatchEvent(new Event('scroll'));
 
 // форма ответа: над полем вкладки с тулбаром, само поле в 5 строк; под ним подсказки, капча и кнопки
 function replyForm(top, height = 400) {
@@ -149,15 +163,17 @@ describe('от верха видимой части к прокрутке', () =
   });
 });
 
+describe('до открытия клавиатуры', () => {
+  test('верх формы — к видимому верху: поле окажется там, где клавиатура его не закроет', () => {
+    assert.equal(inlineFormBeforeKeyboardTarget(replyForm(600), visibleRect(100, WINDOW_HEIGHT)), 600);
+  });
+
+  test('форма уже верхом у видимого верха — прокручивать не нужно', () => {
+    assert.equal(inlineFormBeforeKeyboardTarget(replyForm(400), visibleRect(400, WINDOW_HEIGHT)), null);
+  });
+});
+
 describe('наблюдение за окном, пока открывается клавиатура', () => {
-  function fakeWindow() {
-    const win = new EventTarget();
-    win.visualViewport = Object.assign(new EventTarget(), {pageTop: 0, height: WINDOW_HEIGHT});
-    return win;
-  }
-
-  const resize = (target) => target.dispatchEvent(new Event('resize'));
-
   test('изменения видимой части пересчитывают прокрутку, пока не стихнут', (t) => {
     t.mock.timers.enable({apis: ['setTimeout']});
     const win = fakeWindow();
@@ -225,5 +241,88 @@ describe('наблюдение за окном, пока открывается 
     t.mock.timers.tick(3000);
 
     assert.equal(changes, 1);
+  });
+});
+
+describe('сопровождение прокрутки, пока открывается клавиатура', () => {
+  test('пересчёт приходит, когда прокрутка закончилась — один раз на всю прокрутку', (t) => {
+    t.mock.timers.enable({apis: ['setTimeout']});
+    const win = fakeWindow();
+    let recalculations = 0;
+    watchPageScroll(win, () => recalculations++);
+
+    scroll(win);
+    t.mock.timers.tick(50);
+    scroll(win.visualViewport); // сдвиг видимой части — тоже прокрутка
+    t.mock.timers.tick(99);
+    assert.equal(recalculations, 0, 'прокрутка ещё идёт');
+
+    t.mock.timers.tick(1);
+    assert.equal(recalculations, 1);
+  });
+
+  test('прокрутка пальцем прекращает сопровождение — её нельзя перебивать', (t) => {
+    t.mock.timers.enable({apis: ['setTimeout']});
+    const win = fakeWindow();
+    let recalculations = 0;
+    watchPageScroll(win, () => recalculations++);
+
+    win.dispatchEvent(new Event('touchmove'));
+    scroll(win);
+    t.mock.timers.tick(1000);
+
+    assert.equal(recalculations, 0);
+  });
+
+  test('прокрутка колесом — тоже', (t) => {
+    t.mock.timers.enable({apis: ['setTimeout']});
+    const win = fakeWindow();
+    let recalculations = 0;
+    watchPageScroll(win, () => recalculations++);
+
+    win.dispatchEvent(new Event('wheel'));
+    scroll(win);
+    t.mock.timers.tick(1000);
+
+    assert.equal(recalculations, 0);
+  });
+
+  test('через три секунды сопровождение прекращается само', (t) => {
+    t.mock.timers.enable({apis: ['setTimeout']});
+    const win = fakeWindow();
+    let recalculations = 0;
+    watchPageScroll(win, () => recalculations++);
+
+    t.mock.timers.tick(3000);
+    scroll(win);
+    t.mock.timers.tick(1000);
+
+    assert.equal(recalculations, 0);
+  });
+
+  test('наблюдение можно прекратить раньше — при закрытии формы', (t) => {
+    t.mock.timers.enable({apis: ['setTimeout']});
+    const win = fakeWindow();
+    let recalculations = 0;
+    const stop = watchPageScroll(win, () => recalculations++);
+
+    stop();
+    stop(); // повторное прекращение ничего не ломает
+    scroll(win);
+    t.mock.timers.tick(1000);
+
+    assert.equal(recalculations, 0);
+  });
+
+  test('без visualViewport сопровождение работает', (t) => {
+    t.mock.timers.enable({apis: ['setTimeout']});
+    const win = new EventTarget();
+    let recalculations = 0;
+    watchPageScroll(win, () => recalculations++);
+
+    scroll(win);
+    t.mock.timers.tick(100);
+
+    assert.equal(recalculations, 1);
   });
 });

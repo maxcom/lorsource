@@ -171,10 +171,18 @@ All users in the test database have password `passwd`:
   (`window.visualViewport`, falling back to `innerHeight`) and keeps recalculating while the on-screen keyboard
   opens: the keyboard appears only after `focus()`, and iOS Safari and Android Chrome ≥ 108 shrink
   `visualViewport` but not `innerHeight`. Every recalculation re-measures the form, which keeps growing after it opens
-  (toolbar, captcha, reply field). The maths and the watching are top-level functions
-  (`visibleViewportRect`, `inlineFormScrollTarget`, `inlineFormScrollTop`, `watchViewportResize`) covered by
-  `src/test/js/inline-form-scroll.test.js`; only the DOM measurements and the jQuery animation are left in
-  `revealInlineForm` itself.
+  (toolbar, captcha, reply field).
+- The browser also scrolls the page to the focused field itself when the keyboard opens, racing our scroll; on iOS
+  Safari the result depended on where the form was on the screen. On touch devices (`(pointer: coarse)`) the form is
+  therefore put at the top of the viewport *before* `focus()`, instantly (`inlineFormBeforeKeyboardTarget`), and kept
+  there until the viewport changes. From then on the page scroll is followed as well (`watchPageScroll`): a scroll that
+  has settled is answered with a recalculation; a scroll by the user (`touchmove`, `wheel`) stops the following.
+- The maths and the watching are top-level functions (`visibleViewportRect`, `inlineFormScrollTarget`,
+  `inlineFormScrollTop`, `inlineFormBeforeKeyboardTarget`, `watchViewportResize`, `watchPageScroll`) covered by
+  `src/test/js/inline-form-scroll.test.js`; only the DOM measurements and the jQuery calls are left in
+  `revealInlineForm` itself. Desktop Chrome cannot emulate the on-screen keyboard: the touch flow is checked there by
+  stubbing `visualViewport` (`height`, `pageTop`) and dispatching synthetic `resize`/`scroll` events; how iOS Safari and
+  Android Chrome really scroll on focus has to be verified on a device.
 - Node.js is downloaded by the build solely to run the JS tests (see Running Tests); there is no `package.json`.
 - The editor logic is covered by the JS tests; layout and DOM behaviour have no automated tests — verify those in a
   browser against the dev server.
